@@ -1,3 +1,10 @@
+2005-03-16  Jeff Muizelaar  <jrmuizel@nit.ca>
+
+	From Dan Sheridan <dan.sheridan@postman.org.uk>
+
+	* poppler/XRef.cc (XRef::checkEncrypted):
+	The key length should be 5 for revision 2 documents.
+	
 2005-03-11  Kristian Høgsberg  <krh@redhat.com>
 
 	From  Jeff Muizelaar  <jrmuizel@nit.ca>:

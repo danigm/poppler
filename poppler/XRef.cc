@@ -822,6 +822,12 @@ GBool XRef::checkEncrypted(GooString *ownerPassword, GooString *userPassword) {
 	if (keyLength > 16) {
 	  keyLength = 16;
 	}
+	/* special case for revision 2. 
+	 * See Algorithm 3.2 step 9 from PDF Reference, fifth edition.*/
+	if (encRevision == 2) {
+	  keyLength = 5;
+	}
+
 	permFlags = permissions.getInt();
 	if (encVersion >= 1 && encVersion <= 2 &&
 	    encRevision >= 2 && encRevision <= 3) {
