@@ -1,3 +1,10 @@
+Thu Mar 31 00:26:20 2005  Jonathan Blandford  <jrb@redhat.com>
+
+	* glib/poppler-page.cc:
+	* glib/poppler-page.h (poppler_page_get_link_mapping,
+	poppler_page_free_link_mapping): New functions to get a mapping of
+	links to locations on the current document.
+
 2005-03-30  Jeff Muizelaar <jrmuizel@nit.ca>
 
 	* poppler/DCTStream.h: change x to unsigned int to eliminate

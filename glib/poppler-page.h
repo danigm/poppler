@@ -29,6 +29,7 @@ G_BEGIN_DECLS
 #define POPPLER_PAGE(obj)             (G_TYPE_CHECK_INSTANCE_CAST ((obj), POPPLER_TYPE_PAGE, PopplerPage))
 #define POPPLER_IS_PAGE(obj)          (G_TYPE_CHECK_INSTANCE_TYPE ((obj), POPPLER_TYPE_PAGE))
 
+
 GType      poppler_page_get_type         (void) G_GNUC_CONST;
 void       poppler_page_render_to_pixbuf   (PopplerPage *page,
 					    int          src_x,
@@ -47,6 +48,20 @@ GdkPixbuf *poppler_page_get_thumbnail      (PopplerPage *page);
 gboolean   poppler_page_get_thumbnail_size (PopplerPage *page,
 					    int         *width,
 					    int         *height);
+
+/* Mapping between areas on the current page and PopplerActions */
+typedef struct
+{
+	gdouble x1;
+	gdouble y1;
+	gdouble x2;
+	gdouble y2;
+	PopplerAction *action;
+} PopplerLinkMapping;
+
+GList *poppler_page_get_link_mapping  (PopplerPage *page);
+void   poppler_page_free_link_mapping (GList       *list);
+
 
 G_END_DECLS
 

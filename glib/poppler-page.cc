@@ -92,7 +92,7 @@ poppler_page_get_index (PopplerPage *page)
  * @pixbuf: pixbuf to render into
  * @dest_x: x coordinate of offset into destination
  * @dest_y: y cooridnate of offset into destination
- * 
+ *
  * First scale the document to match the specified pixels per point,
  * then render the rectangle given by the upper left corner at
  * (src_x, src_y) and src_width and src_height.  The rectangle is
@@ -115,6 +115,9 @@ poppler_page_render_to_pixbuf (PopplerPage *page,
   int pixbuf_rowstride, pixbuf_n_channels;
   guchar *splash_data, *pixbuf_data, *src, *dst;
   int x, y;
+
+  g_return_if_fail (POPPLER_IS_PAGE (page));
+  g_return_if_fail (scale > 0.0);
 
   white.rgb8 = splashMakeRGB8 (0xff, 0xff, 0xff);
   output_dev = new SplashOutputDev(splashModeRGB8, gFalse, white);
@@ -152,14 +155,14 @@ poppler_page_render_to_pixbuf (PopplerPage *page,
       dst[1] = src[1];
       dst[2] = src[2];
       dst += pixbuf_n_channels;
-      src += 4;      
+      src += 4;
     }
   }
 
   delete output_dev;
 }
 
-static void 
+static void
 destroy_thumb_data (guchar *pixels, gpointer data)
 {
   gfree (pixels);
@@ -185,11 +188,11 @@ poppler_page_get_thumbnail (PopplerPage *page)
  * @page: A #PopplerPage
  * @width: return location for width
  * @height: return location for height
- * 
+ *
  * Returns %TRUE if @page has a thumbnail associated with it.  It also fills in
  * @width and @height with the width and height of the thumbnail.  The values of
  * width and height are not changed if no appropriate thumbnail exists.
- * 
+ *
  * Return value: %TRUE, if @page has a thumbnail associated with it.
  **/
 gboolean
@@ -265,4 +268,76 @@ poppler_page_class_init (PopplerPageClass *klass)
 static void
 poppler_page_init (PopplerPage *page)
 {
+}
+
+
+/**
+ * poppler_page_get_link_mapping:
+ * @page: A #PopplerPage
+ * 
+ * Returns a list of #PopplerLinkMapping items that map from a location on @page
+ * to a #PopplerAction.  This list must be freed with
+ * poppler_page_free_link_mapping() when done.
+ * 
+ * Return value: A #GList of #PopplerLinkMapping
+ **/
+GList *
+poppler_page_get_link_mapping (PopplerPage *page)
+{
+	GList *map_list = NULL;
+	gint i;
+	Links *links;
+	Object obj;
+
+	g_return_val_if_fail (POPPLER_IS_PAGE (page), NULL);
+
+	links = new Links (page->page->getAnnots (&obj),
+			   page->document->doc->getCatalog ()->getBaseURI ());
+	obj.free ();
+
+	if (links == NULL)
+		return NULL;
+
+	for (i = 0; i < links->getNumLinks (); i++) {
+		PopplerLinkMapping *mapping;
+		LinkAction *link_action;
+		Link *link;
+
+		link = links->getLink (i);
+		link_action = link->getAction ();
+
+		/* Create the mapping */
+		mapping = g_new (PopplerLinkMapping, 1);
+		mapping->action = _poppler_action_new (page->document, link_action, NULL);
+		link->getRect (&(mapping->x1), &(mapping->y1), &(mapping->x2), &(mapping->y2));
+		map_list = g_list_prepend (map_list, mapping);
+	}
+
+	return map_list;
+}
+
+static void
+poppler_mapping_free (PopplerLinkMapping *mapping)
+{
+	poppler_action_free (mapping->action);
+	g_free (mapping);
+}
+
+/**
+ * poppler_page_free_link_mapping:
+ * @list: A list of #PopplerLinkMapping<!-- -->s
+ * 
+ * Frees a list of #PopplerLinkMapping<!-- -->s allocated by
+ * poppler_page_get_link_mapping().  It also frees the #PopplerAction<!-- -->s
+ * that each mapping contains, so if you want to keep them around, you need to
+ * copy them with poppler_action_copy().
+ **/
+void
+poppler_page_free_link_mapping (GList *list)
+{
+	if (list == NULL)
+		return;
+
+	g_list_foreach (list, (GFunc) (poppler_mapping_free), NULL);
+	g_list_free (list);
 }
