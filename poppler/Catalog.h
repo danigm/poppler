@@ -22,6 +22,36 @@ class LinkDest;
 class PageLabelInfo;
 
 //------------------------------------------------------------------------
+// NameTree
+//------------------------------------------------------------------------
+
+class NameTree {
+public:
+  NameTree();
+  void init(XRef *xref, Object *tree);
+  void parse(Object *tree);
+  GBool lookup(GooString *name, Object *obj);
+  void free();
+
+private:
+  struct Entry {
+    Entry(Array *array, int index);
+    ~Entry();
+    GooString name;
+    Object value;
+    void free();
+    static int cmp(const void *key, const void *entry);
+  };
+
+  void addEntry(Entry *entry);
+
+  XRef *xref;
+  Object *root;
+  Entry **entries;
+  int size, length;
+};
+
+//------------------------------------------------------------------------
 // Catalog
 //------------------------------------------------------------------------
 
@@ -89,7 +119,7 @@ private:
   int numPages;			// number of pages
   int pagesSize;		// size of pages array
   Object dests;			// named destination dictionary
-  Object nameTree;		// name tree
+  NameTree destNameTree;	// name tree
   GooString *baseURI;		// base URI for URI-type links
   Object metadata;		// metadata stream
   Object structTreeRoot;	// structure tree root dictionary

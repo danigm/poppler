@@ -71,3 +71,18 @@ Object *Array::getNF(int i, Object *obj) {
   }
   return elems[i].copy(obj);
 }
+
+GBool Array::getString(int i, GooString *string)
+{
+  Object obj;
+
+  if (getNF(i, &obj)->isString()) {
+    string->clear();
+    string->append(obj.getString());
+    obj.free();
+    return gTrue;
+  } else {
+    obj.free();
+    return gFalse;
+  }
+}
