@@ -332,7 +332,6 @@ CairoFontEngine::getFont(GfxFont *gfxFont, XRef *xref) {
   
   fontType = gfxFont->getType();
   if (fontType == fontType3) {
-    printf ("Type 3 font!\n");
     /* Need to figure this out later */
     //    return NULL;
   }

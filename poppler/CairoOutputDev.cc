@@ -467,12 +467,7 @@ void CairoOutputDev::drawImageMask(GfxState *state, Object *ref, Stream *str,
   double *ctm;
   cairo_matrix_t *mat;
 
-  /* TODO: I'm not sure how to implement this, and its currently crashing.
-     Disabling for now */
-
-  return;
-  
-  buffer = (char *)malloc (width * height);
+  buffer = (char *)malloc (width * height * 4);
 
   if (buffer == NULL) {
     error(-1, "Unable to allocate memory for image.");
@@ -485,16 +480,21 @@ void CairoOutputDev::drawImageMask(GfxState *state, Object *ref, Stream *str,
   imgStr->reset();
 
   for (y = 0; y < height; y++) {
-    dest = buffer + y * width;
+    dest = buffer + y * width * 4;
     for (x = 0; x < width; x++) {
       imgStr->getPixel(&pix);
+      
+      *dest++ = soutRound(255 * fill_color.b);
+      *dest++ = soutRound(255 * fill_color.g);
+      *dest++ = soutRound(255 * fill_color.r);
+ 
       if (invert)
 	pix ^= 1;
       
       if (pix)
-	*dest++ = 255;
-      else
 	*dest++ = 0;
+      else
+	*dest++ = 255;
     }
   }
 
@@ -514,14 +514,9 @@ void CairoOutputDev::drawImageMask(GfxState *state, Object *ref, Stream *str,
   cairo_concat_matrix (cairo, mat);
   cairo_matrix_destroy (mat);
 
-  /* TODO: Should we use A1 here? I assume that is bit-packed */
   image = cairo_surface_create_for_image (
-              buffer, CAIRO_FORMAT_A8, width, height, width);
+              buffer, CAIRO_FORMAT_ARGB32, width, height, width * 4);
   cairo_surface_set_filter (image, CAIRO_FILTER_BEST);
-
-  /* TODO: Is this the right way to do image masks? */
-  cairo_set_rgb_color (cairo,
-		       fill_color.r, fill_color.g, fill_color.b);
   cairo_show_surface (cairo, image, width, height);
 
   cairo_restore (cairo);

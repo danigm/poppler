@@ -1,3 +1,17 @@
+2005-03-10  Kristian Høgsberg  <krh@redhat.com>
+
+	From Jeff Muizelaar <jrmuizel@nit.ca>:
+
+	* poppler/CairoFontEngine.cc (CairoFontEngine::getFont):
+	Don't print "Type 3 font!" message.
+
+	* poppler/CairoOutputDev.cc (CairoOutputDev::drawImageMask):
+	Enable image mask drawing and do it properly, albeit slowly.
+
+	* poppler/CairoOutputDev.h
+	(CairoOutputDev::interpretType3Chars): Return true so that 
+	Gfx.cc turns type3 characters into calls to drawImageMask
+	
 2005-03-09  Kristian Høgsberg  <krh@redhat.com>
 
 	* NEWS: Describe 0.1.2 (and 0.1.1) release.
