@@ -34,6 +34,16 @@ cairo_libs =					\
 
 endif
 
+if BUILD_LIBJPEG
+
+libjpeg_sources =				\
+	DCTStream.h				\
+	DCTStream.cc
+
+libjpeg_libs =					\
+	$(LIBJPEG_LIBS)
+
+endif
 
 INCLUDES =					\
 	-I$(top_srcdir)				\
@@ -46,7 +56,8 @@ libpoppler_la_LIBADD =				\
 	$(top_builddir)/goo/libgoo.la		\
 	$(top_builddir)/fofi/libfofi.la		\
 	$(splash_libs)				\
-	$(cairo_libs)
+	$(cairo_libs)				\
+	$(libjpeg_libs)
 
 poppler_includedir = $(includedir)/poppler
 poppler_include_HEADERS =	\
@@ -102,6 +113,7 @@ poppler_include_HEADERS =	\
 libpoppler_la_SOURCES =		\
 	$(splash_sources)	\
 	$(cairo_sources)	\
+	$(libjpeg_sources)	\
 	Annot.cc		\
 	Array.cc 		\
 	BuiltinFont.cc		\

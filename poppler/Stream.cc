@@ -33,6 +33,10 @@
 #include "JPXStream.h"
 #include "Stream-CCITT.h"
 
+#ifdef ENABLE_LIBJPEG
+#include "DCTStream.h"
+#endif
+
 #ifdef __DJGPP__
 static GBool setDJSYSFLAGS = gFalse;
 #endif
@@ -1786,6 +1790,8 @@ GBool CCITTFaxStream::isBinary(GBool last) {
   return str->isBinary(gTrue);
 }
 
+#ifndef ENABLE_LIBJPEG
+
 //------------------------------------------------------------------------
 // DCTStream
 //------------------------------------------------------------------------
@@ -3176,6 +3182,8 @@ GooString *DCTStream::getPSFilter(int psLevel, char *indent) {
 GBool DCTStream::isBinary(GBool last) {
   return str->isBinary(gTrue);
 }
+
+#endif
 
 //------------------------------------------------------------------------
 // FlateStream

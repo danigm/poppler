@@ -1,3 +1,12 @@
+2005-03-11  Kristian Høgsberg  <krh@redhat.com>
+
+	From  Jeff Muizelaar  <jrmuizel@nit.ca>:
+	
+	* configure.ac: Add checks for libjpeg.
+
+	* DCTStream.cc, DCTStream.h, Stream.cc, Stream.h, Makefile.am:
+	Conditionally use libjpeg instead of xpdf jpeg decoder.
+	
 2005-03-10  Kristian Høgsberg  <krh@redhat.com>
 
 	From Jeff Muizelaar <jrmuizel@nit.ca>:

@@ -82,6 +82,37 @@ if test "$xpdf_cv_func_fseek64" = yes -a "$xpdf_cv_func_ftell64" = yes; then
   AC_DEFINE(HAVE_FSEEK64)
 fi
 
+
+dnl Test for libjpeg
+AC_ARG_ENABLE(libjpeg,
+	      AC_HELP_STRING([--disable-libjpeg],
+	                     [Don't build against libjpeg.]),
+              enable_libjpeg=$enableval,
+              enable_libjpeg="try")
+if test x$enable_libjpeg = xyes; then
+  AC_CHECK_LIB([jpeg], [jpeg_destroy_decompress],,
+               AC_MSG_ERROR("*** libjpeg library not found ***))
+  AC_CHECK_HEADERS([jpeglib.h],,
+                   AC_MSG_ERROR("*** libjpeg headers not found ***))
+elif test x$enable_libjpeg = xtry; then
+  AC_CHECK_LIB([jpeg], [jpeg_destroy_decompress],
+  	       [enable_libjpeg="yes"],
+	       [enable_libjpeg="no"])
+  AC_CHECK_HEADERS([jpeglib.h],,
+		   [enable_libjpeg="no"])
+fi
+
+if test x$enable_libjpeg = xyes; then
+  LIBJPEG_LIBS="-ljpeg"
+  AC_SUBST(LIBJPEG_LIBS)
+  AC_DEFINE(ENABLE_LIBJPEG)
+fi
+
+AM_CONDITIONAL(BUILD_LIBJPEG, test x$enable_libjpeg = xyes)
+AH_TEMPLATE([ENABLE_LIBJPEG],
+            [Use libjpeg instead of builtin jpeg decoder.])
+
+
 dnl Check for freetype headers
 FREETYPE_LIBS=
 FREETYPE_CFLAGS=
@@ -173,4 +204,5 @@ poppler-splash.pc])
 echo ""
 echo "Building poppler with support for:"
 echo "  splash output: $enable_splash_output"
-echo "  cairo output: $enable_cairo_output"
+echo "  cairo output:  $enable_cairo_output"
+echo "  use libjpeg:   $enable_libjpeg"
