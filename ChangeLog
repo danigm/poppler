@@ -1,5 +1,11 @@
 2005-04-06  Jeff Muizelaar  <jrmuizel@nit.ca>
 
+	* .cvsignore, glib/.cvsignore, qt/.cvsignore:
+	Add more things to .cvsignore.
+	Patch from Martin Kretzschmar.
+
+2005-04-06  Jeff Muizelaar  <jrmuizel@nit.ca>
+
 	* poppler-page.cc (Page::Page, Page::~Page):
 	Construct and deconstruct the PageData object.
 	Patch from Albert Astals Cid.

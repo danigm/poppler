@@ -16,6 +16,8 @@ libtool
 ltmain.sh
 missing
 poppler-cairo.pc
+poppler-glib.pc
+poppler-qt.pc
 poppler-splash.pc
 poppler.pc
 stamp-h1
