@@ -1,5 +1,11 @@
 2005-03-23  Kristian Høgsberg  <krh@redhat.com>
 
+	* poppler/Catalog.cc (indexToLabel, labelToIndex): Add stricter
+	checking of incoming labels and indices.
+
+	* glib/test-poppler-glib.c (main): Change test program to take the
+	page label from the command line.
+
 	* glib/poppler-page.cc:
 	* glib/poppler-page.h: Add poppler_page_get_index() and rename
 	popper_page_get_dimension() to popper_page_get_size()

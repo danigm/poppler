@@ -32,7 +32,10 @@ int main (int argc, char *argv[])
   pixbuf = gdk_pixbuf_new (GDK_COLORSPACE_RGB, FALSE, 8, 100, 100);
   gdk_pixbuf_fill (pixbuf, 0x00106000);
 
-  page = poppler_document_get_page_by_label (document, "vi");
+  page = poppler_document_get_page_by_label (document, argv[2]);
+  if (page == NULL)
+    FAIL ("page not found");
+
   poppler_page_get_size (page, &width, &height);
   printf ("page size: %f inches by %f inches\n", width / 72, height / 72);
 

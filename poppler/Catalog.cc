@@ -101,6 +101,8 @@ Catalog::Catalog(XRef *xrefA) {
 
   if (catDict.dictLookup("PageLabels", &obj)->isDict())
     pageLabelInfo = new PageLabelInfo(&obj, numPages);
+  else
+    pageLabelInfo = NULL;
   obj.free();
 
   // read page mode
@@ -426,10 +428,35 @@ void NameTree::free()
 
 GBool Catalog::labelToIndex(GooString *label, int *index)
 {
-  return pageLabelInfo->labelToIndex(label, index);
+  char *end;
+
+  if (pageLabelInfo != NULL) {
+    if (!pageLabelInfo->labelToIndex(label, index))
+      return gFalse;
+  } else {
+    *index = strtol(label->getCString(), &end, 10) - 1;
+    if (*end != '\0')
+      return gFalse;
+  }
+
+  if (*index < 0 || *index >= numPages)
+    return gFalse;
+
+  return gTrue;
 }
 
 GBool Catalog::indexToLabel(int index, GooString *label)
 {
-  return pageLabelInfo->indexToLabel(index, label);
+  char buffer[32];
+
+  if (index < 0 || index >= numPages)
+    return gFalse;
+
+  if (pageLabelInfo != NULL) {
+    return pageLabelInfo->indexToLabel(index, label);
+  } else {
+    snprintf(buffer, sizeof (buffer), "%d", index + 1);
+    label->append(buffer);	      
+    return gTrue;
+  }
 }
