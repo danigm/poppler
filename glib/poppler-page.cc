@@ -29,6 +29,11 @@
 #include "poppler.h"
 #include "poppler-private.h"
 
+enum {
+	PROP_0,
+	PROP_LABEL
+};
+
 typedef struct _PopplerPageClass PopplerPageClass;
 struct _PopplerPageClass
 {
@@ -38,13 +43,14 @@ struct _PopplerPageClass
 G_DEFINE_TYPE (PopplerPage, poppler_page, G_TYPE_OBJECT);
 
 PopplerPage *
-_poppler_page_new (PopplerDocument *document, Page *page)
+_poppler_page_new (PopplerDocument *document, Page *page, int index)
 {
   PopplerPage *poppler_page;
 
   poppler_page = (PopplerPage *) g_object_new (POPPLER_TYPE_PAGE, NULL);
   poppler_page->document = document;
   poppler_page->page = page;
+  poppler_page->index = index;
 
   return poppler_page;
 }
@@ -145,11 +151,40 @@ poppler_page_render_to_pixbuf (PopplerPage *page,
 }
 
 static void
+poppler_page_get_property (GObject *object,
+			   guint prop_id,
+			   GValue *value,
+			   GParamSpec *pspec)
+{
+  PopplerPage *page = POPPLER_PAGE (object);
+  GooString label;
+
+  switch (prop_id)
+    {
+    case PROP_LABEL:
+      page->document->doc->getCatalog ()->indexToLabel (page->index, &label);
+      g_value_set_string (value, label.getCString());
+      break;
+    }
+}
+
+static void
 poppler_page_class_init (PopplerPageClass *klass)
 {
   GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
+  GParamSpec *pspec;
 
   gobject_class->finalize = poppler_page_finalize;
+  gobject_class->get_property = poppler_page_get_property;
+
+  pspec = g_param_spec_string ("label",
+			       "Page Label",
+			       "The label of the page",
+			       NULL,
+			       G_PARAM_READABLE);
+  g_object_class_install_property (G_OBJECT_CLASS (klass),
+				   PROP_LABEL,
+				   pspec);
 }
 
 static void

@@ -19,6 +19,7 @@ class Page;
 class PageAttrs;
 struct Ref;
 class LinkDest;
+class PageLabelInfo;
 
 //------------------------------------------------------------------------
 // Catalog
@@ -63,6 +64,10 @@ public:
   // NULL if <name> is not a destination.
   LinkDest *findDest(GooString *name);
 
+  // Convert between page indices and page labels.
+  GBool labelToIndex(GooString *label, int *index);
+  GBool indexToLabel(int index, GooString *label);
+
   Object *getOutline() { return &outline; }
 
 private:
@@ -79,6 +84,7 @@ private:
   Object structTreeRoot;	// structure tree root dictionary
   Object outline;		// outline dictionary
   GBool ok;			// true if catalog is valid
+  PageLabelInfo *pageLabelInfo; // info about page labels
 
   int readPageTree(Dict *pages, PageAttrs *attrs, int start);
   Object *findDestInTree(Object *tree, GooString *name, Object *obj);

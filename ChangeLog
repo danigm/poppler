@@ -1,3 +1,26 @@
+2005-03-21  Kristian Høgsberg  <krh@redhat.com>
+
+	* glib/poppler-document.cc:
+	
+	* glib/poppler-document.h: Expose the documenttitle as a GObject
+	property.
+	
+	* glib/poppler-page.cc: Expose the page label as a GObject
+	property.
+	
+	* glib/poppler-private.h: Add the page index to PopplerPage.
+	
+	* glib/test-poppler-glib.c: Print out page label and document
+	title.
+	
+	* poppler/Catalog.cc:
+	* poppler/Catalog.h: Add page label accessors.
+	
+	* poppler/PageLabelInfo.cc:
+	* poppler/PageLabelInfo.h: New files.
+
+	* poppler/Makefile.am: Add new files to sources.
+	
 2005-03-20  Kristian Høgsberg  <krh@redhat.com>
 
 	* glib/poppler-document.cc:

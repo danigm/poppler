@@ -9,7 +9,7 @@ int main (int argc, char *argv[])
 {
   PopplerDocument *document;
   PopplerPage *page;
-  char *filename;
+  char *filename, *title, *label;
   GError *error;
   GdkPixbuf *pixbuf;
   double width, height;
@@ -25,13 +25,22 @@ int main (int argc, char *argv[])
   if (document == NULL)
     FAIL (error->message);
       
+  g_object_get (document, "title", &title, NULL);
+  printf ("document title: %s\n", title);
+  g_free (title);
+
   pixbuf = gdk_pixbuf_new (GDK_COLORSPACE_RGB, FALSE, 8, 100, 100);
   gdk_pixbuf_fill (pixbuf, 0x00106000);
 
-  page = poppler_document_get_page (document, 5);
+  page = poppler_document_get_page_by_label (document, "vi");
   poppler_page_get_dimensions (page, &width, &height);
   printf ("page dimensions: %f inches by %f inches\n",
 	  width / 72, height / 72);
+
+  g_object_get (page, "label", &label, NULL);
+  printf ("page label: %s\n", label);
+  g_free (label);
+
   poppler_page_render_to_pixbuf (page, 100, 100, 50, 50, 1, pixbuf, 10, 10);
   g_object_unref (G_OBJECT (page));
 

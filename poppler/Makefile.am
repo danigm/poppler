@@ -149,4 +149,6 @@ libpoppler_la_SOURCES =		\
 	UnicodeTypeTable.cc	\
 	XRef.cc			\
 	PSOutputDev.cc		\
-	TextOutputDev.cc
+	TextOutputDev.cc	\
+	PageLabelInfo.h		\
+	PageLabelInfo.cc

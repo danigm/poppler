@@ -47,6 +47,9 @@ int              poppler_document_get_n_pages   (PopplerDocument *document);
 PopplerPage     *poppler_document_get_page  (PopplerDocument *document,
 					     int              page);
 
+PopplerPage     *poppler_document_get_page_by_label (PopplerDocument *document,
+						     const char *label);
+
 G_END_DECLS
 
 #endif /* __POPPLER_DOCUMENT_H__ */

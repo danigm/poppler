@@ -12,9 +12,10 @@ struct _PopplerPage
   GObject parent_instance;
   PopplerDocument *document;
   Page *page;
+  int index;
 };
 
 PopplerPage *
-_poppler_page_new (PopplerDocument *document, Page *page);
+_poppler_page_new (PopplerDocument *document, Page *page, int index);
 
 #endif

@@ -21,6 +21,7 @@
 #include "Page.h"
 #include "Error.h"
 #include "Link.h"
+#include "PageLabelInfo.h"
 #include "Catalog.h"
 
 //------------------------------------------------------------------------
@@ -94,6 +95,10 @@ Catalog::Catalog(XRef *xrefA) {
     obj.dictLookup("Dests", &nameTree);
   else
     nameTree.initNull();
+  obj.free();
+
+  if (catDict.dictLookup("PageLabels", &obj)->isDict())
+    pageLabelInfo = new PageLabelInfo(&obj, numPages);
   obj.free();
 
   // read base URI
@@ -361,4 +366,14 @@ Object *Catalog::findDestInTree(Object *tree, GooString *name, Object *obj) {
     obj->initNull();
 
   return obj;
+}
+
+GBool Catalog::labelToIndex(GooString *label, int *index)
+{
+  return pageLabelInfo->labelToIndex(label, index);
+}
+
+GBool Catalog::indexToLabel(int index, GooString *label)
+{
+  return pageLabelInfo->indexToLabel(index, label);
 }

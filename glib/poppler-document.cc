@@ -25,13 +25,15 @@
 #include <UnicodeMap.h>
 #include <GfxState.h>
 #include <SplashOutputDev.h>
+#include <Stream.h>
 
 #include "poppler.h"
 #include "poppler-private.h"
 
-#define POPPLER_DOCUMENT_CLASS(klass)     (G_TYPE_CHECK_CLASS_CAST ((klass), POPPLER_TYPE_DOCUMENT, PopplerDocumentClass))
-#define POPPLER_IS_DOCUMENT_CLASS(klass)  (G_TYPE_CHECK_CLASS_TYPE ((klass), POPPLER_TYPE_DOCUMENT))
-#define POPPLER_DOCUMENT_GET_CLASS(obj)   (G_TYPE_INSTANCE_GET_CLASS ((obj), POPPLER_TYPE_DOCUMENT, PopplerDocumentClass))
+enum {
+	PROP_0,
+	PROP_TITLE
+};
 
 typedef struct _PopplerDocumentClass PopplerDocumentClass;
 struct _PopplerDocumentClass
@@ -71,6 +73,7 @@ poppler_document_new_from_file (const char  *uri,
   password_g = NULL;
   if (password != NULL)
     password_g = new GooString (password);
+
   newDoc = new PDFDoc(filename_g, password_g, password_g);
   if (password_g)
     delete password_g;
@@ -148,15 +151,99 @@ poppler_document_get_page (PopplerDocument  *document,
   catalog = document->doc->getCatalog();
   page = catalog->getPage (index + 1);
 
-  return _poppler_page_new (document, page);
+  return _poppler_page_new (document, page, index);
+}
+
+PopplerPage *
+poppler_document_get_page_by_label (PopplerDocument  *document,
+				    const char       *label)
+{
+  Catalog *catalog;
+  GooString label_g(label);
+  int index;
+
+  catalog = document->doc->getCatalog();
+  if (!catalog->labelToIndex (&label_g, &index))
+    return NULL;
+
+  return poppler_document_get_page (document, index);
+}
+
+static gboolean
+has_unicode_marker (GooString *string)
+{
+  return ((string->getChar (0) & 0xff) == 0xfe &&
+	  (string->getChar (1) & 0xff) == 0xff);
+}
+
+static void
+info_dict_get_string (Dict *info_dict, const gchar *key, GValue *value)
+{
+  Object obj;
+  GooString *goo_value;
+  gchar *result;
+
+  if (!info_dict->lookup ((gchar *)key, &obj)->isString ()) {
+    obj.free ();
+    return;
+  }
+
+  goo_value = obj.getString ();
+
+  if (has_unicode_marker (goo_value)) {
+    result = g_convert (goo_value->getCString () + 2,
+			goo_value->getLength () - 2,
+			"UTF-8", "UTF-16BE", NULL, NULL, NULL);
+  } else {
+    result = g_strndup (goo_value->getCString (), goo_value->getLength ());
+  }
+
+  obj.free ();
+
+  g_value_set_string (value, result);
+
+  g_free (result);
+}
+
+static void
+poppler_document_get_property (GObject *object,
+			       guint prop_id,
+			       GValue *value,
+			       GParamSpec *pspec)
+{
+  PopplerDocument *document = POPPLER_DOCUMENT (object);
+  Object info;
+  char *title;
+
+  document->doc->getDocInfo (&info);
+  if (!info.isDict ())
+    return;
+
+  switch (prop_id)
+    {
+    case PROP_TITLE:
+      info_dict_get_string (info.getDict(), "Title", value);
+      break;
+    }
 }
 
 static void
 poppler_document_class_init (PopplerDocumentClass *klass)
 {
   GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
+  GParamSpec *pspec;
 
   gobject_class->finalize = poppler_document_finalize;
+  gobject_class->get_property = poppler_document_get_property;
+
+  pspec = g_param_spec_string ("title",
+			       "Document Title",
+			       "The title of the document",
+			       NULL,
+			       G_PARAM_READABLE);
+  g_object_class_install_property (G_OBJECT_CLASS (klass),
+				   PROP_TITLE,
+				   pspec);
 }
 
 static void
