@@ -33,9 +33,8 @@ int main (int argc, char *argv[])
   gdk_pixbuf_fill (pixbuf, 0x00106000);
 
   page = poppler_document_get_page_by_label (document, "vi");
-  poppler_page_get_dimensions (page, &width, &height);
-  printf ("page dimensions: %f inches by %f inches\n",
-	  width / 72, height / 72);
+  poppler_page_get_size (page, &width, &height);
+  printf ("page size: %f inches by %f inches\n", width / 72, height / 72);
 
   g_object_get (page, "label", &label, NULL);
   printf ("page label: %s\n", label);

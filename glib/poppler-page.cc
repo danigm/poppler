@@ -62,14 +62,20 @@ poppler_page_finalize (GObject *object)
 }
 
 void
-poppler_page_get_dimensions (PopplerPage *page,
-			     double      *width,
-			     double      *height)
+poppler_page_get_size (PopplerPage *page,
+		       double      *width,
+		       double      *height)
 {
   if (width != NULL)
     *width = page->page->getWidth ();
   if (height != NULL)
     *height = page->page->getHeight ();
+}
+
+int
+poppler_page_get_index (PopplerPage *page)
+{
+  return page->index;
 }
 
 /**
