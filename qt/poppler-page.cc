@@ -36,8 +36,14 @@ class PageData {
 };
 
 Page::Page(Document *doc, int index) {
+  data = new PageData();
   data->index = index;
   data->doc = doc;
+}
+
+Page::~Page()
+{
+  delete data;
 }
 
 void Page::renderToPixmap(QPixmap **q, int x, int y, int w, int h)

@@ -29,6 +29,7 @@ class PageData;
 class Page {
   friend class Document;
   public:
+    ~Page();
     void renderToPixmap(QPixmap **q, int x, int y, int w, int h);
   private:
     Page(Document *doc, int index);
