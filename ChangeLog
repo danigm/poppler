@@ -1,5 +1,8 @@
 2005-04-04  Kristian Høgsberg  <krh@redhat.com>
 
+	* TODO: Add reminder about using PDF font descriptors with
+	fontconfig.
+
 	* configure.ac: Add checks for mkstemp() and mkstemps().
 
 	* glib/poppler-page.cc (poppler_page_find_text): Reverse

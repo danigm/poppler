@@ -11,6 +11,8 @@ Here's the plan as of March 21:
 
 	- Investigate better (that is, normal) text selection.
 
+	- Use PDF font descriptors to create an FcPattern.
+
 Convert to use as much existing infra-structure as possible:
 	- drop t1lib entirely
 	- use fontconfig
