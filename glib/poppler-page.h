@@ -60,6 +60,9 @@ typedef struct
   gdouble y2;
 } PopplerRectangle;
 
+char *poppler_page_get_text (PopplerPage      *page,
+			     PopplerRectangle *rect);
+
 /* Mapping between areas on the current page and PopplerActions */
 typedef struct
 {

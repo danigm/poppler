@@ -67,7 +67,7 @@ if test $ac_cv_func_gethostbyname = no; then
 fi
 
 dnl ##### Checks for library functions.
-AC_CHECK_FUNCS(popen)
+AC_CHECK_FUNCS(popen mkstemp mkstemps)
 
 dnl ##### Back to C for the library tests.
 AC_LANG_C
@@ -138,6 +138,9 @@ AC_ARG_ENABLE(splash-output,
               AC_HELP_STRING([--disable-splash-output],
 	                     [Don't build the Splash graphics backend.]),,
               enable_splash_output="yes")
+if test x$enable_splash_output = xyes; then
+  PKG_CHECK_MODULES(SPLASH, fontconfig)
+fi
 AM_CONDITIONAL(BUILD_SPLASH_OUTPUT, test x$enable_splash_output = xyes)
 
 AC_ARG_ENABLE(cairo-output,

@@ -6,7 +6,11 @@ splash_sources =				\
 splash_headers =				\
 	SplashOutputDev.h
 
+splash_includes =				\
+	$(SPLASH_CFLAGS)
+
 splash_libs =					\
+	$(SPLASH_LIBS)				\
 	$(top_builddir)/splash/libsplash.la
 
 endif

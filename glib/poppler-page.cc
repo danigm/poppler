@@ -246,6 +246,46 @@ poppler_page_get_thumbnail_size (PopplerPage *page,
 }
 
 /**
+ * poppler_page_get_text:
+ * @page: a #PopplerPage
+ * @rect: the rectangle including the text
+ * 
+ * Retrieves the contents of the specified rectangle as text 
+ * 
+ * Return value: a pointer to the contents of the rectangle
+ *               as a string
+ **/
+char *
+poppler_page_get_text (PopplerPage      *page,
+		       PopplerRectangle *rect)
+{
+  TextOutputDev *output_dev;
+  PDFDoc *doc;
+  GooString *sel_text = new GooString;
+  PopplerRectangle text_dev_rect;
+  double height, y1, y2;
+  char *result;
+
+  g_return_val_if_fail (POPPLER_IS_PAGE (page), FALSE);
+  g_return_val_if_fail (rect != NULL, NULL);
+
+  output_dev = new TextOutputDev (NULL, gTrue, gFalse, gFalse);
+  doc = page->document->doc;
+
+  height = page->page->getHeight ();
+  page->page->display(output_dev, 72, 72, 0, gTrue, NULL, doc->getCatalog());
+
+  y1 = height - rect->y2;
+  y2 = height - rect->y1;
+  sel_text = output_dev->getText (rect->x1, y1, rect->x2, y2);
+  result = sel_text->getCString ();
+
+  delete output_dev;
+
+  return result ? g_strdup (result) : NULL;
+}
+
+/**
  * poppler_page_find_text:
  * @page: a #PopplerPage
  * @text: the text to search for (UTF-8 encoded)
@@ -266,6 +306,7 @@ poppler_page_find_text (PopplerPage *page,
   double xMin, yMin, xMax, yMax;
   gunichar *ucs4;
   glong ucs4_len;
+  double height;
 
   g_return_val_if_fail (POPPLER_IS_PAGE (page), FALSE);
   g_return_val_if_fail (text != NULL, FALSE);
@@ -275,7 +316,8 @@ poppler_page_find_text (PopplerPage *page,
   output_dev = new TextOutputDev (NULL, gTrue, gFalse, gFalse);
   doc = page->document->doc;
 
-  page->page->display(output_dev, 72, 72, 0, gTrue, NULL, doc->getCatalog());
+  height = page->page->getHeight ();
+  page->page->display (output_dev, 72, 72, 0, gTrue, NULL, doc->getCatalog());
   
   matches = NULL;
   while (output_dev->findText (ucs4, ucs4_len,
@@ -285,9 +327,9 @@ poppler_page_find_text (PopplerPage *page,
     {
       match = g_new (PopplerRectangle, 1);
       match->x1 = xMin;
-      match->y1 = yMin;
+      match->y1 = height - yMax;
       match->x2 = xMax;
-      match->y2 = yMax;
+      match->y2 = height - yMin;
       matches = g_list_prepend (matches, match);
     }
 

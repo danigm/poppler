@@ -1,5 +1,20 @@
 2005-04-04  Kristian Høgsberg  <krh@redhat.com>
 
+	* configure.ac: Add checks for mkstemp() and mkstemps().
+
+	* glib/poppler-page.cc (poppler_page_find_text): Reverse
+	y-coordinates so we return PDF style coordinates.
+
+	From Maro Pesenti Gritti <mpgritti@gmail.com>:
+	
+	* configure.ac, poppler/Makefile.am: Check for fontconfig when
+	we're building the splash backend.
+
+	* glib/poppler-page.cc (poppler_page_get_text): New function to
+	select text on page.
+
+2005-04-04  Kristian Høgsberg  <krh@redhat.com>
+
 	* glib/poppler-page.cc (poppler_page_find_text): Reverse list of
 	matches so we get them in the right order.
 
