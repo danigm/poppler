@@ -8,12 +8,14 @@ INCLUDES =					\
 
 poppler_glib_includedir = $(includedir)/poppler/glib
 poppler_glib_include_HEADERS =			\
+	poppler-action.h			\
 	poppler-document.h			\
 	poppler-page.h				\
 	poppler.h
 
 lib_LTLIBRARIES = libpoppler-glib.la
 libpoppler_glib_la_SOURCES =			\
+	poppler-action.cc			\
 	poppler-document.cc			\
 	poppler-page.cc				\
 	poppler.cc				\

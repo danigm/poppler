@@ -9,7 +9,7 @@ int main (int argc, char *argv[])
 {
   PopplerDocument *document;
   PopplerPage *page;
-  char *filename, *title, *label;
+  char *title, *label;
   GError *error;
   GdkPixbuf *pixbuf, *thumb;
   double width, height;
@@ -61,4 +61,6 @@ int main (int argc, char *argv[])
     FAIL (error->message);
 
   g_object_unref (G_OBJECT (document));
+
+  return 0;
 }

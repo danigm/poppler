@@ -350,57 +350,26 @@ unicode_to_char (Unicode *unicode,
 }
 
 
-
-void
-poppler_index_iter_get_values (PopplerIndexIter  *iter,
-			       char             **text,
-			       char             **link_string,
-			       int               *page)
+PopplerAction *
+poppler_index_iter_get_action (PopplerIndexIter  *iter)
 {
 	OutlineItem *item;
-	LinkAction *action;
+	LinkAction *link_action;
+	PopplerAction *action;
+	gchar *title;
 
-	g_return_if_fail (iter != NULL);
-	g_return_if_fail (text != NULL);
-	g_return_if_fail (link_string != NULL);
-	g_return_if_fail (page != NULL);
+	g_return_val_if_fail (iter != NULL, NULL);
 
 	item = (OutlineItem *)iter->items->get (iter->index);
-	*text = unicode_to_char (item->getTitle(),
+	link_action = item->getAction ();
+
+	title = unicode_to_char (item->getTitle(),
 				 item->getTitleLength ());
 
-	*page = -1;
-	action = item->getAction ();
-	if (action->getKind () == actionGoTo) {
-		LinkDest *link_dest;
-		LinkGoTo *link_goto;
-		Ref page_ref;
-		gint page_num = -1;
-		GooString *named_dest;
+	action = _poppler_action_new (iter->document, link_action, title);
+	g_free (title);
 
-		link_goto = dynamic_cast <LinkGoTo *> (action);
-		link_dest = link_goto->getDest ();
-		named_dest = link_goto->getNamedDest ();
-
-		if (link_dest != NULL) {
-			link_dest = link_dest->copy ();
-		} else if (named_dest != NULL) {
-			named_dest = named_dest->copy ();
-			link_dest = iter->document->doc->findDest (named_dest);
-			delete named_dest;
-		}
-		if (link_dest != NULL) {
-			if (link_dest->isPageRef ()) {
-				page_ref = link_dest->getPageRef ();
-				page_num = iter->document->doc->findPage (page_ref.num, page_ref.gen);
-			} else {
-				page_num = link_dest->getPageNum ();
-			}
-			delete link_dest;
-		}
-		if (page_num > 0)
-			*page = page_num - 1;
-	}
+	return action;
 }
 
 gboolean

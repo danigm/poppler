@@ -38,5 +38,6 @@ G_END_DECLS
 
 #include "poppler-document.h"
 #include "poppler-page.h"
+#include "poppler-action.h"
 
 #endif /* __POPPLER_GLIB_H__ */

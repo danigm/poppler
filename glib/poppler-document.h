@@ -22,6 +22,7 @@
 #include <glib-object.h>
 #include <gdk-pixbuf/gdk-pixbuf.h>
 #include "poppler.h"
+#include "poppler-action.h"
 
 G_BEGIN_DECLS
 
@@ -50,11 +51,7 @@ GType            poppler_document_get_type          (void) G_GNUC_CONST;
 /* Interface for getting the Index of a poppler_document */
 PopplerIndexIter *poppler_index_iter_new        (PopplerDocument   *document);
 PopplerIndexIter *poppler_index_iter_get_child  (PopplerIndexIter  *parent);
-//PopplerAction    *poppler_index_iter_get_action (PopplerIndexIter  *iter); /* Use when PopplerAction exists */
-void              poppler_index_iter_get_values (PopplerIndexIter  *iter,
-						 char             **text,
-						 char             **link_string,
-						 int               *page);
+PopplerAction    *poppler_index_iter_get_action (PopplerIndexIter  *iter);
 gboolean          poppler_index_iter_next       (PopplerIndexIter  *iter);
 void              poppler_index_iter_free       (PopplerIndexIter  *iter);
 

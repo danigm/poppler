@@ -1,3 +1,11 @@
+Tue Mar 29 22:49:15 2005  Jonathan Blandford  <jrb@redhat.com>
+
+	* glib/poppler-action.[ch]: New item to encapsulate links.
+	* glib/poppler-document.[ch] (poppler_index_iter_get_action): New
+	function to get the action.  Also, fix some warnings.
+	* glib/poppler-private.h (_poppler_action_new): New function.
+	* glib/test-poppler-glib.c: Fix warnings.
+
 Tue Mar 29 02:36:00 2005  Jonathan Blandford  <jrb@redhat.com>
 
 	* glib/poppler-document.[ch] (PopplerIndexIter): Add an iter to
