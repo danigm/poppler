@@ -1,3 +1,7 @@
+2005-03-09  Kristian Høgsberg  <krh@redhat.com>
+
+	* configure.ac: Bump cairo requirement to 0.4.
+
 2005-03-04  Kristian Høgsberg  <krh@redhat.com>
 
 	Patch from Jeff Muizelaar <jrmuizel@nit.ca>.  Changed to allocate
