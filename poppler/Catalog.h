@@ -70,6 +70,17 @@ public:
 
   Object *getOutline() { return &outline; }
 
+  enum PageMode {
+    pageModeNone,
+    pageModeOutlines,
+    pageModeThumbs,
+    pageModeFullScreen,
+    pageModeOC
+  };
+
+  // Returns the page mode.
+  PageMode getPageMode() { return pageMode; }
+
 private:
 
   XRef *xref;			// the xref table for this PDF file
@@ -85,6 +96,7 @@ private:
   Object outline;		// outline dictionary
   GBool ok;			// true if catalog is valid
   PageLabelInfo *pageLabelInfo; // info about page labels
+  PageMode pageMode;		// page mode
 
   int readPageTree(Dict *pages, PageAttrs *attrs, int start);
   Object *findDestInTree(Object *tree, GooString *name, Object *obj);

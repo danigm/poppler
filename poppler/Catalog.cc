@@ -101,6 +101,22 @@ Catalog::Catalog(XRef *xrefA) {
     pageLabelInfo = new PageLabelInfo(&obj, numPages);
   obj.free();
 
+  // read page mode
+  pageMode = pageModeNone;
+  if (catDict.dictLookup("PageMode", &obj)->isName()) {
+    if (obj.isName("UseNone"))
+      pageMode = pageModeNone;
+    else if (obj.isName("UseOutlines"))
+      pageMode = pageModeOutlines;
+    else if (obj.isName("UseThumbs"))
+      pageMode = pageModeThumbs;
+    else if (obj.isName("FullScreen"))
+      pageMode = pageModeFullScreen;
+    else if (obj.isName("UseOC"))
+      pageMode = pageModeOC;
+  }
+  obj.free();
+
   // read base URI
   if (catDict.dictLookup("URI", &obj)->isDict()) {
     if (obj.dictLookup("Base", &obj2)->isString()) {

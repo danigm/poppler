@@ -1,8 +1,14 @@
 2005-03-21  Kristian Høgsberg  <krh@redhat.com>
 
-	* glib/poppler-document.cc:
+	From Albert Astals Cid <tsdgeos@yahoo.es>:
 	
-	* glib/poppler-document.h: Expose the documenttitle as a GObject
+	* poppler/Catalog.cc, poppler/Catalog.h: Parse PageMode setting
+	from the Catalog dict and expose it through getPageMode() method.
+
+2005-03-21  Kristian Høgsberg  <krh@redhat.com>
+
+	* glib/poppler-document.cc:
+	* glib/poppler-document.h: Expose the document title as a GObject
 	property.
 	
 	* glib/poppler-page.cc: Expose the page label as a GObject
