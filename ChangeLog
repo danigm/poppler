@@ -1,5 +1,8 @@
 2005-03-04  Kristian Høgsberg  <krh@redhat.com>
 
+	* .cvsignore:
+	* */.cvsignore: Add these to silence CVS.
+	
 	* configure.ac: Implement same check for gtk+-2.0 tests as for
 	cairo.
 
