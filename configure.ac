@@ -146,16 +146,16 @@ AC_ARG_ENABLE(cairo-output,
               enable_cairo_output=$enableval,
               enable_cairo_output="try")
 if test x$enable_cairo_output = xyes; then
-  PKG_CHECK_MODULES(CAIRO, cairo >= 0.4)
+  PKG_CHECK_MODULES(CAIRO, cairo = 0.4)
 elif test x$enable_cairo_output = xtry; then
-  PKG_CHECK_MODULES(CAIRO, cairo >= 0.4,
+  PKG_CHECK_MODULES(CAIRO, cairo = 0.4,
                     [enable_cairo_output="yes"],
                     [enable_cairo_output="no"])
 fi
 AM_CONDITIONAL(BUILD_CAIRO_OUTPUT, test x$enable_cairo_output = xyes)
 
 
-AC_ARG_ENABLE(popper-glib,
+AC_ARG_ENABLE(poppler-glib,
               AC_HELP_STRING([--disable-poppler-glib],
 	                     [Don't compile poppler glib wrapper.]),
               enable_poppler_glib=$enableval,

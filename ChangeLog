@@ -1,5 +1,10 @@
 2005-03-22  Kristian Høgsberg  <krh@redhat.com>
 
+	* configure.ac: Fix --disable-popper typo reported by Albert.
+	Require exactly cairo 0.4 since CVS cairo has API changes.
+
+2005-03-22  Kristian Høgsberg  <krh@redhat.com>
+
 	* poppler/Array.cc:
 	* poppler/Array.h: Add getString() convenience method.
 	
