@@ -1,0 +1,92 @@
+//========================================================================
+//
+// GooList.cc
+//
+// Copyright 2001-2003 Glyph & Cog, LLC
+//
+//========================================================================
+
+#include <config.h>
+
+#ifdef USE_GCC_PRAGMAS
+#pragma implementation
+#endif
+
+#include <string.h>
+#include "gmem.h"
+#include "GooList.h"
+
+//------------------------------------------------------------------------
+// GooList
+//------------------------------------------------------------------------
+
+GooList::GooList() {
+  size = 8;
+  data = (void **)gmalloc(size * sizeof(void*));
+  length = 0;
+  inc = 0;
+}
+
+GooList::GooList(int sizeA) {
+  size = sizeA;
+  data = (void **)gmalloc(size * sizeof(void*));
+  length = 0;
+  inc = 0;
+}
+
+GooList::~GooList() {
+  gfree(data);
+}
+
+void GooList::append(void *p) {
+  if (length >= size) {
+    expand();
+  }
+  data[length++] = p;
+}
+
+void GooList::append(GooList *list) {
+  int i;
+
+  while (length + list->length > size) {
+    expand();
+  }
+  for (i = 0; i < list->length; ++i) {
+    data[length++] = list->data[i];
+  }
+}
+
+void GooList::insert(int i, void *p) {
+  if (length >= size) {
+    expand();
+  }
+  if (i < length) {
+    memmove(data+i+1, data+i, (length - i) * sizeof(void *));
+  }
+  data[i] = p;
+  ++length;
+}
+
+void *GooList::del(int i) {
+  void *p;
+
+  p = data[i];
+  if (i < length - 1) {
+    memmove(data+i, data+i+1, (length - i - 1) * sizeof(void *));
+  }
+  --length;
+  if (size - length >= ((inc > 0) ? inc : size/2)) {
+    shrink();
+  }
+  return p;
+}
+
+void GooList::expand() {
+  size += (inc > 0) ? inc : size;
+  data = (void **)grealloc(data, size * sizeof(void*));
+}
+
+void GooList::shrink() {
+  size -= (inc > 0) ? inc : size/2;
+  data = (void **)grealloc(data, size * sizeof(void*));
+}

@@ -1,0 +1,21 @@
+Convert to use as much existing infra-structure as possible:
+
+	- drop t1lib
+	- use fontconfig
+	- dont use /etc/xpdf.rc, add abstraction that can work with
+	  GNOME and KDE configuration systems (GConf and ?)
+	- improve cairo backend
+
+Maybe:
+
+	- Install poppler-splash and poppler-cairo to indicate
+	  available backends.  Alternatively, just hide the backend
+	  choice from the application.
+
+	- make c-wrapper so GNOME projects won't need to use C++ (no
+	  glib, just a plain c wrapper so you can compile against and
+	  link to it using only C tools)
+
+Done:
+	- rename GString etc in goo lib to make it more glib friendly
+	- make splash optional

@@ -1,0 +1,33 @@
+2005-03-01  Kristian Høgsberg  <krh@redhat.com>
+
+	* poppler/*.h: Take config.h out of header files.
+
+	* configure.ac: Bump release to 0.1.1 to build a tar ball that
+	works with CVS evince.
+
+	* poppler.pc.in (Cflags): Change include dir to be poppler.
+
+	* poppler/Makefile.am (poppler_include_HEADERS): Add splash and
+	cairo headers.
+
+2005-02-27  Kristian Høgsberg  <krh@redhat.com>
+
+	* test/gtk-cairo-test.cc: Add cairo test case.
+
+	* configure.ac, poppler/Makefile.am, poppler/Cairo*: Add Alex
+	Larsons cairo output device.
+	
+	* configure.ac, Makefile.am: Make splash backend conditional. 
+	
+	* test/*: Add optional GdkRGB based test program (taken from
+	evince).
+	
+	* goo/*: rename files and functions to GooHash, GooString etc. to
+	avoid nasty glib clash.
+	
+	* poppler.pc.in: New file.
+
+	* configure.ac: Combining bits from evince configure.ac and
+	removing checks only required by the xpdf applications.
+
+	* everything: Created poppler as a fork of xpdf.
