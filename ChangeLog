@@ -1,3 +1,7 @@
+2005-03-25  Kristian Høgsberg  <krh@redhat.com>
+
+	* configure.ac: Check for fontconfig for glib bindings.
+
 2005-03-24  Kristian Høgsberg  <krh@redhat.com>
 
 	* glib/Makefile.am: Use POPPLER_GLIB_CFLAGS and POPPLER_GLIB_LIBS
