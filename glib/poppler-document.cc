@@ -101,6 +101,26 @@ poppler_document_new_from_file (const char  *uri,
   return document;
 }
 
+gboolean
+poppler_document_save (PopplerDocument  *document,
+		       const char       *uri,
+		       GError          **error)
+{
+  char *filename;
+  gboolean retval = FALSE;
+
+  g_return_val_if_fail (POPPLER_IS_DOCUMENT (document), FALSE);
+
+  filename = g_filename_from_uri (uri, NULL, error);
+  if (filename != NULL) {
+    GooString *fname = new GooString (filename);
+
+    retval = document->doc->saveAs (fname);
+  }
+
+  return retval;
+}
+
 static void
 poppler_document_finalize (GObject *object)
 {

@@ -1,5 +1,12 @@
 2005-03-22  Kristian Høgsberg  <krh@redhat.com>
 
+	* glib/poppler-document.cc: Implement poppler_document_save().
+	
+	* glib/poppler-document.h: Add prototype and format headers
+	properly.
+
+2005-03-22  Kristian Høgsberg  <krh@redhat.com>
+
 	* configure.ac: Fix --disable-popper typo reported by Albert.
 	Require exactly cairo 0.4 since CVS cairo has API changes.
 

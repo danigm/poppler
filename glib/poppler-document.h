@@ -32,23 +32,19 @@ G_BEGIN_DECLS
 typedef struct _PopplerDocument PopplerDocument;
 typedef struct _PopplerPage PopplerPage;
 
-PopplerDocument *poppler_document_new_from_file (const char      *uri,
-						 const char      *password,
-						 GError         **error);
+PopplerDocument *poppler_document_new_from_file     (const char       *uri,
+						     const char       *password,
+						     GError          **error);
+gboolean         poppler_document_save              (PopplerDocument  *document,
+						     const char       *uri,
+						     GError          **error);
+int              poppler_document_get_n_pages       (PopplerDocument  *document);
+PopplerPage     *poppler_document_get_page          (PopplerDocument  *document,
+						     int               page);
+PopplerPage     *poppler_document_get_page_by_label (PopplerDocument  *document,
+						     const char       *label);
 
-PopplerDocument *poppler_document_save          (PopplerDocument *document,
-						 const char      *uri,
-						 GError         **error);
-
-GType            poppler_document_get_type      (void) G_GNUC_CONST;
-
-int              poppler_document_get_n_pages   (PopplerDocument *document);
-
-PopplerPage     *poppler_document_get_page  (PopplerDocument *document,
-					     int              page);
-
-PopplerPage     *poppler_document_get_page_by_label (PopplerDocument *document,
-						     const char *label);
+GType            poppler_document_get_type          (void) G_GNUC_CONST;
 
 G_END_DECLS
 
