@@ -1,4 +1,9 @@
 2005-03-31  Kristian Høgsberg  <krh@redhat.com>
+	
+	* glib/poppler-page.cc (poppler_page_render_to_pixbuf): Clip
+	output to destination pixbuf and fix RGB order.
+
+2005-03-31  Kristian Høgsberg  <krh@redhat.com>
 
 	* glib/poppler-page.cc (poppler_page_find_text): New function to
 	seach a page for occurrences of a given text string.

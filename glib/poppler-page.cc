@@ -118,9 +118,10 @@ poppler_page_render_to_pixbuf (PopplerPage *page,
   SplashColor white;
   SplashBitmap *bitmap;
   SplashColorPtr color_ptr;
+  SplashRGB8 *src;
   int splash_width, splash_height, splash_rowstride;
   int pixbuf_rowstride, pixbuf_n_channels;
-  guchar *splash_data, *pixbuf_data, *src, *dst;
+  guchar *pixbuf_data, *dst;
   int x, y;
 
   g_return_if_fail (POPPLER_IS_PAGE (page));
@@ -145,27 +146,34 @@ poppler_page_render_to_pixbuf (PopplerPage *page,
 
   splash_width = bitmap->getWidth ();
   splash_height = bitmap->getHeight ();
-  splash_data = (guchar *) color_ptr.rgb8;
   splash_rowstride = bitmap->getRowSize ();
 
   pixbuf_data = gdk_pixbuf_get_pixels (pixbuf);
   pixbuf_rowstride = gdk_pixbuf_get_rowstride (pixbuf);
   pixbuf_n_channels = gdk_pixbuf_get_n_channels (pixbuf);
 
-  /* FIXME: Clip the rectangle to pixbuf. */
+  if (dest_x + splash_width > gdk_pixbuf_get_width (pixbuf))
+    splash_width = gdk_pixbuf_get_width (pixbuf) - dest_x;
+  if (dest_y + splash_height > gdk_pixbuf_get_height (pixbuf))
+    splash_height = gdk_pixbuf_get_height (pixbuf) - dest_y;
 
-  for (y = 0; y < splash_height; y++) {
-    src = splash_data + y * splash_rowstride;
-    dst = pixbuf_data + (dest_y + y) * pixbuf_rowstride +
-      dest_x * pixbuf_n_channels;
-    for (x = 0; x < splash_width; x++) {
-      dst[0] = src[0];
-      dst[1] = src[1];
-      dst[2] = src[2];
-      dst += pixbuf_n_channels;
-      src += 4;
+  for (y = 0; y < splash_height; y++)
+    {
+      SplashRGB8 *src;
+      SplashRGB8 rgb;
+
+      src = (SplashRGB8 *) (color_ptr.rgb8p + y * splash_rowstride);
+      dst = pixbuf_data + (dest_y + y) * pixbuf_rowstride +
+	dest_x * pixbuf_n_channels;
+      for (x = 0; x < splash_width; x++) 
+	{
+	  dst[0] = splashRGB8R(*src);
+	  dst[1] = splashRGB8G(*src); 
+	  dst[2] = splashRGB8B(*src);
+	  dst += pixbuf_n_channels;
+	  src++;
+	}
     }
-  }
 
   delete output_dev;
 }
