@@ -125,12 +125,17 @@ AM_CONDITIONAL(BUILD_CAIRO_OUTPUT, test x$enable_cairo_output = xyes)
 
 AC_ARG_ENABLE(gtk-test,
               AC_HELP_STRING([--disable-gtk-test],
-	                     [Don't compile GTK+ test program.]),,
-              enable_gtk_test="yes")
-AM_CONDITIONAL(BUILD_GTK_TEST, test x$enable_gtk_test = xyes)
+	                     [Don't compile GTK+ test program.]),
+              enable_gtk_test=$enableval,
+              enable_gtk_test="try")
 if test x$enable_gtk_test = xyes; then
   PKG_CHECK_MODULES(GTK_TEST, gtk+-2.0 >= 2.2.0)
+elif test x$enable_gtk_test = xtry; then
+  PKG_CHECK_MODULES(GTK_TEST, gtk+-2.0 >= 2.2.0,
+                    [enable_gtk_test="yes"],
+                    [enable_gtk_test="no"])
 fi
+AM_CONDITIONAL(BUILD_GTK_TEST, test x$enable_gtk_test = xyes)
 
 AC_OUTPUT([
 Makefile
