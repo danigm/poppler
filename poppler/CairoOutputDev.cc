@@ -463,35 +463,33 @@ void CairoOutputDev::drawImageMask(GfxState *state, Object *ref, Stream *str,
   cairo_surface_t *image;
   int x, y;
   ImageStream *imgStr;
-  Guchar pix;
+  Guchar *pix;
   double *ctm;
   cairo_matrix_t *mat;
+  int invert_bit;
 
   buffer = (char *)malloc (width * height * 4);
-
   if (buffer == NULL) {
     error(-1, "Unable to allocate memory for image.");
     return;
   }
 
   /* TODO: Do we want to cache these? */
-  imgStr = new ImageStream(str, width,
-			   1, 1);
+  imgStr = new ImageStream(str, width, 1, 1);
   imgStr->reset();
 
+  invert_bit = invert ? 1 : 0;
+
   for (y = 0; y < height; y++) {
+    pix = imgStr->getLine();
     dest = buffer + y * width * 4;
     for (x = 0; x < width; x++) {
-      imgStr->getPixel(&pix);
-      
+
       *dest++ = soutRound(255 * fill_color.b);
       *dest++ = soutRound(255 * fill_color.g);
       *dest++ = soutRound(255 * fill_color.r);
  
-      if (invert)
-	pix ^= 1;
-      
-      if (pix)
+      if (pix[x] ^ invert_bit)
 	*dest++ = 0;
       else
 	*dest++ = 255;

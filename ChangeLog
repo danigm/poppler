@@ -2,6 +2,9 @@
 
 	From  Jeff Muizelaar  <jrmuizel@nit.ca>:
 	
+	* poppler/CairoOutputDev.cc (CairoOutputDev::drawImageMask): Use
+	getLine instead of getPixel.
+	
 	* configure.ac: Add checks for libjpeg.
 
 	* DCTStream.cc, DCTStream.h, Stream.cc, Stream.h, Makefile.am:
