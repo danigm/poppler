@@ -30,6 +30,7 @@ G_BEGIN_DECLS
 #define POPPLER_IS_DOCUMENT(obj)          (G_TYPE_CHECK_INSTANCE_TYPE ((obj), POPPLER_TYPE_DOCUMENT))
 
 typedef struct _PopplerDocument PopplerDocument;
+typedef struct _PopplerIndexIter PopplerIndexIter;
 typedef struct _PopplerPage PopplerPage;
 
 PopplerDocument *poppler_document_new_from_file     (const char       *uri,
@@ -45,6 +46,20 @@ PopplerPage     *poppler_document_get_page_by_label (PopplerDocument  *document,
 						     const char       *label);
 
 GType            poppler_document_get_type          (void) G_GNUC_CONST;
+
+/* Interface for getting the Index of a poppler_document */
+PopplerIndexIter *poppler_index_iter_new        (PopplerDocument   *document);
+PopplerIndexIter *poppler_index_iter_get_child  (PopplerIndexIter  *parent);
+//PopplerAction    *poppler_index_iter_get_action (PopplerIndexIter  *iter); /* Use when PopplerAction exists */
+void              poppler_index_iter_get_values (PopplerIndexIter  *iter,
+						 char             **text,
+						 char             **link_string,
+						 int               *page);
+gboolean          poppler_index_iter_next       (PopplerIndexIter  *iter);
+void              poppler_index_iter_free       (PopplerIndexIter  *iter);
+
+
+
 
 G_END_DECLS
 

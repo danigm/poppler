@@ -1,3 +1,15 @@
+Tue Mar 29 02:36:00 2005  Jonathan Blandford  <jrb@redhat.com>
+
+	* glib/poppler-document.[ch] (PopplerIndexIter): Add an iter to
+	extract the index from the doc.  Includes a bad hack, for now.
+
+Mon Mar 28 22:02:07 2005  Jonathan Blandford  <jrb@redhat.com>
+
+	* glib/poppler-page.cc:
+	* glib/poppler-page.h (poppler_page_get_thumbnail_size): New
+	function. 
+	* poppler-glib.pc.in: add -lpoppler-glib to the libs line.
+
 2005-03-28  Kristian Høgsberg  <krh@redhat.com>
 
 	* poppler/Page.cc (loadThumb): Backend agnostic method for

@@ -112,7 +112,7 @@ poppler_page_render_to_pixbuf (PopplerPage *page,
   SplashBitmap *bitmap;
   SplashColorPtr color_ptr;
   int splash_width, splash_height, splash_rowstride;
-  int pixbuf_width, pixbuf_height, pixbuf_rowstride, pixbuf_n_channels;
+  int pixbuf_rowstride, pixbuf_n_channels;
   guchar *splash_data, *pixbuf_data, *src, *dst;
   int x, y;
 
@@ -177,6 +177,52 @@ poppler_page_get_thumbnail (PopplerPage *page)
   return gdk_pixbuf_new_from_data (data, GDK_COLORSPACE_RGB,
 				   FALSE, 8, width, height, rowstride,
 				   destroy_thumb_data, NULL);
+}
+
+
+/**
+ * poppler_page_get_thumbnail_size:
+ * @page: A #PopplerPage
+ * @width: return location for width
+ * @height: return location for height
+ * 
+ * Returns %TRUE if @page has a thumbnail associated with it.  It also fills in
+ * @width and @height with the width and height of the thumbnail.  The values of
+ * width and height are not changed if no appropriate thumbnail exists.
+ * 
+ * Return value: %TRUE, if @page has a thumbnail associated with it.
+ **/
+gboolean
+poppler_page_get_thumbnail_size (PopplerPage *page,
+				 int         *width,
+				 int         *height)
+{
+  Object thumb;
+  Dict *dict;
+  gboolean retval = FALSE;
+
+  g_return_val_if_fail (POPPLER_IS_PAGE (page), FALSE);
+  g_return_val_if_fail (width != NULL, FALSE);
+  g_return_val_if_fail (height != NULL, FALSE);
+
+  page->page->getThumb (&thumb);
+  if (thumb.isNull ())
+    {
+      thumb.free ();
+      return FALSE;
+    }
+
+  dict = thumb.streamGetDict();
+
+  /* Theoretically, this could succeed and you would still fail when loading the
+   * thumb */
+  if (dict->lookupInt ("Width", "W", width)  &&
+      dict->lookupInt ("Height", "H", height))
+    retval = TRUE;
+
+  thumb.free ();
+
+  return retval;
 }
 
 static void

@@ -7,5 +7,5 @@ Name: poppler
 Description: GLib wrapper for poppler
 Version: @VERSION@
 
-Libs: -L${libdir} -lpoppler
+Libs: -L${libdir} -lpoppler -lpoppler-glib
 Cflags: -I${includedir}/poppler/glib

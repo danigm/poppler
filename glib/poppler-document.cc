@@ -52,7 +52,6 @@ poppler_document_new_from_file (const char  *uri,
   PDFDoc *newDoc;
   GooString *filename_g;
   GooString *password_g;
-  GooString *enc;
   int err;
   char *filename;
 
@@ -233,7 +232,6 @@ poppler_document_get_property (GObject *object,
 {
   PopplerDocument *document = POPPLER_DOCUMENT (object);
   Object info;
-  char *title;
 
   document->doc->getDocInfo (&info);
   if (!info.isDict ())
@@ -269,4 +267,162 @@ poppler_document_class_init (PopplerDocumentClass *klass)
 static void
 poppler_document_init (PopplerDocument *document)
 {
+}
+
+
+/* PopplerIndexIter: For determining the index of a tree */
+struct _PopplerIndexIter
+{
+	PopplerDocument *document;
+	GooList *items;
+	int index;
+};
+
+PopplerIndexIter *
+poppler_index_iter_new (PopplerDocument *document)
+{
+	PopplerIndexIter *iter;
+	Outline *outline;
+	GooList *items;
+
+	outline = document->doc->getOutline();
+	if (outline == NULL)
+		return NULL;
+
+	items = outline->getItems();
+	if (items == NULL)
+		return NULL;
+
+	iter = g_new0 (PopplerIndexIter, 1);
+	iter->document = (PopplerDocument *) g_object_ref (document);
+	iter->items = items;
+	iter->index = 0;
+
+	return iter;
+}
+
+PopplerIndexIter *
+poppler_index_iter_get_child (PopplerIndexIter *parent)
+{
+	PopplerIndexIter *child;
+	OutlineItem *item;
+
+	g_return_val_if_fail (parent != NULL, NULL);
+	
+	item = (OutlineItem *)parent->items->get (parent->index);
+	item->open ();
+	if (! (item->hasKids() && item->getKids()) )
+		return NULL;
+
+	child = g_new0 (PopplerIndexIter, 1);
+	child->document = (PopplerDocument *)g_object_ref (parent->document);
+	child->items = item->getKids ();
+
+	g_assert (child->items);
+
+	return child;
+}
+
+
+
+static gchar *
+unicode_to_char (Unicode *unicode,
+		 int      len)
+{
+	static UnicodeMap *uMap = NULL;
+	if (uMap == NULL) {
+		GooString *enc = new GooString("UTF-8");
+		uMap = globalParams->getUnicodeMap(enc);
+		uMap->incRefCnt ();
+		delete enc;
+	}
+		
+	GooString gstr;
+	gchar buf[8]; /* 8 is enough for mapping an unicode char to a string */
+	int i, n;
+
+	for (i = 0; i < len; ++i) {
+		n = uMap->mapUnicode(unicode[i], buf, sizeof(buf));
+		gstr.append(buf, n);
+	}
+
+	return g_strdup (gstr.getCString ());
+}
+
+
+
+void
+poppler_index_iter_get_values (PopplerIndexIter  *iter,
+			       char             **text,
+			       char             **link_string,
+			       int               *page)
+{
+	OutlineItem *item;
+	LinkAction *action;
+
+	g_return_if_fail (iter != NULL);
+	g_return_if_fail (text != NULL);
+	g_return_if_fail (link_string != NULL);
+	g_return_if_fail (page != NULL);
+
+	item = (OutlineItem *)iter->items->get (iter->index);
+	*text = unicode_to_char (item->getTitle(),
+				 item->getTitleLength ());
+
+	*page = -1;
+	action = item->getAction ();
+	if (action->getKind () == actionGoTo) {
+		LinkDest *link_dest;
+		LinkGoTo *link_goto;
+		Ref page_ref;
+		gint page_num = -1;
+		GooString *named_dest;
+
+		link_goto = dynamic_cast <LinkGoTo *> (action);
+		link_dest = link_goto->getDest ();
+		named_dest = link_goto->getNamedDest ();
+
+		if (link_dest != NULL) {
+			link_dest = link_dest->copy ();
+		} else if (named_dest != NULL) {
+			named_dest = named_dest->copy ();
+			link_dest = iter->document->doc->findDest (named_dest);
+			delete named_dest;
+		}
+		if (link_dest != NULL) {
+			if (link_dest->isPageRef ()) {
+				page_ref = link_dest->getPageRef ();
+				page_num = iter->document->doc->findPage (page_ref.num, page_ref.gen);
+			} else {
+				page_num = link_dest->getPageNum ();
+			}
+			delete link_dest;
+		}
+		if (page_num > 0)
+			*page = page_num - 1;
+	}
+}
+
+gboolean
+poppler_index_iter_next (PopplerIndexIter *iter)
+{
+	g_return_val_if_fail (iter != NULL, FALSE);
+
+	iter->index++;
+	if (iter->index >= iter->items->getLength())
+		return FALSE;
+
+	return TRUE;
+}
+
+void
+poppler_index_iter_free (PopplerIndexIter *iter)
+{
+	if (iter == NULL)
+		return;
+
+	g_object_unref (iter->document);
+//	delete iter->items;
+	g_free (iter);
+	
 }
