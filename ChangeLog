@@ -1,3 +1,8 @@
+2005-03-04  Kristian Høgsberg  <krh@redhat.com>
+
+	* poppler/poppler-config.h: Remove this file (noticed by Brad
+	Hards <bradh@frogmouth.net>).
+
 2005-03-03  Kristian Høgsberg  <krh@redhat.com>
 
 	Patch from Jeff Muizelaar <jrmuizel@nit.ca>:
