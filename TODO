@@ -1,10 +1,23 @@
+Here's the plan as of March 21:
+
+	- Finish glib and qobject wrappers and get rid of the 80
+	  header files that current constitute the poppler public API.
+	  Make sure the APIs are usable for kpdf and evince and other
+	  tools that use poppler (thumbnailers, metadata plugins
+	  etc.).
+
+	- Make the cairo backend feature complete and optimize the
+	  heck out of it.
+
+	- Investigate better (that is, normal) text selection.
+
 Convert to use as much existing infra-structure as possible:
-	- drop t1lib
+	- drop t1lib entirely
 	- use fontconfig
 	- dont use /etc/xpdf.rc, add abstraction that can work with
 	  GNOME and KDE configuration systems (GConf and ?)
 	- improve cairo backend
-	- use jasper for jpeg2000 decoding
+	- use jasper for jpeg2000 decoding?
 	- use littlecms for color management?
 	- use libtiff for ccitt decoding?
 
@@ -16,16 +29,14 @@ Performance:
 	  hack around some of it in the cairo backend)
 	- move away from getChar to a more read(2) like interface
 
-Maybe:
+Done:
+	- rename GString etc in goo lib to make it more glib friendly
+	- make splash optional
+
 	- Install poppler-splash.pc and poppler-cairo.pc to indicate
 	  available backends.  Alternatively, just hide the backend
 	  choice from the application.  This is done now, but for this
 	  to work properly, we really need multiple .so's.
 
-	- make c-wrapper so GNOME projects won't need to use C++ (no
-	  glib, just a plain c wrapper so you can compile against and
-	  link to it using only C tools)
+	  [ This will go away again once we get the wrappers done. ]
 
-Done:
-	- rename GString etc in goo lib to make it more glib friendly
-	- make splash optional
