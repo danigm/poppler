@@ -64,24 +64,18 @@ CairoOutputDevImage::createCairo(GfxState *state) {
 }
 
 
-SplashBitmap *CairoOutputDevImage::getBitmap() {
+void CairoOutputDevImage::getBitmap(unsigned char **data,
+				    int *width, int *height,
+				    int *rowstride) {
   SplashBitmap *bitmap;
   int w, h;
   unsigned char *src;
   unsigned int *dest;
 
-  bitmap = new SplashBitmap (pixels_w, pixels_h, splashModeRGB8);
-
-  for (h = 0; h < pixels_h; h++) {
-    src = pixels + 4*pixels_w * h;
-    dest = (unsigned int *)
-      ((unsigned char *)bitmap->getDataPtr().rgb8 + bitmap->getRowSize()*h);
-    for (w = 0; w < pixels_w; w++) {
-      *dest++ = splashMakeRGB8 (src[2], src[1], src[0]);
-      src += 4;
-    }
-  }
-  return bitmap;
+  *data = pixels;
+  *width = pixels_w;
+  *height = pixels_h;
+  *rowstride = 4 * pixels_w;
 }
 
 

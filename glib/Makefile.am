@@ -1,9 +1,20 @@
+if BUILD_CAIRO_OUTPUT
+
+cairo_includes =				\
+	$(CAIRO_CFLAGS)
+
+cairo_libs =					\
+	$(CAIRO_LIBS)
+
+endif
+
 INCLUDES =					\
 	-I$(top_srcdir)				\
 	-I$(top_srcdir)/poppler			\
 	$(cairo_includes)			\
 	$(POPPLER_GLIB_CFLAGS)			\
 	$(FREETYPE_CFLAGS)			\
+	$(cairo_includes)			\
 	-DDATADIR=\""$(datadir)"\"
 
 poppler_glib_includedir = $(includedir)/poppler/glib
@@ -23,7 +34,8 @@ libpoppler_glib_la_SOURCES =			\
 
 libpoppler_glib_la_LIBADD =			\
 	$(POPPLER_GLIB_LIBS)			\
-	$(FREETYPE_LIBS)
+	$(FREETYPE_LIBS)			\
+	$(cairo_libs)
 
 noinst_PROGRAMS = test-poppler-glib
 
@@ -34,4 +46,5 @@ test_poppler_glib_LDADD =			\
 	$(top_builddir)/poppler/libpoppler.la	\
 	libpoppler-glib.la			\
 	$(POPPLER_GLIB_LIBS)			\
-	$(FREETYPE_LIBS)
+	$(FREETYPE_LIBS)			\
+	$(cairo_libs)

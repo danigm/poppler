@@ -1,7 +1,7 @@
 dnl Based on Xpdf configure.in and evince configure.ac
 
 AC_PREREQ(2.59)
-AC_INIT(poppler, 0.1.2)
+AC_INIT(poppler, 0.2.0)
 AM_INIT_AUTOMAKE(AC_PACKAGE_NAME, AC_PACKAGE_VERSION)
 AM_CONFIG_HEADER(config.h)
 AM_CONFIG_HEADER(poppler/poppler-config.h)
@@ -142,6 +142,10 @@ if test x$enable_splash_output = xyes; then
   PKG_CHECK_MODULES(SPLASH, fontconfig)
 fi
 AM_CONDITIONAL(BUILD_SPLASH_OUTPUT, test x$enable_splash_output = xyes)
+AH_TEMPLATE([HAVE_SPLASH], [Use splash for rendering.])
+if test x$enable_splash_output = xyes; then
+  AC_DEFINE(HAVE_SPLASH)
+fi
 
 AC_ARG_ENABLE(cairo-output,
               AC_HELP_STRING([--disable-cairo-output],
@@ -149,14 +153,18 @@ AC_ARG_ENABLE(cairo-output,
               enable_cairo_output=$enableval,
               enable_cairo_output="try")
 if test x$enable_cairo_output = xyes; then
-  PKG_CHECK_MODULES(CAIRO, cairo = 0.4)
+  PKG_CHECK_MODULES(CAIRO, cairo = 0.4.0)
 elif test x$enable_cairo_output = xtry; then
-  PKG_CHECK_MODULES(CAIRO, cairo = 0.4,
+  PKG_CHECK_MODULES(CAIRO, cairo = 0.4.0,
                     [enable_cairo_output="yes"],
                     [enable_cairo_output="no"])
 fi
-AM_CONDITIONAL(BUILD_CAIRO_OUTPUT, test x$enable_cairo_output = xyes)
 
+AM_CONDITIONAL(BUILD_CAIRO_OUTPUT, test x$enable_cairo_output = xyes)
+AH_TEMPLATE([HAVE_CAIRO], [Use cairo for rendering.])
+if test x$enable_cairo_output = xyes; then
+  AC_DEFINE(HAVE_CAIRO)
+fi
 
 AC_ARG_ENABLE(poppler-glib,
               AC_HELP_STRING([--disable-poppler-glib],

@@ -1,3 +1,19 @@
+2005-04-05  Kristian Høgsberg  <krh@redhat.com>
+
+	* NEWS: Attempt to sum up changes since 0.1.2.
+
+	* configure.ac: Bump release to 0.2.0, add AC_DEFINEs for cairo
+	and splash availability.
+
+	* poppler/CairoFontEngine.cc: Disable hinting.
+
+	* glib/poppler-page.cc (poppler_page_render_to_pixbuf): Choose
+	either splash or cairo rendering, based on configure choice.
+	(cairo_render_to_pixbuf): New function to render using the cairo
+	backend.
+	(splash_render_to_pixbuf): Split out the splash code to this
+	function.
+
 2005-04-04  Kristian Høgsberg  <krh@redhat.com>
 
 	* ChangeLog: Add this entry to test commit mailer script.

@@ -33,7 +33,8 @@ public:
 
   virtual void createCairo(GfxState *state);
 
-  SplashBitmap *getBitmap();
+  void getBitmap(unsigned char **data,
+		 int *width, int *height, int *rowstride);
   
 private:
   unsigned char *pixels;

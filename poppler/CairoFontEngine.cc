@@ -252,7 +252,7 @@ CairoFont::matches(Ref &other) {
 
 cairo_font_t *
 CairoFont::getFont(cairo_matrix_t *font_scale) {
-    return cairo_ft_font_create_for_ft_face (face, FT_LOAD_DEFAULT, font_scale);
+    return cairo_ft_font_create_for_ft_face (face, FT_LOAD_NO_HINTING, font_scale);
 }
 
 unsigned long

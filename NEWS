@@ -1,7 +1,9 @@
-Release 0.2.0  (Not out yet...)
+Release 0.2.0  (Tue Apr  5 12:32:10 EDT 2005)
 
-	- Add glib wrapper for poppler
+	- Add glib wrapper for poppler, which will use cairo rendering
+	  if available
 	- Support for page labels
+	- configure and build fixes.
 
 Release 0.1.2  (Wed Mar  9 10:45:58 EST 2005)
 

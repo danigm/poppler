@@ -16,6 +16,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
+#include "config.h"
 #include <math.h>
 
 #include <goo/GooList.h>
@@ -26,8 +27,15 @@
 #include <ErrorCodes.h>
 #include <UnicodeMap.h>
 #include <GfxState.h>
-#include <SplashOutputDev.h>
 #include <TextOutputDev.h>
+
+#if defined (HAVE_CAIRO)
+#include <CairoOutputDevImage.h>
+#endif
+
+#if defined (HAVE_SPLASH)
+#include <SplashOutputDev.h>
+#endif
 
 #include "poppler.h"
 #include "poppler-private.h"
@@ -88,31 +96,75 @@ poppler_page_get_index (PopplerPage *page)
   return page->index;
 }
 
-/**
- * poppler_page_render_to_pixbuf:
- * @page: the page to render from
- * @src_x: x coordinate of upper left corner
- * @src_y: y coordinate of upper left corner
- * @src_width: width of rectangle to render
- * @src_height: height of rectangle to render
- * @ppp: pixels per point
- * @pixbuf: pixbuf to render into
- * @dest_x: x coordinate of offset into destination
- * @dest_y: y cooridnate of offset into destination
- *
- * First scale the document to match the specified pixels per point,
- * then render the rectangle given by the upper left corner at
- * (src_x, src_y) and src_width and src_height.  The rectangle is
- * rendered into the specified pixmap with the upper left corner
- * placed at (dest_x, dest_y).
- **/
-void
-poppler_page_render_to_pixbuf (PopplerPage *page,
-			       int src_x, int src_y,
-			       int src_width, int src_height,
-			       double scale,
-			       GdkPixbuf *pixbuf,
-			       int dest_x, int dest_y)
+#if defined (HAVE_CAIRO)
+
+static void
+cairo_render_to_pixbuf (PopplerPage *page,
+			int src_x, int src_y,
+			int src_width, int src_height,
+			double scale,
+			GdkPixbuf *pixbuf,
+			int dest_x, int dest_y)
+{
+  CairoOutputDevImage *output_dev;
+  int cairo_width, cairo_height, cairo_rowstride;
+  int pixbuf_rowstride, pixbuf_n_channels;
+  guchar *pixbuf_data, *cairo_data, *dst;
+  int x, y;
+
+  output_dev = new CairoOutputDevImage ();
+
+  output_dev->startDoc(page->document->doc->getXRef ());
+
+  page->page->displaySlice(output_dev, 72.0 * scale, 72.0 * scale,
+			   0, /* Rotate */
+			   gTrue, /* Crop */
+			   src_x, src_y,
+			   src_width, src_height,
+			   NULL, /* links */
+			   page->document->doc->getCatalog ());
+
+  output_dev->getBitmap (&cairo_data,
+			 &cairo_width, &cairo_height, &cairo_rowstride);
+
+  pixbuf_data = gdk_pixbuf_get_pixels (pixbuf);
+  pixbuf_rowstride = gdk_pixbuf_get_rowstride (pixbuf);
+  pixbuf_n_channels = gdk_pixbuf_get_n_channels (pixbuf);
+
+  if (dest_x + cairo_width > gdk_pixbuf_get_width (pixbuf))
+    cairo_width = gdk_pixbuf_get_width (pixbuf) - dest_x;
+  if (dest_y + cairo_height > gdk_pixbuf_get_height (pixbuf))
+    cairo_height = gdk_pixbuf_get_height (pixbuf) - dest_y;
+
+  for (y = 0; y < cairo_height; y++)
+    {
+      unsigned int *src;
+
+      src = (unsigned int *) (cairo_data + y * cairo_rowstride);
+      dst = pixbuf_data + (dest_y + y) * pixbuf_rowstride +
+	dest_x * pixbuf_n_channels;
+      for (x = 0; x < cairo_width; x++) 
+	{
+	  dst[0] = (*src >> 16) & 0xff;
+	  dst[1] = (*src >> 8) & 0xff; 
+	  dst[2] = (*src >> 0) & 0xff;
+	  dst += pixbuf_n_channels;
+	  src++;
+	}
+    }
+
+  delete output_dev;
+}
+
+#elif defined (HAVE_SPLASH)
+
+static void
+splash_render_to_pixbuf (PopplerPage *page,
+			 int src_x, int src_y,
+			 int src_width, int src_height,
+			 double scale,
+			 GdkPixbuf *pixbuf,
+			 int dest_x, int dest_y)
 {
   SplashOutputDev *output_dev;
   SplashColor white;
@@ -123,10 +175,6 @@ poppler_page_render_to_pixbuf (PopplerPage *page,
   int pixbuf_rowstride, pixbuf_n_channels;
   guchar *pixbuf_data, *dst;
   int x, y;
-
-  g_return_if_fail (POPPLER_IS_PAGE (page));
-  g_return_if_fail (scale > 0.0);
-  g_return_if_fail (pixbuf != NULL);
 
   white.rgb8 = splashMakeRGB8 (0xff, 0xff, 0xff);
   output_dev = new SplashOutputDev(splashModeRGB8, gFalse, white);
@@ -176,6 +224,50 @@ poppler_page_render_to_pixbuf (PopplerPage *page,
     }
 
   delete output_dev;
+}
+
+#endif
+
+/**
+ * poppler_page_render_to_pixbuf:
+ * @page: the page to render from
+ * @src_x: x coordinate of upper left corner
+ * @src_y: y coordinate of upper left corner
+ * @src_width: width of rectangle to render
+ * @src_height: height of rectangle to render
+ * @ppp: pixels per point
+ * @pixbuf: pixbuf to render into
+ * @dest_x: x coordinate of offset into destination
+ * @dest_y: y cooridnate of offset into destination
+ *
+ * First scale the document to match the specified pixels per point,
+ * then render the rectangle given by the upper left corner at
+ * (src_x, src_y) and src_width and src_height.  The rectangle is
+ * rendered into the specified pixmap with the upper left corner
+ * placed at (dest_x, dest_y).
+ **/
+void
+poppler_page_render_to_pixbuf (PopplerPage *page,
+			       int src_x, int src_y,
+			       int src_width, int src_height,
+			       double scale,
+			       GdkPixbuf *pixbuf,
+			       int dest_x, int dest_y)
+{
+
+  g_return_if_fail (POPPLER_IS_PAGE (page));
+  g_return_if_fail (scale > 0.0);
+  g_return_if_fail (pixbuf != NULL);
+
+#if defined(HAVE_CAIRO)
+  cairo_render_to_pixbuf (page, src_x, src_y, src_width, src_height,
+			  scale, pixbuf, dest_x, dest_y);
+#elif defined(HAVE_SPLASH)
+  splash_render_to_pixbuf (page, src_x, src_y, src_width, src_height,
+			   scale, pixbuf, dest_x, dest_y);
+#else
+#error No rendering backend available
+#endif
 }
 
 static void
