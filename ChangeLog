@@ -1,5 +1,7 @@
 2005-04-04  Kristian Høgsberg  <krh@redhat.com>
 
+	* ChangeLog: Add this entry to test commit mailer script.
+	
 	* TODO: Add reminder about using PDF font descriptors with
 	fontconfig.
 
