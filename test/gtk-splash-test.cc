@@ -162,7 +162,6 @@ drawing_area_expose (GtkWidget      *drawing_area,
                      void           *data)
 {
   View *v = (View*) data;
-  int x, y, w, h;
   GdkRectangle document;
   GdkRectangle draw;
 
@@ -189,8 +188,6 @@ view_load (View       *v,
   PDFDoc *newDoc;
   int err;
   GooString *filename_g;
-  GtkAdjustment *hadj;
-  GtkAdjustment *vadj;
   int w, h;
 
   filename_g = new GooString (filename);
@@ -219,6 +216,8 @@ view_load (View       *v,
   h = v->out->getBitmapHeight();
   
   gtk_widget_set_size_request (v->drawing_area, w, h);
+
+  return errNone;
 }
 
 static void

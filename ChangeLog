@@ -1,5 +1,14 @@
 2005-03-04  Kristian Høgsberg  <krh@redhat.com>
 
+	* test/gtk-cairo-test.cc (view_load): 
+	* test/gtk-splash-test.cc (view_load): Fix missing return
+	statement, and remove unused variables.
+
+	* configure.ac: Add configure option to enable the default KDE
+	flags as described by Albert Astals Cid <tsdgeos@yahoo.es>.
+
+	* TODO: Update with Jeff's items.
+
 	* .cvsignore:
 	* */.cvsignore: Add these to silence CVS.
 	

@@ -137,6 +137,27 @@ elif test x$enable_gtk_test = xtry; then
 fi
 AM_CONDITIONAL(BUILD_GTK_TEST, test x$enable_gtk_test = xyes)
 
+
+AC_ARG_ENABLE(compile-warnings,
+              AC_HELP_STRING([--enable-compile-warnings=@<:@no/yes/kde@:>@]
+                             [Turn on compiler warnings.]),,
+              [enable_compile_warnings="yes"])
+
+if test "x$GCC" != xyes; then
+  enable_compile_warnings=no
+fi
+case "$enable_compile_warnings" in
+  no)	;;
+  yes)	CXXFLAGS="-Wall -Wno-unused $CXXFLAGS" ;;
+  kde)	CXXFLAGS="-Wnon-virtual-dtor -Wno-long-long -Wundef -ansi \
+		-D_XOPEN_SOURCE=500 -D_BSD_SOURCE -Wcast-align \
+		-Wconversion -Wchar-subscripts -Wall -W -Wpointer-arith \
+		-Wwrite-strings -O2 -Wformat-security \
+		-Wmissing-format-attribute -fno-exceptions -fno-check-new \
+		-fno-common $CXXFLAGS" ;;
+esac
+
+
 AC_OUTPUT([
 Makefile
 goo/Makefile

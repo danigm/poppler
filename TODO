@@ -1,16 +1,23 @@
 Convert to use as much existing infra-structure as possible:
-
 	- drop t1lib
 	- use fontconfig
 	- dont use /etc/xpdf.rc, add abstraction that can work with
 	  GNOME and KDE configuration systems (GConf and ?)
 	- improve cairo backend
+	- use jasper for jpeg2000 decoding
+	- use littlecms for color management?
+	- use libtiff for ccitt decoding?
+
+Performance:
+	- make color space conversion stuff more sane (right now we
+	  hack around some of it in the cairo backend)
+	- move away from getChar to a more read(2) like interface
 
 Maybe:
-
-	- Install poppler-splash and poppler-cairo to indicate
+	- Install poppler-splash.pc and poppler-cairo.pc to indicate
 	  available backends.  Alternatively, just hide the backend
-	  choice from the application.
+	  choice from the application.  This is done now, but for this
+	  to work properly, we really need multiple .so's.
 
 	- make c-wrapper so GNOME projects won't need to use C++ (no
 	  glib, just a plain c wrapper so you can compile against and
