@@ -1,3 +1,7 @@
+2005-03-03  Kristian Høgsberg  <krh@redhat.com>
+
+	* autogen.sh: Add to CVS.
+
 2005-03-01  Kristian Høgsberg  <krh@redhat.com>
 
 	* poppler/*.h: Take config.h out of header files.
