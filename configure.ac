@@ -154,15 +154,31 @@ elif test x$enable_cairo_output = xtry; then
 fi
 AM_CONDITIONAL(BUILD_CAIRO_OUTPUT, test x$enable_cairo_output = xyes)
 
+
+AC_ARG_ENABLE(popper-glib,
+              AC_HELP_STRING([--disable-poppler-glib],
+	                     [Don't compile poppler glib wrapper.]),
+              enable_poppler_glib=$enableval,
+              enable_poppler_glib="try")
+if test x$enable_poppler_glib = xyes; then
+  PKG_CHECK_MODULES(POPPLER_GLIB, gdk-pixbuf-2.0)
+elif test x$enable_poppler_glib = xtry; then
+  PKG_CHECK_MODULES(POPPLER_GLIB, gdk-pixbuf-2.0,
+                    [enable_poppler_glib="yes"],
+                    [enable_poppler_glib="no"])
+fi
+AM_CONDITIONAL(BUILD_POPPLER_GLIB, test x$enable_poppler_glib = xyes)
+
+
 AC_ARG_ENABLE(gtk-test,
               AC_HELP_STRING([--disable-gtk-test],
 	                     [Don't compile GTK+ test program.]),
               enable_gtk_test=$enableval,
               enable_gtk_test="try")
 if test x$enable_gtk_test = xyes; then
-  PKG_CHECK_MODULES(GTK_TEST, gtk+-2.0 >= 2.2.0)
+  PKG_CHECK_MODULES(GTK_TEST, gtk+-2.0 >= 2.2.0 gdk-pixbuf-2.0)
 elif test x$enable_gtk_test = xtry; then
-  PKG_CHECK_MODULES(GTK_TEST, gtk+-2.0 >= 2.2.0,
+  PKG_CHECK_MODULES(GTK_TEST, gtk+-2.0 >= 2.2.0 gdk-pixbuf-2.0,
                     [enable_gtk_test="yes"],
                     [enable_gtk_test="no"])
 fi
@@ -195,14 +211,17 @@ goo/Makefile
 fofi/Makefile
 splash/Makefile
 poppler/Makefile
+glib/Makefile
 test/Makefile
 poppler.pc
 poppler-cairo.pc
-poppler-splash.pc])
+poppler-splash.pc
+poppler-glib.pc])
 
 
 echo ""
 echo "Building poppler with support for:"
 echo "  splash output: $enable_splash_output"
 echo "  cairo output:  $enable_cairo_output"
+echo "  glib wrapper:  $enable_poppler_glib"
 echo "  use libjpeg:   $enable_libjpeg"

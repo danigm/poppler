@@ -1,3 +1,7 @@
+Release 0.2.0  (Not out yet...)
+
+	- Add glib wrapper for poppler
+
 Release 0.1.2  (Wed Mar  9 10:45:58 EST 2005)
 
 	- cairo optimizations and fixes from Jeff Muizelaar

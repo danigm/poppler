@@ -1,3 +1,22 @@
+2005-03-19  Kristian Høgsberg  <krh@redhat.com>
+
+	Land the first bits of the glib wrapper.
+
+	* Makefile.am:
+	* configure.ac: Add new glib subdirectory and configure options
+	for glib wrapper.
+	
+	* glib/Makefile.am:
+	* glib/poppler-document.cc:
+	* glib/poppler-document.h:
+	* glib/poppler-page.cc:
+	* glib/poppler-page.h:
+	* glib/poppler-private.h:
+	* glib/poppler.cc:
+	* glib/poppler.h:
+	* glib/test-poppler-glib.c:
+	* poppler-glib.pc.in: New files.
+
 2005-03-16  Jeff Muizelaar  <jrmuizel@nit.ca>
 
 	From Dan Sheridan <dan.sheridan@postman.org.uk>
