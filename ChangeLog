@@ -1,3 +1,8 @@
+2005-04-04  Kristian Høgsberg  <krh@redhat.com>
+
+	* glib/poppler-page.cc (poppler_page_find_text): Reverse list of
+	matches so we get them in the right order.
+
 2005-04-03  Martin Kretzschmar  <martink@gnome.org>
 
 	* poppler/DCTStream.h: Wrap #include <jpeglib.h> in extern "C"

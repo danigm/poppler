@@ -294,7 +294,7 @@ poppler_page_find_text (PopplerPage *page,
   delete output_dev;
   g_free (ucs4);
 
-  return matches;
+  return g_list_reverse (matches);
 }
 
 static void
