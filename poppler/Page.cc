@@ -186,6 +186,14 @@ Page::Page(XRef *xrefA, int numA, Dict *pageDict, PageAttrs *attrsA) {
   // get attributes
   attrs = attrsA;
 
+  // transtion
+  pageDict->lookupNF("Trans", &trans);
+  if (!(trans.isDict() || trans.isNull())) {
+    error(-1, "Page transition object (page %d) is wrong type (%s)",
+	  num, trans.getTypeName());
+    trans.free();
+  }
+
   // annotations
   pageDict->lookupNF("Annots", &annots);
   if (!(annots.isRef() || annots.isArray() || annots.isNull())) {
@@ -215,6 +223,8 @@ Page::Page(XRef *xrefA, int numA, Dict *pageDict, PageAttrs *attrsA) {
   
   return;
 
+ err3:
+  trans.initNull();
  err2:
   annots.initNull();
  err1:

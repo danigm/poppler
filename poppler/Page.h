@@ -144,6 +144,9 @@ public:
   Object *getThumb(Object *obj) { return thumb.fetch(xref, obj); }
   GBool loadThumb(unsigned char **data, int *width, int *height, int *rowstride);
 
+  // Get transition.
+  Object *getTrans(Object *obj) { return trans.fetch(xref, obj); }
+
   // Display a page.
   void display(OutputDev *out, double hDPI, double vDPI,
 	       int rotate, GBool crop,
@@ -171,6 +174,7 @@ private:
   Object annots;		// annotations array
   Object contents;		// page contents
   Object thumb;			// page thumbnail
+  Object trans;			// page transition
   GBool ok;			// true if page is valid
 };
 
