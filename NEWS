@@ -1,3 +1,15 @@
+Release 0.1.2  (Wed Mar  9 10:45:58 EST 2005)
+
+	- cairo optimizations and fixes from Jeff Muizelaar
+	- Bump cairo requirement to 0.4
+	- Make cairo and gtk checks fail gracefully
+
+Release 0.1.1
+
+	- Fix issues with installed header files including config.h
+	- Fix a couple of typos in pkg-config files
+	- Install splash and cairo header files when necessary
+
 Release 0.1 - no date yet
 
 	- First release
