@@ -1,5 +1,15 @@
 2005-03-03  Kristian Høgsberg  <krh@redhat.com>
 
+	Patch from Jeff Muizelaar <jrmuizel@nit.ca>:
+
+	* poppler/CairoOutputDev.cc (CairoOutputDev::drawImage,
+	CairoOutputDev::drawImageMask): destroy the image surface and
+	free the image buffer.
+	
+2005-03-03  Kristian Høgsberg  <krh@redhat.com>
+
+	* autogen.sh: Add -i to autoreconf invocation.
+
 	* autogen.sh: Add to CVS.
 
 2005-03-01  Kristian Høgsberg  <krh@redhat.com>

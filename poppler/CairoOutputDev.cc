@@ -468,9 +468,10 @@ void CairoOutputDev::drawImageMask(GfxState *state, Object *ref, Stream *str,
 		       fill_color.r, fill_color.g, fill_color.b);
   cairo_show_surface (cairo, image, width, height);
 
-  /* TODO: How is buffer + image freed? */
   cairo_restore (cairo);
-  
+
+  cairo_surface_destroy (image);
+  free (buffer);
   delete imgStr;
 
   
@@ -562,8 +563,9 @@ void CairoOutputDev::drawImage(GfxState *state, Object *ref, Stream *str,
   cairo_surface_set_filter (image, CAIRO_FILTER_BEST);
   cairo_show_surface (cairo, image, width, height);
 
-  /* TODO: How is buffer + image freed? */
   cairo_restore (cairo);
   
+  cairo_surface_destroy (image);
+  free (buffer);
   delete imgStr;
 }
