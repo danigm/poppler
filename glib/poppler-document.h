@@ -21,7 +21,7 @@
 
 #include <glib-object.h>
 #include <gdk-pixbuf/gdk-pixbuf.h>
-#include "poppler-glib.h"
+#include "poppler.h"
 
 G_BEGIN_DECLS
 

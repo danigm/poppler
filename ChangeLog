@@ -1,3 +1,13 @@
+2005-03-20  Kristian Høgsberg  <krh@redhat.com>
+
+	* glib/poppler-document.cc:
+	* glib/poppler-page.h:
+	* glib/poppler.cc:
+	* poppler/Array.cc:
+	* poppler/Array.h:
+	* poppler/Catalog.cc: Fix up filenames in #include statements and
+	comments.
+
 2005-03-19  Kristian Høgsberg  <krh@redhat.com>
 
 	Land the first bits of the glib wrapper.

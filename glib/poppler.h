@@ -1,4 +1,4 @@
-/* poppler-glib.h: glib interface to poppler
+/* poppler.h: glib interface to poppler
  * Copyright (C) 2004, Red Hat, Inc.
  *
  * This program is free software; you can redistribute it and/or modify
