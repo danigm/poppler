@@ -1,3 +1,13 @@
+2005-03-28  Kristian Høgsberg  <krh@redhat.com>
+
+	* poppler/Page.cc (loadThumb): Backend agnostic method for
+	extracting an embedded thumbnail iamge.
+
+	* poppler/Dict.cc (lookupInt): New convenience method.
+
+	* glib/poppler-page.cc (poppler_page_get_thumbnail): New glib
+	function for getting the embedded thumbnail image for a page.
+
 2005-03-25  Kristian Høgsberg  <krh@redhat.com>
 
 	* configure.ac: Check for fontconfig for glib bindings.

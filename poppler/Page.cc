@@ -13,6 +13,7 @@
 #endif
 
 #include <stddef.h>
+#include <limits.h>
 #include "GlobalParams.h"
 #include "Object.h"
 #include "Array.h"
@@ -22,6 +23,7 @@
 #include "OutputDev.h"
 #ifndef PDF_PARSER_ONLY
 #include "Gfx.h"
+#include "GfxState.h"
 #include "Annot.h"
 #endif
 #include "Error.h"
@@ -367,4 +369,111 @@ void Page::displaySlice(OutputDev *out, double hDPI, double vDPI,
 
   delete gfx;
 #endif
+}
+
+GBool Page::loadThumb(unsigned char **data_out,
+		      int *width_out, int *height_out,
+		      int *rowstride_out)
+{
+  ImageStream *imgstr;
+  unsigned char *pixbufdata;
+  unsigned int pixbufdatasize;
+  int row, col;
+  int width, height, bits;
+  unsigned char *p;
+  Object obj1, fetched_thumb;
+  Dict *dict;
+  GfxColorSpace *colorSpace;
+  GBool success = gFalse;
+  Stream *str;
+  GfxImageColorMap *colorMap;
+
+  /* Get stream dict */
+  thumb.fetch(xref, &fetched_thumb);
+  if (fetched_thumb.isNull()) {
+    fetched_thumb.free();
+    return gFalse;
+  }
+
+  dict = fetched_thumb.streamGetDict();
+  str = fetched_thumb.getStream(); 
+		
+  if (!dict->lookupInt("Width", "W", &width))
+    goto fail1;
+  if (!dict->lookupInt("Height", "H", &height))
+    goto fail1;
+  if (!dict->lookupInt("BitsPerComponent", "BPC", &bits))
+    goto fail1;
+		
+  /* Check for invalid dimensions and integer overflow. */
+  if (width <= 0 || height <= 0)
+    goto fail1;
+  if (width > INT_MAX / 3 / height)
+    goto fail1;
+  pixbufdatasize = width * height * 3;
+
+  /* Get color space */
+  dict->lookup ("ColorSpace", &obj1);
+  if (obj1.isNull ()) {
+    obj1.free ();
+    dict->lookup ("CS", &obj1);
+  }
+  colorSpace = GfxColorSpace::parse(&obj1);
+  obj1.free();
+  if (!colorSpace) {
+    fprintf (stderr, "Error: Cannot parse color space\n");
+    goto fail1;
+  }
+
+  dict->lookup("Decode", &obj1);
+  if (obj1.isNull()) {
+    obj1.free();
+    dict->lookup("D", &obj1);
+  }
+  colorMap = new GfxImageColorMap(bits, &obj1, colorSpace);
+  obj1.free();
+  if (!colorMap->isOk()) {
+    fprintf (stderr, "Error: invalid colormap\n");
+    goto fail1;
+  }
+
+  str->addFilters(&fetched_thumb);
+
+  pixbufdata = (unsigned char *) gmalloc(pixbufdatasize);
+  p = pixbufdata;
+  imgstr = new ImageStream(str, width,
+			   colorMap->getNumPixelComps(),
+			   colorMap->getBits());
+  imgstr->reset();
+  for (row = 0; row < height; ++row) {
+    for (col = 0; col < width; ++col) {
+      Guchar pix[gfxColorMaxComps];
+      GfxRGB rgb;
+
+      imgstr->getPixel(pix);
+      colorMap->getRGB(pix, &rgb);
+
+      *p++ = (unsigned char)(rgb.r * 255 + 0.5);
+      *p++ = (unsigned char)(rgb.g * 255 + 0.5);
+      *p++ = (unsigned char)(rgb.b * 255 + 0.5);
+    }
+  }
+
+  success = gTrue;
+
+  if (data_out)
+    *data_out = pixbufdata;
+  if (width_out)
+    *width_out = width;
+  if (height_out)
+    *height_out = height;
+  if (rowstride_out)
+    *rowstride_out = width * 3;
+
+  delete imgstr;
+  delete colorMap;
+ fail1:
+  fetched_thumb.free();
+
+  return success;
 }

@@ -50,6 +50,7 @@ public:
   // if <key> is not in the dictionary.
   Object *lookup(char *key, Object *obj);
   Object *lookupNF(char *key, Object *obj);
+  GBool lookupInt(const char *key, const char *alt_key, int *value);
 
   // Iterative accessors.
   char *getKey(int i);

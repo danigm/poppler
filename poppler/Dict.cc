@@ -82,6 +82,26 @@ Object *Dict::lookupNF(char *key, Object *obj) {
   return (e = find(key)) ? e->val.copy(obj) : obj->initNull();
 }
 
+GBool Dict::lookupInt(const char *key, const char *alt_key, int *value)
+{
+  Object obj1;
+  GBool success = gFalse;
+  
+  lookup ((char *) key, &obj1);
+  if (obj1.isNull () && alt_key != NULL) {
+    obj1.free ();
+    lookup ((char *) alt_key, &obj1);
+  }
+  if (obj1.isInt ()) {
+    *value = obj1.getInt ();
+    success = gTrue;
+  }
+
+  obj1.free ();
+
+  return success;
+}
+
 char *Dict::getKey(int i) {
   return entries[i].key;
 }

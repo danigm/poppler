@@ -29,23 +29,21 @@ G_BEGIN_DECLS
 #define POPPLER_PAGE(obj)             (G_TYPE_CHECK_INSTANCE_CAST ((obj), POPPLER_TYPE_PAGE, PopplerPage))
 #define POPPLER_IS_PAGE(obj)          (G_TYPE_CHECK_INSTANCE_TYPE ((obj), POPPLER_TYPE_PAGE))
 
-GType poppler_page_get_type        (void) G_GNUC_CONST;
-
-void poppler_page_render_to_pixbuf (PopplerPage *page,
-				    int          src_x,
-				    int          src_y,
-				    int          src_width,
-				    int          src_height,
-				    double       scale,
-				    GdkPixbuf   *pixbuf,
-				    int          dest_x,
-				    int          dest_y);
-void poppler_page_get_size         (PopplerPage *page,
-				    double      *width,
-				    double      *height);
-int  poppler_page_get_index        (PopplerPage *page);
-
-
+GType      poppler_page_get_type         (void) G_GNUC_CONST;
+void       poppler_page_render_to_pixbuf (PopplerPage  *page,
+					  int           src_x,
+					  int           src_y,
+					  int           src_width,
+					  int           src_height,
+					  double        scale,
+					  GdkPixbuf    *pixbuf,
+					  int           dest_x,
+					  int           dest_y);
+void       poppler_page_get_size         (PopplerPage  *page,
+					  double       *width,
+					  double       *height);
+int        poppler_page_get_index        (PopplerPage  *page);
+GdkPixbuf *poppler_page_get_thumbnail    (PopplerPage  *page);
 
 G_END_DECLS
 

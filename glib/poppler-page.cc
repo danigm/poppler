@@ -16,6 +16,8 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
+#include <math.h>
+
 #include <goo/GooList.h>
 #include <splash/SplashBitmap.h>
 #include <GlobalParams.h>
@@ -25,6 +27,7 @@
 #include <UnicodeMap.h>
 #include <GfxState.h>
 #include <SplashOutputDev.h>
+#include <TextOutputDev.h>
 
 #include "poppler.h"
 #include "poppler-private.h"
@@ -154,6 +157,26 @@ poppler_page_render_to_pixbuf (PopplerPage *page,
   }
 
   delete output_dev;
+}
+
+static void 
+destroy_thumb_data (guchar *pixels, gpointer data)
+{
+  gfree (pixels);
+}
+
+GdkPixbuf *
+poppler_page_get_thumbnail (PopplerPage *page)
+{
+  unsigned char *data;
+  int width, height, rowstride;
+
+  if (!page->page->loadThumb (&data, &width, &height, &rowstride))
+    return NULL;
+
+  return gdk_pixbuf_new_from_data (data, GDK_COLORSPACE_RGB,
+				   FALSE, 8, width, height, rowstride,
+				   destroy_thumb_data, NULL);
 }
 
 static void

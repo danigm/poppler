@@ -142,6 +142,7 @@ public:
 
   // Get thumb.
   Object *getThumb(Object *obj) { return thumb.fetch(xref, obj); }
+  GBool loadThumb(unsigned char **data, int *width, int *height, int *rowstride);
 
   // Display a page.
   void display(OutputDev *out, double hDPI, double vDPI,
