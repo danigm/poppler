@@ -2,7 +2,7 @@ INCLUDES =					\
 	-I$(top_srcdir)				\
 	-I$(top_srcdir)/poppler			\
 	$(cairo_includes)			\
-	$(GTK_TEST_CFLAGS)			\
+	$(POPPLER_GLIB_CFLAGS)			\
 	-DDATADIR=\""$(datadir)"\"
 
 poppler_glib_includedir = $(includedir)/poppler/glib
@@ -19,7 +19,7 @@ libpoppler_glib_la_SOURCES =			\
 	poppler-private.h
 
 libpoppler_glib_la_LIBADD =			\
-	$(GTK_TEST_LIBS)
+	$(POPPLER_GLIB_LIBS)
 
 noinst_PROGRAMS = test-poppler-glib
 
@@ -29,5 +29,4 @@ test_poppler_glib_SOURCES =			\
 test_poppler_glib_LDADD =			\
 	$(top_builddir)/poppler/libpoppler.la	\
 	libpoppler-glib.la			\
-	$(GTK_TEST_LIBS)
-
+	$(POPPLER_GLIB_LIBS)
