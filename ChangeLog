@@ -1,3 +1,7 @@
+2005-03-30  Jeff Muizelaar <jrmuizel@nit.ca>
+
+	* poppler/Catalog.cc: delete pageLabelInfo on deconstruction
+
 Tue Mar 29 23:07:17 2005  Jonathan Blandford  <jrb@redhat.com>
 
 	* glib/poppler-page.h: Reformat.

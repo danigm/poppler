@@ -169,6 +169,7 @@ Catalog::~Catalog() {
   if (baseURI) {
     delete baseURI;
   }
+  delete pageLabelInfo;
   metadata.free();
   structTreeRoot.free();
   outline.free();
