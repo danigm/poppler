@@ -1,3 +1,16 @@
+2005-04-06  Jeff Muizelaar  <jrmuizel@nit.ca>
+
+	* Makefile.am, configure.ac: Add configuration for qt wrapper.
+	
+	* poppler-qt.pc.in:
+	* qt/Makefile.am:
+	* qt/poppler-document.cc:
+	* qt/poppler-page.cc:
+	* qt/poppler-private.h:
+	* qt/poppler-qt.h:
+	* qt/test-poppler-qt.cpp:
+	New files.
+
 2005-04-05  Kristian Høgsberg  <krh@redhat.com>
 
 	* NEWS: Attempt to sum up changes since 0.1.2.

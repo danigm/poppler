@@ -180,6 +180,65 @@ elif test x$enable_poppler_glib = xtry; then
 fi
 AM_CONDITIONAL(BUILD_POPPLER_GLIB, test x$enable_poppler_glib = xyes)
 
+AC_ARG_ENABLE(poppler-qt,
+	      AC_HELP_STRING([--disable-poppler-qt],
+			     [Don't compile poppler qt wrapper.]),
+	      enable_poppler_qt=$enableval,
+	      enable_poppler_qt="try")
+# Qt detection
+AC_PATH_PROG(QT_MOC, moc, no)
+
+have_qt=no
+AC_MSG_CHECKING([for qglobal.h])
+if test -n "$QTDIR" -a -f "$QTDIR/include/qglobal.h"; then
+    have_qt=yes
+    POPPLER_QT_CXXFLAGS="-I$QTDIR/include"
+else
+    for dir in "${prefix}/include/qt" "/usr/include/qt-3.1" "/usr/include/qt3" "/usr/include/qt" "/usr/lib/qt/include" "/usr/lib/qt-3.1/include"; do
+        if test -f "$dir/qglobal.h"; then
+            have_qt=yes
+            POPPLER_QT_CXXFLAGS="-I$dir"
+       fi
+    done
+fi
+if test x"$have_qt" = x"yes"; then
+   AC_MSG_RESULT([found])
+else
+   AC_MSG_RESULT([not found])
+fi
+
+dnl linking to kdecore will give us a bit of help from libtool
+if (! kde-config >& /dev/null); then
+    have_qt=no
+else
+    kdelibs=`kde-config --install lib --expandvars 2>/dev/null`
+    if test -z $kdelibs -o ! -f $kdelibs/libkdecore.la; then
+        have_qt=no
+    else
+        POPPLER_QT_LIBS="$kdelibs/libkdecore.la /usr/lib/libqt-mt.la"
+    fi
+fi
+
+if test x$have_qt = xno ; then
+    AC_MSG_WARN([Qt development libraries not found])
+fi
+
+if test x$enable_poppler_qt = xyes; then
+  if test x$have_qt = xno; then
+    AC_MSG_ERROR([Qt integration explicitly required, and Qt libraries not found])
+  fi
+elif test x$enable_poppler_qt = xtry; then
+  if test x$have_qt = xyes; then
+    enable_poppler_qt="yes"
+  else
+    enable_poppler_qt="no"
+  fi
+fi
+AM_CONDITIONAL(BUILD_POPPLER_QT, test x$enable_poppler_glib = xyes)
+
+dnl Qt flags
+AC_SUBST(POPPLER_QT_CXXFLAGS)
+AC_SUBST(POPPLER_QT_LIBS)
 
 AC_ARG_ENABLE(gtk-test,
               AC_HELP_STRING([--disable-gtk-test],
@@ -224,15 +283,18 @@ splash/Makefile
 poppler/Makefile
 glib/Makefile
 test/Makefile
+qt/Makefile
 poppler.pc
 poppler-cairo.pc
 poppler-splash.pc
-poppler-glib.pc])
+poppler-glib.pc
+poppler-qt.pc])
 
 
 echo ""
 echo "Building poppler with support for:"
 echo "  splash output: $enable_splash_output"
 echo "  cairo output:  $enable_cairo_output"
+echo "  qt wrapper:    $enable_poppler_qt"
 echo "  glib wrapper:  $enable_poppler_glib"
 echo "  use libjpeg:   $enable_libjpeg"
