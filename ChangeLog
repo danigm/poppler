@@ -1,5 +1,10 @@
 2005-03-04  Kristian Høgsberg  <krh@redhat.com>
 
+	* configure.ac: Only fail hard in check for cairo if the user
+	specified --enable-cairo-output (from Brad Hards
+	<bradh@frogmouth.net>).  Print summary of configure results at the
+	end of configure script.
+
 	* poppler/poppler-config.h: Remove this file (noticed by Brad
 	Hards <bradh@frogmouth.net>).
 

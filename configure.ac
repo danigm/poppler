@@ -111,12 +111,17 @@ AM_CONDITIONAL(BUILD_SPLASH_OUTPUT, test x$enable_splash_output = xyes)
 
 AC_ARG_ENABLE(cairo-output,
               AC_HELP_STRING([--disable-cairo-output],
-	                     [Don't build the cairo graphics backend.]),,
-              enable_cairo_output="yes")
-AM_CONDITIONAL(BUILD_CAIRO_OUTPUT, test x$enable_cairo_output = xyes)
+                             [Don't build the cairo graphics backend.]),
+              enable_cairo_output=$enableval,
+              enable_cairo_output="try")
 if test x$enable_cairo_output = xyes; then
   PKG_CHECK_MODULES(CAIRO, cairo >= 0.3)
+elif test x$enable_cairo_output = xtry; then
+  PKG_CHECK_MODULES(CAIRO, cairo >= 0.3,
+                    [enable_cairo_output="yes"],
+                    [enable_cairo_output="no"])
 fi
+AM_CONDITIONAL(BUILD_CAIRO_OUTPUT, test x$enable_cairo_output = xyes)
 
 AC_ARG_ENABLE(gtk-test,
               AC_HELP_STRING([--disable-gtk-test],
@@ -137,3 +142,9 @@ test/Makefile
 poppler.pc
 poppler-cairo.pc
 poppler-splash.pc])
+
+
+echo ""
+echo "Building poppler with support for:"
+echo "  splash output: $enable_splash_output"
+echo "  cairo output: $enable_cairo_output"
