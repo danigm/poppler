@@ -60,7 +60,7 @@ public:
   Stream *getRawStream() { return str; }
 
 private:
-  int x;
+  unsigned int x;
   struct jpeg_decompress_struct cinfo;
   struct jpeg_error_mgr jerr;
   struct str_src_mgr src;
