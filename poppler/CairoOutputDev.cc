@@ -321,62 +321,118 @@ void CairoOutputDev::eoClip(GfxState *state) {
   LOG (printf ("clip-eo\n"));
 }
 
-void CairoOutputDev::drawChar(GfxState *state, double x, double y,
-			       double dx, double dy,
-			       double originX, double originY,
-			       CharCode code, Unicode *u, int uLen) {
-  cairo_glyph_t glyph;
-  double x1, y1;
+void CairoOutputDev::drawString(GfxState *state, GooString *s)
+{
+  GfxFont *font;
+  int wMode;
   int render;
-
-  LOG (printf ("drawChar %d '%c'\n", code, code));
+  // the number of bytes in the string and not the number of glyphs?
+  int len = s->getLength();
+  // need at most len glyphs
+  cairo_glyph_t *glyphs;
   
+  char *p = s->getCString();
+  int count = 0;
+  double curX, curY;
+  double riseX, riseY;
+
+  font = state->getFont();
+  wMode = font->getWMode();
+ 
   if (needFontUpdate) {
     updateFont(state);
   }
   if (!currentFont) {
     return;
   }
-  
+   
   // check for invisible text -- this is used by Acrobat Capture
   render = state->getRender();
   if (render == 3) {
     return;
   }
 
-  x -= originX;
-  y -= originY;
-  state->transform(x, y, &x1, &y1);
+  // ignore empty strings
+  if (len == 0)
+    return;
+  
+  glyphs = (cairo_glyph_t *) gmalloc (len * sizeof (cairo_glyph_t));
 
-  glyph.index = currentFont->getGlyph (code, u, uLen);
-  glyph.x = x1;
-  glyph.y = y1;
+  state->textTransformDelta(0, state->getRise(), &riseX, &riseY);
+  curX = state->getCurX();
+  curY = state->getCurY();
+  while (len > 0) {
+    double x, y;
+    double x1, y1;
+    double dx, dy, tdx, tdy;
+    double originX, originY, tOriginX, tOriginY;
+    int n, uLen;
+    CharCode code;
+    Unicode u[8];
+    n = font->getNextChar(p, len, &code,
+	                  u, (int)(sizeof(u) / sizeof(Unicode)), &uLen,
+			  &dx, &dy, &originX, &originY);
+    if (wMode) {
+      dx *= state->getFontSize();
+      dy = dy * state->getFontSize() + state->getCharSpace();
+      if (n == 1 && *p == ' ') {
+	dy += state->getWordSpace();
+      }
+    } else {
+      dx = dx * state->getFontSize() + state->getCharSpace();
+      if (n == 1 && *p == ' ') {
+	dx += state->getWordSpace();
+      }
+      dx *= state->getHorizScaling();
+      dy *= state->getFontSize();
+    }
+    originX *= state->getFontSize();
+    originY *= state->getFontSize();
+    state->textTransformDelta(dx, dy, &tdx, &tdy);
+    state->textTransformDelta(originX, originY, &tOriginX, &tOriginY);
+    x = curX + riseX;
+    y = curY + riseY;
+    x -= tOriginX;
+    y -= tOriginY;
+    state->transform(x, y, &x1, &y1);
 
+    glyphs[count].index = currentFont->getGlyph (code, u, uLen);
+    glyphs[count].x = x1;
+    glyphs[count].y = y1;
+    curX += tdx;
+    curY += tdy;
+    p += n;
+    len -= n;
+    count++;
+  }
   // fill
   if (!(render & 1)) {
-    LOG (printf ("fill glyph\n"));
+    LOG (printf ("fill string\n"));
     cairo_set_rgb_color (cairo,
 			 fill_color.r, fill_color.g, fill_color.b);
-    cairo_show_glyphs (cairo, &glyph, 1);
-  }
-
-  // stroke
-  if ((render & 3) == 1 || (render & 3) == 2) {
-    LOG (printf ("stroke glyph\n"));
-    cairo_set_rgb_color (cairo,
-			 stroke_color.r, stroke_color.g, stroke_color.b);
-    cairo_glyph_path (cairo, &glyph, 1);
-    cairo_stroke (cairo);
+    cairo_show_glyphs (cairo, glyphs, count);
   }
   
+  // stroke
+  if ((render & 3) == 1 || (render & 3) == 2) {
+    LOG (printf ("stroke string\n"));
+    cairo_set_rgb_color (cairo,
+			 stroke_color.r, stroke_color.g, stroke_color.b);
+    cairo_glyph_path (cairo, glyphs, count);
+    cairo_stroke (cairo);
+  }
 
   // clip
   if (render & 4) {
-    printf ("TODO: clip to glyph\n");
-    /* TODO: This reqires us to concatenat all clip paths
-       until endTextObject */
+    // FIXME: This is quite right yet, we need to accumulate all
+    // glyphs within one text object before we clip.  Right now this
+    // just add this one string.
+    LOG (printf ("clip string\n"));
+    cairo_glyph_path (cairo, glyphs, count);
+    cairo_clip (cairo);
   }
-
+  
+  gfree (glyphs);
 }
 
 GBool CairoOutputDev::beginType3Char(GfxState *state, double x, double y,

@@ -1,5 +1,19 @@
 2005-03-04  Kristian Høgsberg  <krh@redhat.com>
 
+	Patch from Jeff Muizelaar <jrmuizel@nit.ca>.  Changed to allocate
+	glyphs using gmalloc.
+
+	* poppler/CairoOutputDev.cc (CairoOutputDev::drawString):
+	Implement drawString instead of drawChar. This change should
+	make clipping to a text path work and has a performance
+	improvement. Currently the code is a little ugly because we
+	can't concat matrices to cairo without losing our current font.
+
+	* poppler/CairoOutputDev.h (CairoOutputDev::useDrawChar):
+	Tell Gfx.cc that it should use drawString instead of drawChar.
+
+2005-03-04  Kristian Høgsberg  <krh@redhat.com>
+
 	* test/gtk-cairo-test.cc (view_load): 
 	* test/gtk-splash-test.cc (view_load): Fix missing return
 	statement, and remove unused variables.

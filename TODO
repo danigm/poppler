@@ -9,6 +9,9 @@ Convert to use as much existing infra-structure as possible:
 	- use libtiff for ccitt decoding?
 
 Performance:
+	- Add simle performance benchmark that takes a pdf and renders
+	  every page 100 times or so.  Start keeping track of
+	  performance.
 	- make color space conversion stuff more sane (right now we
 	  hack around some of it in the cairo backend)
 	- move away from getChar to a more read(2) like interface
