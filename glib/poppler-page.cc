@@ -32,9 +32,10 @@
 #include "poppler.h"
 #include "poppler-private.h"
 
-enum {
-	PROP_0,
-	PROP_LABEL
+enum
+{
+  PROP_0,
+  PROP_LABEL
 };
 
 typedef struct _PopplerPageClass PopplerPageClass;
@@ -49,6 +50,8 @@ PopplerPage *
 _poppler_page_new (PopplerDocument *document, Page *page, int index)
 {
   PopplerPage *poppler_page;
+
+  g_return_val_if_fail (POPPLER_IS_DOCUMENT (document), NULL);
 
   poppler_page = (PopplerPage *) g_object_new (POPPLER_TYPE_PAGE, NULL);
   poppler_page->document = document;
@@ -69,6 +72,8 @@ poppler_page_get_size (PopplerPage *page,
 		       double      *width,
 		       double      *height)
 {
+  g_return_if_fail (POPPLER_IS_PAGE (page));
+
   if (width != NULL)
     *width = page->page->getWidth ();
   if (height != NULL)
@@ -78,6 +83,8 @@ poppler_page_get_size (PopplerPage *page,
 int
 poppler_page_get_index (PopplerPage *page)
 {
+  g_return_val_if_fail (POPPLER_IS_PAGE (page), 0);
+
   return page->index;
 }
 
@@ -118,6 +125,7 @@ poppler_page_render_to_pixbuf (PopplerPage *page,
 
   g_return_if_fail (POPPLER_IS_PAGE (page));
   g_return_if_fail (scale > 0.0);
+  g_return_if_fail (pixbuf != NULL);
 
   white.rgb8 = splashMakeRGB8 (0xff, 0xff, 0xff);
   output_dev = new SplashOutputDev(splashModeRGB8, gFalse, white);
@@ -174,6 +182,8 @@ poppler_page_get_thumbnail (PopplerPage *page)
   unsigned char *data;
   int width, height, rowstride;
 
+  g_return_val_if_fail (POPPLER_IS_PAGE (page), FALSE);
+
   if (!page->page->loadThumb (&data, &width, &height, &rowstride))
     return NULL;
 
@@ -181,7 +191,6 @@ poppler_page_get_thumbnail (PopplerPage *page)
 				   FALSE, 8, width, height, rowstride,
 				   destroy_thumb_data, NULL);
 }
-
 
 /**
  * poppler_page_get_thumbnail_size:
@@ -217,8 +226,8 @@ poppler_page_get_thumbnail_size (PopplerPage *page,
 
   dict = thumb.streamGetDict();
 
-  /* Theoretically, this could succeed and you would still fail when loading the
-   * thumb */
+  /* Theoretically, this could succeed and you would still fail when
+   * loading the thumb */
   if (dict->lookupInt ("Width", "W", width)  &&
       dict->lookupInt ("Height", "H", height))
     retval = TRUE;
@@ -226,6 +235,58 @@ poppler_page_get_thumbnail_size (PopplerPage *page,
   thumb.free ();
 
   return retval;
+}
+
+/**
+ * poppler_page_find_text:
+ * @page: a #PopplerPage
+ * @text: the text to search for (UTF-8 encoded)
+ * 
+ * A #GList of rectangles for each occurance of the text on the page.
+ * The coordinates are in PDF points.
+ * 
+ * Return value: a #GList of PopplerRectangle, 
+ **/
+GList *
+poppler_page_find_text (PopplerPage *page,
+			const char  *text)
+{
+  PopplerRectangle *match;
+  TextOutputDev *output_dev;
+  PDFDoc *doc;
+  GList *matches;
+  double xMin, yMin, xMax, yMax;
+  gunichar *ucs4;
+  glong ucs4_len;
+
+  g_return_val_if_fail (POPPLER_IS_PAGE (page), FALSE);
+  g_return_val_if_fail (text != NULL, FALSE);
+
+  ucs4 = g_utf8_to_ucs4_fast (text, -1, &ucs4_len);
+
+  output_dev = new TextOutputDev (NULL, gTrue, gFalse, gFalse);
+  doc = page->document->doc;
+
+  page->page->display(output_dev, 72, 72, 0, gTrue, NULL, doc->getCatalog());
+  
+  matches = NULL;
+  while (output_dev->findText (ucs4, ucs4_len,
+			       gFalse, gTrue, // startAtTop, stopAtBottom
+			       gTrue, gFalse, // startAtLast, stopAtLast
+			       &xMin, &yMin, &xMax, &yMax))
+    {
+      match = g_new (PopplerRectangle, 1);
+      match->x1 = xMin;
+      match->y1 = yMin;
+      match->x2 = xMax;
+      match->y2 = yMax;
+      matches = g_list_prepend (matches, match);
+    }
+
+  delete output_dev;
+  g_free (ucs4);
+
+  return matches;
 }
 
 static void
@@ -275,9 +336,9 @@ poppler_page_init (PopplerPage *page)
  * poppler_page_get_link_mapping:
  * @page: A #PopplerPage
  * 
- * Returns a list of #PopplerLinkMapping items that map from a location on @page
- * to a #PopplerAction.  This list must be freed with
- * poppler_page_free_link_mapping() when done.
+ * Returns a list of #PopplerLinkMapping items that map from a
+ * location on @page to a #PopplerAction.  This list must be freed
+ * with poppler_page_free_link_mapping() when done.
  * 
  * Return value: A #GList of #PopplerLinkMapping
  **/
@@ -309,7 +370,8 @@ poppler_page_get_link_mapping (PopplerPage *page)
 		/* Create the mapping */
 		mapping = g_new (PopplerLinkMapping, 1);
 		mapping->action = _poppler_action_new (page->document, link_action, NULL);
-		link->getRect (&(mapping->x1), &(mapping->y1), &(mapping->x2), &(mapping->y2));
+		link->getRect (&(mapping->area.x1), &(mapping->area.y1),
+			       &(mapping->area.x2), &(mapping->area.y2));
 		map_list = g_list_prepend (map_list, mapping);
 	}
 

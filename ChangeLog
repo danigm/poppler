@@ -1,3 +1,11 @@
+2005-03-31  Kristian Høgsberg  <krh@redhat.com>
+
+	* glib/poppler-page.cc (poppler_page_find_text): New function to
+	seach a page for occurrences of a given text string.
+
+	* glib/poppler-page.cc: Add g_return_if_fail() checks to a couple
+	of functions.
+	
 Thu Mar 31 00:26:20 2005  Jonathan Blandford  <jrb@redhat.com>
 
 	* glib/poppler-page.cc:

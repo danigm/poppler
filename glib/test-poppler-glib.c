@@ -13,6 +13,7 @@ int main (int argc, char *argv[])
   GError *error;
   GdkPixbuf *pixbuf, *thumb;
   double width, height;
+  GList *list, *l;
 
   if (argc != 3)
     FAIL ("usage: test-poppler-glib FILE PAGE");
@@ -51,14 +52,26 @@ int main (int argc, char *argv[])
   printf ("page label: %s\n", label);
   g_free (label);
 
-  pixbuf = gdk_pixbuf_new (GDK_COLORSPACE_RGB, FALSE, 8, 100, 100);
+  pixbuf = gdk_pixbuf_new (GDK_COLORSPACE_RGB, FALSE, 8, 220, 220);
   gdk_pixbuf_fill (pixbuf, 0x00106000);
-  poppler_page_render_to_pixbuf (page, 100, 100, 50, 50, 1, pixbuf, 10, 10);
-  g_object_unref (G_OBJECT (page));
+  poppler_page_render_to_pixbuf (page, 100, 100, 200, 200, 1, pixbuf, 10, 10);
 
   gdk_pixbuf_save (pixbuf, "slice.png", "png", &error, NULL);
+  printf ("saved 200x200 slice at (100, 100) as slice.png\n");
   if (error != NULL)
     FAIL (error->message);
+
+  list = poppler_page_find_text (page, "Bitwise");
+  printf ("Found text \"Bitwise\" at positions:\n");
+  for (l = list; l != NULL; l = l->next)
+    {
+      PopplerRectangle *rect = l->data;
+
+      printf ("  (%f,%f)-(%f,%f)\n", rect->x1, rect->y1, rect->x2, rect->y2);
+    }
+    
+
+  g_object_unref (G_OBJECT (page));
 
   g_object_unref (G_OBJECT (document));
 

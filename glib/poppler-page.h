@@ -48,15 +48,23 @@ GdkPixbuf *poppler_page_get_thumbnail      (PopplerPage *page);
 gboolean   poppler_page_get_thumbnail_size (PopplerPage *page,
 					    int         *width,
 					    int         *height);
+GList     *poppler_page_find_text          (PopplerPage  *page,
+					    const  char  *text);
+
+/* A rectangle on a page, with coordinates in PDF points. */
+typedef struct
+{
+  gdouble x1;
+  gdouble y1;
+  gdouble x2;
+  gdouble y2;
+} PopplerRectangle;
 
 /* Mapping between areas on the current page and PopplerActions */
 typedef struct
 {
-	gdouble x1;
-	gdouble y1;
-	gdouble x2;
-	gdouble y2;
-	PopplerAction *action;
+  PopplerRectangle area;
+  PopplerAction *action;
 } PopplerLinkMapping;
 
 GList *poppler_page_get_link_mapping  (PopplerPage *page);
