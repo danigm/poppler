@@ -1,3 +1,8 @@
+2005-04-03  Martin Kretzschmar  <martink@gnome.org>
+
+	* poppler/DCTStream.h: Wrap #include <jpeglib.h> in extern "C"
+	Fixes build with unpatched libjpeg.
+
 2005-04-02  Jeff Muizelaar  <jrmuizel@nit.ca>
 
 	* poppler/Page.h:

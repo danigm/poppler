@@ -37,7 +37,9 @@
 #endif
 #include "Stream.h"
 
+extern "C" {
 #include <jpeglib.h>
+}
 
 struct str_src_mgr {
     struct jpeg_source_mgr pub;
