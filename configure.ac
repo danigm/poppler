@@ -234,7 +234,7 @@ elif test x$enable_poppler_qt = xtry; then
     enable_poppler_qt="no"
   fi
 fi
-AM_CONDITIONAL(BUILD_POPPLER_QT, test x$enable_poppler_glib = xyes)
+AM_CONDITIONAL(BUILD_POPPLER_QT, test x$enable_poppler_qt = xyes)
 
 dnl Qt flags
 AC_SUBST(POPPLER_QT_CXXFLAGS)

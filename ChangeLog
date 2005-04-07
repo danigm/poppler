@@ -1,3 +1,8 @@
+Thu Apr  7 12:25:39 2005  Jonathan Blandford  <jrb@redhat.com>
+
+	* configure.ac: check for qt, not glib, when enabling the qt
+	subdir
+
 2005-04-06  Jeff Muizelaar  <jrmuizel@nit.ca>
 
 	* .cvsignore, glib/.cvsignore, qt/.cvsignore:
