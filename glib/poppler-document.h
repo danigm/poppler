@@ -33,6 +33,7 @@ G_BEGIN_DECLS
 typedef struct _PopplerDocument PopplerDocument;
 typedef struct _PopplerIndexIter PopplerIndexIter;
 typedef struct _PopplerPage PopplerPage;
+typedef struct _PopplerPSFile PopplerPSFile;
 
 PopplerDocument *poppler_document_new_from_file     (const char       *uri,
 						     const char       *password,
@@ -55,8 +56,11 @@ PopplerAction    *poppler_index_iter_get_action (PopplerIndexIter  *iter);
 gboolean          poppler_index_iter_next       (PopplerIndexIter  *iter);
 void              poppler_index_iter_free       (PopplerIndexIter  *iter);
 
-
-
+/* Export to ps */
+PopplerPSFile *poppler_ps_file_new   (PopplerDocument *document,
+				      const char      *filename,
+				      int              n_pages);
+void           poppler_ps_file_free  (PopplerPSFile   *ps_file);
 
 G_END_DECLS
 

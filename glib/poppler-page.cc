@@ -431,6 +431,25 @@ poppler_page_find_text (PopplerPage *page,
   return g_list_reverse (matches);
 }
 
+/**
+ * poppler_page_render_to_ps:
+ * @page: a #PopplerPage
+ * @ps_file: the PopplerPSFile to render to
+ * 
+ * Render the page on a postscript file
+ * 
+ **/
+void
+poppler_page_render_to_ps (PopplerPage   *page,
+			   PopplerPSFile *ps_file)
+{
+  g_return_if_fail (POPPLER_IS_PAGE (page));
+  g_return_if_fail (ps_file != NULL);
+
+  ps_file->document->doc->displayPage (ps_file->out, page->index + 1,
+				       72.0, 72.0, 0, gTrue, gFalse);
+}
+
 static void
 poppler_page_get_property (GObject *object,
 			   guint prop_id,

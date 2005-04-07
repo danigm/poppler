@@ -2,12 +2,19 @@
 #define __POPPLER_PRIVATE_H__
 
 #include <PDFDoc.h>
+#include <PSOutputDev.h>
 #include <Link.h>
 
 struct _PopplerDocument
 {
   GObject parent_instance;
   PDFDoc *doc;
+};
+
+struct _PopplerPSFile
+{
+  PopplerDocument *document;
+  PSOutputDev *out;
 };
 
 struct _PopplerPage

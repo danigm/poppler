@@ -1,3 +1,12 @@
+2005-04-07  Kristian Høgsberg  <krh@redhat.com>
+
+	* glib/poppler-document.cc: 
+	* glib/poppler-document.h:
+	* glib/poppler-page.cc:
+	* glib/poppler-page.h:
+	* glib/poppler-private.h: Print to PS support from Marco Pesenti
+	Gritti.
+
 Thu Apr  7 12:25:39 2005  Jonathan Blandford  <jrb@redhat.com>
 
 	* configure.ac: check for qt, not glib, when enabling the qt

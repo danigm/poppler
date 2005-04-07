@@ -395,3 +395,48 @@ poppler_index_iter_free (PopplerIndexIter *iter)
 	g_free (iter);
 	
 }
+
+/**
+ * poppler_ps_file_new:
+ * @document: a #PopplerDocument
+ * @filename: the path of the output filename
+ * @n_pages: the total number of pages that will be rendered
+ * 
+ * Create a new postscript file to render to
+ * 
+ * Return value: a PopplerPSFile 
+ **/
+PopplerPSFile *
+poppler_ps_file_new (PopplerDocument *document, const char *filename, int n_pages)
+{
+	PopplerPSFile *ps_file;
+
+	g_return_val_if_fail (POPPLER_IS_DOCUMENT (document), NULL);
+	g_return_val_if_fail (filename != NULL, NULL);
+	g_return_val_if_fail (n_pages > 0, NULL);
+
+	ps_file = g_new0 (PopplerPSFile, 1);
+	ps_file->document = (PopplerDocument *) g_object_ref (document);
+	ps_file->out = new PSOutputDev ((char *)filename, document->doc->getXRef(),
+					document->doc->getCatalog(), 1,
+					n_pages, psModePS);
+
+	return ps_file;
+}
+
+/**
+ * poppler_ps_file_free:
+ * @ps_file: a PopplerPSFile
+ * 
+ * Free a PopplerPSFile
+ * 
+ **/
+void
+poppler_ps_file_free (PopplerPSFile *ps_file)
+{
+	g_return_if_fail (ps_file != NULL);
+
+	delete ps_file->out;
+	g_object_unref (ps_file->document);
+	g_free (ps_file);
+}
