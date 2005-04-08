@@ -1,5 +1,9 @@
 2005-04-07  Jeff Muizelaar  <jrmuizel@nit.ca>
 
+	* configure.ac: redo the qt tests from Albert Astals Cid
+
+2005-04-07  Jeff Muizelaar  <jrmuizel@nit.ca>
+
 	* qt/poppler-document.cc:
 	* qt/poppler-page.cc:
 	* qt/poppler-qt.h:

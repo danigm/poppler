@@ -185,39 +185,59 @@ AC_ARG_ENABLE(poppler-qt,
 			     [Don't compile poppler qt wrapper.]),
 	      enable_poppler_qt=$enableval,
 	      enable_poppler_qt="try")
-# Qt detection
-AC_PATH_PROG(QT_MOC, moc, no)
 
 have_qt=no
-AC_MSG_CHECKING([for qglobal.h])
-if test -n "$QTDIR" -a -f "$QTDIR/include/qglobal.h"; then
-    have_qt=yes
-    POPPLER_QT_CXXFLAGS="-I$QTDIR/include"
-else
-    for dir in "${prefix}/include/qt" "/usr/include/qt-3.1" "/usr/include/qt3" "/usr/include/qt" "/usr/lib/qt/include" "/usr/lib/qt-3.1/include"; do
-        if test -f "$dir/qglobal.h"; then
-            have_qt=yes
-            POPPLER_QT_CXXFLAGS="-I$dir"
-       fi
-    done
-fi
-if test x"$have_qt" = x"yes"; then
-   AC_MSG_RESULT([found])
-else
-   AC_MSG_RESULT([not found])
+dnl ===================================================================
+dnl Check whether the Qt libraries are available.
+dnl Adapted from OpenOffice.org configure.in
+dnl ===================================================================
+
+dnl Search paths for Qt 
+qt_incdirs="$QTINC /usr/local/qt/include /usr/include/qt /usr/include /usr/X11R6/include/X11/qt /usr/X11R6/include/qt /usr/lib/qt3/include /usr/lib/qt/include /usr/share/qt3/include"
+qt_libdirs="$QTLIB /usr/local/qt/lib /usr/lib/qt /usr/lib /usr/X11R6/lib/X11/qt /usr/X11R6/lib/qt /usr/lib/qt3/lib /usr/lib/qt/lib /usr/share/qt3/lib"
+if test -n "$QTDIR" ; then
+    qt_incdirs="$QTDIR/include $qt_incdirs"
+    qt_libdirs="$QTDIR/lib $qt_libdirs"
 fi
 
-dnl linking to kdecore will give us a bit of help from libtool
-if (! kde-config >& /dev/null); then
-    have_qt=no
-else
-    kdelibs=`kde-config --install lib --expandvars 2>/dev/null`
-    if test -z $kdelibs -o ! -f $kdelibs/libkdecore.la; then
-        have_qt=no
-    else
-        POPPLER_QT_LIBS="$kdelibs/libkdecore.la /usr/lib/libqt-mt.la"
+dnl What to test
+qt_test_include="qstyle.h"
+qt_test_library="libqt-mt.la"
+
+dnl Check for Qt headers
+AC_MSG_CHECKING([for Qt headers])
+qt_incdir="no"
+for it in $qt_incdirs ; do
+    if test -r "$it/$qt_test_include" ; then
+        qt_incdir="$it"
+        break
+    fi
+done
+AC_MSG_RESULT([$qt_incdir])
+
+dnl Check for Qt libraries
+AC_MSG_CHECKING([for Qt libraries])
+qt_libdir="no"
+for qt_check in $qt_libdirs ; do
+    if test -r "$qt_check/$qt_test_library" ; then
+        qt_libdir="$qt_check"
+        break
+    fi
+done
+AC_MSG_RESULT([$qt_libdir])
+
+if test "x$qt_libdir" != "xno" ; then
+    if test "x$qt_incdir" != "xno" ; then
+        have_qt=yes;
     fi
 fi
+
+dnl Set the variables
+POPPLER_QT_CXXFLAGS="-I$qt_incdir"
+POPPLER_QT_LIBS="$qt_libdir/$qt_test_library"
+
+AC_SUBST(POPPLER_QT_CXXFLAGS)
+AC_SUBST(POPPLER_QT_LIBS)
 
 if test x$have_qt = xno ; then
     AC_MSG_WARN([Qt development libraries not found])
@@ -235,10 +255,6 @@ elif test x$enable_poppler_qt = xtry; then
   fi
 fi
 AM_CONDITIONAL(BUILD_POPPLER_QT, test x$enable_poppler_qt = xyes)
-
-dnl Qt flags
-AC_SUBST(POPPLER_QT_CXXFLAGS)
-AC_SUBST(POPPLER_QT_LIBS)
 
 AC_ARG_ENABLE(gtk-test,
               AC_HELP_STRING([--disable-gtk-test],
