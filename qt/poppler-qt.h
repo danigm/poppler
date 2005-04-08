@@ -30,9 +30,9 @@ class Page {
   friend class Document;
   public:
     ~Page();
-    void renderToPixmap(QPixmap **q, int x, int y, int w, int h);
+    void renderToPixmap(QPixmap **q, int x, int y, int w, int h) const;
   private:
-    Page(Document *doc, int index);
+    Page(const Document *doc, int index);
     PageData *data;
 };
 
@@ -52,18 +52,21 @@ public:
   
   static Document *Document::load(const QString & filePath);
   
-  Page *getPage(int index) { return new Page(this, index); }
+  Page *getPage(int index) const{ return new Page(this, index); }
   
-  int getNumPages();
+  int getNumPages() const;
   
-  PageMode getPageMode();
+  PageMode getPageMode() const;
   
   bool unlock(QCString &password);
   
-  bool isLocked();
+  bool isLocked() const;
   
   QDateTime getDate( const QString & data ) const;
   QString getInfo( const QString & data ) const;
+  bool isEncrypted() const;
+  bool isLinearized() const;
+  double getPDFVersion() const;
   
   Document::~Document();
   

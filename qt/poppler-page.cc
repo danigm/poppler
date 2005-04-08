@@ -31,11 +31,11 @@ namespace Poppler {
 
 class PageData {
   public:
-  Document *doc;
+  const Document *doc;
   int index;
 };
 
-Page::Page(Document *doc, int index) {
+Page::Page(const Document *doc, int index) {
   data = new PageData();
   data->index = index;
   data->doc = doc;
@@ -46,7 +46,7 @@ Page::~Page()
   delete data;
 }
 
-void Page::renderToPixmap(QPixmap **q, int x, int y, int w, int h)
+void Page::renderToPixmap(QPixmap **q, int x, int y, int w, int h) const
 {
   SplashOutputDev *output_dev;
   SplashColor white;

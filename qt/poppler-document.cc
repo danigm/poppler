@@ -60,7 +60,7 @@ Document::~Document()
   delete data;
 }
 
-bool Document::isLocked()
+bool Document::isLocked() const
 {
   return data->locked;
 }
@@ -83,7 +83,7 @@ bool Document::unlock(QCString &password)
   return data->locked;
 }
 
-Document::PageMode Document::getPageMode(void)
+Document::PageMode Document::getPageMode(void) const
 {
   switch (data->doc.getCatalog()->getPageMode()) {
     case Catalog::pageModeNone:
@@ -101,7 +101,7 @@ Document::PageMode Document::getPageMode(void)
   }
 }
 
-int Document::getNumPages()
+int Document::getNumPages() const
 {
   return data->doc.getNumPages();
 }
@@ -227,6 +227,21 @@ QDateTime Document::getDate( const QString & type ) const
   obj.free();
   info.free();
   return QDateTime();
+}
+
+bool Document::isEncrypted() const
+{
+  return data->doc.isEncrypted();
+}
+
+bool Document::isLinearized() const
+{
+  return data->doc.isLinearized();
+}
+
+double Document::getPDFVersion() const
+{
+  return data->doc.getPDFVersion();
 }
 
 }

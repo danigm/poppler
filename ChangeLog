@@ -1,3 +1,11 @@
+2005-04-07  Jeff Muizelaar  <jrmuizel@nit.ca>
+
+	* qt/poppler-document.cc:
+	* qt/poppler-page.cc:
+	* qt/poppler-qt.h:
+	Patch from Albert Astals Cid adding consts and exporting some more
+	metadata.
+
 2005-04-07  Kristian Høgsberg  <krh@redhat.com>
 
 	* glib/poppler-document.cc: 
