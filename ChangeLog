@@ -1,3 +1,7 @@
+2005-04-08  Kristian Høgsberg  <krh@redhat.com>
+
+	* poppler-qt.pc.in (Libs): Add -lpoppler to Libs.
+
 2005-04-07  Jeff Muizelaar  <jrmuizel@nit.ca>
 
 	* configure.ac: redo the qt tests from Albert Astals Cid

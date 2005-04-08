@@ -7,5 +7,5 @@ Name: poppler-qt
 Description: Qt bindings for poppler
 Version: @VERSION@
 
-Libs: -L${libdir} -lpoppler-qt
+Libs: -L${libdir} -lpoppler -lpoppler-qt
 Cflags: -I${includedir}/poppler
