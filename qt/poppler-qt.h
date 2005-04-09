@@ -66,6 +66,10 @@ public:
   QString getInfo( const QString & data ) const;
   bool isEncrypted() const;
   bool isLinearized() const;
+  bool okToPrint() const;
+  bool okToChange() const;
+  bool okToCopy() const;
+  bool okToAddNotes() const;
   double getPDFVersion() const;
   
   Document::~Document();

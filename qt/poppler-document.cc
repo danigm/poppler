@@ -239,6 +239,26 @@ bool Document::isLinearized() const
   return data->doc.isLinearized();
 }
 
+bool Document::okToPrint() const
+{
+  return data->doc.okToPrint();
+}
+
+bool Document::okToChange() const
+{
+  return data->doc.okToChange();
+}
+
+bool Document::okToCopy() const
+{
+  return data->doc.okToCopy();
+}
+
+bool Document::okToAddNotes() const
+{
+  return data->doc.okToAddNotes();
+}
+
 double Document::getPDFVersion() const
 {
   return data->doc.getPDFVersion();
