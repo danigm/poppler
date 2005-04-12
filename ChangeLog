@@ -1,3 +1,13 @@
+2005-04-12  Kristian Høgsberg  <krh@redhat.com>
+
+	* configure.ac: Add fontconfig to PKG_CHECK_MODULES for the cairo
+	backend too, since we shouldn't depend on cairo.pc to pull that in
+	for us.
+
+	* poppler/Makefile.am (INCLUDES): Add $(splash_includes) to
+	INCLUDES to make sure the fontconfig include path is added when
+	using the splash backend.
+
 2005-04-09  Jeff Muizelaar  <jrmuizel@nit.ca>
 
 	* poppler-qt.h:

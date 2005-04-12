@@ -51,6 +51,7 @@ endif
 
 INCLUDES =					\
 	-I$(top_srcdir)				\
+	$(splash_includes)			\
 	$(cairo_includes)			\
 	-DDATADIR=\""$(datadir)"\"
 
