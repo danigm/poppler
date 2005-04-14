@@ -22,7 +22,6 @@
 #include "Error.h"
 #include "Object.h"
 #include <fofi/FoFiTrueType.h>
-#include <splash/SplashBitmap.h>
 #include "CairoOutputDevImage.h"
 
 //------------------------------------------------------------------------
@@ -67,7 +66,6 @@ CairoOutputDevImage::createCairo(GfxState *state) {
 void CairoOutputDevImage::getBitmap(unsigned char **data,
 				    int *width, int *height,
 				    int *rowstride) {
-  SplashBitmap *bitmap;
   int w, h;
   unsigned char *src;
   unsigned int *dest;

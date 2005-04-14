@@ -1,3 +1,8 @@
+2005-04-13  Jeff Muizelaar  <jrmuizel@nit.ca>
+
+	* poppler/CairoOutputDevImage.cc (getBitmap): remove unused
+	SplashBitmap. Patch from Albert Astals Cid.
+
 2005-04-12  Kristian Høgsberg  <krh@redhat.com>
 
 	* configure.ac: Add fontconfig to PKG_CHECK_MODULES for the cairo
