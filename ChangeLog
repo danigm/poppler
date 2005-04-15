@@ -1,3 +1,11 @@
+2005-04-14  Kristian Høgsberg  <krh@redhat.com>
+
+	* glib/poppler-page.cc:
+	* glib/poppler-page.h:
+	* glib/poppler-private.h:
+	* glib/poppler.h: Patch from Marco Pesenti Gritti to set page
+	orientaton.
+
 2005-04-13  Jeff Muizelaar  <jrmuizel@nit.ca>
 
 	* poppler/CairoOutputDevImage.cc (getBitmap): remove unused

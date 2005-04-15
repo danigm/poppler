@@ -75,17 +75,90 @@ poppler_page_finalize (GObject *object)
   /* page->page is owned by the document */
 }
 
+static PopplerOrientation
+get_document_orientation (PopplerPage *page)
+{
+  PopplerOrientation orientation;
+  int rotation = page->page->getRotate ();
+
+  switch (rotation) {
+    case 90:
+      orientation = POPPLER_ORIENTATION_LANDSCAPE;
+      break;
+    case 180:
+      orientation = POPPLER_ORIENTATION_UPSIDEDOWN;
+      break;
+    case 270:
+      orientation = POPPLER_ORIENTATION_SEASCAPE;
+      break;
+    default:
+      orientation = POPPLER_ORIENTATION_PORTRAIT;
+  }
+
+  return orientation;
+}
+
+static int
+poppler_page_get_rotate (PopplerPage *page)
+{
+  int rotate;
+
+  switch (page->orientation) {
+    case POPPLER_ORIENTATION_PORTRAIT:
+      rotate = 0;
+      break;
+    case POPPLER_ORIENTATION_LANDSCAPE:
+      rotate = 90;
+      break;
+    case POPPLER_ORIENTATION_UPSIDEDOWN:
+      rotate = 180;
+      break;
+    case POPPLER_ORIENTATION_SEASCAPE:
+      rotate = 270;
+      break;
+    default:
+      rotate = page->page->getRotate ();
+  }
+
+  return rotate - page->page->getRotate ();
+}
+
 void
 poppler_page_get_size (PopplerPage *page,
 		       double      *width,
 		       double      *height)
 {
+  PopplerOrientation orientation;
+  double page_width, page_height;
+
   g_return_if_fail (POPPLER_IS_PAGE (page));
 
+  if (page->orientation == POPPLER_ORIENTATION_DOCUMENT) {
+    orientation = get_document_orientation (page);
+  } else {
+    orientation = page->orientation;
+  }
+
+  switch (orientation) {
+    case POPPLER_ORIENTATION_PORTRAIT:
+    case POPPLER_ORIENTATION_UPSIDEDOWN:
+      page_width = page->page->getWidth ();
+      page_height = page->page->getHeight ();
+      break;
+    case POPPLER_ORIENTATION_LANDSCAPE:
+    case POPPLER_ORIENTATION_SEASCAPE:
+      page_width = page->page->getHeight ();
+      page_height = page->page->getWidth ();
+      break;
+    default:
+      page_width = page_height = 0;
+      g_assert_not_reached ();
+  }
+
   if (width != NULL)
-    *width = page->page->getWidth ();
+    *width = page_width;
   if (height != NULL)
-    *height = page->page->getHeight ();
+    *height = page_height;
 }
 
 int
@@ -117,7 +190,7 @@ cairo_render_to_pixbuf (PopplerPage *page,
   output_dev->startDoc(page->document->doc->getXRef ());
 
   page->page->displaySlice(output_dev, 72.0 * scale, 72.0 * scale,
-			   0, /* Rotate */
+			   poppler_page_get_rotate (page),
 			   gTrue, /* Crop */
 			   src_x, src_y,
 			   src_width, src_height,
@@ -182,7 +255,7 @@ splash_render_to_pixbuf (PopplerPage *page,
   output_dev->startDoc(page->document->doc->getXRef ());
 
   page->page->displaySlice(output_dev, 72.0 * scale, 72.0 * scale,
-			   0, /* Rotate */
+			   poppler_page_get_rotate (page),
 			   gTrue, /* Crop */
 			   src_x, src_y,
 			   src_width, src_height,
@@ -365,7 +438,8 @@ poppler_page_get_text (PopplerPage      *page,
   doc = page->document->doc;
 
   height = page->page->getHeight ();
-  page->page->display(output_dev, 72, 72, 0, gTrue, NULL, doc->getCatalog());
+  page->page->display(output_dev, 72, 72, poppler_page_get_rotate (page),
+		      gTrue, NULL, doc->getCatalog());
 
   y1 = height - rect->y2;
   y2 = height - rect->y1;
@@ -409,7 +483,8 @@ poppler_page_find_text (PopplerPage *page,
   doc = page->document->doc;
 
   height = page->page->getHeight ();
-  page->page->display (output_dev, 72, 72, 0, gTrue, NULL, doc->getCatalog());
+  page->page->display (output_dev, 72, 72, poppler_page_get_rotate (page),
+		       gTrue, NULL, doc->getCatalog());
   
   matches = NULL;
   while (output_dev->findText (ucs4, ucs4_len,
@@ -446,8 +521,8 @@ poppler_page_render_to_ps (PopplerPage   *page,
   g_return_if_fail (POPPLER_IS_PAGE (page));
   g_return_if_fail (ps_file != NULL);
 
-  ps_file->document->doc->displayPage (ps_file->out, page->index + 1,
-				       72.0, 72.0, 0, gTrue, gFalse);
+  ps_file->document->doc->displayPage (ps_file->out, page->index + 1, 72.0, 72.0,
+				       poppler_page_get_rotate (page), gTrue, gFalse);
 }
 
 static void
@@ -490,6 +565,7 @@ poppler_page_class_init (PopplerPageClass *klass)
 static void
 poppler_page_init (PopplerPage *page)
 {
+  page->orientation = POPPLER_ORIENTATION_DOCUMENT;
 }
 
 
@@ -563,4 +639,21 @@ poppler_page_free_link_mapping (GList *list)
 
 	g_list_foreach (list, (GFunc) (poppler_mapping_free), NULL);
 	g_list_free (list);
+}
+
+/**
+ * poppler_page_set_orientation:
+ * @page: a #PopplerPage
+ * @orientation: a #PopplerOrientation
+ *
+ * Force the orientation of the page to be the specified one
+ *
+ **/
+void
+poppler_page_set_orientation (PopplerPage        *page,
+			      PopplerOrientation  orientation)
+{
+  g_return_if_fail (POPPLER_IS_PAGE (page));
+
+  page->orientation = orientation;
 }

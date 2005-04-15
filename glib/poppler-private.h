@@ -23,6 +23,7 @@ struct _PopplerPage
   PopplerDocument *document;
   Page *page;
   int index;
+  PopplerOrientation orientation;
 };
 
 PopplerPage   *_poppler_page_new   (PopplerDocument *document,
