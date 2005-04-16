@@ -107,9 +107,19 @@ public:
     pageModeFullScreen,
     pageModeOC
   };
+  enum PageLayout {
+    pageLayoutNone,
+    pageLayoutSinglePage,
+    pageLayoutOneColumn,
+    pageLayoutTwoColumnLeft,
+    pageLayoutTwoColumnRight,
+    pageLayoutTwoPageLeft,
+    pageLayoutTwoPageRight,
+  };
 
   // Returns the page mode.
   PageMode getPageMode() { return pageMode; }
+  PageLayout getPageLayout() { return pageLayout; }
 
 private:
 
@@ -127,6 +137,7 @@ private:
   GBool ok;			// true if catalog is valid
   PageLabelInfo *pageLabelInfo; // info about page labels
   PageMode pageMode;		// page mode
+  PageLayout pageLayout;	// page layout
 
   int readPageTree(Dict *pages, PageAttrs *attrs, int start);
   Object *findDestInTree(Object *tree, GooString *name, Object *obj);

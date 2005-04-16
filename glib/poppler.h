@@ -43,10 +43,17 @@ typedef enum
 	POPPLER_ORIENTATION_SEASCAPE
 } PopplerOrientation;
 
+typedef struct _PopplerDocument  PopplerDocument;
+typedef struct _PopplerIndexIter PopplerIndexIter;
+typedef struct _PopplerPage      PopplerPage;
+typedef struct _PopplerPSFile    PopplerPSFile;
+typedef union  _PopplerAction    PopplerAction;
+
 G_END_DECLS
 
 #include "poppler-document.h"
 #include "poppler-page.h"
 #include "poppler-action.h"
+#include "poppler-enums.h"
 
 #endif /* __POPPLER_GLIB_H__ */

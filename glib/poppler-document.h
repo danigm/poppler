@@ -21,8 +21,8 @@
 
 #include <glib-object.h>
 #include <gdk-pixbuf/gdk-pixbuf.h>
+
 #include "poppler.h"
-#include "poppler-action.h"
 
 G_BEGIN_DECLS
 
@@ -30,10 +30,41 @@ G_BEGIN_DECLS
 #define POPPLER_DOCUMENT(obj)             (G_TYPE_CHECK_INSTANCE_CAST ((obj), POPPLER_TYPE_DOCUMENT, PopplerDocument))
 #define POPPLER_IS_DOCUMENT(obj)          (G_TYPE_CHECK_INSTANCE_TYPE ((obj), POPPLER_TYPE_DOCUMENT))
 
-typedef struct _PopplerDocument PopplerDocument;
-typedef struct _PopplerIndexIter PopplerIndexIter;
-typedef struct _PopplerPage PopplerPage;
-typedef struct _PopplerPSFile PopplerPSFile;
+typedef enum
+{
+  POPPLER_PAGE_LAYOUT_UNSET,
+  POPPLER_PAGE_LAYOUT_SINGLE_PAGE,
+  POPPLER_PAGE_LAYOUT_ONE_COLUMN,
+  POPPLER_PAGE_LAYOUT_TWO_COLUMN_LEFT,
+  POPPLER_PAGE_LAYOUT_TWO_COLUMN_RIGHT,
+  POPPLER_PAGE_LAYOUT_TWO_PAGE_LEFT,
+  POPPLER_PAGE_LAYOUT_TWO_PAGE_RIGHT,
+} PopplerPageLayout;
+
+typedef enum
+{
+  POPPLER_PAGE_MODE_UNSET,
+  POPPLER_PAGE_MODE_NONE,
+  POPPLER_PAGE_MODE_USE_OUTLINES,
+  POPPLER_PAGE_MODE_USE_THUMBS,
+  POPPLER_PAGE_MODE_FULL_SCREEN,
+  POPPLER_PAGE_MODE_USE_OC,
+  POPPLER_PAGE_MODE_USE_ATTACHMENTS,
+} PopplerPageMode;
+
+typedef enum /*< flags >*/
+{
+  POPPLER_VIEWER_PREFERENCES_UNSET = 0,
+  POPPLER_VIEWER_PREFERENCES_HIDE_TOOLBAR = 1 << 0,
+  POPPLER_VIEWER_PREFERENCES_HIDE_MENUBAR = 1 << 1,
+  POPPLER_VIEWER_PREFERENCES_HIDE_WINDOWUI = 1 << 2,
+  POPPLER_VIEWER_PREFERENCES_FIT_WINDOW = 1 << 3,
+  POPPLER_VIEWER_PREFERENCES_CENTER_WINDOW = 1 << 4,
+  POPPLER_VIEWER_PREFERENCES_DISPLAY_DOC_TITLE = 1 << 5,
+  POPPLER_VIEWER_PREFERENCES_DIRECTION_RTL = 1 << 6,
+} PopplerViewerPreferences;
+
+
 
 PopplerDocument *poppler_document_new_from_file     (const char       *uri,
 						     const char       *password,
@@ -47,7 +78,7 @@ PopplerPage     *poppler_document_get_page          (PopplerDocument  *document,
 PopplerPage     *poppler_document_get_page_by_label (PopplerDocument  *document,
 						     const char       *label);
 
-GType            poppler_document_get_type          (void) G_GNUC_CONST;
+GType            poppler_document_get_type           (void) G_GNUC_CONST;
 
 /* Interface for getting the Index of a poppler_document */
 PopplerIndexIter *poppler_index_iter_new        (PopplerDocument   *document);

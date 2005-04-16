@@ -29,10 +29,18 @@
 
 #include "poppler.h"
 #include "poppler-private.h"
+#include "poppler-enums.h"
 
 enum {
 	PROP_0,
-	PROP_TITLE
+	PROP_TITLE,
+	PROP_FORMAT,
+	PROP_AUTHOR,
+	PROP_SUBJECT,
+	PROP_KEYWORDS,
+	PROP_PAGE_LAYOUT,
+	PROP_PAGE_MODE,
+	PROP_VIEWER_PREFERENCES,
 };
 
 typedef struct _PopplerDocumentClass PopplerDocumentClass;
@@ -224,24 +232,107 @@ info_dict_get_string (Dict *info_dict, const gchar *key, GValue *value)
   g_free (result);
 }
 
+static PopplerPageLayout
+convert_page_layout (Catalog::PageLayout pageLayout)
+{
+  switch (pageLayout)
+    {
+    case Catalog::pageLayoutSinglePage:
+      return POPPLER_PAGE_LAYOUT_SINGLE_PAGE;
+    case Catalog::pageLayoutOneColumn:
+      return POPPLER_PAGE_LAYOUT_ONE_COLUMN;
+    case Catalog::pageLayoutTwoColumnLeft:
+      return POPPLER_PAGE_LAYOUT_TWO_COLUMN_LEFT;
+    case Catalog::pageLayoutTwoColumnRight:
+      return POPPLER_PAGE_LAYOUT_TWO_COLUMN_RIGHT;
+    case Catalog::pageLayoutTwoPageLeft:
+      return POPPLER_PAGE_LAYOUT_TWO_PAGE_LEFT;
+    case Catalog::pageLayoutTwoPageRight:
+      return POPPLER_PAGE_LAYOUT_TWO_PAGE_RIGHT;
+    case Catalog::pageLayoutNone:
+    default:
+      return POPPLER_PAGE_LAYOUT_UNSET;
+    }
+}
+
+static PopplerPageMode
+convert_page_mode (Catalog::PageMode pageMode)
+{
+  switch (pageMode)
+    {
+    case Catalog::pageModeOutlines:
+      return POPPLER_PAGE_MODE_USE_OUTLINES;
+    case Catalog::pageModeThumbs:
+      return POPPLER_PAGE_MODE_USE_THUMBS;
+    case Catalog::pageModeFullScreen:
+      return POPPLER_PAGE_MODE_FULL_SCREEN;
+    case Catalog::pageModeOC:
+      return POPPLER_PAGE_MODE_USE_OC;
+    case Catalog::pageModeNone:
+    default:
+      return POPPLER_PAGE_MODE_UNSET;
+    }
+}
+
 static void
-poppler_document_get_property (GObject *object,
-			       guint prop_id,
-			       GValue *value,
+poppler_document_get_property (GObject    *object,
+			       guint       prop_id,
+			       GValue     *value,
 			       GParamSpec *pspec)
 {
   PopplerDocument *document = POPPLER_DOCUMENT (object);
-  Object info;
-
-  document->doc->getDocInfo (&info);
-  if (!info.isDict ())
-    return;
+  Object obj;
+  Catalog *catalog;
+  gchar *str;
 
   switch (prop_id)
     {
     case PROP_TITLE:
-      info_dict_get_string (info.getDict(), "Title", value);
+      document->doc->getDocInfo (&obj);
+      if (obj.isDict ())
+	info_dict_get_string (obj.getDict(), "Title", value);
       break;
+    case PROP_FORMAT:
+      str = g_strdup_printf ("PDF-%1f", document->doc->getPDFVersion ());
+      g_value_take_string (value, str);
+      break;
+    case PROP_AUTHOR:
+      document->doc->getDocInfo (&obj);
+      if (obj.isDict ())
+	info_dict_get_string (obj.getDict(), "Author", value);
+      break;
+    case PROP_SUBJECT:
+      document->doc->getDocInfo (&obj);
+      if (obj.isDict ())
+	info_dict_get_string (obj.getDict(), "Subject", value);
+      break;
+    case PROP_KEYWORDS:
+      document->doc->getDocInfo (&obj);
+      if (obj.isDict ())
+	info_dict_get_string (obj.getDict(), "Keywords", value);
+      break;
+    case PROP_PAGE_LAYOUT:
+      catalog = document->doc->getCatalog ();
+      if (catalog && catalog->isOk ())
+	{
+	  PopplerPageLayout page_layout = convert_page_layout (catalog->getPageLayout ());
+	  g_value_set_enum (value, page_layout);
+	}
+      break;
+    case PROP_PAGE_MODE:
+      catalog = document->doc->getCatalog ();
+      if (catalog && catalog->isOk ())
+	{
+	  PopplerPageMode page_mode = convert_page_mode (catalog->getPageMode ());
+	  g_value_set_enum (value, page_mode);
+	}
+      break;
+    case PROP_VIEWER_PREFERENCES:
+      /* FIXME: write... */
+      g_value_set_flags (value, POPPLER_VIEWER_PREFERENCES_UNSET);
+      break;
+    default:
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
     }
 }
 
@@ -249,19 +340,84 @@ static void
 poppler_document_class_init (PopplerDocumentClass *klass)
 {
   GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
-  GParamSpec *pspec;
 
   gobject_class->finalize = poppler_document_finalize;
   gobject_class->get_property = poppler_document_get_property;
 
-  pspec = g_param_spec_string ("title",
-			       "Document Title",
-			       "The title of the document",
-			       NULL,
-			       G_PARAM_READABLE);
-  g_object_class_install_property (G_OBJECT_CLASS (klass),
-				   PROP_TITLE,
-				   pspec);
+  g_object_class_install_property
+	  (G_OBJECT_CLASS (klass),
+	   PROP_TITLE,
+	   g_param_spec_string ("title",
+				"Document Title",
+				"The title of the document",
+				NULL,
+				G_PARAM_READABLE));
+
+  g_object_class_install_property
+	  (G_OBJECT_CLASS (klass),
+	   PROP_FORMAT,
+	   g_param_spec_string ("format",
+				"PDF Format",
+				"The PDF version of the document",
+				NULL,
+				G_PARAM_READABLE));
+
+  g_object_class_install_property
+	  (G_OBJECT_CLASS (klass),
+	   PROP_AUTHOR,
+	   g_param_spec_string ("author",
+				"Author",
+				"The author of the document",
+				NULL,
+				G_PARAM_READABLE));
+
+  g_object_class_install_property
+	  (G_OBJECT_CLASS (klass),
+	   PROP_SUBJECT,
+	   g_param_spec_string ("subject",
+				"Subject",
+				"Subjects the document touches",
+				NULL,
+				G_PARAM_READABLE));
+
+  g_object_class_install_property
+	  (G_OBJECT_CLASS (klass),
+	   PROP_KEYWORDS,
+	   g_param_spec_string ("keywords",
+				"Keywords",
+				"Keywords",
+				NULL,
+				G_PARAM_READABLE));
+
+  g_object_class_install_property
+	  (G_OBJECT_CLASS (klass),
+	   PROP_PAGE_LAYOUT,
+	   g_param_spec_enum ("page-layout",
+			      "Page Layout",
+			      "Initial Page Layout",
+			      POPPLER_TYPE_PAGE_LAYOUT,
+			      POPPLER_PAGE_LAYOUT_UNSET,
+			      G_PARAM_READABLE));
+
+  g_object_class_install_property
+	  (G_OBJECT_CLASS (klass),
+	   PROP_PAGE_MODE,
+	   g_param_spec_enum ("page-mode",
+			      "Page Mode",
+			      "Page Mode",
+			      POPPLER_TYPE_PAGE_MODE,
+			      POPPLER_PAGE_MODE_UNSET,
+			      G_PARAM_READABLE));
+
+  g_object_class_install_property
+	  (G_OBJECT_CLASS (klass),
+	   PROP_VIEWER_PREFERENCES,
+	   g_param_spec_flags ("viewer-preferences",
+			       "Viewer Preferences",
+			       "Viewer Preferences",
+			       POPPLER_TYPE_VIEWER_PREFERENCES,
+			       POPPLER_VIEWER_PREFERENCES_UNSET,
+			       G_PARAM_READABLE));
 }
 
 static void
@@ -440,3 +596,5 @@ poppler_ps_file_free (PopplerPSFile *ps_file)
 	g_object_unref (ps_file->document);
 	g_free (ps_file);
 }
+
+

@@ -5,11 +5,53 @@
 #define FAIL(msg) \
 	do { fprintf (stderr, "FAIL: %s\n", msg); exit (-1); } while (0)
 
+
+static void
+print_document_info (PopplerDocument *document)
+{
+  gchar *title, *format, *author, *subject, *keywords;
+  PopplerPageLayout layout;
+  PopplerPageMode mode;
+  PopplerViewerPreferences view_prefs;
+  GEnumValue *enum_value;
+
+  g_object_get (document,
+		"title", &title,
+		"format", &format,
+		"author", &author,
+		"subject", &subject,
+		"keywords", &keywords,
+		"page-mode", &mode,
+		"page-layout", &layout,
+		"viewer-preferences", &view_prefs,
+		NULL);
+
+  printf ("document metadata\n");
+  if (title)  printf   ("\ttitle:\t%s\n", title);
+  if (format) printf   ("\tformat:\t%s\n", format);
+  if (author) printf   ("\tauthor:\t%s\n", author);
+  if (subject) printf  ("\tsubject:\t%s\n", subject);
+  if (keywords) printf ("\tdkeywords:\t%s\n", keywords);
+
+  enum_value = g_enum_get_value ((GEnumClass *) g_type_class_peek (POPPLER_TYPE_PAGE_MODE), mode);
+  g_print ("\tpage mode:\t%s\n", enum_value->value_name);
+  enum_value = g_enum_get_value ((GEnumClass *) g_type_class_peek (POPPLER_TYPE_PAGE_LAYOUT), layout);
+  g_print ("\tpage layout:\t%s\n", enum_value->value_name);
+
+  /* FIXME: print out the view prefs when we support it */
+
+  g_free (title);
+  g_free (format);
+  g_free (author);
+  g_free (subject);
+  g_free (keywords);
+}
+
 int main (int argc, char *argv[])
 {
   PopplerDocument *document;
   PopplerPage *page;
-  char *title, *label;
+  char *label;
   GError *error;
   GdkPixbuf *pixbuf, *thumb;
   double width, height;
@@ -25,9 +67,7 @@ int main (int argc, char *argv[])
   if (document == NULL)
     FAIL (error->message);
       
-  g_object_get (document, "title", &title, NULL);
-  printf ("document title: %s\n", title);
-  g_free (title);
+  print_document_info (document); 
 
   page = poppler_document_get_page_by_label (document, argv[2]);
   if (page == NULL)

@@ -121,6 +121,23 @@ Catalog::Catalog(XRef *xrefA) {
   }
   obj.free();
 
+  pageLayout = pageLayoutNone;
+  if (catDict.dictLookup("PageLayout", &obj)->isName()) {
+    if (obj.isName("SinglePage"))
+      pageLayout = pageLayoutSinglePage;
+    if (obj.isName("OneColumn"))
+      pageLayout = pageLayoutOneColumn;
+    if (obj.isName("TwoColumnLeft"))
+      pageLayout = pageLayoutTwoColumnLeft;
+    if (obj.isName("TwoColumnRight"))
+      pageLayout = pageLayoutTwoColumnRight;
+    if (obj.isName("TwoPageLeft"))
+      pageLayout = pageLayoutTwoPageLeft;
+    if (obj.isName("TwoPageRight"))
+      pageLayout = pageLayoutTwoPageRight;
+  }
+  obj.free();
+
   // read base URI
   if (catDict.dictLookup("URI", &obj)->isDict()) {
     if (obj.dictLookup("Base", &obj2)->isString()) {

@@ -243,7 +243,6 @@ splash_render_to_pixbuf (PopplerPage *page,
   SplashColor white;
   SplashBitmap *bitmap;
   SplashColorPtr color_ptr;
-  SplashRGB8 *src;
   int splash_width, splash_height, splash_rowstride;
   int pixbuf_rowstride, pixbuf_n_channels;
   guchar *pixbuf_data, *dst;
@@ -281,7 +280,6 @@ splash_render_to_pixbuf (PopplerPage *page,
   for (y = 0; y < splash_height; y++)
     {
       SplashRGB8 *src;
-      SplashRGB8 rgb;
 
       src = (SplashRGB8 *) (color_ptr.rgb8p + y * splash_rowstride);
       dst = pixbuf_data + (dest_y + y) * pixbuf_rowstride +
@@ -427,7 +425,6 @@ poppler_page_get_text (PopplerPage      *page,
   TextOutputDev *output_dev;
   PDFDoc *doc;
   GooString *sel_text = new GooString;
-  PopplerRectangle text_dev_rect;
   double height, y1, y2;
   char *result;
 

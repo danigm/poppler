@@ -27,13 +27,13 @@ G_BEGIN_DECLS
 
 typedef enum
 {
-	POPPLER_ACTION_UNKNOWN,		// unknown action
-	POPPLER_ACTION_GOTO_DEST,	// go to destination
-	POPPLER_ACTION_GOTO_REMOTE,	// go to destination in new file
-	POPPLER_ACTION_LAUNCH,		// launch app (or open document)
-	POPPLER_ACTION_URI,		// URI
-	POPPLER_ACTION_NAMED,		// named action
-	POPPLER_ACTION_MOVIE,		// movie action
+	POPPLER_ACTION_UNKNOWN,		/* unknown action */
+	POPPLER_ACTION_GOTO_DEST,	/* go to destination */
+	POPPLER_ACTION_GOTO_REMOTE,	/* go to destination in new file */
+	POPPLER_ACTION_LAUNCH,		/* launch app (or open document) */
+	POPPLER_ACTION_URI,		/* URI */
+	POPPLER_ACTION_NAMED,		/* named action*/
+	POPPLER_ACTION_MOVIE,		/* movie action */
 } PopplerActionType;
 
 typedef enum
@@ -50,7 +50,6 @@ typedef enum
 } PopplerDestType;
 
 /* Define the PopplerAction types */
-typedef union  _PopplerAction           PopplerAction;
 typedef struct _PopplerActionAny        PopplerActionAny;
 typedef struct _PopplerActionGotoDest   PopplerActionGotoDest;
 typedef struct _PopplerActionGotoRemote PopplerActionGotoRemote;
