@@ -1,3 +1,8 @@
+Tue Apr 19 00:20:08 2005  Kristian Høgsberg  <krh@redhat.com>
+
+	* poppler/Catalog.cc: Fix from Marco to make sure we always
+	initialize Catalog::pageLabelInfo.
+
 Sat Apr 16 14:53:15 2005  Jonathan Blandford  <jrb@redhat.com>
 
 	* glib/Makefile.am: Create poppler-enums.[ch]

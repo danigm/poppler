@@ -41,6 +41,7 @@ Catalog::Catalog(XRef *xrefA) {
   pageRefs = NULL;
   numPages = pagesSize = 0;
   baseURI = NULL;
+  pageLabelInfo = NULL;
 
   xref->getCatalog(&catDict);
   if (!catDict.isDict()) {
@@ -101,8 +102,6 @@ Catalog::Catalog(XRef *xrefA) {
 
   if (catDict.dictLookup("PageLabels", &obj)->isDict())
     pageLabelInfo = new PageLabelInfo(&obj, numPages);
-  else
-    pageLabelInfo = NULL;
   obj.free();
 
   // read page mode
