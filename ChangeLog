@@ -1,3 +1,8 @@
+Tue Apr 19 15:43:35 2005  Kristian Høgsberg  <krh@redhat.com>
+
+	* glib/poppler-action.cc (_poppler_action_new): Handle NULL links
+	gracefully (fix from Jeff).
+
 Tue Apr 19 00:20:08 2005  Kristian Høgsberg  <krh@redhat.com>
 
 	* poppler/Catalog.cc: Fix from Marco to make sure we always

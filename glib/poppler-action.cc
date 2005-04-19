@@ -1,4 +1,4 @@
-/* poppler-action.cc: glib wrapper for poppler
+/* poppler-action.cc: glib wrapper for poppler	      -*- c-basic-offset: 8 -*-
  * Copyright (C) 2005, Red Hat, Inc.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -247,6 +247,11 @@ _poppler_action_new (PopplerDocument *document,
 	PopplerAction *action;
 
 	action = g_new0 (PopplerAction, 1);
+
+	if (link == NULL) {
+		action->type = POPPLER_ACTION_UNKNOWN;
+		return action;
+	}
 
 	switch (link->getKind ()) {
 	case actionGoTo:
