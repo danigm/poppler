@@ -1,3 +1,8 @@
+Tue Apr 19 17:11:52 2005  Jonathan Blandford  <jrb@redhat.com>
+
+	* glib/poppler-document.cc (poppler_document_get_property): Use %g
+	instead of %f to avoid versioning like PDF-1.50000
+
 Tue Apr 19 15:43:35 2005  Kristian Høgsberg  <krh@redhat.com>
 
 	* glib/poppler-action.cc (_poppler_action_new): Handle NULL links
