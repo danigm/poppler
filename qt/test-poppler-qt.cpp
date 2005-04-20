@@ -10,7 +10,7 @@
 class PDFDisplay : public QWidget           // picture display widget
 {
 public:
-    PDFDisplay( const char *fileName );
+    PDFDisplay( Poppler::Document *d );
    ~PDFDisplay();
 protected:
     void        paintEvent( QPaintEvent * );
@@ -19,9 +19,9 @@ private:
     Poppler::Document *doc;
 };
 
-PDFDisplay::PDFDisplay( const char *fileName )
+PDFDisplay::PDFDisplay( Poppler::Document *d )
 {
-  doc = Poppler::Document::load(fileName);
+  doc = d;
   if (doc) {
     Poppler::Page *page = doc->getPage(0);
     if (page) {
@@ -50,14 +50,34 @@ int main( int argc, char **argv )
 {
   QApplication a( argc, argv );               // QApplication required!
 
-  if ( argc != 2 )  {                          // use argument as file name
-    printf("usage: test-poppler-qt filename\n");
+  if ( argc < 2  || (argc == 3 && strcmp(argv[2], "-extract") != 0) || argc > 3)
+  {
+    // use argument as file name
+    printf("usage: test-poppler-qt filename [-extract]\n");
     exit(1);
   }
-  PDFDisplay test( argv[1] );        // create picture display
-  a.setMainWidget( &test);                // set main widget
-  test.setCaption("Poppler-Qt Test");
-  test.show();                            // show it
+  
+  Poppler::Document *doc = Poppler::Document::load(argv[1]);
+  if (!doc)
+  {
+    printf("doc not loaded\n");
+    exit(1);
+  }
+  
+  if (argc == 2)
+  {  
+    PDFDisplay test( doc );        // create picture display
+    a.setMainWidget( &test);                // set main widget
+    test.setCaption("Poppler-Qt Test");
+    test.show();                            // show it
 
-  return a.exec();                        // start event loop
+    return a.exec();                        // start event loop
+  }
+  else
+  {
+    Poppler::Page *page = doc->getPage(0);
+    qDebug(page->getText(Poppler::Rectangle()));
+    delete page;
+    delete doc;
+  }
 }

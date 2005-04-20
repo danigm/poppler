@@ -24,6 +24,7 @@
 #include <Catalog.h>
 #include <ErrorCodes.h>
 #include <SplashOutputDev.h>
+#include <TextOutputDev.h>
 #include <splash/SplashBitmap.h>
 #include "poppler-private.h"
 
@@ -67,6 +68,42 @@ void Page::renderToPixmap(QPixmap **q, int x, int y, int w, int h) const
   
   delete img;
   delete output_dev;
+}
+
+QString Page::getText(const Rectangle &r) const
+{
+  TextOutputDev *output_dev;
+  GooString *s;
+  PDFRectangle *rect;
+  QString result;
+  ::Page *p;
+  
+  output_dev = new TextOutputDev(0, gFalse, gFalse, gFalse);
+  data->doc->data->doc.displayPageSlice(output_dev, data->index + 1, 72, 72,
+      0, -1, -1, -1, -1,
+      true,
+      false);
+  p = data->doc->data->doc.getCatalog()->getPage(data->index + 1);
+  if (r.isNull())
+  {
+    rect = p->getBox();
+    s = output_dev->getText(rect->x1, rect->y1, rect->x2, rect->y2);
+  }
+  else
+  {
+    double height, y1, y2;
+    height = p->getHeight();
+    y1 = height - r.m_y2;
+    y2 = height - r.m_y1;
+    s = output_dev->getText(r.m_x1, y1, r.m_x2, y2);
+  }
+
+  // TODO look if QString::fromUTF8 yields better results
+  result = s->getCString();
+  
+  delete output_dev;
+  delete s;
+  return result;
 }
 
 }

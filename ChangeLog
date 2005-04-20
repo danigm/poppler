@@ -1,3 +1,14 @@
+2005-04-13  Jeff Muizelaar  <jrmuizel@nit.ca>
+
+	* qt/poppler-page.cc (Page::getText):
+	* qt/poppler-qt.h: add a getText method for getting
+	the text on a page
+
+	* qt/test-poppler-qt.c (PDFDisplay::PDFDisplay): 
+	add the option to display the text on a page
+
+	Patch from Albert Astals Cid.
+
 Tue Apr 19 17:21:19 2005  Jonathan Blandford  <jrb@redhat.com>
 
 	* glib/poppler-document.cc (poppler_document_get_property): Use

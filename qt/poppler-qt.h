@@ -25,12 +25,32 @@
 
 namespace Poppler {
 
+/* A rectangle on a page, with coordinates in PDF points. */
+class Rectangle
+{
+  public:
+    Rectangle(double x1 = 0, double y1 = 0, double x2 = 0, double y2 = 0) : 
+      m_x1(x1), m_y1(y1), m_x2(x2), m_y2(y2) {}
+    bool isNull() const { return m_x1 == 0 && m_y1 == 0 && m_x2 == 0 && m_y2 == 0; }
+  
+    double m_x1;
+    double m_y1;
+    double m_x2;
+    double m_y2;
+};
+
 class PageData;
 class Page {
   friend class Document;
   public:
     ~Page();
     void renderToPixmap(QPixmap **q, int x, int y, int w, int h) const;
+    
+    /**
+    * Returns the text that is inside the Rectangle r
+    * If r is a null Rectangle all text of the page is given
+    **/
+    QString getText(const Rectangle &r) const;
   private:
     Page(const Document *doc, int index);
     PageData *data;
