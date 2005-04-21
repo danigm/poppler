@@ -1,3 +1,10 @@
+Thu Apr 21 15:43:52 2005  Kristian Høgsberg  <krh@redhat.com>
+
+	* poppler/Outline.cc: 
+	* poppler/Outline.h: Implement the documented behaviour for
+	Outline::getItems() and OutlineItem::getKids() and make
+	documentation more precise (Patch from Marco).
+
 Thu Apr 21 02:25:20 2005  Kristian Høgsberg  <krh@redhat.com>
 
 	* poppler/CairoFontEngine.cc (CairoFont::getFont): Cache

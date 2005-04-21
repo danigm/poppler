@@ -134,6 +134,12 @@ GooList *OutlineItem::readItemList(Object *firstItemRef, Object *lastItemRef,
     }
     p = &item->nextRef;
   }
+
+  if (!items->getLength()) {
+    delete items;
+    items = NULL;
+  }
+
   return items;
 }
 

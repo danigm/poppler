@@ -33,8 +33,8 @@ public:
 
 private:
 
-  GooList *items;			// NULL if document has no outline
-				//   [OutlineItem]
+  GooList *items;		// NULL if document has no outline,
+				// otherwise, a list of OutlineItem
 };
 
 //------------------------------------------------------------------------
@@ -68,7 +68,8 @@ private:
   Object lastRef;
   Object nextRef;
   GBool startsOpen;
-  GooList *kids;			// NULL unless this item is open [OutlineItem]
+  GooList *kids;	// NULL if this item is closed or has no kids,
+			// otherwise a list of OutlineItem
 };
 
 #endif
