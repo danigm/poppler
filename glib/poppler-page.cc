@@ -29,14 +29,6 @@
 #include <GfxState.h>
 #include <TextOutputDev.h>
 
-#if defined (HAVE_CAIRO)
-#include <CairoOutputDevImage.h>
-#endif
-
-#if defined (HAVE_SPLASH)
-#include <SplashOutputDev.h>
-#endif
-
 #include "poppler.h"
 #include "poppler-private.h"
 
@@ -185,9 +177,7 @@ cairo_render_to_pixbuf (PopplerPage *page,
   guchar *pixbuf_data, *cairo_data, *dst;
   int x, y;
 
-  output_dev = new CairoOutputDevImage ();
-
-  output_dev->startDoc(page->document->doc->getXRef ());
+  output_dev = page->document->output_dev;
 
   page->page->displaySlice(output_dev, 72.0 * scale, 72.0 * scale,
 			   poppler_page_get_rotate (page),
@@ -225,8 +215,6 @@ cairo_render_to_pixbuf (PopplerPage *page,
 	  src++;
 	}
     }
-
-  delete output_dev;
 }
 
 #elif defined (HAVE_SPLASH)
@@ -240,7 +228,6 @@ splash_render_to_pixbuf (PopplerPage *page,
 			 int dest_x, int dest_y)
 {
   SplashOutputDev *output_dev;
-  SplashColor white;
   SplashBitmap *bitmap;
   SplashColorPtr color_ptr;
   int splash_width, splash_height, splash_rowstride;
@@ -248,10 +235,7 @@ splash_render_to_pixbuf (PopplerPage *page,
   guchar *pixbuf_data, *dst;
   int x, y;
 
-  white.rgb8 = splashMakeRGB8 (0xff, 0xff, 0xff);
-  output_dev = new SplashOutputDev(splashModeRGB8, gFalse, white);
-
-  output_dev->startDoc(page->document->doc->getXRef ());
+  output_dev = page->document->output_dev;
 
   page->page->displaySlice(output_dev, 72.0 * scale, 72.0 * scale,
 			   poppler_page_get_rotate (page),
@@ -293,8 +277,6 @@ splash_render_to_pixbuf (PopplerPage *page,
 	  src++;
 	}
     }
-
-  delete output_dev;
 }
 
 #endif

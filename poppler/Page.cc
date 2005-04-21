@@ -447,8 +447,6 @@ GBool Page::loadThumb(unsigned char **data_out,
     goto fail1;
   }
 
-  str->addFilters(&fetched_thumb);
-
   pixbufdata = (unsigned char *) gmalloc(pixbufdatasize);
   p = pixbufdata;
   imgstr = new ImageStream(str, width,

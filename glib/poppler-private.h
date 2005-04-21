@@ -1,14 +1,27 @@
 #ifndef __POPPLER_PRIVATE_H__
 #define __POPPLER_PRIVATE_H__
 
+#include <config.h>
 #include <PDFDoc.h>
 #include <PSOutputDev.h>
 #include <Link.h>
+
+#if defined (HAVE_CAIRO)
+#include <CairoOutputDevImage.h>
+#elif defined (HAVE_SPLASH)
+#include <SplashOutputDev.h>
+#endif
 
 struct _PopplerDocument
 {
   GObject parent_instance;
   PDFDoc *doc;
+
+#if defined (HAVE_CAIRO)
+  CairoOutputDevImage *output_dev;
+#elif defined (HAVE_SPLASH)
+  SplashOutputDev *output_dev;
+#endif
 };
 
 struct _PopplerPSFile

@@ -1,3 +1,18 @@
+Next Release
+
+	TODO:
+
+	- Use zlib for flate streams by default
+	- Performance fixes for glib+cairo
+
+	DONE:
+
+	- First simple cut at qt wrapper, including getText() for
+	  getting text from a page.
+	- More glib functionality: meta data, set page orientation,
+	  print to PS
+	- Bug fixes
+
 Release 0.2.0  (Tue Apr  5 12:32:10 EDT 2005)
 
 	- Add glib wrapper for poppler, which will use cairo rendering

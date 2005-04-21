@@ -82,7 +82,7 @@ CairoFont::CairoFont(GfxFont *gfxFont, XRef *xref, FT_Library lib) {
   fontType = gfxFont->getType();
 
   tmpFileName = NULL;
-  
+
   if (gfxFont->getEmbeddedFontID(&embRef)) {
     if (!openTempFile(&tmpFileName, &tmpFile, "wb", NULL)) {
       error(-1, "Couldn't create temporary font file");

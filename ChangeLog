@@ -1,3 +1,18 @@
+Thu Apr 21 00:15:30 2005  Kristian Høgsberg  <krh@redhat.com>
+
+	* glib/poppler-document.cc (poppler_document_new_from_file): Add
+	output device (cairo or splash) to PopplerDocument and initialize
+	it in the constructor.
+
+	* glib/poppler-page.cc (splash_render_to_pixbuf,
+	cairo_render_to_pixbuf): Use output device from associated poppler
+	document instead of creating a new one.
+
+	* poppler-glib.pc.in (Requires): Add Requires: field.
+
+	* poppler/Page.cc (loadThumb): Remove unecessary and buggy call to
+	Stream::addFilters(), reported by Ryan Lortie (#3046).
+
 2005-04-13  Jeff Muizelaar  <jrmuizel@nit.ca>
 
 	* qt/poppler-page.cc (Page::getText):
