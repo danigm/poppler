@@ -22,7 +22,7 @@ public:
   ~CairoFont();
 
   GBool matches(Ref &other);
-  cairo_font_t *getFont(cairo_matrix_t *font_scale);
+  cairo_font_t *getFont(double a, double b, double c, double d);
   unsigned long getGlyph(CharCode code,
 			 Unicode *u, int uLen);
   double getSubstitutionCorrection(GfxFont *gfxFont);
@@ -34,6 +34,13 @@ private:
 
   Gushort *codeToGID;
   int codeToGIDLen;
+
+  struct Instance {
+    cairo_font_t *font;
+    double a, b, c, d;
+    Instance *next;
+  };
+  Instance *instance_list;
 };
 
 //------------------------------------------------------------------------

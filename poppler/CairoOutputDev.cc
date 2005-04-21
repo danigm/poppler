@@ -217,16 +217,9 @@ void CairoOutputDev::updateFont(GfxState *state) {
 
   w = currentFont->getSubstitutionCorrection(state->getFont());
   
-  cairo_matrix_t *matrix = cairo_matrix_create ();
-  cairo_matrix_set_affine (matrix,
-			   m11, m21,
-			   -m12*w, -m22*w,
-			   0, 0);
-  
-  font = currentFont->getFont(matrix);
+  font = currentFont->getFont(m11, m21, -m12 * w, -m22 * w);
   if (font)
     cairo_set_font (cairo, font);
-  cairo_matrix_destroy (matrix);
 }
 
 void CairoOutputDev::doPath(GfxState *state, GfxPath *path,

@@ -1,4 +1,9 @@
-Thu Apr 21 00:15:30 2005  Kristian Høgsberg  <krh@redhat.com>
+Thu Apr 21 02:25:20 2005  Kristian Høgsberg  <krh@redhat.com>
+
+	* poppler/CairoFontEngine.cc (CairoFont::getFont): Cache
+	cairo_font_t's for a given CairoFont.  With this patch cairo will
+	recognize glyphs coming from the same font as such and the glyph
+	cache will actually work.
 
 	* glib/poppler-document.cc (poppler_document_new_from_file): Add
 	output device (cairo or splash) to PopplerDocument and initialize

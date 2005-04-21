@@ -77,6 +77,7 @@ CairoFont::CairoFont(GfxFont *gfxFont, XRef *xref, FT_Library lib) {
   codeToGIDLen = 0;
   substIdx = -1;
   cairo_font = NULL;
+  instance_list = NULL;
   
   ref = *gfxFont->getID();
   fontType = gfxFont->getType();
@@ -238,10 +239,20 @@ CairoFont::CairoFont(GfxFont *gfxFont, XRef *xref, FT_Library lib) {
 }
 
 CairoFont::~CairoFont() {
-  /* TODO: Free the face!
-   * How do we know when we can do this?
-   * It might be referenced by a cairo cache
-   */
+  Instance *i, *next;
+
+  for (i = instance_list; i != NULL; i = next) {
+    next = i->next;
+    cairo_font_destroy (i->font);
+    delete i;
+  }
+
+  /* cairo_font_t's created from an FT_Face are never cached so we can
+   * free the font here.  There might be glyphs in the cairo glyph
+   * cache referencing this font, but since we're throwing this font
+   * away, they won't be used and will slowly fall out of the
+   * cache. */
+  FT_Done_Face (face);
 }
 
 GBool
@@ -251,8 +262,30 @@ CairoFont::matches(Ref &other) {
 }
 
 cairo_font_t *
-CairoFont::getFont(cairo_matrix_t *font_scale) {
-    return cairo_ft_font_create_for_ft_face (face, FT_LOAD_NO_HINTING, font_scale);
+CairoFont::getFont(double a, double b, double c, double d) {
+  Instance *i;
+  cairo_matrix_t *matrix;
+
+  for (i = instance_list; i != NULL; i = i->next) {
+    if (i->a == a && i->b == b && i->c == c && i->d == d)
+      return i->font;
+  }
+
+  i = new Instance;
+  i->a = a;
+  i->b = b;
+  i->c = c;
+  i->d = d;
+
+  matrix = cairo_matrix_create ();
+  cairo_matrix_set_affine (matrix, a, b, c, d, 0, 0);
+  i->font = cairo_ft_font_create_for_ft_face (face, FT_LOAD_NO_HINTING,
+					      matrix);
+  cairo_matrix_destroy (matrix);
+  i->next = instance_list;
+  instance_list = i;
+
+  return i->font;
 }
 
 unsigned long
