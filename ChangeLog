@@ -1,3 +1,11 @@
+Fri Apr 22 00:01:40 2005  Kristian Høgsberg  <krh@redhat.com>
+
+	* poppler/CairoFontEngine.cc: Hack around semi-broken cairo-0.4.0
+	font API to fix the problem where some glyphs would show up at the
+	wrong sizes.  We now create an FT_Face for each size and font
+	combination we encounter, since an FT_Face can't be shared between
+	several cairo_font_t.
+
 Thu Apr 21 15:43:52 2005  Kristian Høgsberg  <krh@redhat.com>
 
 	* poppler/Outline.cc: 

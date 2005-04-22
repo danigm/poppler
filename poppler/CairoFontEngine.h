@@ -18,13 +18,13 @@
 
 class CairoFont {
 public:
-  CairoFont(GfxFont *gfxFont, XRef *xref, FT_Library lib);
+  CairoFont(GfxFont *gfxFont, XRef *xref, FT_Library lib,
+	    double m11, double m12, double m21, double m22);
   ~CairoFont();
 
-  GBool matches(Ref &other);
-  cairo_font_t *getFont(double a, double b, double c, double d);
-  unsigned long getGlyph(CharCode code,
-			 Unicode *u, int uLen);
+  GBool matches(Ref &other, double m11, double m12, double m21, double m22);
+  cairo_font_t *getFont(void);
+  unsigned long getGlyph(CharCode code, Unicode *u, int uLen);
   double getSubstitutionCorrection(GfxFont *gfxFont);
 private:
   int substIdx;
@@ -34,18 +34,12 @@ private:
 
   Gushort *codeToGID;
   int codeToGIDLen;
-
-  struct Instance {
-    cairo_font_t *font;
-    double a, b, c, d;
-    Instance *next;
-  };
-  Instance *instance_list;
+  double m11, m12, m21, m22;
 };
 
 //------------------------------------------------------------------------
 
-#define cairoFontCacheSize 16
+#define cairoFontCacheSize 64
 
 //------------------------------------------------------------------------
 // CairoFontEngine
@@ -58,7 +52,8 @@ public:
   CairoFontEngine(FT_Library libA);
   ~CairoFontEngine();
 
-  CairoFont *getFont(GfxFont *gfxFont, XRef *xref);
+  CairoFont *getFont(GfxFont *gfxFont, XRef *xref,
+		     double m11, double m12, double m21, double m22);
 
 private:
   CairoFont *fontCache[cairoFontCacheSize];

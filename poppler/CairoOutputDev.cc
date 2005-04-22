@@ -198,6 +198,7 @@ void CairoOutputDev::updateStrokeColor(GfxState *state) {
 
 void CairoOutputDev::updateFont(GfxState *state) {
   cairo_font_t *font;
+  double m11, m12, m21, m22;
   double w;
 
   LOG(printf ("updateFont() font=%s\n", state->getFont()->getName()->getCString()));
@@ -205,21 +206,20 @@ void CairoOutputDev::updateFont(GfxState *state) {
   /* Needs to be rethough, since fonts are now handled by cairo */
   needFontUpdate = gFalse;
 
-  currentFont = fontEngine->getFont (state->getFont(), xref);
-
-  double m11, m12, m21, m22;
-  
   state->getFontTransMat(&m11, &m12, &m21, &m22);
   m11 *= state->getHorizScaling();
   m12 *= state->getHorizScaling();
 
-  LOG(printf ("font matrix: %f %f %f %f\n", m11, m12, m21, m22));
+  /* w = currentFont->getSubstitutionCorrection(state->getFont()); */
+  m12 *= -1;
+  m22 *= -1;
 
-  w = currentFont->getSubstitutionCorrection(state->getFont());
+  LOG(printf ("font matrix: %f %f %f %f\n", m11, m12, m21, m22));
   
-  font = currentFont->getFont(m11, m21, -m12 * w, -m22 * w);
-  if (font)
-    cairo_set_font (cairo, font);
+  currentFont = fontEngine->getFont (state->getFont(), xref,
+				     m11, m21, m12, m22);
+  font = currentFont->getFont();
+  cairo_set_font (cairo, font);
 }
 
 void CairoOutputDev::doPath(GfxState *state, GfxPath *path,
