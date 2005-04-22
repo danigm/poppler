@@ -80,6 +80,7 @@ CairoFont::CairoFont(GfxFont *gfxFont, XRef *xref, FT_Library lib,
   char *name;
   FoFiTrueType *ff;
   FoFiType1C *ff1c;
+  cairo_matrix_t *matrix;
   
   codeToGID = NULL;
   codeToGIDLen = 0;
@@ -243,7 +244,7 @@ CairoFont::CairoFont(GfxFont *gfxFont, XRef *xref, FT_Library lib,
   this->m12 = m12;
   this->m21 = m21;
   this->m22 = m22;
-  cairo_matrix_t *matrix = cairo_matrix_create ();
+  matrix = cairo_matrix_create ();
   cairo_matrix_set_affine (matrix, m11, m12, m21, m22, 0, 0);
   cairo_font = cairo_ft_font_create_for_ft_face (face, FT_LOAD_NO_HINTING,
 						 matrix);
