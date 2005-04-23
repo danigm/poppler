@@ -1,3 +1,8 @@
+2005-04-23  Kristian Høgsberg  <krh@redhat.com>
+
+	* poppler/CairoFontEngine.cc: Use the right fileName for loading
+	CID fonts (#3114).
+
 2005-04-22  Kristian Høgsberg  <krh@redhat.com>
 
 	* configure.ac: Actually commit version number bump.

@@ -165,6 +165,7 @@ CairoFont::CairoFont(GfxFont *gfxFont, XRef *xref, FT_Library lib,
   case fontType1:
   case fontType1C:
     if (FT_New_Face(lib, fileName->getCString(), 0, &face)) {
+      error(-1, "could not create type1 face");
       goto err2;
     }
     
@@ -189,6 +190,7 @@ CairoFont::CairoFont(GfxFont *gfxFont, XRef *xref, FT_Library lib,
     /* Fall through */
   case fontTrueType:
     if (!(ff = FoFiTrueType::load(fileName->getCString()))) {
+      error(-1, "failed to load truetype font\n");
       goto err2;
     }
     /* This might be set already for the CIDType2 case */
@@ -198,6 +200,7 @@ CairoFont::CairoFont(GfxFont *gfxFont, XRef *xref, FT_Library lib,
     }
     if (!openTempFile(&tmpFileName2, &tmpFile, "wb", NULL)) {
       delete ff;
+      error(-1, "failed to open truetype tempfile\n");
       goto err2;
     }
     ff->writeTTF(&fileWrite, tmpFile);
@@ -205,6 +208,7 @@ CairoFont::CairoFont(GfxFont *gfxFont, XRef *xref, FT_Library lib,
     delete ff;
 
     if (FT_New_Face(lib, tmpFileName2->getCString(), 0, &face)) {
+      error(-1, "could not create truetype face\n");
       goto err2;
     }
     unlink (tmpFileName2->getCString());
@@ -221,8 +225,9 @@ CairoFont::CairoFont(GfxFont *gfxFont, XRef *xref, FT_Library lib,
       codeToGID = NULL;
       codeToGIDLen = 0;
     }
-    if (FT_New_Face(lib, tmpFileName2->getCString(), 0, &face)) {
+    if (FT_New_Face(lib, tmpFileName->getCString(), 0, &face)) {
       gfree(codeToGID);
+      error(-1, "could not create cid face\n");
       goto err2;
     }
     break;
@@ -249,9 +254,11 @@ CairoFont::CairoFont(GfxFont *gfxFont, XRef *xref, FT_Library lib,
   cairo_font = cairo_ft_font_create_for_ft_face (face, FT_LOAD_NO_HINTING,
 						 matrix);
   cairo_matrix_destroy (matrix);
-  if (cairo_font == NULL)
+  if (cairo_font == NULL) {
+    error(-1, "could not create cairo font\n");
     goto err2; /* this doesn't do anything, but it looks like we're
 		* handling the error */
+  }
 
   return;
  err2:
