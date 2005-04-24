@@ -1,3 +1,8 @@
+2005-04-24  Kristian Høgsberg  <krh@redhat.com>
+
+	* qt/Makefile.am (libpoppler_qt_la_SOURCES): Add poppler-private.h
+	to SOURCES.
+
 2005-04-23  Kristian Høgsberg  <krh@redhat.com>
 
 	* poppler/CairoFontEngine.cc: Use the right fileName for loading
