@@ -2,7 +2,7 @@ INCLUDES =					\
 	-I$(top_srcdir)				\
 	-I$(top_srcdir)/poppler			\
 	$(cairo_includes)			\
- 	$(POPPLER_QT_CXXFLAGS)			\
+	$(POPPLER_QT_CXXFLAGS)			\
 	$(FREETYPE_CFLAGS)			\
 	-DDATADIR=\""$(datadir)"\"
 
@@ -14,7 +14,8 @@ poppler_include_HEADERS =			\
 lib_LTLIBRARIES=libpoppler-qt.la
 libpoppler_qt_la_SOURCES =			\
 	poppler-document.cc			\
-	poppler-page.cc
+	poppler-page.cc				\
+	poppler-private.h
 
 libpoppler_qt_la_LIBADD= 			\
 	$(POPPLER_QT_LIBS)			\
