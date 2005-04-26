@@ -1,3 +1,7 @@
+Tue Apr 26 13:13:42 2005  Jonathan Blandford  <jrb@redhat.com>
+
+	* glib/test-poppler-glib.c (main): add a quick dump-to-text test.
+
 2005-04-24  Kristian Høgsberg  <krh@redhat.com>
 
 	* qt/Makefile.am (libpoppler_qt_la_SOURCES): Add poppler-private.h

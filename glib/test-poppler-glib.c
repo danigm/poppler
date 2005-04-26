@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "poppler.h"
 
 #define FAIL(msg) \
@@ -56,6 +57,8 @@ int main (int argc, char *argv[])
   GdkPixbuf *pixbuf, *thumb;
   double width, height;
   GList *list, *l;
+  char *text;
+  PopplerRectangle area;
 
   if (argc != 3)
     FAIL ("usage: test-poppler-glib FILE PAGE");
@@ -100,6 +103,23 @@ int main (int argc, char *argv[])
   printf ("saved 200x200 slice at (100, 100) as slice.png\n");
   if (error != NULL)
     FAIL (error->message);
+
+  area.x1 = 0;
+  area.y1 = 0;
+  area.x2 = width;
+  area.y2 = height;
+
+  text = poppler_page_get_text (page, &area);
+  if (text)
+    {
+      FILE *file = fopen ("dump.txt", "w");
+      if (file)
+	{
+	  fwrite (text, strlen (text), 1, file);
+	  fclose (file);
+	}
+      g_free (text);
+    }
 
   list = poppler_page_find_text (page, "Bitwise");
   printf ("Found text \"Bitwise\" at positions:\n");
