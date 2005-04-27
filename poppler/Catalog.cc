@@ -419,12 +419,12 @@ int NameTree::Entry::cmp(const void *voidKey, const void *voidEntry)
 
 GBool NameTree::lookup(GooString *name, Object *obj)
 {
-  Entry *entry;
+  Entry **entry;
 
-  entry = *(Entry **) bsearch(name, entries,
-			      length, sizeof(Entry *), Entry::cmp);
+  entry = (Entry **) bsearch(name, entries,
+			     length, sizeof(Entry *), Entry::cmp);
   if (entry != NULL) {
-    entry->value.fetch(xref, obj);
+    (*entry)->value.fetch(xref, obj);
     return gTrue;
   } else {
     printf("failed to look up %s\n", name->getCString());
