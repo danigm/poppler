@@ -82,6 +82,34 @@ if test "$xpdf_cv_func_fseek64" = yes -a "$xpdf_cv_func_ftell64" = yes; then
   AC_DEFINE(HAVE_FSEEK64)
 fi
 
+dnl Test for zlib
+AC_ARG_ENABLE(zlib,
+	      AC_HELP_STRING([--disable-zlib],
+	                     [Don't build against zlib.]),
+              enable_zlib=$enableval,
+              enable_zlib="try")
+if test x$enable_zlib = xyes; then
+  AC_CHECK_LIB([z], [inflate],,
+	       AC_MSG_ERROR("*** zlib library not found ***"))
+  AC_CHECK_HEADERS([zlib.h],,
+		   AC_MSG_ERROR("*** zlib headers not found ***"))
+elif test x$enable_zlib = xtry; then
+  AC_CHECK_LIB([z], [inflate],
+               [enable_zlib="yes"],
+	       [enable_zlib="no"])
+  AC_CHECK_HEADERS([zlib.h],,
+		   [enable_zlib="no"])
+fi
+
+if test x$enable_zlib = xyes; then
+  ZLIB_LIBS="-lz"
+  AC_SUBST(ZLIB_LIBS)
+  AC_DEFINE(ENABLE_ZLIB)
+fi
+
+AM_CONDITIONAL(BUILD_ZLIB, test x$enable_zlib = xyes)
+AH_TEMPLATE([ENABLE_ZLIB],
+	    [Use zlib instead of builtin zlib decoder.])
 
 dnl Test for libjpeg
 AC_ARG_ENABLE(libjpeg,
@@ -314,3 +342,4 @@ echo "  cairo output:  $enable_cairo_output"
 echo "  qt wrapper:    $enable_poppler_qt"
 echo "  glib wrapper:  $enable_poppler_glib"
 echo "  use libjpeg:   $enable_libjpeg"
+echo "  use zlib:      $enable_zlib"

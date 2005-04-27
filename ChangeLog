@@ -1,3 +1,13 @@
+2005-04-27  Jeff Muizelaar  <jeff@infidigm.net>
+
+	* configure.ac:
+	* poppler/FlateStream.cc:
+	* poppler/FlateStream.h:
+	* poppler/Makefile.am:
+	* poppler/Stream.cc:
+	* poppler/Stream.h: Add a reimplementation of FlateStream using
+	zlib.
+
 2005-04-27  Kristian Høgsberg  <krh@redhat.com>
 
 	* poppler/Catalog.cc (NameTree::lookup): Fix bsearch return value

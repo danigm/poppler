@@ -37,6 +37,10 @@
 #include "DCTStream.h"
 #endif
 
+#ifdef ENABLE_ZLIB
+#include "FlateStream.h"
+#endif
+
 #ifdef __DJGPP__
 static GBool setDJSYSFLAGS = gFalse;
 #endif
@@ -3185,6 +3189,7 @@ GBool DCTStream::isBinary(GBool last) {
 
 #endif
 
+#ifndef ENABLE_ZLIB
 //------------------------------------------------------------------------
 // FlateStream
 //------------------------------------------------------------------------
@@ -3715,6 +3720,7 @@ int FlateStream::getCodeWord(int bits) {
   codeSize -= bits;
   return c;
 }
+#endif
 
 //------------------------------------------------------------------------
 // EOFStream

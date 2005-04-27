@@ -635,6 +635,7 @@ private:
 };
 #endif
 
+#ifndef ENABLE_ZLIB
 //------------------------------------------------------------------------
 // FlateStream
 //------------------------------------------------------------------------
@@ -709,6 +710,7 @@ private:
   int getHuffmanCodeWord(FlateHuffmanTab *tab);
   int getCodeWord(int bits);
 };
+#endif
 
 //------------------------------------------------------------------------
 // EOFStream

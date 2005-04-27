@@ -49,6 +49,17 @@ libjpeg_libs =					\
 
 endif
 
+if BUILD_ZLIB
+
+zlib_sources =					\
+	FlateStream.h				\
+	FlateStream.cc
+
+zlib_libs = 					\
+	$(ZLIB_LIBS)
+
+endif
+
 INCLUDES =					\
 	-I$(top_srcdir)				\
 	$(splash_includes)			\
@@ -62,7 +73,8 @@ libpoppler_la_LIBADD =				\
 	$(top_builddir)/fofi/libfofi.la		\
 	$(splash_libs)				\
 	$(cairo_libs)				\
-	$(libjpeg_libs)
+	$(libjpeg_libs)				\
+	$(zlib_libs)
 
 poppler_includedir = $(includedir)/poppler
 poppler_include_HEADERS =	\
@@ -119,6 +131,7 @@ libpoppler_la_SOURCES =		\
 	$(splash_sources)	\
 	$(cairo_sources)	\
 	$(libjpeg_sources)	\
+	$(zlib_sources)		\
 	Annot.cc		\
 	Array.cc 		\
 	BuiltinFont.cc		\
@@ -156,4 +169,4 @@ libpoppler_la_SOURCES =		\
 	PSOutputDev.cc		\
 	TextOutputDev.cc	\
 	PageLabelInfo.h		\
-	PageLabelInfo.cc
+	PageLabelInfo.cc	
