@@ -246,7 +246,7 @@ GlobalParams::GlobalParams(char *cfgFileName) {
   psEmbedCIDTrueType = gTrue;
   psOPI = gFalse;
   psASCIIHex = gFalse;
-  textEncoding = new GooString("Latin1");
+  textEncoding = new GooString("UTF-8");
 #if defined(WIN32)
   textEOL = eolDOS;
 #elif defined(MACOS)

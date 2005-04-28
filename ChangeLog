@@ -1,3 +1,10 @@
+2005-04-28  Kristian Høgsberg  <krh@redhat.com>
+
+	Patch from Martin Kretzschmar:
+
+	* poppler/GlobalParams.cc: use UTF-8 as the default text encoding.
+	Fixes Bug 2934.
+
 2005-04-27  Jeff Muizelaar  <jeff@infidigm.net>
 
 	* configure.ac:
