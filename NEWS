@@ -1,3 +1,9 @@
+Release 0.3.1
+
+	- Add qt/poppler-private.h to SOURCES
+	- Jeff's path to use zlib instead of builtin decompression.
+	- Bug fixes: #2934, segfault on invalid links, #3114
+
 Release 0.3.0
 
 	- First cut at qt wrapper, including a getText() method for

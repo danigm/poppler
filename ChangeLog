@@ -1,3 +1,9 @@
+2005-04-29  Kristian Høgsberg  <krh@bitplanet.net>
+
+	* configure.ac: Bump release to 0.3.1.
+
+	* NEWS: Write up news for 0.3.1 release.
+
 2005-04-28  Kristian Høgsberg  <krh@redhat.com>
 
 	Patch from Martin Kretzschmar:
