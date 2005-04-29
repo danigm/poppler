@@ -4,6 +4,7 @@ poppler_goo_includedir = $(includedir)/poppler/goo
 poppler_goo_include_HEADERS =			\
 	GooHash.h				\
 	GooList.h				\
+	GooTimer.h				\
 	GooMutex.h				\
 	GooString.h				\
 	gmem.h					\
@@ -16,5 +17,6 @@ libgoo_la_SOURCES =				\
 	gmempp.cc				\
 	GooHash.cc				\
 	GooList.cc				\
+	GooTimer.cc				\
 	GooString.cc				\
 	gmem.c

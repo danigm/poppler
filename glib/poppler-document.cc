@@ -303,7 +303,9 @@ poppler_document_get_property (GObject    *object,
 	info_dict_get_string (obj.getDict(), "Title", value);
       break;
     case PROP_FORMAT:
-      str = g_strdup_printf ("PDF-%.2g", document->doc->getPDFVersion ());
+      str = g_strndup("PDF-", 15); /* allocates 16 chars, pads with \0s */
+      g_ascii_formatd (str + 4, 15 + 1 - 4,
+		       "%.2g", document->doc->getPDFVersion ());
       g_value_take_string (value, str);
       break;
     case PROP_AUTHOR:

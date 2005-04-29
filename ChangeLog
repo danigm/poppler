@@ -1,3 +1,10 @@
+Fri Apr 29 14:54:44 2005  Jonathan Blandford  <jrb@redhat.com>
+
+	* goo/GooTimer.h: New class to do simple timing checks.
+
+	* glib/poppler-document.c: Patch from Martin Kretzschmar to really
+	set the PDF version correct.  Third time's the charm.
+
 2005-04-29  Kristian Høgsberg  <krh@bitplanet.net>
 
 	* configure.ac: Bump release to 0.3.1.
