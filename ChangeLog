@@ -1,3 +1,16 @@
+2005-04-30  Jeff Muizelaar  <jeff@infidigm.net>
+
+	* fofi/FoFiType1.cc (FoFiType1::parse):
+	Don't assume Encoding array of Type1 fonts end in "foo def".
+	http://partners.adobe.com/public/developer/en/font/T1_SPEC.PDF says
+	"This sequence of assignments must be followed by an instance of the
+	token def or readonly; such a token may not occur within the sequence
+	of assignments." so it must end with "readonly" "def" "readonly def"
+	(That is what most fonts are using and this is why it was not
+	crashing)
+
+	Patch from Albert Astals Cid.
+
 Fri Apr 29 14:54:44 2005  Jonathan Blandford  <jrb@redhat.com>
 
 	* goo/GooTimer.h: New class to do simple timing checks.
