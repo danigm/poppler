@@ -65,7 +65,7 @@ bool Document::isLocked() const
   return data->locked;
 }
 
-bool Document::unlock(QCString &password)
+bool Document::unlock(const QCString &password)
 {
   if (data->locked) {
     /* racier then it needs to be */

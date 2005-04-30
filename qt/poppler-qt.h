@@ -78,7 +78,7 @@ public:
   
   PageMode getPageMode() const;
   
-  bool unlock(QCString &password);
+  bool unlock(const QCString &password);
   
   bool isLocked() const;
   
