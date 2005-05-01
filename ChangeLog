@@ -1,3 +1,10 @@
+2005-05-01  Jeff Muizelaar  <jeff@infidigm.net>
+
+	* goo/gmem.c: (gmalloc), (grealloc), (gfree):
+	* goo/gmem.h: make memory functions use size_t instead of int.
+	
+	Patch from Takashi Iwai through Albert Astals Cid.
+
 2005-04-30  Jeff Muizelaar  <jeff@infidigm.net>
 
 	* qt/poppler-document.cc (Document::unlock) :
