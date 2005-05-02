@@ -1,5 +1,13 @@
 2005-05-01  Jeff Muizelaar  <jeff@infidigm.net>
 
+	* splash/SplashFTFont.cc (SplashFTFont::getGlyphPath):
+	Use FT_LOAD_NO_BITMAP to make sure we get outlines loaded instead
+	of bitmaps for use in FT_Outline_Decompose.
+
+	Patch from Albert Astals Cid.
+
+2005-05-01  Jeff Muizelaar  <jeff@infidigm.net>
+
 	* goo/gmem.c: (gmalloc), (grealloc), (gfree):
 	* goo/gmem.h: make memory functions use size_t instead of int.
 	
