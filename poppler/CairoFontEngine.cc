@@ -60,15 +60,14 @@ static CairoOutFontSubst cairoOutSubstFonts[16] = {
 // CairoFont
 //------------------------------------------------------------------------
 
-/* For the 0.3 release of poppler we're creating a CairoFont, and
- * thus, an FT_Face for each size of each font we encounter.  We
- * should of course be able to share FT_Face instances across all
- * sizes of a font.  However, to do that we need to be able to create
- * a cairo_unscaled_font_t, which is not possible with the cairo-0.4.0
- * API which is what we're targeting with this release. */
+void cairo_font_face_destroy (void *data)
+{
+  CairoFont *font = (CairoFont *) data;
 
-CairoFont::CairoFont(GfxFont *gfxFont, XRef *xref, FT_Library lib, 
-		     double m11, double m12, double m21, double m22) {
+  delete font;
+}
+
+CairoFont::CairoFont(GfxFont *gfxFont, XRef *xref, FT_Library lib) {
   Ref embRef;
   Object refObj, strObj;
   GooString *tmpFileName, *fileName, *substName,*tmpFileName2;
@@ -80,12 +79,12 @@ CairoFont::CairoFont(GfxFont *gfxFont, XRef *xref, FT_Library lib,
   char *name;
   FoFiTrueType *ff;
   FoFiType1C *ff1c;
-  cairo_matrix_t *matrix;
+  static cairo_user_data_key_t cairo_font_face_key;
   
   codeToGID = NULL;
   codeToGIDLen = 0;
   substIdx = -1;
-  cairo_font = NULL;
+  cairo_font_face = NULL;
   
   ref = *gfxFont->getID();
   fontType = gfxFont->getType();
@@ -245,20 +244,19 @@ CairoFont::CairoFont(GfxFont *gfxFont, XRef *xref, FT_Library lib,
     unlink (fileName->getCString());
   }
 
-  this->m11 = m11;
-  this->m12 = m12;
-  this->m21 = m21;
-  this->m22 = m22;
-  matrix = cairo_matrix_create ();
-  cairo_matrix_set_affine (matrix, m11, m12, m21, m22, 0, 0);
-  cairo_font = cairo_ft_font_create_for_ft_face (face, FT_LOAD_NO_HINTING,
-						 matrix);
-  cairo_matrix_destroy (matrix);
-  if (cairo_font == NULL) {
+  cairo_font_face = cairo_ft_font_face_create_for_ft_face (face,
+							   FT_LOAD_NO_HINTING |
+							   FT_LOAD_NO_BITMAP);
+  if (cairo_font_face == NULL) {
     error(-1, "could not create cairo font\n");
     goto err2; /* this doesn't do anything, but it looks like we're
 		* handling the error */
   }
+
+  cairo_font_face_set_user_data (cairo_font_face, 
+				 &cairo_font_face_key,
+				 this,
+				 cairo_font_face_destroy);
 
   return;
  err2:
@@ -267,27 +265,17 @@ CairoFont::CairoFont(GfxFont *gfxFont, XRef *xref, FT_Library lib,
 }
 
 CairoFont::~CairoFont() {
-  cairo_font_destroy (cairo_font);
-
-  /* cairo_font_t's created from an FT_Face are never cached so we can
-   * free the font here.  There might be glyphs in the cairo glyph
-   * cache referencing this font, but since we're throwing this font
-   * away, they won't be used and will slowly fall out of the
-   * cache. */
   FT_Done_Face (face);
 }
 
 GBool
-CairoFont::matches(Ref &other,
-		   double m11, double m12, double m21, double m22) {
-  return (other.num == ref.num && other.gen == ref.gen &&
-	  this->m11 == m11 && this->m12 == m12 &&
-	  this->m21 == m21 && this->m22 == m22);
+CairoFont::matches(Ref &other) {
+  return (other.num == ref.num && other.gen == ref.gen);
 }
 
-cairo_font_t *
-CairoFont::getFont(void) {
-  return cairo_font;
+cairo_font_face_t *
+CairoFont::getFontFace(void) {
+  return cairo_font_face;
 }
 
 unsigned long
@@ -359,8 +347,7 @@ CairoFontEngine::~CairoFontEngine() {
 }
 
 CairoFont *
-CairoFontEngine::getFont(GfxFont *gfxFont, XRef *xref,
-			 double m11, double m12, double m21, double m22) {
+CairoFontEngine::getFont(GfxFont *gfxFont, XRef *xref) {
   int i, j;
   Ref ref;
   CairoFont *font;
@@ -376,7 +363,7 @@ CairoFontEngine::getFont(GfxFont *gfxFont, XRef *xref,
 
   for (i = 0; i < cairoFontCacheSize; ++i) {
     font = fontCache[i];
-    if (font && font->matches(ref, m11, m12, m21, m22)) {
+    if (font && font->matches(ref)) {
       for (j = i; j > 0; --j) {
 	fontCache[j] = fontCache[j-1];
       }
@@ -385,7 +372,7 @@ CairoFontEngine::getFont(GfxFont *gfxFont, XRef *xref,
     }
   }
   
-  font = new CairoFont (gfxFont, xref, lib, m11, m12, m21, m22);
+  font = new CairoFont (gfxFont, xref, lib);
   if (fontCache[cairoFontCacheSize - 1]) {
     delete fontCache[cairoFontCacheSize - 1];
   }

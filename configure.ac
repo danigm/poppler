@@ -181,9 +181,9 @@ AC_ARG_ENABLE(cairo-output,
               enable_cairo_output=$enableval,
               enable_cairo_output="try")
 if test x$enable_cairo_output = xyes; then
-  PKG_CHECK_MODULES(CAIRO, cairo = 0.4.0 fontconfig)
+  PKG_CHECK_MODULES(CAIRO, cairo > 0.4.0 fontconfig)
 elif test x$enable_cairo_output = xtry; then
-  PKG_CHECK_MODULES(CAIRO, cairo = 0.4.0 fontconfig,
+  PKG_CHECK_MODULES(CAIRO, cairo > 0.4.0 fontconfig,
                     [enable_cairo_output="yes"],
                     [enable_cairo_output="no"])
 fi

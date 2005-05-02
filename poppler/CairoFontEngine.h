@@ -18,18 +18,17 @@
 
 class CairoFont {
 public:
-  CairoFont(GfxFont *gfxFont, XRef *xref, FT_Library lib,
-	    double m11, double m12, double m21, double m22);
+  CairoFont(GfxFont *gfxFont, XRef *xref, FT_Library lib);
   ~CairoFont();
 
-  GBool matches(Ref &other, double m11, double m12, double m21, double m22);
-  cairo_font_t *getFont(void);
+  GBool matches(Ref &other);
+  cairo_font_face_t *getFontFace(void);
   unsigned long getGlyph(CharCode code, Unicode *u, int uLen);
   double getSubstitutionCorrection(GfxFont *gfxFont);
 private:
   int substIdx;
   Ref ref;
-  cairo_font_t *cairo_font;
+  cairo_font_face_t *cairo_font_face;
   FT_Face face;
 
   Gushort *codeToGID;
@@ -52,8 +51,7 @@ public:
   CairoFontEngine(FT_Library libA);
   ~CairoFontEngine();
 
-  CairoFont *getFont(GfxFont *gfxFont, XRef *xref,
-		     double m11, double m12, double m21, double m22);
+  CairoFont *getFont(GfxFont *gfxFont, XRef *xref);
 
 private:
   CairoFont *fontCache[cairoFontCacheSize];

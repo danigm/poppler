@@ -1,3 +1,10 @@
+2005-05-01  Kristian Høgsberg  <krh@redhat.com>
+
+	* poppler/CairoFontEngine.cc:
+	* poppler/CairoFontEngine.h:
+	* poppler/CairoOutputDev.cc: Back out workaround for cairo 0.4.0
+	font API and port to new cairo head.
+
 2005-05-01  Jeff Muizelaar  <jeff@infidigm.net>
 
 	* splash/SplashFTFont.cc (SplashFTFont::getGlyphPath):

@@ -56,7 +56,7 @@ CairoOutputDevImage::createCairo(GfxState *state) {
   memset (pixels, 0xff, pixels_w * pixels_h * 4);
 
   cairo = cairo_create ();
-  cairo_set_target_image (cairo, (char *)pixels, CAIRO_FORMAT_ARGB32,
+  cairo_set_target_image (cairo, (unsigned char *)pixels, CAIRO_FORMAT_ARGB32,
 			  pixels_w, pixels_h,
 			  pixels_w*4);
   

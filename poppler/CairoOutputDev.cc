@@ -76,7 +76,7 @@ void CairoOutputDev::startPage(int pageNum, GfxState *state) {
   cairo_destroy (cairo);
   createCairo (state);
   
-  cairo_init_clip (cairo);
+  cairo_reset_clip (cairo);
   cairo_set_rgb_color (cairo, 0, 0, 0);
   cairo_set_operator (cairo, CAIRO_OPERATOR_OVER);
   cairo_set_line_cap (cairo, CAIRO_LINE_CAP_BUTT);
@@ -197,29 +197,38 @@ void CairoOutputDev::updateStrokeColor(GfxState *state) {
 }
 
 void CairoOutputDev::updateFont(GfxState *state) {
-  cairo_font_t *font;
+  cairo_font_face_t *font_face;
   double m11, m12, m21, m22;
   double w;
+  cairo_matrix_t matrix;
 
   LOG(printf ("updateFont() font=%s\n", state->getFont()->getName()->getCString()));
   
   /* Needs to be rethough, since fonts are now handled by cairo */
   needFontUpdate = gFalse;
 
+  currentFont = fontEngine->getFont (state->getFont(), xref);
+
   state->getFontTransMat(&m11, &m12, &m21, &m22);
   m11 *= state->getHorizScaling();
   m12 *= state->getHorizScaling();
 
-  /* w = currentFont->getSubstitutionCorrection(state->getFont()); */
-  m12 *= -1;
-  m22 *= -1;
+  w = currentFont->getSubstitutionCorrection(state->getFont());
+  m12 *= -w;
+  m22 *= -w;
 
   LOG(printf ("font matrix: %f %f %f %f\n", m11, m12, m21, m22));
   
-  currentFont = fontEngine->getFont (state->getFont(), xref,
-				     m11, m21, m12, m22);
-  font = currentFont->getFont();
-  cairo_set_font (cairo, font);
+  font_face = currentFont->getFontFace();
+  cairo_set_font_face (cairo, font_face);
+
+  matrix.xx = m11;
+  matrix.yx = m12;
+  matrix.xy = m21;
+  matrix.yy = m22;
+  matrix.x0 = 0;
+  matrix.y0 = 0;
+  cairo_set_font_matrix (cairo, &matrix);
 }
 
 void CairoOutputDev::doPath(GfxState *state, GfxPath *path,
@@ -451,8 +460,8 @@ void CairoOutputDev::endTextObject(GfxState *state) {
 void CairoOutputDev::drawImageMask(GfxState *state, Object *ref, Stream *str,
 				    int width, int height, GBool invert,
 				    GBool inlineImg) {
-  char *buffer;
-  char *dest;
+  unsigned char *buffer;
+  unsigned char *dest;
   cairo_surface_t *image;
   int x, y;
   ImageStream *imgStr;
@@ -461,7 +470,7 @@ void CairoOutputDev::drawImageMask(GfxState *state, Object *ref, Stream *str,
   cairo_matrix_t *mat;
   int invert_bit;
 
-  buffer = (char *)malloc (width * height * 4);
+  buffer = (unsigned char *)malloc (width * height * 4);
   if (buffer == NULL) {
     error(-1, "Unable to allocate memory for image.");
     return;
@@ -523,8 +532,8 @@ void CairoOutputDev::drawImage(GfxState *state, Object *ref, Stream *str,
 				int width, int height,
 				GfxImageColorMap *colorMap,
 				int *maskColors, GBool inlineImg) {
-  char *buffer;
-  char *dest;
+  unsigned char *buffer;
+  unsigned char *dest;
   cairo_surface_t *image;
   int x, y;
   ImageStream *imgStr;
@@ -535,7 +544,7 @@ void CairoOutputDev::drawImage(GfxState *state, Object *ref, Stream *str,
   cairo_matrix_t *mat;
   int is_identity_transform;
   
-  buffer = (char *)malloc (width * height * 4);
+  buffer = (unsigned char *)malloc (width * height * 4);
 
   if (buffer == NULL) {
     error(-1, "Unable to allocate memory for image.");
