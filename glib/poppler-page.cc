@@ -636,3 +636,86 @@ poppler_page_set_orientation (PopplerPage        *page,
 
   page->orientation = orientation;
 }
+
+/* PopplerRectangle type */
+
+GType
+poppler_rectangle_get_type (void)
+{
+  static GType our_type = 0;
+
+  if (our_type == 0)
+    our_type = g_boxed_type_register_static ("PopplerRectangle",
+					     (GBoxedCopyFunc) poppler_rectangle_copy,
+					     (GBoxedFreeFunc) poppler_rectangle_free);
+
+  return our_type;
+}
+
+PopplerRectangle *
+poppler_rectangle_new (void)
+{
+	return g_new0 (PopplerRectangle, 1);
+}
+
+PopplerRectangle *
+poppler_rectangle_copy (PopplerRectangle *rectangle)
+{
+	PopplerRectangle *new_rectangle;
+
+	g_return_val_if_fail (rectangle != NULL, NULL);
+
+	new_rectangle = g_new0 (PopplerRectangle, 1);
+	*new_rectangle = *rectangle;
+
+	return new_rectangle;
+}
+
+void
+poppler_rectangle_free (PopplerRectangle *rectangle)
+{
+	g_free (rectangle);
+}
+
+/* PopplerLinkMapping type */
+GType
+poppler_link_mapping_get_type (void)
+{
+  static GType our_type = 0;
+
+  if (our_type == 0)
+    our_type = g_boxed_type_register_static ("PopplerLinkMapping",
+					     (GBoxedCopyFunc) poppler_link_mapping_copy,
+					     (GBoxedFreeFunc) poppler_link_mapping_free);
+
+  return our_type;
+}
+
+PopplerLinkMapping *
+poppler_link_mapping_new (void)
+{
+	return (PopplerLinkMapping *) g_new0 (PopplerLinkMapping, 1);
+}
+
+PopplerLinkMapping *
+poppler_link_mapping_copy (PopplerLinkMapping *mapping)
+{
+	PopplerLinkMapping *new_mapping;
+
+	new_mapping = poppler_link_mapping_new ();
+	
+	*new_mapping = *mapping;
+	if (new_mapping->action)
+		new_mapping->action = poppler_action_copy (new_mapping->action);
+
+	return new_mapping;
+}
+
+void
+poppler_link_mapping_free (PopplerLinkMapping *mapping)
+{
+	if (mapping)
+		poppler_action_free (mapping->action);
+
+	g_free (mapping);
+}

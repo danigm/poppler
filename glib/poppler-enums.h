@@ -19,6 +19,8 @@ GType poppler_page_mode_get_type (void) G_GNUC_CONST;
 #define POPPLER_TYPE_PAGE_MODE (poppler_page_mode_get_type())
 GType poppler_viewer_preferences_get_type (void) G_GNUC_CONST;
 #define POPPLER_TYPE_VIEWER_PREFERENCES (poppler_viewer_preferences_get_type())
+GType poppler_permissions_get_type (void) G_GNUC_CONST;
+#define POPPLER_TYPE_PERMISSIONS (poppler_permissions_get_type())
 /* enumerations from "poppler.h" */
 GType poppler_error_get_type (void) G_GNUC_CONST;
 #define POPPLER_TYPE_ERROR (poppler_error_get_type())

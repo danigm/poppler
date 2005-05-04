@@ -105,6 +105,25 @@ poppler_viewer_preferences_get_type (void)
   }
   return etype;
 }
+GType
+poppler_permissions_get_type (void)
+{
+  static GType etype = 0;
+  if (etype == 0) {
+    static const GFlagsValue values[] = {
+      { POPPLER_PERMISSIONS_PRINT, "POPPLER_PERMISSIONS_PRINT", "print" },
+      { POPPLER_PERMISSIONS_MODIFY, "POPPLER_PERMISSIONS_MODIFY", "modify" },
+      { POPPLER_PERMISSIONS_COPY, "POPPLER_PERMISSIONS_COPY", "copy" },
+      { POPPLER_PERMISSIONS_EXTRACT_TEXT, "POPPLER_PERMISSIONS_EXTRACT_TEXT", "extract-text" },
+      { POPPLER_PERMISSIONS_ANNOTATIONS_AND_FORMS, "POPPLER_PERMISSIONS_ANNOTATIONS_AND_FORMS", "annotations-and-forms" },
+      { POPPLER_PERMISSIONS_FORMS, "POPPLER_PERMISSIONS_FORMS", "forms" },
+      { POPPLER_PERMISSIONS_PRINT_LOW_QUALITY, "POPPLER_PERMISSIONS_PRINT_LOW_QUALITY", "print-low-quality" },
+      { 0, NULL, NULL }
+    };
+    etype = g_flags_register_static ("PopplerPermissions", values);
+  }
+  return etype;
+}
 
 /* enumerations from "poppler.h" */
 GType

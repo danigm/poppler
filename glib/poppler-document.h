@@ -64,8 +64,20 @@ typedef enum /*< flags >*/
   POPPLER_VIEWER_PREFERENCES_DIRECTION_RTL = 1 << 6,
 } PopplerViewerPreferences;
 
+typedef enum /*< flags >*/
+{
+  POPPLER_PERMISSIONS_PRINT = 1 << 0,
+  POPPLER_PERMISSIONS_MODIFY = 1 << 1,
+  POPPLER_PERMISSIONS_COPY = 1 << 2,
+  POPPLER_PERMISSIONS_EXTRACT_TEXT = 1 << 3,
+  POPPLER_PERMISSIONS_ANNOTATIONS_AND_FORMS = 1 << 4,
+  POPPLER_PERMISSIONS_FORMS = 1 << 5,
+  POPPLER_PERMISSIONS_PRINT_LOW_QUALITY = 1 << 6,
+} PopplerPermissions;
 
 
+
+GType            poppler_document_get_type          (void) G_GNUC_CONST;
 PopplerDocument *poppler_document_new_from_file     (const char       *uri,
 						     const char       *password,
 						     GError          **error);
@@ -78,14 +90,16 @@ PopplerPage     *poppler_document_get_page          (PopplerDocument  *document,
 PopplerPage     *poppler_document_get_page_by_label (PopplerDocument  *document,
 						     const char       *label);
 
-GType            poppler_document_get_type           (void) G_GNUC_CONST;
 
 /* Interface for getting the Index of a poppler_document */
+GType             poppler_index_iter_get_type   (void) G_GNUC_CONST;
 PopplerIndexIter *poppler_index_iter_new        (PopplerDocument   *document);
+PopplerIndexIter *poppler_index_iter_copy       (PopplerIndexIter  *iter);
+void              poppler_index_iter_free       (PopplerIndexIter  *iter);
+
 PopplerIndexIter *poppler_index_iter_get_child  (PopplerIndexIter  *parent);
 PopplerAction    *poppler_index_iter_get_action (PopplerIndexIter  *iter);
 gboolean          poppler_index_iter_next       (PopplerIndexIter  *iter);
-void              poppler_index_iter_free       (PopplerIndexIter  *iter);
 
 /* Export to ps */
 PopplerPSFile *poppler_ps_file_new   (PopplerDocument *document,

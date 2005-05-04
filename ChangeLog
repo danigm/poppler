@@ -1,3 +1,16 @@
+Wed May  4 02:31:05 2005  Jonathan Blandford  <jrb@redhat.com>
+
+	* glib/poppler-document.cc:
+	* glib/poppler-document.h:
+	* glib/poppler-enums.c: (poppler_permissions_get_type):
+	* glib/poppler-enums.h:
+	* glib/poppler-page.cc:
+	* glib/poppler-page.h:
+	* glib/poppler.h:
+
+	Register a bunch of boxed types to test introspection, and for
+	LBs.  Also, remove unused 'popper_document_save()' (-:
+
 2005-05-01  Kristian Høgsberg  <krh@redhat.com>
 
 	* poppler/CairoFontEngine.cc:

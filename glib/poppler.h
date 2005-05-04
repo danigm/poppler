@@ -43,11 +43,13 @@ typedef enum
 	POPPLER_ORIENTATION_SEASCAPE
 } PopplerOrientation;
 
-typedef struct _PopplerDocument  PopplerDocument;
-typedef struct _PopplerIndexIter PopplerIndexIter;
-typedef struct _PopplerPage      PopplerPage;
-typedef struct _PopplerPSFile    PopplerPSFile;
-typedef union  _PopplerAction    PopplerAction;
+typedef struct _PopplerDocument    PopplerDocument;
+typedef struct _PopplerIndexIter   PopplerIndexIter;
+typedef struct _PopplerRectangle   PopplerRectangle;
+typedef struct _PopplerLinkMapping PopplerLinkMapping;
+typedef struct _PopplerPage        PopplerPage;
+typedef struct _PopplerPSFile      PopplerPSFile;
+typedef union  _PopplerAction      PopplerAction;
 
 G_END_DECLS
 

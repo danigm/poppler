@@ -146,26 +146,6 @@ poppler_document_finalize (GObject *object)
   delete document->doc;
 }
 
-static gboolean
-popper_document_save (PopplerDocument  *document,
-		      const char       *uri,
-		      GError          **error)
-{
-  char *filename;
-  gboolean retval = FALSE;
-
-  g_return_val_if_fail (POPPLER_IS_DOCUMENT (document), FALSE);
-
-  filename = g_filename_from_uri (uri, NULL, error);
-  if (filename != NULL) {
-    GooString *filename_g = new GooString (filename);
-
-    retval = document->doc->saveAs (filename_g);
-  }
-
-  return retval;
-}
-
 int
 poppler_document_get_n_pages (PopplerDocument *document)
 {
@@ -445,6 +425,34 @@ struct _PopplerIndexIter
 	GooList *items;
 	int index;
 };
+
+
+GType
+poppler_index_iter_get_type (void)
+{
+  static GType our_type = 0;
+
+  if (our_type == 0)
+    our_type = g_boxed_type_register_static ("PopplerIndexIter",
+					     (GBoxedCopyFunc) poppler_index_iter_copy,
+					     (GBoxedFreeFunc) poppler_index_iter_free);
+
+  return our_type;
+}
+
+PopplerIndexIter *
+poppler_index_iter_copy (PopplerIndexIter *iter)
+{
+	PopplerIndexIter *new_iter;
+
+	g_return_val_if_fail (iter != NULL, NULL);
+
+	new_iter = g_new0 (PopplerIndexIter, 1);
+	*new_iter = *iter;
+	new_iter->document = (PopplerDocument *) g_object_ref (new_iter->document);
+
+	return new_iter;
+}
 
 PopplerIndexIter *
 poppler_index_iter_new (PopplerDocument *document)

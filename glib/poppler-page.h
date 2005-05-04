@@ -26,6 +26,7 @@
 
 G_BEGIN_DECLS
 
+
 #define POPPLER_TYPE_PAGE             (poppler_page_get_type ())
 #define POPPLER_PAGE(obj)             (G_TYPE_CHECK_INSTANCE_CAST ((obj), POPPLER_TYPE_PAGE, PopplerPage))
 #define POPPLER_IS_PAGE(obj)          (G_TYPE_CHECK_INSTANCE_TYPE ((obj), POPPLER_TYPE_PAGE))
@@ -44,7 +45,7 @@ void       poppler_page_render_to_pixbuf   (PopplerPage        *page,
 void       poppler_page_get_size           (PopplerPage        *page,
 					    double             *width,
 					    double             *height);
-void	   poppler_page_set_orientation    (PopplerPage        *page,
+void       poppler_page_set_orientation    (PopplerPage        *page,
 					    PopplerOrientation  orientation);
 int        poppler_page_get_index          (PopplerPage        *page);
 GdkPixbuf *poppler_page_get_thumbnail      (PopplerPage        *page);
@@ -53,31 +54,44 @@ gboolean   poppler_page_get_thumbnail_size (PopplerPage        *page,
 					    int                *height);
 GList     *poppler_page_find_text          (PopplerPage        *page,
 					    const  char        *text);
-void	   poppler_page_render_to_ps	   (PopplerPage        *page,
+void       poppler_page_render_to_ps       (PopplerPage        *page,
 					    PopplerPSFile      *ps_file);
+char      *poppler_page_get_text           (PopplerPage        *page,
+					    PopplerRectangle   *rect);
+GList     *poppler_page_get_link_mapping   (PopplerPage        *page);
+void       poppler_page_free_link_mapping  (GList              *list);
+
 
 /* A rectangle on a page, with coordinates in PDF points. */
-typedef struct
+#define POPPLER_TYPE_RECTANGLE             (poppler_rectangle_get_type ())
+struct _PopplerRectangle
 {
   gdouble x1;
   gdouble y1;
   gdouble x2;
   gdouble y2;
-} PopplerRectangle;
+};
 
-char *poppler_page_get_text (PopplerPage      *page,
-			     PopplerRectangle *rect);
+GType             poppler_rectangle_get_type (void) G_GNUC_CONST;
+PopplerRectangle *poppler_rectangle_new      (void);
+PopplerRectangle *poppler_rectangle_copy     (PopplerRectangle *rectangle);
+void              poppler_rectangle_free     (PopplerRectangle *rectangle);
+
+
 
 /* Mapping between areas on the current page and PopplerActions */
-typedef struct
+#define POPPLER_TYPE_LINK_MAPPING             (poppler_link_mapping_get_type ())
+struct  _PopplerLinkMapping
 {
   PopplerRectangle area;
   PopplerAction *action;
-} PopplerLinkMapping;
+};
 
-GList *poppler_page_get_link_mapping  (PopplerPage *page);
-void   poppler_page_free_link_mapping (GList       *list);
+GType               poppler_link_mapping_get_type (void) G_GNUC_CONST;
+PopplerLinkMapping *poppler_link_mapping_new      (void);
+PopplerLinkMapping *poppler_link_mapping_copy     (PopplerLinkMapping *mapping);
+void                poppler_link_mapping_free     (PopplerLinkMapping *mapping);
 
 G_END_DECLS
 
-#endif /* __POPPLER_GLIB_H__ */
+#endif /* __POPPLER_PAGE_H__ */
