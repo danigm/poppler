@@ -1,5 +1,11 @@
 2005-05-04  Kristian Høgsberg  <krh@redhat.com>
 
+	* poppler/CairoOutputDev.cc (CairoOutputDev::drawImageMask,
+	CairoOutputDev::drawImage): Track cairo cvs API changes; use
+	cairo_mask() and cairo_paint() for drawing image masks and images.
+
+2005-05-04  Kristian Høgsberg  <krh@redhat.com>
+
 	* poppler/CairoOutputDev.cc: Fix matrix convention confusion.
 
 2005-05-04  Kristian Høgsberg  <krh@redhat.com>

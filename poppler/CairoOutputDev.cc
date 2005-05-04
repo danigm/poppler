@@ -463,14 +463,17 @@ void CairoOutputDev::drawImageMask(GfxState *state, Object *ref, Stream *str,
   unsigned char *buffer;
   unsigned char *dest;
   cairo_surface_t *image;
+  cairo_pattern_t *pattern;
   int x, y;
   ImageStream *imgStr;
   Guchar *pix;
   double *ctm;
-  cairo_matrix_t *mat;
+  cairo_matrix_t matrix;
   int invert_bit;
+  int row_stride;
 
-  buffer = (unsigned char *)malloc (width * height * 4);
+  row_stride = (width + 3) & ~3;
+  buffer = (unsigned char *) malloc (height * row_stride);
   if (buffer == NULL) {
     error(-1, "Unable to allocate memory for image.");
     return;
@@ -484,13 +487,9 @@ void CairoOutputDev::drawImageMask(GfxState *state, Object *ref, Stream *str,
 
   for (y = 0; y < height; y++) {
     pix = imgStr->getLine();
-    dest = buffer + y * width * 4;
+    dest = buffer + y * row_stride;
     for (x = 0; x < width; x++) {
 
-      *dest++ = soutRound(255 * fill_color.b);
-      *dest++ = soutRound(255 * fill_color.g);
-      *dest++ = soutRound(255 * fill_color.r);
- 
       if (pix[x] ^ invert_bit)
 	*dest++ = 0;
       else
@@ -498,34 +497,35 @@ void CairoOutputDev::drawImageMask(GfxState *state, Object *ref, Stream *str,
     }
   }
 
-  cairo_save (cairo);
+  image = cairo_surface_create_for_image (buffer, CAIRO_FORMAT_A8,
+					  width, height, row_stride);
+  if (image == NULL)
+    return;
+  pattern = cairo_pattern_create_for_surface (image);
+  if (pattern == NULL)
+    return;
 
   ctm = state->getCTM();
-  mat = cairo_matrix_create ();
   LOG (printf ("drawImageMask %dx%d, matrix: %f, %f, %f, %f, %f, %f\n",
-	       width, height,
-	       ctm[0], ctm[1],
-	       ctm[2], ctm[3],
-	       ctm[4], ctm[5]));
-  cairo_matrix_set_affine (mat,
-			   ctm[0]/width, ctm[1]/width,
-			   -ctm[2]/height, -ctm[3]/height,
-			   ctm[2] + ctm[4], ctm[3] + ctm[5]);
-  cairo_concat_matrix (cairo, mat);
-  cairo_matrix_destroy (mat);
+	       width, height, ctm[0], ctm[1], ctm[2], ctm[3], ctm[4], ctm[5]));
+  matrix.xx = ctm[0] / width;
+  matrix.xy = ctm[1] / width;
+  matrix.yx = -ctm[2] / height;
+  matrix.yy = -ctm[3] / height;
+  matrix.x0 = ctm[2] + ctm[4];
+  matrix.y0 = ctm[3] + ctm[5];
+  cairo_matrix_invert (&matrix);
+  cairo_pattern_set_matrix (pattern, &matrix);
 
-  image = cairo_surface_create_for_image (
-              buffer, CAIRO_FORMAT_ARGB32, width, height, width * 4);
   cairo_surface_set_filter (image, CAIRO_FILTER_BEST);
-  cairo_show_surface (cairo, image, width, height);
+  /* FIXME: Doesn't the image mask support any colorspace? */
+  cairo_set_source_rgb (cairo, fill_color.r, fill_color.g, fill_color.b);
+  cairo_mask (cairo, pattern);
 
-  cairo_restore (cairo);
-
+  cairo_pattern_destroy (pattern);
   cairo_surface_destroy (image);
   free (buffer);
   delete imgStr;
-
-  
 }
 
 void CairoOutputDev::drawImage(GfxState *state, Object *ref, Stream *str,
@@ -535,13 +535,14 @@ void CairoOutputDev::drawImage(GfxState *state, Object *ref, Stream *str,
   unsigned char *buffer;
   unsigned char *dest;
   cairo_surface_t *image;
+  cairo_pattern_t *pattern;
   int x, y;
   ImageStream *imgStr;
   Guchar *pix;
   GfxRGB rgb;
   int alpha, i;
   double *ctm;
-  cairo_matrix_t *mat;
+  cairo_matrix_t matrix;
   int is_identity_transform;
   
   buffer = (unsigned char *)malloc (width * height * 4);
@@ -593,29 +594,32 @@ void CairoOutputDev::drawImage(GfxState *state, Object *ref, Stream *str,
     }
   }
 
-  cairo_save (cairo);
+  image = cairo_surface_create_for_image (buffer, CAIRO_FORMAT_ARGB32,
+					  width, height, width * 4);
+  if (image == NULL)
+    return;
+  pattern = cairo_pattern_create_for_surface (image);
+  if (pattern == NULL)
+    return;
 
   ctm = state->getCTM();
-  mat = cairo_matrix_create ();
-  LOG (printf ("draw image %dx%d, matrix: %f, %f, %f, %f, %f, %f\n",
-	       width, height,
-	       ctm[0], ctm[1],
-	       ctm[2], ctm[3],
-	       ctm[4], ctm[5]));
-  cairo_matrix_set_affine (mat,
-			   ctm[0]/width, ctm[1]/width,
-			   -ctm[2]/height, -ctm[3]/height,
-			   ctm[2] + ctm[4], ctm[3] + ctm[5]);
-  cairo_concat_matrix (cairo, mat);
-  cairo_matrix_destroy (mat);
-  
-  image = cairo_surface_create_for_image (
-              buffer, CAIRO_FORMAT_ARGB32, width, height, width * 4);
-  cairo_surface_set_filter (image, CAIRO_FILTER_BEST);
-  cairo_show_surface (cairo, image, width, height);
+  LOG (printf ("drawImageMask %dx%d, matrix: %f, %f, %f, %f, %f, %f\n",
+	       width, height, ctm[0], ctm[1], ctm[2], ctm[3], ctm[4], ctm[5]));
+  matrix.xx = ctm[0] / width;
+  matrix.xy = ctm[1] / width;
+  matrix.yx = -ctm[2] / height;
+  matrix.yy = -ctm[3] / height;
+  matrix.x0 = ctm[2] + ctm[4];
+  matrix.y0 = ctm[3] + ctm[5];
 
-  cairo_restore (cairo);
-  
+  cairo_matrix_invert (&matrix);
+  cairo_pattern_set_matrix (pattern, &matrix);
+
+  cairo_surface_set_filter (image, CAIRO_FILTER_BEST);
+  cairo_set_source (cairo, pattern);
+  cairo_paint (cairo);
+
+  cairo_pattern_destroy (pattern);
   cairo_surface_destroy (image);
   free (buffer);
   delete imgStr;
