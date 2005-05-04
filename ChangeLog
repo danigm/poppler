@@ -1,5 +1,9 @@
 2005-05-04  Kristian Høgsberg  <krh@redhat.com>
 
+	* poppler/CairoOutputDev.cc: Fix matrix convention confusion.
+
+2005-05-04  Kristian Høgsberg  <krh@redhat.com>
+
 	Patches from Albert Astals Cid:
 	
 	* qt/poppler-page.cc (getText): Use QString::fromUtf8() instead of

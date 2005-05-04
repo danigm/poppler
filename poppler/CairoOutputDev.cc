@@ -223,8 +223,8 @@ void CairoOutputDev::updateFont(GfxState *state) {
   cairo_set_font_face (cairo, font_face);
 
   matrix.xx = m11;
-  matrix.yx = m12;
-  matrix.xy = m21;
+  matrix.xy = m12;
+  matrix.yx = m21;
   matrix.yy = m22;
   matrix.x0 = 0;
   matrix.y0 = 0;
