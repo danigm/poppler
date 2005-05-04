@@ -1,3 +1,13 @@
+2005-05-04  Kristian Høgsberg  <krh@redhat.com>
+
+	Patches from Albert Astals Cid:
+	
+	* qt/poppler-page.cc (getText): Use QString::fromUtf8() instead of
+	implicit latin1 cast constructor.
+	
+	* qt/test-poppler-qt.cpp (main): Use a QLabel for showing text
+	instead of qDebug.
+
 Wed May  4 02:31:05 2005  Jonathan Blandford  <jrb@redhat.com>
 
 	* glib/poppler-document.cc:

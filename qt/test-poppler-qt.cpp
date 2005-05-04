@@ -76,8 +76,12 @@ int main( int argc, char **argv )
   else
   {
     Poppler::Page *page = doc->getPage(0);
-    qDebug(page->getText(Poppler::Rectangle()));
+
+    QLabel *l = new QLabel(page->getText(Poppler::Rectangle()), 0);
+    l->show();
+    a.setMainWidget(l);                // set main widget
     delete page;
     delete doc;
+    return a.exec();
   }
 }

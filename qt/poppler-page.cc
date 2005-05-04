@@ -98,9 +98,8 @@ QString Page::getText(const Rectangle &r) const
     s = output_dev->getText(r.m_x1, y1, r.m_x2, y2);
   }
 
-  // TODO look if QString::fromUTF8 yields better results
-  result = s->getCString();
-  
+  result = QString::fromUtf8(s->getCString());
+
   delete output_dev;
   delete s;
   return result;
