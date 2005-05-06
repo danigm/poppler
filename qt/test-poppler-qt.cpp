@@ -2,6 +2,7 @@
 #include <qpainter.h>
 #include <qpixmap.h>
 #include <qwidget.h>
+#include <qlabel.h>
 #include <qmessagebox.h>
 #include <qfile.h>
 #include <ctype.h>

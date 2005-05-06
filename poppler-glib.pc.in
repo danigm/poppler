@@ -8,5 +8,5 @@ Description: GLib wrapper for poppler
 Version: @VERSION@
 Requires: gobject-2.0 gdk-pixbuf-2.0
 
-Libs: -L${libdir} -lpoppler -lpoppler-glib
+Libs: -L${libdir} -lpoppler-glib
 Cflags: -I${includedir}/poppler/glib

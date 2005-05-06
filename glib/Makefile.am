@@ -61,6 +61,7 @@ libpoppler_glib_la_SOURCES =			\
 	poppler-private.h
 
 libpoppler_glib_la_LIBADD =			\
+	$(top_builddir)/poppler/libpoppler.la	\
 	$(POPPLER_GLIB_LIBS)			\
 	$(FREETYPE_LIBS)			\
 	$(cairo_libs)

@@ -18,6 +18,7 @@ libpoppler_qt_la_SOURCES =			\
 	poppler-private.h
 
 libpoppler_qt_la_LIBADD= 			\
+	$(top_builddir)/poppler/libpoppler.la	\
 	$(POPPLER_QT_LIBS)			\
 	$(FREETYPE_LIBS)
 

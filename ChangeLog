@@ -1,3 +1,17 @@
+2005-05-06  Kristian Høgsberg  <krh@redhat.com>
+
+	* glib/Makefile.am (libpoppler_glib_la_LIBADD): Link poppler-glib
+	against poppler.
+
+	* qt/Makefile.am (libpoppler_qt_la_LIBADD): Ditto for qt.
+
+	* poppler-glib.pc (Libs): Drop -lpoppler from link.
+
+	* poppler-qt.pc (Libs): Ditto for qt.
+
+	* configure.ac: Test for both libqt-mt.la and libqt-mt.so in that
+	order.
+
 2005-05-04  Kristian Høgsberg  <krh@redhat.com>
 
 	* poppler/CairoOutputDev.cc (CairoOutputDev::drawImageMask,

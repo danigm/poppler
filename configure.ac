@@ -230,7 +230,8 @@ fi
 
 dnl What to test
 qt_test_include="qstyle.h"
-qt_test_library="libqt-mt.la"
+qt_test_la_library="libqt-mt.la"
+qt_test_library="libqt-mt.so"
 
 dnl Check for Qt headers
 AC_MSG_CHECKING([for Qt headers])
@@ -247,6 +248,11 @@ dnl Check for Qt libraries
 AC_MSG_CHECKING([for Qt libraries])
 qt_libdir="no"
 for qt_check in $qt_libdirs ; do
+    if test -r "$qt_check/$qt_test_la_library" ; then
+        qt_libdir="$qt_check"
+        break
+    fi
+
     if test -r "$qt_check/$qt_test_library" ; then
         qt_libdir="$qt_check"
         break
