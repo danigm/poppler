@@ -51,6 +51,17 @@ typedef struct _PopplerPage        PopplerPage;
 typedef struct _PopplerPSFile      PopplerPSFile;
 typedef union  _PopplerAction      PopplerAction;
 
+
+typedef enum
+{
+  POPPLER_BACKEND_UNKNOWN,
+  POPPLER_BACKEND_SPLASH,
+  POPPLER_BACKEND_CAIRO
+} PopplerBackend;
+
+PopplerBackend poppler_get_backend (void);
+const char *   poppler_get_version (void);
+
 G_END_DECLS
 
 #include "poppler-document.h"

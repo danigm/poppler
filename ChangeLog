@@ -1,3 +1,11 @@
+2005-05-11  Kristian Høgsberg  <krh@redhat.com>
+
+	* glib/poppler.cc (poppler_get_backend, poppler_get_version): Add
+	these functions so it's easy to tell if poppler is using cairo or
+	splash and what version.
+
+	* glib/test-poppler-glib.c (main): Print out version and backend.
+
 2005-05-06  Kristian Høgsberg  <krh@redhat.com>
 
 	* glib/Makefile.am (libpoppler_glib_la_LIBADD): Link poppler-glib

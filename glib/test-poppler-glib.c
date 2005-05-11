@@ -51,7 +51,9 @@ print_document_info (PopplerDocument *document)
 int main (int argc, char *argv[])
 {
   PopplerDocument *document;
+  PopplerBackend backend;
   PopplerPage *page;
+  GEnumValue *enum_value;
   char *label;
   GError *error;
   GdkPixbuf *pixbuf, *thumb;
@@ -65,11 +67,16 @@ int main (int argc, char *argv[])
 
   g_type_init ();
 
+  g_print ("Poppler version %s\n", poppler_get_version ());
+  backend = poppler_get_backend ();
+  enum_value = g_enum_get_value ((GEnumClass *) g_type_class_ref (POPPLER_TYPE_BACKEND), backend);
+  g_print ("Backend is %s\n", enum_value->value_name);
+
   error = NULL;
   document = poppler_document_new_from_file (argv[1], NULL, &error);
   if (document == NULL)
     FAIL (error->message);
-      
+
   print_document_info (document); 
 
   page = poppler_document_get_page_by_label (document, argv[2]);

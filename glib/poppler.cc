@@ -16,6 +16,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
+#include <config.h>
 #include "poppler.h"
 
 GQuark poppler_error_quark (void)
@@ -26,4 +27,24 @@ GQuark poppler_error_quark (void)
     q = g_quark_from_static_string ("poppler-quark");
 
   return q;
+}
+
+PopplerBackend
+poppler_get_backend (void)
+{
+#if defined (HAVE_CAIRO)
+  return POPPLER_BACKEND_CAIRO;
+#elif defined (HAVE_SPLASH)
+  return POPPLER_BACKEND_SPLASH;
+#else
+  return POPPLER_BACKEND_UNKNOWN;
+#endif
+}
+
+static const char poppler_version[] = PACKAGE_VERSION;
+
+const char *
+poppler_get_version (void)
+{
+  return poppler_version;
 }

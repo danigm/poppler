@@ -4,6 +4,7 @@
 #include "poppler-enums.h"
 #include "poppler-document.h"
 
+
 /* enumerations from "poppler-action.h" */
 GType
 poppler_action_type_get_type (void)
@@ -24,6 +25,7 @@ poppler_action_type_get_type (void)
   }
   return etype;
 }
+
 GType
 poppler_dest_type_get_type (void)
 {
@@ -46,6 +48,7 @@ poppler_dest_type_get_type (void)
   return etype;
 }
 
+
 /* enumerations from "poppler-document.h" */
 GType
 poppler_page_layout_get_type (void)
@@ -66,6 +69,7 @@ poppler_page_layout_get_type (void)
   }
   return etype;
 }
+
 GType
 poppler_page_mode_get_type (void)
 {
@@ -85,6 +89,7 @@ poppler_page_mode_get_type (void)
   }
   return etype;
 }
+
 GType
 poppler_viewer_preferences_get_type (void)
 {
@@ -105,6 +110,7 @@ poppler_viewer_preferences_get_type (void)
   }
   return etype;
 }
+
 GType
 poppler_permissions_get_type (void)
 {
@@ -125,6 +131,7 @@ poppler_permissions_get_type (void)
   return etype;
 }
 
+
 /* enumerations from "poppler.h" */
 GType
 poppler_error_get_type (void)
@@ -140,6 +147,7 @@ poppler_error_get_type (void)
   }
   return etype;
 }
+
 GType
 poppler_orientation_get_type (void)
 {
@@ -157,7 +165,25 @@ poppler_orientation_get_type (void)
   }
   return etype;
 }
+
+GType
+poppler_backend_get_type (void)
+{
+  static GType etype = 0;
+  if (etype == 0) {
+    static const GEnumValue values[] = {
+      { POPPLER_BACKEND_UNKNOWN, "POPPLER_BACKEND_UNKNOWN", "unknown" },
+      { POPPLER_BACKEND_SPLASH, "POPPLER_BACKEND_SPLASH", "splash" },
+      { POPPLER_BACKEND_CAIRO, "POPPLER_BACKEND_CAIRO", "cairo" },
+      { 0, NULL, NULL }
+    };
+    etype = g_enum_register_static ("PopplerBackend", values);
+  }
+  return etype;
+}
+
 #define __POPPLER_ENUMS_C__
+
 
 /* Generated data ends here */
 
