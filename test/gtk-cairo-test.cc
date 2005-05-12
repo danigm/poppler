@@ -85,9 +85,8 @@ GDKCairoOutputDev::createCairo(GfxState *state) {
   Drawable xid;
   GdkGC *gc;
   GdkColor white;
+  cairo_surface_t *surface;
   int w, h;
-
-  cairo = cairo_create ();
 
   w = state ? (int)(state->getPageWidth() + 0.5) : 1;
   h = state ? (int)(state->getPageHeight() + 0.5) : 1;
@@ -113,7 +112,10 @@ GDKCairoOutputDev::createCairo(GfxState *state) {
     display = gdk_x11_drawable_get_xdisplay (pixmap);
     xid = gdk_x11_drawable_get_xid (pixmap);
 
-    cairo_set_target_drawable (cairo, display, xid);
+    surface = cairo_xlib_surface_create_for_pixmap_with_visual(display, xid,
+							       DefaultVisual(display, DefaultScreen(display)));
+    cairo = cairo_create (surface);
+    cairo_surface_destroy (surface);
   }
 }
 

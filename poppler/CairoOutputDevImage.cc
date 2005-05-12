@@ -40,6 +40,7 @@ CairoOutputDevImage::~CairoOutputDevImage() {
 void
 CairoOutputDevImage::createCairo(GfxState *state) {
   int w, h;
+  cairo_surface_t* surface;
 
   w = state ? (int)(state->getPageWidth() + 0.5) : 1;
   h = state ? (int)(state->getPageHeight() + 0.5) : 1;
@@ -55,11 +56,11 @@ CairoOutputDevImage::createCairo(GfxState *state) {
 
   memset (pixels, 0xff, pixels_w * pixels_h * 4);
 
-  cairo = cairo_create ();
-  cairo_set_target_image (cairo, (unsigned char *)pixels, CAIRO_FORMAT_ARGB32,
-			  pixels_w, pixels_h,
-			  pixels_w*4);
-  
+  surface = cairo_image_surface_create_for_data(pixels, CAIRO_FORMAT_ARGB32,
+	  					pixels_w, pixels_h, 
+						pixels_w*4);
+  cairo = cairo_create (surface);
+  cairo_surface_destroy (surface);
 }
 
 

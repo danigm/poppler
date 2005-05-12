@@ -84,6 +84,7 @@ CairoOutputDevX::createCairo(GfxState *state) {
   int w, h;
   XGCValues gcv;
   GC gc;
+  cairo_surface_t *surface;
 
   w = state ? (int)(state->getPageWidth() + 0.5) : 1;
   h = state ? (int)(state->getPageHeight() + 0.5) : 1;
@@ -107,8 +108,10 @@ CairoOutputDevX::createCairo(GfxState *state) {
   gc = XCreateGC(display, pixmap, GCForeground, &gcv);
   XFillRectangle(display, pixmap, gc, 0, 0, w, h);
 
-  cairo = cairo_create ();
-  cairo_set_target_drawable (cairo, display, pixmap);
+  surface = cairo_xlib_surface_create_for_pixmap_with_visual(display, pixmap,
+						             DefaultVisual(display, DefaultScreen(display)));
+  cairo = cairo_create (surface);
+  cairo_surface_destroy (surface);
 
   XFreeGC(display, gc);
 }

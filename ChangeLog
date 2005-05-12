@@ -1,3 +1,11 @@
+2005-05-12  Kristian Høgsberg  <krh@redhat.com>
+
+	* poppler/CairoOutputDev.cc: 
+	* poppler/CairoOutputDevX.cc: 
+	* poppler/CairoOutputDevImage.cc: 
+	* test/gtk-cairo-test.cc: Update to latest cairo changes, patch
+	from Jens Taprogge (#3281)
+
 2005-05-11  Kristian Høgsberg  <krh@redhat.com>
 
 	* glib/poppler.cc (poppler_get_backend, poppler_get_version): Add
