@@ -1,3 +1,11 @@
+2005-05-16  Kristian Høgsberg  <krh@redhat.com>
+
+	* poppler/CairoOutputDevX.cc: Track changes to cairo Xlib surface
+	constructors.
+
+	* poppler/CairoFontEngine.cc (cairo_font_face_destroy): Make this
+	static.
+
 Thu May 12 23:10:45 2005  Jonathan Blandford  <jrb@redhat.com>
 
 	* glib/poppler.gidl: add metadata file.

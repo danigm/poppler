@@ -17,6 +17,7 @@
 #include <math.h>
 #include <cairo.h>
 #include <cairo/cairo-xlib.h>
+#include <X11/Xutil.h>
 
 #include "goo/gfile.h"
 #include "GlobalParams.h"
@@ -108,8 +109,8 @@ CairoOutputDevX::createCairo(GfxState *state) {
   gc = XCreateGC(display, pixmap, GCForeground, &gcv);
   XFillRectangle(display, pixmap, gc, 0, 0, w, h);
 
-  surface = cairo_xlib_surface_create_for_pixmap_with_visual(display, pixmap,
-						             DefaultVisual(display, DefaultScreen(display)));
+  surface = cairo_xlib_surface_create_with_visual(display, pixmap,
+						  DefaultVisual(display, DefaultScreen(display)));
   cairo = cairo_create (surface);
   cairo_surface_destroy (surface);
 

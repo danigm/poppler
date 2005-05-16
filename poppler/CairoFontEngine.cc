@@ -60,7 +60,7 @@ static CairoOutFontSubst cairoOutSubstFonts[16] = {
 // CairoFont
 //------------------------------------------------------------------------
 
-void cairo_font_face_destroy (void *data)
+static void cairo_font_face_destroy (void *data)
 {
   CairoFont *font = (CairoFont *) data;
 
