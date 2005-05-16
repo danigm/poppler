@@ -1,5 +1,7 @@
 2005-05-16  Kristian Høgsberg  <krh@redhat.com>
 
+	Patch from Christian Persch (#3300):
+	
 	* configure.ac: Check for glib-mkenums.
 
 	* glib/Makefile.am (poppler-enums.h): Generate glib enums at
@@ -8,6 +10,8 @@
 	* glib/poppler-enums.c:
 	* glib/poppler-enums.h: Removed.
 
+2005-05-16  Kristian Høgsberg  <krh@redhat.com>
+	
 	* test/gtk-cairo-test.cc: Update this test case also.
 
 	* poppler/CairoOutputDevX.cc: Track changes to cairo Xlib surface
