@@ -206,6 +206,9 @@ elif test x$enable_poppler_glib = xtry; then
                     [enable_poppler_glib="yes"],
                     [enable_poppler_glib="no"])
 fi
+if test x$enable_poppler_glib = xyes; then
+  AC_PATH_PROG([GLIB_MKENUMS],[glib-mkenums])
+fi
 AM_CONDITIONAL(BUILD_POPPLER_GLIB, test x$enable_poppler_glib = xyes)
 
 AC_ARG_ENABLE(poppler-qt,

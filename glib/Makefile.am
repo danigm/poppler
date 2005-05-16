@@ -17,27 +17,42 @@ INCLUDES =					\
 	$(cairo_includes)			\
 	-DDATADIR=\""$(datadir)"\"
 
+stamp_files = stamp-poppler-enums.h
 
+poppler-enums.h: stamp-poppler-enums.h
+	@true
+stamp-poppler-enums.h: $(poppler_glib_public_headers)
+	( cd $(srcdir) && $(GLIB_MKENUMS) \
+		--fhead "#ifndef __POPPLER_TYPE_ENUMS_H__\n" \
+		--fhead "#define __POPPLER_TYPE_ENUMS_H__ 1\n\n" \
+		--fhead "#include <glib-object.h>\n\n" \
+		--fhead "G_BEGIN_DECLS\n\n" \
+		--ftail "G_END_DECLS\n\n" \
+		--ftail "#endif /* __POPPLER_TYPE_ENUMS_H__ */\n" \
+		--fprod "\n/* --- @filename@ --- */" \
+		--eprod "#define POPPLER_TYPE_@ENUMSHORT@ (@enum_name@_get_type())\n" \
+		--eprod "GType @enum_name@_get_type (void) G_GNUC_CONST;\n" \
+		$(^F) ) > xgen-$(@F) \
+	&& ( cmp -s xgen-$(@F) $(@F:stamp-%=%) || cp xgen-$(@F) $(@F:stamp-%=%) ) \
+	&& rm -f xgen-$(@F) \
+	&& echo timestamp > $(@F)
 
-
-poppler-enums.h: poppler-document.h
-	( cd $(srcdir) && glib-mkenums \
-			--fhead "#ifndef __POPPLER_TYPE_ENUMS_H__\n#define __POPPLER_TYPE_ENUMS_H__\n\n#include <glib-object.h>\n\nG_BEGIN_DECLS\n" \
-			--fprod "/* enumerations from \"@filename@\" */\n" \
-			--vhead "GType @enum_name@_get_type (void) G_GNUC_CONST;\n#define POPPLER_TYPE_@ENUMSHORT@ (@enum_name@_get_type())\n" \
-			--ftail "G_END_DECLS\n\n#endif /* __POPPLER_TYPE_ENUMS_H__ */" \
-		$(poppler_glib_public_headers) ) > poppler-enums.h
-
-poppler-enums.c: poppler-document.h
-	( cd $(srcdir) && glib-mkenums \
-			--fhead "#include \"poppler-enums.h\"\n#include \"poppler-document.h\"\n" \
-			--ftail "#define __POPPLER_ENUMS_C__\n" \
-			--fprod "\n/* enumerations from \"@filename@\" */" \
-			--vhead "GType\n@enum_name@_get_type (void)\n{\n  static GType etype = 0;\n  if (etype == 0) {\n    static const G@Type@Value values[] = {" \
-			--vprod "      { @VALUENAME@, \"@VALUENAME@\", \"@valuenick@\" }," \
-			--vtail "      { 0, NULL, NULL }\n    };\n    etype = g_@type@_register_static (\"@EnumName@\", values);\n  }\n  return etype;\n}\n" \
-		$(poppler_glib_public_headers) ) > poppler-enums.c
-
+poppler-enums.c: $(poppler_glib_public_headers)
+	( cd $(srcdir) && $(GLIB_MKENUMS) \
+		--fhead "#include \"poppler-enums.h\"\n\n" \
+		--fprod "\n/* enumerations from \"@filename@\" */" \
+		--fprod "\n#include \"@filename@\"" \
+		--vhead "static const G@Type@Value _@enum_name@_values[] = {" \
+		--vprod "  { @VALUENAME@, \"@VALUENAME@\", \"@valuenick@\" }," \
+		--vtail "  { 0, NULL, NULL }\n};\n\n" \
+		--vtail "GType\n@enum_name@_get_type (void)\n{\n" \
+		--vtail "  static GType type = 0;\n\n" \
+		--vtail "  if (G_UNLIKELY (type == 0))\n" \
+		--vtail "    type = g_@type@_register_static (\"@EnumName@\", _@enum_name@_values);\n\n" \
+		--vtail "  return type;\n}\n\n" \
+		$(^F) ) > xgen-$(@F) \
+	&& ( cmp -s xgen-$(@F) $(@F) || cp xgen-$(@F) $(@F) ) \
+	&& rm -f xgen-$(@F)
 
 poppler_glib_public_headers =			\
 	poppler-action.h			\
@@ -53,8 +68,8 @@ poppler_glib_include_HEADERS =			\
 
 lib_LTLIBRARIES = libpoppler-glib.la
 libpoppler_glib_la_SOURCES =			\
+	$(BUILT_SOURCES)			\
 	poppler-action.cc			\
-	poppler-enums.c				\
 	poppler-document.cc			\
 	poppler-page.cc				\
 	poppler.cc				\
@@ -77,3 +92,11 @@ test_poppler_glib_LDADD =			\
 	$(POPPLER_GLIB_LIBS)			\
 	$(FREETYPE_LIBS)			\
 	$(cairo_libs)
+
+BUILT_SOURCES = \
+	poppler-enums.c	\
+	poppler-enums.h
+
+CLEANFILES = $(BUILT_SOURCES) $(stamp_files)
+DISTCLEANFILES = $(BUILT_SOURCES) $(stamp_files)
+MAINTAINERCLEANFILES = $(BUILT_SOURCES) $(stamp_files)

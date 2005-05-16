@@ -1,5 +1,13 @@
 2005-05-16  Kristian Høgsberg  <krh@redhat.com>
 
+	* configure.ac: Check for glib-mkenums.
+
+	* glib/Makefile.am (poppler-enums.h): Generate glib enums at
+	compile time.
+
+	* glib/poppler-enums.c:
+	* glib/poppler-enums.h: Removed.
+
 	* test/gtk-cairo-test.cc: Update this test case also.
 
 	* poppler/CairoOutputDevX.cc: Track changes to cairo Xlib surface
