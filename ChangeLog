@@ -1,5 +1,7 @@
 2005-05-16  Kristian Høgsberg  <krh@redhat.com>
 
+	* test/gtk-cairo-test.cc: Update this test case also.
+
 	* poppler/CairoOutputDevX.cc: Track changes to cairo Xlib surface
 	constructors.
 
