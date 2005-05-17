@@ -113,8 +113,9 @@ GDKCairoOutputDev::createCairo(GfxState *state) {
     display = gdk_x11_drawable_get_xdisplay (pixmap);
     xid = gdk_x11_drawable_get_xid (pixmap);
 
-    surface = cairo_xlib_surface_create_with_visual(display, xid,
-						    DefaultVisual(display, DefaultScreen(display)));
+    surface = cairo_xlib_surface_create(display, xid,
+					DefaultVisual(display, DefaultScreen(display)),
+					w, h);
     cairo = cairo_create (surface);
     cairo_surface_destroy (surface);
   }

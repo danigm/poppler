@@ -1,3 +1,8 @@
+2005-05-17  Kristian Høgsberg  <krh@redhat.com>
+
+	* poppler/CairoOutputDevX.cc: 
+	* test/gtk-cairo-test.cc: Chase the cairo xlib constructor again.
+
 2005-05-16  Kristian Høgsberg  <krh@redhat.com>
 
 	Patch from Christian Persch (#3300):
