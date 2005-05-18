@@ -104,6 +104,7 @@ gboolean          poppler_index_iter_next       (PopplerIndexIter  *iter);
 /* Export to ps */
 PopplerPSFile *poppler_ps_file_new   (PopplerDocument *document,
 				      const char      *filename,
+				      int              first_pages,
 				      int              n_pages);
 void           poppler_ps_file_free  (PopplerPSFile   *ps_file);
 

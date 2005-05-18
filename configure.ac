@@ -1,7 +1,7 @@
 dnl Based on Xpdf configure.in and evince configure.ac
 
 AC_PREREQ(2.59)
-AC_INIT(poppler, 0.3.1)
+AC_INIT(poppler, 0.3.2)
 AM_INIT_AUTOMAKE(AC_PACKAGE_NAME, AC_PACKAGE_VERSION)
 AM_CONFIG_HEADER(config.h)
 AM_CONFIG_HEADER(poppler/poppler-config.h)
@@ -181,9 +181,9 @@ AC_ARG_ENABLE(cairo-output,
               enable_cairo_output=$enableval,
               enable_cairo_output="try")
 if test x$enable_cairo_output = xyes; then
-  PKG_CHECK_MODULES(CAIRO, cairo > 0.4.0 fontconfig)
+  PKG_CHECK_MODULES(CAIRO, cairo >= 0.5.0 fontconfig)
 elif test x$enable_cairo_output = xtry; then
-  PKG_CHECK_MODULES(CAIRO, cairo > 0.4.0 fontconfig,
+  PKG_CHECK_MODULES(CAIRO, cairo >= 0.5.0 fontconfig,
                     [enable_cairo_output="yes"],
                     [enable_cairo_output="no"])
 fi

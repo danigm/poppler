@@ -576,14 +576,16 @@ poppler_index_iter_free (PopplerIndexIter *iter)
  * poppler_ps_file_new:
  * @document: a #PopplerDocument
  * @filename: the path of the output filename
- * @n_pages: the total number of pages that will be rendered
+ * @first_page: the first page to print
+ * @n_pages: the number of pages to print
  * 
  * Create a new postscript file to render to
  * 
  * Return value: a PopplerPSFile 
  **/
 PopplerPSFile *
-poppler_ps_file_new (PopplerDocument *document, const char *filename, int n_pages)
+poppler_ps_file_new (PopplerDocument *document, const char *filename,
+		     int first_page, int n_pages)
 {
 	PopplerPSFile *ps_file;
 
@@ -593,9 +595,12 @@ poppler_ps_file_new (PopplerDocument *document, const char *filename, int n_page
 
 	ps_file = g_new0 (PopplerPSFile, 1);
 	ps_file->document = (PopplerDocument *) g_object_ref (document);
-	ps_file->out = new PSOutputDev ((char *)filename, document->doc->getXRef(),
-					document->doc->getCatalog(), 1,
-					n_pages, psModePS);
+	ps_file->out = new PSOutputDev ((char *)filename,
+					document->doc->getXRef(),
+					document->doc->getCatalog(),
+					first_page + 1,
+					first_page + n_pages - 1,
+					psModePS);
 
 	return ps_file;
 }

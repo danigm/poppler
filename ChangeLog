@@ -1,3 +1,12 @@
+2005-05-18  Kristian Høgsberg  <krh@redhat.com>
+
+	* configure.ac: Require cairo 0.5.0, bump release to 0.3.2.
+
+	* NEWS: Sum up latest changes.
+
+	* glib/poppler-document.cc (poppler_ps_file_new): Take a page
+	range here instead of just number of pages.
+	
 2005-05-17  Kristian Høgsberg  <krh@redhat.com>
 
 	* poppler/CairoOutputDevX.cc: 

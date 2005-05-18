@@ -1,3 +1,10 @@
+Release 0.3.2
+
+	- New API to get poppler version and backend type. 
+	- Various font fixes from Albert Astals Cid.
+	- Update to cairo 0.5.0 API, including better font support.
+	- Meta data for the glib binding.
+
 Release 0.3.1
 
 	- Add qt/poppler-private.h to SOURCES
