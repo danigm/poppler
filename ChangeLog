@@ -3,7 +3,7 @@
 	* poppler/CairoFontEngine.cc: Only cast to Gfx8BitFont when we
 	know for sure we have a truetype font.
 	GfxCIDFont::getCIDToGIDLen() can return 0 in which case codeToGID
-	will be NULL, and we end up casting it to a Gfx8BitFont.
+	will be NULL, and we end up casting it to a Gfx8BitFont (#3265).
 
 2005-05-18  Kristian Høgsberg  <krh@redhat.com>
 
