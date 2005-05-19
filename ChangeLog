@@ -1,3 +1,10 @@
+2005-05-19  Kristian Høgsberg  <krh@redhat.com>
+
+	* poppler/CairoFontEngine.cc: Only cast to Gfx8BitFont when we
+	know for sure we have a truetype font.
+	GfxCIDFont::getCIDToGIDLen() can return 0 in which case codeToGID
+	will be NULL, and we end up casting it to a Gfx8BitFont.
+
 2005-05-18  Kristian Høgsberg  <krh@redhat.com>
 
 	* configure.ac: Require cairo 0.5.0, bump release to 0.3.2.

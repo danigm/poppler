@@ -193,7 +193,7 @@ CairoFont::CairoFont(GfxFont *gfxFont, XRef *xref, FT_Library lib) {
       goto err2;
     }
     /* This might be set already for the CIDType2 case */
-    if (codeToGID == NULL) {
+    if (fontType == fontTrueType) {
       codeToGID = ((Gfx8BitFont *)gfxFont)->getCodeToGIDMap(ff);
       codeToGIDLen = 256;
     }
