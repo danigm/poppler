@@ -1,5 +1,8 @@
 2005-05-20  Kristian Høgsberg  <krh@redhat.com>
 
+	* poppler/CairoOutputDev.cc: Account for different row vs. column
+	vector conventions between cairo and poppler.
+
 	* poppler/CairoFontEngine.cc: Only get the code to gid map if
 	we're using freetype 2.1.7 or older (#3340).
 

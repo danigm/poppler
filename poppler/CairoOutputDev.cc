@@ -214,8 +214,8 @@ void CairoOutputDev::updateFont(GfxState *state) {
   m12 *= state->getHorizScaling();
 
   w = currentFont->getSubstitutionCorrection(state->getFont());
-  m12 *= -w;
-  m22 *= -w;
+  m12 *= w;
+  m22 *= w;
 
   LOG(printf ("font matrix: %f %f %f %f\n", m11, m12, m21, m22));
   
@@ -223,9 +223,9 @@ void CairoOutputDev::updateFont(GfxState *state) {
   cairo_set_font_face (cairo, font_face);
 
   matrix.xx = m11;
-  matrix.xy = m12;
-  matrix.yx = m21;
-  matrix.yy = m22;
+  matrix.xy = -m21;
+  matrix.yx = m12;
+  matrix.yy = -m22;
   matrix.x0 = 0;
   matrix.y0 = 0;
   cairo_set_font_matrix (cairo, &matrix);
@@ -509,8 +509,8 @@ void CairoOutputDev::drawImageMask(GfxState *state, Object *ref, Stream *str,
   LOG (printf ("drawImageMask %dx%d, matrix: %f, %f, %f, %f, %f, %f\n",
 	       width, height, ctm[0], ctm[1], ctm[2], ctm[3], ctm[4], ctm[5]));
   matrix.xx = ctm[0] / width;
-  matrix.xy = ctm[1] / width;
-  matrix.yx = -ctm[2] / height;
+  matrix.xy = -ctm[2] / height;
+  matrix.yx = ctm[1] / width;
   matrix.yy = -ctm[3] / height;
   matrix.x0 = ctm[2] + ctm[4];
   matrix.y0 = ctm[3] + ctm[5];
@@ -606,8 +606,8 @@ void CairoOutputDev::drawImage(GfxState *state, Object *ref, Stream *str,
   LOG (printf ("drawImageMask %dx%d, matrix: %f, %f, %f, %f, %f, %f\n",
 	       width, height, ctm[0], ctm[1], ctm[2], ctm[3], ctm[4], ctm[5]));
   matrix.xx = ctm[0] / width;
-  matrix.xy = ctm[1] / width;
-  matrix.yx = -ctm[2] / height;
+  matrix.xy = -ctm[2] / height;
+  matrix.yx = ctm[1] / width;
   matrix.yy = -ctm[3] / height;
   matrix.x0 = ctm[2] + ctm[4];
   matrix.y0 = ctm[3] + ctm[5];
