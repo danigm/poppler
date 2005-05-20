@@ -1,3 +1,8 @@
+2005-05-20  Kristian Høgsberg  <krh@redhat.com>
+
+	* poppler/CairoFontEngine.cc: Only get the code to gid map if
+	we're using freetype 2.1.7 or older (#3340).
+
 2005-05-19  Kristian Høgsberg  <krh@redhat.com>
 
 	* poppler/CairoFontEngine.cc: Only cast to Gfx8BitFont when we

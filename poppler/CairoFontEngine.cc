@@ -216,15 +216,18 @@ CairoFont::CairoFont(GfxFont *gfxFont, XRef *xref, FT_Library lib) {
     
   case fontCIDType0:
   case fontCIDType0C:
-    // check for a CFF font
+
+    codeToGID = NULL;
+    codeToGIDLen = 0;
+
+#if HAVE_FREETYPE_217_OR_OLDER
     if ((ff1c = FoFiType1C::load(fileName->getCString()))) {
       codeToGID = ff1c->getCIDToGIDMap(&codeToGIDLen);
       delete ff1c;
-    } else {
-      codeToGID = NULL;
-      codeToGIDLen = 0;
     }
-    if (FT_New_Face(lib, tmpFileName->getCString(), 0, &face)) {
+#endif
+
+    if (FT_New_Face(lib, fileName->getCString(), 0, &face)) {
       gfree(codeToGID);
       error(-1, "could not create cid face\n");
       goto err2;
