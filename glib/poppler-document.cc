@@ -599,7 +599,7 @@ poppler_ps_file_new (PopplerDocument *document, const char *filename,
 					document->doc->getXRef(),
 					document->doc->getCatalog(),
 					first_page + 1,
-					first_page + n_pages - 1,
+					first_page + 1 + n_pages - 1,
 					psModePS);
 
 	return ps_file;

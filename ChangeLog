@@ -1,3 +1,8 @@
+2005-05-21  Kristian Høgsberg  <krh@redhat.com>
+
+	* glib/poppler-document.cc (poppler_ps_file_new): Fix off-by-one
+	error spotted by Jürg Billeter.
+
 2005-05-20  Kristian Høgsberg  <krh@redhat.com>
 
 	* poppler/CairoOutputDev.cc: Account for different row vs. column
