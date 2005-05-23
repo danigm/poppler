@@ -1,3 +1,8 @@
+Mon May 23 00:22:41 2005  Jonathan Blandford  <jrb@redhat.com>
+
+	* glib/poppler-document.h: Add a permissions flag to the glib
+	bindings.
+
 2005-05-21  Kristian Høgsberg  <krh@redhat.com>
 
 	* glib/poppler-document.cc (poppler_ps_file_new): Fix off-by-one

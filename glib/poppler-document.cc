@@ -41,6 +41,7 @@ enum {
 	PROP_PAGE_LAYOUT,
 	PROP_PAGE_MODE,
 	PROP_VIEWER_PREFERENCES,
+	PROP_PERMISSIONS,
 };
 
 typedef struct _PopplerDocumentClass PopplerDocumentClass;
@@ -274,6 +275,7 @@ poppler_document_get_property (GObject    *object,
   Object obj;
   Catalog *catalog;
   gchar *str;
+  guint flag;
 
   switch (prop_id)
     {
@@ -322,6 +324,18 @@ poppler_document_get_property (GObject    *object,
     case PROP_VIEWER_PREFERENCES:
       /* FIXME: write... */
       g_value_set_flags (value, POPPLER_VIEWER_PREFERENCES_UNSET);
+      break;
+    case PROP_PERMISSIONS:
+      flag = 0;
+      if (document->doc->okToPrint ())
+	flag |= POPPLER_PERMISSIONS_OK_TO_PRINT;
+      if (document->doc->okToChange ())
+	flag |= POPPLER_PERMISSIONS_OK_TO_MODIFY;
+      if (document->doc->okToCopy ())
+	flag |= POPPLER_PERMISSIONS_OK_TO_COPY;
+      if (document->doc->okToAddNotes ())
+	flag |= POPPLER_PERMISSIONS_OK_TO_ADD_NOTES;
+      g_value_set_flags (value, flag);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -409,6 +423,16 @@ poppler_document_class_init (PopplerDocumentClass *klass)
 			       "Viewer Preferences",
 			       POPPLER_TYPE_VIEWER_PREFERENCES,
 			       POPPLER_VIEWER_PREFERENCES_UNSET,
+			       G_PARAM_READABLE));
+
+  g_object_class_install_property
+	  (G_OBJECT_CLASS (klass),
+	   PROP_PERMISSIONS,
+	   g_param_spec_flags ("permissions",
+			       "Permissions",
+			       "Permissions",
+			       POPPLER_TYPE_PERMISSIONS,
+			       POPPLER_PERMISSIONS_FULL,
 			       G_PARAM_READABLE));
 }
 
