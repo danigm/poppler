@@ -83,6 +83,7 @@ public:
   virtual void getGray(GfxColor *color, double *gray) = 0;
   virtual void getRGB(GfxColor *color, GfxRGB *rgb) = 0;
   virtual void getCMYK(GfxColor *color, GfxCMYK *cmyk) = 0;
+  virtual void getRGBLine(Guchar *in, unsigned int *out, int length);
 
   // Return the number of color components.
   virtual int getNComps() = 0;
@@ -116,6 +117,8 @@ public:
   virtual void getGray(GfxColor *color, double *gray);
   virtual void getRGB(GfxColor *color, GfxRGB *rgb);
   virtual void getCMYK(GfxColor *color, GfxCMYK *cmyk);
+  virtual void getGrayLine(Guchar *in, Guchar *out, int length);
+  virtual void getRGBLine(Guchar *in, unsigned int *out, int length);
 
   virtual int getNComps() { return 1; }
 
@@ -140,6 +143,8 @@ public:
   virtual void getGray(GfxColor *color, double *gray);
   virtual void getRGB(GfxColor *color, GfxRGB *rgb);
   virtual void getCMYK(GfxColor *color, GfxCMYK *cmyk);
+  virtual void getGrayLine(Guchar *in, Guchar *out, int length);
+  virtual void getRGBLine(Guchar *in, unsigned int *out, int length);
 
   virtual int getNComps() { return 1; }
 
@@ -174,6 +179,8 @@ public:
   virtual void getGray(GfxColor *color, double *gray);
   virtual void getRGB(GfxColor *color, GfxRGB *rgb);
   virtual void getCMYK(GfxColor *color, GfxCMYK *cmyk);
+  virtual void getGrayLine(Guchar *in, Guchar *out, int length);
+  virtual void getRGBLine(Guchar *in, unsigned int *out, int length);
 
   virtual int getNComps() { return 3; }
 
@@ -198,6 +205,8 @@ public:
   virtual void getGray(GfxColor *color, double *gray);
   virtual void getRGB(GfxColor *color, GfxRGB *rgb);
   virtual void getCMYK(GfxColor *color, GfxCMYK *cmyk);
+  virtual void getGrayLine(Guchar *in, Guchar *out, int length);
+  virtual void getRGBLine(Guchar *in, unsigned int *out, int length);
 
   virtual int getNComps() { return 3; }
 
@@ -306,6 +315,7 @@ public:
   virtual void getRGB(GfxColor *color, GfxRGB *rgb);
   virtual void getCMYK(GfxColor *color, GfxCMYK *cmyk);
 
+  virtual void getRGBLine(Guchar *in, unsigned int *out, int length);
   virtual int getNComps() { return nComps; }
 
   virtual void getDefaultRanges(double *decodeLow, double *decodeRange,
@@ -341,6 +351,7 @@ public:
   virtual void getGray(GfxColor *color, double *gray);
   virtual void getRGB(GfxColor *color, GfxRGB *rgb);
   virtual void getCMYK(GfxColor *color, GfxCMYK *cmyk);
+  virtual void getRGBLine(Guchar *in, unsigned int *out, int length);
 
   virtual int getNComps() { return 1; }
 
@@ -713,6 +724,7 @@ public:
   // Convert an image pixel to a color.
   void getGray(Guchar *x, double *gray);
   void getRGB(Guchar *x, GfxRGB *rgb);
+  void getRGBLine(Guchar *in, unsigned int *out, int length);
   void getCMYK(Guchar *x, GfxCMYK *cmyk);
   void getColor(Guchar *x, GfxColor *color);
 
@@ -726,6 +738,8 @@ private:
   GfxColorSpace *colorSpace2;	// secondary color space
   int nComps2;			// number of components in colorSpace2
   double *lookup;		// lookup table
+  Guchar *byte_lookup;
+  Guchar *tmp_line;
   double			// minimum values for each component
     decodeLow[gfxColorMaxComps];
   double			// max - min value for each component

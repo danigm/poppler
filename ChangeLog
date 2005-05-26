@@ -1,3 +1,11 @@
+2005-05-26  Kristian Høgsberg  <krh@redhat.com>
+
+	* poppler/GfxState.cc: 
+	* poppler/GfxState.h: Add GfxColorSpace::getRGBLine here and
+	implement in subclasses.
+
+	* poppler/CairoOutputDev.cc (drawImage): Use getRGBLine here.
+
 Mon May 23 00:22:41 2005  Jonathan Blandford  <jrb@redhat.com>
 
 	* glib/poppler-document.h: Add a permissions flag to the glib

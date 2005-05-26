@@ -311,7 +311,6 @@ void CairoOutputDev::clip(GfxState *state, GBool snapToGrid) {
   doPath (state, state->getPath(), snapToGrid);
   cairo_set_fill_rule (cairo, CAIRO_FILL_RULE_WINDING);
   cairo_clip (cairo);
-  cairo_new_path (cairo); /* Consume path */
   LOG (printf ("clip\n"));
 }
 
@@ -319,7 +318,6 @@ void CairoOutputDev::eoClip(GfxState *state) {
   doPath (state, state->getPath(), gFalse);
   cairo_set_fill_rule (cairo, CAIRO_FILL_RULE_EVEN_ODD);
   cairo_clip (cairo);
-  cairo_new_path (cairo); /* Consume path */
   LOG (printf ("clip-eo\n"));
 }
 
@@ -531,9 +529,10 @@ void CairoOutputDev::drawImageMask(GfxState *state, Object *ref, Stream *str,
 void CairoOutputDev::drawImage(GfxState *state, Object *ref, Stream *str,
 				int width, int height,
 				GfxImageColorMap *colorMap,
-				int *maskColors, GBool inlineImg) {
+				int *maskColors, GBool inlineImg)
+{
   unsigned char *buffer;
-  unsigned char *dest;
+  unsigned int *dest;
   cairo_surface_t *image;
   cairo_pattern_t *pattern;
   int x, y;
@@ -545,12 +544,7 @@ void CairoOutputDev::drawImage(GfxState *state, Object *ref, Stream *str,
   cairo_matrix_t matrix;
   int is_identity_transform;
   
-  buffer = (unsigned char *)malloc (width * height * 4);
-
-  if (buffer == NULL) {
-    error(-1, "Unable to allocate memory for image.");
-    return;
-  }
+  buffer = (unsigned char *)gmalloc (width * height * 4);
 
   /* TODO: Do we want to cache these? */
   imgStr = new ImageStream(str, width,
@@ -563,39 +557,41 @@ void CairoOutputDev::drawImage(GfxState *state, Object *ref, Stream *str,
   is_identity_transform = colorMap->getColorSpace()->getMode() == csDeviceRGB ||
 		  colorMap->getColorSpace()->getMode() == csICCBased && 
 		  ((GfxICCBasedColorSpace*)colorMap->getColorSpace())->getAlt()->getMode() == csDeviceRGB;
-  
-  for (y = 0; y < height; y++) {
-    dest = buffer + y * 4 * width;
-    pix = imgStr->getLine();
-    for (x = 0; x < width; x++, pix += colorMap->getNumPixelComps()) {
-      if (maskColors) {
-	alpha = 0;
+
+  if (maskColors) {
+    for (y = 0; y < height; y++) {
+      dest = (unsigned int *) (buffer + y * 4 * width);
+      pix = imgStr->getLine();
+      colorMap->getRGBLine (pix, dest, width);
+
+      for (x = 0; x < width; x++) {
 	for (i = 0; i < colorMap->getNumPixelComps(); ++i) {
-	  if (pix[i] < maskColors[2*i] ||
-	      pix[i] > maskColors[2*i+1]) {
-	    alpha = 255;
+	  
+	  if (pix[i] < maskColors[2*i] * 255||
+	      pix[i] > maskColors[2*i+1] * 255) {
+	    *dest = *dest | 0xff000000;
 	    break;
 	  }
 	}
-      } else {
-	alpha = 255;
+	pix += colorMap->getNumPixelComps();
+	dest++;
       }
-      if (is_identity_transform) {
-	*dest++ = pix[2];
-	*dest++ = pix[1];
-	*dest++ = pix[0];
-      } else {      
-	colorMap->getRGB(pix, &rgb);
-	*dest++ = soutRound(255 * rgb.b);
-	*dest++ = soutRound(255 * rgb.g);
-	*dest++ = soutRound(255 * rgb.r);
-      }
-      *dest++ = alpha;
     }
+
+    image = cairo_image_surface_create_for_data (buffer, CAIRO_FORMAT_ARGB32,
+						 width, height, width * 4);
+  }
+  else {
+    for (y = 0; y < height; y++) {
+      dest = (unsigned int *) (buffer + y * 4 * width);
+      pix = imgStr->getLine();
+      colorMap->getRGBLine (pix, dest, width);
+    }
+
+    image = cairo_image_surface_create_for_data (buffer, CAIRO_FORMAT_RGB24,
+						 width, height, width * 4);
   }
 
-  image = cairo_image_surface_create_for_data (buffer, CAIRO_FORMAT_ARGB32,
-					       width, height, width * 4);
   if (image == NULL)
     return;
   pattern = cairo_pattern_create_for_surface (image);
