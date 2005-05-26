@@ -81,6 +81,8 @@ public:
   virtual void updateLineWidth(GfxState *state);
   virtual void updateFillColor(GfxState *state);
   virtual void updateStrokeColor(GfxState *state);
+  virtual void updateFillOpacity(GfxState *state);
+  virtual void updateStrokeOpacity(GfxState *state);
 
   //----- update text state
   virtual void updateFont(GfxState *state);
@@ -91,7 +93,7 @@ public:
   virtual void eoFill(GfxState *state);
 
   //----- path clipping
-  virtual void clip(GfxState *state, GBool snapToGrid);
+  virtual void clip(GfxState *state);
   virtual void eoClip(GfxState *state);
 
   //----- text drawing
@@ -128,6 +130,8 @@ protected:
   
   GfxRGB fill_color;
   GfxRGB stroke_color;
+  double fill_opacity;
+  double stroke_opacity;
   CairoFont *currentFont;
   
   XRef *xref;			// xref table for current document

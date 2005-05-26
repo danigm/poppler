@@ -1,5 +1,17 @@
 2005-05-26  Kristian Høgsberg  <krh@redhat.com>
 
+	* poppler/CairoOutputDev.cc (clip): Remove snapToGrid so clip()
+	prototype matches what Gfx actually calls (fixes clipping).
+	
+	* poppler/CairoOutputDev.cc: Update fill color, stroke color, fill
+	opacity and stroke opacity from GfxState on restore, since they
+	aren't handled by cairo_restore() (#3362).
+
+	* poppler/CairoOutputDev.cc: Comment out tolerance setting until
+	we figure out how cairo settings relate to pdf settings.
+
+	* poppler/CairoOutputDev.cc: Support fill and stroke opacity.
+	
 	* poppler/GfxState.cc: 
 	* poppler/GfxState.h: Add GfxColorSpace::getRGBLine here and
 	implement in subclasses.

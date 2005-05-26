@@ -83,7 +83,7 @@ void CairoOutputDev::startPage(int pageNum, GfxState *state) {
   cairo_set_line_join (cairo, CAIRO_LINE_JOIN_MITER);
   cairo_set_dash (cairo, NULL, 0, 0.0);
   cairo_set_miter_limit (cairo, 10);
-  cairo_set_tolerance (cairo, 1);
+  //  cairo_set_tolerance (cairo, 1);
 }
 
 void CairoOutputDev::endPage() {
@@ -100,8 +100,13 @@ void CairoOutputDev::saveState(GfxState *state) {
 void CairoOutputDev::restoreState(GfxState *state) {
   LOG(printf ("restore\n"));
   cairo_restore (cairo);
-  /* TODO: Is this really needed for cairo? Maybe not */
-  needFontUpdate = gTrue;
+
+  /* These aren't restored by cairo_restore() since we keep them in
+   * the output device. */
+  updateFillColor(state);
+  updateStrokeColor(state);
+  updateFillOpacity(state);
+  updateStrokeOpacity(state);
 }
 
 void CairoOutputDev::updateAll(GfxState *state) {
@@ -113,6 +118,8 @@ void CairoOutputDev::updateAll(GfxState *state) {
   updateMiterLimit(state);
   updateFillColor(state);
   updateStrokeColor(state);
+  updateFillOpacity(state);
+  updateStrokeOpacity(state);
   needFontUpdate = gTrue;
 }
 
@@ -146,7 +153,7 @@ void CairoOutputDev::updateLineDash(GfxState *state) {
 }
 
 void CairoOutputDev::updateFlatness(GfxState *state) {
-  cairo_set_tolerance (cairo, state->getFlatness());
+  // cairo_set_tolerance (cairo, state->getFlatness());
 }
 
 void CairoOutputDev::updateLineJoin(GfxState *state) {
@@ -194,6 +201,16 @@ void CairoOutputDev::updateFillColor(GfxState *state) {
 void CairoOutputDev::updateStrokeColor(GfxState *state) {
   state->getStrokeRGB(&stroke_color);
   LOG(printf ("stroke color: %f %f %f\n", stroke_color.r, stroke_color.g, stroke_color.b));
+}
+
+void CairoOutputDev::updateFillOpacity(GfxState *state) {
+  fill_opacity = state->getFillOpacity();
+  LOG(printf ("fill opacity: %f\n", fill_opacity));
+}
+
+void CairoOutputDev::updateStrokeOpacity(GfxState *state) {
+  stroke_opacity = state->getStrokeOpacity();
+  LOG(printf ("stroke opacity: %f\n", stroke_opacity));
 }
 
 void CairoOutputDev::updateFont(GfxState *state) {
@@ -283,8 +300,9 @@ void CairoOutputDev::doPath(GfxState *state, GfxPath *path,
 
 void CairoOutputDev::stroke(GfxState *state) {
   doPath (state, state->getPath(), gFalse);
-  cairo_set_source_rgb (cairo,
-		       stroke_color.r, stroke_color.g, stroke_color.b);
+  cairo_set_source_rgba (cairo,
+			 stroke_color.r, stroke_color.g, stroke_color.b,
+			 stroke_opacity);
   LOG(printf ("stroke\n"));
   cairo_stroke (cairo);
 }
@@ -292,8 +310,9 @@ void CairoOutputDev::stroke(GfxState *state) {
 void CairoOutputDev::fill(GfxState *state) {
   doPath (state, state->getPath(), gFalse);
   cairo_set_fill_rule (cairo, CAIRO_FILL_RULE_WINDING);
-  cairo_set_source_rgb (cairo,
-		       fill_color.r, fill_color.g, fill_color.b);
+  cairo_set_source_rgba (cairo,
+			 fill_color.r, fill_color.g, fill_color.b,
+			 fill_opacity);
   LOG(printf ("fill\n"));
   cairo_fill (cairo);
 }
@@ -307,8 +326,8 @@ void CairoOutputDev::eoFill(GfxState *state) {
   cairo_fill (cairo);
 }
 
-void CairoOutputDev::clip(GfxState *state, GBool snapToGrid) {
-  doPath (state, state->getPath(), snapToGrid);
+void CairoOutputDev::clip(GfxState *state) {
+  doPath (state, state->getPath(), gFalse);
   cairo_set_fill_rule (cairo, CAIRO_FILL_RULE_WINDING);
   cairo_clip (cairo);
   LOG (printf ("clip\n"));
@@ -611,7 +630,7 @@ void CairoOutputDev::drawImage(GfxState *state, Object *ref, Stream *str,
   cairo_matrix_invert (&matrix);
   cairo_pattern_set_matrix (pattern, &matrix);
 
-  cairo_pattern_set_filter (pattern, CAIRO_FILTER_BEST);
+  cairo_pattern_set_filter (pattern, CAIRO_FILTER_BILINEAR);
   cairo_set_source (cairo, pattern);
   cairo_paint (cairo);
 
