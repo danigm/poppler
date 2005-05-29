@@ -38,6 +38,11 @@ enum {
 	PROP_AUTHOR,
 	PROP_SUBJECT,
 	PROP_KEYWORDS,
+	PROP_CREATOR,
+	PROP_PRODUCER,
+	PROP_CREATION_DATE,
+	PROP_MOD_DATE,
+	PROP_LINEARIZED,
 	PROP_PAGE_LAYOUT,
 	PROP_PAGE_MODE,
 	PROP_VIEWER_PREFERENCES,
@@ -223,6 +228,81 @@ info_dict_get_string (Dict *info_dict, const gchar *key, GValue *value)
   g_free (result);
 }
 
+static void
+info_dict_get_date (Dict *info_dict, const gchar *key, GValue *value) 
+{
+  Object obj;
+  GooString *goo_value;
+  int year, mon, day, hour, min, sec;
+  int scanned_items;
+  struct tm *time;
+  gchar *date_string;
+  GTime result;
+
+  if (!info_dict->lookup ((gchar *)key, &obj)->isString ()) {
+    obj.free ();
+    return;
+  }
+
+  goo_value = obj.getString (); 
+
+  if (has_unicode_marker (goo_value)) {
+    date_string = g_convert (goo_value->getCString () + 2,
+			goo_value->getLength () - 2,
+			"UTF-8", "UTF-16BE", NULL, NULL, NULL);		
+  } else {
+    date_string = g_strndup (goo_value->getCString (), goo_value->getLength ());
+  }
+
+  /* See PDF Reference 1.3, Section 3.8.2 for PDF Date representation */
+
+  if (date_string [0] == 'D' && date_string [1] == ':')
+		date_string += 2;
+	
+  /* FIXME only year is mandatory; parse optional timezone offset */
+  scanned_items = sscanf (date_string, "%4d%2d%2d%2d%2d%2d",
+		&year, &mon, &day, &hour, &min, &sec);
+
+  if (scanned_items != 6)
+    return;
+
+  /* Workaround for y2k bug in Distiller 3, hoping that it won't
+   * be used after y2.2k */
+  if (year < 1930 && strlen (date_string) > 14) {
+    int century, years_since_1900;
+    scanned_items = sscanf (date_string, "%2d%3d%2d%2d%2d%2d%2d",
+		&century, &years_since_1900, &mon, &day, &hour, &min, &sec);
+						
+    if (scanned_items != 7)
+      return;
+	
+    year = century * 100 + years_since_1900;
+  }
+
+  time = g_new0 (struct tm, 1);
+	
+  time->tm_year = year - 1900;
+  time->tm_mon = mon - 1;
+  time->tm_mday = day;
+  time->tm_hour = hour;
+  time->tm_min = min;
+  time->tm_sec = sec;
+  time->tm_wday = -1;
+  time->tm_yday = -1;
+  time->tm_isdst = -1; /* 0 = DST off, 1 = DST on, -1 = don't know */
+ 
+  /* compute tm_wday and tm_yday and check date */
+  if (mktime (time) == (time_t) - 1) {
+    return;
+  } else {
+  	result = mktime (time);
+  }       
+    
+  obj.free ();
+  
+  g_value_set_int (value, result);
+}
+
 static PopplerPageLayout
 convert_page_layout (Catalog::PageLayout pageLayout)
 {
@@ -304,6 +384,33 @@ poppler_document_get_property (GObject    *object,
       document->doc->getDocInfo (&obj);
       if (obj.isDict ())
 	info_dict_get_string (obj.getDict(), "Keywords", value);
+      break;
+    case PROP_CREATOR:
+      document->doc->getDocInfo (&obj);
+      if (obj.isDict ())
+	info_dict_get_string (obj.getDict(), "Creator", value);
+      break;
+    case PROP_PRODUCER:
+      document->doc->getDocInfo (&obj);
+      if (obj.isDict ())
+	info_dict_get_string (obj.getDict(), "Producer", value);
+      break;
+    case PROP_CREATION_DATE:
+      document->doc->getDocInfo (&obj);
+      if (obj.isDict ())
+	info_dict_get_date (obj.getDict(), "CreationDate", value);
+      break;
+    case PROP_MOD_DATE:
+      document->doc->getDocInfo (&obj);
+      if (obj.isDict ())
+	info_dict_get_date (obj.getDict(), "ModDate", value);
+	break;
+    case PROP_LINEARIZED:
+      if (document->doc->isLinearized ()) {	
+	  g_value_set_string (value, "Yes");
+      }	else {
+	  g_value_set_string (value, "No");
+      }
       break;
     case PROP_PAGE_LAYOUT:
       catalog = document->doc->getCatalog ();
@@ -397,6 +504,51 @@ poppler_document_class_init (PopplerDocumentClass *klass)
 
   g_object_class_install_property
 	  (G_OBJECT_CLASS (klass),
+	   PROP_CREATOR,
+	   g_param_spec_string ("creator",
+				"Creator",
+				"The software that created the document",
+				NULL,
+				G_PARAM_READABLE));
+
+  g_object_class_install_property
+	  (G_OBJECT_CLASS (klass),
+	  PROP_PRODUCER,
+	   g_param_spec_string ("producer",
+				"Producer",
+				"The software that converted the document",
+				NULL,
+				G_PARAM_READABLE));
+
+  g_object_class_install_property
+	  (G_OBJECT_CLASS (klass),
+	   PROP_CREATION_DATE,
+	   g_param_spec_int ("creation-date",
+				"Creation Date",
+				"The date and time the document was created",
+				0, G_MAXINT, 0,
+				G_PARAM_READABLE));
+
+  g_object_class_install_property
+	  (G_OBJECT_CLASS (klass),
+	   PROP_MOD_DATE,
+	   g_param_spec_int ("mod-date",
+				"Modification Date",
+				"The date and time the document was modified",
+				0, G_MAXINT, 0,
+				G_PARAM_READABLE));
+				
+  g_object_class_install_property
+	  (G_OBJECT_CLASS (klass),
+	   PROP_LINEARIZED,
+	   g_param_spec_string ("linearized",
+				"Fast Web View Enabled",
+				"Is the document optimized for web viewing?",
+				NULL,
+				G_PARAM_READABLE));
+
+  g_object_class_install_property
+	  (G_OBJECT_CLASS (klass),
 	   PROP_PAGE_LAYOUT,
 	   g_param_spec_enum ("page-layout",
 			      "Page Layout",
@@ -440,7 +592,6 @@ static void
 poppler_document_init (PopplerDocument *document)
 {
 }
-
 
 /* PopplerIndexIter: For determining the index of a tree */
 struct _PopplerIndexIter
@@ -522,8 +673,6 @@ poppler_index_iter_get_child (PopplerIndexIter *parent)
 
 	return child;
 }
-
-
 
 static gchar *
 unicode_to_char (Unicode *unicode,

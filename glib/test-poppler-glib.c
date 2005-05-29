@@ -10,7 +10,8 @@
 static void
 print_document_info (PopplerDocument *document)
 {
-  gchar *title, *format, *author, *subject, *keywords;
+  gchar *title, *format, *author, *subject, *keywords, *creator, *producer, *linearized;
+  GTime creation_date, mod_date;
   PopplerPageLayout layout;
   PopplerPageMode mode;
   PopplerViewerPreferences view_prefs;
@@ -22,22 +23,35 @@ print_document_info (PopplerDocument *document)
 		"author", &author,
 		"subject", &subject,
 		"keywords", &keywords,
+		"creation-date", &creation_date,
+		"mod-date", &mod_date,
+		"creator", &creator,
+		"producer", &producer,	
+		"linearized", &linearized,
 		"page-mode", &mode,
 		"page-layout", &layout,
 		"viewer-preferences", &view_prefs,
 		NULL);
 
-  printf ("document metadata\n");
-  if (title)  printf   ("\ttitle:\t%s\n", title);
-  if (format) printf   ("\tformat:\t%s\n", format);
-  if (author) printf   ("\tauthor:\t%s\n", author);
+  printf ("\t---------------------------------------------------------\n");
+  printf ("\tDocument Metadata\n");
+  printf ("\t---------------------------------------------------------\n");
+  if (title)  printf   ("\ttitle:\t\t%s\n", title);
+  if (format) printf   ("\tformat:\t\t%s\n", format);
+  if (author) printf   ("\tauthor:\t\t%s\n", author);
   if (subject) printf  ("\tsubject:\t%s\n", subject);
-  if (keywords) printf ("\tdkeywords:\t%s\n", keywords);
-
+  if (keywords) printf ("\tkeywords:\t%s\n", keywords);
+  if (creator) printf ("\tcreator:\t%s\n", creator);
+  if (producer) printf ("\tproducer:\t%s\n", producer);
+  if (linearized) printf ("\tlinearized:\t%s\n", linearized);
+  
   enum_value = g_enum_get_value ((GEnumClass *) g_type_class_peek (POPPLER_TYPE_PAGE_MODE), mode);
   g_print ("\tpage mode:\t%s\n", enum_value->value_name);
   enum_value = g_enum_get_value ((GEnumClass *) g_type_class_peek (POPPLER_TYPE_PAGE_LAYOUT), layout);
   g_print ("\tpage layout:\t%s\n", enum_value->value_name);
+
+  g_print ("\tcreation date:\t%d\n", creation_date);
+  g_print ("\tmodified date:\t%d\n", mod_date);
 
   /* FIXME: print out the view prefs when we support it */
 
@@ -46,6 +60,9 @@ print_document_info (PopplerDocument *document)
   g_free (author);
   g_free (subject);
   g_free (keywords);
+  g_free (creator);
+  g_free (producer); 
+  g_free (linearized);
 }
 
 int main (int argc, char *argv[])
@@ -63,7 +80,7 @@ int main (int argc, char *argv[])
   PopplerRectangle area;
 
   if (argc != 3)
-    FAIL ("usage: test-poppler-glib FILE PAGE");
+    FAIL ("usage: test-poppler-glib file://FILE PAGE");
 
   g_type_init ();
 
@@ -84,7 +101,7 @@ int main (int argc, char *argv[])
     FAIL ("page not found");
 
   poppler_page_get_size (page, &width, &height);
-  printf ("page size: %f inches by %f inches\n", width / 72, height / 72);
+  printf ("\tpage size:\t%f inches by %f inches\n", width / 72, height / 72);
 
   thumb = poppler_page_get_thumbnail (page);
   if (thumb != NULL) {
@@ -92,14 +109,14 @@ int main (int argc, char *argv[])
     if (error != NULL)
       FAIL (error->message);
     else
-      printf ("saved thumbnail as thumb.png\n");
+      printf ("\tthumbnail:\tsaved as thumb.png\n");
     g_object_unref (G_OBJECT (thumb));
   }
   else
-    printf ("no thumbnail for page\n");
+    printf ("\tthumbnail:\tno thumbnail for page\n");
 
   g_object_get (page, "label", &label, NULL);
-  printf ("page label: %s\n", label);
+  printf ("\tpage label:\t%s\n", label);
   g_free (label);
 
   pixbuf = gdk_pixbuf_new (GDK_COLORSPACE_RGB, FALSE, 8, 220, 220);
@@ -107,7 +124,7 @@ int main (int argc, char *argv[])
   poppler_page_render_to_pixbuf (page, 100, 100, 200, 200, 1, pixbuf, 10, 10);
 
   gdk_pixbuf_save (pixbuf, "slice.png", "png", &error, NULL);
-  printf ("saved 200x200 slice at (100, 100) as slice.png\n");
+  printf ("\tslice:\t\tsaved 200x200 slice at (100, 100) as slice.png\n");
   if (error != NULL)
     FAIL (error->message);
 
@@ -129,7 +146,8 @@ int main (int argc, char *argv[])
     }
 
   list = poppler_page_find_text (page, "Bitwise");
-  printf ("Found text \"Bitwise\" at positions:\n");
+  printf ("\n");  
+  printf ("\tFound text \"Bitwise\" at positions:\n");
   for (l = list; l != NULL; l = l->next)
     {
       PopplerRectangle *rect = l->data;

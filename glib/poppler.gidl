@@ -204,6 +204,11 @@
       <property name="author" readable="1" writable="0" type="gchar*" />
       <property name="subject" readable="1" writable="0" type="gchar*" />
       <property name="keywords" readable="1" writable="0" type="gchar*" />
+      <property name="creator" readable="1" writable="0" type="gchar*" />
+      <property name="producer" readable="1" writable="0" type="gchar*" />
+      <property name="linearized" readable="1" writable="0" type="gchar*" />
+      <property name="creation_date" readable="1" writable="0" type="GTime*" />
+      <property name="modified_date" readable="1" writable="0" type="GTime*" />
       <property name="page-layout" readable="1" writable="0" type="PageLayout" />
       <property name="page-mode" readable="1" writable="0" type="PageMode" />
       <property name="viewer-preferences" readable="1" writable="0" type="ViewerPreferences" />

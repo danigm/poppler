@@ -1,3 +1,8 @@
+2005-05-29  Kristian Høgsberg  <krh@redhat.com>
+
+	* glib/*: Add more meta data properties to poppler document.
+	Patch by Emil Soleyman-Zomalan (#3359).
+
 2005-05-26  Kristian Høgsberg  <krh@redhat.com>
 
 	* poppler/CairoOutputDev.cc (clip): Remove snapToGrid so clip()
