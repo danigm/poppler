@@ -18,4 +18,6 @@
 
 extern void CDECL error(int pos, char *msg, ...);
 
+void setErrorFunction(void (* f)(int , char *, va_list args));
+
 #endif

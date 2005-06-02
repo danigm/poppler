@@ -1,3 +1,11 @@
+2005-06-01  Jeff Muizelaar  <jeff@infidigm.net>
+
+	* poppler/Error.cc:
+	* poppler/Error.h: Make error handling function setable through
+	setErrorFunction.
+
+	Based on a patch by Albert Astals Cid.
+
 2005-05-29  Kristian Høgsberg  <krh@redhat.com>
 
 	* glib/*: Add more meta data properties to poppler document.
