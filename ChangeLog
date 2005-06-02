@@ -1,5 +1,14 @@
 2005-06-02  Kristian Høgsberg  <krh@redhat.com>
 
+	* poppler/TextOutputDev.h:
+	* qt/poppler-qt.h: Patch from Stanislav Brabec <sbrabec@suse.cz>
+	to fix gcc 4.0.1 warnings on undeclared friend classes.
+	
+	* test/gtk-splash-test.cc: Fix from Martin Kretzschmar
+	<martink@gnome.org> to compile with OPI enabled (#2911).
+
+2005-06-02  Kristian Høgsberg  <krh@redhat.com>
+
 	Patch from Stanislav Brabec <sbrabec@suse.cz>:
 
 	* configure.ac:

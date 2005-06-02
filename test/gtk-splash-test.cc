@@ -16,8 +16,8 @@
 #include <goo/gmem.h>
 #include <splash/SplashTypes.h>
 #include <splash/SplashBitmap.h>
-#include "SplashOutputDev.h"
 #include "Object.h"
+#include "SplashOutputDev.h"
 #include "GfxState.h"
 
 #include <gdk/gdk.h>

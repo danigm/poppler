@@ -25,6 +25,8 @@
 
 namespace Poppler {
 
+class Document;
+
 /* A rectangle on a page, with coordinates in PDF points. */
 class Rectangle
 {

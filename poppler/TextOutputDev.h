@@ -24,6 +24,9 @@ class GooList;
 class GfxFont;
 class GfxState;
 class UnicodeMap;
+class TextBlock;
+class TextPage;
+class TextLineFrag;
 
 //------------------------------------------------------------------------
 
