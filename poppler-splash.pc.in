@@ -6,5 +6,4 @@ includedir=@includedir@
 Name: poppler-splash
 Description: Splash backend for Poppler PDF rendering library
 Version: @VERSION@
-
-Requires: poppler-@VERSION@
+Requires: poppler = @VERSION@

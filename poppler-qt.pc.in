@@ -6,6 +6,7 @@ includedir=@includedir@
 Name: poppler-qt
 Description: Qt bindings for poppler
 Version: @VERSION@
+Requires: poppler = @VERSION@
 
 Libs: -L${libdir} -lpoppler-qt
 Cflags: -I${includedir}/poppler

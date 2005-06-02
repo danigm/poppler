@@ -1,3 +1,13 @@
+2005-06-02  Kristian Høgsberg  <krh@redhat.com>
+
+	Patch from Stanislav Brabec <sbrabec@suse.cz>:
+
+	* configure.ac:
+	* poppler-cairo.pc.in:
+	* poppler-glib.pc.in:
+	* poppler-qt.pc.in:
+	* poppler-splash.pc.in: Misc fixes to pkg-config files.
+
 2005-06-01  Jeff Muizelaar  <jeff@infidigm.net>
 
 	* poppler/Error.cc:

@@ -6,5 +6,4 @@ includedir=@includedir@
 Name: poppler-cairo
 Description: Cairo backend for Poppler PDF rendering library
 Version: @VERSION@
-
-Requires: poppler-@VERSION@ cairo >= 0.3
+Requires: poppler = @VERSION@ cairo >= @CAIRO_VERSION@

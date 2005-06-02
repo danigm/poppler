@@ -3,10 +3,10 @@ exec_prefix=@exec_prefix@
 libdir=@libdir@
 includedir=@includedir@
 
-Name: poppler
+Name: poppler-glib
 Description: GLib wrapper for poppler
 Version: @VERSION@
-Requires: gobject-2.0 gdk-pixbuf-2.0
+Requires: poppler = @VERSION@ gobject-2.0 gdk-pixbuf-2.0
 
 Libs: -L${libdir} -lpoppler-glib
 Cflags: -I${includedir}/poppler/glib
