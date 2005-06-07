@@ -1,3 +1,7 @@
+2005-06-07  Kristian Høgsberg  <krh@redhat.com>
+
+	* qt/test-poppler-qt.cpp: Add stdlib.h include for exit().
+
 2005-06-02  Kristian Høgsberg  <krh@redhat.com>
 
 	* poppler/TextOutputDev.h:

@@ -7,6 +7,7 @@
 #include <qfile.h>
 #include <ctype.h>
 #include <poppler-qt.h>
+#include <stdlib.h>
 
 class PDFDisplay : public QWidget           // picture display widget
 {
