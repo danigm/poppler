@@ -1,3 +1,8 @@
+2005-06-08  Kristian Høgsberg  <krh@redhat.com>
+
+	* poppler/CairoFontEngine.cc: Remember to delete tmpFileName.
+	Patch from Nikolai Weibull (#3491).
+
 2005-06-07  Kristian Høgsberg  <krh@redhat.com>
 
 	* qt/test-poppler-qt.cpp: Add stdlib.h include for exit().

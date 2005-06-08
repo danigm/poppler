@@ -122,25 +122,25 @@ CairoFont::CairoFont(GfxFont *gfxFont, XRef *xref, FT_Library lib) {
       if (gfxFont->getName()) {
 	dfp = globalParams->getDisplayFont(gfxFont->getName());
       }
-	if (!dfp) {
-	  // 8-bit font substitution
-	  if (gfxFont->isFixedWidth()) {
-	    substIdx = 8;
-	  } else if (gfxFont->isSerif()) {
-	    substIdx = 4;
-	  } else {
-	    substIdx = 0;
-	  }
-	  if (gfxFont->isBold()) {
-	    substIdx += 2;
-	  }
-	  if (gfxFont->isItalic()) {
-	    substIdx += 1;
-	  }
-	  substName = new GooString(cairoOutSubstFonts[substIdx].name);
-	  dfp = globalParams->getDisplayFont(substName);
-	  delete substName;
+      if (!dfp) {
+	// 8-bit font substitution
+	if (gfxFont->isFixedWidth()) {
+	  substIdx = 8;
+	} else if (gfxFont->isSerif()) {
+	  substIdx = 4;
+	} else {
+	  substIdx = 0;
 	}
+	if (gfxFont->isBold()) {
+	  substIdx += 2;
+	}
+	if (gfxFont->isItalic()) {
+	  substIdx += 1;
+	}
+	substName = new GooString(cairoOutSubstFonts[substIdx].name);
+	dfp = globalParams->getDisplayFont(substName);
+	delete substName;
+      }
     }
     if (!dfp) {
       error(-1, "Couldn't find a font for '%s'",
@@ -245,6 +245,7 @@ CairoFont::CairoFont(GfxFont *gfxFont, XRef *xref, FT_Library lib) {
   // return an error, leaving the file to be deleted later
   if (fileName == tmpFileName) {
     unlink (fileName->getCString());
+    delete tmpFileName;
   }
 
   cairo_font_face = cairo_ft_font_face_create_for_ft_face (face,
