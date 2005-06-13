@@ -1,3 +1,13 @@
+2005-06-13  Kristian Høgsberg  <krh@redhat.com>
+
+	* glib/poppler-document.cc:
+	* glib/poppler-document.h:
+	* glib/poppler-private.h:
+	* glib/poppler.h:
+	* glib/test-poppler-glib.c:
+	* poppler/Makefile.am: Patch from Marco to extract font info from
+	document.
+
 2005-06-08  Kristian Høgsberg  <krh@redhat.com>
 
 	* poppler/CairoFontEngine.cc: Remember to delete tmpFileName.

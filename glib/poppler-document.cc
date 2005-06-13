@@ -26,6 +26,7 @@
 #include <GfxState.h>
 #include <SplashOutputDev.h>
 #include <Stream.h>
+#include <FontInfo.h>
 
 #include "poppler.h"
 #include "poppler-private.h"
@@ -743,6 +744,136 @@ poppler_index_iter_free (PopplerIndexIter *iter)
 //	delete iter->items;
 	g_free (iter);
 	
+}
+
+struct _PopplerFontsIter
+{
+	GooList *items;
+	int index;
+};
+
+GType
+poppler_fonts_iter_get_type (void)
+{
+  static GType our_type = 0;
+
+  if (our_type == 0)
+    our_type = g_boxed_type_register_static ("PopplerFontsIter",
+					     (GBoxedCopyFunc) poppler_fonts_iter_copy,
+					     (GBoxedFreeFunc) poppler_fonts_iter_free);
+
+  return our_type;
+}
+
+const char *
+poppler_fonts_iter_get_name (PopplerFontsIter *iter)
+{
+	FontInfo *info;
+
+	info = (FontInfo *)iter->items->get (iter->index);
+
+	return info->getName()->getCString();
+}
+
+gboolean
+poppler_fonts_iter_next (PopplerFontsIter *iter)
+{
+	g_return_val_if_fail (iter != NULL, FALSE);
+
+	iter->index++;
+	if (iter->index >= iter->items->getLength())
+		return FALSE;
+
+	return TRUE;
+}
+
+PopplerFontsIter *
+poppler_fonts_iter_copy (PopplerFontsIter *iter)
+{
+	PopplerFontsIter *new_iter;
+
+	g_return_val_if_fail (iter != NULL, NULL);
+
+	new_iter = g_new0 (PopplerFontsIter, 1);
+	*new_iter = *iter;
+
+	new_iter->items = new GooList ();
+	for (int i = 0; i < iter->items->getLength(); i++) {
+		FontInfo *info = (FontInfo *)iter->items->get(i);
+		new_iter->items->append (new FontInfo (*info));
+	}
+
+	return new_iter;
+}
+
+void
+poppler_fonts_iter_free (PopplerFontsIter *iter)
+{
+	if (iter == NULL)
+		return;
+
+	deleteGooList (iter->items, FontInfo);
+
+	g_free (iter);
+}
+
+static PopplerFontsIter *
+poppler_fonts_iter_new (GooList *items)
+{
+	PopplerFontsIter *iter;
+
+	iter = g_new0 (PopplerFontsIter, 1);
+	iter->items = items;
+	iter->index = 0;
+
+	return iter;
+}
+
+PopplerFontInfo *
+poppler_font_info_new (PopplerDocument *document)
+{
+	PopplerFontInfo *font_info;
+
+	g_return_val_if_fail (POPPLER_IS_DOCUMENT (document), NULL);
+
+	font_info = g_new0 (PopplerFontInfo, 1);
+	font_info->document = (PopplerDocument *) g_object_ref (document);
+	font_info->scanner = new FontInfoScanner(document->doc);
+
+	return font_info;
+}
+
+gboolean
+poppler_font_info_scan (PopplerFontInfo   *font_info,
+			int                n_pages,
+			PopplerFontsIter **iter)
+{
+	GooList *items;
+
+	g_return_val_if_fail (iter != NULL, FALSE);
+
+	items = font_info->scanner->scan(n_pages);
+
+	if (items == NULL) {
+		*iter = NULL;
+	} else if (items->getLength() == 0) {
+		*iter = NULL;
+		delete items;
+	} else {
+		*iter = poppler_fonts_iter_new(items);
+	}
+	
+	return (items != NULL);
+}
+
+void
+poppler_font_info_free (PopplerFontInfo *font_info)
+{
+	g_return_if_fail (font_info != NULL);
+
+	delete font_info->scanner;
+
+	g_object_unref (font_info->document);
 }
 
 /**

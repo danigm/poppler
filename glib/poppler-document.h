@@ -103,6 +103,19 @@ PopplerIndexIter *poppler_index_iter_get_child  (PopplerIndexIter  *parent);
 PopplerAction    *poppler_index_iter_get_action (PopplerIndexIter  *iter);
 gboolean          poppler_index_iter_next       (PopplerIndexIter  *iter);
 
+/* Interface for getting the Fonts of a poppler_document */
+PopplerFontInfo  *poppler_font_info_new         (PopplerDocument   *document);
+gboolean          poppler_font_info_scan        (PopplerFontInfo   *font_info,
+						 int                n_pages,
+						 PopplerFontsIter **iter);
+void		  poppler_font_info_free	(PopplerFontInfo   *font_info);
+
+GType             poppler_fonts_iter_get_type   (void) G_GNUC_CONST;
+PopplerFontsIter *poppler_fonts_iter_copy       (PopplerFontsIter  *iter);
+void              poppler_fonts_iter_free       (PopplerFontsIter  *iter);
+const char       *poppler_fonts_iter_get_name   (PopplerFontsIter  *iter);
+gboolean          poppler_fonts_iter_next       (PopplerFontsIter  *iter);
+
 /* Export to ps */
 PopplerPSFile *poppler_ps_file_new   (PopplerDocument *document,
 				      const char      *filename,

@@ -15,6 +15,8 @@ print_document_info (PopplerDocument *document)
   PopplerPageLayout layout;
   PopplerPageMode mode;
   PopplerViewerPreferences view_prefs;
+  PopplerFontInfo *font_info;
+  PopplerFontsIter *fonts_iter;
   GEnumValue *enum_value;
 
   g_object_get (document,
@@ -52,6 +54,18 @@ print_document_info (PopplerDocument *document)
 
   g_print ("\tcreation date:\t%d\n", creation_date);
   g_print ("\tmodified date:\t%d\n", mod_date);
+
+  g_print ("\tfonts:\n");
+  font_info = poppler_font_info_new (document);
+  while (poppler_font_info_scan (font_info, 20, &fonts_iter)) {
+    if (fonts_iter) {
+      do {
+        g_print ("\t\t\t%s\n", poppler_fonts_iter_get_name (fonts_iter));
+      } while (poppler_fonts_iter_next (fonts_iter));
+      poppler_fonts_iter_free (fonts_iter);
+    }
+  }
+  poppler_font_info_free (font_info);
 
   /* FIXME: print out the view prefs when we support it */
 

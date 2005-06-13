@@ -5,6 +5,7 @@
 #include <PDFDoc.h>
 #include <PSOutputDev.h>
 #include <Link.h>
+#include <FontInfo.h>
 
 #if defined (HAVE_CAIRO)
 #include <CairoOutputDevImage.h>
@@ -28,6 +29,12 @@ struct _PopplerPSFile
 {
   PopplerDocument *document;
   PSOutputDev *out;
+};
+
+struct _PopplerFontInfo
+{
+  PopplerDocument *document;
+  FontInfoScanner *scanner;
 };
 
 struct _PopplerPage

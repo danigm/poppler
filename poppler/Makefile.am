@@ -92,6 +92,7 @@ poppler_include_HEADERS =	\
 	Dict.h			\
 	Error.h			\
 	FontEncodingTables.h	\
+	FontInfo.h		\
 	Function.cc		\
 	Function.h		\
 	Gfx.h			\
@@ -143,6 +144,7 @@ libpoppler_la_SOURCES =		\
 	Dict.cc 		\
 	Error.cc 		\
 	FontEncodingTables.cc	\
+	FontInfo.cc		\
 	Function.cc		\
 	Gfx.cc 			\
 	GfxFont.cc 		\
