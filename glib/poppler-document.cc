@@ -699,6 +699,15 @@ unicode_to_char (Unicode *unicode,
 	return g_strdup (gstr.getCString ());
 }
 
+gboolean
+poppler_index_iter_is_open (PopplerIndexIter *iter)
+{
+	OutlineItem *item;
+
+	item = (OutlineItem *)iter->items->get (iter->index);
+
+	return item->isOpen();
+}
 
 PopplerAction *
 poppler_index_iter_get_action (PopplerIndexIter  *iter)

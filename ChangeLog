@@ -1,3 +1,9 @@
+2005-06-15  Kristian Høgsberg  <krh@redhat.com>
+
+	* glib/poppler-document.cc:
+	* glib/poppler-document.h: Patch from Marco to get initial status
+	(open or closed) for bookmark subtrees.
+
 2005-06-13  Kristian Høgsberg  <krh@redhat.com>
 
 	* glib/poppler-document.cc:

@@ -100,6 +100,7 @@ PopplerIndexIter *poppler_index_iter_copy       (PopplerIndexIter  *iter);
 void              poppler_index_iter_free       (PopplerIndexIter  *iter);
 
 PopplerIndexIter *poppler_index_iter_get_child  (PopplerIndexIter  *parent);
+gboolean	  poppler_index_iter_is_open    (PopplerIndexIter  *iter);
 PopplerAction    *poppler_index_iter_get_action (PopplerIndexIter  *iter);
 gboolean          poppler_index_iter_next       (PopplerIndexIter  *iter);
 
