@@ -1,3 +1,8 @@
+2005-06-17  Kristian Høgsberg  <krh@redhat.com>
+
+	* autogen.sh: Patch from Emil Soleyman-Zomalan to enable checks
+	for automake >= 1.7 (#3554).
+
 2005-06-15  Kristian Høgsberg  <krh@redhat.com>
 
 	* glib/poppler-document.cc:
