@@ -1,3 +1,13 @@
+Release 0.3.3
+
+	- New glib API to get document font information (Marco).
+	- More document properties available as glib properties (Emil
+	  Soleyman-Zomalan, #3359)
+	- Optimize color conversion for images.
+	- Support for constant opacity.
+	- Fix problems with pkg-config files.
+	- Bugs fixes: #3491, #2911, #3362, #3340, #3265, #3239, #3396.
+
 Release 0.3.2
 
 	- New API to get poppler version and backend type. 

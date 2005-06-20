@@ -1,7 +1,7 @@
 dnl Based on Xpdf configure.in and evince configure.ac
 
 AC_PREREQ(2.59)
-AC_INIT(poppler, 0.3.2)
+AC_INIT(poppler, 0.3.3)
 AM_INIT_AUTOMAKE(AC_PACKAGE_NAME, AC_PACKAGE_VERSION)
 AM_CONFIG_HEADER(config.h)
 AM_CONFIG_HEADER(poppler/poppler-config.h)

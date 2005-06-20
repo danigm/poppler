@@ -1,3 +1,12 @@
+2005-06-20  Kristian Høgsberg  <krh@redhat.com>
+
+	* NEWS:
+	* configure.ac: Bump version to 0.3.3 and sum up changes since
+	last release.
+
+	* glib/poppler-page.cc (poppler_page_find_text): Initialize xMin
+	and yMin to avoid referencing unintialized memory (#3582).
+
 2005-06-20  Martin Kretzschmar  <martink@gnome.org>
 
 	* glib/poppler-document.cc (info_dict_get_string): convert

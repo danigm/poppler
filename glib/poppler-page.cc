@@ -460,6 +460,8 @@ poppler_page_find_text (PopplerPage *page,
 		       gTrue, NULL, doc->getCatalog());
   
   matches = NULL;
+  xMin = 0;
+  yMin = 0;
   while (output_dev->findText (ucs4, ucs4_len,
 			       gFalse, gTrue, // startAtTop, stopAtBottom
 			       gTrue, gFalse, // startAtLast, stopAtLast
