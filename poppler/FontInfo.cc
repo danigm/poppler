@@ -101,13 +101,14 @@ void FontInfoScanner::scanFonts(Dict *resDict, GooList *fontsList) {
   }
   if (gfxFontDict) {
     for (i = 0; i < gfxFontDict->getNumFonts(); ++i) {
+      int k;
       if ((font = gfxFontDict->getFont(i))) {
         Ref fontRef = *font->getID();
 	GBool alreadySeen = gFalse;
 
         // check for an already-seen font
-        for (i = 0; i < fontsLen; ++i) {
-          if (fontRef.num == fonts[i].num && fontRef.gen == fonts[i].gen) {
+        for (k = 0; k < fontsLen; ++k) {
+          if (fontRef.num == fonts[k].num && fontRef.gen == fonts[k].gen) {
             alreadySeen = gTrue;
           }
         }
@@ -147,6 +148,7 @@ void FontInfoScanner::scanFonts(Dict *resDict, GooList *fontsList) {
 }
 
 FontInfo::FontInfo(GfxFont *font, PDFDoc *doc) {
+  GooString *origName;
   Ref embRef;
   Object fontObj, toUnicodeObj;
   int i;
@@ -154,7 +156,12 @@ FontInfo::FontInfo(GfxFont *font, PDFDoc *doc) {
   fontRef = *font->getID();
 
   // font name
-  name = font->getOrigName()->copy();
+  origName = font->getOrigName();
+  if (origName != NULL) {
+    name = font->getOrigName()->copy();
+  } else {
+    name = NULL;
+  }
 
   // check for an embedded font
   if (font->getType() == fontType3) {

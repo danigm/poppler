@@ -777,11 +777,17 @@ poppler_fonts_iter_get_type (void)
 const char *
 poppler_fonts_iter_get_name (PopplerFontsIter *iter)
 {
+	GooString *name;
 	FontInfo *info;
 
 	info = (FontInfo *)iter->items->get (iter->index);
 
-	return info->getName()->getCString();
+	name = info->getName();
+	if (name != NULL) {
+		return info->getName()->getCString();
+	} else {
+		return NULL;
+	}
 }
 
 gboolean

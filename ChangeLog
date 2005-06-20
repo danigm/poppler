@@ -1,5 +1,11 @@
 2005-06-20  Kristian Høgsberg  <krh@redhat.com>
 
+	* glib/poppler-document.cc:
+	* poppler/FontInfo.cc: Fixes from Marco to handle fonts without
+	name (typically type 3 fonts) and fix an iterator bug.
+
+2005-06-20  Kristian Høgsberg  <krh@redhat.com>
+
 	* glib/poppler-page.cc (poppler_page_get_link_mapping): Adjust
 	link coordinates so they're relative to bounding box lower left
 	corner (#3396).
