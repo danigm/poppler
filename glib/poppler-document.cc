@@ -27,6 +27,7 @@
 #include <SplashOutputDev.h>
 #include <Stream.h>
 #include <FontInfo.h>
+#include <PDFDocEncoding.h>
 
 #include "poppler.h"
 #include "poppler-private.h"
@@ -219,7 +220,20 @@ info_dict_get_string (Dict *info_dict, const gchar *key, GValue *value)
 			goo_value->getLength () - 2,
 			"UTF-8", "UTF-16BE", NULL, NULL, NULL);
   } else {
-    result = g_strndup (goo_value->getCString (), goo_value->getLength ());
+    int len;
+    gunichar *ucs4_temp;
+    int i;
+    
+    len = goo_value->getLength ();
+    ucs4_temp = g_new (gunichar, len + 1);
+    for (i = 0; i < len; ++i) {
+      ucs4_temp[i] = pdfDocEncoding[(unsigned char)goo_value->getChar(i)];
+    }
+    ucs4_temp[i] = 0;
+
+    result = g_ucs4_to_utf8 (ucs4_temp, -1, NULL, NULL, NULL);
+
+    g_free (ucs4_temp);
   }
 
   obj.free ();

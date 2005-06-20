@@ -1,3 +1,8 @@
+2005-06-20  Martin Kretzschmar  <martink@gnome.org>
+
+	* glib/poppler-document.cc (info_dict_get_string): convert
+	from PDFDocEncoding to UTF-8.
+
 2005-06-20  Kristian Høgsberg  <krh@redhat.com>
 
 	* glib/poppler-page.cc:
