@@ -1,3 +1,9 @@
+2005-06-20  Kristian Høgsberg  <krh@redhat.com>
+
+	* glib/poppler-page.cc (poppler_page_get_link_mapping): Adjust
+	link coordinates so they're relative to bounding box lower left
+	corner (#3396).
+
 2005-06-17  Kristian Høgsberg  <krh@redhat.com>
 
 	* autogen.sh: Patch from Emil Soleyman-Zomalan to enable checks

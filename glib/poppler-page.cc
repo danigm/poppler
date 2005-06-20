@@ -588,6 +588,12 @@ poppler_page_get_link_mapping (PopplerPage *page)
 		mapping->action = _poppler_action_new (page->document, link_action, NULL);
 		link->getRect (&(mapping->area.x1), &(mapping->area.y1),
 			       &(mapping->area.x2), &(mapping->area.y2));
+
+		mapping->area.x1 -= page->page->getBox()->x1;
+		mapping->area.x2 -= page->page->getBox()->x1;
+		mapping->area.y1 -= page->page->getBox()->y1;
+		mapping->area.y2 -= page->page->getBox()->y1;
+
 		map_list = g_list_prepend (map_list, mapping);
 	}
 
