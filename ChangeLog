@@ -1,5 +1,12 @@
 2005-06-20  Kristian Høgsberg  <krh@redhat.com>
 
+	* glib/poppler-page.cc:
+	* glib/poppler-page.h:
+	* glib/poppler.h: Clean up glib rotation implementation and add a
+	getter for rotation.  Patch from Marco.
+
+2005-06-20  Kristian Høgsberg  <krh@redhat.com>
+
 	* glib/poppler-document.cc:
 	* poppler/FontInfo.cc: Fixes from Marco to handle fonts without
 	name (typically type 3 fonts) and fix an iterator bug.

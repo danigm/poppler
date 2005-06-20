@@ -46,27 +46,6 @@ struct _PopplerPageClass
 
 G_DEFINE_TYPE (PopplerPage, poppler_page, G_TYPE_OBJECT);
 
-PopplerPage *
-_poppler_page_new (PopplerDocument *document, Page *page, int index)
-{
-  PopplerPage *poppler_page;
-
-  g_return_val_if_fail (POPPLER_IS_DOCUMENT (document), NULL);
-
-  poppler_page = (PopplerPage *) g_object_new (POPPLER_TYPE_PAGE, NULL);
-  poppler_page->document = document;
-  poppler_page->page = page;
-  poppler_page->index = index;
-
-  return poppler_page;
-}
-
-static void
-poppler_page_finalize (GObject *object)
-{
-  /* page->page is owned by the document */
-}
-
 static PopplerOrientation
 get_document_orientation (PopplerPage *page)
 {
@@ -88,6 +67,28 @@ get_document_orientation (PopplerPage *page)
   }
 
   return orientation;
+}
+
+PopplerPage *
+_poppler_page_new (PopplerDocument *document, Page *page, int index)
+{
+  PopplerPage *poppler_page;
+
+  g_return_val_if_fail (POPPLER_IS_DOCUMENT (document), NULL);
+
+  poppler_page = (PopplerPage *) g_object_new (POPPLER_TYPE_PAGE, NULL);
+  poppler_page->document = document;
+  poppler_page->page = page;
+  poppler_page->index = index;
+  poppler_page->orientation = get_document_orientation (poppler_page);
+
+  return poppler_page;
+}
+
+static void
+poppler_page_finalize (GObject *object)
+{
+  /* page->page is owned by the document */
 }
 
 static int
@@ -120,18 +121,11 @@ poppler_page_get_size (PopplerPage *page,
 		       double      *width,
 		       double      *height)
 {
-  PopplerOrientation orientation;
   double page_width, page_height;
 
   g_return_if_fail (POPPLER_IS_PAGE (page));
 
-  if (page->orientation == POPPLER_ORIENTATION_DOCUMENT) {
-    orientation = get_document_orientation (page);
-  } else {
-    orientation = page->orientation;
-  }
-
-  switch (orientation) {
+  switch (page->orientation) {
     case POPPLER_ORIENTATION_PORTRAIT:
     case POPPLER_ORIENTATION_UPSIDEDOWN:
       page_width = page->page->getWidth ();
@@ -544,7 +538,6 @@ poppler_page_class_init (PopplerPageClass *klass)
 static void
 poppler_page_init (PopplerPage *page)
 {
-  page->orientation = POPPLER_ORIENTATION_DOCUMENT;
 }
 
 
@@ -643,6 +636,22 @@ poppler_page_set_orientation (PopplerPage        *page,
   page->orientation = orientation;
 }
 
+/**
+ * poppler_page_get_orientation:
+ * @page: a #PopplerPage
+ * @orientation: a #PopplerOrientation
+ *
+ * Return the orientation of the specified page
+ *
+ * Return value: a #PopplerOrientation
+ **/
+PopplerOrientation
+poppler_page_get_orientation (PopplerPage *page)
+{
+  g_return_val_if_fail (POPPLER_IS_PAGE (page), POPPLER_ORIENTATION_PORTRAIT);
+
+  return page->orientation;
+}
 /* PopplerRectangle type */
 
 GType

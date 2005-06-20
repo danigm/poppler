@@ -32,34 +32,35 @@ G_BEGIN_DECLS
 #define POPPLER_IS_PAGE(obj)          (G_TYPE_CHECK_INSTANCE_TYPE ((obj), POPPLER_TYPE_PAGE))
 
 
-GType      poppler_page_get_type         (void) G_GNUC_CONST;
-void       poppler_page_render_to_pixbuf   (PopplerPage        *page,
-					    int                 src_x,
-					    int                 src_y,
-					    int                 src_width,
-					    int                 src_height,
-					    double              scale,
-					    GdkPixbuf          *pixbuf,
-					    int                 dest_x,
-					    int                 dest_y);
-void       poppler_page_get_size           (PopplerPage        *page,
-					    double             *width,
-					    double             *height);
-void       poppler_page_set_orientation    (PopplerPage        *page,
-					    PopplerOrientation  orientation);
-int        poppler_page_get_index          (PopplerPage        *page);
-GdkPixbuf *poppler_page_get_thumbnail      (PopplerPage        *page);
-gboolean   poppler_page_get_thumbnail_size (PopplerPage        *page,
-					    int                *width,
-					    int                *height);
-GList     *poppler_page_find_text          (PopplerPage        *page,
-					    const  char        *text);
-void       poppler_page_render_to_ps       (PopplerPage        *page,
-					    PopplerPSFile      *ps_file);
-char      *poppler_page_get_text           (PopplerPage        *page,
-					    PopplerRectangle   *rect);
-GList     *poppler_page_get_link_mapping   (PopplerPage        *page);
-void       poppler_page_free_link_mapping  (GList              *list);
+GType      	    poppler_page_get_type           (void) G_GNUC_CONST;
+void		    poppler_page_render_to_pixbuf   (PopplerPage        *page,
+					             int                 src_x,
+					             int                 src_y,
+					             int                 src_width,
+					             int                 src_height,
+					             double              scale,
+					             GdkPixbuf          *pixbuf,
+					             int                 dest_x,
+					             int                 dest_y);
+void		    poppler_page_get_size           (PopplerPage        *page,
+					    	     double             *width,
+					             double             *height);
+PopplerOrientation  poppler_page_get_orientation    (PopplerPage        *page);
+void		    poppler_page_set_orientation    (PopplerPage        *page,
+					             PopplerOrientation  orientation);
+int		    poppler_page_get_index          (PopplerPage        *page);
+GdkPixbuf          *poppler_page_get_thumbnail      (PopplerPage        *page);
+gboolean   	    poppler_page_get_thumbnail_size (PopplerPage        *page,
+					    	     int                *width,
+					             int                *height);
+GList     	   *poppler_page_find_text          (PopplerPage        *page,
+					             const  char        *text);
+void                poppler_page_render_to_ps       (PopplerPage        *page,
+					             PopplerPSFile      *ps_file);
+char               *poppler_page_get_text           (PopplerPage        *page,
+					             PopplerRectangle   *rect);
+GList              *poppler_page_get_link_mapping   (PopplerPage        *page);
+void                poppler_page_free_link_mapping  (GList              *list);
 
 
 /* A rectangle on a page, with coordinates in PDF points. */
