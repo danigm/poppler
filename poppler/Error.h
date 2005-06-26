@@ -13,7 +13,7 @@
 #pragma interface
 #endif
 
-#include <stdio.h>
+#include <stdarg.h>
 #include "poppler-config.h"
 
 extern void CDECL error(int pos, char *msg, ...);

@@ -1,3 +1,7 @@
+2005-06-25  Jeff Muizelaar  <jeff@infidigm.net>
+
+	* poppler/Error.h: Maybe fix build on Solaris.
+
 2005-06-20  Kristian Høgsberg  <krh@redhat.com>
 
 	* NEWS:
