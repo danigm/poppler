@@ -1,3 +1,8 @@
+2005-06-26  Martin Kretzschmar  <martink@gnome.org>
+
+	* configure.ac: require glib 2.4+ for g_value_take_string and
+	G_DEFINE_TYPE.
+
 2005-06-25  Jeff Muizelaar  <jeff@infidigm.net>
 
 	* poppler/Error.h: Maybe fix build on Solaris.
