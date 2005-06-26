@@ -1,8 +1,10 @@
-.deps
-.libs
 *.la
 *.lo
+.deps
+.libs
 Makefile
 Makefile.in
-test-poppler-glib
+poppler-enums.c
+poppler-enums.h
 stamp-*
+test-poppler-glib

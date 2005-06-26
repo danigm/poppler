@@ -1,5 +1,7 @@
 2005-06-26  Martin Kretzschmar  <martink@gnome.org>
 
+	* glib/.cvsignore: add poppler-enums.[ch].
+
 	* configure.ac: require glib 2.4+ for g_value_take_string and
 	G_DEFINE_TYPE.
 
