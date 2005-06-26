@@ -1,5 +1,6 @@
 /* poppler-page.cc: qt interface to poppler
  * Copyright (C) 2005, Net Integration Technologies, Inc.
+ * Copyright (C) 2005, Tobias Koening
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,20 +31,127 @@
 
 namespace Poppler {
 
+class PageTransitionData {
+  public:
+  Object *trans;
+};
+
+//------------------------------------------------------------------------
+// PageTransition
+//------------------------------------------------------------------------
+
+PageTransition::PageTransition(const PageTransitionData &data)
+  : type(Replace),
+    duration(1),
+    alignment(Horizontal),
+    direction(Inward),
+    angle(0),
+    scale(1.0),
+    rectangular(false)
+{
+  Object obj;
+  Object *dictObj = data.trans;
+
+  if (dictObj->isDict()) {
+    Dict *transDict = dictObj->getDict();
+
+    if (transDict->lookup("S", &obj)->isName()) {
+      const char *s = obj.getName();
+      if (strcmp("R", s) == 0)
+        type = Replace;
+      else if (strcmp("Split", s) == 0)
+        type = Split;
+      else if (strcmp("Blinds", s) == 0)
+        type = Blinds;
+      else if (strcmp("Box", s) == 0)
+        type = Box;
+      else if (strcmp("Wipe", s) == 0)
+        type = Wipe;
+      else if (strcmp("Dissolve", s) == 0)
+        type = Dissolve;
+      else if (strcmp("Glitter", s) == 0)
+        type = Glitter;
+      else if (strcmp("Fly", s) == 0)
+        type = Fly;
+      else if (strcmp("Push", s) == 0)
+        type = Push;
+      else if (strcmp("Cover", s) == 0)
+        type = Cover;
+      else if (strcmp("Uncover", s) == 0)
+        type = Push;
+      else if (strcmp("Fade", s) == 0)
+        type = Cover;
+    }
+    obj.free();
+
+    if (transDict->lookup("D", &obj)->isInt()) {
+      duration = obj.getInt();
+    }
+    obj.free();
+
+    if (transDict->lookup("Dm", &obj)->isName()) {
+      const char *dm = obj.getName();
+      if ( strcmp( "H", dm ) == 0 )
+        alignment = Horizontal;
+      else if ( strcmp( "V", dm ) == 0 )
+        alignment = Vertical;
+    }
+    obj.free();
+
+    if (transDict->lookup("M", &obj)->isName()) {
+      const char *m = obj.getName();
+      if ( strcmp( "I", m ) == 0 )
+        direction = Inward;
+      else if ( strcmp( "O", m ) == 0 )
+        direction = Outward;
+    }
+    obj.free();
+
+    if (transDict->lookup("Di", &obj)->isInt()) {
+      angle = obj.getInt();
+    }
+    obj.free();
+
+    if (transDict->lookup("Di", &obj)->isName()) {
+      if ( strcmp( "None", obj.getName() ) == 0 )
+        angle = 0;
+    }
+    obj.free();
+
+    if (transDict->lookup("SS", &obj)->isReal()) {
+      scale = obj.getReal();
+    }
+    obj.free();
+
+    if (transDict->lookup("B", &obj)->isBool()) {
+      rectangular = obj.getBool();
+    }
+    obj.free();
+  }
+}
+
+PageTransition::~PageTransition()
+{
+}
+
+
 class PageData {
   public:
   const Document *doc;
   int index;
+  PageTransition *transition;
 };
 
 Page::Page(const Document *doc, int index) {
   data = new PageData();
   data->index = index;
   data->doc = doc;
+  data->transition = 0;
 }
 
 Page::~Page()
 {
+  delete data->transition;
   delete data;
 }
 
@@ -103,6 +211,19 @@ QString Page::getText(const Rectangle &r) const
   delete output_dev;
   delete s;
   return result;
+}
+
+PageTransition *Page::getTransition() const
+{
+  if (!data->transition) 
+  {
+    Object o;
+    PageTransitionData ptd;
+    ptd.trans = data->doc->data->doc.getCatalog()->getPage(data->index + 1)->getTrans(&o);
+    data->transition = new PageTransition(ptd);
+    o.free();
+  }
+  return data->transition;
 }
 
 }

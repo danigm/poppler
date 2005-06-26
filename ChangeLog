@@ -1,3 +1,8 @@
+2005-06-26  Albert Astals Cid <aacid@kde.org>
+	* qt/poppler-page.cc:
+	* qt/poppler-page.h: Add PageTransition class and 
+	PageTransition* Page::getTransition() const; to the qt frontend.
+
 2005-06-26  Martin Kretzschmar  <martink@gnome.org>
 
 	* glib/.cvsignore: add poppler-enums.[ch].
