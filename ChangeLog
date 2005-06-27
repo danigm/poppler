@@ -1,3 +1,10 @@
+2005-06-26  Kristian Høgsberg  <krh@redhat.com>
+
+	* poppler/CairoOutputDev.cc:
+	* poppler/CairoOutputDev.h: Switch back to using drawChar() for
+	text, but utilize the beginString() and endString() hooks so we
+	can use cairo_show_glyphs() efficiently.
+
 2005-06-26  Albert Astals Cid <aacid@kde.org>
 	* qt/poppler-page.cc:
 	* qt/poppler-page.h: Add PageTransition class and 
