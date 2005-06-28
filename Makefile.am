@@ -17,7 +17,12 @@ qt_subdir = qt
 qt_pc_file = poppler-qt.pc
 endif
 
-SUBDIRS = goo fofi $(splash_subdir) poppler $(glib_subdir) $(qt_subdir) test
+if BUILD_POPPLER_QT4
+qt4_subdir = qt4
+qt4_pc_file = poppler-qt4.pc
+endif
+
+SUBDIRS = goo fofi $(splash_subdir) poppler $(glib_subdir) $(qt_subdir) test $(qt4_subdir)
 
 EXTRA_DIST =					\
 	README-XPDF				\
@@ -32,4 +37,5 @@ pkgconfig_DATA =				\
 	$(cairo_pc_file)			\
 	$(splash_pc_file)			\
 	$(glib_pc_file)				\
-	$(qt_pc_file)
+	$(qt_pc_file)                           \
+	$(qt4_pc_file)

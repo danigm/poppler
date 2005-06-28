@@ -1,3 +1,15 @@
+2005-06-28  Brad Hards  <bradh@frogmouth.net>
+
+	* qt4/:
+	* Makefile.am:
+	* configure.ac:
+	* poppler-qt4.pc.in: Initial import of Qt4 bindings, based
+	on the Qt3 bindings. API is still in flux.
+
+	* poppler/AuthurOutputDev.[cc,h]:
+	* poppler/Makefile.am: Initial import of Qt4 backend renderer. 
+	Incomplete at this stage.
+
 2005-06-27  Kristian Høgsberg  <krh@redhat.com>
 
 	* poppler/CairoOutputDev.cc:

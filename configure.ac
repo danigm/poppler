@@ -295,6 +295,93 @@ elif test x$enable_poppler_qt = xtry; then
 fi
 AM_CONDITIONAL(BUILD_POPPLER_QT, test x$enable_poppler_qt = xyes)
 
+dnl 
+dnl Try Qt4
+dnl
+AC_ARG_ENABLE(poppler-qt4,
+	      AC_HELP_STRING([--disable-poppler-qt4],
+			     [Don't compile poppler Qt4 wrapper.]),
+	      enable_poppler_qt4=$enableval,
+	      enable_poppler_qt4="try")
+
+have_qt4=no
+dnl ===================================================================
+dnl Check whether the Qt4 libraries are available.
+dnl Adapted from Qt3 check above!
+dnl ===================================================================
+
+dnl Search paths for Qt4 - not much real experience with this yet.
+qt4_incdirs="/usr/local/qt/include /usr/include/qt /usr/include /usr/X11R6/include/X11/qt /usr/X11R6/include/qt /usr/lib/qt/include"
+qt4_libdirs="/usr/local/qt/lib /usr/lib/qt /usr/lib /usr/X11R6/lib/X11/qt /usr/X11R6/lib/qt /usr/lib/qt/lib"
+
+if test -n "$QTDIR" ; then
+    qt4_incdirs="$QTDIR/include $qt4_incdirs"
+    qt4_libdirs="$QTDIR/lib $qt4_libdirs"
+fi
+
+dnl What to test
+qt4_test_include="QtCore/QCoreApplication"
+qt4_test_la_library="libQtCore.la"
+qt4_test_library="libQtCore.so"
+
+dnl Check for Qt4 headers
+AC_MSG_CHECKING([for Qt4 headers])
+qt4_incdir="no"
+for it in $qt4_incdirs ; do
+    if test -r "$it/$qt4_test_include" ; then
+        qt4_incdir="$it"
+        break
+    fi
+done
+AC_MSG_RESULT([$qt4_incdir])
+
+dnl Check for Qt4 libraries
+AC_MSG_CHECKING([for Qt4 libraries])
+qt4_libdir="no"
+for qt4_check in $qt4_libdirs ; do
+    if test -r "$qt4_check/$qt4_test_la_library" ; then
+        qt4_libdir="$qt4_check"
+        break
+    fi
+
+    if test -r "$qt4_check/$qt4_test_library" ; then
+        qt4_libdir="$qt4_check"
+        break
+    fi
+done
+AC_MSG_RESULT([$qt4_libdir])
+
+if test "x$qt4_libdir" != "xno" ; then
+    if test "x$qt4_incdir" != "xno" ; then
+        have_qt4=yes;
+    fi
+fi
+
+dnl Set the variables
+POPPLER_QT4_CXXFLAGS="-I$qt4_incdir"
+POPPLER_QT4_LIBS="-L$qt4_libdir -lQtCore -lQtGui"
+
+AC_SUBST(POPPLER_QT4_CXXFLAGS)
+AC_SUBST(POPPLER_QT4_LIBS)
+
+if test x$have_qt4 = xno ; then
+    AC_MSG_WARN([Qt4 development libraries not found])
+fi
+
+if test x$enable_poppler_qt4 = xyes; then
+  if test x$have_qt4 = xno; then
+    AC_MSG_ERROR([Qt4 integration explicitly required, and Qt4 libraries not found])
+  fi
+elif test x$enable_poppler_qt4 = xtry; then
+  if test x$have_qt4 = xyes; then
+    enable_poppler_qt4="yes"
+  else
+    enable_poppler_qt4="no"
+  fi
+fi
+AM_CONDITIONAL(BUILD_POPPLER_QT4, test x$enable_poppler_qt4 = xyes)
+
+
 AC_ARG_ENABLE(gtk-test,
               AC_HELP_STRING([--disable-gtk-test],
 	                     [Don't compile GTK+ test program.]),
@@ -339,11 +426,15 @@ poppler/Makefile
 glib/Makefile
 test/Makefile
 qt/Makefile
+qt4/Makefile
+qt4/src/Makefile
+qt4/tests/Makefile
 poppler.pc
 poppler-cairo.pc
 poppler-splash.pc
 poppler-glib.pc
-poppler-qt.pc])
+poppler-qt.pc
+poppler-qt4.pc])
 
 
 echo ""
@@ -351,6 +442,7 @@ echo "Building poppler with support for:"
 echo "  splash output: $enable_splash_output"
 echo "  cairo output:  $enable_cairo_output"
 echo "  qt wrapper:    $enable_poppler_qt"
+echo "  qt4 wrapper:   $enable_poppler_qt4"
 echo "  glib wrapper:  $enable_poppler_glib"
 echo "  use libjpeg:   $enable_libjpeg"
 echo "  use zlib:      $enable_zlib"

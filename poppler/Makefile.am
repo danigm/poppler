@@ -15,6 +15,22 @@ splash_libs =					\
 
 endif
 
+if BUILD_POPPLER_QT4
+
+arthur_headers =				\
+	ArthurOutputDev.h
+
+arthur_sources =				\
+	ArthurOutputDev.cc
+
+arthur_includes =				\
+	$(POPPLER_QT4_CXXFLAGS)
+
+arthur_libs =					\
+	$(POPPLER_QT4_LIBS)
+
+endif
+
 
 if BUILD_CAIRO_OUTPUT
 
@@ -60,6 +76,7 @@ INCLUDES =					\
 	-I$(top_srcdir)				\
 	$(splash_includes)			\
 	$(cairo_includes)			\
+	$(arthur_includes)			\
 	-DDATADIR=\""$(datadir)"\"
 
 lib_LTLIBRARIES = libpoppler.la
@@ -69,6 +86,7 @@ libpoppler_la_LIBADD =				\
 	$(top_builddir)/fofi/libfofi.la		\
 	$(splash_libs)				\
 	$(cairo_libs)				\
+	$(arthur_libs)				\
 	$(libjpeg_libs)				\
 	$(zlib_libs)
 
@@ -76,6 +94,7 @@ poppler_includedir = $(includedir)/poppler
 poppler_include_HEADERS =	\
 	$(splash_headers)	\
 	$(cairo_headers)	\
+	$(arthur_headers)	\
 	Annot.h			\
 	Array.h			\
 	BaseFile.h		\
@@ -127,6 +146,7 @@ poppler_include_HEADERS =	\
 libpoppler_la_SOURCES =		\
 	$(splash_sources)	\
 	$(cairo_sources)	\
+	$(arthur_sources)	\
 	$(libjpeg_sources)	\
 	$(zlib_sources)		\
 	Annot.cc		\
