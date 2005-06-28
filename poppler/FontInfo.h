@@ -15,12 +15,14 @@ public:
   ~FontInfo();
 
   GooString *getName()      { return name; };
+  GooString *getType()      { return type; };
   GBool      getEmbedded()  { return emb; };
   GBool      getSubset()    { return subset; };
   GBool      getToUnicode() { return hasToUnicode; };
 
 private:
   GooString *name;
+  GooString *type;
   GBool emb;
   GBool subset;
   GBool hasToUnicode;

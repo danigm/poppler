@@ -162,6 +162,9 @@ FontInfo::FontInfo(GfxFont *font, PDFDoc *doc) {
   } else {
     name = NULL;
   }
+  
+  // font type
+  type = new GooString(fontTypeNames[font->getType()]);
 
   // check for an embedded font
   if (font->getType() == fontType3) {
@@ -201,4 +204,5 @@ FontInfo::FontInfo(FontInfo& f) {
 
 FontInfo::~FontInfo() {
   delete name;
+  delete type;
 }
