@@ -196,6 +196,7 @@ FontInfo::FontInfo(GfxFont *font, PDFDoc *doc) {
 
 FontInfo::FontInfo(FontInfo& f) {
   name = f.name->copy();
+  type = f.type->copy();
   emb = f.emb;
   subset = f.subset;
   hasToUnicode = f.hasToUnicode;
