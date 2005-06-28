@@ -18,6 +18,7 @@ missing
 poppler-cairo.pc
 poppler-glib.pc
 poppler-qt.pc
+poppler-qt4.pc
 poppler-splash.pc
 poppler.pc
 stamp-h1

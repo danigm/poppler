@@ -1,3 +1,10 @@
+2005-06-28  Brad Hards  <bradh@rachel>
+
+	* .cvsignore:
+	* qt4/.cvsignore:
+	* qt4/src/.cvsignore:
+	* qt4/tests/.cvsignore: update to reflect the Qt4 bindings.
+
 2005-06-28  Brad Hards  <bradh@frogmouth.net>
 
 	* qt4/:
