@@ -48,20 +48,27 @@
 // CairoOutputDev
 //------------------------------------------------------------------------
 
-CairoOutputDev::CairoOutputDev(void) {
+CairoOutputDev::CairoOutputDev() {
   xref = NULL;
 
   FT_Init_FreeType(&ft_lib);
   fontEngine = NULL;
+  surface = NULL;
 }
 
 CairoOutputDev::~CairoOutputDev() {
   if (fontEngine) {
     delete fontEngine;
   }
-  cairo_destroy (cairo);
   FT_Done_FreeType(ft_lib);
+  cairo_surface_destroy (surface);
+}
 
+void CairoOutputDev::setSurface(cairo_surface_t *surface)
+{
+  cairo_surface_destroy (this->surface);
+  cairo_surface_reference (surface);
+  this->surface = surface;
 }
 
 void CairoOutputDev::startDoc(XRef *xrefA) {
@@ -73,20 +80,11 @@ void CairoOutputDev::startDoc(XRef *xrefA) {
 }
 
 void CairoOutputDev::startPage(int pageNum, GfxState *state) {
-  cairo_destroy (cairo);
-  createCairo (state);
-  
-  cairo_reset_clip (cairo);
-  cairo_set_source_rgb (cairo, 0, 0, 0);
-  cairo_set_operator (cairo, CAIRO_OPERATOR_OVER);
-  cairo_set_line_cap (cairo, CAIRO_LINE_CAP_BUTT);
-  cairo_set_line_join (cairo, CAIRO_LINE_JOIN_MITER);
-  cairo_set_dash (cairo, NULL, 0, 0.0);
-  cairo_set_miter_limit (cairo, 10);
-  //  cairo_set_tolerance (cairo, 1);
+  cairo = cairo_create (surface);
 }
 
 void CairoOutputDev::endPage() {
+  cairo_destroy (cairo);
 }
 
 void CairoOutputDev::drawLink(Link *link, Catalog *catalog) {

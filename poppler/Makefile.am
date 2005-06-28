@@ -20,15 +20,11 @@ if BUILD_CAIRO_OUTPUT
 
 cairo_sources =					\
 	CairoFontEngine.cc			\
-	CairoOutputDev.cc			\
-	CairoOutputDevImage.cc			\
-	CairoOutputDevX.cc
+	CairoOutputDev.cc
 
 cairo_headers =					\
 	CairoFontEngine.h			\
-	CairoOutputDev.h			\
-	CairoOutputDevImage.h			\
-	CairoOutputDevX.h
+	CairoOutputDev.h
 
 cairo_includes =				\
 	$(CAIRO_CFLAGS)

@@ -1,3 +1,20 @@
+2005-06-27  Kristian Høgsberg  <krh@redhat.com>
+
+	* poppler/CairoOutputDev.cc:
+	* poppler/CairoOutputDev.h: Change CairoOutputDev to render to a
+	given surface and let the user create that surface.
+	
+	* glib/poppler-document.cc:
+	* glib/poppler-page.cc:
+	* glib/poppler-private.h: Create the cairo image surface here
+	instead and pass it to the CairoOutputDev for rendering.
+	
+	* poppler/CairoOutputDevImage.cc:
+	* poppler/CairoOutputDevImage.h:
+	* poppler/CairoOutputDevX.cc:
+	* poppler/CairoOutputDevX.h:
+	* poppler/Makefile.am: Remove specialized cairo output devices.
+
 2005-06-26  Kristian Høgsberg  <krh@redhat.com>
 
 	* poppler/CairoOutputDev.cc:

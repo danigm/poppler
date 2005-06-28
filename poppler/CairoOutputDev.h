@@ -36,7 +36,7 @@ class CairoOutputDev: public OutputDev {
 public:
 
   // Constructor.
-  CairoOutputDev(void);
+  CairoOutputDev();
 
   // Destructor.
   virtual ~CairoOutputDev();
@@ -130,8 +130,9 @@ public:
  
   GBool isReverseVideo() { return gFalse; }
   
+  void setSurface (cairo_surface_t *surface);
+
 protected:
-  virtual void createCairo(GfxState *state) = 0;
   void doPath(GfxState *state, GfxPath *path, GBool snapToGrid);
   
   GfxRGB fill_color;
@@ -144,10 +145,9 @@ protected:
 
   FT_Library ft_lib;
   CairoFontEngine *fontEngine;
-  unsigned char *pixels;
-  int pixels_w, pixels_h;
   cairo_t *cairo;
   GBool needFontUpdate;		// set when the font needs to be updated
+  cairo_surface_t *surface;
   cairo_glyph_t *glyphs;
   int glyphCount;
 };

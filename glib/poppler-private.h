@@ -8,7 +8,7 @@
 #include <FontInfo.h>
 
 #if defined (HAVE_CAIRO)
-#include <CairoOutputDevImage.h>
+#include <CairoOutputDev.h>
 #elif defined (HAVE_SPLASH)
 #include <SplashOutputDev.h>
 #endif
@@ -19,7 +19,7 @@ struct _PopplerDocument
   PDFDoc *doc;
 
 #if defined (HAVE_CAIRO)
-  CairoOutputDevImage *output_dev;
+  CairoOutputDev *output_dev;
 #elif defined (HAVE_SPLASH)
   SplashOutputDev *output_dev;
 #endif

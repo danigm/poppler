@@ -165,13 +165,25 @@ cairo_render_to_pixbuf (PopplerPage *page,
 			GdkPixbuf *pixbuf,
 			int dest_x, int dest_y)
 {
-  CairoOutputDevImage *output_dev;
+  CairoOutputDev *output_dev;
   int cairo_width, cairo_height, cairo_rowstride;
   int pixbuf_rowstride, pixbuf_n_channels;
   guchar *pixbuf_data, *cairo_data, *dst;
+  cairo_surface_t *surface;
   int x, y;
 
   output_dev = page->document->output_dev;
+
+  cairo_width = MAX ((int)(page->page->getWidth() * scale + 0.5), 1);
+  cairo_height = MAX ((int)(page->page->getHeight() * scale + 0.5), 1);
+  cairo_rowstride = cairo_width * 4;
+  cairo_data = (guchar *) gmalloc (cairo_height * cairo_rowstride);
+  memset (cairo_data, 0xff, cairo_height * cairo_rowstride);
+  surface = cairo_image_surface_create_for_data(cairo_data,
+						CAIRO_FORMAT_ARGB32,
+	  					cairo_width, cairo_height, 
+						cairo_rowstride);
+  output_dev->setSurface (surface);
 
   page->page->displaySlice(output_dev, 72.0 * scale, 72.0 * scale,
 			   poppler_page_get_rotate (page),
@@ -180,9 +192,6 @@ cairo_render_to_pixbuf (PopplerPage *page,
 			   src_width, src_height,
 			   NULL, /* links */
 			   page->document->doc->getCatalog ());
-
-  output_dev->getBitmap (&cairo_data,
-			 &cairo_width, &cairo_height, &cairo_rowstride);
 
   pixbuf_data = gdk_pixbuf_get_pixels (pixbuf);
   pixbuf_rowstride = gdk_pixbuf_get_rowstride (pixbuf);
@@ -209,6 +218,10 @@ cairo_render_to_pixbuf (PopplerPage *page,
 	  src++;
 	}
     }
+
+  output_dev->setSurface (NULL);
+  cairo_surface_destroy (surface);
+  gfree (cairo_data);
 }
 
 #elif defined (HAVE_SPLASH)
