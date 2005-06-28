@@ -574,16 +574,19 @@ void ArthurOutputDev::drawImage(GfxState *state, Object *ref, Stream *str,
   pattern = cairo_pattern_create_for_surface (image);
   if (pattern == NULL)
     return;
-
+#endif
   ctm = state->getCTM();
-  matrix.xx = ctm[0] / width;
+  /*matrix.xx = ctm[0] / width;
   matrix.xy = -ctm[2] / height;
   matrix.yx = ctm[1] / width;
   matrix.yy = -ctm[3] / height;
   matrix.x0 = ctm[2] + ctm[4];
-  matrix.y0 = ctm[3] + ctm[5];
+  matrix.y0 = ctm[3] + ctm[5];*/
+  matrix.setMatrix(ctm[0] / width, ctm[1] / width, -ctm[2] / height, -ctm[3] / height, ctm[2] + ctm[4], ctm[3] + ctm[5]);
 
-  cairo_matrix_invert (&matrix);
+  //cairo_matrix_invert (&matrix);
+  m_painter->setMatrix(matrix, true);
+#if 0
   cairo_pattern_set_matrix (pattern, &matrix);
 
   cairo_pattern_set_filter (pattern, CAIRO_FILTER_BILINEAR);
@@ -593,7 +596,6 @@ void ArthurOutputDev::drawImage(GfxState *state, Object *ref, Stream *str,
   cairo_pattern_destroy (pattern);
   cairo_surface_destroy (image);
 #endif
-  // TODO - figure out how to apply the matrix
   
   // verify image is correct.
   m_image->save("m_image.png", "PNG");

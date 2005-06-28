@@ -1,3 +1,7 @@
+2005-06-28  Albert Astals Cid <aacid@kde.org>
+	* poppler/ArthurOutputDev.cc: use transformation matrix for image
+	rendering
+
 2005-06-28  Brad Hards  <bradh@rachel>
 
 	* .cvsignore:
