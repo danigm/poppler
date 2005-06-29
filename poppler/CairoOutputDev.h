@@ -146,7 +146,7 @@ protected:
   FT_Library ft_lib;
   CairoFontEngine *fontEngine;
   cairo_t *cairo;
-  GBool needFontUpdate;		// set when the font needs to be updated
+  GBool needFontUpdate;                // set when the font needs to be updated
   cairo_surface_t *surface;
   cairo_glyph_t *glyphs;
   int glyphCount;

@@ -1,7 +1,23 @@
-2005-06-28  Albert Astals Cid <aacid@kde.org>
+2005-06-29  Kristian Høgsberg  <krh@redhat.com>
+
+	* configure.ac:
+	* glib/poppler-page.cc:
+	* glib/poppler-page.h:
+	* glib/poppler-private.h:
+	* poppler/CairoOutputDev.cc:
+	* poppler/CairoOutputDev.h:
+	* poppler/Page.cc:
+	* poppler/Page.h:
+	* poppler/TextOutputDev.cc:
+	* poppler/TextOutputDev.h: Add support for rendering real
+	selection (based on text flow).
+
+2005-06-28  Albert Astals Cid  <aacid@kde.org>
+	
 	* poppler/FontInfo.[cc,h]: Add FontInfo::getType()
 	
-2005-06-28  Albert Astals Cid <aacid@kde.org>
+2005-06-28  Albert Astals Cid  <aacid@kde.org>
+	
 	* poppler/ArthurOutputDev.cc: use transformation matrix for image
 	rendering
 

@@ -25,6 +25,7 @@
 #include "Gfx.h"
 #include "GfxState.h"
 #include "Annot.h"
+#include "TextOutputDev.h"
 #endif
 #include "Error.h"
 #include "Page.h"
@@ -250,23 +251,18 @@ void Page::display(OutputDev *out, double hDPI, double vDPI,
                annotDisplayDecideCbk, annotDisplayDecideCbkData);
 }
 
-void Page::displaySlice(OutputDev *out, double hDPI, double vDPI,
-			int rotate, GBool crop,
-			int sliceX, int sliceY, int sliceW, int sliceH,
-			Links *links, Catalog *catalog,
-			GBool (*abortCheckCbk)(void *data),
-			void *abortCheckCbkData,
-                        GBool (*annotDisplayDecideCbk)(Annot *annot, void *user_data),
-                        void *annotDisplayDecideCbkData) {
-#ifndef PDF_PARSER_ONLY
+Gfx *Page::createGfx(OutputDev *out, double hDPI, double vDPI,
+		     int rotate, GBool crop,
+		     int sliceX, int sliceY, int sliceW, int sliceH,
+		     Links *links, Catalog *catalog,
+		     GBool (*abortCheckCbk)(void *data),
+		     void *abortCheckCbkData,
+		     GBool (*annotDisplayDecideCbk)(Annot *annot, void *user_data),
+		     void *annotDisplayDecideCbkData) {
   PDFRectangle *mediaBox, *cropBox;
   PDFRectangle box;
   Gfx *gfx;
-  Object obj;
-  Link *link;
-  Annots *annotList;
   double kx, ky;
-  int i;
 
   rotate += getRotate();
   if (rotate >= 360) {
@@ -338,6 +334,30 @@ void Page::displaySlice(OutputDev *out, double hDPI, double vDPI,
   gfx = new Gfx(xref, out, num, attrs->getResourceDict(),
 		hDPI, vDPI, &box, crop && isCropped(), cropBox, rotate,
 		abortCheckCbk, abortCheckCbkData);
+
+  return gfx;
+}
+
+void Page::displaySlice(OutputDev *out, double hDPI, double vDPI,
+			int rotate, GBool crop,
+			int sliceX, int sliceY, int sliceW, int sliceH,
+			Links *links, Catalog *catalog,
+			GBool (*abortCheckCbk)(void *data),
+			void *abortCheckCbkData,
+                        GBool (*annotDisplayDecideCbk)(Annot *annot, void *user_data),
+                        void *annotDisplayDecideCbkData) {
+  Gfx *gfx;
+  Object obj;
+  Link *link;
+  Annots *annotList;
+  int i;
+
+  gfx = createGfx(out, hDPI, vDPI, rotate, crop,
+		  sliceX, sliceY, sliceW, sliceH,
+		  links, catalog,
+		  abortCheckCbk, abortCheckCbkData,
+		  annotDisplayDecideCbk, annotDisplayDecideCbkData);
+
   contents.fetch(xref, &obj);
   if (!obj.isNull()) {
     gfx->saveState();
@@ -378,7 +398,18 @@ void Page::displaySlice(OutputDev *out, double hDPI, double vDPI,
   delete annotList;
 
   delete gfx;
-#endif
+}
+
+void Page::display(Gfx *gfx) {
+  Object obj;
+
+  contents.fetch(xref, &obj);
+  if (!obj.isNull()) {
+    gfx->saveState();
+    gfx->display(&obj);
+    gfx->restoreState();
+  }
+  obj.free();
 }
 
 GBool Page::loadThumb(unsigned char **data_out,

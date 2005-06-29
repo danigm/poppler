@@ -22,6 +22,7 @@ class Links;
 class Catalog;
 class Annots;
 class Annot;
+class Gfx;
 
 //------------------------------------------------------------------------
 
@@ -147,6 +148,15 @@ public:
   // Get transition.
   Object *getTrans(Object *obj) { return trans.fetch(xref, obj); }
 
+  Gfx *createGfx(OutputDev *out, double hDPI, double vDPI,
+		 int rotate, GBool crop,
+		 int sliceX, int sliceY, int sliceW, int sliceH,
+		 Links *links, Catalog *catalog,
+		 GBool (*abortCheckCbk)(void *data),
+		 void *abortCheckCbkData,
+		 GBool (*annotDisplayDecideCbk)(Annot *annot, void *user_data),
+		 void *annotDisplayDecideCbkData);
+
   // Display a page.
   void display(OutputDev *out, double hDPI, double vDPI,
 	       int rotate, GBool crop,
@@ -165,6 +175,8 @@ public:
 		    void *abortCheckCbkData = NULL,
                     GBool (*annotDisplayDecideCbk)(Annot *annot, void *user_data) = NULL,
                     void *annotDisplayDecideCbkData = NULL);
+
+  void display(Gfx *gfx);
 
 private:
 

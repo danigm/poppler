@@ -88,6 +88,13 @@ _poppler_page_new (PopplerDocument *document, Page *page, int index)
 static void
 poppler_page_finalize (GObject *object)
 {
+  PopplerPage *page = POPPLER_PAGE (object);
+
+  if (page->gfx != NULL)
+    delete page->gfx;
+  if (page->text_dev != NULL)
+    delete page->text_dev;
+
   /* page->page is owned by the document */
 }
 
@@ -157,82 +164,100 @@ poppler_page_get_index (PopplerPage *page)
 
 #if defined (HAVE_CAIRO)
 
+typedef struct {
+  unsigned char *cairo_data;
+  cairo_surface_t *surface;
+} OutputDevData;
+
 static void
-cairo_render_to_pixbuf (PopplerPage *page,
-			int src_x, int src_y,
-			int src_width, int src_height,
-			double scale,
-			GdkPixbuf *pixbuf,
-			int dest_x, int dest_y)
+poppler_page_prepare_output_dev (PopplerPage *page,
+				 double scale,
+				 gboolean transparent,
+				 OutputDevData *output_dev_data)
 {
   CairoOutputDev *output_dev;
-  int cairo_width, cairo_height, cairo_rowstride;
-  int pixbuf_rowstride, pixbuf_n_channels;
-  guchar *pixbuf_data, *cairo_data, *dst;
   cairo_surface_t *surface;
-  int x, y;
+  int cairo_width, cairo_height, cairo_rowstride;
+  unsigned char *cairo_data;
 
   output_dev = page->document->output_dev;
-
   cairo_width = MAX ((int)(page->page->getWidth() * scale + 0.5), 1);
   cairo_height = MAX ((int)(page->page->getHeight() * scale + 0.5), 1);
   cairo_rowstride = cairo_width * 4;
   cairo_data = (guchar *) gmalloc (cairo_height * cairo_rowstride);
-  memset (cairo_data, 0xff, cairo_height * cairo_rowstride);
+  if (transparent)
+      memset (cairo_data, 0x00, cairo_height * cairo_rowstride);
+  else
+      memset (cairo_data, 0xff, cairo_height * cairo_rowstride);
+
   surface = cairo_image_surface_create_for_data(cairo_data,
 						CAIRO_FORMAT_ARGB32,
 	  					cairo_width, cairo_height, 
 						cairo_rowstride);
-  output_dev->setSurface (surface);
 
-  page->page->displaySlice(output_dev, 72.0 * scale, 72.0 * scale,
-			   poppler_page_get_rotate (page),
-			   gTrue, /* Crop */
-			   src_x, src_y,
-			   src_width, src_height,
-			   NULL, /* links */
-			   page->document->doc->getCatalog ());
+  output_dev_data->cairo_data = cairo_data;
+  output_dev_data->surface = surface;
+  output_dev->setSurface (surface);
+}
+
+void
+poppler_page_copy_to_pixbuf (PopplerPage *page,
+			     GdkPixbuf *pixbuf,
+			     OutputDevData *output_dev_data)
+{
+  int cairo_width, cairo_height, cairo_rowstride;
+  unsigned char *pixbuf_data, *dst, *cairo_data;
+  int pixbuf_rowstride, pixbuf_n_channels;
+  unsigned int *src;
+  int x, y;
+
+  cairo_width = cairo_image_surface_get_width (output_dev_data->surface);
+  cairo_height = cairo_image_surface_get_height (output_dev_data->surface);
+  cairo_rowstride = cairo_width * 4;
+  cairo_data = output_dev_data->cairo_data;
 
   pixbuf_data = gdk_pixbuf_get_pixels (pixbuf);
   pixbuf_rowstride = gdk_pixbuf_get_rowstride (pixbuf);
   pixbuf_n_channels = gdk_pixbuf_get_n_channels (pixbuf);
 
-  if (dest_x + cairo_width > gdk_pixbuf_get_width (pixbuf))
-    cairo_width = gdk_pixbuf_get_width (pixbuf) - dest_x;
-  if (dest_y + cairo_height > gdk_pixbuf_get_height (pixbuf))
-    cairo_height = gdk_pixbuf_get_height (pixbuf) - dest_y;
-
   for (y = 0; y < cairo_height; y++)
     {
-      unsigned int *src;
-
       src = (unsigned int *) (cairo_data + y * cairo_rowstride);
-      dst = pixbuf_data + (dest_y + y) * pixbuf_rowstride +
-	dest_x * pixbuf_n_channels;
+      dst = pixbuf_data + y * pixbuf_rowstride;
       for (x = 0; x < cairo_width; x++) 
 	{
 	  dst[0] = (*src >> 16) & 0xff;
 	  dst[1] = (*src >> 8) & 0xff; 
 	  dst[2] = (*src >> 0) & 0xff;
+	  if (pixbuf_n_channels == 4)
+	      dst[3] = (*src >> 24) & 0xff;
 	  dst += pixbuf_n_channels;
 	  src++;
 	}
     }
 
-  output_dev->setSurface (NULL);
-  cairo_surface_destroy (surface);
-  gfree (cairo_data);
+  page->document->output_dev->setSurface (NULL);
+  cairo_surface_destroy (output_dev_data->surface);
+  gfree (output_dev_data->cairo_data);
 }
 
 #elif defined (HAVE_SPLASH)
 
+typedef struct {
+} OutputDevData;
+
 static void
-splash_render_to_pixbuf (PopplerPage *page,
-			 int src_x, int src_y,
-			 int src_width, int src_height,
-			 double scale,
-			 GdkPixbuf *pixbuf,
-			 int dest_x, int dest_y)
+poppler_page_prepare_output_dev (PopplerPage *page,
+				 double scale,
+				 gboolean transparent,
+				 OutputDevData *output_dev_data)
+{
+  /* pft */
+}
+
+poppler_page_copy_to_pixbuf(PopplerPage *page,
+			    GdkPixbuf *pixbuf,
+			    OutputDevData *data)
 {
   SplashOutputDev *output_dev;
   SplashBitmap *bitmap;
@@ -243,14 +268,6 @@ splash_render_to_pixbuf (PopplerPage *page,
   int x, y;
 
   output_dev = page->document->output_dev;
-
-  page->page->displaySlice(output_dev, 72.0 * scale, 72.0 * scale,
-			   poppler_page_get_rotate (page),
-			   gTrue, /* Crop */
-			   src_x, src_y,
-			   src_width, src_height,
-			   NULL, /* links */
-			   page->document->doc->getCatalog ());
 
   bitmap = output_dev->getBitmap ();
   color_ptr = bitmap->getDataPtr ();
@@ -314,21 +331,120 @@ poppler_page_render_to_pixbuf (PopplerPage *page,
 			       GdkPixbuf *pixbuf,
 			       int dest_x, int dest_y)
 {
+  OutputDevData data;
 
   g_return_if_fail (POPPLER_IS_PAGE (page));
   g_return_if_fail (scale > 0.0);
   g_return_if_fail (pixbuf != NULL);
 
-#if defined(HAVE_CAIRO)
-  cairo_render_to_pixbuf (page, src_x, src_y, src_width, src_height,
-			  scale, pixbuf, dest_x, dest_y);
-#elif defined(HAVE_SPLASH)
-  splash_render_to_pixbuf (page, src_x, src_y, src_width, src_height,
-			   scale, pixbuf, dest_x, dest_y);
-#else
-#error No rendering backend available
-#endif
+  poppler_page_prepare_output_dev (page, scale, FALSE, &data);
+
+  page->page->displaySlice(page->document->output_dev,
+			   72.0 * scale, 72.0 * scale,
+			   poppler_page_get_rotate (page),
+			   gTrue, /* Crop */
+			   src_x, src_y,
+			   src_width, src_height,
+			   NULL, /* links */
+			   page->document->doc->getCatalog ());
+
+  poppler_page_copy_to_pixbuf (page, pixbuf, &data);
 }
+
+static TextOutputDev *
+poppler_page_get_text_output_dev (PopplerPage *page)
+{
+  if (page->text_dev == NULL) {
+    page->text_dev = new TextOutputDev (NULL, gTrue, gFalse, gFalse);
+
+    page->gfx = page->page->createGfx(page->text_dev,
+				      72.0, 72.0,
+				      poppler_page_get_rotate (page),
+				      gTrue, /* Crop */
+				      -1, -1, -1, -1,
+				      NULL, /* links */
+				      page->document->doc->getCatalog (),
+				      NULL, NULL, NULL, NULL);
+
+    page->page->display(page->gfx);
+
+    page->text_dev->endPage();
+  }
+
+  return page->text_dev;
+}
+
+GdkRegion *
+poppler_page_get_selection_region (PopplerPage      *page,
+				   gdouble           scale,
+				   PopplerRectangle *selection)
+{
+  TextOutputDev *text_dev;
+  PDFRectangle poppler_selection;
+  GooList *list;
+  GdkRectangle rect;
+  GdkRegion *region;
+  int i;
+
+  poppler_selection.x1 = selection->x1;
+  poppler_selection.y1 = selection->y1;
+  poppler_selection.x2 = selection->x2;
+  poppler_selection.y2 = selection->y2;
+
+  text_dev = poppler_page_get_text_output_dev (page);
+  list = text_dev->getSelectionRegion(&poppler_selection, scale);
+
+  region = gdk_region_new();
+
+  for (i = 0; i < list->getLength(); i++) {
+    PDFRectangle *selection_rect = (PDFRectangle *) list->get(i);
+    rect.x      = (gint) selection_rect->x1;
+    rect.y      = (gint) selection_rect->y1;
+    rect.width  = (gint) (selection_rect->x2 - selection_rect->x1);
+    rect.height = (gint) (selection_rect->y2 - selection_rect->y1);
+    gdk_region_union_with_rect (region, &rect);
+    delete selection_rect;
+  }
+
+  delete list;
+
+  return region;
+}
+
+void
+poppler_page_render_selection (PopplerPage *page,
+			       gdouble      scale,
+			       GdkPixbuf   *pixbuf,
+			       PopplerRectangle *selection,
+			       PopplerRectangle *old_selection)
+{
+  TextOutputDev *text_dev;
+  CairoOutputDev *output_dev;
+  cairo_surface_t *surface;
+  unsigned char *cairo_data;
+  OutputDevData data;
+  PDFRectangle pdf_selection(selection->x1, selection->y1,
+			     selection->x2, selection->y2);
+
+  text_dev = poppler_page_get_text_output_dev (page);
+  output_dev = page->document->output_dev;
+
+  poppler_page_prepare_output_dev (page, scale, TRUE, &data);
+
+  text_dev->drawSelection (output_dev, scale, &pdf_selection);
+
+  poppler_page_copy_to_pixbuf (page, pixbuf, &data);
+
+  /* We'll need a function to destroy page->text_dev and page->gfx
+   * when the application wants to get rid of them.
+   *
+   * Two improvements: 1) make GfxFont refcounted and let TextPage and
+   * friends hold a reference to the GfxFonts they need so we can free
+   * up Gfx early.  2) use a TextPage directly when rendering the page
+   * so we don't have to use TextOutputDev and render a second
+   * time. */
+}
+
 
 static void
 destroy_thumb_data (guchar *pixels, gpointer data)

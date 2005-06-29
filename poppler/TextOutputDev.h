@@ -21,12 +21,14 @@
 
 class GooString;
 class GooList;
+class Gfx;
 class GfxFont;
 class GfxState;
 class UnicodeMap;
 class TextBlock;
 class TextPage;
 class TextLineFrag;
+class TextSelectionVisitor;
 
 //------------------------------------------------------------------------
 
@@ -53,6 +55,7 @@ private:
 
   friend class TextWord;
   friend class TextPage;
+  friend class TextSelectionPainter;
 };
 
 //------------------------------------------------------------------------
@@ -71,7 +74,7 @@ public:
 
   // Add a character to the word.
   void addChar(GfxState *state, double x, double y,
-	       double dx, double dy, Unicode u);
+	       double dx, double dy, CharCode c, Unicode u);
 
   // Merge <word> onto the end of <this>.
   void merge(TextWord *word);
@@ -85,6 +88,9 @@ public:
   double primaryDelta(TextWord *word);
 
   static int cmpYX(const void *p1, const void *p2);
+
+  void visitSelection(TextSelectionVisitor *visitor,
+		      PDFRectangle *selection);
 
 #if TEXTOUT_WORD_LIST
   int getLength() { return len; }
@@ -107,6 +113,7 @@ private:
   double yMin, yMax;		// bounding box y coordinates
   double base;			// baseline x or y coordinate
   Unicode *text;		// the text
+  CharCode *charcode;		// glyph indices
   double *edge;			// "near" edge x or y coord of each char
 				//   (plus one extra entry for the last char)
   int len;			// length of text and edge arrays
@@ -132,6 +139,7 @@ private:
   friend class TextFlow;
   friend class TextWordList;
   friend class TextPage;
+  friend class TextSelectionPainter;
 };
 
 //------------------------------------------------------------------------
@@ -164,6 +172,8 @@ private:
   friend class TextPage;
 };
 
+struct TextFlowData;
+
 //------------------------------------------------------------------------
 // TextLine
 //------------------------------------------------------------------------
@@ -195,6 +205,9 @@ public:
 
   void coalesce(UnicodeMap *uMap);
 
+  void visitSelection(TextSelectionVisitor *visitor,
+		      PDFRectangle *selection);
+
 private:
 
   TextBlock *blk;		// parent block
@@ -219,6 +232,9 @@ private:
   friend class TextFlow;
   friend class TextWordList;
   friend class TextPage;
+
+  friend class TextSelectionPainter;
+  friend class TextSelectionSizer;
 };
 
 //------------------------------------------------------------------------
@@ -250,6 +266,9 @@ public:
   // primary rotation.
   GBool isBelow(TextBlock *blk);
 
+  void visitSelection(TextSelectionVisitor *visitor,
+		      PDFRectangle *selection);
+
 private:
 
   TextPage *page;		// the parent page
@@ -275,6 +294,7 @@ private:
   friend class TextFlow;
   friend class TextWordList;
   friend class TextPage;
+  friend class TextSelectionPainter;
 };
 
 //------------------------------------------------------------------------
@@ -394,7 +414,16 @@ public:
 
   // Get the text which is inside the specified rectangle.
   GooString *getText(double xMin, double yMin,
-		   double xMax, double yMax);
+		     double xMax, double yMax);
+
+  void visitSelection(TextSelectionVisitor *visitor,
+		      PDFRectangle *selection);
+
+  void drawSelection(OutputDev *out,
+		     double scale,
+		     PDFRectangle *selection);
+
+  GooList *getSelectionRegion(PDFRectangle *selection, double scale);
 
   // Find a string by character position and length.  If found, sets
   // the text bounding rectangle and returns true; otherwise returns
@@ -457,6 +486,7 @@ private:
   friend class TextBlock;
   friend class TextFlow;
   friend class TextWordList;
+  friend class TextSelectionPainter;
 };
 
 //------------------------------------------------------------------------
@@ -547,6 +577,10 @@ public:
   GBool findCharRange(int pos, int length,
 		      double *xMin, double *yMin,
 		      double *xMax, double *yMax);
+
+  void drawSelection(OutputDev *out, double scale, PDFRectangle *selection);
+
+  GooList *getSelectionRegion(PDFRectangle *selection, double scale);
 
 #if TEXTOUT_WORD_LIST
   // Build a flat word list, in content stream order (if

@@ -5,6 +5,7 @@
 #include <PDFDoc.h>
 #include <PSOutputDev.h>
 #include <Link.h>
+#include <Gfx.h>
 #include <FontInfo.h>
 
 #if defined (HAVE_CAIRO)
@@ -44,6 +45,8 @@ struct _PopplerPage
   Page *page;
   int index;
   PopplerOrientation orientation;
+  TextOutputDev *text_dev;
+  Gfx *gfx;
 };
 
 PopplerPage   *_poppler_page_new   (PopplerDocument *document,

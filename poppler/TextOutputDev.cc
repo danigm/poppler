@@ -31,6 +31,7 @@
 #include "UnicodeTypeTable.h"
 #include "GfxState.h"
 #include "TextOutputDev.h"
+#include "Page.h"
 
 #ifdef MACOS
 // needed for setting type/creator of MacOS files
@@ -208,6 +209,7 @@ TextWord::TextWord(GfxState *state, int rotA, double x0, double y0,
     break;
   }
   text = NULL;
+  charcode = NULL;
   edge = NULL;
   len = size = 0;
   spaceAfter = gFalse;
@@ -229,17 +231,20 @@ TextWord::TextWord(GfxState *state, int rotA, double x0, double y0,
 
 TextWord::~TextWord() {
   gfree(text);
+  gfree(charcode);
   gfree(edge);
 }
 
 void TextWord::addChar(GfxState *state, double x, double y,
-		       double dx, double dy, Unicode u) {
+		       double dx, double dy, CharCode c, Unicode u) {
   if (len == size) {
     size += 16;
     text = (Unicode *)grealloc(text, size * sizeof(Unicode));
+    charcode = (Unicode *)grealloc(charcode, size * sizeof(CharCode));
     edge = (double *)grealloc(edge, (size + 1) * sizeof(double));
   }
   text[len] = u;
+  charcode[len] = c;
   switch (rot) {
   case 0:
     if (len == 0) {
@@ -291,10 +296,12 @@ void TextWord::merge(TextWord *word) {
   if (len + word->len > size) {
     size = len + word->len;
     text = (Unicode *)grealloc(text, size * sizeof(Unicode));
+    charcode = (CharCode *)grealloc(charcode, (size + 1) * sizeof(CharCode));
     edge = (double *)grealloc(edge, (size + 1) * sizeof(double));
   }
   for (i = 0; i < word->len; ++i) {
     text[len + i] = word->text[i];
+    charcode[len + i] = word->charcode[i];
     edge[len + i] = word->edge[i];
   }
   edge[len + word->len] = word->edge[word->len];
@@ -480,8 +487,6 @@ void TextPool::addWord(TextWord *word) {
 TextLine::TextLine(TextBlock *blkA, int rotA, double baseA) {
   blk = blkA;
   rot = rotA;
-  xMin = yMin = 0;
-  xMax = yMax = -1;
   base = baseA;
   words = lastWord = NULL;
   text = NULL;
@@ -491,6 +496,8 @@ TextLine::TextLine(TextBlock *blkA, int rotA, double baseA) {
   convertedLen = 0;
   hyphenated = gFalse;
   next = NULL;
+  xMin = yMin = 0;
+  xMax = yMax = -1;
 }
 
 TextLine::~TextLine() {
@@ -1904,7 +1911,7 @@ void TextPage::addChar(GfxState *state, double x, double y,
     h1 /= uLen;
   }
   for (i = 0; i < uLen; ++i) {
-    curWord->addChar(state, x1 + i*w1, y1 + i*h1, w1, h1, u[i]);
+    curWord->addChar(state, x1 + i*w1, y1 + i*h1, w1, h1, c, u[i]);
   }
   ++curWord->charLen;
   ++charPos;
@@ -2974,6 +2981,394 @@ GooString *TextPage::getText(double xMin, double yMin,
   return s;
 }
 
+class TextSelectionVisitor {
+public:
+  TextSelectionVisitor (TextPage *page);
+  virtual ~TextSelectionVisitor () { }
+  virtual void visitBlock (TextBlock *block,
+			   TextLine *begin,
+			   TextLine *end,
+			   PDFRectangle *selection) = 0;
+  virtual void visitLine (TextLine *line, 
+			  TextWord *begin,
+			  TextWord *end,
+			  PDFRectangle *selection) = 0;
+  virtual void visitWord (TextWord *word, int begin, int end,
+			  PDFRectangle *selection) = 0;
+
+protected:
+  TextPage *page;
+};
+
+TextSelectionVisitor::TextSelectionVisitor (TextPage *page)
+  : page(page)
+{
+}
+
+
+
+
+#if 0
+class TextSelectionDumper : public TextSelectionVisitor {
+public:
+  virtual void visitBlock (TextBlock *block, 
+			   TextLine *begin,
+			   TextLine *end,
+			   PDFRectangle *selection) { };
+  virtual void visitLine (TextLine *line,
+			  TextWord *begin,
+			  TextWord *end,
+			  PDFRectangle *selection) { };
+  virtual void visitWord (TextWord *word, int begin, int end,
+			  PDFRectangle *selection);
+
+private:
+  GooString *result;
+  UnicodeMap *uMap;
+  char space[8], eol[16];
+  int spaceLen, eolLen;
+  double height;
+};
+
+TextSelectionDumper::TextSelectionDumper()
+{
+  result = new GooString();
+  uMap = globalParams->getTextEncoding();
+
+  // get the output encoding
+  if (data.uMap == NULL)
+    return data.result;
+
+  data.spaceLen = data.uMap->mapUnicode(0x20, data.space, sizeof(data.space));
+  data.eolLen = 0; // make gcc happy
+  switch (globalParams->getTextEOL()) {
+  case eolUnix:
+    data.eolLen = data.uMap->mapUnicode(0x0a, data.eol, sizeof(data.eol));
+    break;
+  case eolDOS:
+    data.eolLen = data.uMap->mapUnicode(0x0d, data.eol, sizeof(data.eol));
+    data.eolLen += data.uMap->mapUnicode(0x0a, data.eol + data.eolLen,
+					 sizeof(data.eol) - data.eolLen);
+    break;
+  case eolMac:
+    data.eolLen = data.uMap->mapUnicode(0x0d, data.eol, sizeof(data.eol));
+    break;
+  }
+}
+
+TextSelectionDumper::~TextSelectionDumper()
+{
+  data.uMap->decRefCnt();
+}
+
+void TextSelectionDumper::visitWord(TextWord *word, int first, int last,
+				    PDFRectangle *selection)
+{
+  for (i = first; i <= last; i++)
+    printf ("%c", word->text[i]);
+  printf ("\n");
+}
+
+#endif
+
+class TextSelectionSizer : public TextSelectionVisitor {
+public:
+  TextSelectionSizer(TextPage *page, double scale);
+  ~TextSelectionSizer() { }
+
+  virtual void visitBlock (TextBlock *block,
+			   TextLine *begin,
+			   TextLine *end,
+			   PDFRectangle *selection) { };
+  virtual void visitLine (TextLine *line, 
+			  TextWord *begin,
+			  TextWord *end,
+			  PDFRectangle *selection);
+  virtual void visitWord (TextWord *word, int begin, int end,
+			  PDFRectangle *selection) { };
+
+  GooList *getRegion () { return list; }
+
+private:
+  GooList *list;
+  double scale;
+};
+
+TextSelectionSizer::TextSelectionSizer(TextPage *page, double scale)
+  : TextSelectionVisitor(page),
+    scale(scale)
+{
+  list = new GooList();
+}
+
+void TextSelectionSizer::visitLine (TextLine *line, 
+				    TextWord *begin,
+				    TextWord *end,
+				    PDFRectangle *selection)
+{
+  PDFRectangle *rect;
+  double x1, y1, x2, y2, margin;
+  int i;
+
+  margin = (line->yMax - line->yMin) / 8;
+  x1 = floor (line->xMax * scale);
+  y1 = floor ((line->yMin - margin) * scale);
+  x2 = ceil (line->xMin * scale);
+  y2 = ceil ((line->yMax + margin) * scale);
+
+  for (i = 0; i < line->len; i++) {
+    if (selection->x1 < line->edge[i + 1] && line->edge[i] < x1)
+      x1 = floor (line->edge[i]);
+    if (line->edge[i] < selection->x2)
+      x2 = ceil (line->edge[i + 1]);
+  }
+
+  rect = new PDFRectangle (x1, y1, x2, y2);
+  list->append (rect);
+}
+
+
+class TextSelectionPainter : public TextSelectionVisitor {
+public:
+  TextSelectionPainter(TextPage *page,
+		       double scale,
+		       OutputDev *out,
+		       GfxColor &box_color,
+		       GfxColor &glyph_color);
+  ~TextSelectionPainter();
+
+  virtual void visitBlock (TextBlock *block,
+			   TextLine *begin,
+			   TextLine *end,
+			   PDFRectangle *selection) { };
+  virtual void visitLine (TextLine *line, 
+			  TextWord *begin,
+			  TextWord *end,
+			  PDFRectangle *selection);
+  virtual void visitWord (TextWord *word, int begin, int end,
+			  PDFRectangle *selection);
+
+private:
+  OutputDev *out;
+  GfxColor box_color, glyph_color;
+  GfxState *state;
+};
+
+TextSelectionPainter::TextSelectionPainter(TextPage *page,
+					   double scale,
+					   OutputDev *out,
+					   GfxColor &box_color,
+					   GfxColor &glyph_color)
+  : TextSelectionVisitor(page),
+    out(out),
+    box_color(box_color),
+    glyph_color(glyph_color)
+{
+  PDFRectangle box(0, 0, page->pageWidth, page->pageHeight);
+
+  state = new GfxState(72 * scale, 72 * scale, &box, 0, gFalse);
+
+  out->startPage (0, state);
+
+  state->setTextMat(1, 0, 0, -1, 0, 0);
+  state->setFillColorSpace(new GfxDeviceRGBColorSpace());
+
+}
+
+TextSelectionPainter::~TextSelectionPainter()
+{
+  out->endPage ();
+
+  delete state;
+}
+
+void TextSelectionPainter::visitLine (TextLine *line,
+				      TextWord *begin,
+				      TextWord *end,
+				      PDFRectangle *selection)
+{
+  double x1, y1, x2, y2, margin;
+  int i;
+
+  state->setFillColor(&box_color);
+  out->updateFillColor(state);
+
+  margin = (line->yMax - line->yMin) / 8;
+  x1 = floor (line->xMax);
+  y1 = floor (line->yMin - margin);
+  x2 = ceil (line->xMin);
+  y2 = ceil (line->yMax + margin);
+
+  for (i = 0; i < line->len; i++) {
+    if (selection->x1 < line->edge[i + 1] && line->edge[i] < x1)
+      x1 = floor (line->edge[i]);
+    if (line->edge[i] < selection->x2)
+      x2 = ceil (line->edge[i + 1]);
+  }
+
+  state->moveTo(x1, y1);
+  state->lineTo(x2, y1);
+  state->lineTo(x2, y2);
+  state->lineTo(x1, y2);
+  state->closePath();
+
+  out->fill(state);
+  state->clearPath();
+}
+
+void TextSelectionPainter::visitWord (TextWord *word, int begin, int end,
+				      PDFRectangle *selection)
+{
+  GooString *string;
+  int i;
+
+  state->setFillColor(&glyph_color);
+  out->updateFillColor(state);
+  state->setFont(word->font->gfxFont, word->fontSize);
+  out->updateFont(state);
+
+  /* The only purpose of this string is to let the output device query
+   * it's length.  Might want to change this interface later. */
+
+  string = new GooString ((char *) word->charcode, end - begin);
+
+  out->beginString(state, string);
+
+  for (i = begin; i < end; i++)
+    out->drawChar(state, word->edge[i], word->base, 0, 0, 0, 0,
+		  word->charcode[i], NULL, 0);
+  
+  out->endString(state);
+}
+
+void TextWord::visitSelection(TextSelectionVisitor *visitor,
+			      PDFRectangle *selection) {
+  int i, begin, end;
+
+  begin = len + 1;
+  end = 0;
+  for (i = 0; i < len; i++) {
+    if (selection->x1 < edge[i + 1] && i < begin)
+      begin = i;
+    if (edge[i] < selection->x2)
+      end = i + 1;
+  }
+
+  visitor->visitWord (this, begin, end, selection);
+}
+
+void TextLine::visitSelection(TextSelectionVisitor *visitor,
+			      PDFRectangle *selection) {
+  TextWord *p, *begin, *end;
+
+  begin = NULL;
+  end = NULL;
+  for (p = words; p != NULL; p = p->next) {
+    if (selection->x1 < p->xMax && selection->y1 < p->yMax && begin == NULL)
+      begin = p;
+    if (selection->x2 > p->xMin && selection->y2 > p->yMin)
+      end = p->next;
+  }
+
+  visitor->visitLine (this, begin, end, selection);
+
+  for (p = begin; p != end; p = p->next)
+    p->visitSelection (visitor, selection);
+}
+
+void TextBlock::visitSelection(TextSelectionVisitor *visitor,
+			       PDFRectangle *selection) {
+  TextLine *p, *begin, *end;
+  PDFRectangle child_selection;
+
+  begin = NULL;
+  end = NULL;
+  for (p = lines; p != NULL; p = p->next) {
+    if (selection->x1 < p->xMax && selection->y1 < p->yMax && begin == NULL)
+      begin = p;
+    if (selection->x2 > p->xMin && selection->y2 > p->yMin)
+      end = p->next;
+  }
+
+  visitor->visitBlock (this, begin, end, selection);
+
+  for (p = begin; p != end; p = p->next) {
+    if (p == begin) {
+      child_selection.x1 = selection->x1;
+      child_selection.y1 = selection->y1;
+    } else {
+      child_selection.x1 = 0;
+      child_selection.y1 = 0;
+    }
+    if (p->next == end) {
+      child_selection.x2 = selection->x2;
+      child_selection.y2 = selection->y2;
+    } else {
+      child_selection.x2 = page->pageWidth;
+      child_selection.y2 = page->pageHeight;
+    }
+
+    p->visitSelection(visitor, &child_selection);
+  }
+}
+
+void TextPage::visitSelection(TextSelectionVisitor *visitor,
+			      PDFRectangle *selection)
+{
+  int i, begin, end;
+  PDFRectangle child_selection;
+
+  begin = nBlocks;
+  end = 0;
+  for (i = 0; i < nBlocks; i++) {
+    if (selection->x1 < blocks[i]->xMax && 
+	selection->y1 < blocks[i]->yMax && i < begin)
+      begin = i;
+    if (selection->x2 > blocks[i]->xMin && selection->y2 > blocks[i]->yMin)
+      end = i + 1;
+  }
+
+  for (i = begin; i < end; i++) {
+    if (i == begin) {
+      child_selection.x1 = selection->x1;
+      child_selection.y1 = selection->y1;
+    } else {
+      child_selection.x1 = 0;
+      child_selection.y1 = 0;
+    }
+    if (i + 1 == end) {
+      child_selection.x2 = selection->x2;
+      child_selection.y2 = selection->y2;
+    } else {
+      child_selection.x2 = pageWidth;
+      child_selection.y2 = pageHeight;
+    }
+
+    blocks[i]->visitSelection(visitor, &child_selection);
+  }
+}
+
+void TextPage::drawSelection(OutputDev *out,
+			     double scale,
+			     PDFRectangle *selection)
+{
+  GfxColor box_color = { 0x7c / 255.0, 0x99 / 255.0, 0xad / 255.0 };
+  GfxColor glyph_color = { 1.0, 1.0, 1.0 };
+  TextSelectionPainter painter(this, scale, out, box_color, glyph_color);
+
+  visitSelection(&painter, selection);
+}
+
+GooList *TextPage::getSelectionRegion(PDFRectangle *selection,
+				      double scale) {
+  TextSelectionSizer sizer(this, scale);
+  GooList *region;
+
+  visitSelection(&sizer, selection);
+
+  return sizer.getRegion();
+}
+
 GBool TextPage::findCharRange(int pos, int length,
 			      double *xMin, double *yMin,
 			      double *xMax, double *yMax) {
@@ -3514,6 +3909,17 @@ GBool TextOutputDev::findText(Unicode *s, int len,
 GooString *TextOutputDev::getText(double xMin, double yMin,
 				double xMax, double yMax) {
   return text->getText(xMin, yMin, xMax, yMax);
+}
+
+void TextOutputDev::drawSelection(OutputDev *out,
+				  double scale,
+				  PDFRectangle *selection) {
+  text->drawSelection(out, scale, selection);
+}
+
+GooList *TextOutputDev::getSelectionRegion(PDFRectangle *selection,
+					   double scale) {
+  return text->getSelectionRegion(selection, scale);
 }
 
 GBool TextOutputDev::findCharRange(int pos, int length,

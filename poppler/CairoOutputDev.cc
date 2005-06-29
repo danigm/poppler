@@ -53,6 +53,7 @@ CairoOutputDev::CairoOutputDev() {
 
   FT_Init_FreeType(&ft_lib);
   fontEngine = NULL;
+  glyphs = NULL;
   surface = NULL;
 }
 
@@ -219,7 +220,6 @@ void CairoOutputDev::updateFont(GfxState *state) {
 
   LOG(printf ("updateFont() font=%s\n", state->getFont()->getName()->getCString()));
   
-  /* Needs to be rethough, since fonts are now handled by cairo */
   needFontUpdate = gFalse;
 
   currentFont = fontEngine->getFont (state->getFont(), xref);
@@ -342,6 +342,9 @@ void CairoOutputDev::beginString(GfxState *state, GooString *s)
 {
   int len = s->getLength();
 
+  if (needFontUpdate)
+    updateFont(state);
+
   glyphs = (cairo_glyph_t *) gmalloc (len * sizeof (cairo_glyph_t));
   glyphCount = 0;
 }
@@ -364,8 +367,6 @@ void CairoOutputDev::endString(GfxState *state)
 {
   int render;
 
-  if (needFontUpdate)
-    updateFont(state);
   if (!currentFont)
     return;
    
@@ -375,8 +376,11 @@ void CairoOutputDev::endString(GfxState *state)
     return;
 
   // ignore empty strings
-  if (glyphCount == 0)
+  if (glyphCount == 0) {
+    gfree(glyphs);
+    glyphs = NULL;
     return;
+  }
   
   if (!(render & 1)) {
     LOG (printf ("fill string\n"));
@@ -405,6 +409,7 @@ void CairoOutputDev::endString(GfxState *state)
   }
   
   gfree (glyphs);
+  glyphs = NULL;
 }
 
 GBool CairoOutputDev::beginType3Char(GfxState *state, double x, double y,

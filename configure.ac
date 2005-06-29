@@ -202,9 +202,9 @@ AC_ARG_ENABLE(poppler-glib,
               enable_poppler_glib=$enableval,
               enable_poppler_glib="try")
 if test x$enable_poppler_glib = xyes; then
-  PKG_CHECK_MODULES(POPPLER_GLIB, gdk-pixbuf-2.0 glib-2.0 >= 2.4.0 fontconfig)
+  PKG_CHECK_MODULES(POPPLER_GLIB, gdk-2.0 >= 2.4.0 fontconfig)
 elif test x$enable_poppler_glib = xtry; then
-  PKG_CHECK_MODULES(POPPLER_GLIB, gdk-pixbuf-2.0 glib-2.0 >= 2.4.0 fontconfig,
+  PKG_CHECK_MODULES(POPPLER_GLIB, gdk-2.0 >= 2.4.0 fontconfig,
                     [enable_poppler_glib="yes"],
                     [enable_poppler_glib="no"])
 fi
