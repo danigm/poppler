@@ -1,3 +1,14 @@
+2005-06-30  Kristian Høgsberg  <krh@redhat.com>
+
+	* glib/poppler-page.h: * glib/poppler-page.cc
+	(poppler_page_copy_to_pixbuf): Fix splash compilation (patch from
+	Marco).
+	(poppler_page_render_to_pixbuf): Drop dest_x and dest_y
+	coordinates from this function.  This functionality can be
+	achieved using a sub-GdkPixbuf.
+
+	* glib/test-poppler-glib.c (main): Update test case.
+
 2005-06-29  Kristian Høgsberg  <krh@redhat.com>
 
 	* glib/poppler-private.h: Move TextOutputDev.h include here from

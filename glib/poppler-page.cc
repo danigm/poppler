@@ -199,7 +199,7 @@ poppler_page_prepare_output_dev (PopplerPage *page,
   output_dev->setSurface (surface);
 }
 
-void
+static void
 poppler_page_copy_to_pixbuf (PopplerPage *page,
 			     GdkPixbuf *pixbuf,
 			     OutputDevData *output_dev_data)
@@ -254,6 +254,7 @@ poppler_page_prepare_output_dev (PopplerPage *page,
   /* pft */
 }
 
+static void
 poppler_page_copy_to_pixbuf(PopplerPage *page,
 			    GdkPixbuf *pixbuf,
 			    OutputDevData *data)
@@ -279,18 +280,17 @@ poppler_page_copy_to_pixbuf(PopplerPage *page,
   pixbuf_rowstride = gdk_pixbuf_get_rowstride (pixbuf);
   pixbuf_n_channels = gdk_pixbuf_get_n_channels (pixbuf);
 
-  if (dest_x + splash_width > gdk_pixbuf_get_width (pixbuf))
-    splash_width = gdk_pixbuf_get_width (pixbuf) - dest_x;
-  if (dest_y + splash_height > gdk_pixbuf_get_height (pixbuf))
-    splash_height = gdk_pixbuf_get_height (pixbuf) - dest_y;
+  if (splash_width > gdk_pixbuf_get_width (pixbuf))
+    splash_width = gdk_pixbuf_get_width (pixbuf);
+  if (splash_height > gdk_pixbuf_get_height (pixbuf))
+    splash_height = gdk_pixbuf_get_height (pixbuf);
 
   for (y = 0; y < splash_height; y++)
     {
       SplashRGB8 *src;
 
       src = (SplashRGB8 *) (color_ptr.rgb8p + y * splash_rowstride);
-      dst = pixbuf_data + (dest_y + y) * pixbuf_rowstride +
-	dest_x * pixbuf_n_channels;
+      dst = pixbuf_data + y * pixbuf_rowstride;
       for (x = 0; x < splash_width; x++) 
 	{
 	  dst[0] = splashRGB8R(*src);
@@ -313,22 +313,17 @@ poppler_page_copy_to_pixbuf(PopplerPage *page,
  * @src_height: height of rectangle to render
  * @ppp: pixels per point
  * @pixbuf: pixbuf to render into
- * @dest_x: x coordinate of offset into destination
- * @dest_y: y cooridnate of offset into destination
  *
  * First scale the document to match the specified pixels per point,
  * then render the rectangle given by the upper left corner at
- * (src_x, src_y) and src_width and src_height.  The rectangle is
- * rendered into the specified pixmap with the upper left corner
- * placed at (dest_x, dest_y).
+ * (src_x, src_y) and src_width and src_height.
  **/
 void
 poppler_page_render_to_pixbuf (PopplerPage *page,
 			       int src_x, int src_y,
 			       int src_width, int src_height,
 			       double scale,
-			       GdkPixbuf *pixbuf,
-			       int dest_x, int dest_y)
+			       GdkPixbuf *pixbuf)
 {
   OutputDevData data;
 
@@ -418,9 +413,7 @@ poppler_page_render_selection (PopplerPage *page,
 			       PopplerRectangle *old_selection)
 {
   TextOutputDev *text_dev;
-  CairoOutputDev *output_dev;
-  cairo_surface_t *surface;
-  unsigned char *cairo_data;
+  OutputDev *output_dev;
   OutputDevData data;
   PDFRectangle pdf_selection(selection->x1, selection->y1,
 			     selection->x2, selection->y2);

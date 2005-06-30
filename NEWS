@@ -1,3 +1,9 @@
+Release 0.4.0
+
+	- Real text selection.
+	- API breakage in glib wrapper: dropping dest_x and dest_y
+	  arguments from poppler_page_render_to_pixbuf().
+
 Release 0.3.3
 
 	- New glib API to get document font information (Marco).

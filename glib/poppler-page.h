@@ -40,9 +40,7 @@ void                poppler_page_render_to_pixbuf     (PopplerPage        *page,
 						       int                 src_width,
 						       int                 src_height,
 						       double              scale,
-						       GdkPixbuf          *pixbuf,
-						       int                 dest_x,
-						       int                 dest_y);
+						       GdkPixbuf          *pixbuf);
 void                poppler_page_get_size             (PopplerPage        *page,
 						       double             *width,
 						       double             *height);
