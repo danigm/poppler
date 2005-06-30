@@ -27,7 +27,6 @@
 #include <ErrorCodes.h>
 #include <UnicodeMap.h>
 #include <GfxState.h>
-#include <TextOutputDev.h>
 
 #include "poppler.h"
 #include "poppler-private.h"

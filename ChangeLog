@@ -1,5 +1,10 @@
 2005-06-29  Kristian Høgsberg  <krh@redhat.com>
 
+	* glib/poppler-private.h: Move TextOutputDev.h include here from
+	poppler-page.cc
+
+2005-06-29  Kristian Høgsberg  <krh@redhat.com>
+
 	* configure.ac:
 	* glib/poppler-page.cc:
 	* glib/poppler-page.h:

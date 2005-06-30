@@ -7,6 +7,7 @@
 #include <Link.h>
 #include <Gfx.h>
 #include <FontInfo.h>
+#include <TextOutputDev.h>
 
 #if defined (HAVE_CAIRO)
 #include <CairoOutputDev.h>
