@@ -1,3 +1,9 @@
+2005-07-01  Kristian Høgsberg  <krh@redhat.com>
+
+	* poppler/TextOutputDev.cc: Make selection also work when dragging
+	backwards in the text flow.  Currently this is a big pile of
+	if-statements, and there is certainly room for improvement.
+
 2005-06-30  Kristian Høgsberg  <krh@redhat.com>
 
 	* glib/poppler-page.h: * glib/poppler-page.cc

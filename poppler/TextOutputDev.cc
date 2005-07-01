@@ -3200,9 +3200,10 @@ void TextSelectionPainter::visitLine (TextLine *line,
   y2 = ceil (line->yMax + margin);
 
   for (i = 0; i < line->len; i++) {
-    if (selection->x1 < line->edge[i + 1] && line->edge[i] < x1)
-      x1 = floor (line->edge[i]);
-    if (line->edge[i] < selection->x2)
+    if (selection->x1 < line->edge[i + 1] || selection->x2 < line->edge[i + 1])
+      if (line->edge[i] < x1)
+	x1 = floor (line->edge[i]);
+    if (line->edge[i] < selection->x2 || line->edge[i] < selection->x1)
       x2 = ceil (line->edge[i + 1]);
   }
 
@@ -3248,9 +3249,10 @@ void TextWord::visitSelection(TextSelectionVisitor *visitor,
   begin = len + 1;
   end = 0;
   for (i = 0; i < len; i++) {
-    if (selection->x1 < edge[i + 1] && i < begin)
-      begin = i;
-    if (edge[i] < selection->x2)
+    if (selection->x1 < edge[i + 1] || selection->x2 < edge[i + 1])
+      if (i < begin)
+	begin = i;
+    if (edge[i] < selection->x1 || edge[i] < selection->x2)
       end = i + 1;
   }
 
@@ -3264,9 +3266,12 @@ void TextLine::visitSelection(TextSelectionVisitor *visitor,
   begin = NULL;
   end = NULL;
   for (p = words; p != NULL; p = p->next) {
-    if (selection->x1 < p->xMax && selection->y1 < p->yMax && begin == NULL)
-      begin = p;
-    if (selection->x2 > p->xMin && selection->y2 > p->yMin)
+    if ((selection->x1 < p->xMax && selection->y1 < p->yMax) ||
+	(selection->x2 < p->xMax && selection->y2 < p->yMax))
+      if (begin == NULL)
+	begin = p;
+    if ((selection->x1 > p->xMin && selection->y1 > p->yMin) ||
+	(selection->x2 > p->xMin && selection->y2 > p->yMin))
       end = p->next;
   }
 
@@ -3280,29 +3285,65 @@ void TextBlock::visitSelection(TextSelectionVisitor *visitor,
 			       PDFRectangle *selection) {
   TextLine *p, *begin, *end;
   PDFRectangle child_selection;
+  double start_x, start_y, stop_x, stop_y;
 
   begin = NULL;
   end = NULL;
   for (p = lines; p != NULL; p = p->next) {
-    if (selection->x1 < p->xMax && selection->y1 < p->yMax && begin == NULL)
+    if (selection->x1 < p->xMax && selection->y1 < p->yMax && 
+	selection->x2 < p->xMax && selection->y2 < p->yMax && begin == NULL) {
       begin = p;
-    if (selection->x2 > p->xMin && selection->y2 > p->yMin)
+      if (selection->x1 < selection->x2) {
+	start_x = selection->x1;
+	start_y = selection->y1;
+      } else {
+	start_x = selection->x2;
+	start_y = selection->y2;
+      }
+    } else if (selection->x1 < p->xMax && selection->y1 < p->yMax && begin == NULL) {
+      begin = p;
+      start_x = selection->x1;
+      start_y = selection->y1;
+    } else if (selection->x2 < p->xMax && selection->y2 < p->yMax && begin == NULL) {
+      begin = p;
+      start_x = selection->x2;
+      start_y = selection->y2;
+    }
+
+    if (selection->x1 > p->xMin && selection->y1 > p->yMin &&
+	selection->x2 > p->xMin && selection->y2 > p->yMin) {
       end = p->next;
+      if (selection->x2 < selection->x1) {
+	stop_x = selection->x1;
+	stop_y = selection->y1;
+      } else {
+	stop_x = selection->x2;
+	stop_y = selection->y2;
+      }
+    } else if (selection->x1 > p->xMin && selection->y1 > p->yMin) {
+      end = p->next;
+      stop_x = selection->x1;
+      stop_y = selection->y1;
+    } else if (selection->x2 > p->xMin && selection->y2 > p->yMin) {
+      end = p->next;
+      stop_x = selection->x2;
+      stop_y = selection->y2;
+    }
   }
 
   visitor->visitBlock (this, begin, end, selection);
 
   for (p = begin; p != end; p = p->next) {
     if (p == begin) {
-      child_selection.x1 = selection->x1;
-      child_selection.y1 = selection->y1;
+      child_selection.x1 = start_x;
+      child_selection.y1 = start_y;
     } else {
       child_selection.x1 = 0;
       child_selection.y1 = 0;
     }
     if (p->next == end) {
-      child_selection.x2 = selection->x2;
-      child_selection.y2 = selection->y2;
+      child_selection.x2 = stop_x;
+      child_selection.y2 = stop_y;
     } else {
       child_selection.x2 = page->pageWidth;
       child_selection.y2 = page->pageHeight;
@@ -3317,28 +3358,68 @@ void TextPage::visitSelection(TextSelectionVisitor *visitor,
 {
   int i, begin, end;
   PDFRectangle child_selection;
+  double start_x, start_y, stop_x, stop_y;
+  TextBlock *b;
 
   begin = nBlocks;
   end = 0;
   for (i = 0; i < nBlocks; i++) {
-    if (selection->x1 < blocks[i]->xMax && 
-	selection->y1 < blocks[i]->yMax && i < begin)
+    b = blocks[i];
+
+    if (selection->x1 < b->xMax && selection->y1 < b->yMax &&
+	selection->x2 < b->xMax && selection->y2 < b->yMax && i < begin) {
       begin = i;
-    if (selection->x2 > blocks[i]->xMin && selection->y2 > blocks[i]->yMin)
+      if (selection->y1 < selection->y2) {
+	start_x = selection->x1;
+	start_y = selection->y1;
+      } else {
+	start_x = selection->x2;
+	start_y = selection->y2;
+      }
+    } else if (selection->x1 < b->xMax && selection->y1 < b->yMax && i < begin) {
+      begin = i;
+      start_x = selection->x1;
+      start_y = selection->y1;
+    } else if (selection->x2 < b->xMax && selection->y2 < b->yMax && i < begin) {
+      begin = i;
+      start_x = selection->x2;
+      start_y = selection->y2;
+    }
+
+    if (selection->x1 > b->xMin && selection->y1 > b->yMin &&
+	selection->x2 > b->xMin && selection->y2 > b->yMin) {
       end = i + 1;
+      if (selection->y2 < selection->y1) {
+	stop_x = selection->x1;
+	stop_y = selection->y1;
+      } else {
+	stop_x = selection->x2;
+	stop_y = selection->y2;
+      }
+    } else if (selection->x1 > b->xMin && selection->y1 > b->yMin) {
+      end = i + 1;
+      stop_x = selection->x1;
+      stop_y = selection->y1;
+    } else if (selection->x2 > b->xMin && selection->y2 > b->yMin) {
+      end = i + 1;
+      stop_x = selection->x2;
+      stop_y = selection->y2;
+    }
   }
 
   for (i = begin; i < end; i++) {
-    if (i == begin) {
-      child_selection.x1 = selection->x1;
-      child_selection.y1 = selection->y1;
+    if (blocks[i]->xMin < start_x && start_x < blocks[i]->xMax &&
+	blocks[i]->yMin < start_y && start_y < blocks[i]->yMax) {
+      child_selection.x1 = start_x;
+      child_selection.y1 = start_y;
     } else {
       child_selection.x1 = 0;
       child_selection.y1 = 0;
     }
-    if (i + 1 == end) {
-      child_selection.x2 = selection->x2;
-      child_selection.y2 = selection->y2;
+    if (blocks[i]->xMin < stop_x && stop_x < blocks[i]->xMax &&
+	blocks[i]->yMin < stop_y && stop_y < blocks[i]->yMax) {
+      child_selection.x2 = stop_x;
+      child_selection.y2 = stop_y;
     } else {
       child_selection.x2 = pageWidth;
       child_selection.y2 = pageHeight;
