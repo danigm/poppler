@@ -130,7 +130,12 @@ namespace Poppler {
 	    return false;
 
 	for ( int i = 0; i < items->getLength(); ++i ) {
-	    FontInfo thisFont(((::FontInfo*)items->get(i))->getName()->getCString());
+	    FontInfo thisFont(((::FontInfo*)items->get(i))->getName()->getCString(),
+			      ((::FontInfo*)items->get(i))->getEmbedded(),
+			      ((::FontInfo*)items->get(i))->getSubset(),
+			      ((::FontInfo*)items->get(i))->getToUnicode(),
+			      (Poppler::FontInfo::Type)((::FontInfo*)items->get(i))->getType()
+		);
 	    fontList->append(thisFont);
 	}
 	return true;

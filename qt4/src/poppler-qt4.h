@@ -42,20 +42,75 @@ namespace Poppler {
     */
     class FontInfo {
     public:
+	enum Type {
+	    unknown,
+	    Type1,
+	    Type1C,
+	    Type3,
+	    TrueType,
+	    CIDType0,
+	    CIDType0C,
+	    CIDTrueType
+	};
+	
 	/**
 	   Create a new font information container
 	*/
-	FontInfo( const QString fontName ):
-	    m_fontName(fontName) {};
+	FontInfo( const QString fontName, const bool isEmbedded,
+		  const bool isSubset, const bool requiresUnicodeConversion,
+		  Type type):
+	    m_fontName(fontName),
+	    m_isEmbedded(isEmbedded),
+	    m_isSubset(isSubset),
+	    m_requiresUnicodeConversion(requiresUnicodeConversion),
+	    m_type(type)
+	    {};
 
 	/**
 	   The name of the font
 	*/
 	QString name() const
 	    { return m_fontName; }
-	
+
+	/**
+	   Whether the font is embedded in the file, or not
+
+	   \return true if the font is embedded
+	*/
+	bool isEmbedded() const
+	    { return m_isEmbedded; }
+
+	/**
+	   Whether the font provided is only a subset of the full
+	   font or not. This only has meaning if the font is embedded.
+
+	   \return true if the font is only a subset
+	*/
+	bool isSubset() const
+	    { return m_isSubset; }
+
+	/** 
+	    Whether the font requires special (table) lookup
+	    
+	    \return true if the codepoints need to be looked up to get
+	    to a Unicode form
+	*/
+	bool requiresUnicodeConversion() const
+	    { return m_requiresUnicodeConversion; }
+
+	/**
+	   The type of font encoding
+	*/
+	Type type() const
+	    { return m_type; }
+
+	QString typeName() const;
     private:
 	QString m_fontName;
+	bool m_isEmbedded;
+	bool m_isSubset;
+	bool m_requiresUnicodeConversion;
+	Type m_type;
     };
 
 
@@ -74,8 +129,18 @@ namespace Poppler {
 
 	/**
 	   Render the page to a pixmap using the Arthur (Qt4) renderer
+
+	   \param q pointer to a QPixmap that is already set to the
+	   intended size.
+
+	   You are meant to create the pixmap before passing it to
+	   this routine, using something like:
+	   \code
+	   QPixmap* myPixmap = new QPixmap(page->pageSize());
+	   page->renderToPixmap(myPixmap);
+	   \endcode
 	*/
-	void renderToPixmap(QPixmap **q, QSize size) const;
+	void renderToPixmap(QPixmap *q) const;
 
 	/**
 	   Returns the text that is inside a specified rectangle

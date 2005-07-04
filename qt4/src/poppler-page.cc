@@ -76,10 +76,9 @@ void Page::splashRenderToPixmap(QPixmap **q, int x, int y, int w, int h) const
   delete output_dev;
 }
 
-void Page::renderToPixmap(QPixmap **pixmap, QSize size) const
+void Page::renderToPixmap(QPixmap *pixmap) const
 {
-  *pixmap = new QPixmap(size);
-  QPainter* painter = new QPainter(*pixmap);
+  QPainter* painter = new QPainter(pixmap);
   painter->setRenderHint(QPainter::Antialiasing);
   ArthurOutputDev output_dev(painter);
 
