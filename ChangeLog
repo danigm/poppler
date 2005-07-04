@@ -1,3 +1,31 @@
+2005-07-04  Brad Hards  <bradh@frogmouth.net>
+
+	* qt4/.cvsignore: update to reflect new files
+	
+	* qt4/tests/Makefile.am:
+	* qt4/tests/poppler-fonts.cpp: initial import of a simple font
+	metadata listing application.
+	
+	* qt4/src/poppler-qt4.h:
+	* qt4/src/poppler-document.cc complete Qt4 font metadata handling
+	
+	* qt4/src/poppler-qt4.h:
+	* qt4/src/poppler-page.cc: change the render API to make it more
+	Qt-like.
+
+	* qt4/tests/test-poppler-qt4.cpp:
+	* qt4/tests/stress-poppler-qt4.cpp: update to reflect changes
+	to render API
+	
+	* poppler/FontInfo.h/cc: make FontInfo::type() return a enum
+	instead of a GooString. As discussed on mailing list, if you
+	want a string representation, you get to make one at the bindings
+	layer (ie typeName() didn't make the grade in the final patch)
+
+	* qt4/tests/poppler-fonts.cpp (main): change order in test
+	code to reflect actual testcase file
+
+
 2005-07-01  Kristian Høgsberg  <krh@redhat.com>
 
 	* poppler/TextOutputDev.cc: Make selection also work when dragging
@@ -43,7 +71,7 @@
 	* poppler/ArthurOutputDev.cc: use transformation matrix for image
 	rendering
 
-2005-06-28  Brad Hards  <bradh@rachel>
+2005-06-28  Brad Hards  <bradh@frogmouth.net>
 
 	* .cvsignore:
 	* qt4/.cvsignore:
