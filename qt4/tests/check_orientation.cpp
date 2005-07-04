@@ -17,22 +17,22 @@ int main( int argc, char **argv )
     }
   
     Poppler::Page *page = doc->page(0);
-    if ( !( page->orientation() == Poppler::Page::Landscape ) ) {
+    if ( !( page->orientation() == Poppler::Page::Portrait ) ) {
 	exit(2);
     }
 
     page = doc->page(1);
-    if ( !( page->orientation() == Poppler::Page::Portrait ) ) {
+    if ( !( page->orientation() == Poppler::Page::Landscape ) ) {
 	exit(3);
     }
 
     page = doc->page(2);
-    if ( !( page->orientation() == Poppler::Page::Seascape ) ) {
+    if ( !( page->orientation() == Poppler::Page::UpsideDown) ) {
 	exit(4);
     }
 
     page = doc->page(3);
-    if ( !( page->orientation() == Poppler::Page::UpsideDown ) ) {
+    if ( !( page->orientation() == Poppler::Page::Seascape ) ) {
 	exit(5);
     }
 
