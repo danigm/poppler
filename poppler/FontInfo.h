@@ -6,7 +6,17 @@
 
 class FontInfo {
 public:
-
+  enum Type {
+    unknown,
+    Type1,
+    Type1C,
+    Type3,
+    TrueType,
+    CIDType0,
+    CIDType0C,
+    CIDTrueType
+  };
+    
   // Constructor.
   FontInfo(GfxFont *fontA, PDFDoc *doc);
   // Copy constructor
@@ -15,14 +25,14 @@ public:
   ~FontInfo();
 
   GooString *getName()      { return name; };
-  GooString *getType()      { return type; };
+  Type       getType()      { return type; };
   GBool      getEmbedded()  { return emb; };
   GBool      getSubset()    { return subset; };
   GBool      getToUnicode() { return hasToUnicode; };
 
 private:
   GooString *name;
-  GooString *type;
+  Type type;
   GBool emb;
   GBool subset;
   GBool hasToUnicode;

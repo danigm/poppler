@@ -13,17 +13,6 @@
 #include "config.h"
 #include "FontInfo.h"
 
-static char *fontTypeNames[] = {
-  "unknown",
-  "Type 1",
-  "Type 1C",
-  "Type 3",
-  "TrueType",
-  "CID Type 0",
-  "CID Type 0C",
-  "CID TrueType"
-};
-
 FontInfoScanner::FontInfoScanner(PDFDoc *docA) {
   doc = docA;
   currentPage = 1;
@@ -164,7 +153,7 @@ FontInfo::FontInfo(GfxFont *font, PDFDoc *doc) {
   }
   
   // font type
-  type = new GooString(fontTypeNames[font->getType()]);
+  type = (FontInfo::Type)font->getType();
 
   // check for an embedded font
   if (font->getType() == fontType3) {
@@ -196,7 +185,7 @@ FontInfo::FontInfo(GfxFont *font, PDFDoc *doc) {
 
 FontInfo::FontInfo(FontInfo& f) {
   name = f.name->copy();
-  type = f.type->copy();
+  type = f.type;
   emb = f.emb;
   subset = f.subset;
   hasToUnicode = f.hasToUnicode;
@@ -205,5 +194,4 @@ FontInfo::FontInfo(FontInfo& f) {
 
 FontInfo::~FontInfo() {
   delete name;
-  delete type;
 }
