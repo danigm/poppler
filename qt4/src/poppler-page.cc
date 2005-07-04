@@ -155,7 +155,7 @@ Page::Orientation Page::orientation() const
   case 90:
     return Page::Landscape;
     break;
-  case 190:
+  case 180:
     return Page::UpsideDown;
     break;
   case 270:
