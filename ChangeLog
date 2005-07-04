@@ -1,5 +1,11 @@
 2005-07-04  Brad Hards  <bradh@frogmouth.net>
 
+	* qt4/src/poppler-page.cc: fix typo bug that
+	prevented correct detection of upside down pages
+
+	* qt4/tests/check-orientation.cpp: fix path to
+	point to test module.
+	
 	* qt4/.cvsignore: update to reflect new files
 	
 	* qt4/tests/Makefile.am:
