@@ -9,13 +9,20 @@ LDADDS =					\
 	$(top_builddir)/qt4/src/libpoppler-qt4.la	\
 	$(POPPLER_QT4_LIBS)
 
-noinst_PROGRAMS = test-poppler-qt4 stress-poppler-qt4
+noinst_PROGRAMS = test-poppler-qt4 stress-poppler-qt4 \
+	poppler-fonts
 
 
 test_poppler_qt4_SOURCES =			\
        test-poppler-qt4.cpp
 
 test_poppler_qt4_LDADD = $(LDADDS)
+
+
+poppler_fonts_SOURCES =			\
+       poppler-fonts.cpp
+
+poppler_fonts_LDADD = $(LDADDS)
 
 
 
