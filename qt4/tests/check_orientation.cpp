@@ -10,7 +10,7 @@ int main( int argc, char **argv )
 {
     QApplication a( argc, argv );               // QApplication required!
 
-    Poppler::Document *doc = Poppler::Document::load("orientation.pdf");
+    Poppler::Document *doc = Poppler::Document::load("../../../test/unittestcases/orientation.pdf");
     if (!doc)
     {
 	exit(1);
