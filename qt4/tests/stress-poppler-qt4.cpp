@@ -51,10 +51,10 @@ int main( int argc, char **argv )
 		doc->okToAddNotes();
 		doc->pageMode();
 
-		QPixmap *pixmap = new QPixmap;
 		for( int index = 0; index < doc->numPages(); ++index ) {
 		    Poppler::Page *page = doc->page( index );
-		    page->renderToPixmap(&pixmap, page->pageSize());
+		    QPixmap *pixmap = new QPixmap(page->pageSize());
+		    page->renderToPixmap(pixmap);
 		    page->pageSize();
 		    page->orientation();
 		    std::cout << ".";

@@ -24,7 +24,8 @@ PDFDisplay::PDFDisplay( Poppler::Document *d )
     if (doc) {
 	Poppler::Page *page = doc->page("1");
 	if (page) {
-	    page->renderToPixmap(&pixmap, page->pageSize());
+	    pixmap = new QPixmap(page->pageSize());
+	    page->renderToPixmap(pixmap);
 	    delete page;
 	}
     } else {
