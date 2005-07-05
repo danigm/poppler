@@ -37,12 +37,17 @@
 #ifndef NO_DECRYPTION
 //------------------------------------------------------------------------
 // Permission bits
+// Note that the PDF spec uses 1 base (eg bit 3 is 1<<2)
 //------------------------------------------------------------------------
 
-#define permPrint    (1<<2)
-#define permChange   (1<<3)
-#define permCopy     (1<<4)
-#define permNotes    (1<<5)
+#define permPrint         (1<<2)  // bit 3
+#define permChange        (1<<3)  // bit 4
+#define permCopy          (1<<4)  // bit 5
+#define permNotes         (1<<5)  // bit 6
+#define permFillForm      (1<<8)  // bit 9
+#define permAccessibility (1<<9)  // bit 10
+#define permAssemble      (1<<10) // bit 11
+#define permHighResPrint  (1<<11) // bit 12
 #define defPermFlags 0xfffc
 #endif
 
@@ -899,6 +904,24 @@ GBool XRef::okToPrint(GBool ignoreOwnerPW) {
 #endif
 }
 
+// we can print at high res if we are only doing security handler revision
+// 2 (and we are allowed to print at all), or with security handler rev
+// 3 and we are allowed to print, and bit 12 is set.
+GBool XRef::okToPrintHighRes(GBool ignoreOwnerPW) {
+#ifndef NO_DECRYPTION
+  if (2 == encRevision) {
+    return (okToPrint(ignoreOwnerPW));
+  } else if (encRevision >= 3) {
+    return (okToPrint(ignoreOwnerPW) && (permFlags & permHighResPrint));
+  } else {
+    // something weird - unknown security handler version
+    return gFalse;
+  }
+#else
+  return gTrue;
+#endif
+}
+
 GBool XRef::okToChange(GBool ignoreOwnerPW) {
 #ifndef NO_DECRYPTION
   return (!ignoreOwnerPW && ownerPasswordOk) || (permFlags & permChange);
@@ -918,6 +941,30 @@ GBool XRef::okToCopy(GBool ignoreOwnerPW) {
 GBool XRef::okToAddNotes(GBool ignoreOwnerPW) {
 #ifndef NO_DECRYPTION
   return (!ignoreOwnerPW && ownerPasswordOk) || (permFlags & permNotes);
+#else
+  return gTrue;
+#endif
+}
+
+GBool XRef::okToFillForm(GBool ignoreOwnerPW) {
+#ifndef NO_DECRYPTION
+  return (!ignoreOwnerPW && ownerPasswordOk) || (permFlags & permFillForm);
+#else
+  return gTrue;
+#endif
+}
+
+GBool XRef::okToAccessibility(GBool ignoreOwnerPW) {
+#ifndef NO_DECRYPTION
+  return (!ignoreOwnerPW && ownerPasswordOk) || (permFlags & permAccessibility);
+#else
+  return gTrue;
+#endif
+}
+
+GBool XRef::okToAssemble(GBool ignoreOwnerPW) {
+#ifndef NO_DECRYPTION
+  return (!ignoreOwnerPW && ownerPasswordOk) || (permFlags & permAssemble);
 #else
   return gTrue;
 #endif

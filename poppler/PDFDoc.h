@@ -132,12 +132,21 @@ public:
   // Check various permissions.
   GBool okToPrint(GBool ignoreOwnerPW = gFalse)
     { return xref->okToPrint(ignoreOwnerPW); }
+  GBool okToPrintHighRes(GBool ignoreOwnerPW = gFalse)
+    { return xref->okToPrintHighRes(ignoreOwnerPW); }
   GBool okToChange(GBool ignoreOwnerPW = gFalse)
     { return xref->okToChange(ignoreOwnerPW); }
   GBool okToCopy(GBool ignoreOwnerPW = gFalse)
     { return xref->okToCopy(ignoreOwnerPW); }
   GBool okToAddNotes(GBool ignoreOwnerPW = gFalse)
     { return xref->okToAddNotes(ignoreOwnerPW); }
+  GBool okToFillForm(GBool ignoreOwnerPW = gFalse)
+    { return xref->okToFillForm(ignoreOwnerPW); }
+  GBool okToAccessibility(GBool ignoreOwnerPW = gFalse)
+    { return xref->okToAccessibility(ignoreOwnerPW); }
+  GBool okToAssemble(GBool ignoreOwnerPW = gFalse)
+    { return xref->okToAssemble(ignoreOwnerPW); }
+
 
   // Is this document linearized?
   GBool isLinearized();

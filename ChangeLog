@@ -1,3 +1,11 @@
+2005-07-05  Brad Hards  <bradh@frogmouth.net>
+
+	* poppler/XRef.h:
+	* poppler/Xref.cc:
+	* poppler/PDFDoc.h: Add some more user permissions properties -
+	high resolution printing, document assembly, extraction for
+	accessibility and form completion.
+
 2005-07-04  Brad Hards  <bradh@frogmouth.net>
 
 	* qt4/src/poppler-page.cc: fix typo bug that

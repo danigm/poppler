@@ -61,9 +61,13 @@ public:
 
   // Check various permissions.
   GBool okToPrint(GBool ignoreOwnerPW = gFalse);
+  GBool okToPrintHighRes(GBool ignoreOwnerPW = gFalse);
   GBool okToChange(GBool ignoreOwnerPW = gFalse);
   GBool okToCopy(GBool ignoreOwnerPW = gFalse);
   GBool okToAddNotes(GBool ignoreOwnerPW = gFalse);
+  GBool okToFillForm(GBool ignoreOwnerPW = gFalse);
+  GBool okToAccessibility(GBool ignoreOwnerPW = gFalse);
+  GBool okToAssemble(GBool ignoreOwnerPW = gFalse);
 
   // Get catalog object.
   Object *getCatalog(Object *obj) { return fetch(rootNum, rootGen, obj); }
