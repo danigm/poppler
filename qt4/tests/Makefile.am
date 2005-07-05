@@ -32,10 +32,18 @@ stress_poppler_qt4_SOURCES =			\
 stress_poppler_qt4_LDADD = $(LDADDS)
 
 TESTS = \
-	check_orientation
+	check_author           \
+	check_orientation      \
+	check_permissions
 
 
 check_PROGRAMS = $(TESTS)
 
 check_orientation_SOURCES = check_orientation.cpp
 check_orientation_LDADD = $(LDADDS)
+
+check_author_SOURCES = check_author.cpp
+check_author_LDADD = $(LDADDS)
+
+check_permissions_SOURCES = check_permissions.cpp
+check_permissions_LDADD = $(LDADDS)
