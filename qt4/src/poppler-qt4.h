@@ -296,21 +296,62 @@ namespace Poppler {
 
 	/**
 	   Test if the permissions on the document allow it to be
-	   changed
+	   printed at high resolution
+	*/
+	bool okToPrintHighRes() const;
+
+	/**
+	   Test if the permissions on the document allow it to be
+	   changed.
+
+	   \note depending on the type of change, it may be more
+	   appropriate to check other properties as well.
 	*/
 	bool okToChange() const;
 
 	/**
-	   Test if the permissions on the document allow it to be
-	   copied
+	   Test if the permissions on the document allow the
+	   contents to be copied / extracted
 	*/
 	bool okToCopy() const;
 
 	/**
-	   Test if the permissions on the document allow notes to be
-	   added
+	   Test if the permissions on the document allow annotations
+	   to be added or modified, and interactive form fields (including
+	   signature fields) to be completed.
 	*/
 	bool okToAddNotes() const;
+
+	/**
+	   Test if the permissions on the document allow interactive
+	   form fields (including signature fields) to be completed.
+
+	   \note this can be true even if okToAddNotes() is false - this
+	   means that only form completion is permitted.
+	*/
+	bool okToFillForm() const;
+
+	/**
+	   Test if the permissions on the document allow interactive
+	   form fields (including signature fields) to be set, created and
+	   modified
+	*/
+	bool okToCreateFormFields() const;
+
+	/**
+	   Test if the permissions on the document allow content extraction
+	   (text and perhaps other content) for accessibility usage (eg for
+	   a screen reader)
+	*/
+	bool okToExtractForAccessibility() const;
+
+	/**
+	   Test if the permissions on the document allow it to be
+	   "assembled" - insertion, rotation and deletion of pages;
+	   or creation of bookmarks and thumbnail images. This can
+	   be true even if okToChange is false.
+	*/
+	bool okToAssemble() const;
 
 	/**
 	   The version of the PDF specification that the document

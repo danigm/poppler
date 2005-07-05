@@ -280,6 +280,11 @@ namespace Poppler {
 	return m_doc->doc.okToPrint();
     }
 
+    bool Document::okToPrintHighRes() const
+    {
+	return m_doc->doc.okToPrintHighRes();
+    }
+
     bool Document::okToChange() const
     {
 	return m_doc->doc.okToChange();
@@ -293,6 +298,26 @@ namespace Poppler {
     bool Document::okToAddNotes() const
     {
 	return m_doc->doc.okToAddNotes();
+    }
+
+    bool Document::okToFillForm() const
+    {
+	return m_doc->doc.okToFillForm();
+    }
+
+    bool Document::okToCreateFormFields() const
+    {
+	return ( okToFillForm() && okToChange() );
+    }
+
+    bool Document::okToExtractForAccessibility() const
+    {
+	return m_doc->doc.okToAccessibility();
+    }
+
+    bool Document::okToAssemble() const
+    {
+	return m_doc->doc.okToAssemble();
     }
 
     double Document::pdfVersion() const

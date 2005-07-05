@@ -1,5 +1,9 @@
 2005-07-05  Brad Hards  <bradh@frogmouth.net>
 
+	* qt4/src/poppler-document.cc (Poppler): 
+	* qt4/src/poppler-qt4.h: Add Qt4 bindings for the 
+	additional user permission properties.
+
 	* poppler/XRef.h:
 	* poppler/Xref.cc:
 	* poppler/PDFDoc.h: Add some more user permissions properties -
