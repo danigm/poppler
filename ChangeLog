@@ -1,3 +1,10 @@
+2005-07-05  Albert Astals Cid  <aacid@kde.org>
+
+	* qt4/src/poppler-document.cc (Poppler): 
+	* qt4/src/poppler-qt4.h: Don't crash with files that have fonts with
+	no name, for example the one found at
+	http://bugs.kde.org/show_bug.cgi?id=101520.
+
 2005-07-05  Brad Hards  <bradh@frogmouth.net>
 
 	* qt4/src/poppler-document.cc (Poppler): 

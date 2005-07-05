@@ -67,7 +67,7 @@ namespace Poppler {
 	    {};
 
 	/**
-	   The name of the font
+	   The name of the font. Can be QString::null if the font has no name
 	*/
 	QString name() const
 	    { return m_fontName; }
