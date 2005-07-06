@@ -1,3 +1,8 @@
+2005-07-06  Albert Astals Cid  <aacid@kde.org>
+
+	* poppler/PDFDoc.[cc|h]: Add checkFooter to check document ends with
+	%%EOF
+
 2005-07-06  Brad Hards  <bradh@frogmouth.net>
 
 	* qt4/tests/Makefile.am:

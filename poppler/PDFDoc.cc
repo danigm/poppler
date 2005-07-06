@@ -116,6 +116,9 @@ PDFDoc::PDFDoc(BaseStream *strA, GooString *ownerPassword,
 GBool PDFDoc::setup(GooString *ownerPassword, GooString *userPassword) {
   str->reset();
 
+  // check footer
+  if (!checkFooter()) return gFalse;
+  
   // check header
   checkHeader();
 
@@ -170,6 +173,31 @@ PDFDoc::~PDFDoc() {
   }
 }
 
+
+// Check for a %%EOF at the end of this stream
+GBool PDFDoc::checkFooter() {
+  // we look in the last 7 chars because it can be %%EOF %%EOF\n %%EOF\n\r etc
+  char eof[8];
+  int pos = str->getPos();
+  str->setPos(7, -1);
+  eof[0] = str->getChar();
+  eof[1] = str->getChar();
+  eof[2] = str->getChar();
+  eof[3] = str->getChar();
+  eof[4] = str->getChar();
+  eof[5] = str->getChar();
+  eof[6] = str->getChar();
+  eof[7] = '\0';
+  if (strstr(eof, "%%EOF") == NULL)
+  {
+    error(-1, "Document has not the mandatory ending %%EOF");
+    errCode = errDamaged;
+    return gFalse;
+  }
+  str->setPos(pos);
+  return gTrue;
+}
+  
 // Check for a PDF header on this stream.  Skip past some garbage
 // if necessary.
 void PDFDoc::checkHeader() {

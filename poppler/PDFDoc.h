@@ -164,6 +164,7 @@ public:
 private:
 
   GBool setup(GooString *ownerPassword, GooString *userPassword);
+  GBool checkFooter();
   void checkHeader();
   void getLinks(Page *page);
 
