@@ -8,3 +8,5 @@ stress-poppler-qt4
 test-poppler-qt4
 poppler-fonts
 check_orientation
+check_author
+check_permissions
