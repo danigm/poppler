@@ -1,5 +1,9 @@
 2005-07-06  Brad Hards  <bradh@frogmouth.net>
 
+	* qt4/tests/Makefile.am:
+	* qt4/tests/check_linearised.cpp: Added unit test for linearised
+	property
+
 	* qt4/tests/poppler-fonts.cpp (main): update to reflect API change,
 	and also to show "[none]" if the font is nameless.
 
