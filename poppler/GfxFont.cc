@@ -144,10 +144,14 @@ GfxFont::GfxFont(char *tagA, Ref idA, GooString *nameA) {
   origName = nameA;
   embFontName = NULL;
   extFontFile = NULL;
+  family = NULL;
+  stretch = StretchNotDefined;
+  weight = WeightNotDefined;
 }
 
 GfxFont::~GfxFont() {
   delete tag;
+  delete family;
   if (origName && origName != name) {
     delete origName;
   }
@@ -186,6 +190,43 @@ void GfxFont::readFontDescriptor(XRef *xref, Dict *fontDict) {
     obj1.dictLookup("FontName", &obj2);
     if (obj2.isName()) {
       embFontName = new GooString(obj2.getName());
+    }
+    obj2.free();
+
+    // get family
+    obj1.dictLookup("FontFamily", &obj2);
+    if (obj2.isString()) family = new GooString(obj2.getString());
+    obj2.free();
+
+    // get stretch
+    obj1.dictLookup("FontStretch", &obj2);
+    if (obj2.isName()) {
+      if (strcmp(obj2.getName(), "UltraCondensed") == 0) stretch = UltraCondensed;
+      else if (strcmp(obj2.getName(), "ExtraCondensed") == 0) stretch = ExtraCondensed;
+      else if (strcmp(obj2.getName(), "Condensed") == 0) stretch = Condensed;
+      else if (strcmp(obj2.getName(), "SemiCondensed") == 0) stretch = SemiCondensed;
+      else if (strcmp(obj2.getName(), "Normal") == 0) stretch = Normal;
+      else if (strcmp(obj2.getName(), "SemiExpanded") == 0) stretch = SemiExpanded;
+      else if (strcmp(obj2.getName(), "Expanded") == 0) stretch = Expanded;
+      else if (strcmp(obj2.getName(), "ExtraExpanded") == 0) stretch = ExtraExpanded;
+      else if (strcmp(obj2.getName(), "UltraExpanded") == 0) stretch = UltraExpanded;
+      else error(-1, "Invalid Font Stretch");
+    }
+    obj2.free();
+    
+    // get weight
+    obj1.dictLookup("FontWeight", &obj2);
+    if (obj2.isNum()) {
+      if (obj2.getNum() == 100) weight = W100;
+      else if (obj2.getNum() == 200) weight = W200;
+      else if (obj2.getNum() == 300) weight = W300;
+      else if (obj2.getNum() == 400) weight = W400;
+      else if (obj2.getNum() == 500) weight = W500;
+      else if (obj2.getNum() == 600) weight = W600;
+      else if (obj2.getNum() == 700) weight = W700;
+      else if (obj2.getNum() == 800) weight = W800;
+      else if (obj2.getNum() == 900) weight = W900;
+      else error(-1, "Invalid Font Weight");
     }
     obj2.free();
 

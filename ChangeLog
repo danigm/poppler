@@ -2,6 +2,8 @@
 
 	* poppler/PDFDoc.[cc|h]: Add checkFooter to check document ends with
 	%%EOF
+	* poppler/GfxFont.[cc|h]: Extract family, stretch and weight from the
+	font descriptor
 
 2005-07-06  Brad Hards  <bradh@frogmouth.net>
 

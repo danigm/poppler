@@ -82,6 +82,30 @@ struct GfxFontCIDWidths {
 class GfxFont {
 public:
 
+  enum Stretch { 
+	StretchNotDefined, 
+	UltraCondensed, 
+	ExtraCondensed, 
+	Condensed, 
+	SemiCondensed, 
+	Normal, 
+	SemiExpanded, 
+	Expanded, 
+	ExtraExpanded, 
+	UltraExpanded };
+
+  enum Weight { 
+	WeightNotDefined, 
+	W100, 
+	W200, 
+	W300, 
+	W400, // Normal
+	W500, 
+	W600, 
+	W700, // Bold
+	W800, 
+	W900 };
+
   // Build a GfxFont object.
   static GfxFont *makeFont(XRef *xref, char *tagA, Ref idA, Dict *fontDict);
 
@@ -102,6 +126,15 @@ public:
 
   // Get base font name.
   GooString *getName() { return name; }
+  
+  // Get font family name.
+  GooString *getFamily() { return family; }
+  
+  // Get font stretch.
+  Stretch getStretch() { return stretch; }
+  
+  // Get font weight.
+  Weight getWeight() { return weight; }
 
   // Get the original font name (ignornig any munging that might have
   // been done to map to a canonical Base-14 font name).
@@ -168,6 +201,9 @@ protected:
   GooString *tag;			// PDF font tag
   Ref id;			// reference (used as unique ID)
   GooString *name;		// font name
+  GooString *family;		// font family
+  Stretch stretch;			// font stretch
+  Weight weight;			// font weight
   GooString *origName;		// original font name
   GfxFontType type;		// type of font
   int flags;			// font descriptor flags
