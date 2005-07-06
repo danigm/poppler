@@ -57,12 +57,10 @@ namespace Poppler {
 	   Create a new font information container
 	*/
 	FontInfo( const QString fontName, const bool isEmbedded,
-		  const bool isSubset, const bool requiresUnicodeConversion,
-		  Type type):
+		  const bool isSubset, Type type):
 	    m_fontName(fontName),
 	    m_isEmbedded(isEmbedded),
 	    m_isSubset(isSubset),
-	    m_requiresUnicodeConversion(requiresUnicodeConversion),
 	    m_type(type)
 	    {};
 
@@ -89,15 +87,6 @@ namespace Poppler {
 	bool isSubset() const
 	    { return m_isSubset; }
 
-	/** 
-	    Whether the font requires special (table) lookup
-	    
-	    \return true if the codepoints need to be looked up to get
-	    to a Unicode form
-	*/
-	bool requiresUnicodeConversion() const
-	    { return m_requiresUnicodeConversion; }
-
 	/**
 	   The type of font encoding
 	*/
@@ -109,7 +98,6 @@ namespace Poppler {
 	QString m_fontName;
 	bool m_isEmbedded;
 	bool m_isSubset;
-	bool m_requiresUnicodeConversion;
 	Type m_type;
     };
 

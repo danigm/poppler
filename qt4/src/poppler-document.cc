@@ -134,14 +134,12 @@ namespace Poppler {
 		fontList->append(FontInfo(((::FontInfo*)items->get(i))->getName()->getCString(),
 			      ((::FontInfo*)items->get(i))->getEmbedded(),
 			      ((::FontInfo*)items->get(i))->getSubset(),
-			      ((::FontInfo*)items->get(i))->getToUnicode(),
 			      (Poppler::FontInfo::Type)((::FontInfo*)items->get(i))->getType()
 		));
 	    else
 		fontList->append(FontInfo(QString::null,
 			      ((::FontInfo*)items->get(i))->getEmbedded(),
 			      ((::FontInfo*)items->get(i))->getSubset(),
-			      ((::FontInfo*)items->get(i))->getToUnicode(),
 			      (Poppler::FontInfo::Type)((::FontInfo*)items->get(i))->getType()
 		));
 	}

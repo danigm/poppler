@@ -1,3 +1,12 @@
+2005-07-06  Brad Hards  <bradh@frogmouth.net>
+
+	* qt4/tests/poppler-fonts.cpp (main): update to reflect API change,
+	and also to show "[none]" if the font is nameless.
+
+	* qt4/src/poppler-document.cc (Poppler): 
+	* qt4/src/poppler-qt4.h: remove the unicode translation bool,
+	it is really an internal thing.
+
 2005-07-05  Albert Astals Cid  <aacid@kde.org>
 
 	* qt4/src/poppler-document.cc (Poppler): 
@@ -7,6 +16,11 @@
 
 2005-07-05  Brad Hards  <bradh@frogmouth.net>
 
+	* qt4/tests/check_author.cpp:
+	* qt4/tests/check_permissions.cpp:
+	* Makefile.am:
+	* .cvsignore: add a couple more test cases
+	
 	* qt4/src/poppler-document.cc (Poppler): 
 	* qt4/src/poppler-qt4.h: Add Qt4 bindings for the 
 	additional user permission properties.
