@@ -219,6 +219,11 @@ poppler_page_copy_to_pixbuf (PopplerPage *page,
   pixbuf_rowstride = gdk_pixbuf_get_rowstride (pixbuf);
   pixbuf_n_channels = gdk_pixbuf_get_n_channels (pixbuf);
 
+  if (cairo_width > gdk_pixbuf_get_width (pixbuf))
+    cairo_width = gdk_pixbuf_get_width (pixbuf);
+  if (cairo_height > gdk_pixbuf_get_height (pixbuf))
+    cairo_height = gdk_pixbuf_get_height (pixbuf);
+
   for (y = 0; y < cairo_height; y++)
     {
       src = (unsigned int *) (cairo_data + y * cairo_rowstride);

@@ -1,3 +1,8 @@
+2005-07-06  Kristian Høgsberg  <krh@redhat.com>
+
+	* glib/poppler-page.cc (poppler_page_copy_to_pixbuf): Add out of
+	bounds checking (from Marco).
+
 2005-07-07  Brad Hards  <bradh@frogmouth.net>
 
 	* glib/poppler-document.cc (convert_page_mode): Update to
@@ -93,7 +98,6 @@
 
 	* qt4/tests/poppler-fonts.cpp (main): change order in test
 	code to reflect actual testcase file
-
 
 2005-07-01  Kristian Høgsberg  <krh@redhat.com>
 
