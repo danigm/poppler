@@ -112,6 +112,28 @@ namespace Poppler {
 	}
     }
 
+    Document::PageLayout Document::pageLayout(void) const
+    {
+	switch (m_doc->doc.getCatalog()->getPageLayout()) {
+	case Catalog::pageLayoutNone:
+	    return NoLayout;
+	case Catalog::pageLayoutSinglePage:
+	    return SinglePage;
+	case Catalog::pageLayoutOneColumn:
+	    return OneColumn;
+	case Catalog::pageLayoutTwoColumnLeft:
+	    return TwoColumnLeft;
+	case Catalog::pageLayoutTwoColumnRight:
+	    return TwoColumnRight;
+	case Catalog::pageLayoutTwoPageLeft:
+	    return TwoPageLeft;
+	case Catalog::pageLayoutTwoPageRight:
+	    return TwoPageRight;
+	default:
+	    return NoLayout;
+	}
+    }
+
     int Document::numPages() const
     {
 	return m_doc->doc.getNumPages();

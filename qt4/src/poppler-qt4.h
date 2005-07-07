@@ -176,7 +176,7 @@ namespace Poppler {
   
     public:
 	/**
-	   The mode
+	   The page mode
 	*/
 	enum PageMode {
 	    UseNone,     ///< No mode - neither document outline nor thumbnail images are visible
@@ -187,6 +187,19 @@ namespace Poppler {
 	    UseAttach    ///< Attachments panel visible
 	};
   
+	/**
+	   The page layout
+	*/
+	enum PageLayout {
+	    NoLayout,   ///< Layout not specified
+	    SinglePage, ///< Display a single page
+	    OneColumn,  ///< Display a single column of pages
+	    TwoColumnLeft, ///< Display the pages in two columns, with odd-numbered pages on the left
+	    TwoColumnRight, ///< Display the pages in two columns, with odd-numbered pages on the right
+	    TwoPageLeft, ///< Display the pages two at a time, with odd-numbered pages on the left
+	    TwoPageRight, ///< Display the pages two at a time, with odd-numbered pages on the right
+	};
+
 	/**
 	   Load the document from a file on disk
 
@@ -223,9 +236,18 @@ namespace Poppler {
 	int numPages() const;
   
 	/**
-	   The type of mode that is in use
+	   The type of mode that should be used by the application
+	   when the document is opened. Note that while this is 
+	   called page mode, it is really viewer application mode.
 	*/
 	PageMode pageMode() const;
+
+	/**
+	   The layout that pages should be shown in when the document
+	   is first opened.  This basically describes how pages are
+	   shown relative to each other.
+	*/
+	PageLayout pageLayout() const;
 
 	/**
 	   Provide the passwords required to unlock the document

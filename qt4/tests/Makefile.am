@@ -40,7 +40,9 @@ TESTS = \
 	check_pagemode_attach  \
 	check_pagemode_none    \
 	check_pagemode_thumbs  \
-	check_pagemode_oc
+	check_pagemode_oc      \
+	check_pagelayout_none  \
+	check_pagelayout_single 
 
 
 check_PROGRAMS = $(TESTS)
@@ -71,3 +73,9 @@ check_pagemode_thumbs_LDADD = $(LDADDS)
 
 check_pagemode_oc_SOURCES = check_pagemode_oc.cpp
 check_pagemode_oc_LDADD = $(LDADDS)
+
+check_pagelayout_single_SOURCES = check_pagelayout_single.cpp
+check_pagelayout_single_LDADD = $(LDADDS)
+
+check_pagelayout_none_SOURCES = check_pagelayout_none.cpp
+check_pagelayout_none_LDADD = $(LDADDS)

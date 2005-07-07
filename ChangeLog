@@ -10,6 +10,14 @@
 
 2005-07-07  Brad Hards  <bradh@frogmouth.net>
 
+	* qt4/src/poppler-document.cc: 
+	* qt4/src/poppler-qt4.h: Add pageLayout() function for Qt4
+	bindings
+
+	* qt4/tests/check_pagelayout_single.cpp:
+	* qt4/tests/check_pagelayout_none.cpp:
+	* Makefile.am: Add unit tests for pageLayout()
+
 	* glib/poppler-document.cc (convert_page_mode): Update to
 	reflect the Catalog API change. I'm not that good at glib,
 	so this has a non-zero chance of being pure crackrock.
