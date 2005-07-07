@@ -10,3 +10,9 @@ poppler-fonts
 check_orientation
 check_author
 check_permissions
+check_linearised
+check_pagemode_attach
+check_pagemode_fullscreen
+check_pagemode_none
+check_pagemode_oc
+check_pagemode_thumbs
