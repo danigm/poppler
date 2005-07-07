@@ -105,6 +105,8 @@ namespace Poppler {
 	    return FullScreen;
 	case Catalog::pageModeOC:
 	    return UseOC;
+	case Catalog::pageModeAttach:
+	    return UseAttach;
 	default:
 	    return UseNone;
 	}

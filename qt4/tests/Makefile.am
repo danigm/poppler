@@ -35,7 +35,12 @@ TESTS = \
 	check_author           \
 	check_orientation      \
 	check_permissions      \
-	check_linearised
+	check_linearised       \
+	check_pagemode_fullscreen \
+	check_pagemode_attach  \
+	check_pagemode_none    \
+	check_pagemode_thumbs  \
+	check_pagemode_oc
 
 
 check_PROGRAMS = $(TESTS)
@@ -51,3 +56,18 @@ check_author_LDADD = $(LDADDS)
 
 check_permissions_SOURCES = check_permissions.cpp
 check_permissions_LDADD = $(LDADDS)
+
+check_pagemode_fullscreen_SOURCES = check_pagemode_fullscreen.cpp
+check_pagemode_fullscreen_LDADD = $(LDADDS)
+
+check_pagemode_attach_SOURCES = check_pagemode_attach.cpp
+check_pagemode_attach_LDADD = $(LDADDS)
+
+check_pagemode_none_SOURCES = check_pagemode_none.cpp
+check_pagemode_none_LDADD = $(LDADDS)
+
+check_pagemode_thumbs_SOURCES = check_pagemode_thumbs.cpp
+check_pagemode_thumbs_LDADD = $(LDADDS)
+
+check_pagemode_oc_SOURCES = check_pagemode_oc.cpp
+check_pagemode_oc_LDADD = $(LDADDS)

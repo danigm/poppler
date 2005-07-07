@@ -117,6 +117,8 @@ Catalog::Catalog(XRef *xrefA) {
       pageMode = pageModeFullScreen;
     else if (obj.isName("UseOC"))
       pageMode = pageModeOC;
+    else if (obj.isName("UseAttachments"))
+      pageMode = pageModeAttach;
   }
   obj.free();
 

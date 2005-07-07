@@ -105,7 +105,8 @@ public:
     pageModeOutlines,
     pageModeThumbs,
     pageModeFullScreen,
-    pageModeOC
+    pageModeOC,
+    pageModeAttach
   };
   enum PageLayout {
     pageLayoutNone,

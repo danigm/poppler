@@ -179,11 +179,12 @@ namespace Poppler {
 	   The mode
 	*/
 	enum PageMode {
-	    UseNone,     ///< No mode 
-	    UseOutlines, ///< Outline mode
-	    UseThumbs,   ///< Thumbnail mode
-	    FullScreen,  ///< Fullscreen mode
-	    UseOC        ///< OC mode
+	    UseNone,     ///< No mode - neither document outline nor thumbnail images are visible
+	    UseOutlines, ///< Document outline visible
+	    UseThumbs,   ///< Thumbnail images visible
+	    FullScreen,  ///< Fullscreen mode (no menubar, windows controls etc)
+	    UseOC,       ///< Optional content group panel visible
+	    UseAttach    ///< Attachments panel visible
 	};
   
 	/**
@@ -273,6 +274,9 @@ namespace Poppler {
 
 	/**
 	   Test if the document is linearised
+
+	   In some cases, this is called "fast web view", since it
+	   is mostly an optimisation for viewing over the Web.
 	*/
 	bool isLinearized() const;
 

@@ -1,3 +1,18 @@
+2005-07-07  Brad Hards  <bradh@frogmouth.net>
+
+	* poppler/Catalog.cc:
+	* poppler/Catalog.h: update page mode options to PDF 1.6
+
+	* qt4/src/poppler-qt4.h:
+	* qt4/src/poppler-document.cc: add Qt4 bindings for additional 
+	pageMode() value created by change above
+
+	* qt4/src/poppler-qt4.h: minor updates to API docs.
+	
+	* qt4/tests/Makefile.am:
+	* qt4/tests/check_pagemode_*.cpp: unit tests for Qt4 pageMode() call
+	and associated enum. This is the initial checkin for these files
+
 2005-07-06  Albert Astals Cid  <aacid@kde.org>
 
 	* poppler/PDFDoc.[cc|h]: Add checkFooter to check document ends with
