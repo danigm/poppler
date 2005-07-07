@@ -354,6 +354,8 @@ convert_page_mode (Catalog::PageMode pageMode)
       return POPPLER_PAGE_MODE_FULL_SCREEN;
     case Catalog::pageModeOC:
       return POPPLER_PAGE_MODE_USE_OC;
+    case Catalog::pageModeAttach:
+      return POPPLER_PAGE_MODE_USE_ATTACHMENTS;
     case Catalog::pageModeNone:
     default:
       return POPPLER_PAGE_MODE_UNSET;

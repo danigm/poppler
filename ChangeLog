@@ -1,5 +1,9 @@
 2005-07-07  Brad Hards  <bradh@frogmouth.net>
 
+	* glib/poppler-document.cc (convert_page_mode): Update to
+	reflect the Catalog API change. I'm not that good at glib,
+	so this has a non-zero chance of being pure crackrock.
+
 	* poppler/Catalog.cc:
 	* poppler/Catalog.h: update page mode options to PDF 1.6
 
