@@ -1,3 +1,8 @@
+2005-07-07  Kristian Høgsberg  <krh@redhat.com>
+
+	* glib/poppler-page.cc (poppler_page_prepare_output_dev): Account
+	for page rotation when creating the cairo surface.
+
 2005-07-06  Kristian Høgsberg  <krh@redhat.com>
 
 	* glib/poppler-page.cc (poppler_page_copy_to_pixbuf): Add out of

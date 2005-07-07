@@ -179,9 +179,22 @@ poppler_page_prepare_output_dev (PopplerPage *page,
   int cairo_width, cairo_height, cairo_rowstride;
   unsigned char *cairo_data;
 
+  switch (page->orientation) {
+  case POPPLER_ORIENTATION_PORTRAIT:
+  case POPPLER_ORIENTATION_UPSIDEDOWN:
+    cairo_width = MAX ((int)(page->page->getWidth() * scale + 0.5), 1);
+    cairo_height = MAX ((int)(page->page->getHeight() * scale + 0.5), 1);
+    break;
+  case POPPLER_ORIENTATION_LANDSCAPE:
+  case POPPLER_ORIENTATION_SEASCAPE:
+    cairo_width = MAX ((int)(page->page->getHeight() * scale + 0.5), 1);
+    cairo_height = MAX ((int)(page->page->getWidth() * scale + 0.5), 1);
+    break;
+  default:
+    g_assert_not_reached();
+  }
+
   output_dev = page->document->output_dev;
-  cairo_width = MAX ((int)(page->page->getWidth() * scale + 0.5), 1);
-  cairo_height = MAX ((int)(page->page->getHeight() * scale + 0.5), 1);
   cairo_rowstride = cairo_width * 4;
   cairo_data = (guchar *) gmalloc (cairo_height * cairo_rowstride);
   if (transparent)
