@@ -1,3 +1,12 @@
+2005-07-08  Kristian Høgsberg  <krh@redhat.com>
+
+	* glib/poppler-page.cc (poppler_page_set_selection_alpha): Add
+	this function to initialize the alpha channel when using the
+	splash backend.
+
+	* poppler/TextOutputDev.cc (visitLine): Add missing scaling of
+	intra-line selection edges.
+
 2005-07-07  Kristian Høgsberg  <krh@redhat.com>
 
 	* glib/poppler-page.cc (poppler_page_prepare_output_dev): Account

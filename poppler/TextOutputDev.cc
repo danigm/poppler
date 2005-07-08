@@ -3111,19 +3111,22 @@ void TextSelectionSizer::visitLine (TextLine *line,
   int i;
 
   margin = (line->yMax - line->yMin) / 8;
-  x1 = floor (line->xMax * scale);
-  y1 = floor ((line->yMin - margin) * scale);
-  x2 = ceil (line->xMin * scale);
-  y2 = ceil ((line->yMax + margin) * scale);
+  x1 = line->xMax;
+  y1 = line->yMin - margin;
+  x2 = line->xMin;
+  y2 = line->yMax + margin;
 
   for (i = 0; i < line->len; i++) {
     if (selection->x1 < line->edge[i + 1] && line->edge[i] < x1)
-      x1 = floor (line->edge[i]);
+      x1 = line->edge[i];
     if (line->edge[i] < selection->x2)
-      x2 = ceil (line->edge[i + 1]);
+      x2 = line->edge[i + 1];
   }
 
-  rect = new PDFRectangle (x1, y1, x2, y2);
+  rect = new PDFRectangle (floor (x1 * scale), 
+			   floor (y1 * scale),
+			   ceil (x2 * scale),
+			   ceil (y2 * scale));
   list->append (rect);
 }
 

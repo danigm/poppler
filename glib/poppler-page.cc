@@ -259,7 +259,7 @@ poppler_page_copy_to_pixbuf (PopplerPage *page,
 }
 
 #elif defined (HAVE_SPLASH)
-
+ 
 typedef struct {
 } OutputDevData;
 
@@ -314,6 +314,8 @@ poppler_page_copy_to_pixbuf(PopplerPage *page,
 	  dst[0] = splashRGB8R(*src);
 	  dst[1] = splashRGB8G(*src); 
 	  dst[2] = splashRGB8B(*src);
+	  if (pixbuf_n_channels == 4)
+	    dst[3] = 0;
 	  dst += pixbuf_n_channels;
 	  src++;
 	}
@@ -423,6 +425,59 @@ poppler_page_get_selection_region (PopplerPage      *page,
   return region;
 }
 
+#if defined (HAVE_CAIRO)
+
+static void
+poppler_page_set_selection_alpha (PopplerPage      *page,
+				  double            scale,
+				  GdkPixbuf        *pixbuf,
+				  PopplerRectangle *selection)
+{
+  /* Cairo doesn't need this, since cairo generates an alpha channel. */ 
+}
+
+#elif defined (HAVE_SPLASH)
+
+static void
+poppler_page_set_selection_alpha (PopplerPage      *page,
+				  double            scale,
+				  GdkPixbuf        *pixbuf,
+				  PopplerRectangle *selection)
+{
+  GdkRegion *region;
+  gint n_rectangles, i, x, y;
+  GdkRectangle *rectangles;
+  int pixbuf_rowstride, pixbuf_n_channels;
+  guchar *pixbuf_data, *dst;
+
+  pixbuf_data = gdk_pixbuf_get_pixels (pixbuf);
+  pixbuf_rowstride = gdk_pixbuf_get_rowstride (pixbuf);
+  pixbuf_n_channels = gdk_pixbuf_get_n_channels (pixbuf);
+
+  if (pixbuf_n_channels != 4)
+    return;
+
+  region = poppler_page_get_selection_region (page, scale, selection);
+
+  gdk_region_get_rectangles (region, &rectangles, &n_rectangles);
+  for (i = 0; i < n_rectangles; i++) {
+    for (y = 0; y < rectangles[i].height; y++) {
+      dst = pixbuf_data + (rectangles[i].y + y) * pixbuf_rowstride +
+	rectangles[i].x * pixbuf_n_channels;
+      for (x = 0; x < rectangles[i].width; x++) {
+	  dst[3] = 0xff;
+	  dst += pixbuf_n_channels;
+      }
+    }
+  }
+
+  g_free (rectangles);
+
+  gdk_region_destroy (region);
+}
+
+#endif
+
 void
 poppler_page_render_selection (PopplerPage *page,
 			       gdouble      scale,
@@ -444,6 +499,8 @@ poppler_page_render_selection (PopplerPage *page,
   text_dev->drawSelection (output_dev, scale, &pdf_selection);
 
   poppler_page_copy_to_pixbuf (page, pixbuf, &data);
+
+  poppler_page_set_selection_alpha (page, scale, pixbuf, selection);
 
   /* We'll need a function to destroy page->text_dev and page->gfx
    * when the application wants to get rid of them.
