@@ -72,24 +72,38 @@ void ArthurOutputDev::restoreState(GfxState *state)
 
 void ArthurOutputDev::updateAll(GfxState *state)
 {
-  qDebug() << "updateAll";
+  updateLineDash(state);
+  updateLineJoin(state);
+  updateLineCap(state);
+  updateLineWidth(state);
+  updateFlatness(state);
+  updateMiterLimit(state);
+  updateFillColor(state);
+  updateStrokeColor(state);
+  updateFillOpacity(state);
+  updateStrokeOpacity(state);
+  m_needFontUpdate = gTrue;
 }
 
+// This looks wrong - why aren't adjusting the matrix?
 void ArthurOutputDev::updateCTM(GfxState *state, double m11, double m12,
 				double m21, double m22,
 				double m31, double m32)
 {
-  qDebug() << "updateCTM";
+  updateLineDash(state);
+  updateLineJoin(state);
+  updateLineCap(state);
+  updateLineWidth(state);
 }
 
 void ArthurOutputDev::updateLineDash(GfxState *state)
 {
-  qDebug() << "updateLineDash";
+  // qDebug() << "updateLineDash";
 }
 
 void ArthurOutputDev::updateFlatness(GfxState *state)
 {
-  qDebug() << "updateFlatness";
+  // qDebug() << "updateFlatness";
 }
 
 void ArthurOutputDev::updateLineJoin(GfxState *state)
@@ -126,9 +140,8 @@ void ArthurOutputDev::updateLineCap(GfxState *state)
 
 void ArthurOutputDev::updateMiterLimit(GfxState *state)
 {
-#if 0
-  cairo_set_miter_limit (cairo, state->getMiterLimit());
-#endif
+  // We can't do mitre (or Miter) limit with Qt4 yet.
+  // the limit is in state->getMiterLimit() when we get there
 }
 
 void ArthurOutputDev::updateLineWidth(GfxState *state)
@@ -144,7 +157,8 @@ void ArthurOutputDev::updateFillColor(GfxState *state)
   state->getFillRGB(&rgb);
   brushColour.setRgbF(rgb.r, rgb.g, rgb.b, brushColour.alphaF());
   m_currentBrush.setColor(brushColour);
-  m_painter->setBrush(m_currentBrush);
+  // TODO: why doesn't this work?
+  // m_painter->setBrush(m_currentBrush);
 }
 
 void ArthurOutputDev::updateStrokeColor(GfxState *state)
@@ -162,7 +176,8 @@ void ArthurOutputDev::updateFillOpacity(GfxState *state)
   QColor brushColour= m_currentBrush.color();
   brushColour.setAlphaF(state->getFillOpacity());
   m_currentBrush.setColor(brushColour);
-  m_painter->setBrush(m_currentBrush);
+  // TODO: why doesn't this work?
+  // m_painter->setBrush(m_currentBrush);
 }
 
 void ArthurOutputDev::updateStrokeOpacity(GfxState *state)
@@ -179,7 +194,6 @@ void ArthurOutputDev::updateFont(GfxState *state)
   // currentFont.setPointSize( state->getFontSize() );
   // m_painter->setFont(currentFont);
   // but with transformation matrices and such...
-
 #if 0
   cairo_font_face_t *font_face;
   double m11, m12, m21, m22;
@@ -189,7 +203,7 @@ void ArthurOutputDev::updateFont(GfxState *state)
   LOG(printf ("updateFont() font=%s\n", state->getFont()->getName()->getCString()));
   
   /* Needs to be rethough, since fonts are now handled by cairo */
-  needFontUpdate = gFalse;
+  m_needFontUpdate = gFalse;
 
   currentFont = fontEngine->getFont (state->getFont(), xref);
 
@@ -216,13 +230,14 @@ void ArthurOutputDev::updateFont(GfxState *state)
 #endif
 }
 
-static QPainterPath convertPath(GfxState *state, GfxPath *path)
+static QPainterPath convertPath(GfxState *state, GfxPath *path, Qt::FillRule fillRule)
 {
   GfxSubpath *subpath;
   double x1, y1, x2, y2, x3, y3;
   int i, j;
 
   QPainterPath qPath;
+  qPath.setFillRule(fillRule);
   for (i = 0; i < path->getNumSubpaths(); ++i) {
     subpath = path->getSubpath(i);
     if (subpath->getNumPoints() > 0) {
@@ -252,41 +267,27 @@ static QPainterPath convertPath(GfxState *state, GfxPath *path)
 
 void ArthurOutputDev::stroke(GfxState *state)
 {
-  m_painter->drawPath( convertPath( state, state->getPath() ) );
+  m_painter->drawPath( convertPath( state, state->getPath(), Qt::OddEvenFill ) );
 }
 
 void ArthurOutputDev::fill(GfxState *state)
 {
-  m_painter->fillPath( convertPath( state, state->getPath() ), m_currentBrush );
+  m_painter->fillPath( convertPath( state, state->getPath(), Qt::WindingFill ), m_currentBrush );
 }
 
 void ArthurOutputDev::eoFill(GfxState *state)
 {
-#if 0
-  doPath (state, state->getPath(), gFalse);
-  cairo_set_fill_rule (cairo, CAIRO_FILL_RULE_EVEN_ODD);
-  cairo_set_source_rgb (cairo,
-		       fill_color.r, fill_color.g, fill_color.b);
-  LOG(printf ("fill-eo\n"));
-  cairo_fill (cairo);
-#endif
+  m_painter->fillPath( convertPath( state, state->getPath(), Qt::OddEvenFill ), m_currentBrush );
 }
 
 void ArthurOutputDev::clip(GfxState *state)
 {
-  qDebug() << "got clip";
-  m_painter->setClipPath(convertPath( state, state->getPath() ) );
+  m_painter->setClipPath(convertPath( state, state->getPath(), Qt::WindingFill ) );
 }
 
 void ArthurOutputDev::eoClip(GfxState *state)
 {
-  qDebug() << "got eoClip";
-#if 0
-  doPath (state, state->getPath(), gFalse);
-  cairo_set_fill_rule (cairo, CAIRO_FILL_RULE_EVEN_ODD);
-  cairo_clip (cairo);
-  LOG (printf ("clip-eo\n"));
-#endif
+  m_painter->setClipPath(convertPath( state, state->getPath(), Qt::OddEvenFill ) );
 }
 
 void ArthurOutputDev::drawString(GfxState *state, GooString *s)
@@ -500,21 +501,14 @@ void ArthurOutputDev::drawImage(GfxState *state, Object *ref, Stream *str,
 				GfxImageColorMap *colorMap,
 				int *maskColors, GBool inlineImg)
 {
-  qDebug() << "drawImage";
-  if (inlineImg == gTrue) {
-      qDebug() << "drawImage inline";
-  }
   unsigned char *buffer;
   unsigned int *dest;
-  // cairo_surface_t *image;
-  // cairo_pattern_t *pattern;
   int x, y;
   ImageStream *imgStr;
   Guchar *pix;
   GfxRGB rgb;
   int alpha, i;
   double *ctm;
-  // cairo_matrix_t matrix;
   QMatrix matrix;
   int is_identity_transform;
   
@@ -552,7 +546,6 @@ void ArthurOutputDev::drawImage(GfxState *state, Object *ref, Stream *str,
       }
     }
 
-    // image = cairo_image_surface_create_for_data (buffer, CAIRO_FORMAT_ARGB32, width, height, width * 4);
     m_image = new QImage(buffer, width, height, QImage::Format_ARGB32);
   }
   else {
@@ -562,7 +555,6 @@ void ArthurOutputDev::drawImage(GfxState *state, Object *ref, Stream *str,
       colorMap->getRGBLine (pix, dest, width);
     }
 
-    // image = cairo_image_surface_create_for_data (buffer, CAIRO_FORMAT_RGB24, width, height, width * 4);
     m_image = new QImage(buffer, width, height, QImage::Format_RGB32);
   }
 
@@ -570,37 +562,12 @@ void ArthurOutputDev::drawImage(GfxState *state, Object *ref, Stream *str,
     qDebug() << "Null image";
     return;
   }
-#if 0
-  pattern = cairo_pattern_create_for_surface (image);
-  if (pattern == NULL)
-    return;
-#endif
   ctm = state->getCTM();
-  /*matrix.xx = ctm[0] / width;
-  matrix.xy = -ctm[2] / height;
-  matrix.yx = ctm[1] / width;
-  matrix.yy = -ctm[3] / height;
-  matrix.x0 = ctm[2] + ctm[4];
-  matrix.y0 = ctm[3] + ctm[5];*/
   matrix.setMatrix(ctm[0] / width, ctm[1] / width, -ctm[2] / height, -ctm[3] / height, ctm[2] + ctm[4], ctm[3] + ctm[5]);
 
-  //cairo_matrix_invert (&matrix);
   m_painter->setMatrix(matrix, true);
-#if 0
-  cairo_pattern_set_matrix (pattern, &matrix);
-
-  cairo_pattern_set_filter (pattern, CAIRO_FILTER_BILINEAR);
-  cairo_set_source (cairo, pattern);
-  cairo_paint (cairo);
-
-  cairo_pattern_destroy (pattern);
-  cairo_surface_destroy (image);
-#endif
-  
-  // verify image is correct.
-  m_image->save("m_image.png", "PNG");
   m_painter->drawImage( QPoint(0,0), *m_image );
-  //free (buffer);
-  //delete imgStr;
+  free (buffer);
+  delete imgStr;
 
 }
