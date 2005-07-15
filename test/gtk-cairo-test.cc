@@ -39,7 +39,8 @@ public:
   
   virtual ~GDKCairoOutputDev();
 
-  virtual void GDKCairoOutputDev::createCairo(GfxState *state);
+  // Start a page.
+  virtual void startPage(int pageNum, GfxState *state);
 
   //----- special access
 
@@ -74,14 +75,13 @@ GDKCairoOutputDev::GDKCairoOutputDev(GdkDrawable *drawableA,
   redrawCbk = redrawCbkA;
   redrawCbkData = redrawCbkDataA;
   pixmap = NULL;
-  createCairo (NULL);
 }
 
 GDKCairoOutputDev::~GDKCairoOutputDev() {
 }
 
 void
-GDKCairoOutputDev::createCairo(GfxState *state) {
+GDKCairoOutputDev::startPage(int pageNum, GfxState *state) {
   Display *display;
   Drawable xid;
   GdkGC *gc;
@@ -116,9 +116,11 @@ GDKCairoOutputDev::createCairo(GfxState *state) {
     surface = cairo_xlib_surface_create(display, xid,
 					DefaultVisual(display, DefaultScreen(display)),
 					w, h);
-    cairo = cairo_create (surface);
+    setSurface(surface);
     cairo_surface_destroy (surface);
   }
+
+  CairoOutputDev::startPage(pageNum, state);
 }
 
 void GDKCairoOutputDev::redraw(int srcX, int srcY,

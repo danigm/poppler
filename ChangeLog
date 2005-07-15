@@ -1,3 +1,8 @@
+2005-07-15  Martin Kretzschmar  <martink@gnome.org>
+
+	* test/gtk-cairo-test.cc: update for 2005-06-27 change to actually
+	display something again.
+
 2005-07-10  Brad Hards  <bradh@frogmouth.net>
 
 	* poppler/ArthurOutputDev.cc: General cleanup - removing
