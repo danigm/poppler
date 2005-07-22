@@ -1,3 +1,12 @@
+2005-07-22  Albert Astals Cid  <aacid@kde.org>
+
+	* qt/test-poppler-qt.cpp: Make it possible to change the displayed
+	page using Up and Down keys
+
+2005-07-22  Albert Astals Cid  <aacid@kde.org>
+
+	* splash/Splash.cc: Fix bugs #3728 and #3750
+
 2005-07-20  Martin Kretzschmar  <martink@gnome.org>
 
 	* glib/poppler-document.cc (poppler_fonts_iter_get_name): if the
@@ -8,10 +17,6 @@
 
 	* glib/poppler-document.h (PopplerFontType): new enum.
 	Update prototypes.
-
-2005-07-15  Albert Astals Cid  <aacid@kde.org>
-
-	* splash/Splash.cc: Fix bugs #3728 and #3750
 
 2005-07-15  Martin Kretzschmar  <martink@gnome.org>
 

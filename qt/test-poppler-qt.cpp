@@ -16,7 +16,11 @@ public:
    ~PDFDisplay();
 protected:
     void        paintEvent( QPaintEvent * );
+    void        keyPressEvent( QKeyEvent * );
 private:
+    void display();
+    
+    int currentPage;
     QPixmap	*pixmap;
     Poppler::Document *doc;
 };
@@ -24,15 +28,8 @@ private:
 PDFDisplay::PDFDisplay( Poppler::Document *d )
 {
   doc = d;
-  if (doc) {
-    Poppler::Page *page = doc->getPage(0);
-    if (page) {
-      page->renderToPixmap(&pixmap, -1, -1, -1, -1);
-      delete page;
-    }
-  } else {
-    printf("doc not loaded\n");
-  }
+  currentPage = 0;
+  display();
 }
 
 PDFDisplay::~PDFDisplay()
@@ -46,6 +43,40 @@ void PDFDisplay::paintEvent( QPaintEvent *e )
   QPainter paint( this );                     // paint widget
   if (pixmap)
     paint.drawPixmap(0, 0, *pixmap);
+}
+
+void PDFDisplay::keyPressEvent( QKeyEvent *e )
+{
+  if (e->key() == Qt::Key_Down)
+  {
+    if (currentPage + 1 < doc->getNumPages())
+    {
+      currentPage++;
+      display();
+    }
+  }
+  else if (e->key() == Qt::Key_Up)
+  {
+    if (currentPage > 0)
+    {
+      currentPage--;
+      display();
+    }
+  }
+}
+
+void PDFDisplay::display()
+{
+  if (doc) {
+    Poppler::Page *page = doc->getPage(currentPage);
+    if (page) {
+      page->renderToPixmap(&pixmap, -1, -1, -1, -1);
+      delete page;
+      update();
+    }
+  } else {
+    printf("doc not loaded\n");
+  }
 }
 
 int main( int argc, char **argv )
