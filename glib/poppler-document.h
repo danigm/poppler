@@ -52,6 +52,18 @@ typedef enum
   POPPLER_PAGE_MODE_USE_ATTACHMENTS,
 } PopplerPageMode;
 
+typedef enum
+{
+  POPPLER_FONT_TYPE_UNKNOWN,
+  POPPLER_FONT_TYPE_TYPE1,
+  POPPLER_FONT_TYPE_TYPE1C,
+  POPPLER_FONT_TYPE_TYPE3,
+  POPPLER_FONT_TYPE_TRUETYPE,
+  POPPLER_FONT_TYPE_CID_TYPE0,
+  POPPLER_FONT_TYPE_CID_TYPE0C,
+  POPPLER_FONT_TYPE_CID_TYPE2
+} PopplerFontType;
+
 typedef enum /*< flags >*/
 {
   POPPLER_VIEWER_PREFERENCES_UNSET = 0,
@@ -105,17 +117,21 @@ PopplerAction    *poppler_index_iter_get_action (PopplerIndexIter  *iter);
 gboolean          poppler_index_iter_next       (PopplerIndexIter  *iter);
 
 /* Interface for getting the Fonts of a poppler_document */
-PopplerFontInfo  *poppler_font_info_new         (PopplerDocument   *document);
-gboolean          poppler_font_info_scan        (PopplerFontInfo   *font_info,
-						 int                n_pages,
-						 PopplerFontsIter **iter);
-void		  poppler_font_info_free	(PopplerFontInfo   *font_info);
+PopplerFontInfo  *poppler_font_info_new            (PopplerDocument   *document);
+gboolean          poppler_font_info_scan           (PopplerFontInfo   *font_info,
+						    int                n_pages,
+						    PopplerFontsIter **iter);
+void		  poppler_font_info_free	   (PopplerFontInfo   *font_info);
 
-GType             poppler_fonts_iter_get_type   (void) G_GNUC_CONST;
-PopplerFontsIter *poppler_fonts_iter_copy       (PopplerFontsIter  *iter);
-void              poppler_fonts_iter_free       (PopplerFontsIter  *iter);
-const char       *poppler_fonts_iter_get_name   (PopplerFontsIter  *iter);
-gboolean          poppler_fonts_iter_next       (PopplerFontsIter  *iter);
+GType             poppler_fonts_iter_get_type      (void) G_GNUC_CONST;
+PopplerFontsIter *poppler_fonts_iter_copy          (PopplerFontsIter  *iter);
+void              poppler_fonts_iter_free          (PopplerFontsIter  *iter);
+const char       *poppler_fonts_iter_get_name      (PopplerFontsIter  *iter);
+const char       *poppler_fonts_iter_get_full_name (PopplerFontsIter  *iter);
+PopplerFontType   poppler_fonts_iter_get_font_type (PopplerFontsIter  *iter);
+gboolean	  poppler_fonts_iter_is_embedded   (PopplerFontsIter  *iter);
+gboolean	  poppler_fonts_iter_is_subset     (PopplerFontsIter  *iter);
+gboolean          poppler_fonts_iter_next          (PopplerFontsIter  *iter);
 
 /* Export to ps */
 PopplerPSFile *poppler_ps_file_new   (PopplerDocument *document,

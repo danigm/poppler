@@ -1,3 +1,14 @@
+2005-07-20  Martin Kretzschmar  <martink@gnome.org>
+
+	* glib/poppler-document.cc (poppler_fonts_iter_get_name): if the
+	font is a subset, strip the ABCDEF+ tag.
+	(poppler_fonts_iter_get_full_name): does what the old get_name did.
+	(poppler_fonts_iter_get_font_type, poppler_fonts_iter_is_embedded)
+	(poppler_fonts_iter_is_subset): new wrappers.
+
+	* glib/poppler-document.h (PopplerFontType): new enum.
+	Update prototypes.
+
 2005-07-15  Albert Astals Cid  <aacid@kde.org>
 
 	* splash/Splash.cc: Fix bugs #3728 and #3750

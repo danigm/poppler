@@ -791,7 +791,7 @@ poppler_fonts_iter_get_type (void)
 }
 
 const char *
-poppler_fonts_iter_get_name (PopplerFontsIter *iter)
+poppler_fonts_iter_get_full_name (PopplerFontsIter *iter)
 {
 	GooString *name;
 	FontInfo *info;
@@ -804,6 +804,58 @@ poppler_fonts_iter_get_name (PopplerFontsIter *iter)
 	} else {
 		return NULL;
 	}
+}
+
+const char *
+poppler_fonts_iter_get_name (PopplerFontsIter *iter)
+{
+	FontInfo *info;
+	const char *name;
+
+	name = poppler_fonts_iter_get_full_name (iter);
+	info = (FontInfo *)iter->items->get (iter->index);
+
+	if (info->getSubset() && name) {
+		while (*name && *name != '+')
+			name++;
+
+		if (*name)
+			name++;
+	}
+
+	return name;
+}
+
+PopplerFontType
+poppler_fonts_iter_get_font_type (PopplerFontsIter *iter)
+{
+	FontInfo *info;
+
+	g_return_val_if_fail (iter != NULL, POPPLER_FONT_TYPE_UNKNOWN);
+
+	info = (FontInfo *)iter->items->get (iter->index);
+
+	return (PopplerFontType)info->getType ();
+}
+
+gboolean
+poppler_fonts_iter_is_embedded (PopplerFontsIter *iter)
+{
+	FontInfo *info;
+
+	info = (FontInfo *)iter->items->get (iter->index);
+
+	return info->getEmbedded();
+}
+
+gboolean
+poppler_fonts_iter_is_subset (PopplerFontsIter *iter)
+{
+	FontInfo *info;
+
+	info = (FontInfo *)iter->items->get (iter->index);
+
+	return info->getSubset();
 }
 
 gboolean
