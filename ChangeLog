@@ -1,5 +1,10 @@
 2005-07-22  Albert Astals Cid  <aacid@kde.org>
 
+	* poppler/CairoFontEngine.cc: Fix mem leak. Reported in bug #3586 by
+	Kjartan Maraas, initial patch by Martin Kretzschmar.
+
+2005-07-22  Albert Astals Cid  <aacid@kde.org>
+
 	* qt/test-poppler-qt.cpp: Make it possible to change the displayed
 	page using Up and Down keys
 

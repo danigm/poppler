@@ -229,6 +229,7 @@ CairoFont::CairoFont(GfxFont *gfxFont, XRef *xref, FT_Library lib) {
 
     if (FT_New_Face(lib, fileName->getCString(), 0, &face)) {
       gfree(codeToGID);
+      codeToGID = NULL;
       error(-1, "could not create cid face\n");
       goto err2;
     }
@@ -270,6 +271,7 @@ CairoFont::CairoFont(GfxFont *gfxFont, XRef *xref, FT_Library lib) {
 
 CairoFont::~CairoFont() {
   FT_Done_Face (face);
+  gfree(codeToGID);
 }
 
 GBool
