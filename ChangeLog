@@ -1,3 +1,8 @@
+2005-07-25  Albert Astals Cid  <aacid@kde.org>
+
+	* poppler/DCTStream.cc: Work on bad jpeg data that have garbage before
+	the start marker. Fixes bug #3299
+
 2005-07-22  Albert Astals Cid  <aacid@kde.org>
 
 	* poppler/CairoFontEngine.cc: Fix mem leak. Reported in bug #3586 by
