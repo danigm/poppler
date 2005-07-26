@@ -1,3 +1,8 @@
+2005-07-26  Kristian Høgsberg  <krh@redhat.com>
+
+	* fofi/FoFiType1.cc: Make check for end of encoding array a bit
+	more liberal so we don't crash on complex encoding arrays.
+
 2005-07-25  Albert Astals Cid  <aacid@kde.org>
 
 	* poppler/DCTStream.cc: Work on bad jpeg data that have garbage before
