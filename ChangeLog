@@ -1,3 +1,7 @@
+2005-07-26  Albert Astals Cid  <aacid@kde.org>
+
+	 * qt/test-poppler-qt-cpp: Fix mem leak
+
 2005-07-26  Kristian Høgsberg  <krh@redhat.com>
 
 	* fofi/FoFiType1.cc: Make check for end of encoding array a bit

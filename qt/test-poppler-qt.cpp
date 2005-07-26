@@ -28,6 +28,7 @@ private:
 PDFDisplay::PDFDisplay( Poppler::Document *d )
 {
   doc = d;
+  pixmap = 0;
   currentPage = 0;
   display();
 }
@@ -70,6 +71,7 @@ void PDFDisplay::display()
   if (doc) {
     Poppler::Page *page = doc->getPage(currentPage);
     if (page) {
+      delete pixmap;
       page->renderToPixmap(&pixmap, -1, -1, -1, -1);
       delete page;
       update();
