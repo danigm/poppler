@@ -982,14 +982,48 @@ poppler_ps_file_new (PopplerDocument *document, const char *filename,
 
 	ps_file = g_new0 (PopplerPSFile, 1);
 	ps_file->document = (PopplerDocument *) g_object_ref (document);
-	ps_file->out = new PSOutputDev ((char *)filename,
-					document->doc->getXRef(),
-					document->doc->getCatalog(),
-					first_page + 1,
-					first_page + 1 + n_pages - 1,
-					psModePS);
-
+        ps_file->filename = g_strdup (filename);
+        ps_file->first_page = first_page + 1;
+        ps_file->last_page = first_page + 1 + n_pages - 1;
+        
 	return ps_file;
+}
+
+/**
+ * poppler_ps_file_set_paper_size:
+ * @ps_file: a PopplerPSFile which was not yet printed to.
+ * @width: the paper width in 1/72 inch
+ * @height: the paper height in 1/72 inch
+ *
+ * Set the output paper size. These values will end up in the
+ * DocumentMedia, the BoundingBox DSC comments and other places in the
+ * generated PostScript.
+ *
+ **/
+void
+poppler_ps_file_set_paper_size (PopplerPSFile *ps_file,
+                                double width, double height)
+{
+        g_return_if_fail (ps_file->out == NULL);
+        
+        ps_file->paper_width = width;
+        ps_file->paper_height = height;
+}
+
+/**
+ * poppler_ps_file_set_duplex:
+ * @ps_file a PopplerPSFile which was not yet printed to
+ * @duplex: whether to force duplex printing (on printers which support this)
+ *
+ * Enable or disable Duplex printing. 
+ *
+ **/
+void
+poppler_ps_file_set_duplex (PopplerPSFile *ps_file, gboolean duplex)
+{
+        g_return_if_fail (ps_file->out == NULL);
+
+        ps_file->duplex = duplex;
 }
 
 /**
@@ -1006,6 +1040,7 @@ poppler_ps_file_free (PopplerPSFile *ps_file)
 
 	delete ps_file->out;
 	g_object_unref (ps_file->document);
+        g_free (ps_file->filename);
 	g_free (ps_file);
 }
 

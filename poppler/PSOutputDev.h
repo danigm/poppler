@@ -52,6 +52,8 @@ public:
   // Open a PostScript output file, and write the prolog.
   PSOutputDev(char *fileName, XRef *xrefA, Catalog *catalog,
 	      int firstPage, int lastPage, PSOutMode modeA,
+              int paperWidthA = -1, int paperHeightA = -1,
+              GBool duplexA = gTrue,
 	      int imgLLXA = 0, int imgLLYA = 0,
 	      int imgURXA = 0, int imgURYA = 0,
 	      GBool manualCtrlA = gFalse);
@@ -60,6 +62,8 @@ public:
   PSOutputDev(PSOutputFunc outputFuncA, void *outputStreamA,
 	      XRef *xrefA, Catalog *catalog,
 	      int firstPage, int lastPage, PSOutMode modeA,
+              int paperWidthA = -1, int paperHeightA = -1,
+              GBool duplexA = gTrue,
 	      int imgLLXA = 0, int imgLLYA = 0,
 	      int imgURXA = 0, int imgURYA = 0,
 	      GBool manualCtrlA = gFalse);
@@ -93,7 +97,7 @@ public:
   void writeXpdfProcset();
 
   // Write the document-level setup.
-  void writeDocSetup(Catalog *catalog, int firstPage, int lastPage);
+  void writeDocSetup(Catalog *catalog, int firstPage, int lastPage, GBool duplexA);
 
   // Write the setup for the current page.
   void writePageSetup();
@@ -196,7 +200,8 @@ private:
 	    PSFileType fileTypeA, XRef *xrefA, Catalog *catalog,
 	    int firstPage, int lastPage, PSOutMode modeA,
 	    int imgLLXA, int imgLLYA, int imgURXA, int imgURYA,
-	    GBool manualCtrlA);
+	    GBool manualCtrlA, int paperWidthA, int paperHeightA,
+            GBool duplexA);
   void setupResources(Dict *resDict);
   void setupFonts(Dict *resDict);
   void setupFont(GfxFont *font, Dict *parentResDict);

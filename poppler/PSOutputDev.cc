@@ -662,6 +662,7 @@ static void outputToFile(void *stream, char *data, int len) {
 
 PSOutputDev::PSOutputDev(char *fileName, XRef *xrefA, Catalog *catalog,
 			 int firstPage, int lastPage, PSOutMode modeA,
+                         int paperWidthA, int paperHeightA, GBool duplexA,
 			 int imgLLXA, int imgLLYA, int imgURXA, int imgURYA,
 			 GBool manualCtrlA) {
   FILE *f;
@@ -713,12 +714,14 @@ PSOutputDev::PSOutputDev(char *fileName, XRef *xrefA, Catalog *catalog,
 
   init(outputToFile, f, fileTypeA,
        xrefA, catalog, firstPage, lastPage, modeA,
-       imgLLXA, imgLLYA, imgURXA, imgURYA, manualCtrlA);
+       imgLLXA, imgLLYA, imgURXA, imgURYA, manualCtrlA,
+       paperWidthA, paperHeightA, duplexA);
 }
 
 PSOutputDev::PSOutputDev(PSOutputFunc outputFuncA, void *outputStreamA,
 			 XRef *xrefA, Catalog *catalog,
 			 int firstPage, int lastPage, PSOutMode modeA,
+                         int paperWidthA, int paperHeightA, GBool duplexA,
 			 int imgLLXA, int imgLLYA, int imgURXA, int imgURYA,
 			 GBool manualCtrlA) {
   underlayCbk = NULL;
@@ -738,14 +741,16 @@ PSOutputDev::PSOutputDev(PSOutputFunc outputFuncA, void *outputStreamA,
 
   init(outputFuncA, outputStreamA, psGeneric,
        xrefA, catalog, firstPage, lastPage, modeA,
-       imgLLXA, imgLLYA, imgURXA, imgURYA, manualCtrlA);
+       imgLLXA, imgLLYA, imgURXA, imgURYA, manualCtrlA,
+       paperWidthA, paperHeightA, duplexA);
 }
 
 void PSOutputDev::init(PSOutputFunc outputFuncA, void *outputStreamA,
 		       PSFileType fileTypeA, XRef *xrefA, Catalog *catalog,
 		       int firstPage, int lastPage, PSOutMode modeA,
 		       int imgLLXA, int imgLLYA, int imgURXA, int imgURYA,
-		       GBool manualCtrlA) {
+		       GBool manualCtrlA, int paperWidthA, int paperHeightA,
+                       GBool duplexA) {
   Page *page;
   PDFRectangle *box;
 
@@ -757,8 +762,8 @@ void PSOutputDev::init(PSOutputFunc outputFuncA, void *outputStreamA,
   xref = xrefA;
   level = globalParams->getPSLevel();
   mode = modeA;
-  paperWidth = globalParams->getPSPaperWidth();
-  paperHeight = globalParams->getPSPaperHeight();
+  paperWidth = paperWidthA;
+  paperHeight = paperHeightA;
   imgLLX = imgLLXA;
   imgLLY = imgLLYA;
   imgURX = imgURXA;
@@ -838,7 +843,7 @@ void PSOutputDev::init(PSOutputFunc outputFuncA, void *outputStreamA,
       writePS("%%EndProlog\n");
       writePS("%%BeginSetup\n");
     }
-    writeDocSetup(catalog, firstPage, lastPage);
+    writeDocSetup(catalog, firstPage, lastPage, duplexA);
     if (mode != psModeForm) {
       writePS("%%EndSetup\n");
     }
@@ -1003,7 +1008,8 @@ void PSOutputDev::writeXpdfProcset() {
 }
 
 void PSOutputDev::writeDocSetup(Catalog *catalog,
-				int firstPage, int lastPage) {
+				int firstPage, int lastPage,
+                                GBool duplexA) {
   Page *page;
   Dict *resDict;
   Annots *annots;
@@ -1038,8 +1044,7 @@ void PSOutputDev::writeDocSetup(Catalog *catalog,
   if (mode != psModeForm) {
     if (mode != psModeEPS && !manualCtrl) {
       writePSFmt("%d %d %s pdfSetup\n",
-		 paperWidth, paperHeight,
-		 globalParams->getPSDuplex() ? "true" : "false");
+		 paperWidth, paperHeight, duplexA ? "true" : "false");
     }
 #if OPI_SUPPORT
     if (globalParams->getPSOPI()) {

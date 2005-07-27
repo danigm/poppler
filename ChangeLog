@@ -1,3 +1,26 @@
+2005-07-27  Martin Kretzschmar  <martink@gnome.org>
+
+	* poppler/PSOutputDev.cc (PSOutputDev): change the constructor to
+	take paper size and duplex setting parameters.
+	(init): add paper size and duplex parameters.
+	(writeDocSetup): add duplex parameter.
+
+	* poppler/PSOutputDev.h: update declarations.
+
+	* glib/poppler-private.h (struct _PopplerPSFile): store necessary
+	information to eventually construct a PSOutputDev.
+
+	* glib/poppler-page.cc (poppler_page_render_to_ps): initialize the
+	output dev if it doesn't exist yet.
+
+	* glib/poppler-document.cc (poppler_ps_file_new): don't create the
+	PSOutputDev here, just store filename and page range.
+	(poppler_ps_file_set_paper_size, poppler_ps_file_set_duplex): new
+	functions.
+	(poppler_ps_file_free): free the filename which we strdup now.
+
+	* glib/poppler-document.h: add prototypes.
+
 2005-07-26  Albert Astals Cid  <aacid@kde.org>
 
 	 * qt/test-poppler-qt-cpp: Fix mem leak

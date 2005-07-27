@@ -31,6 +31,12 @@ struct _PopplerPSFile
 {
   PopplerDocument *document;
   PSOutputDev *out;
+  char *filename;
+  int first_page;
+  int last_page;
+  double paper_width;
+  double paper_height;
+  gboolean duplex;
 };
 
 struct _PopplerFontInfo

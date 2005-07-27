@@ -134,11 +134,16 @@ gboolean	  poppler_fonts_iter_is_subset     (PopplerFontsIter  *iter);
 gboolean          poppler_fonts_iter_next          (PopplerFontsIter  *iter);
 
 /* Export to ps */
-PopplerPSFile *poppler_ps_file_new   (PopplerDocument *document,
-				      const char      *filename,
-				      int              first_pages,
-				      int              n_pages);
-void           poppler_ps_file_free  (PopplerPSFile   *ps_file);
+PopplerPSFile *poppler_ps_file_new            (PopplerDocument *document,
+                                               const char      *filename,
+                                               int              first_pages,
+                                               int              n_pages);
+void           poppler_ps_file_set_paper_size (PopplerPSFile   *ps_file,
+                                               double           width,
+                                               double           height);
+void           poppler_ps_file_set_duplex     (PopplerPSFile   *ps_file,
+                                               gboolean         duplex);
+void           poppler_ps_file_free           (PopplerPSFile   *ps_file);
 
 G_END_DECLS
 
