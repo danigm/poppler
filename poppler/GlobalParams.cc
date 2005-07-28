@@ -972,8 +972,6 @@ FcPattern *buildFcPattern(GfxFont *font)
     strcpy(family, name);
     int pos = (modifiers - name);
     family[pos] = '\0';
-    pos--;
-    family[pos] = '\0';
     deleteFamily = true;
   }
   else {
@@ -1071,6 +1069,7 @@ DisplayFontParam *GlobalParams::getDisplayFont(GfxFont *font) {
 
   GooString *fontName = font->getName();
   if (!fontName) return NULL;
+  printf("%s\n", fontName->getCString());
   
   lockGlobalParams;
   dfp = (DisplayFontParam *)displayFonts->lookup(fontName);
