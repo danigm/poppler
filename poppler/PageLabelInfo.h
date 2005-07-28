@@ -12,6 +12,7 @@
 class PageLabelInfo {
 public:
   PageLabelInfo(Object *tree, int numPages);
+  ~PageLabelInfo();
   GBool labelToIndex(GooString *label, int *index);
   GBool indexToLabel(int index, GooString *label);
 
@@ -21,6 +22,7 @@ private:
 private:
   struct Interval {
     Interval(Object *dict, int baseA);
+    ~Interval();
     char *prefix;
     enum NumberStyle {
       None,

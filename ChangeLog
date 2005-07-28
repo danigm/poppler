@@ -1,5 +1,9 @@
 2005-07-28  Albert Astals Cid  <aacid@kde.org>
 
+	 * poppler/PageLabelInfo.[cc|h]: Fix memory leaks
+
+2005-07-28  Albert Astals Cid  <aacid@kde.org>
+
 	 * glib/poppler-document.cc:
 	 * poppler/CairoFontEngine.[cc|h]:
 	 * poppler/CairoOutputDev.cc:

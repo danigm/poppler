@@ -171,6 +171,10 @@ PageLabelInfo::Interval::Interval(Object *dict, int baseA) {
   base = baseA;
 }
 
+PageLabelInfo::Interval::~Interval() {
+  gfree(prefix);
+}
+
 PageLabelInfo::PageLabelInfo(Object *tree, int numPages) {
   int i;
   Interval *interval, *next;
@@ -186,6 +190,13 @@ PageLabelInfo::PageLabelInfo(Object *tree, int numPages) {
     } else {
       interval->length = numPages - interval->base;
     }
+  }
+}
+
+PageLabelInfo::~PageLabelInfo() {
+  int i;
+  for (i = 0; i < intervals.getLength(); ++i) {
+    delete (Interval*)intervals.get(i);
   }
 }
 
