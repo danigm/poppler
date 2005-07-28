@@ -2992,6 +2992,8 @@ public:
   virtual void visitLine (TextLine *line, 
 			  TextWord *begin,
 			  TextWord *end,
+			  int edge_begin,
+			  int edge_end,
 			  PDFRectangle *selection) = 0;
   virtual void visitWord (TextWord *word, int begin, int end,
 			  PDFRectangle *selection) = 0;
@@ -3018,6 +3020,8 @@ public:
   virtual void visitLine (TextLine *line,
 			  TextWord *begin,
 			  TextWord *end,
+			  int edge_begin,
+			  int edge_end,
 			  PDFRectangle *selection) { };
   virtual void visitWord (TextWord *word, int begin, int end,
 			  PDFRectangle *selection);
@@ -3083,6 +3087,8 @@ public:
   virtual void visitLine (TextLine *line, 
 			  TextWord *begin,
 			  TextWord *end,
+			  int edge_begin,
+			  int edge_end,
 			  PDFRectangle *selection);
   virtual void visitWord (TextWord *word, int begin, int end,
 			  PDFRectangle *selection) { };
@@ -3104,6 +3110,8 @@ TextSelectionSizer::TextSelectionSizer(TextPage *page, double scale)
 void TextSelectionSizer::visitLine (TextLine *line, 
 				    TextWord *begin,
 				    TextWord *end,
+				    int edge_begin,
+				    int edge_end,
 				    PDFRectangle *selection)
 {
   PDFRectangle *rect;
@@ -3111,17 +3119,10 @@ void TextSelectionSizer::visitLine (TextLine *line,
   int i;
 
   margin = (line->yMax - line->yMin) / 8;
-  x1 = line->xMax;
+  x1 = line->edge[edge_begin];
   y1 = line->yMin - margin;
-  x2 = line->xMin;
+  x2 = line->edge[edge_end];
   y2 = line->yMax + margin;
-
-  for (i = 0; i < line->len; i++) {
-    if (selection->x1 < line->edge[i + 1] && line->edge[i] < x1)
-      x1 = line->edge[i];
-    if (line->edge[i] < selection->x2)
-      x2 = line->edge[i + 1];
-  }
 
   rect = new PDFRectangle (floor (x1 * scale), 
 			   floor (y1 * scale),
@@ -3147,6 +3148,8 @@ public:
   virtual void visitLine (TextLine *line, 
 			  TextWord *begin,
 			  TextWord *end,
+			  int edge_begin,
+			  int edge_end,
 			  PDFRectangle *selection);
   virtual void visitWord (TextWord *word, int begin, int end,
 			  PDFRectangle *selection);
@@ -3188,6 +3191,8 @@ TextSelectionPainter::~TextSelectionPainter()
 void TextSelectionPainter::visitLine (TextLine *line,
 				      TextWord *begin,
 				      TextWord *end,
+				      int edge_begin,
+				      int edge_end,
 				      PDFRectangle *selection)
 {
   double x1, y1, x2, y2, margin;
@@ -3197,18 +3202,10 @@ void TextSelectionPainter::visitLine (TextLine *line,
   out->updateFillColor(state);
 
   margin = (line->yMax - line->yMin) / 8;
-  x1 = floor (line->xMax);
+  x1 = floor (line->edge[edge_begin]);
   y1 = floor (line->yMin - margin);
-  x2 = ceil (line->xMin);
+  x2 = ceil (line->edge[edge_end]);
   y2 = ceil (line->yMax + margin);
-
-  for (i = 0; i < line->len; i++) {
-    if (selection->x1 < line->edge[i + 1] || selection->x2 < line->edge[i + 1])
-      if (line->edge[i] < x1)
-	x1 = floor (line->edge[i]);
-    if (line->edge[i] < selection->x2 || line->edge[i] < selection->x1)
-      x2 = ceil (line->edge[i + 1]);
-  }
 
   state->moveTo(x1, y1);
   state->lineTo(x2, y1);
@@ -3248,14 +3245,16 @@ void TextSelectionPainter::visitWord (TextWord *word, int begin, int end,
 void TextWord::visitSelection(TextSelectionVisitor *visitor,
 			      PDFRectangle *selection) {
   int i, begin, end;
+  double mid;
 
-  begin = len + 1;
+  begin = len;
   end = 0;
   for (i = 0; i < len; i++) {
-    if (selection->x1 < edge[i + 1] || selection->x2 < edge[i + 1])
+    mid = (edge[i] + edge[i + 1]) / 2;
+    if (selection->x1 < mid || selection->x2 < mid)
       if (i < begin)
 	begin = i;
-    if (edge[i] < selection->x1 || edge[i] < selection->x2)
+    if (mid < selection->x1 || mid < selection->x2)
       end = i + 1;
   }
 
@@ -3265,6 +3264,7 @@ void TextWord::visitSelection(TextSelectionVisitor *visitor,
 void TextLine::visitSelection(TextSelectionVisitor *visitor,
 			      PDFRectangle *selection) {
   TextWord *p, *begin, *end;
+  int i, edge_begin, edge_end;
 
   begin = NULL;
   end = NULL;
@@ -3278,7 +3278,18 @@ void TextLine::visitSelection(TextSelectionVisitor *visitor,
       end = p->next;
   }
 
-  visitor->visitLine (this, begin, end, selection);
+  edge_begin = len;
+  edge_end = 0;
+  for (i = 0; i < len; i++) {
+    double mid = (edge[i] + edge[i + 1]) /  2;
+    if (selection->x1 < mid || selection->x2 < mid)
+      if (i < edge_begin)
+	edge_begin = i;
+    if (mid < selection->x2 || mid < selection->x1)
+      edge_end = i + 1;
+  }
+
+  visitor->visitLine (this, begin, end, edge_begin, edge_end, selection);
 
   for (p = begin; p != end; p = p->next)
     p->visitSelection (visitor, selection);
@@ -3299,39 +3310,31 @@ void TextBlock::visitSelection(TextSelectionVisitor *visitor,
       if (selection->x1 < selection->x2) {
 	start_x = selection->x1;
 	start_y = selection->y1;
+	stop_x = selection->x2;
+	stop_y = selection->y2;
       } else {
 	start_x = selection->x2;
 	start_y = selection->y2;
+	stop_x = selection->x1;
+	stop_y = selection->y1;
       }
     } else if (selection->x1 < p->xMax && selection->y1 < p->yMax && begin == NULL) {
       begin = p;
       start_x = selection->x1;
       start_y = selection->y1;
+      stop_x = selection->x2;
+      stop_y = selection->y2;
     } else if (selection->x2 < p->xMax && selection->y2 < p->yMax && begin == NULL) {
       begin = p;
       start_x = selection->x2;
       start_y = selection->y2;
-    }
-
-    if (selection->x1 > p->xMin && selection->y1 > p->yMin &&
-	selection->x2 > p->xMin && selection->y2 > p->yMin) {
-      end = p->next;
-      if (selection->x2 < selection->x1) {
-	stop_x = selection->x1;
-	stop_y = selection->y1;
-      } else {
-	stop_x = selection->x2;
-	stop_y = selection->y2;
-      }
-    } else if (selection->x1 > p->xMin && selection->y1 > p->yMin) {
-      end = p->next;
       stop_x = selection->x1;
       stop_y = selection->y1;
-    } else if (selection->x2 > p->xMin && selection->y2 > p->yMin) {
-      end = p->next;
-      stop_x = selection->x2;
-      stop_y = selection->y2;
     }
+
+    if (selection->x1 > p->xMin && selection->y1 > p->yMin ||
+	selection->x2 > p->xMin && selection->y2 > p->yMin)
+      end = p->next;
   }
 
   visitor->visitBlock (this, begin, end, selection);
@@ -3375,39 +3378,31 @@ void TextPage::visitSelection(TextSelectionVisitor *visitor,
       if (selection->y1 < selection->y2) {
 	start_x = selection->x1;
 	start_y = selection->y1;
+	stop_x = selection->x2;
+	stop_y = selection->y2;
       } else {
 	start_x = selection->x2;
 	start_y = selection->y2;
+	stop_x = selection->x1;
+	stop_y = selection->y1;
       }
     } else if (selection->x1 < b->xMax && selection->y1 < b->yMax && i < begin) {
       begin = i;
       start_x = selection->x1;
       start_y = selection->y1;
+      stop_x = selection->x2;
+      stop_y = selection->y2;
     } else if (selection->x2 < b->xMax && selection->y2 < b->yMax && i < begin) {
       begin = i;
       start_x = selection->x2;
       start_y = selection->y2;
-    }
-
-    if (selection->x1 > b->xMin && selection->y1 > b->yMin &&
-	selection->x2 > b->xMin && selection->y2 > b->yMin) {
-      end = i + 1;
-      if (selection->y2 < selection->y1) {
-	stop_x = selection->x1;
-	stop_y = selection->y1;
-      } else {
-	stop_x = selection->x2;
-	stop_y = selection->y2;
-      }
-    } else if (selection->x1 > b->xMin && selection->y1 > b->yMin) {
-      end = i + 1;
       stop_x = selection->x1;
       stop_y = selection->y1;
-    } else if (selection->x2 > b->xMin && selection->y2 > b->yMin) {
-      end = i + 1;
-      stop_x = selection->x2;
-      stop_y = selection->y2;
     }
+
+    if (selection->x1 > b->xMin && selection->y1 > b->yMin ||
+	selection->x2 > b->xMin && selection->y2 > b->yMin)
+      end = i + 1;
   }
 
   for (i = begin; i < end; i++) {

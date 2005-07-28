@@ -473,7 +473,7 @@ void CairoOutputDev::drawImageMask(GfxState *state, Object *ref, Stream *str,
   }
 
   image = cairo_image_surface_create_for_data (buffer, CAIRO_FORMAT_A8,
-					  width, height, row_stride);
+					       width, height, row_stride);
   if (image == NULL)
     return;
   pattern = cairo_pattern_create_for_surface (image);
