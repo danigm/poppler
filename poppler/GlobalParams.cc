@@ -987,8 +987,13 @@ FcPattern *buildFcPattern(GfxFont *font)
     slant = FC_SLANT_ITALIC;
   
   // if the FontDescriptor specified a family name use it
-  if (font->getFamily())
+  if (font->getFamily()) {
+    if (deleteFamily) {
+      delete[] family;
+      deleteFamily = false;
+    }
     family = font->getFamily()->getCString();
+  }
   
   // if the FontDescriptor specified a weight use it
   switch (font -> getWeight())
@@ -1059,7 +1064,7 @@ FcPattern *buildFcPattern(GfxFont *font)
                     FC_LANG, FcTypeString, lang,
                     NULL);
   if (deleteFamily)
-    delete family;
+    delete[] family;
   return p;
 }
 
