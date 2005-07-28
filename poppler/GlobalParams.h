@@ -34,6 +34,7 @@ class UnicodeMapCache;
 class CMap;
 class CMapCache;
 class GlobalParams;
+class GfxFont;
 
 //------------------------------------------------------------------------
 
@@ -115,9 +116,6 @@ public:
 
   ~GlobalParams();
 
-  void setupBaseFonts(char *dir);
-  void setupBaseFontsFc(FcConfig *fcConfig);
-
   //----- accessors
 
   CharCode getMacRomanCharCode(char *charName);
@@ -127,8 +125,7 @@ public:
   FILE *getUnicodeMapFile(GooString *encodingName);
   FILE *findCMapFile(GooString *collection, GooString *cMapName);
   FILE *findToUnicodeFile(GooString *name);
-  DisplayFontParam *getDisplayFont(GooString *fontName);
-  DisplayFontParam *getDisplayCIDFont(GooString *fontName, GooString *collection);
+  DisplayFontParam *getDisplayFont(GfxFont *font);
   GooString *getPSFile();
   int getPSPaperWidth();
   int getPSPaperHeight();
@@ -170,7 +167,6 @@ public:
 
   //----- functions to set parameters
 
-  void addDisplayFont(DisplayFontParam *param);
   void setPSFile(char *file);
   GBool setPSPaperSize(char *size);
   void setPSPaperWidth(int width);
@@ -209,9 +205,6 @@ private:
   void parseUnicodeMap(GooList *tokens, GooString *fileName, int line);
   void parseCMapDir(GooList *tokens, GooString *fileName, int line);
   void parseToUnicodeDir(GooList *tokens, GooString *fileName, int line);
-  void parseDisplayFont(GooList *tokens, GooHash *fontHash,
-			DisplayFontParamKind kind,
-			GooString *fileName, int line);
   void parsePSFile(GooList *tokens, GooString *fileName, int line);
   void parsePSPaperSize(GooList *tokens, GooString *fileName, int line);
   void parsePSImageableArea(GooList *tokens, GooString *fileName, int line);
@@ -253,10 +246,6 @@ private:
   GooList *toUnicodeDirs;		// list of ToUnicode CMap dirs [GooString]
   GooHash *displayFonts;		// display font info, indexed by font name
 				//   [DisplayFontParam]
-  GooHash *displayCIDFonts;	// display CID font info, indexed by
-				//   collection [DisplayFontParam]
-  GooHash *displayNamedCIDFonts;	// display CID font info, indexed by
-				//   font name [DisplayFontParam]
   GooString *psFile;		// PostScript file or command (for xpdf)
   int psPaperWidth;		// paper size, in PostScript points, for
   int psPaperHeight;		//   PostScript output
@@ -301,6 +290,8 @@ private:
   CharCodeToUnicodeCache *unicodeToUnicodeCache;
   UnicodeMapCache *unicodeMapCache;
   CMapCache *cMapCache;
+  
+  FcConfig *FCcfg;
 
 #if MULTITHREADED
   GooMutex mutex;

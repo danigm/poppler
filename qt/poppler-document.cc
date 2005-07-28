@@ -33,7 +33,6 @@ Document *Document::load(const QString &filePath)
 {
   if (!globalParams) {
     globalParams = new GlobalParams("/etc/xpdfrc");
-    globalParams->setupBaseFontsFc(NULL);
   }
 
   DocumentData *doc = new DocumentData(new GooString(QFile::encodeName(filePath)), NULL);

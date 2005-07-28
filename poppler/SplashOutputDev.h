@@ -152,9 +152,6 @@ public:
   // Set the Splash fill color.
   void setFillColor(int r, int g, int b);
 
-  // Get a font object for a Base-14 font, using the Latin-1 encoding.
-  SplashFont *getFont(GooString *name, double *mat);
-
   void setUnderlayCbk(void (*cbk)(void *data), void *data)
     { underlayCbk = cbk; underlayCbkData = data; }
 

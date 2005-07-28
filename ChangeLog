@@ -1,3 +1,16 @@
+2005-07-28  Albert Astals Cid  <aacid@kde.org>
+
+	 * glib/poppler-document.cc:
+	 * poppler/CairoFontEngine.[cc|h]:
+	 * poppler/CairoOutputDev.cc:
+	 * poppler/GlobalParams.[cc|h]:
+	 * poppler/SplashOutputDev.[cc|h]:
+	 * qt/poppler-document.cc:
+	 * qt4/src/poppler-document.cc:
+	 * test/gtk-cairo-test.cc:
+	 * test/gtk-splash-test.cc:
+	   Use fontconfig for finding which font use for not embeded fonts
+
 2005-07-28  Kristian Høgsberg  <krh@redhat.com>
 
 	* poppler/poppler-config.h.in: Add GCC_PRINTF_FORMAT macro to
@@ -9,7 +22,7 @@
 	PSOutputDev::writePSFmt().
 
 	* poppler/PSOutputDev.cc, poppler/GlobalParams.cc: Quiet new
- 	printf warnings.
+	printf warnings.
 
 	* poppler/TextOutputDev.cc (TextBlock::visitSelection): Assign
 	start and stop coordinates in one place so we don't assign the

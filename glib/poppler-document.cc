@@ -75,7 +75,6 @@ poppler_document_new_from_file (const char  *uri,
   
   if (!globalParams) {
     globalParams = new GlobalParams("/etc/xpdfrc");
-    globalParams->setupBaseFontsFc(NULL);
   }
 
   filename = g_filename_from_uri (uri, NULL, error);

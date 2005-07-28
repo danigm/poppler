@@ -27,36 +27,6 @@ static void fileWrite(void *stream, char *data, int len) {
 }
 
 //------------------------------------------------------------------------
-// Font substitutions
-//------------------------------------------------------------------------
-
-struct CairoOutFontSubst {
-  char *name;
-  double mWidth;
-};
-
-// index: {symbolic:12, fixed:8, serif:4, sans-serif:0} + bold*2 + italic
-static CairoOutFontSubst cairoOutSubstFonts[16] = {
-  {"Helvetica",             0.833},
-  {"Helvetica-Oblique",     0.833},
-  {"Helvetica-Bold",        0.889},
-  {"Helvetica-BoldOblique", 0.889},
-  {"Times-Roman",           0.788},
-  {"Times-Italic",          0.722},
-  {"Times-Bold",            0.833},
-  {"Times-BoldItalic",      0.778},
-  {"Courier",               0.600},
-  {"Courier-Oblique",       0.600},
-  {"Courier-Bold",          0.600},
-  {"Courier-BoldOblique",   0.600},
-  {"Symbol",                0.576},
-  {"Symbol",                0.576},
-  {"Symbol",                0.576},
-  {"Symbol",                0.576}
-};
-
-
-//------------------------------------------------------------------------
 // CairoFont
 //------------------------------------------------------------------------
 
@@ -83,7 +53,6 @@ CairoFont::CairoFont(GfxFont *gfxFont, XRef *xref, FT_Library lib) {
   
   codeToGID = NULL;
   codeToGIDLen = 0;
-  substIdx = -1;
   cairo_font_face = NULL;
   
   ref = *gfxFont->getID();
@@ -112,35 +81,8 @@ CairoFont::CairoFont(GfxFont *gfxFont, XRef *xref, FT_Library lib) {
   } else if (!(fileName = gfxFont->getExtFontFile())) {
     // look for a display font mapping or a substitute font
     dfp = NULL;
-    if (gfxFont->isCIDFont()) {
-      if (((GfxCIDFont *)gfxFont)->getCollection()) {
-	dfp = globalParams->
-	  getDisplayCIDFont(gfxFont->getName(),
-			    ((GfxCIDFont *)gfxFont)->getCollection());
-      }
-    } else {
-      if (gfxFont->getName()) {
-	dfp = globalParams->getDisplayFont(gfxFont->getName());
-      }
-      if (!dfp) {
-	// 8-bit font substitution
-	if (gfxFont->isFixedWidth()) {
-	  substIdx = 8;
-	} else if (gfxFont->isSerif()) {
-	  substIdx = 4;
-	} else {
-	  substIdx = 0;
-	}
-	if (gfxFont->isBold()) {
-	  substIdx += 2;
-	}
-	if (gfxFont->isItalic()) {
-	  substIdx += 1;
-	}
-	substName = new GooString(cairoOutSubstFonts[substIdx].name);
-	dfp = globalParams->getDisplayFont(substName);
-	delete substName;
-      }
+    if (gfxFont->getName()) {
+      dfp = globalParams->getDisplayFont(gfxFont);
     }
     if (!dfp) {
       error(-1, "Couldn't find a font for '%s'",
@@ -296,39 +238,6 @@ CairoFont::getGlyph(CharCode code,
   }
   return gid;
 }
-
-double
-CairoFont::getSubstitutionCorrection(GfxFont *gfxFont)
-{
-  double w1, w2;
-  CharCode code;
-  char *name;
-  
-  // for substituted fonts: adjust the font matrix -- compare the
-  // width of 'm' in the original font and the substituted font
-  if (substIdx >= 0) {
-    for (code = 0; code < 256; ++code) {
-      if ((name = ((Gfx8BitFont *)gfxFont)->getCharName(code)) &&
-	  name[0] == 'm' && name[1] == '\0') {
-	break;
-      }
-    }
-    if (code < 256) {
-      w1 = ((Gfx8BitFont *)gfxFont)->getWidth(code);
-      w2 = cairoOutSubstFonts[substIdx].mWidth;
-      if (!gfxFont->isSymbolic()) {
-	// if real font is substantially narrower than substituted
-	// font, reduce the font size accordingly
-	if (w1 > 0.01 && w1 < 0.9 * w2) {
-	  w1 /= w2;
-	  return w1;
-	}
-      }
-    }
-  }
-  return 1.0;
-}
-
 
 //------------------------------------------------------------------------
 // CairoFontEngine

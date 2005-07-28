@@ -39,35 +39,6 @@
 #include "SplashOutputDev.h"
 
 //------------------------------------------------------------------------
-// Font substitutions
-//------------------------------------------------------------------------
-
-struct SplashOutFontSubst {
-  char *name;
-  double mWidth;
-};
-
-// index: {symbolic:12, fixed:8, serif:4, sans-serif:0} + bold*2 + italic
-static SplashOutFontSubst splashOutSubstFonts[16] = {
-  {"Helvetica",             0.833},
-  {"Helvetica-Oblique",     0.833},
-  {"Helvetica-Bold",        0.889},
-  {"Helvetica-BoldOblique", 0.889},
-  {"Times-Roman",           0.788},
-  {"Times-Italic",          0.722},
-  {"Times-Bold",            0.833},
-  {"Times-BoldItalic",      0.778},
-  {"Courier",               0.600},
-  {"Courier-Oblique",       0.600},
-  {"Courier-Bold",          0.600},
-  {"Courier-BoldOblique",   0.600},
-  {"Symbol",                0.576},
-  {"Symbol",                0.576},
-  {"Symbol",                0.576},
-  {"Symbol",                0.576}
-};
-
-//------------------------------------------------------------------------
 
 #define soutRound(x) ((int)(x + 0.5))
 
@@ -78,7 +49,7 @@ static SplashOutFontSubst splashOutSubstFonts[16] = {
 class SplashOutFontFileID: public SplashFontFileID {
 public:
 
-  SplashOutFontFileID(Ref *rA) { r = *rA; substIdx = -1; }
+  SplashOutFontFileID(Ref *rA) { r = *rA; }
 
   ~SplashOutFontFileID() {}
 
@@ -87,13 +58,9 @@ public:
            ((SplashOutFontFileID *)id)->r.gen == r.gen;
   }
 
-  void setSubstIdx(int substIdxA) { substIdx = substIdxA; }
-  int getSubstIdx() { return substIdx; }
-
 private:
 
   Ref r;
-  int substIdx;
 };
 
 //------------------------------------------------------------------------
@@ -547,36 +514,8 @@ void SplashOutputDev::updateFont(GfxState *state) {
 
       // look for a display font mapping or a substitute font
       dfp = NULL;
-      if (gfxFont->isCIDFont()) {
-	if (((GfxCIDFont *)gfxFont)->getCollection()) {
-	  dfp = globalParams->
-	          getDisplayCIDFont(gfxFont->getName(),
-				    ((GfxCIDFont *)gfxFont)->getCollection());
-	}
-      } else {
-	if (gfxFont->getName()) {
-	  dfp = globalParams->getDisplayFont(gfxFont->getName());
-	}
-	if (!dfp) {
-	  // 8-bit font substitution
-	  if (gfxFont->isFixedWidth()) {
-	    substIdx = 8;
-	  } else if (gfxFont->isSerif()) {
-	    substIdx = 4;
-	  } else {
-	    substIdx = 0;
-	  }
-	  if (gfxFont->isBold()) {
-	    substIdx += 2;
-	  }
-	  if (gfxFont->isItalic()) {
-	    substIdx += 1;
-	  }
-	  substName = new GooString(splashOutSubstFonts[substIdx].name);
-	  dfp = globalParams->getDisplayFont(substName);
-	  delete substName;
-	  id->setSubstIdx(substIdx);
-	}
+      if (gfxFont->getName()) {
+        dfp = globalParams->getDisplayFont(gfxFont);
       }
       if (!dfp) {
 	error(-1, "Couldn't find a font for '%s'",
@@ -677,31 +616,6 @@ void SplashOutputDev::updateFont(GfxState *state) {
   state->getFontTransMat(&m11, &m12, &m21, &m22);
   m11 *= state->getHorizScaling();
   m12 *= state->getHorizScaling();
-
-  // for substituted fonts: adjust the font matrix -- compare the
-  // width of 'm' in the original font and the substituted font
-  substIdx = ((SplashOutFontFileID *)fontFile->getID())->getSubstIdx();
-  if (substIdx >= 0) {
-    for (code = 0; code < 256; ++code) {
-      if ((name = ((Gfx8BitFont *)gfxFont)->getCharName(code)) &&
-	  name[0] == 'm' && name[1] == '\0') {
-	break;
-      }
-    }
-    if (code < 256) {
-      w1 = ((Gfx8BitFont *)gfxFont)->getWidth(code);
-      w2 = splashOutSubstFonts[substIdx].mWidth;
-      if (!gfxFont->isSymbolic()) {
-	// if real font is substantially narrower than substituted
-	// font, reduce the font size accordingly
-	if (w1 > 0.01 && w1 < 0.9 * w2) {
-	  w1 /= w2;
-	  m11 *= w1;
-	  m21 *= w1;
-	}
-      }
-    }
-  }
 
   // create the scaled font
   mat[0] = m11;  mat[1] = -m12;
@@ -1305,44 +1219,4 @@ void SplashOutputDev::setFillColor(int r, int g, int b) {
   rgb.b = b / 255.0;
   gray = 0.299 * rgb.r + 0.587 * rgb.g + 0.114 * rgb.g;
   splash->setFillPattern(getColor(gray, &rgb));
-}
-
-SplashFont *SplashOutputDev::getFont(GooString *name, double *mat) {
-  DisplayFontParam *dfp;
-  Ref ref;
-  SplashOutFontFileID *id;
-  SplashFontFile *fontFile;
-  SplashFont *fontObj;
-  int i;
-
-  for (i = 0; i < 16; ++i) {
-    if (!name->cmp(splashOutSubstFonts[i].name)) {
-      break;
-    }
-  }
-  if (i == 16) {
-    return NULL;
-  }
-  ref.num = i;
-  ref.gen = -1;
-  id = new SplashOutFontFileID(&ref);
-
-  // check the font file cache
-  if ((fontFile = fontEngine->getFontFile(id))) {
-    delete id;
-
-  // load the font file
-  } else {
-    dfp = globalParams->getDisplayFont(name);
-    if (dfp->kind != displayFontT1) {
-      return NULL;
-    }
-    fontFile = fontEngine->loadType1Font(id, dfp->t1.fileName->getCString(),
-					 gFalse, winAnsiEncoding);
-  }
-
-  // create the scaled font
-  fontObj = fontEngine->getFont(fontFile, (SplashCoord *)mat);
-
-  return fontObj;
 }

@@ -32,6 +32,7 @@
 #include "BuiltinFontTables.h"
 #include "FontEncodingTables.h"
 #include "GlobalParams.h"
+#include "GfxFont.h"
 
 #if MULTITHREADED
 #  define lockGlobalParams            gLockMutex(&mutex)
@@ -49,6 +50,10 @@
 #  define unlockCMapCache
 #endif
 
+#ifndef FC_WEIGHT_BOOK
+#define FC_WEIGHT_BOOK 75
+#endif
+
 #include "NameToUnicodeTable.h"
 #include "UnicodeMapTables.h"
 #include "UTF8.h"
@@ -57,62 +62,6 @@
 
 #define cidToUnicodeCacheSize     4
 #define unicodeToUnicodeCacheSize 4
-
-//------------------------------------------------------------------------
-
-static struct {
-  char *name;
-  char *fileName;
-} displayFontTab[] = {
-  {"Courier",               "n022003l.pfb"},
-  {"Courier-Bold",          "n022004l.pfb"},
-  {"Courier-BoldOblique",   "n022024l.pfb"},
-  {"Courier-Oblique",       "n022023l.pfb"},
-  {"Helvetica",             "n019003l.pfb"},
-  {"Helvetica-Bold",        "n019004l.pfb"},
-  {"Helvetica-BoldOblique", "n019024l.pfb"},
-  {"Helvetica-Oblique",     "n019023l.pfb"},
-  {"Symbol",                "s050000l.pfb"},
-  {"Times-Bold",            "n021004l.pfb"},
-  {"Times-BoldItalic",      "n021024l.pfb"},
-  {"Times-Italic",          "n021023l.pfb"},
-  {"Times-Roman",           "n021003l.pfb"},
-  {"ZapfDingbats",          "d050000l.pfb"},
-  {NULL}
-};
-
-static char *displayFontDirs[] = {
-  "/usr/share/ghostscript/fonts",
-  "/usr/local/share/ghostscript/fonts",
-  "/usr/share/fonts/default/Type1",
-  NULL
-};
-
-/* patterns originally from mupdf; added agfa fonts*/ 
-static struct {
-  const char *name;
-  const char *pattern;
-} displayFontTabFc[] = {
-  /* FIXME Adobe fonts should be here, but that breaks down if
-     fontconfig returns pcf fonts */
-  {"Courier",               "Nimbus Mono L,Courier New,Cumberland AMT,Cumberland:style=Regular,Roman"},
-  {"Courier-Bold",          "Nimbus Mono L,Courier New,Cumberland AMT,Cumberland:style=Bold"},
-  {"Courier-BoldOblique",   "Nimbus Mono L,Courier New,Cumberland AMT,Cumberland:style=Oblique,Italic"},
-  {"Courier-Oblique",       "Nimbus Mono L,Courier New,Cumberland AMT,Cumberland:style=BoldOblique,BoldItalic"},
-  {"Helvetica",             "Nimbus Sans L,Arial,Albany AMT,Albany:style=Regular,Roman"},
-  {"Helvetica-Bold",        "Nimbus Sans L,Arial,Albany AMT,Albany:style=Bold"},
-  {"Helvetica-BoldOblique", "Nimbus Sans L,Arial,Albany AMT,Albany:style=Oblique,Italic"},
-  {"Helvetica-Oblique",     "Nimbus Sans L,Arial,Albany AMT,Albany:style=BoldOblique,BoldItalic"},
-  /* FIXME Symbol should be first,
-     but that matches windows ttf which gets wrong encoding */
-  {"Symbol",                "Standard Symbols L,Symbol"},
-  {"Times-Bold",            "Nimbus Roman No9 L,Times New Roman,Thorndale AMT,Thorndale:style=Bold,Medium"},
-  {"Times-BoldItalic",      "Nimbus Roman No9 L,Times New Roman,Thorndale AMT,Thorndale:style=BoldItalic,Medium Italic"},
-  {"Times-Italic",          "Nimbus Roman No9 L,Times New Roman,Thorndale AMT,Thorndale:style=Italic,Regular Italic"},
-  {"Times-Roman",           "Nimbus Roman No9 L,Times New Roman,Thorndale AMT,Thorndale:style=Regular,Roman"},
-  {"ZapfDingbats",          "Dingbats:outline=true"},
-  {NULL}
-};
 
 //------------------------------------------------------------------------
 
@@ -181,6 +130,9 @@ GlobalParams::GlobalParams(char *cfgFileName) {
   GooString *fileName;
   FILE *f;
   int i;
+  
+  FcInit();
+  FCcfg = FcConfigGetCurrent();
 
 #if MULTITHREADED
   gInitMutex(&mutex);
@@ -207,8 +159,6 @@ GlobalParams::GlobalParams(char *cfgFileName) {
   cMapDirs = new GooHash(gTrue);
   toUnicodeDirs = new GooList();
   displayFonts = new GooHash();
-  displayCIDFonts = new GooHash();
-  displayNamedCIDFonts = new GooHash();
 #if HAVE_PAPER_H
   char *paperName;
   const struct paper *paperType;
@@ -394,21 +344,17 @@ void GlobalParams::parseFile(GooString *fileName, FILE *f) {
       } else if (!cmd->cmp("toUnicodeDir")) {
 	parseToUnicodeDir(tokens, fileName, line);
       } else if (!cmd->cmp("displayFontT1")) {
-	parseDisplayFont(tokens, displayFonts, displayFontT1, fileName, line);
+        // deprecated
       } else if (!cmd->cmp("displayFontTT")) {
-	parseDisplayFont(tokens, displayFonts, displayFontTT, fileName, line);
+        // deprecated
       } else if (!cmd->cmp("displayNamedCIDFontT1")) {
-	parseDisplayFont(tokens, displayNamedCIDFonts,
-			 displayFontT1, fileName, line);
+        // deprecated
       } else if (!cmd->cmp("displayCIDFontT1")) {
-	parseDisplayFont(tokens, displayCIDFonts,
-			 displayFontT1, fileName, line);
+        // deprecated
       } else if (!cmd->cmp("displayNamedCIDFontTT")) {
-	parseDisplayFont(tokens, displayNamedCIDFonts,
-			 displayFontTT, fileName, line);
+        // deprecated
       } else if (!cmd->cmp("displayCIDFontTT")) {
-	parseDisplayFont(tokens, displayCIDFonts,
-			 displayFontTT, fileName, line);
+        // deprecated
       } else if (!cmd->cmp("psFile")) {
 	parsePSFile(tokens, fileName, line);
       } else if (!cmd->cmp("psFont")) {
@@ -615,44 +561,6 @@ void GlobalParams::parseToUnicodeDir(GooList *tokens, GooString *fileName,
     return;
   }
   toUnicodeDirs->append(((GooString *)tokens->get(1))->copy());
-}
-
-void GlobalParams::parseDisplayFont(GooList *tokens, GooHash *fontHash,
-				    DisplayFontParamKind kind,
-				    GooString *fileName, int line) {
-  DisplayFontParam *param, *old;
-
-  if (tokens->getLength() < 2) {
-    goto err1;
-  }
-  param = new DisplayFontParam(((GooString *)tokens->get(1))->copy(), kind);
-  
-  switch (kind) {
-  case displayFontT1:
-    if (tokens->getLength() != 3) {
-      goto err2;
-    }
-    param->t1.fileName = ((GooString *)tokens->get(2))->copy();
-    break;
-  case displayFontTT:
-    if (tokens->getLength() != 3) {
-      goto err2;
-    }
-    param->tt.fileName = ((GooString *)tokens->get(2))->copy();
-    break;
-  }
-
-  if ((old = (DisplayFontParam *)fontHash->remove(param->name))) {
-    delete old;
-  }
-  fontHash->add(param->name, param);
-  return;
-
- err2:
-  delete param;
- err1:
-  error(-1, "Bad 'display*Font*' config file command (%s:%d)",
-	fileName->getCString(), line);
 }
 
 void GlobalParams::parsePSPaperSize(GooList *tokens, GooString *fileName,
@@ -880,8 +788,6 @@ GlobalParams::~GlobalParams() {
   deleteGooHash(unicodeMaps, GooString);
   deleteGooList(toUnicodeDirs, GooString);
   deleteGooHash(displayFonts, DisplayFontParam);
-  deleteGooHash(displayCIDFonts, DisplayFontParam);
-  deleteGooHash(displayNamedCIDFonts, DisplayFontParam);
   if (psFile) {
     delete psFile;
   }
@@ -914,131 +820,6 @@ GlobalParams::~GlobalParams() {
   gDestroyMutex(&unicodeMapCacheMutex);
   gDestroyMutex(&cMapCacheMutex);
 #endif
-}
-
-//------------------------------------------------------------------------
-
-void GlobalParams::setupBaseFonts(char *dir) {
-  GooString *fontName;
-  GooString *fileName;
-  FILE *f;
-  DisplayFontParam *dfp;
-  int i, j;
-
-  for (i = 0; displayFontTab[i].name; ++i) {
-    fontName = new GooString(displayFontTab[i].name);
-    if (getDisplayFont(fontName)) {
-      delete fontName;
-      continue;
-    }
-    fileName = NULL;
-    if (dir) {
-      fileName = appendToPath(new GooString(dir), displayFontTab[i].fileName);
-      if ((f = fopen(fileName->getCString(), "rb"))) {
-	fclose(f);
-      } else {
-	delete fileName;
-	fileName = NULL;
-      }
-    }
-#ifndef WIN32
-    for (j = 0; !fileName && displayFontDirs[j]; ++j) {
-      fileName = appendToPath(new GooString(displayFontDirs[j]),
-			      displayFontTab[i].fileName);
-      if ((f = fopen(fileName->getCString(), "rb"))) {
-	fclose(f);
-      } else {
-	delete fileName;
-	fileName = NULL;
-      }
-    }
-#endif
-    if (!fileName) {
-      error(-1, "No display font for '%s'", displayFontTab[i].name);
-      delete fontName;
-      continue;
-    }
-    dfp = new DisplayFontParam(fontName, displayFontT1);
-    dfp->t1.fileName = fileName;
-    globalParams->addDisplayFont(dfp);
-  }
-}
-
-//------------------------------------------------------------------------
-
-void GlobalParams::setupBaseFontsFc(FcConfig *fcConfig) {
-  GooString *fontName;
-  GooString *fileName;
-  DisplayFontParam *dfp;
-  FcPattern *namePat, *matchPat;
-  FcResult result;
-  FcChar8 *fcFileName;
-  int i;
-  DisplayFontParamKind kind;
-
-  for (i = 0; displayFontTabFc[i].name; ++i) {
-    fontName = new GooString(displayFontTabFc[i].name);
-    if (getDisplayFont(fontName)) {
-      delete fontName;
-      continue;
-    }
-    fileName = NULL;
-    result = FcResultMatch;
-    namePat = FcNameParse((const FcChar8 *)displayFontTabFc[i].pattern);
-    FcConfigSubstitute(fcConfig, namePat, FcMatchPattern);
-    FcDefaultSubstitute(namePat);
-    matchPat = FcFontMatch(fcConfig, namePat, &result);
-
-    if (result == FcResultMatch) {
-      result = FcPatternGetString(matchPat, "file", 0, &fcFileName);
-      if (result == FcResultMatch)
-	fileName = new GooString((const char *)fcFileName);
-    }
-
-    FcPatternDestroy(matchPat);
-    FcPatternDestroy(namePat);
-
-    if (fileName) {
-      char *ext;
-
-      /* FIXME */
-      ext = strrchr(fileName->getCString(), '.');
-      if (ext) {
-	if (strcasecmp (ext, ".pfb") == 0)
-	  kind = displayFontT1;
-	else if (strcasecmp (ext, ".pfa") == 0)
-	  kind = displayFontT1;
-	else if (strcasecmp (ext, ".ttf") == 0)
-	  kind = displayFontTT;
-	else if (strcasecmp (ext, ".ttc") == 0)
-	  kind = displayFontTT;
-	else {
-	  delete fileName;
-	  fileName = NULL;
-	}
-      } else {
-	delete fileName;
-	fileName = NULL;
-      }
-    }
-
-    if (!fileName) {
-      error(-1, "No display font for '%s'", displayFontTabFc[i].name);
-      delete fontName;
-      continue;
-    }
-
-    dfp = new DisplayFontParam(fontName, kind);
-    switch (kind) {
-    case displayFontT1:
-      dfp->t1.fileName = fileName;
-      break;
-    case displayFontTT:
-      dfp->tt.fileName = fileName;
-    }
-      
-    globalParams->addDisplayFont(dfp);
-  }
 }
 
 //------------------------------------------------------------------------
@@ -1127,24 +908,217 @@ FILE *GlobalParams::findToUnicodeFile(GooString *name) {
   return NULL;
 }
 
-DisplayFontParam *GlobalParams::getDisplayFont(GooString *fontName) {
-  DisplayFontParam *dfp;
+GBool findModifier(const char *name, const char *modifier, const char **start)
+{
+  const char *match;
 
-  lockGlobalParams;
-  dfp = (DisplayFontParam *)displayFonts->lookup(fontName);
-  unlockGlobalParams;
-  return dfp;
+  if (name == NULL)
+    return gFalse;
+
+  match = strstr(name, modifier);
+  if (match) {
+    if (*start == NULL || match < *start)
+      *start = match;
+    return gTrue;
+  }
+  else {
+    return gFalse;
+  }
 }
 
-DisplayFontParam *GlobalParams::getDisplayCIDFont(GooString *fontName,
-						  GooString *collection) {
-  DisplayFontParam *dfp;
+FcPattern *buildFcPattern(GfxFont *font)
+{
+  int weight = FC_WEIGHT_NORMAL,
+      slant = FC_SLANT_ROMAN,
+      width = FC_WIDTH_NORMAL,
+      spacing = FC_PROPORTIONAL;
+  bool deleteFamily = false;
+  char *family, *name, *lang, *modifiers;
+  const char *start;
+  FcPattern *p;
 
-  lockGlobalParams;
-  if (!fontName ||
-      !(dfp = (DisplayFontParam *)displayNamedCIDFonts->lookup(fontName))) {
-    dfp = (DisplayFontParam *)displayCIDFonts->lookup(collection);
+  // this is all heuristics will be overwritten if font had proper info
+  name = font->getName()->getCString();
+  
+  modifiers = strchr (name, ',');
+  if (modifiers == NULL)
+    modifiers = strchr (name, '-');
+  
+  // remove the - from the names, for some reason, Fontconfig does not
+  // understand "MS-Mincho" but does with "MS Mincho"
+  int len = strlen(name);
+  for (int i = 0; i < len; i++)
+    name[i] = (name[i] == '-' ? ' ' : name[i]);
+
+  start = NULL;
+  findModifier(modifiers, "Regular", &start);
+  findModifier(modifiers, "Roman", &start);
+  
+  if (findModifier(modifiers, "Oblique", &start))
+    slant = FC_SLANT_OBLIQUE;
+  if (findModifier(modifiers, "Italic", &start))
+    slant = FC_SLANT_ITALIC;
+  if (findModifier(modifiers, "Bold", &start))
+    weight = FC_WEIGHT_BOLD;
+  if (findModifier(modifiers, "Light", &start))
+    weight = FC_WEIGHT_LIGHT;
+  if (findModifier(modifiers, "Condensed", &start))
+    width = FC_WIDTH_CONDENSED;
+  
+  if (start) {
+    // There have been "modifiers" in the name, crop them to obtain
+    // the family name
+    family = new char[len+1];
+    strcpy(family, name);
+    int pos = (modifiers - name);
+    family[pos] = '\0';
+    pos--;
+    family[pos] = '\0';
+    deleteFamily = true;
   }
+  else {
+    family = name;
+  }
+  
+  // use font flags
+  if (font->isFixedWidth())
+    spacing = FC_MONO;
+  if (font->isBold())
+    weight = FC_WEIGHT_BOLD;
+  if (font->isItalic())
+    slant = FC_SLANT_ITALIC;
+  
+  // if the FontDescriptor specified a family name use it
+  if (font->getFamily())
+    family = font->getFamily()->getCString();
+  
+  // if the FontDescriptor specified a weight use it
+  switch (font -> getWeight())
+  {
+    case GfxFont::W100: weight = FC_WEIGHT_EXTRALIGHT; break; 
+    case GfxFont::W200: weight = FC_WEIGHT_LIGHT; break; 
+    case GfxFont::W300: weight = FC_WEIGHT_BOOK; break; 
+    case GfxFont::W400: weight = FC_WEIGHT_NORMAL; break; 
+    case GfxFont::W500: weight = FC_WEIGHT_MEDIUM; break; 
+    case GfxFont::W600: weight = FC_WEIGHT_DEMIBOLD; break; 
+    case GfxFont::W700: weight = FC_WEIGHT_BOLD; break; 
+    case GfxFont::W800: weight = FC_WEIGHT_EXTRABOLD; break; 
+    case GfxFont::W900: weight = FC_WEIGHT_BLACK; break; 
+    default: break; 
+  }
+  
+  // if the FontDescriptor specified a width use it
+  switch (font -> getStretch())
+  {
+    case GfxFont::UltraCondensed: width = FC_WIDTH_ULTRACONDENSED; break; 
+    case GfxFont::ExtraCondensed: width = FC_WIDTH_EXTRACONDENSED; break; 
+    case GfxFont::Condensed: width = FC_WIDTH_CONDENSED; break; 
+    case GfxFont::SemiCondensed: width = FC_WIDTH_SEMICONDENSED; break; 
+    case GfxFont::Normal: width = FC_WIDTH_NORMAL; break; 
+    case GfxFont::SemiExpanded: width = FC_WIDTH_SEMIEXPANDED; break; 
+    case GfxFont::Expanded: width = FC_WIDTH_EXPANDED; break; 
+    case GfxFont::ExtraExpanded: width = FC_WIDTH_EXTRAEXPANDED; break; 
+    case GfxFont::UltraExpanded: width = FC_WIDTH_ULTRAEXPANDED; break; 
+    default: break; 
+  }
+  
+  // find the language we want the font to support
+  if (font->isCIDFont())
+  {
+    GooString *collection = ((GfxCIDFont *)font)->getCollection();
+    if (collection)
+    {
+      if (strcmp(collection->getCString(), "Adobe-GB1") == 0)
+        lang = "zh-cn"; // Simplified Chinese
+      else if (strcmp(collection->getCString(), "Adobe-CNS1") == 0)
+        lang = "zh-tw"; // Traditional Chinese
+      else if (strcmp(collection->getCString(), "Adobe-Japan1") == 0)
+        lang = "ja"; // Japanese
+      else if (strcmp(collection->getCString(), "Adobe-Japan2") == 0)
+        lang = "ja"; // Japanese
+      else if (strcmp(collection->getCString(), "Adobe-Korea1") == 0)
+        lang = "ko"; // Korean
+      else if (strcmp(collection->getCString(), "Adobe-UCS") == 0)
+        lang = "xx";
+      else if (strcmp(collection->getCString(), "Adobe-Identity") == 0)
+        lang = "xx";
+      else
+      {
+        error(-1, "Unknown CID font collection, please report to poppler bugzilla.");
+        lang = "xx";
+      }
+    }
+    else lang = "xx";
+  }
+  else lang = "xx";
+  
+  p = FcPatternBuild(NULL,
+                    FC_FAMILY, FcTypeString, family,
+                    FC_SLANT, FcTypeInteger, slant, 
+                    FC_WEIGHT, FcTypeInteger, weight,
+                    FC_WIDTH, FcTypeInteger, width, 
+                    FC_SPACING, FcTypeInteger, spacing,
+                    FC_LANG, FcTypeString, lang,
+                    NULL);
+  if (deleteFamily)
+    delete family;
+  return p;
+}
+
+DisplayFontParam *GlobalParams::getDisplayFont(GfxFont *font) {
+  DisplayFontParam *dfp;
+  FcPattern *p=0,*m=0;
+
+  GooString *fontName = font->getName();
+  if (!fontName) return NULL;
+  
+  lockGlobalParams;
+  dfp = (DisplayFontParam *)displayFonts->lookup(fontName);
+  if (!dfp)
+  {
+    FcChar8* s;
+    char * ext;
+    FcResult res;
+    p = buildFcPattern(font);
+    // TODO DEBUG INFO, REMOVE
+    FcPatternPrint(p);
+
+    if (!p)
+      goto fin;
+    FcConfigSubstitute(FCcfg, p, FcMatchPattern);
+    FcDefaultSubstitute(p);
+    m = FcFontMatch(FCcfg,p,&res);
+    if (!m)
+      goto fin; 
+    res = FcPatternGetString(m, FC_FILE, 0, &s);
+    // TODO DEBUG INFO, REMOVE
+    printf("Font file: %s\n", s);
+    if (res != FcResultMatch || !s)
+      goto fin; 
+    ext = strrchr((char*)s,'.');
+    if (!ext)
+      goto fin;
+    if (!strncasecmp(ext,".ttf",4))
+    {
+      dfp = new DisplayFontParam(fontName->copy(), displayFontTT);  
+      dfp->tt.fileName = new GooString((char*)s);
+    }
+    else if (!strncasecmp(ext,".pfa",4) || !strncasecmp(ext,".pfb",4)) 
+    {
+      dfp = new DisplayFontParam(fontName->copy(), displayFontT1);  
+      dfp->t1.fileName = new GooString((char*)s);
+    }
+    else
+      goto fin;
+    displayFonts->add(dfp->name,dfp);
+  }
+fin:
+  unlockGlobalParams;
+  if (m)
+    FcPatternDestroy(m);
+  if (p)
+    FcPatternDestroy(p);
+
   unlockGlobalParams;
   return dfp;
 }
@@ -1531,17 +1505,6 @@ UnicodeMap *GlobalParams::getTextEncoding() {
 //------------------------------------------------------------------------
 // functions to set parameters
 //------------------------------------------------------------------------
-
-void GlobalParams::addDisplayFont(DisplayFontParam *param) {
-  DisplayFontParam *old;
-
-  lockGlobalParams;
-  if ((old = (DisplayFontParam *)displayFonts->remove(param->name))) {
-    delete old;
-  }
-  displayFonts->add(param->name, param);
-  unlockGlobalParams;
-}
 
 void GlobalParams::setPSFile(char *file) {
   lockGlobalParams;

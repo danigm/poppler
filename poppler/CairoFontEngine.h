@@ -24,9 +24,7 @@ public:
   GBool matches(Ref &other);
   cairo_font_face_t *getFontFace(void);
   unsigned long getGlyph(CharCode code, Unicode *u, int uLen);
-  double getSubstitutionCorrection(GfxFont *gfxFont);
 private:
-  int substIdx;
   Ref ref;
   cairo_font_face_t *cairo_font_face;
   FT_Face face;

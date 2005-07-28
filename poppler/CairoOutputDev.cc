@@ -228,10 +228,6 @@ void CairoOutputDev::updateFont(GfxState *state) {
   m11 *= state->getHorizScaling();
   m12 *= state->getHorizScaling();
 
-  w = currentFont->getSubstitutionCorrection(state->getFont());
-  m12 *= w;
-  m22 *= w;
-
   LOG(printf ("font matrix: %f %f %f %f\n", m11, m12, m21, m22));
   
   font_face = currentFont->getFontFace();
