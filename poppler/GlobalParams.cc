@@ -1069,7 +1069,6 @@ DisplayFontParam *GlobalParams::getDisplayFont(GfxFont *font) {
 
   GooString *fontName = font->getName();
   if (!fontName) return NULL;
-  printf("%s\n", fontName->getCString());
   
   lockGlobalParams;
   dfp = (DisplayFontParam *)displayFonts->lookup(fontName);
@@ -1079,8 +1078,6 @@ DisplayFontParam *GlobalParams::getDisplayFont(GfxFont *font) {
     char * ext;
     FcResult res;
     p = buildFcPattern(font);
-    // TODO DEBUG INFO, REMOVE
-    FcPatternPrint(p);
 
     if (!p)
       goto fin;
@@ -1090,8 +1087,6 @@ DisplayFontParam *GlobalParams::getDisplayFont(GfxFont *font) {
     if (!m)
       goto fin; 
     res = FcPatternGetString(m, FC_FILE, 0, &s);
-    // TODO DEBUG INFO, REMOVE
-    printf("Font file: %s\n", s);
     if (res != FcResultMatch || !s)
       goto fin; 
     ext = strrchr((char*)s,'.');
