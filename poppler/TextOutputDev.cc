@@ -3243,7 +3243,8 @@ void TextSelectionPainter::visitWord (TextWord *word, int begin, int end,
 }
 
 void TextWord::visitSelection(TextSelectionVisitor *visitor,
-			      PDFRectangle *selection) {
+			      PDFRectangle *selection)
+{
   int i, begin, end;
   double mid;
 
@@ -3303,6 +3304,11 @@ void TextBlock::visitSelection(TextSelectionVisitor *visitor,
 
   begin = NULL;
   end = NULL;
+  start_x = selection->x1;
+  start_y = selection->y1;
+  stop_x = selection->x2;
+  stop_y = selection->y2;
+  
   for (p = lines; p != NULL; p = p->next) {
     if (selection->x1 < p->xMax && selection->y1 < p->yMax && 
 	selection->x2 < p->xMax && selection->y2 < p->yMax && begin == NULL) {
@@ -3369,6 +3375,11 @@ void TextPage::visitSelection(TextSelectionVisitor *visitor,
 
   begin = nBlocks;
   end = 0;
+  start_x = selection->x1;
+  start_y = selection->y1;
+  stop_x = selection->x2;
+  stop_y = selection->y2;
+
   for (i = 0; i < nBlocks; i++) {
     b = blocks[i];
 

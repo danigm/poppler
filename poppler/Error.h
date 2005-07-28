@@ -16,7 +16,7 @@
 #include <stdarg.h>
 #include "poppler-config.h"
 
-extern void CDECL error(int pos, char *msg, ...);
+extern void CDECL error(int pos, char *msg, ...) GCC_PRINTF_FORMAT (2, 3);
 
 void setErrorFunction(void (* f)(int , char *, va_list args));
 

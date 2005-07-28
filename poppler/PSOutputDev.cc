@@ -2909,8 +2909,7 @@ void PSOutputDev::doImageL2(Object *ref, GfxImageColorMap *colorMap,
 	if (i > 0) {
 	  writePS(" ");
 	}
-	writePSFmt("0 1", colorMap->getDecodeLow(i),
-		   colorMap->getDecodeHigh(i));
+	writePSFmt("0 1");
       }
     } else {
       numComps = colorMap->getNumPixelComps();

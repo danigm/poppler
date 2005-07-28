@@ -237,7 +237,7 @@ private:
 #endif
   void writePSChar(char c);
   void writePS(char *s);
-  void writePSFmt(const char *fmt, ...);
+  void writePSFmt(const char *fmt, ...) GCC_PRINTF_FORMAT(2, 3);
   void writePSString(GooString *s);
   void writePSName(char *s);
   GooString *filterPSName(GooString *name);

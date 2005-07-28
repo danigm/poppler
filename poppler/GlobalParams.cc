@@ -530,7 +530,8 @@ void GlobalParams::parseNameToUnicode(GooList *tokens, GooString *fileName,
       sscanf(tok1, "%x", &u);
       nameToUnicode->add(tok2, u);
     } else {
-      error(-1, "Bad line in 'nameToUnicode' file (%s:%d)", name, line2);
+      error(-1, "Bad line in 'nameToUnicode' file (%s:%d)",
+	    name->getCString(), line2);
     }
     ++line2;
   }
