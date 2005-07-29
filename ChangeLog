@@ -1,3 +1,12 @@
+2005-07-29  Brad Hards  <bradh@frogmouth.net>
+
+	* poppler/ArthurOutputDev.cc (startPage): Make sure page is
+	filled white. Earlier versions of Qt4 seemed to have an
+	eggshell coloured background, but it changed to black at 
+	some point.
+	* poppler/ArthurOutputDev.cc: remove a couple more TODOs,
+	based on current Qt4 working OK.
+
 2005-07-29  Kristian Høgsberg  <krh@redhat.com>
 
 	* poppler/TextOutputDev.cc: Finish TextSelectionDumper class for

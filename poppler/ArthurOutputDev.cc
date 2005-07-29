@@ -51,6 +51,18 @@ void ArthurOutputDev::startDoc(XRef *xrefA) {
 
 void ArthurOutputDev::startPage(int pageNum, GfxState *state)
 {
+  // fill page with white background.
+  int w = static_cast<int>(state->getPageWidth());
+  int h = static_cast<int>(state->getPageHeight());
+  QColor fillColour(Qt::white);
+  QBrush fill(fillColour);
+  m_painter->save();
+  m_painter->setPen(fillColour);
+  m_painter->setBrush(fill);
+  m_painter->drawRect(0, 0, w, h);
+  m_painter->restore();
+ }
+
 }
 
 void ArthurOutputDev::endPage() {
@@ -157,8 +169,7 @@ void ArthurOutputDev::updateFillColor(GfxState *state)
   state->getFillRGB(&rgb);
   brushColour.setRgbF(rgb.r, rgb.g, rgb.b, brushColour.alphaF());
   m_currentBrush.setColor(brushColour);
-  // TODO: why doesn't this work?
-  // m_painter->setBrush(m_currentBrush);
+  m_painter->setBrush(m_currentBrush);
 }
 
 void ArthurOutputDev::updateStrokeColor(GfxState *state)
@@ -176,8 +187,7 @@ void ArthurOutputDev::updateFillOpacity(GfxState *state)
   QColor brushColour= m_currentBrush.color();
   brushColour.setAlphaF(state->getFillOpacity());
   m_currentBrush.setColor(brushColour);
-  // TODO: why doesn't this work?
-  // m_painter->setBrush(m_currentBrush);
+  m_painter->setBrush(m_currentBrush);
 }
 
 void ArthurOutputDev::updateStrokeOpacity(GfxState *state)
