@@ -61,8 +61,6 @@ void ArthurOutputDev::startPage(int pageNum, GfxState *state)
   m_painter->setBrush(fill);
   m_painter->drawRect(0, 0, w, h);
   m_painter->restore();
- }
-
 }
 
 void ArthurOutputDev::endPage() {
