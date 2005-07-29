@@ -42,7 +42,9 @@ TESTS = \
 	check_pagemode_thumbs  \
 	check_pagemode_oc      \
 	check_pagelayout_none  \
-	check_pagelayout_single 
+	check_pagelayout_single \
+	check_pagelayout_facing \
+	check_version
 
 
 check_PROGRAMS = $(TESTS)
@@ -79,3 +81,9 @@ check_pagelayout_single_LDADD = $(LDADDS)
 
 check_pagelayout_none_SOURCES = check_pagelayout_none.cpp
 check_pagelayout_none_LDADD = $(LDADDS)
+
+check_pagelayout_facing_SOURCES = check_pagelayout_facing.cpp
+check_pagelayout_facing_LDADD = $(LDADDS)
+
+check_version_SOURCES = check_version.cpp
+check_version_LDADD = $(LDADDS)

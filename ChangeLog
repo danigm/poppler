@@ -1,9 +1,13 @@
 2005-07-29  Brad Hards  <bradh@frogmouth.net>
 
+	* qt4/tests: add test cases for version and facing pagelayout.
+	Also updated .cvsignore for these and a couple of older files.
+
 	* poppler/ArthurOutputDev.cc (startPage): Make sure page is
 	filled white. Earlier versions of Qt4 seemed to have an
 	eggshell coloured background, but it changed to black at 
 	some point.
+
 	* poppler/ArthurOutputDev.cc: remove a couple more TODOs,
 	based on current Qt4 working OK.
 
