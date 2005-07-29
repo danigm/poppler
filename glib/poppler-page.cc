@@ -75,7 +75,7 @@ _poppler_page_new (PopplerDocument *document, Page *page, int index)
 
   g_return_val_if_fail (POPPLER_IS_DOCUMENT (document), NULL);
 
-  poppler_page = (PopplerPage *) g_object_new (POPPLER_TYPE_PAGE, NULL);
+  poppler_page = (PopplerPage *) g_object_new (POPPLER_TYPE_PAGE, NULL, NULL);
   poppler_page->document = document;
   poppler_page->page = page;
   poppler_page->index = index;
@@ -592,32 +592,31 @@ poppler_page_get_thumbnail_size (PopplerPage *page,
  **/
 char *
 poppler_page_get_text (PopplerPage      *page,
-		       PopplerRectangle *rect)
+		       PopplerRectangle *selection)
 {
-  TextOutputDev *output_dev;
+  TextOutputDev *text_dev;
   PDFDoc *doc;
   GooString *sel_text = new GooString;
   double height, y1, y2;
   char *result;
+  PDFRectangle pdf_selection;
 
   g_return_val_if_fail (POPPLER_IS_PAGE (page), FALSE);
-  g_return_val_if_fail (rect != NULL, NULL);
+  g_return_val_if_fail (selection != NULL, NULL);
 
-  output_dev = new TextOutputDev (NULL, gTrue, gFalse, gFalse);
-  doc = page->document->doc;
-
+  text_dev = poppler_page_get_text_output_dev (page);
   height = page->page->getHeight ();
-  page->page->display(output_dev, 72, 72, poppler_page_get_rotate (page),
-		      gTrue, NULL, doc->getCatalog());
 
-  y1 = height - rect->y2;
-  y2 = height - rect->y1;
-  sel_text = output_dev->getText (rect->x1, y1, rect->x2, y2);
-  result = sel_text->getCString ();
+  pdf_selection.x1 = selection->x1;
+  pdf_selection.y1 = height - selection->y2;
+  pdf_selection.x2 = selection->x2;
+  pdf_selection.y2 = height - selection->y1;
+  
+  sel_text = text_dev->getSelectionText (&pdf_selection);
+  result = g_strdup (sel_text->getCString ());
+  delete sel_text;
 
-  delete output_dev;
-
-  return result ? g_strdup (result) : NULL;
+  return result;
 }
 
 /**

@@ -1,3 +1,19 @@
+2005-07-29  Kristian Høgsberg  <krh@redhat.com>
+
+	* poppler/TextOutputDev.cc: Finish TextSelectionDumper class for
+	extracting the text from a selection.  Add
+	TextPage::getSelectionText() and TextOutputDev::getSelectionText()
+	methods to expose the new functionality.
+
+	* glib/poppler-page.cc (poppler_page_get_text): Use
+	TextOutputDev::getSelectionText() to get the text from the
+	selection.
+
+	* glib/poppler-document.cc (poppler_document_new_from_file): 
+	* glib/poppler-page.cc (_poppler_page_new): Add extra NULL to
+	g_object_new() constructor to silence gcc warning about missing
+	sentinel.
+
 2005-07-28  Albert Astals Cid  <aacid@kde.org>
 
 	 * poppler/PageLabelInfo.[cc|h]: Fix memory leaks

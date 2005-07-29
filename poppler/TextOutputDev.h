@@ -139,7 +139,9 @@ private:
   friend class TextFlow;
   friend class TextWordList;
   friend class TextPage;
+
   friend class TextSelectionPainter;
+  friend class TextSelectionDumper;
 };
 
 //------------------------------------------------------------------------
@@ -235,6 +237,7 @@ private:
 
   friend class TextSelectionPainter;
   friend class TextSelectionSizer;
+  friend class TextSelectionDumper;
 };
 
 //------------------------------------------------------------------------
@@ -425,6 +428,8 @@ public:
 
   GooList *getSelectionRegion(PDFRectangle *selection, double scale);
 
+  GooString *getSelectionText(PDFRectangle *selection);
+
   // Find a string by character position and length.  If found, sets
   // the text bounding rectangle and returns true; otherwise returns
   // false.
@@ -487,6 +492,7 @@ private:
   friend class TextFlow;
   friend class TextWordList;
   friend class TextSelectionPainter;
+  friend class TextSelectionDumper;
 };
 
 //------------------------------------------------------------------------
@@ -581,6 +587,8 @@ public:
   void drawSelection(OutputDev *out, double scale, PDFRectangle *selection);
 
   GooList *getSelectionRegion(PDFRectangle *selection, double scale);
+
+  GooString *getSelectionText(PDFRectangle *selection);
 
 #if TEXTOUT_WORD_LIST
   // Build a flat word list, in content stream order (if

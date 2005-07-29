@@ -71,7 +71,7 @@ poppler_document_new_from_file (const char  *uri,
   int err;
   char *filename;
 
-  document = (PopplerDocument *) g_object_new (POPPLER_TYPE_DOCUMENT, NULL);
+  document = (PopplerDocument *) g_object_new (POPPLER_TYPE_DOCUMENT, NULL, NULL);
   
   if (!globalParams) {
     globalParams = new GlobalParams("/etc/xpdfrc");

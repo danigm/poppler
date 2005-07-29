@@ -3008,11 +3008,11 @@ TextSelectionVisitor::TextSelectionVisitor (TextPage *page)
 }
 
 
-
-
-#if 0
 class TextSelectionDumper : public TextSelectionVisitor {
 public:
+  TextSelectionDumper(TextPage *page);
+  virtual ~TextSelectionDumper();
+
   virtual void visitBlock (TextBlock *block, 
 			   TextLine *begin,
 			   TextLine *end,
@@ -3022,58 +3022,116 @@ public:
 			  TextWord *end,
 			  int edge_begin,
 			  int edge_end,
-			  PDFRectangle *selection) { };
-  virtual void visitWord (TextWord *word, int begin, int end,
 			  PDFRectangle *selection);
+  virtual void visitWord (TextWord *word, int begin, int end,
+			  PDFRectangle *selection) { };
+
+  GooString *TextSelectionDumper::getText(void);
 
 private:
-  GooString *result;
-  UnicodeMap *uMap;
-  char space[8], eol[16];
-  int spaceLen, eolLen;
-  double height;
+  TextLineFrag *frags;
+  int nFrags, fragsSize;
 };
 
-TextSelectionDumper::TextSelectionDumper()
+TextSelectionDumper::TextSelectionDumper(TextPage *page)
+    : TextSelectionVisitor(page)
 {
-  result = new GooString();
-  uMap = globalParams->getTextEncoding();
-
-  // get the output encoding
-  if (data.uMap == NULL)
-    return data.result;
-
-  data.spaceLen = data.uMap->mapUnicode(0x20, data.space, sizeof(data.space));
-  data.eolLen = 0; // make gcc happy
-  switch (globalParams->getTextEOL()) {
-  case eolUnix:
-    data.eolLen = data.uMap->mapUnicode(0x0a, data.eol, sizeof(data.eol));
-    break;
-  case eolDOS:
-    data.eolLen = data.uMap->mapUnicode(0x0d, data.eol, sizeof(data.eol));
-    data.eolLen += data.uMap->mapUnicode(0x0a, data.eol + data.eolLen,
-					 sizeof(data.eol) - data.eolLen);
-    break;
-  case eolMac:
-    data.eolLen = data.uMap->mapUnicode(0x0d, data.eol, sizeof(data.eol));
-    break;
-  }
+  fragsSize = 256;
+  frags = (TextLineFrag *)gmalloc(fragsSize * sizeof(TextLineFrag));
+  nFrags = 0;
 }
 
 TextSelectionDumper::~TextSelectionDumper()
 {
-  data.uMap->decRefCnt();
+  gfree(frags);
 }
 
-void TextSelectionDumper::visitWord(TextWord *word, int first, int last,
-				    PDFRectangle *selection)
+void TextSelectionDumper::visitLine (TextLine *line,
+				     TextWord *begin,
+				     TextWord *end,
+				     int edge_begin,
+				     int edge_end,
+				     PDFRectangle *selection)
 {
-  for (i = first; i <= last; i++)
-    printf ("%c", word->text[i]);
-  printf ("\n");
+  if (nFrags == fragsSize) {
+    fragsSize *= 2;
+    frags = (TextLineFrag *) grealloc(frags, fragsSize * sizeof(TextLineFrag));
+  }
+
+  frags[nFrags].init(line, edge_begin, edge_end - edge_begin);
+  ++nFrags;
+
 }
 
-#endif
+GooString *TextSelectionDumper::getText (void)
+{
+  GBool oneRot = gTrue;
+  GooString *s;
+  TextLineFrag *frag;
+  int i, col;
+  GBool multiLine;
+  UnicodeMap *uMap;
+  char space[8], eol[16];
+  int spaceLen, eolLen;
+
+  s = new GooString();
+
+  uMap = globalParams->getTextEncoding();
+
+  if (uMap == NULL)
+      return s;
+
+  spaceLen = uMap->mapUnicode(0x20, space, sizeof(space));
+  eolLen = uMap->mapUnicode(0x0a, eol, sizeof(eol));
+
+  if (nFrags > 0) {
+    for (i = 0; i < nFrags; ++i) {
+      frags[i].computeCoords(oneRot);
+    }
+    page->assignColumns(frags, nFrags, oneRot);
+
+    // if all lines in the region have the same rotation, use it;
+    // otherwise, use the page's primary rotation
+    if (oneRot) {
+      qsort(frags, nFrags, sizeof(TextLineFrag),
+	    &TextLineFrag::cmpYXLineRot);
+    } else {
+      qsort(frags, nFrags, sizeof(TextLineFrag),
+	    &TextLineFrag::cmpYXPrimaryRot);
+    }
+
+    col = 0;
+    multiLine = gFalse;
+    for (i = 0; i < nFrags; ++i) {
+      frag = &frags[i];
+
+      // insert a return
+      if (frag->col < col ||
+	  (i > 0 && fabs(frag->base - frags[i-1].base) >
+	              maxIntraLineDelta * frags[i-1].line->words->fontSize)) {
+	  s->append(eol, eolLen);
+	col = 0;
+	multiLine = gTrue;
+      }
+
+      // column alignment
+      for (; col < frag->col; ++col) {
+	s->append(space, spaceLen);
+      }
+
+      // get the fragment text
+      col += page->dumpFragment(frag->line->text + frag->start, frag->len, uMap, s);
+    }
+
+    if (multiLine) {
+      s->append(eol, eolLen);
+    }
+  }
+
+  uMap->decRefCnt();
+
+  return s;
+}
 
 class TextSelectionSizer : public TextSelectionVisitor {
 public:
@@ -3259,6 +3317,10 @@ void TextWord::visitSelection(TextSelectionVisitor *visitor,
       end = i + 1;
   }
 
+  /* Skip empty selection. */
+  if (end <= begin)
+    return;
+
   visitor->visitWord (this, begin, end, selection);
 }
 
@@ -3289,6 +3351,10 @@ void TextLine::visitSelection(TextSelectionVisitor *visitor,
     if (mid < selection->x2 || mid < selection->x1)
       edge_end = i + 1;
   }
+
+  /* Skip empty selection. */
+  if (edge_end <= edge_begin)
+    return;
 
   visitor->visitLine (this, begin, end, edge_begin, edge_end, selection);
 
@@ -3342,6 +3408,10 @@ void TextBlock::visitSelection(TextSelectionVisitor *visitor,
 	selection->x2 > p->xMin && selection->y2 > p->yMin)
       end = p->next;
   }
+
+  /* Skip empty selection. */
+  if (end == begin)
+    return;
 
   visitor->visitBlock (this, begin, end, selection);
 
@@ -3457,6 +3527,15 @@ GooList *TextPage::getSelectionRegion(PDFRectangle *selection,
   visitSelection(&sizer, selection);
 
   return sizer.getRegion();
+}
+
+GooString *TextPage::getSelectionText(PDFRectangle *selection)
+{
+  TextSelectionDumper dumper(this);
+
+  visitSelection(&dumper, selection);
+
+  return dumper.getText();
 }
 
 GBool TextPage::findCharRange(int pos, int length,
@@ -4010,6 +4089,11 @@ void TextOutputDev::drawSelection(OutputDev *out,
 GooList *TextOutputDev::getSelectionRegion(PDFRectangle *selection,
 					   double scale) {
   return text->getSelectionRegion(selection, scale);
+}
+
+GooString *TextOutputDev::getSelectionText(PDFRectangle *selection)
+{
+  return text->getSelectionText(selection);
 }
 
 GBool TextOutputDev::findCharRange(int pos, int length,
