@@ -32,6 +32,36 @@
 #include <QtGui/QPainterPath>
 //------------------------------------------------------------------------
 
+#include "splash/SplashFontFileID.h"
+#include "splash/SplashFontFile.h"
+#include "splash/SplashFontEngine.h"
+#include "splash/SplashFont.h"
+#include "splash/SplashMath.h"
+#include "splash/SplashPath.h"
+#include "splash/SplashGlyphBitmap.h"
+//------------------------------------------------------------------------
+// SplashOutFontFileID
+//------------------------------------------------------------------------
+
+class SplashOutFontFileID: public SplashFontFileID {
+public:
+
+  SplashOutFontFileID(Ref *rA) { r = *rA; }
+
+  ~SplashOutFontFileID() {}
+
+  GBool matches(SplashFontFileID *id) {
+    return ((SplashOutFontFileID *)id)->r.num == r.num &&
+           ((SplashOutFontFileID *)id)->r.gen == r.gen;
+  }
+
+private:
+
+  Ref r;
+};
+
+
+
 //------------------------------------------------------------------------
 // ArthurOutputDev
 //------------------------------------------------------------------------
@@ -40,6 +70,7 @@ ArthurOutputDev::ArthurOutputDev(QPainter *painter):
   m_painter(painter)
 {
   m_currentBrush = QBrush(Qt::SolidPattern);
+  m_fontEngine = 0;
 }
 
 ArthurOutputDev::~ArthurOutputDev()
@@ -47,6 +78,20 @@ ArthurOutputDev::~ArthurOutputDev()
 }
 
 void ArthurOutputDev::startDoc(XRef *xrefA) {
+  int i;
+
+  xref = xrefA;
+  if (m_fontEngine) {
+    delete m_fontEngine;
+  }
+  m_fontEngine = new SplashFontEngine(
+#if HAVE_T1LIB_H
+				    globalParams->getEnableT1lib(),
+#endif
+#if HAVE_FREETYPE_FREETYPE_H || HAVE_FREETYPE_H
+				    globalParams->getEnableFreeType(),
+#endif
+				    globalParams->getAntialias());
 }
 
 void ArthurOutputDev::startPage(int pageNum, GfxState *state)
@@ -198,44 +243,185 @@ void ArthurOutputDev::updateStrokeOpacity(GfxState *state)
 
 void ArthurOutputDev::updateFont(GfxState *state)
 {
-  // Something like
-  // currentFont.setPointSize( state->getFontSize() );
-  // m_painter->setFont(currentFont);
-  // but with transformation matrices and such...
-#if 0
-  cairo_font_face_t *font_face;
-  double m11, m12, m21, m22;
-  double w;
-  cairo_matrix_t matrix;
+  GfxFont *gfxFont;
+  GfxFontType fontType;
+  SplashOutFontFileID *id;
+  SplashFontFile *fontFile;
+  FoFiTrueType *ff;
+  Ref embRef;
+  Object refObj, strObj;
+  GooString *tmpFileName, *fileName, *substName;
+  FILE *tmpFile;
+  Gushort *codeToGID;
+  DisplayFontParam *dfp;
+  double m11, m12, m21, m22, w1, w2;
+  SplashCoord mat[4];
+  char *name;
+  int c, substIdx, n, code;
 
-  LOG(printf ("updateFont() font=%s\n", state->getFont()->getName()->getCString()));
-  
-  /* Needs to be rethough, since fonts are now handled by cairo */
-  m_needFontUpdate = gFalse;
+  m_needFontUpdate = false;
+  m_font = NULL;
+  tmpFileName = NULL;
+  substIdx = -1;
 
-  currentFont = fontEngine->getFont (state->getFont(), xref);
+  if (!(gfxFont = state->getFont())) {
+    goto err1;
+  }
+  fontType = gfxFont->getType();
+  if (fontType == fontType3) {
+    goto err1;
+  }
 
+  // check the font file cache
+  id = new SplashOutFontFileID(gfxFont->getID());
+  if ((fontFile = m_fontEngine->getFontFile(id))) {
+    delete id;
+
+  } else {
+
+    // if there is an embedded font, write it to disk
+    if (gfxFont->getEmbeddedFontID(&embRef)) {
+      if (!openTempFile(&tmpFileName, &tmpFile, "wb", NULL)) {
+	error(-1, "Couldn't create temporary font file");
+	goto err2;
+      }
+      refObj.initRef(embRef.num, embRef.gen);
+      refObj.fetch(xref, &strObj);
+      refObj.free();
+      strObj.streamReset();
+      while ((c = strObj.streamGetChar()) != EOF) {
+	fputc(c, tmpFile);
+      }
+      strObj.streamClose();
+      strObj.free();
+      fclose(tmpFile);
+      fileName = tmpFileName;
+
+    // if there is an external font file, use it
+    } else if (!(fileName = gfxFont->getExtFontFile())) {
+
+      // look for a display font mapping or a substitute font
+      dfp = NULL;
+      if (gfxFont->getName()) {
+        dfp = globalParams->getDisplayFont(gfxFont);
+      }
+      if (!dfp) {
+	error(-1, "Couldn't find a font for '%s'",
+	      gfxFont->getName() ? gfxFont->getName()->getCString()
+	                         : "(unnamed)");
+	goto err2;
+      }
+      switch (dfp->kind) {
+      case displayFontT1:
+	fileName = dfp->t1.fileName;
+	fontType = gfxFont->isCIDFont() ? fontCIDType0 : fontType1;
+	break;
+      case displayFontTT:
+	fileName = dfp->tt.fileName;
+	fontType = gfxFont->isCIDFont() ? fontCIDType2 : fontTrueType;
+	break;
+      }
+    }
+
+    // load the font file
+    switch (fontType) {
+    case fontType1:
+      if (!(fontFile = m_fontEngine->loadType1Font(
+			   id,
+			   fileName->getCString(),
+			   fileName == tmpFileName,
+			   ((Gfx8BitFont *)gfxFont)->getEncoding()))) {
+	error(-1, "Couldn't create a font for '%s'",
+	      gfxFont->getName() ? gfxFont->getName()->getCString()
+	                         : "(unnamed)");
+	goto err2;
+      }
+      break;
+    case fontType1C:
+      if (!(fontFile = m_fontEngine->loadType1CFont(
+			   id,
+			   fileName->getCString(),
+			   fileName == tmpFileName,
+			   ((Gfx8BitFont *)gfxFont)->getEncoding()))) {
+	error(-1, "Couldn't create a font for '%s'",
+	      gfxFont->getName() ? gfxFont->getName()->getCString()
+	                         : "(unnamed)");
+	goto err2;
+      }
+      break;
+    case fontTrueType:
+      if (!(ff = FoFiTrueType::load(fileName->getCString()))) {
+	goto err2;
+      }
+      codeToGID = ((Gfx8BitFont *)gfxFont)->getCodeToGIDMap(ff);
+      delete ff;
+      if (!(fontFile = m_fontEngine->loadTrueTypeFont(
+			   id,
+			   fileName->getCString(),
+			   fileName == tmpFileName,
+			   codeToGID, 256))) {
+	error(-1, "Couldn't create a font for '%s'",
+	      gfxFont->getName() ? gfxFont->getName()->getCString()
+	                         : "(unnamed)");
+	goto err2;
+      }
+      break;
+    case fontCIDType0:
+    case fontCIDType0C:
+      if (!(fontFile = m_fontEngine->loadCIDFont(
+			   id,
+			   fileName->getCString(),
+			   fileName == tmpFileName))) {
+	error(-1, "Couldn't create a font for '%s'",
+	      gfxFont->getName() ? gfxFont->getName()->getCString()
+	                         : "(unnamed)");
+	goto err2;
+      }
+      break;
+    case fontCIDType2:
+      n = ((GfxCIDFont *)gfxFont)->getCIDToGIDLen();
+      codeToGID = (Gushort *)gmalloc(n * sizeof(Gushort));
+      memcpy(codeToGID, ((GfxCIDFont *)gfxFont)->getCIDToGID(),
+	     n * sizeof(Gushort));
+      if (!(fontFile = m_fontEngine->loadTrueTypeFont(
+			   id,
+			   fileName->getCString(),
+			   fileName == tmpFileName,
+			   codeToGID, n))) {
+	error(-1, "Couldn't create a font for '%s'",
+	      gfxFont->getName() ? gfxFont->getName()->getCString()
+	                         : "(unnamed)");
+	goto err2;
+      }
+      break;
+    default:
+      // this shouldn't happen
+      goto err2;
+    }
+  }
+
+  // get the font matrix
   state->getFontTransMat(&m11, &m12, &m21, &m22);
   m11 *= state->getHorizScaling();
   m12 *= state->getHorizScaling();
 
-  w = currentFont->getSubstitutionCorrection(state->getFont());
-  m12 *= w;
-  m22 *= w;
+  // create the scaled font
+  mat[0] = m11;  mat[1] = -m12;
+  mat[2] = m21;  mat[3] = -m22;
+  m_font = m_fontEngine->getFont(fontFile, mat);
 
-  LOG(printf ("font matrix: %f %f %f %f\n", m11, m12, m21, m22));
-  
-  font_face = currentFont->getFontFace();
-  cairo_set_font_face (cairo, font_face);
+  if (tmpFileName) {
+    delete tmpFileName;
+  }
+  return;
 
-  matrix.xx = m11;
-  matrix.xy = -m21;
-  matrix.yx = m12;
-  matrix.yy = -m22;
-  matrix.x0 = 0;
-  matrix.y0 = 0;
-  cairo_set_font_matrix (cairo, &matrix);
-#endif
+ err2:
+  delete id;
+ err1:
+  if (tmpFileName) {
+    delete tmpFileName;
+  }
+  return;
 }
 
 static QPainterPath convertPath(GfxState *state, GfxPath *path, Qt::FillRule fillRule)
@@ -298,23 +484,19 @@ void ArthurOutputDev::eoClip(GfxState *state)
   m_painter->setClipPath(convertPath( state, state->getPath(), Qt::OddEvenFill ) );
 }
 
-void ArthurOutputDev::drawString(GfxState *state, GooString *s)
-{
-  GfxFont *font;
-  int wMode;
+void ArthurOutputDev::drawChar(GfxState *state, double x, double y,
+			       double dx, double dy,
+			       double originX, double originY,
+			       CharCode code, Unicode *u, int uLen) {
+  double x1, y1;
+//   SplashPath *path;
   int render;
-  // the number of bytes in the string and not the number of glyphs?
-  int len = s->getLength();
-  char *p = s->getCString();
-  int count = 0;
-  double curX, curY;
-  double riseX, riseY;
-
-  font = state->getFont();
-  wMode = font->getWMode();
 
   if (m_needFontUpdate) {
     updateFont(state);
+  }
+  if (!m_font) {
+    return;
   }
 
   // check for invisible text -- this is used by Acrobat Capture
@@ -323,84 +505,81 @@ void ArthurOutputDev::drawString(GfxState *state, GooString *s)
     return;
   }
 
-  // ignore empty strings
-  if (len == 0)
-    return;
-  
-  state->textTransformDelta(0, state->getRise(), &riseX, &riseY);
-  curX = state->getCurX();
-  curY = state->getCurY();
-  while (len > 0) {
-    double x, y;
-    double x1, y1;
-    double dx, dy, tdx, tdy;
-    double originX, originY, tOriginX, tOriginY;
-    int n, uLen;
-    CharCode code;
-    Unicode u[8];
-    n = font->getNextChar(p, len, &code,
-	                  u, (int)(sizeof(u) / sizeof(Unicode)), &uLen,
-			  &dx, &dy, &originX, &originY);
-    if (wMode) {
-      dx *= state->getFontSize();
-      dy = dy * state->getFontSize() + state->getCharSpace();
-      if (n == 1 && *p == ' ') {
-	dy += state->getWordSpace();
-      }
-    } else {
-      dx = dx * state->getFontSize() + state->getCharSpace();
-      if (n == 1 && *p == ' ') {
-	dx += state->getWordSpace();
-      }
-      dx *= state->getHorizScaling();
-      dy *= state->getFontSize();
-    }
-    originX *= state->getFontSize();
-    originY *= state->getFontSize();
-    state->textTransformDelta(dx, dy, &tdx, &tdy);
-    state->textTransformDelta(originX, originY, &tOriginX, &tOriginY);
-    x = curX + riseX;
-    y = curY + riseY;
-    x -= tOriginX;
-    y -= tOriginY;
-    state->transform(x, y, &x1, &y1);
+  x -= originX;
+  y -= originY;
+  state->transform(x, y, &x1, &y1);
 
-    //glyphs[count].index = currentFont->getGlyph (code, u, uLen);
-    m_painter->drawText(QPointF(x1,y1), QString(*p) );
-    curX += tdx;
-    curY += tdy;
-    p += n;
-    len -= n;
-    count++;
-  }
-#if 0
   // fill
   if (!(render & 1)) {
-    LOG (printf ("fill string\n"));
-    cairo_set_source_rgb (cairo,
-			 fill_color.r, fill_color.g, fill_color.b);
-    cairo_show_glyphs (cairo, glyphs, count);
+    int x0, y0, xFrac, yFrac;
+    SplashGlyphBitmap glyph;
+
+    x0 = static_cast<int>(floor(x1));
+    xFrac = splashFloor((x1 - x0) * splashFontFraction);
+    y0 = static_cast<int>(floor(y1));
+    yFrac = splashFloor((y1 - y0) * splashFontFraction);
+    SplashPath * fontPath;
+    fontPath = m_font->getGlyphPath(code);
+    if (fontPath) {
+      QPainterPath qPath;
+      qPath.setFillRule(Qt::WindingFill);
+      for (int i = 0; i < fontPath->length; ++i) {
+	if (fontPath->flags[i] & splashPathFirst) {
+	  qPath.moveTo(x0+fontPath->pts[i].x, y0+fontPath->pts[i].y);
+	} else if (fontPath->flags[i] & splashPathCurve) {
+	  qPath.quadTo(x0+fontPath->pts[i].x, y0+fontPath->pts[i].y,
+		       x0+fontPath->pts[i+1].x, y0+fontPath->pts[i+1].y);
+	  ++i;
+	} else if (fontPath->flags[i] & splashPathArcCW) {
+	  qDebug() << "Need to implement arc";
+	} else {
+	  qPath.lineTo(x0+fontPath->pts[i].x, y0+fontPath->pts[i].y);
+	}
+	if (fontPath->flags[i] & splashPathLast) {
+	  // change this around to just show the outline in black
+#if 1
+	  m_painter->drawPath( qPath );
+#else
+	  m_painter->save();
+	  m_painter->setBrush(QBrush(Qt::NoBrush));
+	  QPen thisPen(m_painter->pen());
+	  thisPen.setWidth(0);
+	  m_painter->setPen(thisPen);
+	  qPath.closeSubpath();
+	  m_painter->drawPath( qPath );
+	  m_painter->restore();
+#endif
+	}
+      }
+    }
   }
-  
+
   // stroke
   if ((render & 3) == 1 || (render & 3) == 2) {
-    LOG (printf ("stroke string\n"));
-    cairo_set_source_rgb (cairo,
-			 stroke_color.r, stroke_color.g, stroke_color.b);
-    cairo_glyph_path (cairo, glyphs, count);
-    cairo_stroke (cairo);
+    qDebug() << "no stroke";
+    /*
+    if ((path = m_font->getGlyphPath(code))) {
+      path->offset((SplashCoord)x1, (SplashCoord)y1);
+      splash->stroke(path);
+      delete path;
+    }
+    */
   }
 
   // clip
   if (render & 4) {
-    // FIXME: This is quite right yet, we need to accumulate all
-    // glyphs within one text object before we clip.  Right now this
-    // just add this one string.
-    LOG (printf ("clip string\n"));
-    cairo_glyph_path (cairo, glyphs, count);
-    cairo_clip (cairo);
+    qDebug() << "no clip";
+    /*
+    path = m_font->getGlyphPath(code);
+    path->offset((SplashCoord)x1, (SplashCoord)y1);
+    if (textClipPath) {
+      textClipPath->append(path);
+      delete path;
+    } else {
+      textClipPath = path;
+    }
+    */
   }
-#endif  
 }
 
 GBool ArthurOutputDev::beginType3Char(GfxState *state, double x, double y,

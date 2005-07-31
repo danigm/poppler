@@ -81,7 +81,7 @@ void Page::renderToPixmap(QPixmap *pixmap) const
   QPainter* painter = new QPainter(pixmap);
   painter->setRenderHint(QPainter::Antialiasing);
   ArthurOutputDev output_dev(painter);
-
+  output_dev.startDoc(m_page->parentDoc->m_doc->doc.getXRef ());
   m_page->parentDoc->m_doc->doc.displayPageSlice(&output_dev,
 						 m_page->index + 1,
 						 72,

@@ -1,3 +1,11 @@
+2005-07-31  Brad Hards  <bradh@frogmouth.net>
+
+	* poppler/ArthurOutputDev.cc:  An initial version of proper
+	font handling, based on work by Albert Astals Cid. I changed
+	it to stroke the glyphs based on the SplashPath. In the longer
+	term, Arthur should use FreeType paths directly - hopefully
+	that will be less ugly, and not fill everything.
+
 2005-07-29  Brad Hards  <bradh@frogmouth.net>
 
 	* qt4/tests: add test cases for version and facing pagelayout.
