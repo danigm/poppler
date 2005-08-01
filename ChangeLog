@@ -1,3 +1,10 @@
+2005-08-01  Brad Hards  <bradh@frogmouth.net>
+
+	* poppler/ArthurOutputDev.cc: Fix up the fill problem with
+	drawing text, where the "middle" of glyphs with a "hole" 
+	(like d, o, p, b, g) got filled. Also remove some debugging
+	code. The glyphs are still ugly though.
+
 2005-07-31  Brad Hards  <bradh@frogmouth.net>
 
 	* poppler/ArthurOutputDev.cc:  An initial version of proper

@@ -536,21 +536,10 @@ void ArthurOutputDev::drawChar(GfxState *state, double x, double y,
 	  qPath.lineTo(x0+fontPath->pts[i].x, y0+fontPath->pts[i].y);
 	}
 	if (fontPath->flags[i] & splashPathLast) {
-	  // change this around to just show the outline in black
-#if 1
-	  m_painter->drawPath( qPath );
-#else
-	  m_painter->save();
-	  m_painter->setBrush(QBrush(Qt::NoBrush));
-	  QPen thisPen(m_painter->pen());
-	  thisPen.setWidth(0);
-	  m_painter->setPen(thisPen);
 	  qPath.closeSubpath();
-	  m_painter->drawPath( qPath );
-	  m_painter->restore();
-#endif
 	}
       }
+      m_painter->drawPath( qPath );
     }
   }
 
