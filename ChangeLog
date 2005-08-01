@@ -1,3 +1,10 @@
+2005-08-01  Kristian Høgsberg  <krh@redhat.com>
+
+	Patch from Dan Winship <danw@novell.com>
+	
+	* glib/poppler-page.cc (poppler_page_copy_to_pixbuf): Set alpha to
+	0xff (opaque), not 0x00.
+
 2005-08-01  Brad Hards  <bradh@frogmouth.net>
 
 	* poppler/ArthurOutputDev.cc: Fix up the fill problem with

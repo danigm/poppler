@@ -315,7 +315,7 @@ poppler_page_copy_to_pixbuf(PopplerPage *page,
 	  dst[1] = splashRGB8G(*src); 
 	  dst[2] = splashRGB8B(*src);
 	  if (pixbuf_n_channels == 4)
-	    dst[3] = 0;
+	    dst[3] = 0xff;
 	  dst += pixbuf_n_channels;
 	  src++;
 	}
