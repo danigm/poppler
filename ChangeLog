@@ -1,3 +1,7 @@
+2005-08-01  Albert Astals Cid  <aacid@kde.org>
+
+	* poppler/DCTStream.[cc|h]: Fix problem in the patch to fix #3299
+
 2005-08-01  Kristian Høgsberg  <krh@redhat.com>
 
 	Patch from Dan Winship <danw@novell.com>
