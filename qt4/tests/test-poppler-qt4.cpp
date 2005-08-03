@@ -12,8 +12,11 @@ public:
     PDFDisplay( Poppler::Document *d );
     ~PDFDisplay();
 protected:
-    void        paintEvent( QPaintEvent * );
+    void paintEvent( QPaintEvent * );
+    void keyPressEvent( QKeyEvent * );
 private:
+    void display();
+    int m_currentPage;
     QPixmap	*pixmap;
     Poppler::Document *doc;
 };
@@ -21,11 +24,19 @@ private:
 PDFDisplay::PDFDisplay( Poppler::Document *d )
 {
     doc = d;
+    m_currentPage = 0;
+    display();
+}
+
+void PDFDisplay::display()
+{
     if (doc) {
-	Poppler::Page *page = doc->page("1");
+	Poppler::Page *page = doc->page(m_currentPage);
 	if (page) {
+	    qDebug() << "Displaying page: " << m_currentPage;
 	    pixmap = new QPixmap(page->pageSize());
 	    page->renderToPixmap(pixmap);
+	    update();
 	    delete page;
 	}
     } else {
@@ -47,6 +58,30 @@ void PDFDisplay::paintEvent( QPaintEvent *e )
     } else {
 	qWarning() << "no pixmap";
     }
+}
+
+void PDFDisplay::keyPressEvent( QKeyEvent *e )
+{
+  if (e->key() == Qt::Key_Down)
+  {
+    if (m_currentPage + 1 < doc->numPages())
+    {
+      m_currentPage++;
+      display();
+    }
+  }
+  else if (e->key() == Qt::Key_Up)
+  {
+    if (m_currentPage > 0)
+    {
+      m_currentPage--;
+      display();
+    }
+  }
+  else if (e->key() == Qt::Key_Q)
+  {
+      exit(0);
+  }
 }
 
 int main( int argc, char **argv )
@@ -92,14 +127,6 @@ int main( int argc, char **argv )
 
     Poppler::Page *page = doc->page(0);
     qDebug() << "    Page 1 size: " << page->pageSize().width()/72 << "inches x " << page->pageSize().height()/72 << "inches";
-    if ( page->orientation() == Poppler::Page::Landscape ) {
-	qDebug() << "Landscape layout";
-    } else if ( page->orientation() == Poppler::Page::Portrait ) {
-	qDebug() << "Portrait layout";
-    } else {
-	qDebug() << "Unknown layout";
-    }
-
 
     if (argc == 2)
     {  
