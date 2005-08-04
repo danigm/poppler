@@ -212,7 +212,6 @@ void ArthurOutputDev::updateFillColor(GfxState *state)
   state->getFillRGB(&rgb);
   brushColour.setRgbF(rgb.r, rgb.g, rgb.b, brushColour.alphaF());
   m_currentBrush.setColor(brushColour);
-  m_painter->setBrush(m_currentBrush);
 }
 
 void ArthurOutputDev::updateStrokeColor(GfxState *state)
@@ -230,7 +229,6 @@ void ArthurOutputDev::updateFillOpacity(GfxState *state)
   QColor brushColour= m_currentBrush.color();
   brushColour.setAlphaF(state->getFillOpacity());
   m_currentBrush.setColor(brushColour);
-  m_painter->setBrush(m_currentBrush);
 }
 
 void ArthurOutputDev::updateStrokeOpacity(GfxState *state)
@@ -539,7 +537,18 @@ void ArthurOutputDev::drawChar(GfxState *state, double x, double y,
 	  qPath.closeSubpath();
 	}
       }
+      m_painter->save();
+      GfxRGB rgb;
+      QColor brushColour = m_currentBrush.color();
+      state->getFillRGB(&rgb);
+      brushColour.setRgbF(rgb.r, rgb.g, rgb.b, state->getFillOpacity());
+      m_painter->setBrush(brushColour);
+      QColor penColour = m_currentPen.color();
+      state->getStrokeRGB(&rgb);
+      penColour.setRgbF(rgb.r, rgb.g, rgb.b, state->getStrokeOpacity());
+      m_painter->setPen(penColour);
       m_painter->drawPath( qPath );
+      m_painter->restore();
     }
   }
 

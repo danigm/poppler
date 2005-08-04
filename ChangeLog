@@ -1,3 +1,8 @@
+2005-08-04  Brad Hards  <bradh@frogmouth.net>
+
+	* poppler/ArthurOutputDev.cc: Fix problem with drawing filled objects
+	that was introduced in Rev 1.4.
+
 2005-08-03  Brad Hards  <bradh@frogmouth.net>
 
 	* qt4/tests/test-poppler-qt4.cpp (keyPressEvent): add support for
