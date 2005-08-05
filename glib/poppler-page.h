@@ -67,7 +67,9 @@ void                poppler_page_render_selection     (PopplerPage        *page,
 						       gdouble             scale,
 						       GdkPixbuf          *pixbuf,
 						       PopplerRectangle   *selection,
-						       PopplerRectangle   *old_selection);
+						       PopplerRectangle   *old_selection,
+						       guint32             glyph_color,
+						       guint32             background_color);
 
 
 /* A rectangle on a page, with coordinates in PDF points. */

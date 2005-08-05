@@ -29,7 +29,6 @@
 #include "GlobalParams.h"
 #include "UnicodeMap.h"
 #include "UnicodeTypeTable.h"
-#include "GfxState.h"
 #include "TextOutputDev.h"
 #include "Page.h"
 
@@ -3195,8 +3194,8 @@ public:
   TextSelectionPainter(TextPage *page,
 		       double scale,
 		       OutputDev *out,
-		       GfxColor &box_color,
-		       GfxColor &glyph_color);
+		       GfxColor *box_color,
+		       GfxColor *glyph_color);
   ~TextSelectionPainter();
 
   virtual void visitBlock (TextBlock *block,
@@ -3214,15 +3213,15 @@ public:
 
 private:
   OutputDev *out;
-  GfxColor box_color, glyph_color;
+  GfxColor *box_color, *glyph_color;
   GfxState *state;
 };
 
 TextSelectionPainter::TextSelectionPainter(TextPage *page,
 					   double scale,
 					   OutputDev *out,
-					   GfxColor &box_color,
-					   GfxColor &glyph_color)
+					   GfxColor *box_color,
+					   GfxColor *glyph_color)
   : TextSelectionVisitor(page),
     out(out),
     box_color(box_color),
@@ -3256,7 +3255,7 @@ void TextSelectionPainter::visitLine (TextLine *line,
   double x1, y1, x2, y2, margin;
   int i;
 
-  state->setFillColor(&box_color);
+  state->setFillColor(box_color);
   out->updateFillColor(state);
 
   margin = (line->yMax - line->yMin) / 8;
@@ -3281,7 +3280,7 @@ void TextSelectionPainter::visitWord (TextWord *word, int begin, int end,
   GooString *string;
   int i;
 
-  state->setFillColor(&glyph_color);
+  state->setFillColor(glyph_color);
   out->updateFillColor(state);
   state->setFont(word->font->gfxFont, word->fontSize);
   out->updateFont(state);
@@ -3510,10 +3509,9 @@ void TextPage::visitSelection(TextSelectionVisitor *visitor,
 
 void TextPage::drawSelection(OutputDev *out,
 			     double scale,
-			     PDFRectangle *selection)
+			     PDFRectangle *selection,
+			     GfxColor *glyph_color, GfxColor *box_color)
 {
-  GfxColor box_color = { 0x7c / 255.0, 0x99 / 255.0, 0xad / 255.0 };
-  GfxColor glyph_color = { 1.0, 1.0, 1.0 };
   TextSelectionPainter painter(this, scale, out, box_color, glyph_color);
 
   visitSelection(&painter, selection);
@@ -4082,8 +4080,9 @@ GooString *TextOutputDev::getText(double xMin, double yMin,
 
 void TextOutputDev::drawSelection(OutputDev *out,
 				  double scale,
-				  PDFRectangle *selection) {
-  text->drawSelection(out, scale, selection);
+				  PDFRectangle *selection,
+				  GfxColor *glyph_color, GfxColor *box_color) {
+  text->drawSelection(out, scale, selection, glyph_color, box_color);
 }
 
 GooList *TextOutputDev::getSelectionRegion(PDFRectangle *selection,

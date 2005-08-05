@@ -17,6 +17,7 @@
 #include <stdio.h>
 #include "goo/gtypes.h"
 #include "GfxFont.h"
+#include "GfxState.h"
 #include "OutputDev.h"
 
 class GooString;
@@ -424,7 +425,8 @@ public:
 
   void drawSelection(OutputDev *out,
 		     double scale,
-		     PDFRectangle *selection);
+		     PDFRectangle *selection,
+		     GfxColor *glyph_color, GfxColor *box_color);
 
   GooList *getSelectionRegion(PDFRectangle *selection, double scale);
 
@@ -584,7 +586,8 @@ public:
 		      double *xMin, double *yMin,
 		      double *xMax, double *yMax);
 
-  void drawSelection(OutputDev *out, double scale, PDFRectangle *selection);
+  void drawSelection(OutputDev *out, double scale, PDFRectangle *selection,
+		     GfxColor *glyph_color, GfxColor *box_color);
 
   GooList *getSelectionRegion(PDFRectangle *selection, double scale);
 

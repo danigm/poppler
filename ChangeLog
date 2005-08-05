@@ -1,3 +1,10 @@
+2005-08-05  Kristian Høgsberg  <krh@redhat.com>
+
+	* glib/poppler-page.cc:
+	* glib/poppler-page.h:
+	* poppler/TextOutputDev.cc:
+	* poppler/TextOutputDev.h: Propagate selection colors to the glib API.
+
 2005-08-04  Brad Hards  <bradh@frogmouth.net>
 
 	* poppler/ArthurOutputDev.cc: Fix problem with drawing filled objects

@@ -478,12 +478,35 @@ poppler_page_set_selection_alpha (PopplerPage      *page,
 
 #endif
 
+/**
+ * poppler_page_render_selection:
+ * @page: the #PopplerPage for which to render selection
+ * @scale: scale to use for rendering
+ * @pixbuf: pixbuf to render to
+ * @selection: start and end point of selection as a rectangle
+ * @old_selection: previous selection
+ * @glyph_color: color to use for drawing glyphs
+ * @background_color: color to use for the selection background
+ * 
+ * Render the selection specified by @selection for @page into
+ * @pixbuf.  The selection will be rendered at @scale, using
+ * @glyph_color for the glyphs and @background_color for the selection
+ * background.  The colors are specified as 24 bit words,
+ * specifically, the red component in bits 16-23, the green component
+ * in bits 8-15 and the blue component in bits 0-7.
+ *
+ * If non-NULL, @old_selection specifies the selection that is already
+ * rendered in @pixbuf, in which case this function will (some day)
+ * only render the changed part of the selection.
+ **/
 void
-poppler_page_render_selection (PopplerPage *page,
-			       gdouble      scale,
-			       GdkPixbuf   *pixbuf,
+poppler_page_render_selection (PopplerPage      *page,
+			       gdouble           scale,
+			       GdkPixbuf        *pixbuf,
 			       PopplerRectangle *selection,
-			       PopplerRectangle *old_selection)
+			       PopplerRectangle *old_selection,
+			       guint32           glyph_color,
+			       guint32           background_color)
 {
   TextOutputDev *text_dev;
   OutputDev *output_dev;
@@ -491,12 +514,24 @@ poppler_page_render_selection (PopplerPage *page,
   PDFRectangle pdf_selection(selection->x1, selection->y1,
 			     selection->x2, selection->y2);
 
+  GfxColor gfx_background_color = { 
+    ((background_color >> 16) & 0xff) / 255.0,
+    ((background_color >>  8) & 0xff) / 255.0,
+    ((background_color >>  0) & 0xff) / 255.0
+  };
+  GfxColor gfx_glyph_color = {
+    ((glyph_color >> 16) & 0xff) / 255.0,
+    ((glyph_color >>  8) & 0xff) / 255.0,
+    ((glyph_color >>  0) & 0xff) / 255.0
+  };
+
   text_dev = poppler_page_get_text_output_dev (page);
   output_dev = page->document->output_dev;
 
   poppler_page_prepare_output_dev (page, scale, TRUE, &data);
 
-  text_dev->drawSelection (output_dev, scale, &pdf_selection);
+  text_dev->drawSelection (output_dev, scale, &pdf_selection,
+			   &gfx_glyph_color, &gfx_background_color);
 
   poppler_page_copy_to_pixbuf (page, pixbuf, &data);
 
@@ -519,6 +554,17 @@ destroy_thumb_data (guchar *pixels, gpointer data)
   gfree (pixels);
 }
 
+/**
+ * poppler_page_get_thumbnail:
+ * @page: the #PopperPage to get the thumbnail for
+ * 
+ * Get the embedded thumbnail for the specified page.  If the document
+ * doesn't have an embedded thumbnail for the page, this function
+ * returns %NULL.
+ * 
+ * Return value: the tumbnail as a #GdkPixbuf or %NULL if the document
+ * doesn't have a thumbnail for this page.
+ **/
 GdkPixbuf *
 poppler_page_get_thumbnail (PopplerPage *page)
 {
@@ -541,9 +587,10 @@ poppler_page_get_thumbnail (PopplerPage *page)
  * @width: return location for width
  * @height: return location for height
  *
- * Returns %TRUE if @page has a thumbnail associated with it.  It also fills in
- * @width and @height with the width and height of the thumbnail.  The values of
- * width and height are not changed if no appropriate thumbnail exists.
+ * Returns %TRUE if @page has a thumbnail associated with it.  It also
+ * fills in @width and @height with the width and height of the
+ * thumbnail.  The values of width and height are not changed if no
+ * appropriate thumbnail exists.
  *
  * Return value: %TRUE, if @page has a thumbnail associated with it.
  **/
