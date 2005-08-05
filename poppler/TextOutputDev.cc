@@ -3254,6 +3254,7 @@ void TextSelectionPainter::visitLine (TextLine *line,
 {
   double x1, y1, x2, y2, margin;
   int i;
+  Matrix ctm, ictm;
 
   state->setFillColor(box_color);
   out->updateFillColor(state);
@@ -3263,6 +3264,19 @@ void TextSelectionPainter::visitLine (TextLine *line,
   y1 = floor (line->yMin - margin);
   x2 = ceil (line->edge[edge_end]);
   y2 = ceil (line->yMax + margin);
+
+  state->getCTM (&ctm);
+  ctm.transform(line->edge[edge_begin], line->yMin - margin, &x1, &y1);
+  ctm.transform(line->edge[edge_end], line->yMax + margin, &x2, &y2);
+
+  x1 = floor (x1);
+  y1 = floor (y1);
+  x2 = ceil (x2);
+  y2 = ceil (y2);
+
+  ctm.invertTo (&ictm);
+  ictm.transform(x1, y1, &x1, &y1);
+  ictm.transform(x2, y2, &x2, &y2);
 
   state->moveTo(x1, y1);
   state->lineTo(x2, y1);

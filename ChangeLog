@@ -1,5 +1,13 @@
 2005-08-05  Kristian Høgsberg  <krh@redhat.com>
 
+	* poppler/TextOutputDev.cc (visitLine): Round selection
+	coordinates in device space, so selection isn't fuzzy.
+
+	* poppler/GfxState.cc: 
+	* poppler/GfxState.h: Add simple Matrix class.
+
+2005-08-05  Kristian Høgsberg  <krh@redhat.com>
+	
 	* glib/poppler-page.cc:
 	* glib/poppler-page.h:
 	* poppler/TextOutputDev.cc:

@@ -22,6 +22,15 @@ class GfxFont;
 class PDFRectangle;
 class GfxShading;
 
+class Matrix {
+public:
+  double m[6];
+
+  GBool invertTo(Matrix *other);
+  void transform(double x, double y, double *tx, double *ty);
+};
+
+
 //------------------------------------------------------------------------
 // GfxColor
 //------------------------------------------------------------------------
@@ -878,6 +887,7 @@ public:
 
   // Accessors.
   double *getCTM() { return ctm; }
+  void getCTM(Matrix *m) { memcpy (m->m, ctm, sizeof m->m); }
   double getX1() { return px1; }
   double getY1() { return py1; }
   double getX2() { return px2; }

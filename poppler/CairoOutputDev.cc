@@ -260,14 +260,14 @@ void CairoOutputDev::doPath(GfxState *state, GfxPath *path,
       j = 1;
       while (j < subpath->getNumPoints()) {
 	if (subpath->getCurve(j)) {
+	  state->transform(subpath->getX(j), subpath->getY(j), &x1, &y1);
+	  state->transform(subpath->getX(j+1), subpath->getY(j+1), &x2, &y2);
+	  state->transform(subpath->getX(j+2), subpath->getY(j+2), &x3, &y3);
 	  if (snapToGrid) {
 	    x1 = round (x1); y1 = round (y1);
 	    x2 = round (x2); y2 = round (y2);
 	    x3 = round (x3); y3 = round (y3);
 	  }
-	  state->transform(subpath->getX(j), subpath->getY(j), &x1, &y1);
-	  state->transform(subpath->getX(j+1), subpath->getY(j+1), &x2, &y2);
-	  state->transform(subpath->getX(j+2), subpath->getY(j+2), &x3, &y3);
 	  cairo_curve_to (cairo, 
 			  x1, y1,
 			  x2, y2,
