@@ -205,7 +205,9 @@ namespace Poppler {
 
 	   \param filePath the name (and path, if required) of the file to load
 	*/
-	static Document *Document::load(const QString & filePath);
+	static Document *Document::load(const QString & filePath,
+					const QByteArray &ownerPassword=QByteArray(),
+					const QByteArray &userPassword=QByteArray());
   
 	/**
 	   Get a specified page

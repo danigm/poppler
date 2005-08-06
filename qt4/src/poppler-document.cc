@@ -1,5 +1,6 @@
 /* poppler-document.cc: qt interface to poppler
  * Copyright (C) 2005, Net Integration Technologies, Inc.
+ * Copyright (C) 2005, Brad Hards <bradh@frogmouth.net>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,13 +32,16 @@
 
 namespace Poppler {
 
-    Document *Document::load(const QString &filePath)
+  Document *Document::load(const QString &filePath, const QByteArray &ownerPassword,
+			   const QByteArray &userPassword)
     {
 	if (!globalParams) {
 	    globalParams = new GlobalParams("/etc/xpdfrc");
 	}
 
-	DocumentData *doc = new DocumentData(new GooString(QFile::encodeName(filePath)), NULL, NULL);
+	DocumentData *doc = new DocumentData(new GooString(QFile::encodeName(filePath)), 
+					     new GooString(ownerPassword.data()),
+					     new GooString(userPassword.data()));
 	Document *pdoc;
 	if (doc->doc.isOk() || doc->doc.getErrorCode() == errEncrypted) {
 	    pdoc = new Document(doc);

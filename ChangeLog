@@ -1,5 +1,9 @@
 2005-08-06  Brad Hards  <bradh@frogmouth.net>
 
+	* qt4/src/poppler-document.cc:
+	* qt4/src/poppler-qt4.h: Add password arguments to document
+	constructor.
+
 	* qt4/src/Doxyfile: Add define so doxygen can extract the
 	API for Qt4 bindings again.
 
