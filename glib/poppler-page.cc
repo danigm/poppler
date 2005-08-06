@@ -491,9 +491,7 @@ poppler_page_set_selection_alpha (PopplerPage      *page,
  * Render the selection specified by @selection for @page into
  * @pixbuf.  The selection will be rendered at @scale, using
  * @glyph_color for the glyphs and @background_color for the selection
- * background.  The colors are specified as 24 bit words,
- * specifically, the red component in bits 16-23, the green component
- * in bits 8-15 and the blue component in bits 0-7.
+ * background.
  *
  * If non-NULL, @old_selection specifies the selection that is already
  * rendered in @pixbuf, in which case this function will (some day)
@@ -505,8 +503,8 @@ poppler_page_render_selection (PopplerPage      *page,
 			       GdkPixbuf        *pixbuf,
 			       PopplerRectangle *selection,
 			       PopplerRectangle *old_selection,
-			       guint32           glyph_color,
-			       guint32           background_color)
+			       GdkColor         *glyph_color,
+			       GdkColor         *background_color)
 {
   TextOutputDev *text_dev;
   OutputDev *output_dev;
@@ -515,14 +513,14 @@ poppler_page_render_selection (PopplerPage      *page,
 			     selection->x2, selection->y2);
 
   GfxColor gfx_background_color = { 
-    ((background_color >> 16) & 0xff) / 255.0,
-    ((background_color >>  8) & 0xff) / 255.0,
-    ((background_color >>  0) & 0xff) / 255.0
+    background_color->red / 65535.0,
+    background_color->green / 65535.0,
+    background_color->blue / 65535.0
   };
   GfxColor gfx_glyph_color = {
-    ((glyph_color >> 16) & 0xff) / 255.0,
-    ((glyph_color >>  8) & 0xff) / 255.0,
-    ((glyph_color >>  0) & 0xff) / 255.0
+    glyph_color->red / 65535.0,
+    glyph_color->green / 65535.0,
+    glyph_color->blue / 65535.0
   };
 
   text_dev = poppler_page_get_text_output_dev (page);

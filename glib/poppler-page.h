@@ -21,6 +21,7 @@
 
 #include <glib-object.h>
 #include <gdk/gdkregion.h>
+#include <gdk/gdkcolor.h>
 #include <gdk-pixbuf/gdk-pixbuf.h>
 
 #include "poppler.h"
@@ -68,8 +69,8 @@ void                poppler_page_render_selection     (PopplerPage        *page,
 						       GdkPixbuf          *pixbuf,
 						       PopplerRectangle   *selection,
 						       PopplerRectangle   *old_selection,
-						       guint32             glyph_color,
-						       guint32             background_color);
+						       GdkColor         *glyph_color,
+						       GdkColor         *background_color);
 
 
 /* A rectangle on a page, with coordinates in PDF points. */
