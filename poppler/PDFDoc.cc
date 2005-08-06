@@ -176,7 +176,7 @@ PDFDoc::~PDFDoc() {
 
 // Check for a %%EOF at the end of this stream
 GBool PDFDoc::checkFooter() {
-  // we look in the last 7 chars because it can be %%EOF %%EOF\n %%EOF\n\r etc
+  // we look in the last 1024 chars because Adobe does the same
   char *eof = new char[1025];
   int pos = str->getPos();
   str->setPos(1024, -1);
