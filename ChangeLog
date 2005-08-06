@@ -1,3 +1,10 @@
+2005-08-06  Albert Astals Cid  <aacid@kde.org>
+
+	* poppler/PDFDoc.cc: Increase the range for searching %%EOF up to
+	the 1024 bytes pdf spec says adobe checks for, needed
+	to work with http://bugs.kde.org/show_bug.cgi?id=110034 and some other
+	private pdf i got sent
+
 2005-08-06  Brad Hards  <bradh@frogmouth.net>
 
 	* qt4/src/poppler-document.cc:
