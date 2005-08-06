@@ -1,5 +1,8 @@
 2005-08-06  Brad Hards  <bradh@frogmouth.net>
 
+	* qt4/src/Doxyfile: Add define so doxygen can extract the
+	API for Qt4 bindings again.
+
 	* qt4/tests/test-password-qt4.cpp: new test framework for
 	encrypted files.
 
