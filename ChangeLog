@@ -1,3 +1,8 @@
+2005-08-06  Brad Hards  <bradh@frogmouth.net>
+
+	* qt4/tests/test-password-qt4.cpp: new test framework for
+	encrypted files.
+
 2005-08-05  Kristian Høgsberg  <krh@redhat.com>
 
 	* poppler/TextOutputDev.cc (visitLine): Round selection

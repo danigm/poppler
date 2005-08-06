@@ -10,13 +10,18 @@ LDADDS =					\
 	$(POPPLER_QT4_LIBS)
 
 noinst_PROGRAMS = test-poppler-qt4 stress-poppler-qt4 \
-	poppler-fonts
+	poppler-fonts test-password-qt4
 
 
 test_poppler_qt4_SOURCES =			\
        test-poppler-qt4.cpp
 
 test_poppler_qt4_LDADD = $(LDADDS)
+
+test_password_qt4_SOURCES =			\
+       test-password-qt4.cpp
+
+test_password_qt4_LDADD = $(LDADDS)
 
 
 poppler_fonts_SOURCES =			\

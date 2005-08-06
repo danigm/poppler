@@ -6,6 +6,7 @@ Makefile
 Makefile.in
 stress-poppler-qt4
 test-poppler-qt4
+test-password-qt4
 poppler-fonts
 check_orientation
 check_author
