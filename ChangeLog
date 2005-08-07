@@ -1,3 +1,7 @@
+2005-08-08  Albert Astals Cid  <aacid@kde.org>
+
+	* poppler/PDFDoc.cc: Improve the checking for %%EOF
+
 2005-08-06  Kristian Høgsberg  <krh@redhat.com>
 
 	* glib/poppler-page.cc:

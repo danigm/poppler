@@ -189,7 +189,15 @@ GBool PDFDoc::checkFooter() {
     eof[i] = ch;
   }
   eof[i] = '\0';
-  if (strstr(eof, "%%EOF") == NULL)
+
+  bool found = false;
+  for (i = i - 5; i >= 0; i--) {
+    if (strncmp (&eof[i], "%%EOF", 5) == 0) {
+      found = true;
+      break;
+    }
+  }
+  if (!found)
   {
     error(-1, "Document has not the mandatory ending %%EOF");
     errCode = errDamaged;
