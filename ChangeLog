@@ -1,3 +1,9 @@
+2005-08-17  Kristian Høgsberg  <krh@redhat.com>
+
+	* poppler/GfxFont.cc: Add fix discussed in #3131 to only use the
+	MacRoman char map if the font has one or the font dicts specifies
+	/MacRoman.
+
 2005-08-08  Albert Astals Cid  <aacid@kde.org>
 
 	* poppler/PDFDoc.cc: Improve the checking for %%EOF

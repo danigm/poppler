@@ -996,7 +996,6 @@ Gushort *Gfx8BitFont::getCodeToGIDMap(FoFiTrueType *ff) {
       cmap = msSymbolCmap;
     } else if (macRomanCmap >= 0) {
       cmap = macRomanCmap;
-      useMacRoman = gTrue;
     }
   } else {
     if (macRomanCmap >= 0) {
