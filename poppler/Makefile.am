@@ -77,6 +77,7 @@ INCLUDES =					\
 	$(splash_includes)			\
 	$(cairo_includes)			\
 	$(arthur_includes)			\
+	$(FREETYPE_CFLAGS)			\
 	-DDATADIR=\""$(datadir)"\"
 
 lib_LTLIBRARIES = libpoppler.la
