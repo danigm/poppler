@@ -41,13 +41,11 @@ void                poppler_page_render_to_pixbuf     (PopplerPage        *page,
 						       int                 src_width,
 						       int                 src_height,
 						       double              scale,
+						       int                 rotation,
 						       GdkPixbuf          *pixbuf);
 void                poppler_page_get_size             (PopplerPage        *page,
 						       double             *width,
 						       double             *height);
-PopplerOrientation  poppler_page_get_orientation      (PopplerPage        *page);
-void                poppler_page_set_orientation      (PopplerPage        *page,
-						       PopplerOrientation  orientation);
 int                 poppler_page_get_index            (PopplerPage        *page);
 GdkPixbuf          *poppler_page_get_thumbnail        (PopplerPage        *page);
 gboolean            poppler_page_get_thumbnail_size   (PopplerPage        *page,

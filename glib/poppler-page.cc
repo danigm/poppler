@@ -45,29 +45,6 @@ struct _PopplerPageClass
 
 G_DEFINE_TYPE (PopplerPage, poppler_page, G_TYPE_OBJECT);
 
-static PopplerOrientation
-get_document_orientation (PopplerPage *page)
-{
-  PopplerOrientation orientation;
-  int rotation = page->page->getRotate ();
-
-  switch (rotation) {
-    case 90:
-      orientation = POPPLER_ORIENTATION_LANDSCAPE;
-      break;
-    case 180:
-      orientation = POPPLER_ORIENTATION_UPSIDEDOWN;
-      break;
-    case 270:
-      orientation = POPPLER_ORIENTATION_SEASCAPE;
-      break;
-    default:
-      orientation = POPPLER_ORIENTATION_PORTRAIT;
-  }
-
-  return orientation;
-}
-
 PopplerPage *
 _poppler_page_new (PopplerDocument *document, Page *page, int index)
 {
@@ -79,7 +56,6 @@ _poppler_page_new (PopplerDocument *document, Page *page, int index)
   poppler_page->document = document;
   poppler_page->page = page;
   poppler_page->index = index;
-  poppler_page->orientation = get_document_orientation (poppler_page);
 
   return poppler_page;
 }
@@ -97,54 +73,23 @@ poppler_page_finalize (GObject *object)
   /* page->page is owned by the document */
 }
 
-static int
-poppler_page_get_rotate (PopplerPage *page)
-{
-  int rotate;
-
-  switch (page->orientation) {
-    case POPPLER_ORIENTATION_PORTRAIT:
-      rotate = 0;
-      break;
-    case POPPLER_ORIENTATION_LANDSCAPE:
-      rotate = 90;
-      break;
-    case POPPLER_ORIENTATION_UPSIDEDOWN:
-      rotate = 180;
-      break;
-    case POPPLER_ORIENTATION_SEASCAPE:
-      rotate = 270;
-      break;
-    default:
-      rotate = page->page->getRotate ();
-  }
-
-  return rotate - page->page->getRotate ();
-}
-
 void
 poppler_page_get_size (PopplerPage *page,
 		       double      *width,
 		       double      *height)
 {
   double page_width, page_height;
+  int rotate;
 
   g_return_if_fail (POPPLER_IS_PAGE (page));
 
-  switch (page->orientation) {
-    case POPPLER_ORIENTATION_PORTRAIT:
-    case POPPLER_ORIENTATION_UPSIDEDOWN:
-      page_width = page->page->getWidth ();
-      page_height = page->page->getHeight ();
-      break;
-    case POPPLER_ORIENTATION_LANDSCAPE:
-    case POPPLER_ORIENTATION_SEASCAPE:
-      page_width = page->page->getHeight ();
-      page_height = page->page->getWidth ();
-      break;
-    default:
-      page_width = page_height = 0;
-      g_assert_not_reached ();
+  rotate = page->page->getRotate ();
+  if (rotate == 90 || rotate == 270) {
+    page_height = page->page->getWidth ();
+    page_width = page->page->getHeight ();
+  } else {
+    page_width = page->page->getWidth ();
+    page_height = page->page->getHeight ();
   }
 
   if (width != NULL)
@@ -179,20 +124,8 @@ poppler_page_prepare_output_dev (PopplerPage *page,
   int cairo_width, cairo_height, cairo_rowstride;
   unsigned char *cairo_data;
 
-  switch (page->orientation) {
-  case POPPLER_ORIENTATION_PORTRAIT:
-  case POPPLER_ORIENTATION_UPSIDEDOWN:
-    cairo_width = MAX ((int)(page->page->getWidth() * scale + 0.5), 1);
-    cairo_height = MAX ((int)(page->page->getHeight() * scale + 0.5), 1);
-    break;
-  case POPPLER_ORIENTATION_LANDSCAPE:
-  case POPPLER_ORIENTATION_SEASCAPE:
-    cairo_width = MAX ((int)(page->page->getHeight() * scale + 0.5), 1);
-    cairo_height = MAX ((int)(page->page->getWidth() * scale + 0.5), 1);
-    break;
-  default:
-    g_assert_not_reached();
-  }
+  cairo_width = MAX ((int)(page->page->getWidth() * scale + 0.5), 1);
+  cairo_height = MAX ((int)(page->page->getHeight() * scale + 0.5), 1);
 
   output_dev = page->document->output_dev;
   cairo_rowstride = cairo_width * 4;
@@ -331,7 +264,7 @@ poppler_page_copy_to_pixbuf(PopplerPage *page,
  * @src_y: y coordinate of upper left corner
  * @src_width: width of rectangle to render
  * @src_height: height of rectangle to render
- * @ppp: pixels per point
+ * @rotation: rotate the document by the specified degree
  * @pixbuf: pixbuf to render into
  *
  * First scale the document to match the specified pixels per point,
@@ -343,6 +276,7 @@ poppler_page_render_to_pixbuf (PopplerPage *page,
 			       int src_x, int src_y,
 			       int src_width, int src_height,
 			       double scale,
+			       int rotation,
 			       GdkPixbuf *pixbuf)
 {
   OutputDevData data;
@@ -355,7 +289,7 @@ poppler_page_render_to_pixbuf (PopplerPage *page,
 
   page->page->displaySlice(page->document->output_dev,
 			   72.0 * scale, 72.0 * scale,
-			   poppler_page_get_rotate (page),
+			   rotation,
 			   gTrue, /* Crop */
 			   src_x, src_y,
 			   src_width, src_height,
@@ -372,8 +306,7 @@ poppler_page_get_text_output_dev (PopplerPage *page)
     page->text_dev = new TextOutputDev (NULL, gTrue, gFalse, gFalse);
 
     page->gfx = page->page->createGfx(page->text_dev,
-				      72.0, 72.0,
-				      poppler_page_get_rotate (page),
+				      72.0, 72.0, 0,
 				      gTrue, /* Crop */
 				      -1, -1, -1, -1,
 				      NULL, /* links */
@@ -650,7 +583,7 @@ poppler_page_get_text (PopplerPage      *page,
   g_return_val_if_fail (selection != NULL, NULL);
 
   text_dev = poppler_page_get_text_output_dev (page);
-  height = page->page->getHeight ();
+  poppler_page_get_size (page, NULL, &height);
 
   pdf_selection.x1 = selection->x1;
   pdf_selection.y1 = height - selection->y2;
@@ -695,8 +628,8 @@ poppler_page_find_text (PopplerPage *page,
   output_dev = new TextOutputDev (NULL, gTrue, gFalse, gFalse);
   doc = page->document->doc;
 
-  height = page->page->getHeight ();
-  page->page->display (output_dev, 72, 72, poppler_page_get_rotate (page),
+  poppler_page_get_size (page, NULL, &height);
+  page->page->display (output_dev, 72, 72, 0,
 		       gTrue, NULL, doc->getCatalog());
   
   matches = NULL;
@@ -747,7 +680,7 @@ poppler_page_render_to_ps (PopplerPage   *page,
 
 
   ps_file->document->doc->displayPage (ps_file->out, page->index + 1, 72.0, 72.0,
-				       poppler_page_get_rotate (page), gTrue, gFalse);
+				       0, gTrue, gFalse);
 }
 
 static void
@@ -871,39 +804,6 @@ poppler_page_free_link_mapping (GList *list)
 	g_list_free (list);
 }
 
-/**
- * poppler_page_set_orientation:
- * @page: a #PopplerPage
- * @orientation: a #PopplerOrientation
- *
- * Force the orientation of the page to be the specified one
- *
- **/
-void
-poppler_page_set_orientation (PopplerPage        *page,
-			      PopplerOrientation  orientation)
-{
-  g_return_if_fail (POPPLER_IS_PAGE (page));
-
-  page->orientation = orientation;
-}
-
-/**
- * poppler_page_get_orientation:
- * @page: a #PopplerPage
- * @orientation: a #PopplerOrientation
- *
- * Return the orientation of the specified page
- *
- * Return value: a #PopplerOrientation
- **/
-PopplerOrientation
-poppler_page_get_orientation (PopplerPage *page)
-{
-  g_return_val_if_fail (POPPLER_IS_PAGE (page), POPPLER_ORIENTATION_PORTRAIT);
-
-  return page->orientation;
-}
 /* PopplerRectangle type */
 
 GType

@@ -135,7 +135,7 @@ int main (int argc, char *argv[])
 
   pixbuf = gdk_pixbuf_new (GDK_COLORSPACE_RGB, FALSE, 8, 220, 220);
   gdk_pixbuf_fill (pixbuf, 0x00106000);
-  poppler_page_render_to_pixbuf (page, 100, 100, 200, 200, 1, pixbuf);
+  poppler_page_render_to_pixbuf (page, 100, 100, 200, 200, 1, 0, pixbuf);
 
   gdk_pixbuf_save (pixbuf, "slice.png", "png", &error, NULL);
   printf ("\tslice:\t\tsaved 200x200 slice at (100, 100) as slice.png\n");

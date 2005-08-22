@@ -51,7 +51,6 @@ struct _PopplerPage
   PopplerDocument *document;
   Page *page;
   int index;
-  PopplerOrientation orientation;
   TextOutputDev *text_dev;
   Gfx *gfx;
 };
