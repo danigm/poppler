@@ -17,6 +17,7 @@
 #include "goo/gtypes.h"
 #include "CharTypes.h"
 
+class GooHash;
 class GooString;
 class Object;
 class GfxState;
@@ -34,7 +35,7 @@ class OutputDev {
 public:
 
   // Constructor.
-  OutputDev() {}
+  OutputDev() { profileHash = NULL; }
 
   // Destructor.
   virtual ~OutputDev() {}
@@ -153,10 +154,17 @@ public:
   //----- PostScript XObjects
   virtual void psXObject(Stream *psStream, Stream *level1Stream) {}
 
+  //----- Profiling
+  virtual void startProfile();
+  virtual GooHash *getProfileHash() {return profileHash; }
+  virtual GooHash *endProfile();
+
+  
 private:
 
   double defCTM[6];		// default coordinate transform matrix
   double defICTM[6];		// inverse of default CTM
+  GooHash *profileHash;
 };
 
 #endif

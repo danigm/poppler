@@ -157,6 +157,7 @@ public:
   GooString *getMovieCommand() { return movieCommand; }
   GBool getMapNumericCharNames();
   GBool getPrintCommands();
+  GBool getProfileCommands();
   GBool getErrQuiet();
 
   CharCodeToUnicode *getCIDToUnicode(GooString *collection);
@@ -194,6 +195,7 @@ public:
   GBool setAntialias(char *s);
   void setMapNumericCharNames(GBool map);
   void setPrintCommands(GBool printCommandsA);
+  void setProfileCommands(GBool profileCommandsA);
   void setErrQuiet(GBool errQuietA);
 
 private:
@@ -284,6 +286,7 @@ private:
   GooString *movieCommand;	// command executed for movie annotations
   GBool mapNumericCharNames;	// map numeric char names (from font subsets)?
   GBool printCommands;		// print the drawing commands
+  GBool profileCommands;	// profile the drawing commands
   GBool errQuiet;		// suppress error messages?
 
   CharCodeToUnicodeCache *cidToUnicodeCache;

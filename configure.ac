@@ -402,9 +402,9 @@ AC_ARG_ENABLE(gtk-test,
               enable_gtk_test=$enableval,
               enable_gtk_test="try")
 if test x$enable_gtk_test = xyes; then
-  PKG_CHECK_MODULES(GTK_TEST, gtk+-2.0 >= 2.2.0 gdk-pixbuf-2.0)
+  PKG_CHECK_MODULES(GTK_TEST, gtk+-2.0 >= 2.2.0 gdk-pixbuf-2.0 libglade-2.0)
 elif test x$enable_gtk_test = xtry; then
-  PKG_CHECK_MODULES(GTK_TEST, gtk+-2.0 >= 2.2.0 gdk-pixbuf-2.0,
+  PKG_CHECK_MODULES(GTK_TEST, gtk+-2.0 >= 2.2.0 gdk-pixbuf-2.0 libglade-2.0,
                     [enable_gtk_test="yes"],
                     [enable_gtk_test="no"])
 fi

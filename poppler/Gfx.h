@@ -133,6 +133,7 @@ private:
   OutputDev *out;		// output device
   GBool subPage;		// is this a sub-page object?
   GBool printCommands;		// print the drawing commands (for debugging)
+  GBool profileCommands;	// profile the drawing commands (for debugging)
   GfxResources *res;		// resource stack
   int updateLevel;
 

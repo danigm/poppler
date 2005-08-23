@@ -128,6 +128,7 @@ poppler_include_HEADERS =	\
 	Parser.h		\
 	PDFDoc.h		\
 	PDFDocEncoding.h	\
+	ProfileData.h		\
 	PSTokenizer.h		\
 	Stream-CCITT.h		\
 	Stream.h		\
@@ -180,6 +181,7 @@ libpoppler_la_SOURCES =		\
 	Parser.cc 		\
 	PDFDoc.cc 		\
 	PDFDocEncoding.cc	\
+	ProfileData.cc		\
 	PSTokenizer.cc		\
 	Stream.cc 		\
 	UnicodeMap.cc		\

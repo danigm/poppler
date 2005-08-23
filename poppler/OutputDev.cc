@@ -17,6 +17,7 @@
 #include "Stream.h"
 #include "GfxState.h"
 #include "OutputDev.h"
+#include "goo/GooHash.h"
 
 //------------------------------------------------------------------------
 // OutputDev
@@ -102,3 +103,19 @@ void OutputDev::opiBegin(GfxState *state, Dict *opiDict) {
 void OutputDev::opiEnd(GfxState *state, Dict *opiDict) {
 }
 #endif
+
+void OutputDev::startProfile() {
+  if (profileHash)
+    delete profileHash;
+
+  profileHash = new GooHash (true);
+}
+ 
+GooHash *OutputDev::endProfile() {
+  GooHash *profile = profileHash;
+
+  profileHash = NULL;
+
+  return profile;
+}
+

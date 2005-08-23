@@ -15,6 +15,9 @@ if BUILD_CAIRO_OUTPUT
 gtk_cairo_test =				\
 	gtk-cairo-test
 
+pdf_inspector =				\
+	pdf_inspector
+
 cairo_includes =				\
 	$(CAIRO_CFLAGS)
 
@@ -30,7 +33,7 @@ INCLUDES =					\
 	$(GTK_TEST_CFLAGS)			\
 	-DDATADIR=\""$(datadir)"\"
 
-noinst_PROGRAMS = $(gtk_splash_test) $(gtk_cairo_test)
+noinst_PROGRAMS = $(gtk_splash_test) $(gtk_cairo_test) $(pdf_inspector)
 
 gtk_splash_test_SOURCES =			\
        gtk-splash-test.cc
@@ -43,6 +46,14 @@ gtk_cairo_test_SOURCES =			\
        gtk-cairo-test.cc
 
 gtk_cairo_test_LDADD =				\
+	$(top_builddir)/poppler/libpoppler.la	\
+	$(CAIRO_LIBS)				\
+	$(GTK_TEST_LIBS)
+
+pdf_inspector_SOURCES =			\
+       pdf-inspector.cc
+
+pdf_inspector_LDADD =				\
 	$(top_builddir)/poppler/libpoppler.la	\
 	$(CAIRO_LIBS)				\
 	$(GTK_TEST_LIBS)

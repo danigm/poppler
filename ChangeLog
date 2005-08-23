@@ -1,3 +1,21 @@
+Tue Aug 23 13:38:01 2005  Jonathan Blandford  <jrb@redhat.com>
+
+	* configure.ac:
+	* poppler/Gfx.cc:
+	* poppler/Gfx.h:
+	* poppler/GlobalParams.cc:
+	* poppler/GlobalParams.h:
+	* poppler/Makefile.am:
+	* poppler/OutputDev.cc:
+	* poppler/OutputDev.h:
+	* poppler/ProfileData.cc:
+	* poppler/ProfileData.h:
+	* test/Makefile.am:
+	* test/pdf-inspector.cc:
+	* test/pdf-inspector.glade:
+	* test/pdf-operators.c: Initial cut at a pdf inspector.  This
+	should help us look at PDF files.
+
 2005-08-22  Kristian Høgsberg  <krh@redhat.com>
 
 	* glib/poppler-page.cc:

@@ -215,6 +215,7 @@ GlobalParams::GlobalParams(char *cfgFileName) {
   movieCommand = NULL;
   mapNumericCharNames = gTrue;
   printCommands = gFalse;
+  profileCommands = gFalse;
   errQuiet = gFalse;
 
   cidToUnicodeCache = new CharCodeToUnicodeCache(cidToUnicodeCacheSize);
@@ -1421,6 +1422,15 @@ GBool GlobalParams::getPrintCommands() {
   return p;
 }
 
+GBool GlobalParams::getProfileCommands() {
+  GBool p;
+
+  lockGlobalParams;
+  p = profileCommands;
+  unlockGlobalParams;
+  return p;
+}
+
 GBool GlobalParams::getErrQuiet() {
   GBool q;
 
@@ -1717,6 +1727,12 @@ void GlobalParams::setMapNumericCharNames(GBool map) {
 void GlobalParams::setPrintCommands(GBool printCommandsA) {
   lockGlobalParams;
   printCommands = printCommandsA;
+  unlockGlobalParams;
+}
+
+void GlobalParams::setProfileCommands(GBool profileCommandsA) {
+  lockGlobalParams;
+  profileCommands = profileCommandsA;
   unlockGlobalParams;
 }
 

@@ -17,6 +17,8 @@
 #include <string.h>
 #include <math.h>
 #include "goo/gmem.h"
+#include "goo/GooTimer.h"
+#include "goo/GooHash.h"
 #include "GlobalParams.h"
 #include "CharTypes.h"
 #include "Object.h"
@@ -31,6 +33,7 @@
 #include "Page.h"
 #include "Error.h"
 #include "Gfx.h"
+#include "ProfileData.h"
 
 // the MSVC math.h doesn't define this
 #ifndef M_PI
@@ -414,6 +417,7 @@ Gfx::Gfx(XRef *xrefA, OutputDev *outA, int pageNum, Dict *resDict,
   xref = xrefA;
   subPage = gFalse;
   printCommands = globalParams->getPrintCommands();
+  profileCommands = globalParams->getProfileCommands();
 
   // start the resource stack
   res = new GfxResources(xref, resDict, NULL);
@@ -530,6 +534,7 @@ void Gfx::go(GBool topLevel) {
   Object args[maxArgs];
   int numArgs, i;
   int lastAbortCheck;
+  GooTimer *timer;
 
   // scan a sequence of objects
   updateLevel = lastAbortCheck = 0;
@@ -548,7 +553,32 @@ void Gfx::go(GBool topLevel) {
 	printf("\n");
 	fflush(stdout);
       }
+      if (profileCommands) 
+	timer = new GooTimer ();
+
+      // Run the operation
       execOp(&obj, args, numArgs);
+
+      // Update the profile information
+      if (profileCommands) {
+	GooHash *hash;
+
+	hash = out->getProfileHash ();
+	if (hash) {
+	  GooString *cmd_g;
+	  ProfileData *data_p;
+
+	  cmd_g = new GooString (obj.getCmd());
+	  data_p = (ProfileData *)hash->lookup (cmd_g);
+	  if (data_p == NULL) {
+	    data_p = new ProfileData();
+	    hash->add (cmd_g, data_p);
+	  }
+	  
+	  data_p->addElement (timer->getElapsed ());
+	}
+	delete (timer);
+      }
       obj.free();
       for (i = 0; i < numArgs; ++i)
 	args[i].free();
