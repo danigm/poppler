@@ -1,3 +1,8 @@
+Tue Aug 23 17:21:02 2005  Jonathan Blandford  <jrb@redhat.com>
+
+	* test/Makefile.am (gtk_cairo_test_LDADD): add
+	FREETYPE_{CFLAGS,LIBS} to the cairo deps
+	
 Tue Aug 23 13:38:01 2005  Jonathan Blandford  <jrb@redhat.com>
 
 	* configure.ac:

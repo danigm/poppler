@@ -19,7 +19,8 @@ pdf_inspector =				\
 	pdf_inspector
 
 cairo_includes =				\
-	$(CAIRO_CFLAGS)
+	$(CAIRO_CFLAGS)				\
+	$(FREETYPE_CFLAGS)
 
 endif
 
@@ -56,4 +57,5 @@ pdf_inspector_SOURCES =			\
 pdf_inspector_LDADD =				\
 	$(top_builddir)/poppler/libpoppler.la	\
 	$(CAIRO_LIBS)				\
+	$(FREETYPE_LIBS)			\
 	$(GTK_TEST_LIBS)
