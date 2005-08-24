@@ -1,3 +1,11 @@
+2005-08-24  Martin Kretzschmar  <martink@gnome.org>
+
+	* configure.ac: add /usr/include/qt4 to qt4_incdirs. That's what
+	Debian and Ubuntu use. Maybe we should just use pkg-config. If
+	it's usable with qt4.
+
+	* test/.cvsignore: ignore pdf_inspector binary.
+
 2005-08-24  Kristian Høgsberg  <krh@redhat.com>
 
 	* poppler/TextOutputDev.cc: Push rotation argument down to

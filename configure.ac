@@ -325,7 +325,7 @@ dnl Adapted from Qt3 check above!
 dnl ===================================================================
 
 dnl Search paths for Qt4 - not much real experience with this yet.
-qt4_incdirs="/usr/local/qt/include /usr/include/qt /usr/include /usr/X11R6/include/X11/qt /usr/X11R6/include/qt /usr/lib/qt/include"
+qt4_incdirs="/usr/local/qt/include /usr/include/qt4 /usr/include/qt /usr/include /usr/X11R6/include/X11/qt /usr/X11R6/include/qt /usr/lib/qt/include"
 qt4_libdirs="/usr/local/qt/lib /usr/lib/qt /usr/lib /usr/X11R6/lib/X11/qt /usr/X11R6/lib/qt /usr/lib/qt/lib"
 
 if test -n "$QTDIR" ; then
