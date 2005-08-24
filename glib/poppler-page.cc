@@ -116,6 +116,7 @@ typedef struct {
 static void
 poppler_page_prepare_output_dev (PopplerPage *page,
 				 double scale,
+				 int rotation,
 				 gboolean transparent,
 				 OutputDevData *output_dev_data)
 {
@@ -124,8 +125,13 @@ poppler_page_prepare_output_dev (PopplerPage *page,
   int cairo_width, cairo_height, cairo_rowstride;
   unsigned char *cairo_data;
 
-  cairo_width = MAX ((int)(page->page->getWidth() * scale + 0.5), 1);
-  cairo_height = MAX ((int)(page->page->getHeight() * scale + 0.5), 1);
+  if (rotation == 90 || rotation == 270) {
+    cairo_width = MAX ((int)(page->page->getHeight() * scale + 0.5), 1);
+    cairo_height = MAX ((int)(page->page->getWidth() * scale + 0.5), 1);
+  } else {
+    cairo_width = MAX ((int)(page->page->getWidth() * scale + 0.5), 1);
+    cairo_height = MAX ((int)(page->page->getHeight() * scale + 0.5), 1);
+  }
 
   output_dev = page->document->output_dev;
   cairo_rowstride = cairo_width * 4;
@@ -199,6 +205,7 @@ typedef struct {
 static void
 poppler_page_prepare_output_dev (PopplerPage *page,
 				 double scale,
+				 int rotation,
 				 gboolean transparent,
 				 OutputDevData *output_dev_data)
 {
@@ -264,6 +271,7 @@ poppler_page_copy_to_pixbuf(PopplerPage *page,
  * @src_y: y coordinate of upper left corner
  * @src_width: width of rectangle to render
  * @src_height: height of rectangle to render
+ * @scale: scale specified as pixels per point
  * @rotation: rotate the document by the specified degree
  * @pixbuf: pixbuf to render into
  *
@@ -285,7 +293,7 @@ poppler_page_render_to_pixbuf (PopplerPage *page,
   g_return_if_fail (scale > 0.0);
   g_return_if_fail (pixbuf != NULL);
 
-  poppler_page_prepare_output_dev (page, scale, FALSE, &data);
+  poppler_page_prepare_output_dev (page, scale, rotation, FALSE, &data);
 
   page->page->displaySlice(page->document->output_dev,
 			   72.0 * scale, 72.0 * scale,
@@ -414,7 +422,8 @@ poppler_page_set_selection_alpha (PopplerPage      *page,
 /**
  * poppler_page_render_selection:
  * @page: the #PopplerPage for which to render selection
- * @scale: scale to use for rendering
+ * @scale: scale specified as pixels per point
+ * @rotation: rotate the document by the specified degree
  * @pixbuf: pixbuf to render to
  * @selection: start and end point of selection as a rectangle
  * @old_selection: previous selection
@@ -433,6 +442,7 @@ poppler_page_set_selection_alpha (PopplerPage      *page,
 void
 poppler_page_render_selection (PopplerPage      *page,
 			       gdouble           scale,
+			       int		 rotation,
 			       GdkPixbuf        *pixbuf,
 			       PopplerRectangle *selection,
 			       PopplerRectangle *old_selection,
@@ -459,9 +469,9 @@ poppler_page_render_selection (PopplerPage      *page,
   text_dev = poppler_page_get_text_output_dev (page);
   output_dev = page->document->output_dev;
 
-  poppler_page_prepare_output_dev (page, scale, TRUE, &data);
+  poppler_page_prepare_output_dev (page, scale, rotation, TRUE, &data);
 
-  text_dev->drawSelection (output_dev, scale, &pdf_selection,
+  text_dev->drawSelection (output_dev, scale, rotation, &pdf_selection,
 			   &gfx_glyph_color, &gfx_background_color);
 
   poppler_page_copy_to_pixbuf (page, pixbuf, &data);

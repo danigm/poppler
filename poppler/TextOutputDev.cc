@@ -3193,6 +3193,7 @@ class TextSelectionPainter : public TextSelectionVisitor {
 public:
   TextSelectionPainter(TextPage *page,
 		       double scale,
+		       int rotation,
 		       OutputDev *out,
 		       GfxColor *box_color,
 		       GfxColor *glyph_color);
@@ -3219,6 +3220,7 @@ private:
 
 TextSelectionPainter::TextSelectionPainter(TextPage *page,
 					   double scale,
+					   int rotation,
 					   OutputDev *out,
 					   GfxColor *box_color,
 					   GfxColor *glyph_color)
@@ -3229,7 +3231,7 @@ TextSelectionPainter::TextSelectionPainter(TextPage *page,
 {
   PDFRectangle box(0, 0, page->pageWidth, page->pageHeight);
 
-  state = new GfxState(72 * scale, 72 * scale, &box, 0, gFalse);
+  state = new GfxState(72 * scale, 72 * scale, &box, rotation, gFalse);
 
   out->startPage (0, state);
 
@@ -3523,10 +3525,12 @@ void TextPage::visitSelection(TextSelectionVisitor *visitor,
 
 void TextPage::drawSelection(OutputDev *out,
 			     double scale,
+			     int rotation,
 			     PDFRectangle *selection,
 			     GfxColor *glyph_color, GfxColor *box_color)
 {
-  TextSelectionPainter painter(this, scale, out, box_color, glyph_color);
+  TextSelectionPainter painter(this, scale, rotation, 
+			       out, box_color, glyph_color);
 
   visitSelection(&painter, selection);
 }
@@ -4094,9 +4098,10 @@ GooString *TextOutputDev::getText(double xMin, double yMin,
 
 void TextOutputDev::drawSelection(OutputDev *out,
 				  double scale,
+				  int rotation,
 				  PDFRectangle *selection,
 				  GfxColor *glyph_color, GfxColor *box_color) {
-  text->drawSelection(out, scale, selection, glyph_color, box_color);
+  text->drawSelection(out, scale, rotation, selection, glyph_color, box_color);
 }
 
 GooList *TextOutputDev::getSelectionRegion(PDFRectangle *selection,

@@ -64,6 +64,7 @@ GdkRegion *         poppler_page_get_selection_region (PopplerPage        *page,
 						       PopplerRectangle   *selection);
 void                poppler_page_render_selection     (PopplerPage        *page,
 						       gdouble             scale,
+						       int		   rotation,
 						       GdkPixbuf          *pixbuf,
 						       PopplerRectangle   *selection,
 						       PopplerRectangle   *old_selection,

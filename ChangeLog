@@ -1,3 +1,13 @@
+2005-08-24  Kristian Høgsberg  <krh@redhat.com>
+
+	* poppler/TextOutputDev.cc: Push rotation argument down to
+	GfxState constructor.  This is still not completely functional yet.
+
+	* glib/poppler-page.cc (poppler_page_render_selection): Add
+	rotation argument so API is useful.  Not yet implemented.
+	(poppler_page_prepare_output_dev): Patch from Marco to fix
+	rotation using the cairo backend.
+
 Tue Aug 23 17:21:02 2005  Jonathan Blandford  <jrb@redhat.com>
 
 	* test/Makefile.am (gtk_cairo_test_LDADD): add

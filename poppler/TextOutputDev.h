@@ -425,6 +425,7 @@ public:
 
   void drawSelection(OutputDev *out,
 		     double scale,
+		     int rotation,
 		     PDFRectangle *selection,
 		     GfxColor *glyph_color, GfxColor *box_color);
 
@@ -586,7 +587,8 @@ public:
 		      double *xMin, double *yMin,
 		      double *xMax, double *yMax);
 
-  void drawSelection(OutputDev *out, double scale, PDFRectangle *selection,
+  void drawSelection(OutputDev *out, double scale, int rotation,
+		     PDFRectangle *selection,
 		     GfxColor *glyph_color, GfxColor *box_color);
 
   GooList *getSelectionRegion(PDFRectangle *selection, double scale);
