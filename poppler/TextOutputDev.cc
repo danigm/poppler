@@ -238,9 +238,9 @@ void TextWord::addChar(GfxState *state, double x, double y,
 		       double dx, double dy, CharCode c, Unicode u) {
   if (len == size) {
     size += 16;
-    text = (Unicode *)grealloc(text, size * sizeof(Unicode));
-    charcode = (Unicode *)grealloc(charcode, size * sizeof(CharCode));
-    edge = (double *)grealloc(edge, (size + 1) * sizeof(double));
+    text = (Unicode *)greallocn(text, size, sizeof(Unicode));
+    charcode = (Unicode *)greallocn(charcode, size, sizeof(CharCode));
+    edge = (double *)greallocn(edge, (size + 1), sizeof(double));
   }
   text[len] = u;
   charcode[len] = c;
@@ -294,9 +294,9 @@ void TextWord::merge(TextWord *word) {
   }
   if (len + word->len > size) {
     size = len + word->len;
-    text = (Unicode *)grealloc(text, size * sizeof(Unicode));
-    charcode = (CharCode *)grealloc(charcode, (size + 1) * sizeof(CharCode));
-    edge = (double *)grealloc(edge, (size + 1) * sizeof(double));
+    text = (Unicode *)greallocn(text, size, sizeof(Unicode));
+    charcode = (CharCode *)greallocn(charcode, (size + 1), sizeof(CharCode));
+    edge = (double *)greallocn(edge, (size + 1), sizeof(double));
   }
   for (i = 0; i < word->len; ++i) {
     text[len + i] = word->text[i];
@@ -432,15 +432,15 @@ void TextPool::addWord(TextWord *word) {
   if (minBaseIdx > maxBaseIdx) {
     minBaseIdx = wordBaseIdx - 128;
     maxBaseIdx = wordBaseIdx + 128;
-    pool = (TextWord **)gmalloc((maxBaseIdx - minBaseIdx + 1) *
-				sizeof(TextWord *));
+    pool = (TextWord **)gmallocn(maxBaseIdx - minBaseIdx + 1,
+				 sizeof(TextWord *));
     for (baseIdx = minBaseIdx; baseIdx <= maxBaseIdx; ++baseIdx) {
       pool[baseIdx - minBaseIdx] = NULL;
     }
   } else if (wordBaseIdx < minBaseIdx) {
     newMinBaseIdx = wordBaseIdx - 128;
-    newPool = (TextWord **)gmalloc((maxBaseIdx - newMinBaseIdx + 1) *
-				   sizeof(TextWord *));
+    newPool = (TextWord **)gmallocn(maxBaseIdx - newMinBaseIdx + 1,
+				    sizeof(TextWord *));
     for (baseIdx = newMinBaseIdx; baseIdx < minBaseIdx; ++baseIdx) {
       newPool[baseIdx - newMinBaseIdx] = NULL;
     }
@@ -451,8 +451,8 @@ void TextPool::addWord(TextWord *word) {
     minBaseIdx = newMinBaseIdx;
   } else if (wordBaseIdx > maxBaseIdx) {
     newMaxBaseIdx = wordBaseIdx + 128;
-    pool = (TextWord **)grealloc(pool, (newMaxBaseIdx - minBaseIdx + 1) *
-				         sizeof(TextWord *));
+    pool = (TextWord **)greallocn(pool, newMaxBaseIdx - minBaseIdx + 1,
+				  sizeof(TextWord *));
     for (baseIdx = maxBaseIdx + 1; baseIdx <= newMaxBaseIdx; ++baseIdx) {
       pool[baseIdx - minBaseIdx] = NULL;
     }
@@ -674,8 +674,8 @@ void TextLine::coalesce(UnicodeMap *uMap) {
       ++len;
     }
   }
-  text = (Unicode *)gmalloc(len * sizeof(Unicode));
-  edge = (double *)gmalloc((len + 1) * sizeof(double));
+  text = (Unicode *)gmallocn(len, sizeof(Unicode));
+  edge = (double *)gmallocn(len + 1, sizeof(double));
   i = 0;
   for (word1 = words; word1; word1 = word1->next) {
     for (j = 0; j < word1->len; ++j) {
@@ -691,7 +691,7 @@ void TextLine::coalesce(UnicodeMap *uMap) {
   }
 
   // compute convertedLen and set up the col array
-  col = (int *)gmalloc((len + 1) * sizeof(int));
+  col = (int *)gmallocn(len + 1, sizeof(int));
   convertedLen = 0;
   for (i = 0; i < len; ++i) {
     col[i] = convertedLen;
@@ -1196,7 +1196,7 @@ void TextBlock::coalesce(UnicodeMap *uMap) {
   }
 
   // sort lines into xy order for column assignment
-  lineArray = (TextLine **)gmalloc(nLines * sizeof(TextLine *));
+  lineArray = (TextLine **)gmallocn(nLines, sizeof(TextLine *));
   for (line = lines, i = 0; line; line = line->next, ++i) {
     lineArray[i] = line;
   }
@@ -1544,7 +1544,7 @@ TextWordList::TextWordList(TextPage *text, GBool physLayout) {
 	}
       }
     }
-    wordArray = (TextWord **)gmalloc(nWords * sizeof(TextWord *));
+    wordArray = (TextWord **)gmallocn(nWords, sizeof(TextWord *));
     i = 0;
     for (flow = text->flows; flow; flow = flow->next) {
       for (blk = flow->blocks; blk; blk = blk->next) {
@@ -2371,7 +2371,7 @@ void TextPage::coalesce(GBool physLayout) {
   //----- column assignment
 
   // sort blocks into xy order for column assignment
-  blocks = (TextBlock **)gmalloc(nBlocks * sizeof(TextBlock *));
+  blocks = (TextBlock **)gmallocn(nBlocks, sizeof(TextBlock *));
   for (blk = blkList, i = 0; blk; blk = blk->next, ++i) {
     blocks[i] = blk;
   }
@@ -2498,7 +2498,7 @@ void TextPage::coalesce(GBool physLayout) {
   // build the flows
   //~ this needs to be adjusted for writing mode (vertical text)
   //~ this also needs to account for right-to-left column ordering
-  blkArray = (TextBlock **)gmalloc(nBlocks * sizeof(TextBlock *));
+  blkArray = (TextBlock **)gmallocn(nBlocks, sizeof(TextBlock *));
   memcpy(blkArray, blocks, nBlocks * sizeof(TextBlock *));
   flows = lastFlow = NULL;
   firstBlkIdx = 0;
@@ -2812,7 +2812,7 @@ GooString *TextPage::getText(double xMin, double yMin,
 
   // collect the line fragments that are in the rectangle
   fragsSize = 256;
-  frags = (TextLineFrag *)gmalloc(fragsSize * sizeof(TextLineFrag));
+  frags = (TextLineFrag *)gmallocn(fragsSize, sizeof(TextLineFrag));
   nFrags = 0;
   lastRot = -1;
   oneRot = gTrue;
@@ -2914,7 +2914,7 @@ GooString *TextPage::getText(double xMin, double yMin,
 	    if (nFrags == fragsSize) {
 	      fragsSize *= 2;
 	      frags = (TextLineFrag *)
-		          grealloc(frags, fragsSize * sizeof(TextLineFrag));
+		          greallocn(frags, fragsSize, sizeof(TextLineFrag));
 	    }
 	    frags[nFrags].init(line, idx0, idx1 - idx0 + 1);
 	    ++nFrags;
@@ -3706,15 +3706,15 @@ void TextPage::dump(void *outputStream, TextOutputFunc outputFunc,
 
     // collect the line fragments for the page and sort them
     fragsSize = 256;
-    frags = (TextLineFrag *)gmalloc(fragsSize * sizeof(TextLineFrag));
+    frags = (TextLineFrag *)gmallocn(fragsSize, sizeof(TextLineFrag));
     nFrags = 0;
     for (i = 0; i < nBlocks; ++i) {
       blk = blocks[i];
       for (line = blk->lines; line; line = line->next) {
 	if (nFrags == fragsSize) {
 	  fragsSize *= 2;
-	  frags = (TextLineFrag *)grealloc(frags,
-					   fragsSize * sizeof(TextLineFrag));
+	  frags = (TextLineFrag *)greallocn(frags,
+					    fragsSize, sizeof(TextLineFrag));
 	}
 	frags[nFrags].init(line, 0, line->len);
 	frags[nFrags].computeCoords(gTrue);

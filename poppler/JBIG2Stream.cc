@@ -993,7 +993,7 @@ JBIG2SymbolDict::JBIG2SymbolDict(Guint segNumA, Guint sizeA):
   JBIG2Segment(segNumA)
 {
   size = sizeA;
-  bitmaps = (JBIG2Bitmap **)gmalloc(size * sizeof(JBIG2Bitmap *));
+  bitmaps = (JBIG2Bitmap **)gmallocn(size, sizeof(JBIG2Bitmap *));
   genericRegionStats = NULL;
   refinementRegionStats = NULL;
 }
@@ -1037,7 +1037,7 @@ JBIG2PatternDict::JBIG2PatternDict(Guint segNumA, Guint sizeA):
   JBIG2Segment(segNumA)
 {
   size = sizeA;
-  bitmaps = (JBIG2Bitmap **)gmalloc(size * sizeof(JBIG2Bitmap *));
+  bitmaps = (JBIG2Bitmap **)gmallocn(size, sizeof(JBIG2Bitmap *));
 }
 
 JBIG2PatternDict::~JBIG2PatternDict() {
@@ -1233,7 +1233,7 @@ void JBIG2Stream::readSegments() {
     }
 
     // referred-to segment numbers
-    refSegs = (Guint *)gmalloc(nRefSegs * sizeof(Guint));
+    refSegs = (Guint *)gmallocn(nRefSegs, sizeof(Guint));
     if (segNum <= 256) {
       for (i = 0; i < nRefSegs; ++i) {
 	if (!readUByte(&refSegs[i])) {
@@ -1451,8 +1451,8 @@ void JBIG2Stream::readSymbolDictSeg(Guint segNum, Guint length,
   }
 
   // get the input symbol bitmaps
-  bitmaps = (JBIG2Bitmap **)gmalloc((numInputSyms + numNewSyms) *
-				    sizeof(JBIG2Bitmap *));
+  bitmaps = (JBIG2Bitmap **)gmallocn(numInputSyms + numNewSyms,
+				     sizeof(JBIG2Bitmap *));
   k = 0;
   inputSymbolDict = NULL;
   for (i = 0; i < nRefSegs; ++i) {
@@ -1527,7 +1527,7 @@ void JBIG2Stream::readSymbolDictSeg(Guint segNum, Guint length,
   // allocate symbol widths storage
   symWidths = NULL;
   if (huff && !refAgg) {
-    symWidths = (Guint *)gmalloc(numNewSyms * sizeof(Guint));
+    symWidths = (Guint *)gmallocn(numNewSyms, sizeof(Guint));
   }
 
   symHeight = 0;
@@ -1788,7 +1788,7 @@ void JBIG2Stream::readTextRegionSeg(Guint segNum, GBool imm,
   }
 
   // get the symbol bitmaps
-  syms = (JBIG2Bitmap **)gmalloc(numSyms * sizeof(JBIG2Bitmap *));
+  syms = (JBIG2Bitmap **)gmallocn(numSyms, sizeof(JBIG2Bitmap *));
   kk = 0;
   for (i = 0; i < nRefSegs; ++i) {
     seg = findSegment(refSegs[i]);
@@ -1888,8 +1888,8 @@ void JBIG2Stream::readTextRegionSeg(Guint segNum, GBool imm,
     runLengthTab[35].prefixLen = 0;
     runLengthTab[35].rangeLen = jbig2HuffmanEOT;
     huffDecoder->buildTable(runLengthTab, 35);
-    symCodeTab = (JBIG2HuffmanTable *)gmalloc((numSyms + 1) *
-					      sizeof(JBIG2HuffmanTable));
+    symCodeTab = (JBIG2HuffmanTable *)gmallocn(numSyms + 1,
+					       sizeof(JBIG2HuffmanTable));
     for (i = 0; i < numSyms; ++i) {
       symCodeTab[i].val = i;
       symCodeTab[i].rangeLen = 0;
@@ -2298,7 +2298,7 @@ void JBIG2Stream::readHalftoneRegionSeg(Guint segNum, GBool imm,
   }
 
   // read the gray-scale image
-  grayImg = (Guint *)gmalloc(gridW * gridH * sizeof(Guint));
+  grayImg = (Guint *)gmallocn(gridW * gridH, sizeof(Guint));
   memset(grayImg, 0, gridW * gridH * sizeof(Guint));
   atx[0] = templ <= 1 ? 3 : 2;  aty[0] = -1;
   atx[1] = -3;                  aty[1] = -1;
@@ -2451,8 +2451,8 @@ JBIG2Bitmap *JBIG2Stream::readGenericBitmap(GBool mmr, int w, int h,
   if (mmr) {
 
     mmrDecoder->reset();
-    refLine = (int *)gmalloc((w + 2) * sizeof(int));
-    codingLine = (int *)gmalloc((w + 2) * sizeof(int));
+    refLine = (int *)gmallocn(w + 2, sizeof(int));
+    codingLine = (int *)gmallocn(w + 2, sizeof(int));
     codingLine[0] = codingLine[1] = w;
 
     for (y = 0; y < h; ++y) {
@@ -3111,14 +3111,14 @@ void JBIG2Stream::readCodeTableSeg(Guint segNum, Guint length) {
   huffDecoder->reset();
   huffTabSize = 8;
   huffTab = (JBIG2HuffmanTable *)
-                gmalloc(huffTabSize * sizeof(JBIG2HuffmanTable));
+                gmallocn(huffTabSize, sizeof(JBIG2HuffmanTable));
   i = 0;
   val = lowVal;
   while (val < highVal) {
     if (i == huffTabSize) {
       huffTabSize *= 2;
       huffTab = (JBIG2HuffmanTable *)
-	            grealloc(huffTab, huffTabSize * sizeof(JBIG2HuffmanTable));
+	            greallocn(huffTab, huffTabSize, sizeof(JBIG2HuffmanTable));
     }
     huffTab[i].val = val;
     huffTab[i].prefixLen = huffDecoder->readBits(prefixBits);
@@ -3129,7 +3129,7 @@ void JBIG2Stream::readCodeTableSeg(Guint segNum, Guint length) {
   if (i + oob + 3 > huffTabSize) {
     huffTabSize = i + oob + 3;
     huffTab = (JBIG2HuffmanTable *)
-                  grealloc(huffTab, huffTabSize * sizeof(JBIG2HuffmanTable));
+                  greallocn(huffTab, huffTabSize, sizeof(JBIG2HuffmanTable));
   }
   huffTab[i].val = lowVal - 1;
   huffTab[i].prefixLen = huffDecoder->readBits(prefixBits);

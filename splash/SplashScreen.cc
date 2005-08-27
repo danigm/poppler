@@ -32,7 +32,7 @@ SplashScreen::SplashScreen(int sizeA) {
   }
 
   // initialize the threshold matrix
-  mat = (SplashCoord *)gmalloc(2 * size * size * sizeof(SplashCoord));
+  mat = (SplashCoord *)gmallocn(2 * size * size, sizeof(SplashCoord));
   for (y = 0; y < 2 * size; ++y) {
     for (x = 0; x < size; ++x) {
       mat[y * size + x] = -1;
@@ -40,7 +40,7 @@ SplashScreen::SplashScreen(int sizeA) {
   }
 
   // build the distance matrix
-  dist = (SplashCoord *)gmalloc(2 * size * size * sizeof(SplashCoord));
+  dist = (SplashCoord *)gmallocn(2 * size * size, sizeof(SplashCoord));
   for (y = 0; y < size; ++y) {
     for (x = 0; x < size; ++x) {
       if (x + y < size - 1) {

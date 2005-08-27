@@ -222,8 +222,8 @@ void SplashXPathScanner::computeIntersections(int y) {
       } else {
 	interSize *= 2;
       }
-      inter = (SplashIntersect *)grealloc(inter,
-					  interSize * sizeof(SplashIntersect));
+      inter = (SplashIntersect *)greallocn(inter, interSize,
+					   sizeof(SplashIntersect));
     }
 
     if (seg->flags & splashXPathHoriz) {

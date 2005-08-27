@@ -115,7 +115,7 @@ Annots::Annots(XRef *xref, Object *annotsObj) {
 	if (annot->isOk()) {
 	  if (nAnnots >= size) {
 	    size += 16;
-	    annots = (Annot **)grealloc(annots, size * sizeof(Annot *));
+	    annots = (Annot **)greallocn(annots, size, sizeof(Annot *));
 	  }
 	  annots[nAnnots++] = annot;
 	} else {

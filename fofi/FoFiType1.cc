@@ -156,7 +156,7 @@ void FoFiType1::parse() {
       encoding = fofiType1StandardEncoding;
     } else if (!encoding &&
 	       !strncmp(line, "/Encoding 256 array", 19)) {
-      encoding = (char **)gmalloc(256 * sizeof(char *));
+      encoding = (char **)gmallocn(256, sizeof(char *));
       for (j = 0; j < 256; ++j) {
 	encoding[j] = NULL;
       }

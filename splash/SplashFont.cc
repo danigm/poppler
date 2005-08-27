@@ -70,9 +70,9 @@ void SplashFont::initCache() {
   } else {
     cacheSets = 1;
   }
-  cache = (Guchar *)gmalloc(cacheSets * cacheAssoc * glyphSize);
-  cacheTags = (SplashFontCacheTag *)gmalloc(cacheSets * cacheAssoc *
-					      sizeof(SplashFontCacheTag));
+  cache = (Guchar *)gmallocn(cacheSets* cacheAssoc, glyphSize);
+  cacheTags = (SplashFontCacheTag *)gmallocn(cacheSets * cacheAssoc,
+					     sizeof(SplashFontCacheTag));
   for (i = 0; i < cacheSets * cacheAssoc; ++i) {
     cacheTags[i].mru = i & (cacheAssoc - 1);
   }

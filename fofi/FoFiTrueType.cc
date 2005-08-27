@@ -667,7 +667,7 @@ void FoFiTrueType::writeTTF(FoFiOutputFunc outputFunc,
   missingPost = seekTable("post") < 0;
 
   // read the loca table, check to see if it's sorted
-  locaTable = (TrueTypeLoca *)gmalloc((nGlyphs + 1) * sizeof(TrueTypeLoca));
+  locaTable = (TrueTypeLoca *)gmallocn(nGlyphs + 1, sizeof(TrueTypeLoca));
   unsortedLoca = gFalse;
   i = seekTable("loca");
   pos = tables[i].offset;
@@ -751,7 +751,7 @@ void FoFiTrueType::writeTTF(FoFiOutputFunc outputFunc,
   nNewTables = nTables - nZeroLengthTables +
                (missingCmap ? 1 : 0) + (missingName ? 1 : 0) +
                (missingPost ? 1 : 0);
-  newTables = (TrueTypeTable *)gmalloc(nNewTables * sizeof(TrueTypeTable));
+  newTables = (TrueTypeTable *)gmallocn(nNewTables, sizeof(TrueTypeTable));
   j = 0;
   for (i = 0; i < nTables; ++i) {
     if (tables[i].len > 0) {
@@ -1001,7 +1001,7 @@ void FoFiTrueType::cvtSfnts(FoFiOutputFunc outputFunc,
   // table, cmpTrueTypeLocaPos uses offset as its primary sort key,
   // and idx as its secondary key (ensuring that adjacent entries with
   // the same pos value remain in the same order)
-  locaTable = (TrueTypeLoca *)gmalloc((nGlyphs + 1) * sizeof(TrueTypeLoca));
+  locaTable = (TrueTypeLoca *)gmallocn(nGlyphs + 1, sizeof(TrueTypeLoca));
   i = seekTable("loca");
   pos = tables[i].offset;
   ok = gTrue;
@@ -1031,7 +1031,7 @@ void FoFiTrueType::cvtSfnts(FoFiOutputFunc outputFunc,
   }
 
   // construct the new 'loca' table
-  locaData = (Guchar *)gmalloc((nGlyphs + 1) * (locaFmt ? 4 : 2));
+  locaData = (Guchar *)gmallocn(nGlyphs + 1, (locaFmt ? 4 : 2));
   for (i = 0; i <= nGlyphs; ++i) {
     pos = locaTable[i].newOffset;
     if (locaFmt) {
@@ -1272,7 +1272,7 @@ void FoFiTrueType::parse() {
   if (!parsedOk) {
     return;
   }
-  tables = (TrueTypeTable *)gmalloc(nTables * sizeof(TrueTypeTable));
+  tables = (TrueTypeTable *)gmallocn(nTables, sizeof(TrueTypeTable));
   pos = 12;
   for (i = 0; i < nTables; ++i) {
     tables[i].tag = getU32BE(pos, &parsedOk);
@@ -1309,7 +1309,7 @@ void FoFiTrueType::parse() {
     if (!parsedOk) {
       return;
     }
-    cmaps = (TrueTypeCmap *)gmalloc(nCmaps * sizeof(TrueTypeCmap));
+    cmaps = (TrueTypeCmap *)gmallocn(nCmaps, sizeof(TrueTypeCmap));
     for (j = 0; j < nCmaps; ++j) {
       cmaps[j].platform = getU16BE(pos, &parsedOk);
       cmaps[j].encoding = getU16BE(pos + 2, &parsedOk);

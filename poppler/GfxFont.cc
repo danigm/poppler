@@ -940,7 +940,7 @@ Gushort *Gfx8BitFont::getCodeToGIDMap(FoFiTrueType *ff) {
   Unicode u;
   int code, i, n;
 
-  map = (Gushort *)gmalloc(256 * sizeof(Gushort));
+  map = (Gushort *)gmallocn(256, sizeof(Gushort));
   for (i = 0; i < 256; ++i) {
     map[i] = 0;
   }
@@ -1198,13 +1198,13 @@ GfxCIDFont::GfxCIDFont(XRef *xref, char *tagA, Ref idA, GooString *nameA,
     if (obj1.isStream()) {
       cidToGIDLen = 0;
       i = 64;
-      cidToGID = (Gushort *)gmalloc(i * sizeof(Gushort));
+      cidToGID = (Gushort *)gmallocn(i, sizeof(Gushort));
       obj1.streamReset();
       while ((c1 = obj1.streamGetChar()) != EOF &&
 	     (c2 = obj1.streamGetChar()) != EOF) {
 	if (cidToGIDLen == i) {
 	  i *= 2;
-	  cidToGID = (Gushort *)grealloc(cidToGID, i * sizeof(Gushort));
+	  cidToGID = (Gushort *)greallocn(cidToGID, i, sizeof(Gushort));
 	}
 	cidToGID[cidToGIDLen++] = (Gushort)((c1 << 8) + c2);
       }
@@ -1234,8 +1234,8 @@ GfxCIDFont::GfxCIDFont(XRef *xref, char *tagA, Ref idA, GooString *nameA,
 	  if (widths.nExceps == excepsSize) {
 	    excepsSize += 16;
 	    widths.exceps = (GfxFontCIDWidthExcep *)
-	      grealloc(widths.exceps,
-		       excepsSize * sizeof(GfxFontCIDWidthExcep));
+	      greallocn(widths.exceps,
+			excepsSize, sizeof(GfxFontCIDWidthExcep));
 	  }
 	  widths.exceps[widths.nExceps].first = obj2.getInt();
 	  widths.exceps[widths.nExceps].last = obj3.getInt();
@@ -1250,8 +1250,8 @@ GfxCIDFont::GfxCIDFont(XRef *xref, char *tagA, Ref idA, GooString *nameA,
 	if (widths.nExceps + obj3.arrayGetLength() > excepsSize) {
 	  excepsSize = (widths.nExceps + obj3.arrayGetLength() + 15) & ~15;
 	  widths.exceps = (GfxFontCIDWidthExcep *)
-	    grealloc(widths.exceps,
-		     excepsSize * sizeof(GfxFontCIDWidthExcep));
+	    greallocn(widths.exceps,
+		      excepsSize, sizeof(GfxFontCIDWidthExcep));
 	}
 	j = obj2.getInt();
 	for (k = 0; k < obj3.arrayGetLength(); ++k) {
@@ -1307,8 +1307,8 @@ GfxCIDFont::GfxCIDFont(XRef *xref, char *tagA, Ref idA, GooString *nameA,
 	  if (widths.nExcepsV == excepsSize) {
 	    excepsSize += 16;
 	    widths.excepsV = (GfxFontCIDWidthExcepV *)
-	      grealloc(widths.excepsV,
-		       excepsSize * sizeof(GfxFontCIDWidthExcepV));
+	      greallocn(widths.excepsV,
+			excepsSize, sizeof(GfxFontCIDWidthExcepV));
 	  }
 	  widths.excepsV[widths.nExcepsV].first = obj2.getInt();
 	  widths.excepsV[widths.nExcepsV].last = obj3.getInt();
@@ -1328,8 +1328,8 @@ GfxCIDFont::GfxCIDFont(XRef *xref, char *tagA, Ref idA, GooString *nameA,
 	  excepsSize =
 	    (widths.nExcepsV + obj3.arrayGetLength() / 3 + 15) & ~15;
 	  widths.excepsV = (GfxFontCIDWidthExcepV *)
-	    grealloc(widths.excepsV,
-		     excepsSize * sizeof(GfxFontCIDWidthExcepV));
+	    greallocn(widths.excepsV,
+		      excepsSize, sizeof(GfxFontCIDWidthExcepV));
 	}
 	j = obj2.getInt();
 	for (k = 0; k < obj3.arrayGetLength(); k += 3) {
@@ -1492,7 +1492,7 @@ GfxFontDict::GfxFontDict(XRef *xref, Ref *fontDictRef, Dict *fontDict) {
   Ref r;
 
   numFonts = fontDict->getLength();
-  fonts = (GfxFont **)gmalloc(numFonts * sizeof(GfxFont *));
+  fonts = (GfxFont **)gmallocn(numFonts, sizeof(GfxFont *));
   for (i = 0; i < numFonts; ++i) {
     fontDict->getValNF(i, &obj1);
     obj1.fetch(xref, &obj2);

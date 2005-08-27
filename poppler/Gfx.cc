@@ -764,7 +764,7 @@ void Gfx::opSetDash(Object args[], int numArgs) {
   if (length == 0) {
     dash = NULL;
   } else {
-    dash = (double *)gmalloc(length * sizeof(double));
+    dash = (double *)gmallocn(length, sizeof(double));
     for (i = 0; i < length; ++i) {
       dash[i] = a->get(i, &obj)->getNum();
       obj.free();

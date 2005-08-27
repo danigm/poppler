@@ -337,7 +337,7 @@ ImageStream::ImageStream(Stream *strA, int widthA, int nCompsA, int nBitsA) {
   } else {
     imgLineSize = nVals;
   }
-  imgLine = (Guchar *)gmalloc(imgLineSize * sizeof(Guchar));
+  imgLine = (Guchar *)gmallocn(imgLineSize, sizeof(Guchar));
   imgIdx = nVals;
 }
 
@@ -1271,8 +1271,8 @@ CCITTFaxStream::CCITTFaxStream(Stream *strA, int encodingA, GBool endOfLineA,
   rows = rowsA;
   endOfBlock = endOfBlockA;
   black = blackA;
-  refLine = (short *)gmalloc((columns + 3) * sizeof(short));
-  codingLine = (short *)gmalloc((columns + 2) * sizeof(short));
+  refLine = (short *)gmallocn(columns + 3, sizeof(short));
+  codingLine = (short *)gmallocn(columns + 2, sizeof(short));
 
   eof = gFalse;
   row = 0;
@@ -1945,7 +1945,7 @@ void DCTStream::reset() {
     bufWidth = ((width + mcuWidth - 1) / mcuWidth) * mcuWidth;
     bufHeight = ((height + mcuHeight - 1) / mcuHeight) * mcuHeight;
     for (i = 0; i < numComps; ++i) {
-      frameBuf[i] = (int *)gmalloc(bufWidth * bufHeight * sizeof(int));
+      frameBuf[i] = (int *)gmallocn(bufWidth * bufHeight, sizeof(int));
       memset(frameBuf[i], 0, bufWidth * bufHeight * sizeof(int));
     }
 
@@ -1970,7 +1970,7 @@ void DCTStream::reset() {
     bufWidth = ((width + mcuWidth - 1) / mcuWidth) * mcuWidth;
     for (i = 0; i < numComps; ++i) {
       for (j = 0; j < mcuHeight; ++j) {
-	rowBuf[i][j] = (Guchar *)gmalloc(bufWidth * sizeof(Guchar));
+	rowBuf[i][j] = (Guchar *)gmallocn(bufWidth, sizeof(Guchar));
       }
     }
 
@@ -3651,7 +3651,7 @@ void FlateStream::compHuffmanCodes(int *lengths, int n, FlateHuffmanTab *tab) {
 
   // allocate the table
   tabSize = 1 << tab->maxLen;
-  tab->codes = (FlateCode *)gmalloc(tabSize * sizeof(FlateCode));
+  tab->codes = (FlateCode *)gmallocn(tabSize, sizeof(FlateCode));
 
   // clear the table
   for (i = 0; i < tabSize; ++i) {

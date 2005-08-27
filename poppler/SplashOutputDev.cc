@@ -126,9 +126,9 @@ T3FontCache::T3FontCache(Ref *fontIDA, double m11A, double m12A,
   } else {
     cacheSets = 1;
   }
-  cacheData = (Guchar *)gmalloc(cacheSets * cacheAssoc * glyphSize);
-  cacheTags = (T3FontCacheTag *)gmalloc(cacheSets * cacheAssoc *
-					sizeof(T3FontCacheTag));
+  cacheData = (Guchar *)gmallocn(cacheSets * cacheAssoc, glyphSize);
+  cacheTags = (T3FontCacheTag *)gmallocn(cacheSets * cacheAssoc,
+					 sizeof(T3FontCacheTag));
   for (i = 0; i < cacheSets * cacheAssoc; ++i) {
     cacheTags[i].mru = i & (cacheAssoc - 1);
   }
@@ -592,7 +592,7 @@ void SplashOutputDev::updateFont(GfxState *state) {
       break;
     case fontCIDType2:
       n = ((GfxCIDFont *)gfxFont)->getCIDToGIDLen();
-      codeToGID = (Gushort *)gmalloc(n * sizeof(Gushort));
+      codeToGID = (Gushort *)gmallocn(n, sizeof(Gushort));
       memcpy(codeToGID, ((GfxCIDFont *)gfxFont)->getCIDToGID(),
 	     n * sizeof(Gushort));
       if (!(fontFile = fontEngine->loadTrueTypeFont(

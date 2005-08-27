@@ -120,7 +120,7 @@ Gushort *FoFiType1C::getCIDToGIDMap(int *nCIDs) {
     }
   }
   ++n;
-  map = (Gushort *)gmalloc(n * sizeof(Gushort));
+  map = (Gushort *)gmallocn(n, sizeof(Gushort));
   memset(map, 0, n * sizeof(Gushort));
   for (i = 0; i < nGlyphs; ++i) {
     map[charset[i]] = i;
@@ -403,7 +403,7 @@ void FoFiType1C::convertToCIDType0(char *psName,
       nCIDs = charset[i] + 1;
     }
   }
-  cidMap = (int *)gmalloc(nCIDs * sizeof(int));
+  cidMap = (int *)gmallocn(nCIDs, sizeof(int));
   for (i = 0; i < nCIDs; ++i) {
     cidMap[i] = -1;
   }
@@ -413,7 +413,7 @@ void FoFiType1C::convertToCIDType0(char *psName,
 
   // build the charstrings
   charStrings = new GooString();
-  charStringOffsets = (int *)gmalloc((nCIDs + 1) * sizeof(int));
+  charStringOffsets = (int *)gmallocn(nCIDs + 1, sizeof(int));
   for (i = 0; i < nCIDs; ++i) {
     charStringOffsets[i] = charStrings->getLength();
     if ((gid = cidMap[i]) >= 0) {
@@ -670,7 +670,7 @@ void FoFiType1C::convertToType0(char *psName,
       nCIDs = charset[i] + 1;
     }
   }
-  cidMap = (int *)gmalloc(nCIDs * sizeof(int));
+  cidMap = (int *)gmallocn(nCIDs, sizeof(int));
   for (i = 0; i < nCIDs; ++i) {
     cidMap[i] = -1;
   }
@@ -1692,7 +1692,7 @@ GBool FoFiType1C::parse() {
       }
       nFDs = fdIdx.len;
       privateDicts = (Type1CPrivateDict *)
-	                 gmalloc(nFDs * sizeof(Type1CPrivateDict));
+	                 gmallocn(nFDs, sizeof(Type1CPrivateDict));
       for (i = 0; i < nFDs; ++i) {
 	getIndexVal(&fdIdx, i, &val, &parsedOk);
 	if (!parsedOk) {
@@ -2049,7 +2049,7 @@ void FoFiType1C::buildEncoding() {
     encoding = fofiType1ExpertEncoding;
 
   } else {
-    encoding = (char **)gmalloc(256 * sizeof(char *));
+    encoding = (char **)gmallocn(256, sizeof(char *));
     for (i = 0; i < 256; ++i) {
       encoding[i] = NULL;
     }
@@ -2136,7 +2136,7 @@ GBool FoFiType1C::readCharset() {
   } else if (topDict.charsetOffset == 2) {
     charset = fofiType1CExpertSubsetCharset;
   } else {
-    charset = (Gushort *)gmalloc(nGlyphs * sizeof(Gushort));
+    charset = (Gushort *)gmallocn(nGlyphs, sizeof(Gushort));
     for (i = 0; i < nGlyphs; ++i) {
       charset[i] = 0;
     }

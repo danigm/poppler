@@ -76,8 +76,8 @@ Catalog::Catalog(XRef *xrefA) {
     return;
   }
 
-  pages = (Page **)gmalloc(pagesSize * sizeof(Page *));
-  pageRefs = (Ref *)gmalloc(pagesSize * sizeof(Ref));
+  pages = (Page **)gmallocn(pagesSize, sizeof(Page *));
+  pageRefs = (Ref *)gmallocn(pagesSize,  sizeof(Ref));
   for (i = 0; i < pagesSize; ++i) {
     pages[i] = NULL;
     pageRefs[i].num = -1;
@@ -248,8 +248,8 @@ int Catalog::readPageTree(Dict *pagesDict, PageAttrs *attrs, int start) {
           error(-1, "Invalid 'pagesSize' parameter.");
           goto err3;
         }
-	pages = (Page **)grealloc(pages, pagesSize * sizeof(Page *));
-	pageRefs = (Ref *)grealloc(pageRefs, pagesSize * sizeof(Ref));
+	pages = (Page **)greallocn(pages, pagesSize, sizeof(Page *));
+	pageRefs = (Ref *)greallocn(pageRefs, pagesSize, sizeof(Ref));
 	for (j = pagesSize - 32; j < pagesSize; ++j) {
 	  pages[j] = NULL;
 	  pageRefs[j].num = -1;

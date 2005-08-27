@@ -138,7 +138,7 @@ CMap::CMap(GooString *collectionA, GooString *cMapNameA) {
   collection = collectionA;
   cMapName = cMapNameA;
   wMode = 0;
-  vector = (CMapVectorEntry *)gmalloc(256 * sizeof(CMapVectorEntry));
+  vector = (CMapVectorEntry *)gmallocn(256, sizeof(CMapVectorEntry));
   for (i = 0; i < 256; ++i) {
     vector[i].isVector = gFalse;
     vector[i].cid = 0;
@@ -182,7 +182,7 @@ void CMap::copyVector(CMapVectorEntry *dest, CMapVectorEntry *src) {
       if (!dest[i].isVector) {
 	dest[i].isVector = gTrue;
 	dest[i].vector =
-	  (CMapVectorEntry *)gmalloc(256 * sizeof(CMapVectorEntry));
+	  (CMapVectorEntry *)gmallocn(256, sizeof(CMapVectorEntry));
 	for (j = 0; j < 256; ++j) {
 	  dest[i].vector[j].isVector = gFalse;
 	  dest[i].vector[j].cid = 0;
@@ -213,7 +213,7 @@ void CMap::addCodeSpace(CMapVectorEntry *vec, Guint start, Guint end,
       if (!vec[i].isVector) {
 	vec[i].isVector = gTrue;
 	vec[i].vector =
-	  (CMapVectorEntry *)gmalloc(256 * sizeof(CMapVectorEntry));
+	  (CMapVectorEntry *)gmallocn(256, sizeof(CMapVectorEntry));
 	for (j = 0; j < 256; ++j) {
 	  vec[i].vector[j].isVector = gFalse;
 	  vec[i].vector[j].cid = 0;

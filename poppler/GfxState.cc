@@ -907,8 +907,8 @@ GfxIndexedColorSpace::GfxIndexedColorSpace(GfxColorSpace *baseA,
 					   int indexHighA) {
   base = baseA;
   indexHigh = indexHighA;
-  lookup = (Guchar *)gmalloc((indexHigh + 1) * base->getNComps() *
-			     sizeof(Guchar));
+  lookup = (Guchar *)gmallocn((indexHigh + 1) * base->getNComps(),
+			      sizeof(Guchar));
 }
 
 GfxIndexedColorSpace::~GfxIndexedColorSpace() {
@@ -2176,7 +2176,7 @@ GfxImageColorMap::GfxImageColorMap(int bitsA, Object *decode,
     colorSpace2 = indexedCS->getBase();
     indexHigh = indexedCS->getIndexHigh();
     nComps2 = colorSpace2->getNComps();
-    lookup = (double *)gmalloc((maxPixel + 1) * nComps2 * sizeof(double));
+    lookup = (double *)gmallocn((maxPixel + 1) * nComps2, sizeof(double));
     lookup2 = indexedCS->getLookup();
     colorSpace2->getDefaultRanges(x, y, indexHigh);
     byte_lookup = (Guchar *)gmalloc ((maxPixel + 1) * nComps2);
@@ -2200,8 +2200,8 @@ GfxImageColorMap::GfxImageColorMap(int bitsA, Object *decode,
     sepCS = (GfxSeparationColorSpace *)colorSpace;
     colorSpace2 = sepCS->getAlt();
     nComps2 = colorSpace2->getNComps();
-    lookup = (double *)gmalloc((maxPixel + 1) * nComps2 * sizeof(double));
-    byte_lookup = (Guchar *)gmalloc ((maxPixel + 1) * nComps2);
+    lookup = (double *)gmallocn((maxPixel + 1) * nComps2, sizeof(double));
+    byte_lookup = (Guchar *)gmallocn ((maxPixel + 1), nComps2);
     sepFunc = sepCS->getFunc();
     for (i = 0; i <= maxPixel; ++i) {
       x[0] = decodeLow[0] + (i * decodeRange[0]) / maxPixel;
@@ -2212,8 +2212,8 @@ GfxImageColorMap::GfxImageColorMap(int bitsA, Object *decode,
       }
     }
   } else {
-    lookup = (double *)gmalloc((maxPixel + 1) * nComps * sizeof(double));
-    byte_lookup = (Guchar *)gmalloc ((maxPixel + 1) * nComps);
+    lookup = (double *)gmallocn((maxPixel + 1) * nComps, sizeof(double));
+    byte_lookup = (Guchar *)gmallocn ((maxPixel + 1), nComps);
 
     for (i = 0; i <= maxPixel; ++i) {
       for (k = 0; k < nComps; ++k) {
@@ -2380,9 +2380,9 @@ void GfxImageColorMap::getColor(Guchar *x, GfxColor *color) {
 
 GfxSubpath::GfxSubpath(double x1, double y1) {
   size = 16;
-  x = (double *)gmalloc(size * sizeof(double));
-  y = (double *)gmalloc(size * sizeof(double));
-  curve = (GBool *)gmalloc(size * sizeof(GBool));
+  x = (double *)gmallocn(size, sizeof(double));
+  y = (double *)gmallocn(size, sizeof(double));
+  curve = (GBool *)gmallocn(size, sizeof(GBool));
   n = 1;
   x[0] = x1;
   y[0] = y1;
@@ -2400,9 +2400,9 @@ GfxSubpath::~GfxSubpath() {
 GfxSubpath::GfxSubpath(GfxSubpath *subpath) {
   size = subpath->size;
   n = subpath->n;
-  x = (double *)gmalloc(size * sizeof(double));
-  y = (double *)gmalloc(size * sizeof(double));
-  curve = (GBool *)gmalloc(size * sizeof(GBool));
+  x = (double *)gmallocn(size, sizeof(double));
+  y = (double *)gmallocn(size, sizeof(double));
+  curve = (GBool *)gmallocn(size, sizeof(GBool));
   memcpy(x, subpath->x, n * sizeof(double));
   memcpy(y, subpath->y, n * sizeof(double));
   memcpy(curve, subpath->curve, n * sizeof(GBool));
@@ -2412,9 +2412,9 @@ GfxSubpath::GfxSubpath(GfxSubpath *subpath) {
 void GfxSubpath::lineTo(double x1, double y1) {
   if (n >= size) {
     size += 16;
-    x = (double *)grealloc(x, size * sizeof(double));
-    y = (double *)grealloc(y, size * sizeof(double));
-    curve = (GBool *)grealloc(curve, size * sizeof(GBool));
+    x = (double *)greallocn(x, size, sizeof(double));
+    y = (double *)greallocn(y, size, sizeof(double));
+    curve = (GBool *)greallocn(curve, size, sizeof(GBool));
   }
   x[n] = x1;
   y[n] = y1;
@@ -2426,9 +2426,9 @@ void GfxSubpath::curveTo(double x1, double y1, double x2, double y2,
 			 double x3, double y3) {
   if (n+3 > size) {
     size += 16;
-    x = (double *)grealloc(x, size * sizeof(double));
-    y = (double *)grealloc(y, size * sizeof(double));
-    curve = (GBool *)grealloc(curve, size * sizeof(GBool));
+    x = (double *)greallocn(x, size, sizeof(double));
+    y = (double *)greallocn(y, size, sizeof(double));
+    curve = (GBool *)greallocn(curve, size, sizeof(GBool));
   }
   x[n] = x1;
   y[n] = y1;
@@ -2462,7 +2462,7 @@ GfxPath::GfxPath() {
   size = 16;
   n = 0;
   firstX = firstY = 0;
-  subpaths = (GfxSubpath **)gmalloc(size * sizeof(GfxSubpath *));
+  subpaths = (GfxSubpath **)gmallocn(size, sizeof(GfxSubpath *));
 }
 
 GfxPath::~GfxPath() {
@@ -2483,7 +2483,7 @@ GfxPath::GfxPath(GBool justMoved1, double firstX1, double firstY1,
   firstY = firstY1;
   size = size1;
   n = n1;
-  subpaths = (GfxSubpath **)gmalloc(size * sizeof(GfxSubpath *));
+  subpaths = (GfxSubpath **)gmallocn(size, sizeof(GfxSubpath *));
   for (i = 0; i < n; ++i)
     subpaths[i] = subpaths1[i]->copy();
 }
@@ -2499,7 +2499,7 @@ void GfxPath::lineTo(double x, double y) {
     if (n >= size) {
       size += 16;
       subpaths = (GfxSubpath **)
-	           grealloc(subpaths, size * sizeof(GfxSubpath *));
+	           greallocn(subpaths, size, sizeof(GfxSubpath *));
     }
     subpaths[n] = new GfxSubpath(firstX, firstY);
     ++n;
@@ -2513,8 +2513,8 @@ void GfxPath::curveTo(double x1, double y1, double x2, double y2,
   if (justMoved) {
     if (n >= size) {
       size += 16;
-      subpaths = (GfxSubpath **)
-	           grealloc(subpaths, size * sizeof(GfxSubpath *));
+      subpaths = (GfxSubpath **) 
+ 	         greallocn(subpaths, size, sizeof(GfxSubpath *));
     }
     subpaths[n] = new GfxSubpath(firstX, firstY);
     ++n;
@@ -2530,7 +2530,7 @@ void GfxPath::close() {
     if (n >= size) {
       size += 16;
       subpaths = (GfxSubpath **)
-	           grealloc(subpaths, size * sizeof(GfxSubpath *));
+	greallocn(subpaths, size, sizeof(GfxSubpath *));
     }
     subpaths[n] = new GfxSubpath(firstX, firstY);
     ++n;
@@ -2545,7 +2545,7 @@ void GfxPath::append(GfxPath *path) {
   if (n + path->n > size) {
     size = n + path->n;
     subpaths = (GfxSubpath **)
-                 grealloc(subpaths, size * sizeof(GfxSubpath *));
+                 greallocn(subpaths, size, sizeof(GfxSubpath *));
   }
   for (i = 0; i < path->n; ++i) {
     subpaths[n++] = path->subpaths[i]->copy();
@@ -2694,7 +2694,7 @@ GfxState::GfxState(GfxState *state) {
     strokePattern = state->strokePattern->copy();
   }
   if (lineDashLength > 0) {
-    lineDash = (double *)gmalloc(lineDashLength * sizeof(double));
+    lineDash = (double *)gmallocn(lineDashLength, sizeof(double));
     memcpy(lineDash, state->lineDash, lineDashLength * sizeof(double));
   }
   saved = NULL;

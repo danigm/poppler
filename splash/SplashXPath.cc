@@ -172,7 +172,7 @@ SplashXPath::SplashXPath(SplashPath *path, SplashCoord flatness,
 SplashXPath::SplashXPath(SplashXPath *xPath) {
   length = xPath->length;
   size = xPath->size;
-  segs = (SplashXPathSeg *)gmalloc(size * sizeof(SplashXPathSeg));
+  segs = (SplashXPathSeg *)gmallocn(size, sizeof(SplashXPathSeg));
   memcpy(segs, xPath->segs, length * sizeof(SplashXPathSeg));
 }
 
@@ -189,7 +189,7 @@ void SplashXPath::grow(int nSegs) {
     while (size < length + nSegs) {
       size *= 2;
     }
-    segs = (SplashXPathSeg *)grealloc(segs, size * sizeof(SplashXPathSeg));
+    segs = (SplashXPathSeg *)greallocn(segs, size, sizeof(SplashXPathSeg));
   }
 }
 

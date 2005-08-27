@@ -692,7 +692,7 @@ Link::Link(Dict *dict, GooString *baseURI) {
     obj2.free();
     if (obj1.dictLookup("D", &obj2)->isArray()) {
       borderDashLength = obj2.arrayGetLength();
-      borderDash = (double *)gmalloc(borderDashLength * sizeof(double));
+      borderDash = (double *)gmallocn(borderDashLength, sizeof(double));
       for (i = 0; i < borderDashLength; ++i) {
 	if (obj2.arrayGet(i, &obj3)->isNum()) {
 	  borderDash[i] = obj3.getNum();
@@ -715,7 +715,7 @@ Link::Link(Dict *dict, GooString *baseURI) {
 	  if (obj1.arrayGet(3, &obj2)->isArray()) {
 	    borderType = linkBorderDashed;
 	    borderDashLength = obj2.arrayGetLength();
-	    borderDash = (double *)gmalloc(borderDashLength * sizeof(double));
+	    borderDash = (double *)gmallocn(borderDashLength, sizeof(double));
 	    for (i = 0; i < borderDashLength; ++i) {
 	      if (obj2.arrayGet(i, &obj3)->isNum()) {
 		borderDash[i] = obj3.getNum();
@@ -807,7 +807,7 @@ Links::Links(Object *annots, GooString *baseURI) {
 	  if (link->isOk()) {
 	    if (numLinks >= size) {
 	      size += 16;
-	      links = (Link **)grealloc(links, size * sizeof(Link *));
+	      links = (Link **)greallocn(links, size, sizeof(Link *));
 	    }
 	    links[numLinks++] = link;
 	  } else {

@@ -1,4 +1,4 @@
-//========================================================================
+ //========================================================================
 //
 // XRef.cc
 //
@@ -121,8 +121,8 @@ ObjectStream::ObjectStream(XRef *xref, int objStrNumA) {
   }
  
   objs = new Object[nObjects];
-  objNums = (int *)gmalloc(nObjects * sizeof(int));
-  offsets = (int *)gmalloc(nObjects * sizeof(int));
+  objNums = (int *)gmallocn(nObjects, sizeof(int));
+  offsets = (int *)gmallocn(nObjects, sizeof(int));
 
   // parse the header: object numbers and offsets
   objStr.streamReset();
@@ -403,7 +403,7 @@ GBool XRef::readXRefTable(Parser *parser, Guint *pos) {
         goto err1;
       }
  
-      entries = (XRefEntry *)grealloc(entries, newSize * sizeof(XRefEntry));
+      entries = (XRefEntry *)greallocn(entries, newSize, sizeof(XRefEntry));
       for (i = size; i < newSize; ++i) {
 	entries[i].offset = 0xffffffff;
 	entries[i].type = xrefEntryFree;
@@ -512,7 +512,7 @@ GBool XRef::readXRefStream(Stream *xrefStr, Guint *pos) {
       error(-1, "Invalid 'size' parameter.");
       return gFalse;
     }
-    entries = (XRefEntry *)grealloc(entries, newSize * sizeof(XRefEntry));
+    entries = (XRefEntry *)greallocn(entries, newSize, sizeof(XRefEntry));
     for (i = size; i < newSize; ++i) {
       entries[i].offset = 0xffffffff;
       entries[i].type = xrefEntryFree;
@@ -606,7 +606,7 @@ GBool XRef::readXRefStreamSection(Stream *xrefStr, int *w, int first, int n) {
       error(-1, "Invalid 'size' inside xref table.");
       return gFalse;
     }
-    entries = (XRefEntry *)grealloc(entries, newSize * sizeof(XRefEntry));
+    entries = (XRefEntry *)greallocn(entries, newSize, sizeof(XRefEntry));
     for (i = size; i < newSize; ++i) {
       entries[i].offset = 0xffffffff;
       entries[i].type = xrefEntryFree;
@@ -746,7 +746,7 @@ GBool XRef::constructXRef() {
                     return gFalse;
                   }
 		  entries = (XRefEntry *)
-		      grealloc(entries, newSize * sizeof(XRefEntry));
+		      greallocn(entries, newSize, sizeof(XRefEntry));
 		  for (i = size; i < newSize; ++i) {
 		    entries[i].offset = 0xffffffff;
 		    entries[i].type = xrefEntryFree;
@@ -772,8 +772,8 @@ GBool XRef::constructXRef() {
           error(-1, "Invalid 'endstream' parameter.");
           return gFalse;
         }
-	streamEnds = (Guint *)grealloc(streamEnds,
-				       streamEndsSize * sizeof(int));
+	streamEnds = (Guint *)greallocn(streamEnds,
+					streamEndsSize, sizeof(int));
       }
       streamEnds[streamEndsLen++] = pos;
     }

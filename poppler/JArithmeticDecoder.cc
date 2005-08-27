@@ -22,7 +22,7 @@
 
 JArithmeticDecoderStats::JArithmeticDecoderStats(int contextSizeA) {
   contextSize = contextSizeA;
-  cxTab = (Guchar *)gmalloc(contextSize * sizeof(Guchar));
+  cxTab = (Guchar *)gmallocn(contextSize, sizeof(Guchar));
   reset();
 }
 

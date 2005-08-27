@@ -297,7 +297,7 @@ SampledFunction::SampledFunction(Object *funcObj, Dict *dict) {
   nSamples = n;
   for (i = 0; i < m; ++i)
     nSamples *= sampleSize[i];
-  samples = (double *)gmalloc(nSamples * sizeof(double));
+  samples = (double *)gmallocn(nSamples, sizeof(double));
   buf = 0;
   bits = 0;
   bitMask = (1 << sampleBits) - 1;
@@ -351,7 +351,7 @@ SampledFunction::SampledFunction(SampledFunction *func) {
   for (i = 0; i < m; ++i) {
     nSamples *= sampleSize[i];
   }
-  samples = (double *)gmalloc(nSamples * sizeof(double));
+  samples = (double *)gmallocn(nSamples, sizeof(double));
   memcpy(samples, func->samples, nSamples * sizeof(double));
 }
 
@@ -554,9 +554,9 @@ StitchingFunction::StitchingFunction(Object *funcObj, Dict *dict) {
     goto err1;
   }
   k = obj1.arrayGetLength();
-  funcs = (Function **)gmalloc(k * sizeof(Function *));
-  bounds = (double *)gmalloc((k + 1) * sizeof(double));
-  encode = (double *)gmalloc(2 * k * sizeof(double));
+  funcs = (Function **)gmallocn(k, sizeof(Function *));
+  bounds = (double *)gmallocn(k + 1, sizeof(double));
+  encode = (double *)gmallocn(2 * k, sizeof(double));
   for (i = 0; i < k; ++i) {
     funcs[i] = NULL;
   }
@@ -620,13 +620,13 @@ StitchingFunction::StitchingFunction(StitchingFunction *func) {
   int i;
 
   k = func->k;
-  funcs = (Function **)gmalloc(k * sizeof(Function *));
+  funcs = (Function **)gmallocn(k, sizeof(Function *));
   for (i = 0; i < k; ++i) {
     funcs[i] = func->funcs[i]->copy();
   }
-  bounds = (double *)gmalloc((k + 1) * sizeof(double));
+  bounds = (double *)gmallocn(k + 1, sizeof(double));
   memcpy(bounds, func->bounds, (k + 1) * sizeof(double));
-  encode = (double *)gmalloc(2 * k * sizeof(double));
+  encode = (double *)gmallocn(2 * k, sizeof(double));
   memcpy(encode, func->encode, 2 * k * sizeof(double));
   ok = gTrue;
 }
@@ -1016,7 +1016,7 @@ PostScriptFunction::PostScriptFunction(Object *funcObj, Dict *dict) {
 
 PostScriptFunction::PostScriptFunction(PostScriptFunction *func) {
   memcpy(this, func, sizeof(PostScriptFunction));
-  code = (PSObject *)gmalloc(codeSize * sizeof(PSObject));
+  code = (PSObject *)gmallocn(codeSize, sizeof(PSObject));
   memcpy(code, func->code, codeSize * sizeof(PSObject));
 }
 
@@ -1207,7 +1207,7 @@ GooString *PostScriptFunction::getToken(Stream *str) {
 void PostScriptFunction::resizeCode(int newSize) {
   if (newSize >= codeSize) {
     codeSize += 64;
-    code = (PSObject *)grealloc(code, codeSize * sizeof(PSObject));
+    code = (PSObject *)greallocn(code, codeSize, sizeof(PSObject));
   }
 }
 

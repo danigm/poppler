@@ -51,7 +51,7 @@ SplashState::SplashState(SplashState *state) {
   flatness = state->flatness;
   if (state->lineDash) {
     lineDashLength = state->lineDashLength;
-    lineDash = (SplashCoord *)gmalloc(lineDashLength * sizeof(SplashCoord));
+    lineDash = (SplashCoord *)gmallocn(lineDashLength, sizeof(SplashCoord));
     memcpy(lineDash, state->lineDash, lineDashLength * sizeof(SplashCoord));
   } else {
     lineDash = NULL;
@@ -90,7 +90,7 @@ void SplashState::setLineDash(SplashCoord *lineDashA, int lineDashLengthA,
   gfree(lineDash);
   lineDashLength = lineDashLengthA;
   if (lineDashLength > 0) {
-    lineDash = (SplashCoord *)gmalloc(lineDashLength * sizeof(SplashCoord));
+    lineDash = (SplashCoord *)gmallocn(lineDashLength, sizeof(SplashCoord));
     memcpy(lineDash, lineDashA, lineDashLength * sizeof(SplashCoord));
   } else {
     lineDash = NULL;

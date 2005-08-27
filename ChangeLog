@@ -1,3 +1,10 @@
+2005-08-27  Brad Hards  <bradh@frogmouth.net>
+
+	* Merge the gmalloc -> gmallocn changes from xpdf 3.0.1. This
+	change is based on martink's work (13-xpdf-3.01-goo-allocn.patch)
+	with some tweaking by me. There may be some residual gmallocn
+	changes still to be merged.
+
 2005-08-24  Martin Kretzschmar  <martink@gnome.org>
 
 	* configure.ac: add /usr/include/qt4 to qt4_incdirs. That's what
