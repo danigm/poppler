@@ -20,6 +20,7 @@ FlateStream::FlateStream(Stream *strA, int predictor, int columns, int colors, i
 
 FlateStream::~FlateStream() {
   inflateEnd(&d_stream);
+  delete pred;
   delete str;
 }
 
