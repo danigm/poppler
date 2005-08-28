@@ -87,7 +87,7 @@ AC_ARG_ENABLE(zlib,
 	      AC_HELP_STRING([--disable-zlib],
 	                     [Don't build against zlib.]),
               enable_zlib=$enableval,
-              enable_zlib="try")
+              enable_zlib="no")
 if test x$enable_zlib = xyes; then
   AC_CHECK_LIB([z], [inflate],,
 	       AC_MSG_ERROR("*** zlib library not found ***"))

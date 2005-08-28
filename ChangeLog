@@ -1,3 +1,7 @@
+2005-08-27  Jeff Muizelaar  <jeff@infidigm.net>
+
+	* configure.ac: Disable the zlib-based decoder by default.
+
 2005-08-27  Brad Hards  <bradh@frogmouth.net>
 
 	* Merge the gmalloc -> gmallocn changes from xpdf 3.0.1. This
