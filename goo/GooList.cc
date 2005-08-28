@@ -22,14 +22,14 @@
 
 GooList::GooList() {
   size = 8;
-  data = (void **)gmalloc(size * sizeof(void*));
+  data = (void **)gmallocn(size, sizeof(void*));
   length = 0;
   inc = 0;
 }
 
 GooList::GooList(int sizeA) {
   size = sizeA;
-  data = (void **)gmalloc(size * sizeof(void*));
+  data = (void **)gmallocn(size, sizeof(void*));
   length = 0;
   inc = 0;
 }
@@ -83,10 +83,10 @@ void *GooList::del(int i) {
 
 void GooList::expand() {
   size += (inc > 0) ? inc : size;
-  data = (void **)grealloc(data, size * sizeof(void*));
+  data = (void **)greallocn(data, size, sizeof(void*));
 }
 
 void GooList::shrink() {
   size -= (inc > 0) ? inc : size/2;
-  data = (void **)grealloc(data, size * sizeof(void*));
+  data = (void **)greallocn(data, size, sizeof(void*));
 }

@@ -39,7 +39,7 @@ GooHash::GooHash(GBool deleteKeysA) {
 
   deleteKeys = deleteKeysA;
   size = 7;
-  tab = (GooHashBucket **)gmalloc(size * sizeof(GooHashBucket *));
+  tab = (GooHashBucket **)gmallocn(size, sizeof(GooHashBucket *));
   for (h = 0; h < size; ++h) {
     tab[h] = NULL;
   }
@@ -292,7 +292,7 @@ void GooHash::expand() {
   oldSize = size;
   oldTab = tab;
   size = 2*size + 1;
-  tab = (GooHashBucket **)gmalloc(size * sizeof(GooHashBucket *));
+  tab = (GooHashBucket **)gmallocn(size, sizeof(GooHashBucket *));
   for (h = 0; h < size; ++h) {
     tab[h] = NULL;
   }
