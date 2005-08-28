@@ -13,6 +13,7 @@
 #endif
 
 #include <stdlib.h>
+#include <string.h>
 #include "goo/gtypes.h"
 #include "goo/gmem.h"
 #include "goo/GooString.h"

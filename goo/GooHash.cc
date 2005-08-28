@@ -101,6 +101,30 @@ void GooHash::add(GooString *key, int val) {
   ++len;
 }
 
+void GooHash::replace(GooString *key, void *val) {
+  GooHashBucket *p;
+  int h;
+
+  if ((p = find(key, &h))) {
+    p->val.p = val;
+    delete key;
+  } else {
+    add(key, val);
+  }
+}
+
+void GooHash::replace(GooString *key, int val) {
+  GooHashBucket *p;
+  int h;
+
+  if ((p = find(key, &h))) {
+    p->val.i = val;
+    delete key;
+  } else {
+    add(key, val);
+  }
+}
+
 void *GooHash::lookup(GooString *key) {
   GooHashBucket *p;
   int h;

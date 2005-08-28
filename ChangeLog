@@ -1,3 +1,16 @@
+2005-08-28  Brad Hards  <bradh@frogmouth.net>
+
+	* fofi/FoFiTrueType.cc: 
+	* goo/GooHash.cc:
+	* goo/GooHash.h:
+	* goo/GooList.cc:
+	* goo/GooList.h:
+	* goo/GooString.cc:
+	* goo/GooString.h:
+	* goo/gmem.c: merge the Goo* improvements from xpdf 3.0.1. This
+	change is based on martink's work (7-xpdf-3.01-goo-improvements.patch)
+	with some tweaking by me.
+
 2005-08-27  Jeff Muizelaar  <jeff@infidigm.net>
 
 	* poppler/FlateStream.cc: Fix predictor leak.

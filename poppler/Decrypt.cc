@@ -12,6 +12,7 @@
 #pragma implementation
 #endif
 
+#include <string.h>
 #include "goo/gmem.h"
 #include "Decrypt.h"
 

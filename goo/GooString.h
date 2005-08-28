@@ -15,8 +15,6 @@
 #pragma interface
 #endif
 
-#include <string.h>
-
 class GooString {
 public:
 
@@ -81,11 +79,10 @@ public:
   GooString *lowerCase();
 
   // Compare two strings:  -1:<  0:=  +1:>
-  // These functions assume the strings do not contain null characters.
-  int cmp(GooString *str) { return strcmp(s, str->getCString()); }
-  int cmpN(GooString *str, int n) { return strncmp(s, str->getCString(), n); }
-  int cmp(const char *sA) { return strcmp(s, sA); }
-  int cmpN(const char *sA, int n) { return strncmp(s, sA, n); }
+  int cmp(GooString *str);
+  int cmpN(GooString *str, int n);
+  int cmp(const char *sA);
+  int cmpN(const char *sA, int n);
 
 private:
 

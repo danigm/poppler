@@ -50,6 +50,7 @@ static GMemHdr *gMemList[gMemNLists] = {
 
 static int gMemIndex = 0;
 static int gMemAlloc = 0;
+static int gMemInUse = 0;
 
 #endif /* DEBUG_MEM */
 
@@ -78,6 +79,7 @@ void *gmalloc(size_t size) {
   hdr->next = gMemList[lst];
   gMemList[lst] = hdr;
   ++gMemAlloc;
+  gMemInUse += size;
   for (p = (unsigned long *)data; p <= trl; ++p)
     *p = gMemDeadVal;
   return data;
@@ -178,6 +180,7 @@ void gfree(void *p) {
       else
 	gMemList[lst] = hdr->next;
       --gMemAlloc;
+      gMemInUse -= hdr->size;
       size = gMemDataSize(hdr->size);
       trl = (unsigned long *)((char *)hdr + gMemHdrSize + size);
       if (*trl != gMemDeadVal) {

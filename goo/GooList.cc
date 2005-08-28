@@ -12,6 +12,7 @@
 #pragma implementation
 #endif
 
+#include <stdlib.h>
 #include <string.h>
 #include "gmem.h"
 #include "GooList.h"
@@ -79,6 +80,10 @@ void *GooList::del(int i) {
     shrink();
   }
   return p;
+}
+
+void GooList::sort(int (*cmp)(const void *obj1, const void *obj2)) {
+  qsort(data, length, sizeof(void *), cmp);
 }
 
 void GooList::expand() {

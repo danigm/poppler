@@ -28,6 +28,8 @@ public:
   ~GooHash();
   void add(GooString *key, void *val);
   void add(GooString *key, int val);
+  void replace(GooString *key, void *val);
+  void replace(GooString *key, int val);
   void *lookup(GooString *key);
   int lookupInt(GooString *key);
   void *lookup(char *key);
