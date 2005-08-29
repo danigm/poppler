@@ -1,3 +1,9 @@
+2005-08-29  Kristian Høgsberg  <krh@redhat.com>
+
+	* configure.ac (HAVE_FREETYPE_H): Patch from Hiroyuki Ikezoe: Set
+	HAVE_FREETYPE_217_OR_OLDER to 0 if we found freetype using
+	pkg-config (#4223).
+
 2005-08-28  Brad Hards  <bradh@frogmouth.net>
 
 	* fofi/FoFiTrueType.cc: 

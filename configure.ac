@@ -152,7 +152,7 @@ PKG_CHECK_MODULES(FREETYPE, freetype2 >= $FREETYPE_MIN_VERSION,
 if test "x$freetype_pkgconfig" = "xyes"; then
 
   AC_DEFINE(HAVE_FREETYPE_H, 1, [Have FreeType2 include files])
-  AC_DEFINE_UNQUOTED(HAVE_FREETYPE_217_OR_OLDER, 1, [Defines if your system has the freetype library 2.1.7 or older])
+  AC_DEFINE_UNQUOTED(HAVE_FREETYPE_217_OR_OLDER, 0, [Defines if your system has the freetype library 2.1.7 or older])
 
 else
 
