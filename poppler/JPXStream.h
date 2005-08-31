@@ -42,18 +42,22 @@ enum JPXColorSpaceType {
   jpxCSYPbPr1250 = 24
 };
 
+struct JPXColorSpecCIELab {
+  Guint rl, ol, ra, oa, rb, ob, il;
+};
+
+struct JPXColorSpecEnumerated {
+  JPXColorSpaceType type;	// color space type
+  union {
+    JPXColorSpecCIELab cieLab;
+  };
+};
+
 struct JPXColorSpec {
   Guint meth;			// method
   int prec;			// precedence
   union {
-    struct {
-      JPXColorSpaceType type;	// color space type
-      union {
-	struct {
-	  Guint rl, ol, ra, oa, rb, ob, il;
-	} cieLab;
-      };
-    } enumerated;
+    JPXColorSpecEnumerated enumerated;
   };
 };
 
@@ -133,6 +137,8 @@ struct JPXCodeBlock {
 
   //----- coefficient data
   JPXCoeff *coeffs;		// the coefficients
+  JArithmeticDecoder		// arithmetic decoder
+    *arithDecoder;
   JArithmeticDecoderStats	// arithmetic decoder stats
     *stats;
 };
@@ -273,10 +279,13 @@ public:
   virtual int lookChar();
   virtual GooString *getPSFilter(int psLevel, char *indent);
   virtual GBool isBinary(GBool last = gTrue);
+  virtual void getImageParams(int *bitsPerComponent,
+			      StreamColorSpaceMode *csMode);
 
 private:
 
   void fillReadBuf();
+  void getImageParams2(int *bitsPerComponent, StreamColorSpaceMode *csMode);
   GBool readBoxes();
   GBool readColorSpecBox(Guint dataLen);
   GBool readCodestream(Guint len);

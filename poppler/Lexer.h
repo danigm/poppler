@@ -60,6 +60,9 @@ public:
   void setPos(Guint pos, int dir = 0)
     { if (!curStr.isNone()) curStr.streamSetPos(pos, dir); }
 
+  // Returns true if <c> is a whitespace character.
+  static GBool isSpace(int c);
+
 private:
 
   int getChar();

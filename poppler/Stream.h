@@ -38,6 +38,13 @@ enum StreamKind {
   strWeird			// internal-use stream types
 };
 
+enum StreamColorSpaceMode {
+  streamCSNone,
+  streamCSDeviceGray,
+  streamCSDeviceRGB,
+  streamCSDeviceCMYK
+};
+
 //------------------------------------------------------------------------
 // Stream (base class)
 //------------------------------------------------------------------------

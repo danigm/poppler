@@ -67,17 +67,8 @@ Catalog::Catalog(XRef *xrefA) {
   }
   pagesSize = numPages0 = (int)obj.getNum();
   obj.free();
-  // The gcc doesnt optimize this away, so this check is ok,
-  // even if it looks like a pagesSize != pagesSize check
-  if (pagesSize*(int)sizeof(Page *)/sizeof(Page *) != pagesSize ||
-      pagesSize*(int)sizeof(Ref)/sizeof(Ref) != pagesSize) {
-    error(-1, "Invalid 'pagesSize'");
-    ok = gFalse;
-    return;
-  }
-
   pages = (Page **)gmallocn(pagesSize, sizeof(Page *));
-  pageRefs = (Ref *)gmallocn(pagesSize,  sizeof(Ref));
+  pageRefs = (Ref *)gmallocn(pagesSize, sizeof(Ref));
   for (i = 0; i < pagesSize; ++i) {
     pages[i] = NULL;
     pageRefs[i].num = -1;
@@ -243,11 +234,6 @@ int Catalog::readPageTree(Dict *pagesDict, PageAttrs *attrs, int start) {
       }
       if (start >= pagesSize) {
 	pagesSize += 32;
-        if (pagesSize*(int)sizeof(Page *)/sizeof(Page *) != pagesSize ||
-            pagesSize*(int)sizeof(Ref)/sizeof(Ref) != pagesSize) {
-          error(-1, "Invalid 'pagesSize' parameter.");
-          goto err3;
-        }
 	pages = (Page **)greallocn(pages, pagesSize, sizeof(Page *));
 	pageRefs = (Ref *)greallocn(pageRefs, pagesSize, sizeof(Ref));
 	for (j = pagesSize - 32; j < pagesSize; ++j) {

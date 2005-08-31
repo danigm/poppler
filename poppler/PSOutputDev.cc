@@ -807,13 +807,13 @@ void PSOutputDev::init(PSOutputFunc outputFuncA, void *outputStreamA,
   // initialize fontIDs, fontFileIDs, and fontFileNames lists
   fontIDSize = 64;
   fontIDLen = 0;
-  fontIDs = (Ref *)gmalloc(fontIDSize * sizeof(Ref));
+  fontIDs = (Ref *)gmallocn(fontIDSize, sizeof(Ref));
   fontFileIDSize = 64;
   fontFileIDLen = 0;
-  fontFileIDs = (Ref *)gmalloc(fontFileIDSize * sizeof(Ref));
+  fontFileIDs = (Ref *)gmallocn(fontFileIDSize, sizeof(Ref));
   fontFileNameSize = 64;
   fontFileNameLen = 0;
-  fontFileNames = (GooString **)gmalloc(fontFileNameSize * sizeof(GooString *));
+  fontFileNames = (GooString **)gmallocn(fontFileNameSize, sizeof(GooString *));
   nextTrueTypeNum = 0;
   font16EncLen = 0;
   font16EncSize = 0;
@@ -1108,6 +1108,7 @@ void PSOutputDev::setupResources(Dict *resDict) {
   setupFonts(resDict);
   setupImages(resDict);
 
+  //----- recursively scan XObjects
   resDict->lookup("XObject", &xObjDict);
   if (xObjDict.isDict()) {
     for (i = 0; i < xObjDict.dictGetLength(); ++i) {
@@ -1206,7 +1207,7 @@ void PSOutputDev::setupFont(GfxFont *font, Dict *parentResDict) {
   // add entry to fontIDs list
   if (fontIDLen >= fontIDSize) {
     fontIDSize += 64;
-    fontIDs = (Ref *)grealloc(fontIDs, fontIDSize * sizeof(Ref));
+    fontIDs = (Ref *)greallocn(fontIDs, fontIDSize, sizeof(Ref));
   }
   fontIDs[fontIDLen++] = *font->getID();
 
@@ -1342,8 +1343,8 @@ void PSOutputDev::setupFont(GfxFont *font, Dict *parentResDict) {
     psName = fontParam->psFontName->copy();
     if (font16EncLen >= font16EncSize) {
       font16EncSize += 16;
-      font16Enc = (PSFont16Enc *)grealloc(font16Enc,
-					  font16EncSize * sizeof(PSFont16Enc));
+      font16Enc = (PSFont16Enc *)greallocn(font16Enc,
+					   font16EncSize, sizeof(PSFont16Enc));
     }
     font16Enc[font16EncLen].fontID = *font->getID();
     font16Enc[font16EncLen].enc = fontParam->encoding->copy();
@@ -1427,7 +1428,7 @@ void PSOutputDev::setupEmbeddedType1Font(Ref *id, GooString *psName) {
   // add entry to fontFileIDs list
   if (fontFileIDLen >= fontFileIDSize) {
     fontFileIDSize += 64;
-    fontFileIDs = (Ref *)grealloc(fontFileIDs, fontFileIDSize * sizeof(Ref));
+    fontFileIDs = (Ref *)greallocn(fontFileIDs, fontFileIDSize, sizeof(Ref));
   }
   fontFileIDs[fontFileIDLen++] = *id;
 
@@ -1554,8 +1555,8 @@ void PSOutputDev::setupExternalType1Font(GooString *fileName, GooString *psName)
   // add entry to fontFileNames list
   if (fontFileNameLen >= fontFileNameSize) {
     fontFileNameSize += 64;
-    fontFileNames = (GooString **)grealloc(fontFileNames,
-					 fontFileNameSize * sizeof(GooString *));
+    fontFileNames = (GooString **)greallocn(fontFileNames,
+					  fontFileNameSize, sizeof(GooString *));
   }
   fontFileNames[fontFileNameLen++] = fileName->copy();
 
@@ -1596,7 +1597,7 @@ void PSOutputDev::setupEmbeddedType1CFont(GfxFont *font, Ref *id,
   // add entry to fontFileIDs list
   if (fontFileIDLen >= fontFileIDSize) {
     fontFileIDSize += 64;
-    fontFileIDs = (Ref *)grealloc(fontFileIDs, fontFileIDSize * sizeof(Ref));
+    fontFileIDs = (Ref *)greallocn(fontFileIDs, fontFileIDSize, sizeof(Ref));
   }
   fontFileIDs[fontFileIDLen++] = *id;
 
@@ -1641,7 +1642,7 @@ void PSOutputDev::setupEmbeddedTrueTypeFont(GfxFont *font, Ref *id,
   if (i == fontFileIDLen) {
     if (fontFileIDLen >= fontFileIDSize) {
       fontFileIDSize += 64;
-      fontFileIDs = (Ref *)grealloc(fontFileIDs, fontFileIDSize * sizeof(Ref));
+      fontFileIDs = (Ref *)greallocn(fontFileIDs, fontFileIDSize, sizeof(Ref));
     }
     fontFileIDs[fontFileIDLen++] = *id;
   }
@@ -1694,8 +1695,8 @@ void PSOutputDev::setupExternalTrueTypeFont(GfxFont *font, GooString *psName) {
     if (fontFileNameLen >= fontFileNameSize) {
       fontFileNameSize += 64;
       fontFileNames =
-	(GooString **)grealloc(fontFileNames,
-			     fontFileNameSize * sizeof(GooString *));
+	(GooString **)greallocn(fontFileNames,
+			      fontFileNameSize, sizeof(GooString *));
     }
   }
   fontFileNames[fontFileNameLen++] = fileName->copy();
@@ -1740,7 +1741,7 @@ void PSOutputDev::setupEmbeddedCIDType0Font(GfxFont *font, Ref *id,
   // add entry to fontFileIDs list
   if (fontFileIDLen >= fontFileIDSize) {
     fontFileIDSize += 64;
-    fontFileIDs = (Ref *)grealloc(fontFileIDs, fontFileIDSize * sizeof(Ref));
+    fontFileIDs = (Ref *)greallocn(fontFileIDs, fontFileIDSize, sizeof(Ref));
   }
   fontFileIDs[fontFileIDLen++] = *id;
 
@@ -1785,7 +1786,7 @@ void PSOutputDev::setupEmbeddedCIDTrueTypeFont(GfxFont *font, Ref *id,
   // add entry to fontFileIDs list
   if (fontFileIDLen >= fontFileIDSize) {
     fontFileIDSize += 64;
-    fontFileIDs = (Ref *)grealloc(fontFileIDs, fontFileIDSize * sizeof(Ref));
+    fontFileIDs = (Ref *)greallocn(fontFileIDs, fontFileIDSize, sizeof(Ref));
   }
   fontFileIDs[fontFileIDLen++] = *id;
 
