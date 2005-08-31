@@ -1,3 +1,12 @@
+2005-08-31  Brad Hards  <bradh@frogmouth.net>
+
+	* poppler/JArithmeticDecoder.cc
+	* poppler/JArithmeticDecoder.h
+	* poppler/JBIG2Stream.cc
+	* poppler/JBIG2Stream.h: merge in some of the JBIG2 changes from
+	xpdf 3.0.1.
+
+
 2005-08-29  Kristian Høgsberg  <krh@redhat.com>
 
 	* configure.ac (HAVE_FREETYPE_H): Patch from Hiroyuki Ikezoe: Set
