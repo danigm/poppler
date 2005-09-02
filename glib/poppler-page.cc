@@ -123,9 +123,12 @@ poppler_page_prepare_output_dev (PopplerPage *page,
   CairoOutputDev *output_dev;
   cairo_surface_t *surface;
   int cairo_width, cairo_height, cairo_rowstride;
+  int rotate;
   unsigned char *cairo_data;
 
-  if (rotation == 90 || rotation == 270) {
+  rotate = (rotation + page->page->getRotate()) % 360;
+
+  if (rotate == 90 || rotate == 270) {
     cairo_width = MAX ((int)(page->page->getHeight() * scale + 0.5), 1);
     cairo_height = MAX ((int)(page->page->getWidth() * scale + 0.5), 1);
   } else {

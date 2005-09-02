@@ -1,3 +1,7 @@
+2005-09-02  Kristian Høgsberg  <krh@redhat.com>
+
+	* glib/poppler-page.cc: Apply Marcos rotation fix.
+
 2005-08-31  Brad Hards  <bradh@frogmouth.net>
 
 	* poppler/JArithmeticDecoder.cc
