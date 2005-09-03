@@ -396,6 +396,71 @@ fi
 AM_CONDITIONAL(BUILD_POPPLER_QT4, test x$enable_poppler_qt4 = xyes)
 
 
+have_qt4testlib=no
+dnl ===================================================================
+dnl Check whether the QtTestLib headers and libs  are available.
+dnl Adapted from Qt4 check above!
+dnl ===================================================================
+
+dnl We re-use much of the Qt4 environment.
+
+dnl What to test
+qt4test_test_include="QtTest/QtTest"
+qt4test_test_la_library="libQtTest.la"
+qt4test_test_library="libQtTest.so"
+
+dnl Check for QtTestLib headers
+AC_MSG_CHECKING([for QtTestLib headers])
+qt4test_incdir="no"
+for it in $qt4_incdirs ; do
+    if test -r "$it/$qt4test_test_include" ; then
+        qt4test_incdir="$it"
+        break
+    fi
+done
+AC_MSG_RESULT([$qt4test_incdir])
+
+dnl Check for Qt4 libraries
+AC_MSG_CHECKING([for QtTestLib libraries])
+qt4test_libdir="no"
+for qt4test_check in $qt4_libdirs ; do
+    if test -r "$qt4test_check/$qt4test_test_la_library" ; then
+        qt4test_libdir="$qt4test_check"
+        break
+    fi
+
+    if test -r "$qt4test_check/$qt4test_test_library" ; then
+        qt4test_libdir="$qt4test_check"
+        break
+    fi
+done
+AC_MSG_RESULT([$qt4test_libdir])
+
+if test "x$qt4test_libdir" != "xno" ; then
+    if test "x$qt4test_incdir" != "xno" ; then
+        have_qt4testlib=yes;
+    fi
+fi
+
+dnl Set the variables
+POPPLER_QTTEST_CXXFLAGS="-I$qt4test_incdir"
+POPPLER_QTTEST_LIBS="-L$qt4test_libdir -lQtTest"
+
+AC_SUBST(POPPLER_QTTEST_CXXFLAGS)
+AC_SUBST(POPPLER_QTTEST_LIBS)
+
+if test x$have_qt4testlib = xno ; then
+    AC_MSG_WARN([QtTestLib libraries not found])
+fi
+
+if test x$have_qt4testlib = xyes; then
+    enable_poppler_qt4testlib="yes"
+else
+    enable_poppler_qt4testlib="no"
+fi
+
+AM_CONDITIONAL(BUILD_POPPLER_QT4TESTS, test x$enable_poppler_qt4testlib = xyes)
+
 AC_ARG_ENABLE(gtk-test,
               AC_HELP_STRING([--disable-gtk-test],
 	                     [Don't compile GTK+ test program.]),
@@ -457,6 +522,7 @@ echo "  splash output: $enable_splash_output"
 echo "  cairo output:  $enable_cairo_output"
 echo "  qt wrapper:    $enable_poppler_qt"
 echo "  qt4 wrapper:   $enable_poppler_qt4"
+echo "  qt4 unittests: $enable_poppler_qt4testlib"
 echo "  glib wrapper:  $enable_poppler_glib"
 echo "  use libjpeg:   $enable_libjpeg"
 echo "  use zlib:      $enable_zlib"

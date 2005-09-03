@@ -1,59 +1,43 @@
-#include <QtCore/QtCore>
+#include <QtTest/QtTest>
 
 #define UNSTABLE_POPPLER_QT4
 #include <poppler-qt4.h>
 
-int main( int argc, char **argv )
+class TestPermissions: public QObject
 {
-    QCoreApplication a( argc, argv );               // QApplication required!
+    Q_OBJECT
+private slots:
+    void permissions1();
+};
 
-    Poppler::Document *doc = Poppler::Document::load("../../../test/unittestcases/orientation.pdf");
-    if (!doc)
-    {
-	exit(1);
-    }
+void TestPermissions::permissions1()
+{
+    Poppler::Document *doc;
+    doc = Poppler::Document::load("../../../test/unittestcases/orientation.pdf");
+    VERIFY( doc );
   
     // we are allowed to print
-    if ( !(doc->okToPrint() ) )
-    {
-	exit(2);
-    }
+    VERIFY( doc->okToPrint() );
 
     // we are not allowed to change
-    if ( (doc->okToChange()) )
-    {
-	exit(3);
-    }
+    VERIFY( !(doc->okToChange()) );
 
     // we are not allowed to copy or extract content
-    if ( (doc->okToCopy() ) )
-    {
-	exit(4);
-    }
+    VERIFY( !(doc->okToCopy()) );
 
     // we are not allowed to print at high resolution
-    if ( (doc->okToPrintHighRes() ) )
-    {
-	exit(5);
-    }
+    VERIFY( !(doc->okToPrintHighRes()) );
 
     // we are not allowed to fill forms
-    if ( (doc->okToFillForm() ) )
-    {
-	exit(6);
-    }
+    VERIFY( !(doc->okToFillForm()) );
 
     // we are allowed to extract content for accessibility
-    if ( (!doc->okToExtractForAccessibility() ) )
-    {
-	exit(7);
-    }
+    VERIFY( doc->okToExtractForAccessibility() );
 
     // we are allowed to assemble this document
-    if ( (!doc->okToAssemble() ) )
-    {
-	exit(8);
-    }
-
-    exit(0);
+    VERIFY( doc->okToAssemble() );
 }
+
+QTTEST_MAIN(TestPermissions)
+#include "check_permissions.moc"
+

@@ -1,3 +1,9 @@
+2005-09-03  Brad Hards  <bradh@frogmouth.net>
+
+	* qt4/tests/ :
+	* configure.ac: switch qt4 unit tests to use QtTestLib, a more
+	capable system, and easier to maintain.
+
 2005-09-02  Kristian Høgsberg  <krh@redhat.com>
 
 	* glib/poppler-page.cc: Apply Marcos rotation fix.
