@@ -59,3 +59,6 @@ pdf_inspector_LDADD =				\
 	$(CAIRO_LIBS)				\
 	$(FREETYPE_LIBS)			\
 	$(GTK_TEST_LIBS)
+
+EXTRA_DIST =					\
+	pdf-operators.c

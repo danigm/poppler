@@ -17,22 +17,9 @@ AC_PROG_CC_STDC
 AC_PROG_CXX
 AC_PROG_INSTALL
 
-dnl ##### Optional features.
-AH_TEMPLATE([A4_PAPER],
-            [Use A4 paper size instead of Letter for PostScript output.])
-AC_ARG_ENABLE(a4-paper,
-	      AS_HELP_STRING([--enable-a4-paper],
-			     [use A4 paper size instead of Letter for PostScript output]),
-              AC_DEFINE(A4_PAPER))
-
-AH_TEMPLATE([OPI_SUPPORT],
-            [Include support for OPI comments.])
-AC_ARG_ENABLE(opi,
-              AS_HELP_STRING([--enable-opi],
-			     [include support for OPI comments]),
-              AC_DEFINE(OPI_SUPPORT))
-
 dnl Enable these unconditionally.
+AC_DEFINE([A4_PAPER], [1], [Default to A4 paper.])
+AC_DEFINE([OPI_SUPPORT], [1], [Generate OPI comments in PS output.])
 AC_DEFINE([MULTITHREADED], [1], [Enable multithreading support.])
 AC_DEFINE([TEXTOUT_WORD_LIST], [1], [Enable word list support.])
 

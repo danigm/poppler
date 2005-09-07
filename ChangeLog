@@ -1,3 +1,11 @@
+2005-09-06  Kristian Høgsberg  <krh@redhat.com>
+
+	* configure.ac: Enable A4_PAPER and OPI_SUPPORT by default.  There
+	is no reason to not enable OPI and the paper size should be
+	controlled by the application.
+
+	* test/Makefile.am (EXTRA_DIST): Add pdf-operators.c
+
 2005-09-03  Brad Hards  <bradh@frogmouth.net>
 
 	* qt4/tests/ :
