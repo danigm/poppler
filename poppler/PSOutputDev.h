@@ -211,7 +211,8 @@ private:
   void setupEmbeddedTrueTypeFont(GfxFont *font, Ref *id, GooString *psName);
   void setupExternalTrueTypeFont(GfxFont *font, GooString *psName);
   void setupEmbeddedCIDType0Font(GfxFont *font, Ref *id, GooString *psName);
-  void setupEmbeddedCIDTrueTypeFont(GfxFont *font, Ref *id, GooString *psName);
+  void setupEmbeddedCIDTrueTypeFont(GfxFont *font, Ref *id, GooString *psName,
+				    GBool needVerticalMetrics);
   void setupType3Font(GfxFont *font, GooString *psName, Dict *parentResDict);
   void setupImages(Dict *resDict);
   void setupImage(Ref id, Stream *str);

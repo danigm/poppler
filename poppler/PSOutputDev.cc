@@ -1267,7 +1267,7 @@ void PSOutputDev::setupFont(GfxFont *font, Dict *parentResDict) {
 	     font->getType() == fontCIDType2 &&
 	     font->getEmbeddedFontID(&fontFileID)) {
     psName = filterPSName(font->getEmbeddedFontName());
-    setupEmbeddedCIDTrueTypeFont(font, &fontFileID, psName);
+    setupEmbeddedCIDTrueTypeFont(font, &fontFileID, psName, gTrue);
 
   } else if (font->getType() == fontType3) {
     sprintf(type3Name, "T3_%d_%d",
@@ -1770,7 +1770,8 @@ void PSOutputDev::setupEmbeddedCIDType0Font(GfxFont *font, Ref *id,
 }
 
 void PSOutputDev::setupEmbeddedCIDTrueTypeFont(GfxFont *font, Ref *id,
-					       GooString *psName) {
+					       GooString *psName,
+					       GBool needVerticalMetrics) {
   char *fontBuf;
   int fontLen;
   FoFiTrueType *ffTT;
@@ -1804,12 +1805,14 @@ void PSOutputDev::setupEmbeddedCIDTrueTypeFont(GfxFont *font, Ref *id,
       ffTT->convertToCIDType2(psName->getCString(),
 			      ((GfxCIDFont *)font)->getCIDToGID(),
 			      ((GfxCIDFont *)font)->getCIDToGIDLen(),
+			      needVerticalMetrics,
 			      outputFunc, outputStream);
     } else {
       // otherwise: use a non-CID composite font
       ffTT->convertToType0(psName->getCString(),
 			   ((GfxCIDFont *)font)->getCIDToGID(),
 			   ((GfxCIDFont *)font)->getCIDToGIDLen(),
+			   needVerticalMetrics,
 			   outputFunc, outputStream);
     }
     delete ffTT;

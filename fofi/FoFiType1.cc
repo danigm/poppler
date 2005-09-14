@@ -108,6 +108,9 @@ void FoFiType1::writeEncoded(char **newEncoding,
     for (line = getNextLine(line);
 	 line && strncmp(line, "readonly def", 12);
 	 line = getNextLine(line)) ;
+    if (line) {
+      line = getNextLine(line);
+    }
   }
   if (line) {
     (*outputFunc)(outputStream, line, ((char *)file + len) - line);
@@ -160,9 +163,9 @@ void FoFiType1::parse() {
       for (j = 0; j < 256; ++j) {
 	encoding[j] = NULL;
       }
-      line = getNextLine(line);
-      for (j = 0; j < 300 && line; ++j) {
-	line1 = getNextLine(line);
+      for (j = 0, line = getNextLine(line);
+	   j < 300 && line && (line1 = getNextLine(line));
+	   ++j, line = line1) {
 	if ((n = line1 - line) > 255) {
 	  n = 255;
 	}
@@ -186,22 +189,18 @@ void FoFiType1::parse() {
 	      }
 	    }
 	  }
-	} 
-
-	// Any line that begins with "def" or contains " def"
-	// terminates the encoding array.
-	if (!strcmp (p, "def") || strstr (buf, " def"))
-	  break;
-
-	line = line1;
+	} else {
+	  if (strtok(buf, " \t") &&
+	      (p = strtok(NULL, " \t\n\r")) && !strcmp(p, "def")) {
+	    break;
+	  }
+	}
       }
       //~ check for getinterval/putinterval junk
 
     } else {
       line = getNextLine(line);
     }
-
-    ++i;
   }
 
   parsed = gTrue;
