@@ -95,6 +95,12 @@ GBool SplashFont::getGlyph(int c, int xFrac, int yFrac,
   Guchar *p;
   int i, j, k;
 
+  // no fractional coordinates for large glyphs or non-anti-aliased
+  // glyphs
+  if (!aa || glyphH > 50) {
+    xFrac = yFrac = 0;
+  }
+
   // check the cache
   i = (c & (cacheSets - 1)) * cacheAssoc;
   for (j = 0; j < cacheAssoc; ++j) {
