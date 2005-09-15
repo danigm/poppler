@@ -148,7 +148,8 @@ SplashError SplashPath::close() {
   if (noCurrentPoint()) {
     return splashErrNoCurPt;
   }
-  if (pts[length - 1].x != pts[curSubpath].x ||
+  if (curSubpath == length - 1 ||
+      pts[length - 1].x != pts[curSubpath].x ||
       pts[length - 1].y != pts[curSubpath].y) {
     lineTo(pts[curSubpath].x, pts[curSubpath].y);
   }
