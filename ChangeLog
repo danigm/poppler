@@ -1,3 +1,6 @@
+2005-09-15  Albert Astals Cid  <aacid@kde.org>
+	* poppler/: Some minor merges from xpdf 3.01
+
 2005-09-14  Albert Astals Cid  <aacid@kde.org>
 	* fofi/
 	* poppler/PSOutputDev.[cc|h]: Merge all xpdf 3.01 changes in fofi

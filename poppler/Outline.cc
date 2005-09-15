@@ -44,7 +44,7 @@ Outline::~Outline() {
 //------------------------------------------------------------------------
 
 OutlineItem::OutlineItem(Dict *dict, XRef *xrefA) {
-  Object obj1, obj2;
+  Object obj1;
   GooString *s;
   int i;
 
@@ -79,9 +79,9 @@ OutlineItem::OutlineItem(Dict *dict, XRef *xrefA) {
     action = LinkAction::parseDest(&obj1);
   } else {
       obj1.free();
-      dict->lookup("A", &obj1);
-      if (!obj1.isNull())
+    if (!dict->lookup("A", &obj1)->isNull()) {
         action = LinkAction::parseAction(&obj1);
+  }
   }
   obj1.free();
 
