@@ -634,11 +634,9 @@ GBool JPXStream::readBoxes() {
     case 0x6A703263:		// contiguous codestream
       if (!bpc) {
 	error(getPos(), "JPX stream is missing the image header box");
-	return gFalse;
       }
       if (!haveCS) {
 	error(getPos(), "JPX stream has no supported color spec");
-	return gFalse;
       }
       if (!readCodestream(dataLen)) {
 	return gFalse;
