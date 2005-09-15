@@ -148,6 +148,9 @@ Catalog::Catalog(XRef *xrefA) {
   // get the outline dictionary
   catDict.dictLookup("Outlines", &outline);
 
+  // get the AcroForm dictionary
+  catDict.dictLookup("AcroForm", &acroForm);
+
   catDict.free();
   return;
 
@@ -182,6 +185,7 @@ Catalog::~Catalog() {
   metadata.free();
   structTreeRoot.free();
   outline.free();
+  acroForm.free();
 }
 
 GooString *Catalog::readMetadata() {
@@ -259,7 +263,6 @@ int Catalog::readPageTree(Dict *pagesDict, PageAttrs *attrs, int start) {
     } else {
       error(-1, "Kid object (page %d) is wrong type (%s)",
 	    start+1, kid.getTypeName());
-      goto err2;
     }
     kid.free();
   }

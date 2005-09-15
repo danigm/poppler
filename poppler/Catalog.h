@@ -100,6 +100,8 @@ public:
 
   Object *getOutline() { return &outline; }
 
+  Object *getAcroForm() { return &acroForm; }
+
   enum PageMode {
     pageModeNone,
     pageModeOutlines,
@@ -135,6 +137,7 @@ private:
   Object metadata;		// metadata stream
   Object structTreeRoot;	// structure tree root dictionary
   Object outline;		// outline dictionary
+  Object acroForm;		// AcroForm dictionary
   GBool ok;			// true if catalog is valid
   PageLabelInfo *pageLabelInfo; // info about page labels
   PageMode pageMode;		// page mode
