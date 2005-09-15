@@ -41,8 +41,15 @@ static void fileWrite(void *stream, char *data, int len) {
 //------------------------------------------------------------------------
 
 SplashFTFontEngine::SplashFTFontEngine(GBool aaA, FT_Library libA) {
+  FT_Int major, minor, patch;
+
   aa = aaA;
   lib = libA;
+
+  // as of FT 2.1.8, CID fonts are indexed by CID instead of GID
+  FT_Library_Version(lib, &major, &minor, &patch);
+  useCIDs = major > 2 ||
+            (major == 2 && (minor > 1 || (minor == 1 && patch > 7)));
 }
 
 SplashFTFontEngine *SplashFTFontEngine::init(GBool aaA) {
@@ -81,20 +88,16 @@ SplashFontFile *SplashFTFontEngine::loadCIDFont(SplashFontFileID *idA,
   SplashFontFile *ret;
 
   // check for a CFF font
-#if HAVE_FREETYPE_217_OR_OLDER
-  if ((ff = FoFiType1C::load(fileName))) {
+  if (useCIDs) {
+    cidToGIDMap = NULL;
+    nCIDs = 0;
+  } else if ((ff = FoFiType1C::load(fileName))) {
     cidToGIDMap = ff->getCIDToGIDMap(&nCIDs);
     delete ff;
   } else {
     cidToGIDMap = NULL;
     nCIDs = 0;
   }
-#else
-  // No need to check for CFF Font, freetype treats all CID fonts the same way
-  cidToGIDMap = NULL;
-  nCIDs = 0;
-#endif
-
   ret = SplashFTFontFile::loadCIDFont(this, idA, fileName, deleteFile,
 				      cidToGIDMap, nCIDs);
   if (!ret) {

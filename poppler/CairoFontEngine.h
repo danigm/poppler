@@ -18,7 +18,7 @@
 
 class CairoFont {
 public:
-  CairoFont(GfxFont *gfxFont, XRef *xref, FT_Library lib);
+  CairoFont(GfxFont *gfxFont, XRef *xref, FT_Library lib, GBool useCIDs);
   ~CairoFont();
 
   GBool matches(Ref &other);
@@ -54,6 +54,7 @@ public:
 private:
   CairoFont *fontCache[cairoFontCacheSize];
   FT_Library lib;
+  GBool useCIDs;
 };
 
 #endif

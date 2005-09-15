@@ -131,31 +131,23 @@ AH_TEMPLATE([ENABLE_LIBJPEG],
 dnl Check for freetype headers
 FREETYPE_LIBS=
 FREETYPE_CFLAGS=
-FREETYPE_MIN_VERSION=9.5.3
 
-PKG_CHECK_MODULES(FREETYPE, freetype2 >= $FREETYPE_MIN_VERSION,
+PKG_CHECK_MODULES(FREETYPE, freetype2,
                   [freetype_pkgconfig=yes], [freetype_pkgconfig=no])
 
 if test "x$freetype_pkgconfig" = "xyes"; then
 
   AC_DEFINE(HAVE_FREETYPE_H, 1, [Have FreeType2 include files])
-  AC_DEFINE_UNQUOTED(HAVE_FREETYPE_217_OR_OLDER, 0, [Defines if your system has the freetype library 2.1.7 or older])
 
 else
 
   AC_PATH_PROG(FREETYPE_CONFIG, freetype-config, no)
   if test "x$FREETYPE_CONFIG" != "xno" ; then
+	  
     FREETYPE_CFLAGS=`$FREETYPE_CONFIG --cflags`
     FREETYPE_LIBS=`$FREETYPE_CONFIG --libs`
     AC_DEFINE(HAVE_FREETYPE_H, 1, [Have FreeType2 include files])
-  
-    vers=`$FREETYPE_CONFIG --version 2>/dev/null | sed -e 's/libfreetype //' | awk 'BEGIN { FS = "."; } { printf "%d", $1 * 10000 + $2 * 100 + $3;}'`
-    min_vers=`echo $FREETYPE_MIN_VERSION | awk 'BEGIN { FS = "."; } { printf "%d", $1 * 10000 + $2 * 100 + $3;}'`
-    if test -n "$vers" && test "$vers" -le $min_vers; then
-      AC_DEFINE_UNQUOTED(HAVE_FREETYPE_217_OR_OLDER, 1, [Defines if your system has the freetype library 2.1.7 or older])
-    else
-      AC_DEFINE_UNQUOTED(HAVE_FREETYPE_217_OR_OLDER, 0, [Defines if your system has the freetype library 2.1.7 or older])
-    fi
+
   fi
 
 fi

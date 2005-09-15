@@ -37,7 +37,7 @@ static void cairo_font_face_destroy (void *data)
   delete font;
 }
 
-CairoFont::CairoFont(GfxFont *gfxFont, XRef *xref, FT_Library lib) {
+CairoFont::CairoFont(GfxFont *gfxFont, XRef *xref, FT_Library lib, GBool useCIDs) {
   Ref embRef;
   Object refObj, strObj;
   GooString *tmpFileName, *fileName, *substName,*tmpFileName2;
@@ -162,12 +162,13 @@ CairoFont::CairoFont(GfxFont *gfxFont, XRef *xref, FT_Library lib) {
     codeToGID = NULL;
     codeToGIDLen = 0;
 
-#if HAVE_FREETYPE_217_OR_OLDER
-    if ((ff1c = FoFiType1C::load(fileName->getCString()))) {
-      codeToGID = ff1c->getCIDToGIDMap(&codeToGIDLen);
-      delete ff1c;
+    if (useCIDs)
+    {
+      if ((ff1c = FoFiType1C::load(fileName->getCString()))) {
+        codeToGID = ff1c->getCIDToGIDMap(&codeToGIDLen);
+        delete ff1c;
+      }
     }
-#endif
 
     if (FT_New_Face(lib, fileName->getCString(), 0, &face)) {
       gfree(codeToGID);
@@ -250,6 +251,12 @@ CairoFontEngine::CairoFontEngine(FT_Library libA) {
   for (i = 0; i < cairoFontCacheSize; ++i) {
     fontCache[i] = NULL;
   }
+  
+  FT_Int major, minor, patch;
+  // as of FT 2.1.8, CID fonts are indexed by CID instead of GID
+  FT_Library_Version(lib, &major, &minor, &patch);
+  useCIDs = major > 2 ||
+            (major == 2 && (minor > 1 || (minor == 1 && patch > 7)));
 }
 
 CairoFontEngine::~CairoFontEngine() {
@@ -287,7 +294,7 @@ CairoFontEngine::getFont(GfxFont *gfxFont, XRef *xref) {
     }
   }
   
-  font = new CairoFont (gfxFont, xref, lib);
+  font = new CairoFont (gfxFont, xref, lib, useCIDs);
   if (fontCache[cairoFontCacheSize - 1]) {
     delete fontCache[cairoFontCacheSize - 1];
   }
