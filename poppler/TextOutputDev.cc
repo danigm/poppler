@@ -3036,7 +3036,7 @@ TextSelectionDumper::TextSelectionDumper(TextPage *page)
     : TextSelectionVisitor(page)
 {
   fragsSize = 256;
-  frags = (TextLineFrag *)gmalloc(fragsSize * sizeof(TextLineFrag));
+  frags = (TextLineFrag *)gmallocn(fragsSize, sizeof(TextLineFrag));
   nFrags = 0;
 }
 

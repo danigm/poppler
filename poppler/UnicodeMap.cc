@@ -53,7 +53,7 @@ UnicodeMap *UnicodeMap::parse(GooString *encodingNameA) {
   map = new UnicodeMap(encodingNameA->copy());
 
   size = 8;
-  map->ranges = (UnicodeMapRange *)gmalloc(size * sizeof(UnicodeMapRange));
+  map->ranges = (UnicodeMapRange *)gmallocn(size, sizeof(UnicodeMapRange));
   eMapsSize = 0;
 
   line = 1;

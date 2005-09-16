@@ -1,3 +1,12 @@
+2005-09-16  Marco Pesenti Gritti  <mpg@redhat.com>
+
+	* poppler/ArthurOutputDev.cc:
+	* poppler/CairoFontEngine.cc:
+	* poppler/TextOutputDev.cc:
+	* poppler/UnicodeMap.cc:
+
+	Use mallocn when possible
+
 2005-09-16  Albert Astals Cid  <aacid@kde.org>
 	* splash/: Some merges from xpdf 3.01
 

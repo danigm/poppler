@@ -112,7 +112,7 @@ CairoFont::CairoFont(GfxFont *gfxFont, XRef *xref, FT_Library lib, GBool useCIDs
     
     enc = ((Gfx8BitFont *)gfxFont)->getEncoding();
     
-    codeToGID = (Gushort *)gmalloc(256 * sizeof(int));
+    codeToGID = (Gushort *)gmallocn(256, sizeof(int));
     codeToGIDLen = 256;
     for (i = 0; i < 256; ++i) {
       codeToGID[i] = 0;
@@ -125,7 +125,7 @@ CairoFont::CairoFont(GfxFont *gfxFont, XRef *xref, FT_Library lib, GBool useCIDs
   case fontCIDType2:
     n = ((GfxCIDFont *)gfxFont)->getCIDToGIDLen();
     codeToGIDLen = n;
-    codeToGID = (Gushort *)gmalloc(n * sizeof(Gushort));
+    codeToGID = (Gushort *)gmallocn(n, sizeof(Gushort));
     memcpy(codeToGID, ((GfxCIDFont *)gfxFont)->getCIDToGID(),
 	   n * sizeof(Gushort));
     /* Fall through */

@@ -378,7 +378,7 @@ void ArthurOutputDev::updateFont(GfxState *state)
       break;
     case fontCIDType2:
       n = ((GfxCIDFont *)gfxFont)->getCIDToGIDLen();
-      codeToGID = (Gushort *)gmalloc(n * sizeof(Gushort));
+      codeToGID = (Gushort *)gmallocn(n, sizeof(Gushort));
       memcpy(codeToGID, ((GfxCIDFont *)gfxFont)->getCIDToGID(),
 	     n * sizeof(Gushort));
       if (!(fontFile = m_fontEngine->loadTrueTypeFont(
