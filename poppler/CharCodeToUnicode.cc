@@ -251,7 +251,7 @@ void CharCodeToUnicode::parseCMap1(int (*getCharFunc)(void *), void *data,
 	  error(-1, "Illegal entry in bfchar block in ToUnicode CMap");
 	  continue;
 	}
-	addMapping(code1, tok2 + 1, n2 - 1, 0);
+	addMapping(code1, tok2 + 1, n2 - 2, 0);
       }
       pst->getToken(tok1, sizeof(tok1), &n1);
     } else if (!strcmp(tok2, "beginbfrange")) {
@@ -433,23 +433,30 @@ GBool CharCodeToUnicode::match(GooString *tagA) {
 }
 
 void CharCodeToUnicode::setMapping(CharCode c, Unicode *u, int len) {
-  int i;
+  int i, j;
 
   if (len == 1) {
     map[c] = u[0];
   } else {
+    for (i = 0; i < sMapLen; ++i) {
+      if (sMap[i].c == c) {
+	break;
+      }
+    }
+    if (i == sMapLen) {
+      if (sMapLen == sMapSize) {
+	sMapSize += 8;
+	sMap = (CharCodeToUnicodeString *)
+	         greallocn(sMap, sMapSize, sizeof(CharCodeToUnicodeString));
+      }
+      ++sMapLen;
+    }
     map[c] = 0;
-    if (sMapLen == sMapSize) {
-      sMapSize += 8;
-      sMap = (CharCodeToUnicodeString *)
-	       greallocn(sMap, sMapSize, sizeof(CharCodeToUnicodeString));
+    sMap[i].c = c;
+    sMap[i].len = len;
+    for (j = 0; j < len && j < maxUnicodeString; ++j) {
+      sMap[i].u[j] = u[j];
     }
-    sMap[sMapLen].c = c;
-    sMap[sMapLen].len = len;
-    for (i = 0; i < len && i < maxUnicodeString; ++i) {
-      sMap[sMapLen].u[i] = u[i];
-    }
-    ++sMapLen;
   }
 }
 

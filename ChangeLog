@@ -1,5 +1,12 @@
 2005-09-16  Marco Pesenti Gritti  <mpg@redhat.com>
 
+	* poppler/CharCodeToUnicode.cc:
+	* poppler/CharCodeToUnicode.h:
+
+	Improvements from xpdf 3.01
+
+2005-09-16  Marco Pesenti Gritti  <mpg@redhat.com>
+
 	* poppler/CMap.cc:
 
 	Improvements from xpdf 3.01
