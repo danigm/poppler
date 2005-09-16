@@ -213,6 +213,10 @@ XRef::XRef(BaseStream *strA, GooString *ownerPassword, GooString *userPassword) 
   streamEndsLen = 0;
   objStr = NULL;
 
+  encrypted = gFalse;
+  permFlags = defPermFlags;
+  ownerPasswordOk = gFalse;
+
   // read the trailer
   str = strA;
   start = str->getStart();
