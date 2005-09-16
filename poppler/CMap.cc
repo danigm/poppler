@@ -49,7 +49,7 @@ CMap *CMap::parse(CMapCache *cache, GooString *collectionA,
   PSTokenizer *pst;
   char tok1[256], tok2[256], tok3[256];
   int n1, n2, n3;
-  Guint start, end;
+  Guint start, end, code;
 
   if (!(f = globalParams->findCMapFile(collectionA, cMapNameA))) {
 
@@ -97,6 +97,30 @@ CMap *CMap::parse(CMapCache *cache, GooString *collectionA,
 	  n1 = (n1 - 2) / 2;
 	  cmap->addCodeSpace(cmap->vector, start, end, n1);
 	}
+      }
+      pst->getToken(tok1, sizeof(tok1), &n1);
+    } else if (!strcmp(tok2, "begincidchar")) {
+      while (pst->getToken(tok1, sizeof(tok1), &n1)) {
+	if (!strcmp(tok1, "endcidchar")) {
+	  break;
+	}
+	if (!pst->getToken(tok2, sizeof(tok2), &n2) ||
+	    !strcmp(tok2, "endcidchar")) {
+	  error(-1, "Illegal entry in cidchar block in CMap");
+	  break;
+	}
+	if (!(tok1[0] == '<' && tok1[n1 - 1] == '>' &&
+	      n1 >= 4 && (n1 & 1) == 0)) {
+	  error(-1, "Illegal entry in cidchar block in CMap");
+	  continue;
+	}
+	tok1[n1 - 1] = '\0';
+	if (sscanf(tok1 + 1, "%x", &code) != 1) {
+	  error(-1, "Illegal entry in cidchar block in CMap");
+	  continue;
+	}
+	n1 = (n1 - 2) / 2;
+	cmap->addCIDs(code, code, n1, (CID)atoi(tok2));
       }
       pst->getToken(tok1, sizeof(tok1), &n1);
     } else if (!strcmp(tok2, "begincidrange")) {
@@ -234,7 +258,7 @@ void CMap::addCIDs(Guint start, Guint end, Guint nBytes, CID firstCID) {
   for (i = nBytes - 1; i >= 1; --i) {
     byte = (start >> (8 * i)) & 0xff;
     if (!vec[byte].isVector) {
-      error(-1, "Invalid CID (%*x - %*x) in CMap",
+      error(-1, "Invalid CID (%0*x - %0*x) in CMap",
 	    2*nBytes, start, 2*nBytes, end);
       return;
     }
@@ -243,7 +267,7 @@ void CMap::addCIDs(Guint start, Guint end, Guint nBytes, CID firstCID) {
   cid = firstCID;
   for (byte = (int)(start & 0xff); byte <= (int)(end & 0xff); ++byte) {
     if (vec[byte].isVector) {
-      error(-1, "Invalid CID (%*x - %*x) in CMap",
+      error(-1, "Invalid CID (%0*x - %0*x) in CMap",
 	    2*nBytes, start, 2*nBytes, end);
     } else {
       vec[byte].cid = cid;
