@@ -1,5 +1,14 @@
 2005-09-16  Marco Pesenti Gritti  <mpg@redhat.com>
 
+	* poppler/PDFDoc.cc:
+	* poppler/PDFDoc.h:
+	* poppler/XRef.cc:
+	* poppler/XRef.h:
+
+	Merge more from 3.01
+
+2005-09-16  Marco Pesenti Gritti  <mpg@redhat.com>
+
 	* poppler/XRef.cc:
 
 	Merge some initialization that I lost before
