@@ -13,7 +13,12 @@
 // coordinates
 //------------------------------------------------------------------------
 
+#if USE_FIXEDPOINT
+#include "FixedPoint.h"
+typedef FixedPoint SplashCoord;
+#else
 typedef double SplashCoord;
+#endif
 
 //------------------------------------------------------------------------
 // colors

@@ -23,6 +23,10 @@ AC_DEFINE([OPI_SUPPORT], [1], [Generate OPI comments in PS output.])
 AC_DEFINE([MULTITHREADED], [1], [Enable multithreading support.])
 AC_DEFINE([TEXTOUT_WORD_LIST], [1], [Enable word list support.])
 
+AC_ARG_ENABLE(fixedpoint,
+[  --enable-fixedpoint     use fixed point (instead of floating point) arithmetic],
+AC_DEFINE(USE_FIXEDPOINT, [], [Use fixed point arithmetic]))
+
 dnl ##### Path to xpdfrc.
 dnl This ugly kludge to get the sysconfdir path is needed because
 dnl autoconf doesn't actually set the prefix variable until later.

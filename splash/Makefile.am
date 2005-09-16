@@ -1,5 +1,6 @@
 INCLUDES =					\
 	-I$(top_srcdir)				\
+	-I$(top_srcdir)/goo			\
 	$(FREETYPE_CFLAGS)
 
 noinst_LTLIBRARIES = libsplash.la

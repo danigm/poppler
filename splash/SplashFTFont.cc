@@ -116,10 +116,17 @@ SplashFTFont::SplashFTFont(SplashFTFontFile *fontFileA, SplashCoord *matA):
   }
 
   // compute the transform matrix
+#if USE_FIXEDPOINT
+  matrix.xx = (FT_Fixed)((mat[0] / size).getRaw());
+  matrix.yx = (FT_Fixed)((mat[1] / size).getRaw());
+  matrix.xy = (FT_Fixed)((mat[2] / size).getRaw());
+  matrix.yy = (FT_Fixed)((mat[3] / size).getRaw());
+#else
   matrix.xx = (FT_Fixed)((mat[0] / size) * 65536);
   matrix.yx = (FT_Fixed)((mat[1] / size) * 65536);
   matrix.xy = (FT_Fixed)((mat[2] / size) * 65536);
   matrix.yy = (FT_Fixed)((mat[3] / size) * 65536);
+#endif
 }
 
 SplashFTFont::~SplashFTFont() {

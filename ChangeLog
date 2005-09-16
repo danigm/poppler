@@ -1,5 +1,16 @@
 2005-09-16  Marco Pesenti Gritti  <mpg@redhat.com>
 
+	* configure.ac:
+	* goo/Makefile.am:
+	* splash/Makefile.am:
+	* splash/SplashFTFont.cc:
+	* splash/SplashMath.h:
+	* splash/SplashTypes.h:
+
+	Merge support for fixed point
+
+2005-09-16  Marco Pesenti Gritti  <mpg@redhat.com>
+
 	* poppler/ArthurOutputDev.cc:
 	* poppler/CairoFontEngine.cc:
 	* poppler/TextOutputDev.cc:
