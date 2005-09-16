@@ -1,5 +1,13 @@
 2005-09-16  Marco Pesenti Gritti  <mpg@redhat.com>
 
+	* poppler/SplashOutputDev.h:
+	* splash/Splash.cc:
+	* splash/Splash.h:
+
+	Modified region support from xpdf 3.01
+
+2005-09-16  Marco Pesenti Gritti  <mpg@redhat.com>
+
 	* goo/Makefile.am:
 	* poppler/DCTStream.h:
 	* poppler/Decrypt.cc:

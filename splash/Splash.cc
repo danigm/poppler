@@ -34,6 +34,7 @@
 Splash::Splash(SplashBitmap *bitmapA) {
   bitmap = bitmapA;
   state = new SplashState(bitmap->width, bitmap->height);
+  clearModRegion();
   debugMode = gFalse;
 }
 
@@ -178,6 +179,36 @@ SplashError Splash::restoreState() {
   state = state->next;
   delete oldState;
   return splashOk;
+}
+
+//------------------------------------------------------------------------
+//------------------------------------------------------------------------
+// modified region
+//------------------------------------------------------------------------
+
+void Splash::clearModRegion() {
+  modXMin = bitmap->getWidth();
+  modYMin = bitmap->getHeight();
+  modXMax = -1;
+  modYMax = -1;
+}
+
+inline void Splash::updateModX(int x) {
+  if (x < modXMin) {
+    modXMin = x;
+  }
+  if (x > modXMax) {
+    modXMax = x;
+  }
+}
+
+inline void Splash::updateModY(int y) {
+  if (y < modYMin) {
+    modYMin = y;
+  }
+  if (y > modYMax) {
+    modYMax = y;
+  }
 }
 
 //------------------------------------------------------------------------

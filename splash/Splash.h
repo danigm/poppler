@@ -148,11 +148,21 @@ public:
   // Return the associated bitmap.
   SplashBitmap *getBitmap() { return bitmap; }
 
+  // Get a bounding box which includes all modifications since the
+  // last call to clearModRegion.
+  void getModRegion(int *xMin, int *yMin, int *xMax, int *yMax)
+    { *xMin = modXMin; *yMin = modYMin; *xMax = modXMax; *yMax = modYMax; }
+
+  // Clear the modified region bounding box.
+  void clearModRegion();
+
   // Toggle debug mode on or off.
   void setDebugMode(GBool debugModeA) { debugMode = debugModeA; }
 
 private:
 
+  void updateModX(int x);
+  void updateModY(int y);
   void strokeNarrow(SplashXPath *xPath);
   void strokeWide(SplashXPath *xPath);
   SplashXPath *makeDashedPath(SplashXPath *xPath);
@@ -168,6 +178,7 @@ private:
 
   SplashBitmap *bitmap;
   SplashState *state;
+  int modXMin, modYMin, modXMax, modYMax;
   GBool debugMode;
 };
 

@@ -148,6 +148,11 @@ public:
   // is passed to Splash::setFillPattern, so it should not be used
   // after calling this function.
   void xorRectangle(int x0, int y0, int x1, int y1, SplashPattern *pattern);
+  // Get the modified region.
+  void getModRegion(int *xMin, int *yMin, int *xMax, int *yMax);
+
+  // Clear the modified region.
+  void clearModRegion();
 
   // Set the Splash fill color.
   void setFillColor(int r, int g, int b);
