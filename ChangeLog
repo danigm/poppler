@@ -1,4 +1,7 @@
 2005-09-16  Albert Astals Cid  <aacid@kde.org>
+	* splash/: Some merges from xpdf 3.01
+
+2005-09-16  Albert Astals Cid  <aacid@kde.org>
 	* configure.ac
 	* splash/SplashFTFontEngine.[cc|h]
 	* poppler/CairoFontEngine.[cc|h]: Merge the xpdf 3.01 change that uses
