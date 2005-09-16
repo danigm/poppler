@@ -15,7 +15,6 @@
 
 #include <stdio.h>
 #include "XRef.h"
-#include "Link.h"
 #include "Catalog.h"
 #include "Page.h"
 #include "Annot.h"
@@ -36,9 +35,9 @@ class PDFDoc {
 public:
 
   PDFDoc(GooString *fileNameA, GooString *ownerPassword = NULL,
-	 GooString *userPassword = NULL);
+	 GooString *userPassword = NULL, void *guiDataA = NULL);
   PDFDoc(BaseStream *strA, GooString *ownerPassword = NULL,
-	 GooString *userPassword = NULL);
+	 GooString *userPassword = NULL, void *guiDataA = NULL);
   ~PDFDoc();
 
   // Was PDF document successfully opened?
@@ -108,13 +107,9 @@ public:
   // not found.
   int findPage(int num, int gen) { return catalog->findPage(num, gen); }
 
-  // If point <x>,<y> is in a link, return the associated action;
-  // else return NULL.
-  LinkAction *findLink(double x, double y)
-    { return links ? links->find(x, y) : (LinkAction *)NULL; }
-
-  // Return true if <x>,<y> is in a link.
-  GBool onLink(double x, double y) { return links->onLink(x, y); }
+  // Returns the links for the current page, transferring ownership to
+  // the caller.
+  Links *takeLinks();
 
   // Find a named destination.  Returns the link destination, or
   // NULL if <name> is not a destination.
@@ -161,6 +156,9 @@ public:
   // Save this file with another name.
   GBool saveAs(GooString *name);
 
+  // Return a pointer to the GUI (XPDFCore or WinPDFCore object).
+  void *getGUIData() { return guiData; }
+
 private:
 
   GBool setup(GooString *ownerPassword, GooString *userPassword);
@@ -172,6 +170,7 @@ private:
   GooString *fileName;
   FILE *file;
   BaseStream *str;
+  void *guiData;
   double pdfVersion;
   XRef *xref;
   Catalog *catalog;

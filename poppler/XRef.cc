@@ -201,7 +201,7 @@ Object *ObjectStream::getObject(int objIdx, int objNum, Object *obj) {
 // XRef
 //------------------------------------------------------------------------
 
-XRef::XRef(BaseStream *strA, GooString *ownerPassword, GooString *userPassword) {
+XRef::XRef(BaseStream *strA) {
   Guint pos;
   Object obj;
 
@@ -212,6 +212,10 @@ XRef::XRef(BaseStream *strA, GooString *ownerPassword, GooString *userPassword) 
   streamEnds = NULL;
   streamEndsLen = 0;
   objStr = NULL;
+
+  encrypted = gFalse;
+  permFlags = defPermFlags;
+  ownerPasswordOk = gFalse;
 
   encrypted = gFalse;
   permFlags = defPermFlags;
@@ -466,6 +470,7 @@ GBool XRef::readXRefTable(Parser *parser, Guint *pos) {
     pos2 = (Guint)obj2.getInt();
     readXRef(&pos2);
     if (!ok) {
+      obj2.free();
       goto err1;
     }
   }
@@ -686,7 +691,7 @@ GBool XRef::constructXRef() {
       obj.initNull();
       parser = new Parser(NULL,
 		 new Lexer(NULL,
-		   str->makeSubStream(start + pos + 7, gFalse, 0, &obj)));
+		   str->makeSubStream(pos + 7, gFalse, 0, &obj)));
       parser->getObj(&newTrailerDict);
       if (newTrailerDict.isDict()) {
 	newTrailerDict.dictLookupNF("Root", &obj);
@@ -865,6 +870,10 @@ Object *XRef::fetch(int num, int gen, Object *obj) {
     if (!obj1.isInt() || obj1.getInt() != num ||
 	!obj2.isInt() || obj2.getInt() != gen ||
 	!obj3.isCmd("obj")) {
+      obj1.free();
+      obj2.free();
+      obj3.free();
+      delete parser;
       goto err;
     }
     parser->getObj(obj, encrypted ? fileKey : (Guchar *)NULL, keyLength,

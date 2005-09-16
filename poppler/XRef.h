@@ -41,7 +41,7 @@ class XRef {
 public:
 
   // Constructor.  Read xref table from stream.
-  XRef(BaseStream *strA, GooString *ownerPassword, GooString *userPassword);
+  XRef(BaseStream *strA);
 
   // Destructor.
   ~XRef();
@@ -56,6 +56,10 @@ public:
   void setEncryption(int permFlagsA, GBool ownerPasswordOkA,
 		     Guchar *fileKeyA, int keyLengthA,
 		     int encVersionA, int encRevisionA);
+
+  // Set the encryption parameters.
+  void setEncryption(int permFlagsA, GBool ownerPasswordOkA,
+		     Guchar *fileKeyA, int keyLengthA, int encVersionA);
 
   // Is the file encrypted?
   GBool isEncrypted() { return encrypted; }
@@ -129,7 +133,6 @@ private:
   GBool readXRefStreamSection(Stream *xrefStr, int *w, int first, int n);
   GBool readXRefStream(Stream *xrefStr, Guint *pos);
   GBool constructXRef();
-  GBool checkEncrypted(GooString *ownerPassword, GooString *userPassword);
   Guint strToUnsigned(char *s);
 };
 

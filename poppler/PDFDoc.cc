@@ -46,12 +46,14 @@
 //------------------------------------------------------------------------
 
 PDFDoc::PDFDoc(GooString *fileNameA, GooString *ownerPassword,
-	       GooString *userPassword) {
+	       GooString *userPassword, void *guiDataA) {
   Object obj;
   GooString *fileName1, *fileName2;
 
   ok = gFalse;
   errCode = errNone;
+
+  guiData = guiDataA;
 
   file = NULL;
   str = NULL;
@@ -99,9 +101,10 @@ PDFDoc::PDFDoc(GooString *fileNameA, GooString *ownerPassword,
 }
 
 PDFDoc::PDFDoc(BaseStream *strA, GooString *ownerPassword,
-	       GooString *userPassword) {
+	       GooString *userPassword, void *guiDataA) {
   ok = gFalse;
   errCode = errNone;
+  guiData = guiDataA;
   fileName = NULL;
   file = NULL;
   str = strA;
@@ -124,10 +127,16 @@ GBool PDFDoc::setup(GooString *ownerPassword, GooString *userPassword) {
   checkHeader();
 
   // read xref table
-  xref = new XRef(str, ownerPassword, userPassword);
+  xref = new XRef(str);
   if (!xref->isOk()) {
     error(-1, "Couldn't read xref table");
     errCode = xref->getErrorCode();
+    return gFalse;
+  }
+
+  // check for encryption
+  if (!checkEncryption(ownerPassword, userPassword)) {
+    errCode = errEncrypted;
     return gFalse;
   }
 
@@ -232,7 +241,10 @@ void PDFDoc::checkHeader() {
     return;
   }
   str->moveStart(i);
-  p = strtok(&hdrBuf[i+5], " \t\n\r");
+  if (!(p = strtok(&hdrBuf[i+5], " \t\n\r"))) {
+    error(-1, "May not be a PDF file (continuing anyway)");
+    return;
+  }
   {
     char *theLocale = setlocale(LC_NUMERIC, "C");
     pdfVersion = atof(p);
