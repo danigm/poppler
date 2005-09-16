@@ -1,5 +1,13 @@
 2005-09-16  Marco Pesenti Gritti  <mpg@redhat.com>
 
+	* poppler/NameToUnicodeTable.h:
+	* poppler/UnicodeTypeTable.cc:
+	* poppler/UnicodeTypeTable.h:
+
+	Merge some unicode table changes from xpdf 3.01
+
+2005-09-16  Marco Pesenti Gritti  <mpg@redhat.com>
+
 	* poppler/SplashOutputDev.h:
 	* splash/Splash.cc:
 	* splash/Splash.h:
