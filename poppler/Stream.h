@@ -17,9 +17,7 @@
 #include "goo/gtypes.h"
 #include "Object.h"
 
-#ifndef NO_DECRYPTION
 class Decrypt;
-#endif
 class BaseStream;
 
 //------------------------------------------------------------------------
@@ -145,17 +143,13 @@ public:
   virtual Guint getStart() = 0;
   virtual void moveStart(int delta) = 0;
 
-#ifndef NO_DECRYPTION
   // Set decryption for this stream.
   virtual void doDecryption(Guchar *fileKey, int keyLength,
 			    int objNum, int objGen);
-#endif
 
-#ifndef NO_DECRYPTION
 protected:
 
   Decrypt *decrypt;
-#endif
 
 private:
 
@@ -322,10 +316,8 @@ public:
   virtual void setPos(Guint pos, int dir = 0);
   virtual Guint getStart() { return start; }
   virtual void moveStart(int delta);
-#ifndef NO_DECRYPTION
   virtual void doDecryption(Guchar *fileKey, int keyLength,
 			    int objNum, int objGen);
-#endif
 
 private:
 

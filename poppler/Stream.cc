@@ -25,9 +25,7 @@
 #include "poppler-config.h"
 #include "Error.h"
 #include "Object.h"
-#ifndef NO_DECRYPTION
 #include "Decrypt.h"
-#endif
 #include "Stream.h"
 #include "JBIG2Stream.h"
 #include "JPXStream.h"
@@ -280,25 +278,19 @@ Stream *Stream::makeFilter(char *name, Stream *str, Object *params) {
 
 BaseStream::BaseStream(Object *dictA) {
   dict = *dictA;
-#ifndef NO_DECRYPTION
   decrypt = NULL;
-#endif
 }
 
 BaseStream::~BaseStream() {
   dict.free();
-#ifndef NO_DECRYPTION
   if (decrypt)
     delete decrypt;
-#endif
 }
 
-#ifndef NO_DECRYPTION
 void BaseStream::doDecryption(Guchar *fileKey, int keyLength,
 			      int objNum, int objGen) {
   decrypt = new Decrypt(fileKey, keyLength, objNum, objGen);
 }
-#endif
 
 //------------------------------------------------------------------------
 // FilterStream
@@ -604,10 +596,8 @@ void FileStream::reset() {
   saved = gTrue;
   bufPtr = bufEnd = buf;
   bufPos = start;
-#ifndef NO_DECRYPTION
   if (decrypt)
     decrypt->reset();
-#endif
 }
 
 void FileStream::close() {
@@ -625,9 +615,7 @@ void FileStream::close() {
 
 GBool FileStream::fillBuf() {
   int n;
-#ifndef NO_DECRYPTION
   char *p;
-#endif
 
   bufPos += bufEnd - buf;
   bufPtr = bufEnd = buf;
@@ -644,13 +632,11 @@ GBool FileStream::fillBuf() {
   if (bufPtr >= bufEnd) {
     return gFalse;
   }
-#ifndef NO_DECRYPTION
   if (decrypt) {
     for (p = buf; p < bufEnd; ++p) {
       *p = (char)decrypt->decryptByte((Guchar)*p);
     }
   }
-#endif
   return gTrue;
 }
 
@@ -739,11 +725,9 @@ Stream *MemStream::makeSubStream(Guint startA, GBool limited,
 
 void MemStream::reset() {
   bufPtr = buf + start;
-#ifndef NO_DECRYPTION
   if (decrypt) {
     decrypt->reset();
   }
-#endif
 }
 
 void MemStream::close() {
@@ -770,7 +754,6 @@ void MemStream::moveStart(int delta) {
   bufPtr = buf + start;
 }
 
-#ifndef NO_DECRYPTION
 void MemStream::doDecryption(Guchar *fileKey, int keyLength,
 			     int objNum, int objGen) {
   char *newBuf;
@@ -789,7 +772,6 @@ void MemStream::doDecryption(Guchar *fileKey, int keyLength,
     needFree = gTrue;
   }
 }
-#endif
 
 //------------------------------------------------------------------------
 // EmbedStream

@@ -41,8 +41,6 @@
 
 // Also, there's a couple of preprocessor symbols in the header files
 // that are used but never defined: DISABLE_OUTLINE, DEBUG_MEM and
-// NO_DECRYPTION.  We might want to explicitly #undef these to make
-// sure we don't get spurious API or ABI incompatibilities.
 
 //------------------------------------------------------------------------
 // version

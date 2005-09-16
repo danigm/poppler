@@ -22,9 +22,7 @@
 #include "Lexer.h"
 #include "Parser.h"
 #include "Dict.h"
-#ifndef NO_DECRYPTION
 #include "Decrypt.h"
-#endif
 #include "Error.h"
 #include "ErrorCodes.h"
 #include "XRef.h"
@@ -34,7 +32,6 @@
 #define xrefSearchSize 1024	// read this many bytes at end of file
 				//   to look for 'startxref'
 
-#ifndef NO_DECRYPTION
 //------------------------------------------------------------------------
 // Permission bits
 // Note that the PDF spec uses 1 base (eg bit 3 is 1<<2)
@@ -49,7 +46,6 @@
 #define permAssemble      (1<<10) // bit 11
 #define permHighResPrint  (1<<11) // bit 12
 #define defPermFlags 0xfffc
-#endif
 
 //------------------------------------------------------------------------
 // ObjectStream
@@ -263,9 +259,7 @@ XRef::XRef(BaseStream *strA, GooString *ownerPassword, GooString *userPassword) 
   trailerDict.getDict()->setXRef(this);
 
   // check for encryption
-#ifndef NO_DECRYPTION
   encrypted = gFalse;
-#endif
   if (checkEncrypted(ownerPassword, userPassword)) {
     ok = gFalse;
     errCode = errEncrypted;
@@ -786,129 +780,34 @@ GBool XRef::constructXRef() {
   return gFalse;
 }
 
-#ifndef NO_DECRYPTION
-GBool XRef::checkEncrypted(GooString *ownerPassword, GooString *userPassword) {
-  Object encrypt, filterObj, versionObj, revisionObj, lengthObj;
-  Object ownerKey, userKey, permissions, fileID, fileID1;
-  GBool encrypted1;
-  GBool ret;
+void XRef::setEncryption(int permFlagsA, GBool ownerPasswordOkA,
+			 Guchar *fileKeyA, int keyLengthA,
+			 int encVersionA, int encRevisionA) {
+  int i;
 
-  keyLength = 0;
-  encVersion = encRevision = 0;
-  ret = gFalse;
-
-  permFlags = defPermFlags;
-  ownerPasswordOk = gFalse;
-  trailerDict.dictLookup("Encrypt", &encrypt);
-  if ((encrypted1 = encrypt.isDict())) {
-    ret = gTrue;
-    encrypt.dictLookup("Filter", &filterObj);
-    if (filterObj.isName("Standard")) {
-      encrypt.dictLookup("V", &versionObj);
-      encrypt.dictLookup("R", &revisionObj);
-      encrypt.dictLookup("Length", &lengthObj);
-      encrypt.dictLookup("O", &ownerKey);
-      encrypt.dictLookup("U", &userKey);
-      encrypt.dictLookup("P", &permissions);
-      trailerDict.dictLookup("ID", &fileID);
-      if (versionObj.isInt() &&
-	  revisionObj.isInt() &&
-	  ownerKey.isString() && ownerKey.getString()->getLength() == 32 &&
-	  userKey.isString() && userKey.getString()->getLength() == 32 &&
-	  permissions.isInt() &&
-	  fileID.isArray()) {
-	encVersion = versionObj.getInt();
-	encRevision = revisionObj.getInt();
-	if (lengthObj.isInt()) {
-	  keyLength = lengthObj.getInt() / 8;
-	} else {
-	  keyLength = 5;
-	}
-	if (keyLength > 16) {
-	  keyLength = 16;
-	}
-	/* special case for revision 2. 
-	 * See Algorithm 3.2 step 9 from PDF Reference, fifth edition.*/
-	if (encRevision == 2) {
-	  keyLength = 5;
-	}
-
-	permFlags = permissions.getInt();
-	if (encVersion >= 1 && encVersion <= 2 &&
-	    encRevision >= 2 && encRevision <= 3) {
-	  fileID.arrayGet(0, &fileID1);
-	  if (fileID1.isString()) {
-	    if (Decrypt::makeFileKey(encVersion, encRevision, keyLength,
-				     ownerKey.getString(), userKey.getString(),
-				     permFlags, fileID1.getString(),
-				     ownerPassword, userPassword, fileKey,
-				     &ownerPasswordOk)) {
-	      if (ownerPassword && !ownerPasswordOk) {
-		error(-1, "Incorrect owner password");
-	      }
-	      ret = gFalse;
-	    } else {
-	      error(-1, "Incorrect password");
-	    }
-	  } else {
-	    error(-1, "Weird encryption info");
-	  }
-	  fileID1.free();
-	} else {
-	  error(-1, "Unsupported version/revision (%d/%d) of Standard security handler",
-		encVersion, encRevision);
-	}
-      } else {
-	error(-1, "Weird encryption info");
-      }
-      fileID.free();
-      permissions.free();
-      userKey.free();
-      ownerKey.free();
-      lengthObj.free();
-      revisionObj.free();
-      versionObj.free();
-    } else {
-      error(-1, "Unknown security handler '%s'",
-	    filterObj.isName() ? filterObj.getName() : "???");
-    }
-    filterObj.free();
+  encrypted = gTrue;
+  permFlags = permFlagsA;
+  ownerPasswordOk = ownerPasswordOkA;
+  if (keyLengthA <= 16) {
+    keyLength = keyLengthA;
+  } else {
+    keyLength = 16;
   }
-  encrypt.free();
-
-  // this flag has to be set *after* we read the O/U/P strings
-  encrypted = encrypted1;
-
-  return ret;
-}
-#else
-GBool XRef::checkEncrypted(GooString *ownerPassword, GooString *userPassword) {
-  Object obj;
-  GBool encrypted;
-
-  trailerDict.dictLookup("Encrypt", &obj);
-  if ((encrypted = !obj.isNull())) {
-    error(-1, "PDF file is encrypted and this version of the Xpdf tools");
-    error(-1, "was built without decryption support.");
+  for (i = 0; i < keyLength; ++i) {
+    fileKey[i] = fileKeyA[i];
   }
-  obj.free();
-  return encrypted;
+  encVersion = encVersionA;
+  encRevision = encRevisionA;
 }
-#endif
 
 GBool XRef::okToPrint(GBool ignoreOwnerPW) {
-#ifndef NO_DECRYPTION
   return (!ignoreOwnerPW && ownerPasswordOk) || (permFlags & permPrint);
-#else
-  return gTrue;
-#endif
 }
 
 // we can print at high res if we are only doing security handler revision
 // 2 (and we are allowed to print at all), or with security handler rev
 // 3 and we are allowed to print, and bit 12 is set.
 GBool XRef::okToPrintHighRes(GBool ignoreOwnerPW) {
-#ifndef NO_DECRYPTION
   if (2 == encRevision) {
     return (okToPrint(ignoreOwnerPW));
   } else if (encRevision >= 3) {
@@ -917,57 +816,30 @@ GBool XRef::okToPrintHighRes(GBool ignoreOwnerPW) {
     // something weird - unknown security handler version
     return gFalse;
   }
-#else
-  return gTrue;
-#endif
 }
 
 GBool XRef::okToChange(GBool ignoreOwnerPW) {
-#ifndef NO_DECRYPTION
   return (!ignoreOwnerPW && ownerPasswordOk) || (permFlags & permChange);
-#else
-  return gTrue;
-#endif
 }
 
 GBool XRef::okToCopy(GBool ignoreOwnerPW) {
-#ifndef NO_DECRYPTION
   return (!ignoreOwnerPW && ownerPasswordOk) || (permFlags & permCopy);
-#else
-  return gTrue;
-#endif
 }
 
 GBool XRef::okToAddNotes(GBool ignoreOwnerPW) {
-#ifndef NO_DECRYPTION
   return (!ignoreOwnerPW && ownerPasswordOk) || (permFlags & permNotes);
-#else
-  return gTrue;
-#endif
 }
 
 GBool XRef::okToFillForm(GBool ignoreOwnerPW) {
-#ifndef NO_DECRYPTION
   return (!ignoreOwnerPW && ownerPasswordOk) || (permFlags & permFillForm);
-#else
-  return gTrue;
-#endif
 }
 
 GBool XRef::okToAccessibility(GBool ignoreOwnerPW) {
-#ifndef NO_DECRYPTION
   return (!ignoreOwnerPW && ownerPasswordOk) || (permFlags & permAccessibility);
-#else
-  return gTrue;
-#endif
 }
 
 GBool XRef::okToAssemble(GBool ignoreOwnerPW) {
-#ifndef NO_DECRYPTION
   return (!ignoreOwnerPW && ownerPasswordOk) || (permFlags & permAssemble);
-#else
-  return gTrue;
-#endif
 }
 
 Object *XRef::fetch(int num, int gen, Object *obj) {
@@ -999,12 +871,8 @@ Object *XRef::fetch(int num, int gen, Object *obj) {
 	!obj3.isCmd("obj")) {
       goto err;
     }
-#ifndef NO_DECRYPTION
     parser->getObj(obj, encrypted ? fileKey : (Guchar *)NULL, keyLength,
 		   num, gen);
-#else
-    parser->getObj(obj);
-#endif
     obj1.free();
     obj2.free();
     obj3.free();

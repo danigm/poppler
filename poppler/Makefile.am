@@ -74,6 +74,7 @@ endif
 
 INCLUDES =					\
 	-I$(top_srcdir)				\
+	-I$(top_srcdir)/goo			\
 	$(splash_includes)			\
 	$(cairo_includes)			\
 	$(arthur_includes)			\
@@ -142,6 +143,7 @@ poppler_include_HEADERS =	\
 	NameToUnicodeTable.h	\
 	PSOutputDev.h		\
 	TextOutputDev.h		\
+	SecurityHandler.h	\
 	UTF8.h			\
 	poppler-config.h
 
@@ -190,4 +192,5 @@ libpoppler_la_SOURCES =		\
 	PSOutputDev.cc		\
 	TextOutputDev.cc	\
 	PageLabelInfo.h		\
-	PageLabelInfo.cc	
+	PageLabelInfo.cc	\
+	SecurityHandler.cc

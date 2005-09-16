@@ -32,9 +32,7 @@
 #include "poppler-config.h"
 #include "Error.h"
 #include "Object.h"
-#ifndef NO_DECRYPTION
 #include "Decrypt.h"
-#endif
 #include "Stream.h"
 
 extern "C" {

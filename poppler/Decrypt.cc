@@ -66,7 +66,8 @@ GBool Decrypt::makeFileKey(int encVersion, int encRevision, int keyLength,
 			   GooString *ownerKey, GooString *userKey,
 			   int permissions, GooString *fileID,
 			   GooString *ownerPassword, GooString *userPassword,
-			   Guchar *fileKey, GBool *ownerPasswordOk) {
+			   Guchar *fileKey, GBool encryptMetadata,
+			   GBool *ownerPasswordOk) {
   Guchar test[32], test2[32];
   GooString *userPassword2;
   Guchar fState[256];
@@ -111,7 +112,8 @@ GBool Decrypt::makeFileKey(int encVersion, int encRevision, int keyLength,
     }
     userPassword2 = new GooString((char *)test2, 32);
     if (makeFileKey2(encVersion, encRevision, keyLength, ownerKey, userKey,
-		     permissions, fileID, userPassword2, fileKey)) {
+		     permissions, fileID, userPassword2, fileKey,
+		     encryptMetadata)) {
       *ownerPasswordOk = gTrue;
       delete userPassword2;
       return gTrue;
@@ -121,13 +123,15 @@ GBool Decrypt::makeFileKey(int encVersion, int encRevision, int keyLength,
 
   // try using the supplied user password
   return makeFileKey2(encVersion, encRevision, keyLength, ownerKey, userKey,
-		      permissions, fileID, userPassword, fileKey);
+		      permissions, fileID, userPassword, fileKey,
+		      encryptMetadata);
 }
 
 GBool Decrypt::makeFileKey2(int encVersion, int encRevision, int keyLength,
 			    GooString *ownerKey, GooString *userKey,
 			    int permissions, GooString *fileID,
-			    GooString *userPassword, Guchar *fileKey) {
+			    GooString *userPassword, Guchar *fileKey,
+			    GBool encryptMetadata) {
   Guchar *buf;
   Guchar test[32];
   Guchar fState[256];
@@ -137,7 +141,7 @@ GBool Decrypt::makeFileKey2(int encVersion, int encRevision, int keyLength,
   GBool ok;
 
   // generate file key
-  buf = (Guchar *)gmalloc(68 + fileID->getLength());
+  buf = (Guchar *)gmalloc(72 + fileID->getLength());
   if (userPassword) {
     len = userPassword->getLength();
     if (len < 32) {
@@ -155,7 +159,14 @@ GBool Decrypt::makeFileKey2(int encVersion, int encRevision, int keyLength,
   buf[66] = (permissions >> 16) & 0xff;
   buf[67] = (permissions >> 24) & 0xff;
   memcpy(buf + 68, fileID->getCString(), fileID->getLength());
-  md5(buf, 68 + fileID->getLength(), fileKey);
+  len = 68 + fileID->getLength();
+  if (!encryptMetadata) {
+    buf[len++] = 0xff;
+    buf[len++] = 0xff;
+    buf[len++] = 0xff;
+    buf[len++] = 0xff;
+  }
+  md5(buf, len, fileKey);
   if (encRevision == 3) {
     for (i = 0; i < 50; ++i) {
       md5(fileKey, keyLength, fileKey);

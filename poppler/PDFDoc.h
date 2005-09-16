@@ -166,6 +166,7 @@ private:
   GBool setup(GooString *ownerPassword, GooString *userPassword);
   GBool checkFooter();
   void checkHeader();
+  GBool checkEncryption(GooString *ownerPassword, GooString *userPassword);
   void getLinks(Page *page);
 
   GooString *fileName;

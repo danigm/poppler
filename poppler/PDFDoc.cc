@@ -30,6 +30,7 @@
 #include "ErrorCodes.h"
 #include "Lexer.h"
 #include "Parser.h"
+#include "SecurityHandler.h"
 #ifndef DISABLE_OUTLINE
 #include "Outline.h"
 #endif
@@ -242,6 +243,41 @@ void PDFDoc::checkHeader() {
     error(-1, "PDF version %s -- xpdf supports version %s"
 	  " (continuing anyway)", p, supportedPDFVersionStr);
   }
+}
+
+GBool PDFDoc::checkEncryption(GooString *ownerPassword, GooString *userPassword) {
+  Object encrypt;
+  GBool encrypted;
+  SecurityHandler *secHdlr;
+  GBool ret;
+
+  xref->getTrailerDict()->dictLookup("Encrypt", &encrypt);
+  if ((encrypted = encrypt.isDict())) {
+    if ((secHdlr = SecurityHandler::make(this, &encrypt))) {
+      if (secHdlr->checkEncryption(ownerPassword, userPassword)) {
+	// authorization succeeded
+       	xref->setEncryption(secHdlr->getPermissionFlags(),
+			    secHdlr->getOwnerPasswordOk(),
+			    secHdlr->getFileKey(),
+			    secHdlr->getFileKeyLength(),
+			    secHdlr->getEncVersion(),
+			    secHdlr->getEncRevision());
+	ret = gTrue;
+      } else {
+	// authorization failed
+	ret = gFalse;
+      }
+      delete secHdlr;
+    } else {
+      // couldn't find the matching security handler
+      ret = gFalse;
+    }
+  } else {
+    // document is not encrypted
+    ret = gTrue;
+  }
+  encrypt.free();
+  return ret;
 }
 
 void PDFDoc::displayPage(OutputDev *out, int page, double hDPI, double vDPI,

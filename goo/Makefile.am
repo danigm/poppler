@@ -10,7 +10,8 @@ poppler_goo_include_HEADERS =			\
 	gmem.h					\
 	gtypes.h				\
 	gmem.h					\
-	gfile.h
+	gfile.h					\
+	FixedPoint.h
 
 libgoo_la_SOURCES =				\
 	gfile.cc				\
@@ -19,4 +20,5 @@ libgoo_la_SOURCES =				\
 	GooList.cc				\
 	GooTimer.cc				\
 	GooString.cc				\
-	gmem.c
+	gmem.c					\
+	FixedPoint.cc

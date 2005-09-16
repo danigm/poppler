@@ -33,6 +33,7 @@ class UnicodeMap;
 class UnicodeMapCache;
 class CMap;
 class CMapCache;
+struct XpdfSecurityHandler;
 class GlobalParams;
 class GfxFont;
 
@@ -165,6 +166,9 @@ public:
   UnicodeMap *getUnicodeMap(GooString *encodingName);
   CMap *getCMap(GooString *collection, GooString *cMapName);
   UnicodeMap *getTextEncoding();
+#ifdef ENABLE_PLUGINS
+  GBool loadPlugin(char *type, char *name);
+#endif
 
   //----- functions to set parameters
 
@@ -197,6 +201,11 @@ public:
   void setPrintCommands(GBool printCommandsA);
   void setProfileCommands(GBool profileCommandsA);
   void setErrQuiet(GBool errQuietA);
+
+  //----- security handlers
+
+  void addSecurityHandler(XpdfSecurityHandler *handler);
+  XpdfSecurityHandler *getSecurityHandler(char *name);
 
 private:
 
@@ -232,6 +241,7 @@ private:
 
   //----- user-modifiable settings
 
+  GooString *baseDir;		// base directory - for plugins, etc.
   NameToCharCode *		// mapping from char name to Unicode
     nameToUnicode;
   GooHash *cidToUnicodes;		// files for mappings from char collections
@@ -295,6 +305,12 @@ private:
   CMapCache *cMapCache;
   
   FcConfig *FCcfg;
+
+#ifdef ENABLE_PLUGINS
+  GList *plugins;		// list of plugins [Plugin]
+  GList *securityHandlers;	// list of loaded security handlers
+				//   [XpdfSecurityHandler]
+#endif
 
 #if MULTITHREADED
   GooMutex mutex;
