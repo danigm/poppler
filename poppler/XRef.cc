@@ -257,14 +257,6 @@ XRef::XRef(BaseStream *strA, GooString *ownerPassword, GooString *userPassword) 
   // now set the trailer dictionary's xref pointer so we can fetch
   // indirect objects from it
   trailerDict.getDict()->setXRef(this);
-
-  // check for encryption
-  encrypted = gFalse;
-  if (checkEncrypted(ownerPassword, userPassword)) {
-    ok = gFalse;
-    errCode = errEncrypted;
-    return;
-  }
 }
 
 XRef::~XRef() {
