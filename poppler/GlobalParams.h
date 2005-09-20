@@ -49,6 +49,14 @@ enum DisplayFontParamKind {
   displayFontTT
 };
 
+struct DisplayFontParamT1 {
+  GooString *fileName;
+};
+
+struct DisplayFontParamTT {
+  GooString *fileName;
+};
+
 class DisplayFontParam {
 public:
 
@@ -57,12 +65,8 @@ public:
 				//   generic CID fonts
   DisplayFontParamKind kind;
   union {
-    struct {
-      GooString *fileName;
-    } t1;
-    struct {
-      GooString *fileName;
-    } tt;
+    DisplayFontParamT1 t1;
+    DisplayFontParamTT tt;
   };
 
   DisplayFontParam(GooString *nameA, DisplayFontParamKind kindA);
@@ -117,10 +121,13 @@ public:
 
   ~GlobalParams();
 
+  void setBaseDir(char *dir);
+
   //----- accessors
 
   CharCode getMacRomanCharCode(char *charName);
 
+  GooString *getBaseDir();
   Unicode mapNameToUnicode(char *charName);
   UnicodeMap *getResidentUnicodeMap(GooString *encodingName);
   FILE *getUnicodeMapFile(GooString *encodingName);
@@ -151,6 +158,7 @@ public:
   GBool getTextKeepTinyChars();
   GooString *findFontFile(GooString *fontName, char **exts);
   GooString *getInitialZoom();
+  GBool getContinuousView();
   GBool getEnableT1lib();
   GBool getEnableFreeType();
   GBool getAntialias();
@@ -194,6 +202,7 @@ public:
   void setTextPageBreaks(GBool pageBreaks);
   void setTextKeepTinyChars(GBool keep);
   void setInitialZoom(char *s);
+  void setContinuousView(GBool cont);
   GBool setEnableT1lib(char *s);
   GBool setEnableFreeType(char *s);
   GBool setAntialias(char *s);
@@ -289,6 +298,7 @@ private:
   GBool textKeepTinyChars;	// keep all characters in text output
   GooList *fontDirs;		// list of font dirs [GooString]
   GooString *initialZoom;		// initial zoom level
+  GBool continuousView;		// continuous view mode
   GBool enableT1lib;		// t1lib enable flag
   GBool enableFreeType;		// FreeType enable flag
   GBool antialias;		// anti-aliasing enable flag

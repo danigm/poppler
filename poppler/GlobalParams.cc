@@ -310,6 +310,12 @@ GlobalParams::GlobalParams(char *cfgFileName) {
     }
   }
 
+#ifdef WIN32
+  // baseDir will be set by a call to setBaseDir
+  baseDir = new GooString();
+#else
+  baseDir = appendToPath(getHomeDir(), ".xpdf");
+#endif
   nameToUnicode = new NameToCharCode();
   cidToUnicodes = new GooHash(gTrue);
   unicodeToUnicodes = new GooHash(gTrue);
@@ -367,6 +373,7 @@ GlobalParams::GlobalParams(char *cfgFileName) {
   textKeepTinyChars = gFalse;
   fontDirs = new GooList();
   initialZoom = new GooString("125");
+  continuousView = gFalse;
   enableT1lib = gTrue;
   enableFreeType = gTrue;
   antialias = gTrue;
@@ -575,6 +582,8 @@ void GlobalParams::parseFile(GooString *fileName, FILE *f) {
 	parseFontDir(tokens, fileName, line);
       } else if (!cmd->cmp("initialZoom")) {
 	parseInitialZoom(tokens, fileName, line);
+      } else if (!cmd->cmp("continuousView")) {
+	parseYesNo("continuousView", &continuousView, tokens, fileName, line);
       } else if (!cmd->cmp("enableT1lib")) {
 	parseYesNo("enableT1lib", &enableT1lib, tokens, fileName, line);
       } else if (!cmd->cmp("enableFreeType")) {
@@ -946,6 +955,7 @@ GlobalParams::~GlobalParams() {
 
   delete macRomanReverseMap;
 
+  delete baseDir;
   delete nameToUnicode;
   deleteGooHash(cidToUnicodes, GooString);
   deleteGooHash(unicodeToUnicodes, GooString);
@@ -993,12 +1003,28 @@ GlobalParams::~GlobalParams() {
 }
 
 //------------------------------------------------------------------------
+
+void GlobalParams::setBaseDir(char *dir) {
+  delete baseDir;
+  baseDir = new GooString(dir);
+}
+
+//------------------------------------------------------------------------
 // accessors
 //------------------------------------------------------------------------
 
 CharCode GlobalParams::getMacRomanCharCode(char *charName) {
   // no need to lock - macRomanReverseMap is constant
   return macRomanReverseMap->lookup(charName);
+}
+
+GooString *GlobalParams::getBaseDir() {
+  GooString *s;
+
+  lockGlobalParams;
+  s = baseDir->copy();
+  unlockGlobalParams;
+  return s;
 }
 
 Unicode GlobalParams::mapNameToUnicode(char *charName) {
@@ -1545,6 +1571,15 @@ GooString *GlobalParams::getInitialZoom() {
   return s;
 }
 
+GBool GlobalParams::getContinuousView() {
+  GBool f;
+
+  lockGlobalParams;
+  f = continuousView;
+  unlockGlobalParams;
+  return f;
+}
+
 GBool GlobalParams::getEnableT1lib() {
   GBool f;
 
@@ -1856,6 +1891,12 @@ void GlobalParams::setInitialZoom(char *s) {
   lockGlobalParams;
   delete initialZoom;
   initialZoom = new GooString(s);
+  unlockGlobalParams;
+}
+
+void GlobalParams::setContinuousView(GBool cont) {
+  lockGlobalParams;
+  continuousView = cont;
   unlockGlobalParams;
 }
 

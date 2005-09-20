@@ -57,10 +57,6 @@ public:
 		     Guchar *fileKeyA, int keyLengthA,
 		     int encVersionA, int encRevisionA);
 
-  // Set the encryption parameters.
-  void setEncryption(int permFlagsA, GBool ownerPasswordOkA,
-		     Guchar *fileKeyA, int keyLengthA, int encVersionA);
-
   // Is the file encrypted?
   GBool isEncrypted() { return encrypted; }
 
