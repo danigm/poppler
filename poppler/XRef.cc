@@ -22,7 +22,6 @@
 #include "Lexer.h"
 #include "Parser.h"
 #include "Dict.h"
-#include "Decrypt.h"
 #include "Error.h"
 #include "ErrorCodes.h"
 #include "XRef.h"
