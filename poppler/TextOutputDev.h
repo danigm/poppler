@@ -603,6 +603,10 @@ public:
   TextWordList *makeWordList();
 #endif
 
+  // Returns the TextPage object for the last rasterized page,
+  // transferring ownership to the caller.
+  TextPage *takeText();
+
 private:
 
   TextOutputFunc outputFunc;	// output function

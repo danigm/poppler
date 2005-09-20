@@ -4125,3 +4125,11 @@ TextWordList *TextOutputDev::makeWordList() {
   return text->makeWordList(physLayout);
 }
 #endif
+
+TextPage *TextOutputDev::takeText() {
+  TextPage *ret;
+
+  ret = text;
+  text = new TextPage(rawOrder);
+  return ret;
+}
