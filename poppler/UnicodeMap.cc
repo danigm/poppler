@@ -69,7 +69,7 @@ UnicodeMap *UnicodeMap::parse(GooString *encodingNameA) {
 	if (map->len == size) {
 	  size *= 2;
 	  map->ranges = (UnicodeMapRange *)
-	    grealloc(map->ranges, size * sizeof(UnicodeMapRange));
+	    greallocn(map->ranges, size, sizeof(UnicodeMapRange));
 	}
 	range = &map->ranges[map->len];
 	sscanf(tok1, "%x", &range->start);
@@ -81,7 +81,7 @@ UnicodeMap *UnicodeMap::parse(GooString *encodingNameA) {
 	if (map->eMapsLen == eMapsSize) {
 	  eMapsSize += 16;
 	  map->eMaps = (UnicodeMapExt *)
-	    grealloc(map->eMaps, eMapsSize * sizeof(UnicodeMapExt));
+	    greallocn(map->eMaps, eMapsSize, sizeof(UnicodeMapExt));
 	}
 	eMap = &map->eMaps[map->eMapsLen];
 	sscanf(tok1, "%x", &eMap->u);

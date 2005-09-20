@@ -1,6 +1,8 @@
 2005-09-20  Albert Astals Cid  <aacid@kde.org>
 	* poppler/GlobalParams.[cc|h]: Merge from xpdf 3.01
 	* poppler/Link.cc: Merge from xpdf 3.01
+	* poppler/UnicodeMap.cc: More grealloc -> greallocn
+	* poppler/UnicodeTypeTable.cc: Merge from xpdf 3.01
 
 2005-09-20  Marco Pesenti Gritti  <mpg@redhat.com>
 
