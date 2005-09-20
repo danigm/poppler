@@ -1,3 +1,13 @@
+2005-09-20  Marco Pesenti Gritti  <mpg@redhat.com>
+
+	* poppler/Makefile.am:
+
+	Add XPDFPlugin*. Thanks to TSDgeos that noticed this.
+
+	* poppler/XpdfPluginAPI.cc:
+
+	Fixup
+
 2005-09-16  Marco Pesenti Gritti  <mpg@redhat.com>
 
 	* poppler/PDFDoc.cc:

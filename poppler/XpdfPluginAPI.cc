@@ -6,7 +6,7 @@
 //
 //========================================================================
 
-#include "aconf.h"
+#include "config.h"
 
 #ifdef ENABLE_PLUGINS
 
