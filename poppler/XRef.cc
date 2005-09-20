@@ -217,10 +217,6 @@ XRef::XRef(BaseStream *strA) {
   permFlags = defPermFlags;
   ownerPasswordOk = gFalse;
 
-  encrypted = gFalse;
-  permFlags = defPermFlags;
-  ownerPasswordOk = gFalse;
-
   // read the trailer
   str = strA;
   start = str->getStart();
