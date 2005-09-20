@@ -1,5 +1,11 @@
 2005-09-20  Marco Pesenti Gritti  <mpg@redhat.com>
 
+	* poppler/GlobalParams.cc:
+
+	s/G/Goo in not yet compiled plugins code 
+
+2005-09-20  Marco Pesenti Gritti  <mpg@redhat.com>
+
 	* poppler/Makefile.am:
 
 	Add XPDFPlugin*. Thanks to TSDgeos that noticed this.

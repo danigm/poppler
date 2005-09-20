@@ -161,7 +161,7 @@ private:
 };
 
 Plugin *Plugin::load(char *type, char *name) {
-  GString *path;
+  GooString *path;
   Plugin *plugin;
   XpdfPluginVecTable *vt;
   XpdfBool (*xpdfInitPlugin)(void);
@@ -384,8 +384,8 @@ GlobalParams::GlobalParams(char *cfgFileName) {
   cMapCache = new CMapCache();
 
 #ifdef ENABLE_PLUGINS
-  plugins = new GList();
-  securityHandlers = new GList();
+  plugins = new GooList();
+  securityHandlers = new GooList();
 #endif
 
   // set up the initial nameToUnicode table
@@ -982,7 +982,7 @@ GlobalParams::~GlobalParams() {
 
 #ifdef ENABLE_PLUGINS
   delete securityHandlers;
-  deleteGList(plugins, Plugin);
+  deleteGooList(plugins, Plugin);
 #endif
 
 #if MULTITHREADED
