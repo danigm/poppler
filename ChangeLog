@@ -1,3 +1,10 @@
+2005-09-26  Marco Pesenti Gritti  <mpg@redhat.com>
+
+	* glib/poppler-action.cc:
+	* glib/poppler-action.h:
+
+	Implement launch action
+
 2005-09-20  Albert Astals Cid  <aacid@kde.org>
 	* poppler/GlobalParams.[cc|h]: Merge from xpdf 3.01
 	* poppler/Link.cc: Merge from xpdf 3.01

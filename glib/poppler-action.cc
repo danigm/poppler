@@ -209,9 +209,14 @@ build_goto_remote (PopplerAction *action,
 
 static void
 build_launch (PopplerAction *action,
-	      LinkAction    *link)
+	      LinkLaunch    *link)
 {
-	/* FIXME: Write */
+	if (link->getFileName()) {
+		action->launch.file_name = link->getFileName()->getCString ();
+	}
+	if (link->getParams()) {
+		action->launch.file_name = link->getParams()->getCString ();
+	}
 }
 
 static void
@@ -264,7 +269,7 @@ _poppler_action_new (PopplerDocument *document,
 		break;
 	case actionLaunch:
 		action->type = POPPLER_ACTION_LAUNCH;
-		build_launch (action, link);
+		build_launch (action, dynamic_cast <LinkLaunch *> (link));
 		break;
 	case actionURI:
 		action->type = POPPLER_ACTION_URI;

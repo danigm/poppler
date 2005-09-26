@@ -105,6 +105,7 @@ struct _PopplerActionLaunch
 	gchar *title;
 
 	gchar *file_name;
+	gchar *params;
 };
 
 struct _PopplerActionUri
