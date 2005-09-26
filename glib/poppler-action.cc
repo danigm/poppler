@@ -253,6 +253,9 @@ _poppler_action_new (PopplerDocument *document,
 
 	action = g_new0 (PopplerAction, 1);
 
+	if (title)
+		action->any.title = g_strdup (title);
+
 	if (link == NULL) {
 		action->type = POPPLER_ACTION_UNKNOWN;
 		return action;
@@ -289,7 +292,5 @@ _poppler_action_new (PopplerDocument *document,
 		break;
 	}
 
-	if (title)
-		action->any.title = g_strdup (title);
 	return action;
 }

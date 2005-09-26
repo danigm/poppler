@@ -1,6 +1,12 @@
 2005-09-26  Marco Pesenti Gritti  <mpg@redhat.com>
 
 	* glib/poppler-action.cc:
+
+	Initialize window title even if the action is unknown
+
+2005-09-26  Marco Pesenti Gritti  <mpg@redhat.com>
+
+	* glib/poppler-action.cc:
 	* glib/poppler-action.h:
 
 	Implement launch action
