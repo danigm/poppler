@@ -1,3 +1,8 @@
+2005-10-05  Kristian Høgsberg  <krh@redhat.com>
+
+	* glib/poppler-page.cc (poppler_page_render_to_ps): Fix another
+	off-by-one page number error (#4555).
+
 2005-09-26  Marco Pesenti Gritti  <mpg@redhat.com>
 
 	* glib/poppler-action.cc:
