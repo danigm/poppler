@@ -1,3 +1,7 @@
+2005-09-20  Albert Astals Cid  <aacid@kde.org>
+	* splash/SplashXPathScanner.cc: Merge from xpdf 3.01
+	* splash/SplashScreen.[cc|h]: Merge from xpdf 3.01
+	
 2005-10-05  Kristian Høgsberg  <krh@redhat.com>
 
 	* glib/poppler-page.cc (poppler_page_render_to_ps): Fix another
