@@ -15,6 +15,7 @@
 
 class XRef;
 class Gfx;
+class Catalog;
 
 //------------------------------------------------------------------------
 // Annot
@@ -23,7 +24,7 @@ class Gfx;
 class Annot {
 public:
 
-  Annot(XRef *xrefA, Dict *dict);
+  Annot(XRef *xrefA, Dict *acroForm, Dict *dict);
   ~Annot();
   GBool isOk() { return ok; }
 
@@ -32,23 +33,14 @@ public:
   // Get appearance object.
   Object *getAppearance(Object *obj) { return appearance.fetch(xref, obj); }
 
-  // Get subtype object
-  Object *getSubtype(Object *obj) {return subtype.copy(obj); };
-
-  // Get dictionary
-  Dict *getDict() {return dict; };
-
-  // Get annot appearance ID
-  int getRefNum() {return appearance.getRefNum();};
-  int getRefGen() {return appearance.getRefGen();};
-  
 private:
 
+  void generateAppearance(Dict *acroForm, Dict *dict);
+
   XRef *xref;			// the xref table for this PDF file
-  Dict *dict;
-  Object subtype;
   Object appearance;		// a reference to the Form XObject stream
 				//   for the normal appearance
+  GooString *appearBuf;
   double xMin, yMin,		// annotation rectangle
          xMax, yMax;
   GBool ok;
@@ -62,7 +54,7 @@ class Annots {
 public:
 
   // Extract non-link annotations from array of annotations.
-  Annots(XRef *xref, Object *annotsObj);
+  Annots(XRef *xref, Catalog *catalog, Object *annotsObj);
 
   ~Annots();
 

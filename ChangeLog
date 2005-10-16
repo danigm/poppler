@@ -1,7 +1,12 @@
-2005-09-20  Albert Astals Cid  <aacid@kde.org>
+2005-10-16  Albert Astals Cid  <aacid@kde.org>
 	* splash/SplashXPathScanner.cc: Merge from xpdf 3.01
 	* splash/SplashScreen.[cc|h]: Merge from xpdf 3.01
 	* splash/SplashFTFont.cc: Merge from xpdf 3.01
+	* poppler/Annot.[cc|h]: Merge from xpdf 3.01
+	* poppler/FontInfo.cc
+	* poppler/Page.cc:
+	* poppler/PSOutputDev.cc: Changes needed due to Annot changes
+	
 	
 2005-10-05  Kristian Høgsberg  <krh@redhat.com>
 

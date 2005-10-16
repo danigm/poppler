@@ -378,7 +378,7 @@ void Page::displaySlice(OutputDev *out, double hDPI, double vDPI,
   }
 
   // draw non-link annotations
-  annotList = new Annots(xref, annots.fetch(xref, &obj));
+  annotList = new Annots(xref, catalog, annots.fetch(xref, &obj));
   obj.free();
 #ifdef USE_ANNOTS_VIEW
   if (annotList->getNumAnnots() > 0) {

@@ -48,7 +48,7 @@ GooList *FontInfoScanner::scan(int nPages) {
     if ((resDict = page->getResourceDict())) {
       scanFonts(resDict, result);
     }
-    annots = new Annots(doc->getXRef(), page->getAnnots(&obj1));
+    annots = new Annots(doc->getXRef(), doc->getCatalog(), page->getAnnots(&obj1));
     obj1.free();
     for (i = 0; i < annots->getNumAnnots(); ++i) {
       if (annots->getAnnot(i)->getAppearance(&obj1)->isStream()) {
