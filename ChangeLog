@@ -8,6 +8,7 @@
 	* poppler/PSOutputDev.cc: Changes needed due to Annot changes
 	* poppler/Function.[cc|h]: Merge from xpdf 3.01
 	* poppler/Stream.[cc|h]: Merge from xpdf 3.01
+	* poppler/GfxFont.cc: Merge from xpdf 3.01
 	
 	
 2005-10-05  Kristian Høgsberg  <krh@redhat.com>
