@@ -1,3 +1,8 @@
+2005-10-16  Kristian Høgsberg  <krh@redhat.com>
+
+	* poppler/poppler-config.h.in (GCC_PRINTF_FORMAT): Remove evil
+	space character in macro definition.
+
 2005-10-16  Albert Astals Cid  <aacid@kde.org>
 	* splash/SplashXPathScanner.cc: Merge from xpdf 3.01
 	* splash/SplashScreen.[cc|h]: Merge from xpdf 3.01
@@ -9,7 +14,6 @@
 	* poppler/Function.[cc|h]: Merge from xpdf 3.01
 	* poppler/Stream.[cc|h]: Merge from xpdf 3.01
 	* poppler/GfxFont.cc: Merge from xpdf 3.01
-	
 	
 2005-10-05  Kristian Høgsberg  <krh@redhat.com>
 
