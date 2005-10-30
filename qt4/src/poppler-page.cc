@@ -57,19 +57,19 @@ void Page::splashRenderToPixmap(QPixmap **q, int x, int y, int w, int h) const
   SplashOutputDev *output_dev;
   SplashColor white;
   SplashBitmap *bitmap;
-  white.rgb8 = splashMakeRGB8(255,255,255);
+  white[0] = 255;
+  white[1] = 255;
+  white[2] = 255;
   SplashColorPtr color_ptr;
-  output_dev = new SplashOutputDev(splashModeRGB8, gFalse, white);
+  output_dev = new SplashOutputDev(splashModeRGB8, 4, gFalse, white);
   output_dev->startDoc(m_page->parentDoc->m_doc->doc.getXRef ());
   
   m_page->parentDoc->m_doc->doc.displayPageSlice(output_dev, m_page->index + 1, 72, 72,
-      0, -1, -1, -1, -1,
-      true,
-      false);
+      0, false, true, false, -1, -1, -1, -1);
   bitmap = output_dev->getBitmap ();
   color_ptr = bitmap->getDataPtr ();
 
-  QImage * img = new QImage( (uchar*)color_ptr.rgb8, bitmap->getWidth(), bitmap->getHeight(), QImage::Format_RGB32 );
+  QImage * img = new QImage( (uchar*)color_ptr, bitmap->getWidth(), bitmap->getHeight(), QImage::Format_RGB32 );
   *q = new QPixmap(QPixmap::fromImage(*img));
   
   delete img;
@@ -87,12 +87,13 @@ void Page::renderToPixmap(QPixmap *pixmap) const
 						 72,
 						 72,
 						 0,
-						 -1,
-						 -1,
-						 -1,
-						 -1,
+						 false,
 						 true,
-						 false);
+						 false,
+						 -1,
+						 -1,
+						 -1,
+						 -1);
   painter->end();
 }
 
@@ -106,19 +107,17 @@ QString Page::text(const QRectF &r) const
   
   output_dev = new TextOutputDev(0, gFalse, gFalse, gFalse);
   m_page->parentDoc->m_doc->doc.displayPageSlice(output_dev, m_page->index + 1, 72, 72,
-      0, -1, -1, -1, -1,
-      true,
-      false);
+      0, false, true, false, -1, -1, -1, -1);
   p = m_page->parentDoc->m_doc->doc.getCatalog()->getPage(m_page->index + 1);
   if (r.isNull())
   {
-    rect = p->getBox();
+    rect = p->getCropBox();
     s = output_dev->getText(rect->x1, rect->y1, rect->x2, rect->y2);
   }
   else
   {
     double height, y1, y2;
-    height = p->getHeight();
+    height = p->getCropHeight();
     y1 = height - r.top();
     y2 = height - r.bottom();
     s = output_dev->getText(r.left(), y1, r.right(), y2);
@@ -137,9 +136,9 @@ QSizeF Page::pageSizeF() const
   
   p = m_page->parentDoc->m_doc->doc.getCatalog()->getPage(m_page->index + 1);
   if ( ( Page::Landscape == orientation() ) || (Page::Seascape == orientation() ) ) {
-      return QSizeF( p->getHeight(), p->getWidth() );
+      return QSizeF( p->getCropHeight(), p->getCropWidth() );
   } else {
-    return QSizeF( p->getWidth(), p->getHeight() );
+    return QSizeF( p->getCropWidth(), p->getCropHeight() );
   }
 }
 

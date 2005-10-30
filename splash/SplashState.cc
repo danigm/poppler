@@ -21,6 +21,11 @@
 // SplashState
 //------------------------------------------------------------------------
 
+// number of components in each color mode
+int splashColorModeNComps[] = {
+  1, 1, 2, 3, 3, 4, 4
+};
+
 SplashState::SplashState(int width, int height) {
   SplashColor color;
 
@@ -28,6 +33,9 @@ SplashState::SplashState(int width, int height) {
   strokePattern = new SplashSolidColor(color);
   fillPattern = new SplashSolidColor(color);
   screen = new SplashScreen(10);
+  blendFunc = NULL;
+  strokeAlpha = 1;
+  fillAlpha = 1;
   lineWidth = 0;
   lineCap = splashLineCapButt;
   lineJoin = splashLineJoinMiter;
@@ -44,6 +52,9 @@ SplashState::SplashState(SplashState *state) {
   strokePattern = state->strokePattern->copy();
   fillPattern = state->fillPattern->copy();
   screen = state->screen->copy();
+  blendFunc = state->blendFunc;
+  strokeAlpha = state->strokeAlpha;
+  fillAlpha = state->fillAlpha;
   lineWidth = state->lineWidth;
   lineCap = state->lineCap;
   lineJoin = state->lineJoin;

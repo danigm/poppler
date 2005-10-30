@@ -40,7 +40,7 @@ public:
 
   GDKSplashOutputDev(GdkScreen *screen,
                      void (*redrawCbkA)(void *data),
-                     void *redrawCbkDataA);
+                     void *redrawCbkDataA, SplashColor sc);
   
   virtual ~GDKSplashOutputDev();
 
@@ -84,17 +84,10 @@ private:
 // GDKSplashOutputDev
 //------------------------------------------------------------------------
 
-static SplashColor makeSplashColor(int r, int g, int b)
-{
-  SplashColor c;
-  c.rgb8 = splashMakeRGB8 (r, g, b);
-  return c;
-}
-
 GDKSplashOutputDev::GDKSplashOutputDev(GdkScreen *screen,
                                        void (*redrawCbkA)(void *data),
-                                       void *redrawCbkDataA):
-  SplashOutputDev(splashModeRGB8Packed, gFalse, makeSplashColor (255,255,255)),
+                                       void *redrawCbkDataA, SplashColor sc):
+  SplashOutputDev(splashModeRGB8, 4, gFalse, sc),
   incrementalUpdate (1)
 {
   redrawCbk = redrawCbkA;
@@ -140,7 +133,7 @@ void GDKSplashOutputDev::redraw(int srcX, int srcY,
                       destX, destY,
                       width, height,
                       GDK_RGB_DITHER_NORMAL,
-                      getBitmap()->getDataPtr().rgb8p + srcY * gdk_rowstride + srcX * 3,
+                      getBitmap()->getDataPtr() + srcY * gdk_rowstride + srcX * 3,
                       gdk_rowstride);
 
   g_object_unref (gc);
@@ -210,7 +203,7 @@ view_load (View       *v,
   
   v->out->startDoc(v->doc->getXRef());
 
-  v->doc->displayPage (v->out, 1, 72, 72, 0, gTrue, gTrue);
+  v->doc->displayPage (v->out, 1, 72, 72, 0, gFalse, gTrue, gTrue);
   
   w = v->out->getBitmapWidth();
   h = v->out->getBitmapHeight();
@@ -258,8 +251,12 @@ view_new (void)
   v->window = window;
   v->drawing_area = drawing_area;
   v->sw = sw;
+  SplashColor sc;
+  sc[0] = 255;
+  sc[1] = 255;
+  sc[2] = 255;
   v->out = new GDKSplashOutputDev (gtk_widget_get_screen (window),
-                                   redraw_callback, (void*) v);
+                                   redraw_callback, (void*) v, sc);
   v->doc = 0;
 
   g_signal_connect (drawing_area,

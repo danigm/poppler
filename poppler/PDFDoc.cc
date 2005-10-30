@@ -17,6 +17,9 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <string.h>
+#ifdef WIN32
+#  include <windows.h>
+#endif
 #include "goo/GooString.h"
 #include "poppler-config.h"
 #include "GlobalParams.h"
@@ -99,6 +102,63 @@ PDFDoc::PDFDoc(GooString *fileNameA, GooString *ownerPassword,
 
   ok = setup(ownerPassword, userPassword);
 }
+
+#ifdef WIN32
+PDFDoc::PDFDoc(wchar_t *fileNameA, int fileNameLen, GooString *ownerPassword,
+	       GooString *userPassword, void *guiDataA) {
+  OSVERSIONINFO version;
+  wchar_t fileName2[_MAX_PATH + 1];
+  Object obj;
+  int i;
+
+  ok = gFalse;
+  errCode = errNone;
+
+  guiData = guiDataA;
+
+  file = NULL;
+  str = NULL;
+  xref = NULL;
+  catalog = NULL;
+  links = NULL;
+#ifndef DISABLE_OUTLINE
+  outline = NULL;
+#endif
+
+  //~ file name should be stored in Unicode (?)
+  fileName = new GooString();
+  for (i = 0; i < fileNameLen; ++i) {
+    fileName->append((char)fileNameA[i]);
+  }
+
+  // zero-terminate the file name string
+  for (i = 0; i < fileNameLen && i < _MAX_PATH; ++i) {
+    fileName2[i] = fileNameA[i];
+  }
+  fileName2[i] = 0;
+
+  // try to open file
+  // NB: _wfopen is only available in NT
+  version.dwOSVersionInfoSize = sizeof(version);
+  GetVersionEx(&version);
+  if (version.dwPlatformId == VER_PLATFORM_WIN32_NT) {
+    file = _wfopen(fileName2, L"rb");
+  } else {
+    file = fopen(fileName->getCString(), "rb");
+  }
+  if (!file) {
+    error(-1, "Couldn't open file '%s'", fileName->getCString());
+    errCode = errOpenFile;
+    return;
+  }
+
+  // create stream
+  obj.initNull();
+  str = new FileStream(file, 0, gFalse, 0, &obj);
+
+  ok = setup(ownerPassword, userPassword);
+}
+#endif
 
 PDFDoc::PDFDoc(BaseStream *strA, GooString *ownerPassword,
 	       GooString *userPassword, void *guiDataA) {
@@ -293,7 +353,7 @@ GBool PDFDoc::checkEncryption(GooString *ownerPassword, GooString *userPassword)
 }
 
 void PDFDoc::displayPage(OutputDev *out, int page, double hDPI, double vDPI,
-			 int rotate, GBool crop, GBool doLinks,
+			 int rotate, GBool useMediaBox, GBool crop, GBool doLinks,
 			 GBool (*abortCheckCbk)(void *data),
 			 void *abortCheckCbkData,
                          GBool (*annotDisplayDecideCbk)(Annot *annot, void *user_data),
@@ -307,21 +367,20 @@ void PDFDoc::displayPage(OutputDev *out, int page, double hDPI, double vDPI,
   if (doLinks) {
     if (links) {
       delete links;
-      links = NULL;
     }
     getLinks(p);
-    p->display(out, hDPI, vDPI, rotate, crop, links, catalog,
+    p->display(out, hDPI, vDPI, rotate, useMediaBox, crop, links, catalog,
 	       abortCheckCbk, abortCheckCbkData,
                annotDisplayDecideCbk, annotDisplayDecideCbkData);
   } else {
-    p->display(out, hDPI, vDPI, rotate, crop, NULL, catalog,
+    p->display(out, hDPI, vDPI, rotate, useMediaBox, crop, NULL, catalog,
 	       abortCheckCbk, abortCheckCbkData,
                annotDisplayDecideCbk, annotDisplayDecideCbkData);
   }
 }
 
 void PDFDoc::displayPages(OutputDev *out, int firstPage, int lastPage,
-			  double hDPI, double vDPI, int rotate,
+			  double hDPI, double vDPI, int rotate, GBool useMediaBox,
 			  GBool crop, GBool doLinks,
 			  GBool (*abortCheckCbk)(void *data),
 			  void *abortCheckCbkData,
@@ -330,7 +389,7 @@ void PDFDoc::displayPages(OutputDev *out, int firstPage, int lastPage,
   int page;
 
   for (page = firstPage; page <= lastPage; ++page) {
-    displayPage(out, page, hDPI, vDPI, rotate, crop, doLinks,
+    displayPage(out, page, hDPI, vDPI, rotate, useMediaBox, crop, doLinks,
 		abortCheckCbk, abortCheckCbkData,
                 annotDisplayDecideCbk, annotDisplayDecideCbkData);
   }
@@ -338,7 +397,7 @@ void PDFDoc::displayPages(OutputDev *out, int firstPage, int lastPage,
 
 void PDFDoc::displayPageSlice(OutputDev *out, int page,
 			      double hDPI, double vDPI,
-			      int rotate, GBool crop,
+			      int rotate, GBool useMediaBox, GBool crop, GBool doLinks,
 			      int sliceX, int sliceY, int sliceW, int sliceH,
 			      GBool (*abortCheckCbk)(void *data),
 			      void *abortCheckCbkData,
@@ -347,11 +406,32 @@ void PDFDoc::displayPageSlice(OutputDev *out, int page,
   Page *p;
 
   p = catalog->getPage(page);
-  p->displaySlice(out, hDPI, vDPI, rotate, crop,
+  if (doLinks)
+  {
+    if (links) {
+      delete links;
+    }
+    getLinks(p);
+    p->displaySlice(out, hDPI, vDPI, rotate, useMediaBox, crop,
 		  sliceX, sliceY, sliceW, sliceH,
-		  NULL, catalog,
+		  links, catalog,
                   abortCheckCbk, abortCheckCbkData,
                   annotDisplayDecideCbk, annotDisplayDecideCbkData);
+  } else {
+    p->displaySlice(out, hDPI, vDPI, rotate, useMediaBox, crop,
+                  sliceX, sliceY, sliceW, sliceH,
+	          NULL, catalog,
+	          abortCheckCbk, abortCheckCbkData,
+	          annotDisplayDecideCbk, annotDisplayDecideCbkData);
+  } 
+}
+
+Links *PDFDoc::takeLinks() {
+  Links *ret;
+
+  ret = links;
+  links = NULL;
+  return ret;
 }
 
 GBool PDFDoc::isLinearized() {

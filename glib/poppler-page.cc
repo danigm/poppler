@@ -85,11 +85,11 @@ poppler_page_get_size (PopplerPage *page,
 
   rotate = page->page->getRotate ();
   if (rotate == 90 || rotate == 270) {
-    page_height = page->page->getWidth ();
-    page_width = page->page->getHeight ();
+    page_height = page->page->getCropWidth ();
+    page_width = page->page->getCropHeight ();
   } else {
-    page_width = page->page->getWidth ();
-    page_height = page->page->getHeight ();
+    page_width = page->page->getCropWidth ();
+    page_height = page->page->getCropHeight ();
   }
 
   if (width != NULL)
@@ -129,11 +129,11 @@ poppler_page_prepare_output_dev (PopplerPage *page,
   rotate = (rotation + page->page->getRotate()) % 360;
 
   if (rotate == 90 || rotate == 270) {
-    cairo_width = MAX ((int)(page->page->getHeight() * scale + 0.5), 1);
-    cairo_height = MAX ((int)(page->page->getWidth() * scale + 0.5), 1);
+    cairo_width = MAX ((int)(page->page->getCropHeight() * scale + 0.5), 1);
+    cairo_height = MAX ((int)(page->page->getCropWidth() * scale + 0.5), 1);
   } else {
-    cairo_width = MAX ((int)(page->page->getWidth() * scale + 0.5), 1);
-    cairo_height = MAX ((int)(page->page->getHeight() * scale + 0.5), 1);
+    cairo_width = MAX ((int)(page->page->getCropWidth() * scale + 0.5), 1);
+    cairo_height = MAX ((int)(page->page->getCropHeight() * scale + 0.5), 1);
   }
 
   output_dev = page->document->output_dev;
@@ -301,6 +301,7 @@ poppler_page_render_to_pixbuf (PopplerPage *page,
   page->page->displaySlice(page->document->output_dev,
 			   72.0 * scale, 72.0 * scale,
 			   rotation,
+			   gFalse, /* useMediaBox */
 			   gTrue, /* Crop */
 			   src_x, src_y,
 			   src_width, src_height,
@@ -318,6 +319,7 @@ poppler_page_get_text_output_dev (PopplerPage *page)
 
     page->gfx = page->page->createGfx(page->text_dev,
 				      72.0, 72.0, 0,
+				      gFalse, /* useMediaBox */
 				      gTrue, /* Crop */
 				      -1, -1, -1, -1,
 				      NULL, /* links */
@@ -642,15 +644,17 @@ poppler_page_find_text (PopplerPage *page,
   doc = page->document->doc;
 
   poppler_page_get_size (page, NULL, &height);
-  page->page->display (output_dev, 72, 72, 0,
+  page->page->display (output_dev, 72, 72, 0, gFalse,
 		       gTrue, NULL, doc->getCatalog());
   
   matches = NULL;
   xMin = 0;
   yMin = 0;
+#warning you probably want to add caseSensitive and backwards as parameters
   while (output_dev->findText (ucs4, ucs4_len,
 			       gFalse, gTrue, // startAtTop, stopAtBottom
 			       gTrue, gFalse, // startAtLast, stopAtLast
+			       gFalse, gFalse, // caseSensitive, backwards
 			       &xMin, &yMin, &xMax, &yMax))
     {
       match = g_new (PopplerRectangle, 1);
@@ -693,7 +697,7 @@ poppler_page_render_to_ps (PopplerPage   *page,
 
 
   ps_file->document->doc->displayPage (ps_file->out, page->index + 1, 72.0, 72.0,
-				       0, gTrue, gFalse);
+				       0, gFalse, gTrue, gFalse);
 }
 
 static void
@@ -780,10 +784,10 @@ poppler_page_get_link_mapping (PopplerPage *page)
 		link->getRect (&(mapping->area.x1), &(mapping->area.y1),
 			       &(mapping->area.x2), &(mapping->area.y2));
 
-		mapping->area.x1 -= page->page->getBox()->x1;
-		mapping->area.x2 -= page->page->getBox()->x1;
-		mapping->area.y1 -= page->page->getBox()->y1;
-		mapping->area.y2 -= page->page->getBox()->y1;
+		mapping->area.x1 -= page->page->getCropBox()->x1;
+		mapping->area.x2 -= page->page->getCropBox()->x1;
+		mapping->area.y1 -= page->page->getCropBox()->y1;
+		mapping->area.y2 -= page->page->getCropBox()->y1;
 
 		map_list = g_list_prepend (map_list, mapping);
 	}

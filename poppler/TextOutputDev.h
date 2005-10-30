@@ -26,9 +26,15 @@ class Gfx;
 class GfxFont;
 class GfxState;
 class UnicodeMap;
-class TextBlock;
-class TextPage;
+
+class TextWord;
+class TextPool;
+class TextLine;
 class TextLineFrag;
+class TextBlock;
+class TextFlow;
+class TextWordList;
+class TextPage;
 class TextSelectionVisitor;
 
 //------------------------------------------------------------------------
@@ -102,6 +108,8 @@ public:
     { *r = colorR; *g = colorG; *b = colorB; }
   void getBBox(double *xMinA, double *yMinA, double *xMaxA, double *yMaxA)
     { *xMinA = xMin; *yMinA = yMin; *xMaxA = xMax; *yMaxA = yMax; }
+  double getFontSize() { return fontSize; }
+  int getRotation() { return rot; }
   int getCharPos() { return charPos; }
   int getCharLen() { return charLen; }
 #endif
@@ -392,7 +400,7 @@ public:
   // Add a character to the current word.
   void addChar(GfxState *state, double x, double y,
 	       double dx, double dy,
-	       CharCode c, Unicode *u, int uLen);
+	       CharCode c, int nBytes, Unicode *u, int uLen);
 
   // End the current word, sorting it into the list of words.
   void endWord();
@@ -413,6 +421,7 @@ public:
   GBool findText(Unicode *s, int len,
 		 GBool startAtTop, GBool stopAtBottom,
 		 GBool startAtLast, GBool stopAtLast,
+		 GBool caseSensitive, GBool backward,
 		 double *xMin, double *yMin,
 		 double *xMax, double *yMax);
 
@@ -559,7 +568,7 @@ public:
   virtual void drawChar(GfxState *state, double x, double y,
 			double dx, double dy,
 			double originX, double originY,
-			CharCode c, Unicode *u, int uLen);
+			CharCode c, int nBytes, Unicode *u, int uLen);
 
   //----- special access
 
@@ -573,6 +582,7 @@ public:
   GBool findText(Unicode *s, int len,
 		 GBool startAtTop, GBool stopAtBottom,
 		 GBool startAtLast, GBool stopAtLast,
+		 GBool caseSensitive, GBool backward,
 		 double *xMin, double *yMin,
 		 double *xMax, double *yMax);
 

@@ -199,7 +199,7 @@ view_load (View       *v,
   
   v->out->startDoc(v->doc->getXRef());
 
-  v->doc->displayPage (v->out, 1, 72, 72, 0, gTrue, gTrue);
+  v->doc->displayPage (v->out, 1, 72, 72, 0, gFalse, gTrue, gTrue);
   
   w = v->out->getPixmapWidth();
   h = v->out->getPixmapHeight();

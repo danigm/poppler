@@ -1,3 +1,42 @@
+2005-10-30  Albert Astals Cid  <aacid@kde.org>
+
+	* glib/poppler-page.cc
+	* poppler/ArthurOutputDev.cc
+	* poppler/ArthurOutputDev.h
+	* poppler/CairoOutputDev.cc
+	* poppler/CairoOutputDev.h
+	* poppler/Gfx.cc
+	* poppler/Gfx.h
+	* poppler/GfxState.cc
+	* poppler/GfxState.h
+	* poppler/OutputDev.cc
+	* poppler/OutputDev.h
+	* poppler/PDFDoc.cc
+	* poppler/PDFDoc.h
+	* poppler/PSOutputDev.cc
+	* poppler/PSOutputDev.h
+	* poppler/Page.cc
+	* poppler/Page.h
+	* poppler/SplashOutputDev.cc
+	* poppler/SplashOutputDev.h
+	* poppler/TextOutputDev.cc
+	* poppler/TextOutputDev.h
+	* qt/poppler-page.cc
+	* qt4/src/poppler-page.cc
+	* splash/Splash.cc
+	* splash/Splash.h
+	* splash/SplashBitmap.cc
+	* splash/SplashBitmap.h
+	* splash/SplashPattern.cc
+	* splash/SplashPattern.h
+	* splash/SplashState.cc
+	* splash/SplashState.h
+	* splash/SplashTypes.h
+	* test/gtk-cairo-test.cc
+	* test/gtk-splash-test.cc
+	* test/pdf-inspector.cc: Last xpdf 3.01 merges
+	
+
 2005-10-16  Kristian Høgsberg  <krh@redhat.com>
 
 	* poppler/poppler-config.h.in (GCC_PRINTF_FORMAT): Remove evil

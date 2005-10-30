@@ -224,7 +224,7 @@ PdfInspector::analyze_page (int page)
   gtk_list_store_clear (GTK_LIST_STORE (model));
 
   GooTimer timer;
-  doc->displayPage (output, page + 1, 72, 72, 0, gTrue, gTrue);
+  doc->displayPage (output, page + 1, 72, 72, 0, gFalse, gTrue, gTrue);
 
   // Total time;
   text = g_strdup_printf ("%g", timer.getElapsed ());

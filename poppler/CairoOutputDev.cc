@@ -348,7 +348,7 @@ void CairoOutputDev::beginString(GfxState *state, GooString *s)
 void CairoOutputDev::drawChar(GfxState *state, double x, double y,
 			      double dx, double dy,
 			      double originX, double originY,
-			      CharCode code, Unicode *u, int uLen)
+			      CharCode code, int nBytes, Unicode *u, int uLen)
 {
   double tx, ty;
 

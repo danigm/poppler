@@ -158,20 +158,32 @@ Page::~Page()
 void Page::renderToPixmap(QPixmap **q, int x, int y, int w, int h) const
 {
   SplashOutputDev *output_dev;
-  SplashColor white;
   SplashBitmap *bitmap;
-  white.rgb8 = splashMakeRGB8(255,255,255);
+  SplashColor white;
+  white[0] = 255;
+  white[1] = 255;
+  white[2] = 255;
   SplashColorPtr color_ptr;
-  output_dev = new SplashOutputDev(splashModeRGB8, gFalse, white);
+  output_dev = new SplashOutputDev(splashModeRGB8, 4, gFalse, white);
   output_dev->startDoc(data->doc->data->doc.getXRef ());
   
   data->doc->data->doc.displayPageSlice(output_dev, data->index + 1, 72, 72,
-      0, -1, -1, -1, -1,
-      true,
-      false);
+      0, false, false, false, -1, -1, -1, -1);
   bitmap = output_dev->getBitmap ();
   color_ptr = bitmap->getDataPtr ();
-  QImage * img = new QImage( (uchar*)color_ptr.rgb8, bitmap->getWidth(), bitmap->getHeight(), 32, 0, 0, QImage::IgnoreEndian );
+  int bw = output_dev->getBitmap()->getWidth();
+  int bh = output_dev->getBitmap()->getHeight();
+  QImage * img = new QImage( bw, bh, 32 );
+  SplashColorPtr pixel = new Guchar[4];
+  for (int i = 0; i < bw; i++)
+  {
+    for (int j = 0; j < bh; j++)
+    {
+      output_dev->getBitmap()->getPixel(i, j, pixel);
+      img->setPixel( i, j, qRgb( pixel[0], pixel[1], pixel[2] ) );
+    }
+  }
+  delete[] pixel;
   *q = new QPixmap( *img );
   
   delete img;
@@ -188,19 +200,17 @@ QString Page::getText(const Rectangle &r) const
   
   output_dev = new TextOutputDev(0, gFalse, gFalse, gFalse);
   data->doc->data->doc.displayPageSlice(output_dev, data->index + 1, 72, 72,
-      0, -1, -1, -1, -1,
-      true,
-      false);
+      0, false, false, false, -1, -1, -1, -1);
   p = data->doc->data->doc.getCatalog()->getPage(data->index + 1);
   if (r.isNull())
   {
-    rect = p->getBox();
+    rect = p->getCropBox();
     s = output_dev->getText(rect->x1, rect->y1, rect->x2, rect->y2);
   }
   else
   {
     double height, y1, y2;
-    height = p->getHeight();
+    height = p->getCropHeight();
     y1 = height - r.m_y2;
     y2 = height - r.m_y1;
     s = output_dev->getText(r.m_x1, y1, r.m_x2, y2);

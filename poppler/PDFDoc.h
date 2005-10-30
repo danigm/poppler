@@ -36,6 +36,12 @@ public:
 
   PDFDoc(GooString *fileNameA, GooString *ownerPassword = NULL,
 	 GooString *userPassword = NULL, void *guiDataA = NULL);
+
+#ifdef WIN32
+  PDFDoc(wchar_t *fileNameA, int fileNameLen, GooString *ownerPassword = NULL,
+	 GooString *userPassword = NULL, void *guiDataA = NULL);
+#endif
+
   PDFDoc(BaseStream *strA, GooString *ownerPassword = NULL,
 	 GooString *userPassword = NULL, void *guiDataA = NULL);
   ~PDFDoc();
@@ -59,10 +65,14 @@ public:
   BaseStream *getBaseStream() { return str; }
 
   // Get page parameters.
-  double getPageWidth(int page)
-    { return catalog->getPage(page)->getWidth(); }
-  double getPageHeight(int page)
-    { return catalog->getPage(page)->getHeight(); }
+  double getPageMediaWidth(int page)
+    { return catalog->getPage(page)->getMediaWidth(); }
+  double getPageMediaHeight(int page)
+    { return catalog->getPage(page)->getMediaHeight(); }
+  double getPageCropWidth(int page)
+    { return catalog->getPage(page)->getCropWidth(); }
+  double getPageCropHeight(int page)
+    { return catalog->getPage(page)->getCropHeight(); }
   int getPageRotate(int page)
     { return catalog->getPage(page)->getRotate(); }
 
@@ -78,7 +88,7 @@ public:
 
   // Display a page.
   void displayPage(OutputDev *out, int page, double hDPI, double vDPI,
-		   int rotate, GBool crop, GBool doLinks,
+		   int rotate, GBool useMediaBox, GBool crop, GBool doLinks,
 		   GBool (*abortCheckCbk)(void *data) = NULL,
 		   void *abortCheckCbkData = NULL,
                    GBool (*annotDisplayDecideCbk)(Annot *annot, void *user_data) = NULL,
@@ -87,7 +97,7 @@ public:
   // Display a range of pages.
   void displayPages(OutputDev *out, int firstPage, int lastPage,
 		    double hDPI, double vDPI, int rotate,
-		    GBool crop, GBool doLinks,
+		    GBool useMediaBox, GBool crop, GBool doLinks,
 		    GBool (*abortCheckCbk)(void *data) = NULL,
 		    void *abortCheckCbkData = NULL,
                     GBool (*annotDisplayDecideCbk)(Annot *annot, void *user_data) = NULL,
@@ -96,7 +106,7 @@ public:
   // Display part of a page.
   void displayPageSlice(OutputDev *out, int page,
 			double hDPI, double vDPI,
-			int rotate, GBool crop,
+			int rotate, GBool useMediaBox, GBool crop, GBool doLinks,
 			int sliceX, int sliceY, int sliceW, int sliceH,
 			GBool (*abortCheckCbk)(void *data) = NULL,
 			void *abortCheckCbkData = NULL,
