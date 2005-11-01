@@ -1,3 +1,8 @@
+2005-11-01  Albert Astals Cid  <aacid@kde.org>
+	* poppler/Stream.h:
+	* poppler/OutputDev.h: Comment some unused parameters to calm down
+	compiler warnings
+
 2005-10-30  Albert Astals Cid  <aacid@kde.org>
 
 	* glib/poppler-page.cc

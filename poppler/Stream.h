@@ -106,8 +106,8 @@ public:
   virtual GBool isEncoder() { return gFalse; }
 
   // Get image parameters which are defined by the stream contents.
-  virtual void getImageParams(int *bitsPerComponent,
-			      StreamColorSpaceMode *csMode) {}
+  virtual void getImageParams(int * /*bitsPerComponent*/,
+			      StreamColorSpaceMode * /*csMode*/) {}
 
   // Add filters to this stream according to the parameters in <dict>.
   // Returns the new stream.
@@ -725,8 +725,8 @@ public:
   virtual void reset() {}
   virtual int getChar() { return EOF; }
   virtual int lookChar() { return EOF; }
-  virtual GooString *getPSFilter(int psLevel, char *indent)  { return NULL; }
-  virtual GBool isBinary(GBool last = gTrue) { return gFalse; }
+  virtual GooString *getPSFilter(int /*psLevel*/, char * /*indent*/)  { return NULL; }
+  virtual GBool isBinary(GBool /*last = gTrue*/) { return gFalse; }
 };
 
 //------------------------------------------------------------------------
@@ -742,8 +742,8 @@ public:
   virtual void reset();
   virtual int getChar();
   virtual int lookChar();
-  virtual GooString *getPSFilter(int psLevel, char *indent) { return NULL; }
-  virtual GBool isBinary(GBool last = gTrue);
+  virtual GooString *getPSFilter(int /*psLevel*/, char * /*indent*/) { return NULL; }
+  virtual GBool isBinary(GBool /*last = gTrue*/);
   virtual GBool isEncoder() { return gTrue; }
 
 private:
@@ -767,8 +767,8 @@ public:
     { return (bufPtr >= bufEnd && !fillBuf()) ? EOF : (*bufPtr++ & 0xff); }
   virtual int lookChar()
     { return (bufPtr >= bufEnd && !fillBuf()) ? EOF : (*bufPtr & 0xff); }
-  virtual GooString *getPSFilter(int psLevel, char *indent) { return NULL; }
-  virtual GBool isBinary(GBool last = gTrue) { return gFalse; }
+  virtual GooString *getPSFilter(int /*psLevel*/, char * /*indent*/) { return NULL; }
+  virtual GBool isBinary(GBool /*last = gTrue*/) { return gFalse; }
   virtual GBool isEncoder() { return gTrue; }
 
 private:
@@ -797,8 +797,8 @@ public:
     { return (bufPtr >= bufEnd && !fillBuf()) ? EOF : (*bufPtr++ & 0xff); }
   virtual int lookChar()
     { return (bufPtr >= bufEnd && !fillBuf()) ? EOF : (*bufPtr & 0xff); }
-  virtual GooString *getPSFilter(int psLevel, char *indent) { return NULL; }
-  virtual GBool isBinary(GBool last = gTrue) { return gFalse; }
+  virtual GooString *getPSFilter(int /*psLevel*/, char * /*indent*/) { return NULL; }
+  virtual GBool isBinary(GBool /*last = gTrue*/) { return gFalse; }
   virtual GBool isEncoder() { return gTrue; }
 
 private:
@@ -827,8 +827,8 @@ public:
     { return (bufPtr >= bufEnd && !fillBuf()) ? EOF : (*bufPtr++ & 0xff); }
   virtual int lookChar()
     { return (bufPtr >= bufEnd && !fillBuf()) ? EOF : (*bufPtr & 0xff); }
-  virtual GooString *getPSFilter(int psLevel, char *indent) { return NULL; }
-  virtual GBool isBinary(GBool last = gTrue) { return gTrue; }
+  virtual GooString *getPSFilter(int /*psLevel*/, char * /*indent*/) { return NULL; }
+  virtual GBool isBinary(GBool /*last = gTrue*/) { return gTrue; }
   virtual GBool isEncoder() { return gTrue; }
 
 private:
