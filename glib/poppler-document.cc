@@ -116,8 +116,10 @@ poppler_document_new_from_file (const char  *uri,
   document->output_dev = new CairoOutputDev ();
 #elif defined (HAVE_SPLASH)
   SplashColor white;
-  white.rgb8 = splashMakeRGB8 (0xff, 0xff, 0xff);
-  document->output_dev = new SplashOutputDev(splashModeRGB8, gFalse, white);
+  white[0] = 255;
+  white[1] = 255;
+  white[2] = 255;
+  document->output_dev = new SplashOutputDev(splashModeRGB8, 4, gFalse, white);
 #endif
   document->output_dev->startDoc(document->doc->getXRef ());
 

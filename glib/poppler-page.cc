@@ -246,23 +246,22 @@ poppler_page_copy_to_pixbuf(PopplerPage *page,
   if (splash_height > gdk_pixbuf_get_height (pixbuf))
     splash_height = gdk_pixbuf_get_height (pixbuf);
 
+  SplashColorPtr pixel = new Guchar[4];
   for (y = 0; y < splash_height; y++)
+  {
+    dst = pixbuf_data + y * pixbuf_rowstride;
+    for (x = 0; x < splash_width; x++)
     {
-      SplashRGB8 *src;
-
-      src = (SplashRGB8 *) (color_ptr.rgb8p + y * splash_rowstride);
-      dst = pixbuf_data + y * pixbuf_rowstride;
-      for (x = 0; x < splash_width; x++) 
-	{
-	  dst[0] = splashRGB8R(*src);
-	  dst[1] = splashRGB8G(*src); 
-	  dst[2] = splashRGB8B(*src);
-	  if (pixbuf_n_channels == 4)
-	    dst[3] = 0xff;
-	  dst += pixbuf_n_channels;
-	  src++;
-	}
+      output_dev->getBitmap()->getPixel(x, y, pixel);
+      dst[0] = pixel[0];
+      dst[1] = pixel[1];
+      dst[2] = pixel[2];
+      if (pixbuf_n_channels == 4)
+        dst[3] = 0xff;
+      dst += pixbuf_n_channels;
     }
+  }
+  delete pixel;
 }
 
 #endif
