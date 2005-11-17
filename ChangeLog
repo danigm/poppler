@@ -1,3 +1,7 @@
+2005-11-i17  Albert Astals Cid  <aacid@kde.org>
+	* splash/SplashFTFont.cc: Make it compile using FreeType 2.2.0
+	preversions
+
 2005-11-04  Albert Astals Cid  <aacid@kde.org>
 	* glib/poppler-document.cc:
 	* glib/poppler-page.cc: Make it compile using --disable-cairo-output
