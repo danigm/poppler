@@ -1,12 +1,21 @@
-2005-11-i17  Albert Astals Cid  <aacid@kde.org>
+2005-11-20  Kristian Høgsberg  <krh@redhat.com>
+
+	* poppler/GfxState.cc: Fix the byte_lookup initialization broken
+	by the merges (#4350).  Modify GfxColorSpace::getRGBLine() to work
+	with new GfXColor type.
+
+2005-11-17  Albert Astals Cid  <aacid@kde.org>
+
 	* splash/SplashFTFont.cc: Make it compile using FreeType 2.2.0
 	preversions
 
 2005-11-04  Albert Astals Cid  <aacid@kde.org>
+
 	* glib/poppler-document.cc:
 	* glib/poppler-page.cc: Make it compile using --disable-cairo-output
 
 2005-11-01  Albert Astals Cid  <aacid@kde.org>
+
 	* poppler/Stream.h:
 	* poppler/OutputDev.h: Comment some unused parameters to calm down
 	compiler warnings
@@ -56,6 +65,7 @@
 	space character in macro definition.
 
 2005-10-16  Albert Astals Cid  <aacid@kde.org>
+
 	* splash/SplashXPathScanner.cc: Merge from xpdf 3.01
 	* splash/SplashScreen.[cc|h]: Merge from xpdf 3.01
 	* splash/SplashFTFont.cc: Merge from xpdf 3.01
@@ -86,6 +96,7 @@
 	Implement launch action
 
 2005-09-20  Albert Astals Cid  <aacid@kde.org>
+
 	* poppler/GlobalParams.[cc|h]: Merge from xpdf 3.01
 	* poppler/Link.cc: Merge from xpdf 3.01
 	* poppler/Parser.cc: Merge from xpdf 3.01

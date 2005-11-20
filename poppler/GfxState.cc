@@ -194,7 +194,7 @@ void GfxColorSpace::getRGBLine(Guchar *in, unsigned int *out, int length) {
   for (i = 0; i < length; i++) {
     
     for (j = 0; j < n; j++)
-      color.c[j] = in[i * n + j] / 255.0;
+      color.c[j] = in[i * n + j] * 256;
 
     getRGB (&color, &rgb);
     out[i] =
@@ -360,16 +360,14 @@ void GfxDeviceRGBColorSpace::getGray(GfxColor *color, GfxGray *gray) {
 		 0.11 * color->c[2] + 0.5));
 }
 
-// TODO THE ABOVE FORMULA HAS CHANGED MAYBE CHANGE THE BELOW ONE TOO?
-#warning read the TODO in this file
 void GfxDeviceRGBColorSpace::getGrayLine(Guchar *in, Guchar *out, int length) {
   int i;
 
   for (i = 0; i < length; i++) {
     out[i] = 
       (in[i * 3 + 0] * 19595 + 
-       in[i * 3 + 0] * 38469 + 
-       in[i * 3 + 0] * 7472) / 65536;
+       in[i * 3 + 1] * 38469 + 
+       in[i * 3 + 2] * 7472) / 65536;
   }
 }
 
@@ -513,15 +511,14 @@ void GfxCalRGBColorSpace::getGray(GfxColor *color, GfxGray *gray) {
 		 0.114 * color->c[2] + 0.5));
 }
 
-// TODO Same as above
 void GfxCalRGBColorSpace::getGrayLine(Guchar *in, Guchar *out, int length) {
   int i;
 
   for (i = 0; i < length; i++) {
     out[i] = 
       (in[i * 3 + 0] * 19595 + 
-       in[i * 3 + 0] * 38469 + 
-       in[i * 3 + 0] * 7472) / 65536;
+       in[i * 3 + 1] * 38469 + 
+       in[i * 3 + 2] * 7472) / 65536;
   }
 }
 
@@ -3237,7 +3234,8 @@ GfxImageColorMap::GfxImageColorMap(int bitsA, Object *decode,
   Object obj;
   double x[gfxColorMaxComps];
   double y[gfxColorMaxComps];
-  int i, j, k;
+  int i, j, k, byte;
+  double mapped;
 
   ok = gTrue;
 
@@ -3295,18 +3293,21 @@ GfxImageColorMap::GfxImageColorMap(int bitsA, Object *decode,
     nComps2 = colorSpace2->getNComps();
     lookup2 = indexedCS->getLookup();
     colorSpace2->getDefaultRanges(x, y, indexHigh);
+    byte_lookup = (Guchar *)gmalloc ((maxPixel + 1) * nComps2);
     for (k = 0; k < nComps2; ++k) {
       lookup[k] = (GfxColorComp *)gmallocn(maxPixel + 1,
 					   sizeof(GfxColorComp));
-    for (i = 0; i <= maxPixel; ++i) {
-      j = (int)(decodeLow[0] + (i * decodeRange[0]) / maxPixel + 0.5);
-      if (j < 0) {
-	j = 0;
-      } else if (j > indexHigh) {
-	j = indexHigh;
-      }
-	lookup[k][i] =
-	    dblToCol(x[k] + (lookup2[j*nComps2 + k] / 255.0) * y[k]);
+      for (i = 0; i <= maxPixel; ++i) {
+	j = (int)(decodeLow[0] + (i * decodeRange[0]) / maxPixel + 0.5);
+	if (j < 0) {
+	  j = 0;
+	} else if (j > indexHigh) {
+	  j = indexHigh;
+	}
+
+	mapped = x[k] + (lookup2[j*nComps2 + k] / 255.0) * y[k];
+	lookup[k][i] = dblToCol(mapped);
+	byte_lookup[i * nComps2 + k] = (Guchar) (mapped * 255);
       }
     }
   } else if (colorSpace->getMode() == csSeparation) {
@@ -3314,22 +3315,31 @@ GfxImageColorMap::GfxImageColorMap(int bitsA, Object *decode,
     colorSpace2 = sepCS->getAlt();
     nComps2 = colorSpace2->getNComps();
     sepFunc = sepCS->getFunc();
+    byte_lookup = (Guchar *)gmallocn ((maxPixel + 1), nComps2);
     for (k = 0; k < nComps2; ++k) {
       lookup[k] = (GfxColorComp *)gmallocn(maxPixel + 1,
 					   sizeof(GfxColorComp));
-    for (i = 0; i <= maxPixel; ++i) {
-      x[0] = decodeLow[0] + (i * decodeRange[0]) / maxPixel;
-      sepFunc->transform(x, y);
+      for (i = 0; i <= maxPixel; ++i) {
+	x[0] = decodeLow[0] + (i * decodeRange[0]) / maxPixel;
+	sepFunc->transform(x, y);
 	lookup[k][i] = dblToCol(y[k]);
+	byte_lookup[i*nComps2 + k] = (Guchar) (y[k] * 255);
       }
     }
   } else {
-      for (k = 0; k < nComps; ++k) {
+    byte_lookup = (Guchar *)gmallocn ((maxPixel + 1), nComps);
+    for (k = 0; k < nComps; ++k) {
       lookup[k] = (GfxColorComp *)gmallocn(maxPixel + 1,
 					   sizeof(GfxColorComp));
       for (i = 0; i <= maxPixel; ++i) {
-	lookup[k][i] = dblToCol(decodeLow[k] +
-				(i * decodeRange[k]) / maxPixel);
+	mapped = decodeLow[k] + (i * decodeRange[k]) / maxPixel;
+	lookup[k][i] = dblToCol(mapped);
+	byte = (int) (mapped * 255.0 + 0.5);
+	if (byte < 0)  
+	  byte = 0;  
+	else if (byte > 255)  
+	  byte = 255;  
+	byte_lookup[i * nComps + k] = byte;	
       }
     }
   }
@@ -3386,6 +3396,7 @@ GfxImageColorMap::~GfxImageColorMap() {
   for (i = 0; i < gfxColorMaxComps; ++i) {
     gfree(lookup[i]);
   }
+  gfree(byte_lookup);
 }
 
 void GfxImageColorMap::getGray(Guchar *x, GfxGray *gray) {
