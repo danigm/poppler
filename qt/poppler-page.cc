@@ -157,6 +157,11 @@ Page::~Page()
 
 void Page::renderToPixmap(QPixmap **q, int x, int y, int w, int h) const
 {
+  renderToPixmap(q, x, y, w, h, 72.0, 72.0);
+}
+
+void Page::renderToPixmap(QPixmap **q, int x, int y, int w, int h, double xres, double yres) const
+{
   SplashOutputDev *output_dev;
   SplashBitmap *bitmap;
   SplashColor white;
@@ -167,7 +172,7 @@ void Page::renderToPixmap(QPixmap **q, int x, int y, int w, int h) const
   output_dev = new SplashOutputDev(splashModeRGB8, 4, gFalse, white);
   output_dev->startDoc(data->doc->data->doc.getXRef ());
   
-  data->doc->data->doc.displayPageSlice(output_dev, data->index + 1, 72, 72,
+  data->doc->data->doc.displayPageSlice(output_dev, data->index + 1, xres, yres,
       0, false, false, false, -1, -1, -1, -1);
   bitmap = output_dev->getBitmap ();
   color_ptr = bitmap->getDataPtr ();
@@ -223,6 +228,41 @@ QString Page::getText(const Rectangle &r) const
   return result;
 }
 
+QValueList<TextBox*> Page::textList() const
+{
+  TextOutputDev *output_dev;
+  
+  QValueList<TextBox*> output_list;
+  
+  output_dev = new TextOutputDev(0, gFalse, gFalse, gFalse);
+
+  data->doc->data->doc.displayPageSlice(output_dev, data->index + 1, 72, 72,
+      0, false, false, false, -1, -1, -1, -1);
+
+  TextWordList *word_list = output_dev->makeWordList();
+  
+  if (!word_list) {
+    delete output_dev;
+    return output_list;
+  }
+  
+  for (int i = 0; i < word_list->getLength(); i++) {
+    TextWord *word = word_list->get(i);
+    QString string = QString::fromUtf8(word->getText()->getCString());
+    double xMin, yMin, xMax, yMax;
+    word->getBBox(&xMin, &yMin, &xMax, &yMax);
+    
+    TextBox* text_box = new TextBox(string, Rectangle(xMin, yMin, xMax, yMax));
+    
+    output_list.append(text_box);
+  }
+  
+  delete word_list;
+  delete output_dev;
+  
+  return output_list;
+}
+
 PageTransition *Page::getTransition() const
 {
   if (!data->transition) 
@@ -235,5 +275,32 @@ PageTransition *Page::getTransition() const
   }
   return data->transition;
 }
+
+QSize Page::pageSize() const
+{
+  ::Page *p = data->doc->data->doc.getCatalog()->getPage(data->index + 1);
+  return QSize( (int)p->getMediaWidth(), (int)p->getMediaHeight() );
+}
+
+Page::Orientation Page::orientation() const
+{
+  ::Page *p = data->doc->data->doc.getCatalog()->getPage(data->index + 1);
+
+  int rotation = p->getRotate();
+  switch (rotation) {
+  case 90:
+    return Page::Landscape;
+    break;
+  case 180:
+    return Page::UpsideDown;
+    break;
+  case 270:
+    return Page::Seascape;
+    break;
+  default:
+    return Page::Portrait;
+  }
+}
+
 
 }

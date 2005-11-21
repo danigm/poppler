@@ -43,6 +43,21 @@ class Rectangle
     double m_y2;
 };
 
+class TextBox
+{
+ public:
+    TextBox(const QString& text, const Rectangle &bBox) :
+    m_text(text), m_bBox(bBox) {};
+
+    QString getText() const { return m_text; };
+    Rectangle getBoundingBox() const { return m_bBox; };
+
+  private:
+    QString m_text;
+    Rectangle m_bBox;
+};
+
+
 class PageTransitionData;
 class PageTransition
 {
@@ -118,18 +133,44 @@ class Page {
   friend class Document;
   public:
     ~Page();
+    void renderToPixmap(QPixmap **q, int x, int y, int w, int h, double xres, double yres) const;
+
+    /**
+     * This is a convenience function that is equivalent to
+     * renderToPixmap() with xres and yres set to 72.0. We keep it
+     * only for binary compatibility
+     **/
     void renderToPixmap(QPixmap **q, int x, int y, int w, int h) const;
     
+    /**
+     * Returns the size of the page in points
+     **/
+    QSize pageSize() const;
+
     /**
     * Returns the text that is inside the Rectangle r
     * If r is a null Rectangle all text of the page is given
     **/
     QString getText(const Rectangle &r) const;
 
+    QValueList<TextBox*> textList() const;
+
     /**
     * Returns the transition of this page
     **/
     PageTransition *getTransition() const;
+
+    enum Orientation {
+      Landscape,
+      Portrait,
+      Seascape,
+      UpsideDown
+    };
+
+    /**
+    *  The orientation of the page
+    **/
+    Orientation orientation() const;
     
   private:
     Page(const Document *doc, int index);

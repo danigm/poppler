@@ -1,5 +1,10 @@
 2005-11-21  Albert Astals Cid  <aacid@kde.org>
 
+	* qt/poppler-page.cc:
+	* qt/poppler-qt.h: Some more functions, patch by Stefan Kebekus
+
+2005-11-21  Albert Astals Cid  <aacid@kde.org>
+
 	* qt/Makefile.am: Fix build problems some people were having
 
 2005-11-20  Kristian Høgsberg  <krh@redhat.com>
