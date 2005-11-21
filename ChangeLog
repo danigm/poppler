@@ -1,3 +1,7 @@
+2005-11-21  Albert Astals Cid  <aacid@kde.org>
+
+	* qt/Makefile.am: Fix build problems some people were having
+
 2005-11-20  Kristian Høgsberg  <krh@redhat.com>
 
 	* poppler/GfxState.cc: Fix the byte_lookup initialization broken

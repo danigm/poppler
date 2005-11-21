@@ -3,6 +3,7 @@ INCLUDES =					\
 	-I$(top_srcdir)/poppler			\
 	$(cairo_includes)			\
 	$(POPPLER_QT_CXXFLAGS)			\
+	$(SPLASH_CFLAGS)			\
 	$(FREETYPE_CFLAGS)			\
 	-DDATADIR=\""$(datadir)"\"
 
