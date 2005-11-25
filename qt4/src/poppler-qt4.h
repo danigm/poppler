@@ -35,6 +35,19 @@ namespace Poppler {
 
     class PageData;
 
+    class TextBox {
+    public:
+      TextBox(const QString& text, const QRectF &bBox) :
+	m_text(text), m_bBox(bBox) {};
+      
+      QString text() const { return m_text; };
+      QRectF boundingBox() const { return m_bBox; };
+	
+    private:
+	QString m_text;
+	QRectF m_bBox;
+    };
+
 
     /**
        Container class for information about a font within a PDF
@@ -128,6 +141,13 @@ namespace Poppler {
 	   page->renderToPixmap(myPixmap);
 	   \endcode
 	*/
+        void renderToPixmap(QPixmap *q, double xres, double yres) const;
+
+        /**
+         * This is a convenience function that is equivalent to
+	 * renderToPixmap() with xres and yres set to 72.0. We keep it
+	 * only for binary compatibility
+	 **/
 	void renderToPixmap(QPixmap *q) const;
 
 	/**
@@ -137,6 +157,8 @@ namespace Poppler {
 	   If rect is null, all text on the page is given
 	**/
 	QString text(const QRectF &rect) const;
+
+	QList<TextBox*> textList() const;
 
 	/**
 	   The dimensions of the page, in points.

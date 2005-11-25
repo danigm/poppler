@@ -78,14 +78,19 @@ void Page::splashRenderToPixmap(QPixmap **q, int x, int y, int w, int h) const
 
 void Page::renderToPixmap(QPixmap *pixmap) const
 {
+  renderToPixmap(pixmap, 72.0, 72.0);
+}
+
+void Page::renderToPixmap(QPixmap *pixmap, double xres, double yres) const
+{
   QPainter* painter = new QPainter(pixmap);
   painter->setRenderHint(QPainter::Antialiasing);
   ArthurOutputDev output_dev(painter);
   output_dev.startDoc(m_page->parentDoc->m_doc->doc.getXRef ());
   m_page->parentDoc->m_doc->doc.displayPageSlice(&output_dev,
 						 m_page->index + 1,
-						 72,
-						 72,
+						 xres,
+						 yres,
 						 0,
 						 false,
 						 true,
@@ -128,6 +133,41 @@ QString Page::text(const QRectF &r) const
   delete output_dev;
   delete s;
   return result;
+}
+
+QList<TextBox*> Page::textList() const
+{
+  TextOutputDev *output_dev;
+  
+  QList<TextBox*> output_list;
+  
+  output_dev = new TextOutputDev(0, gFalse, gFalse, gFalse);
+
+  m_page->parentDoc->m_doc->doc.displayPageSlice(output_dev, m_page->index + 1, 72, 72,
+      0, false, false, false, -1, -1, -1, -1);
+
+  TextWordList *word_list = output_dev->makeWordList();
+  
+  if (!word_list) {
+    delete output_dev;
+    return output_list;
+  }
+  
+  for (int i = 0; i < word_list->getLength(); i++) {
+    TextWord *word = word_list->get(i);
+    QString string = QString::fromUtf8(word->getText()->getCString());
+    double xMin, yMin, xMax, yMax;
+    word->getBBox(&xMin, &yMin, &xMax, &yMax);
+    
+    TextBox* text_box = new TextBox(string, QRectF(xMin, yMin, xMax, yMax));
+    
+    output_list.append(text_box);
+  }
+  
+  delete word_list;
+  delete output_dev;
+  
+  return output_list;
 }
 
 QSizeF Page::pageSizeF() const

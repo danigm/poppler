@@ -1,3 +1,8 @@
+2005-11-25  Albert Astals Cid  <aacid@kde.org>
+
+	* qt4/poppler-page.cc:
+	* qt4/poppler-qt.h: Some more functions, patch by Stefan Kebekus
+
 2005-11-21  Albert Astals Cid  <aacid@kde.org>
 	
 	* test/pdf-inspector.cc: Fix page range
