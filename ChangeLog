@@ -1,3 +1,10 @@
+2005-11-27  Brad Hards  <bradh@frogmouth.net>
+
+	* qt4/src/poppler-qt4.h: add some missing API documentation
+
+	* qt4/tests: updated unit tests to use Qt4.1 version of
+	QTestlib.
+
 2005-11-25  Albert Astals Cid  <aacid@kde.org>
 
 	* qt4/poppler-page.cc:

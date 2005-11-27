@@ -53,16 +53,20 @@ TESTS = \
 
 check_PROGRAMS = $(TESTS)
 
-check_metadata_SOURCES = check_metadata.cpp check_metadata.moc
+check_metadata_SOURCES = check_metadata.cpp
+check_metadata.$(OBJEXT): check_metadata.moc
 check_metadata_LDADD = $(UT_LDADDS)
 
-check_pagemode_SOURCES = check_pagemode.cpp check_pagemode.moc
+check_pagemode_SOURCES = check_pagemode.cpp
+check_pagemode.$(OBJEXT): check_pagemode.moc
 check_pagemode_LDADD = $(UT_LDADDS)
 
-check_permissions_SOURCES = check_permissions.cpp check_permissions.moc
+check_permissions_SOURCES = check_permissions.cpp
+check_metadata.$(OBJEXT): check_permissions.moc
 check_permissions_LDADD = $(UT_LDADDS)
 
-check_pagelayout_SOURCES = check_pagelayout.cpp check_pagelayout.moc
+check_pagelayout_SOURCES = check_pagelayout.cpp
+check_pagelayout.$(OBJEXT): check_pagelayout.moc
 check_pagelayout_LDADD = $(UT_LDADDS)
 
 endif

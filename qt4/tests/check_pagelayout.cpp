@@ -16,29 +16,29 @@ void TestPageLayout::checkNone()
 {
     Poppler::Document *doc;
     doc = Poppler::Document::load("../../../test/unittestcases/UseNone.pdf");
-    VERIFY( doc );
+    QVERIFY( doc );
   
-    COMPARE( doc->pageLayout(), Poppler::Document::NoLayout );
+    QCOMPARE( doc->pageLayout(), Poppler::Document::NoLayout );
 }
 
 void TestPageLayout::checkSingle()
 {
     Poppler::Document *doc;
     doc = Poppler::Document::load("../../../test/unittestcases/FullScreen.pdf");
-    VERIFY( doc );
+    QVERIFY( doc );
   
-    COMPARE( doc->pageLayout(), Poppler::Document::SinglePage );
+    QCOMPARE( doc->pageLayout(), Poppler::Document::SinglePage );
 }
 
 void TestPageLayout::checkFacing()
 {
     Poppler::Document *doc;
     doc = Poppler::Document::load("../../../test/unittestcases/doublepage.pdf");
-    VERIFY( doc );
+    QVERIFY( doc );
 
-    COMPARE( doc->pageLayout(), Poppler::Document::TwoPageRight );
+    QCOMPARE( doc->pageLayout(), Poppler::Document::TwoPageRight );
 }
 
-QTTEST_MAIN(TestPageLayout)
+QTEST_MAIN(TestPageLayout)
 #include "check_pagelayout.moc"
 

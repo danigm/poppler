@@ -14,30 +14,30 @@ void TestPermissions::permissions1()
 {
     Poppler::Document *doc;
     doc = Poppler::Document::load("../../../test/unittestcases/orientation.pdf");
-    VERIFY( doc );
+    QVERIFY( doc );
   
     // we are allowed to print
-    VERIFY( doc->okToPrint() );
+    QVERIFY( doc->okToPrint() );
 
     // we are not allowed to change
-    VERIFY( !(doc->okToChange()) );
+    QVERIFY( !(doc->okToChange()) );
 
     // we are not allowed to copy or extract content
-    VERIFY( !(doc->okToCopy()) );
+    QVERIFY( !(doc->okToCopy()) );
 
     // we are not allowed to print at high resolution
-    VERIFY( !(doc->okToPrintHighRes()) );
+    QVERIFY( !(doc->okToPrintHighRes()) );
 
     // we are not allowed to fill forms
-    VERIFY( !(doc->okToFillForm()) );
+    QVERIFY( !(doc->okToFillForm()) );
 
     // we are allowed to extract content for accessibility
-    VERIFY( doc->okToExtractForAccessibility() );
+    QVERIFY( doc->okToExtractForAccessibility() );
 
     // we are allowed to assemble this document
-    VERIFY( doc->okToAssemble() );
+    QVERIFY( doc->okToAssemble() );
 }
 
-QTTEST_MAIN(TestPermissions)
+QTEST_MAIN(TestPermissions)
 #include "check_permissions.moc"
 

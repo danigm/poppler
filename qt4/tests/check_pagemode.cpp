@@ -18,47 +18,47 @@ void TestPageMode::checkNone()
 {
     Poppler::Document *doc;
     doc = Poppler::Document::load("../../../test/unittestcases/UseNone.pdf");
-    VERIFY( doc );
+    QVERIFY( doc );
   
-    COMPARE( doc->pageMode(), Poppler::Document::UseNone );
+    QCOMPARE( doc->pageMode(), Poppler::Document::UseNone );
 }
 
 void TestPageMode::checkFullScreen()
 {
     Poppler::Document *doc;
     doc = Poppler::Document::load("../../../test/unittestcases/FullScreen.pdf");
-    VERIFY( doc );
+    QVERIFY( doc );
 
-    COMPARE( doc->pageMode(), Poppler::Document::FullScreen );
+    QCOMPARE( doc->pageMode(), Poppler::Document::FullScreen );
 }
 
 void TestPageMode::checkAttachments()
 {
     Poppler::Document *doc;
     doc = Poppler::Document::load("../../../test/unittestcases/UseAttachments.pdf");
-    VERIFY( doc );
+    QVERIFY( doc );
   
-    COMPARE( doc->pageMode(), Poppler::Document::UseAttach );
+    QCOMPARE( doc->pageMode(), Poppler::Document::UseAttach );
 }
 
 void TestPageMode::checkThumbs()
 {
     Poppler::Document *doc;
     doc = Poppler::Document::load("../../../test/unittestcases/UseThumbs.pdf");
-    VERIFY( doc );
+    QVERIFY( doc );
 
-    COMPARE( doc->pageMode(), Poppler::Document::UseThumbs );
+    QCOMPARE( doc->pageMode(), Poppler::Document::UseThumbs );
 }
 
 void TestPageMode::checkOC()
 {
     Poppler::Document *doc;
     doc = Poppler::Document::load("../../../test/unittestcases/UseOC.pdf");
-    VERIFY( doc );
+    QVERIFY( doc );
 
-    COMPARE( doc->pageMode(), Poppler::Document::UseOC );
+    QCOMPARE( doc->pageMode(), Poppler::Document::UseOC );
 }
 
-QTTEST_MAIN(TestPageMode)
+QTEST_MAIN(TestPageMode)
 #include "check_pagemode.moc"
 

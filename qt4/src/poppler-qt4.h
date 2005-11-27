@@ -170,11 +170,14 @@ namespace Poppler {
 	*/
 	QSize pageSize() const;
 
+	/**
+	   Types of orientations that are possible
+	*/
 	enum Orientation {
-	    Landscape,
-	    Portrait,
-	    Seascape,
-	    UpsideDown
+	    Landscape, ///< Landscape orientation (portrait, with 90 degrees clockwise rotation )
+	    Portrait, ///< Normal portrait orientation
+	    Seascape, ///< Seascape orientation (portrait, with 270 degrees clockwise rotation)
+	    UpsideDown ///< Upside down orientation (portrait, with 180 degrees rotation)
 	};
 
 	/**

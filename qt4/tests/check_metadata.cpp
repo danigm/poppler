@@ -7,7 +7,7 @@ class TestMetaData: public QObject
 {
     Q_OBJECT
 private slots:
-    void checkStrings_data(QtTestTable &t);
+    void checkStrings_data();
     void checkStrings();
     void checkLinearised();
     void checkPortraitOrientation();
@@ -17,85 +17,85 @@ private slots:
     void checkVersion();
 };
 
-void TestMetaData::checkStrings_data(QtTestTable &t)
+void TestMetaData::checkStrings_data()
 {
-    t.defineElement( "QString", "key" );
-    t.defineElement( "QString", "value" );
+    QTest::addColumn<QString>("key");
+    QTest::addColumn<QString>("value");
 
-    *t.newData( "Author" ) << "Author" << "Brad Hards";
-    *t.newData( "Title" ) << "Title" << "Two pages";
-    *t.newData( "Subject" ) << "Subject"
-			    << "A two page layout for poppler testing";
-    *t.newData( "Keywords" ) << "Keywords" << "Qt4 bindings";
-    *t.newData( "Creator" ) << "Creator" << "iText: cgpdftops CUPS filter";
-    *t.newData( "Producer" ) << "Producer" << "Acrobat Distiller 7.0 for Macintosh";
+    QTest::newRow( "Author" ) << "Author" << "Brad Hards";
+    QTest::newRow( "Title" ) << "Title" << "Two pages";
+    QTest::newRow( "Subject" ) << "Subject"
+			       << "A two page layout for poppler testing";
+    QTest::newRow( "Keywords" ) << "Keywords" << "Qt4 bindings";
+    QTest::newRow( "Creator" ) << "Creator" << "iText: cgpdftops CUPS filter";
+    QTest::newRow( "Producer" ) << "Producer" << "Acrobat Distiller 7.0 for Macintosh";
 }
 
 void TestMetaData::checkStrings()
 {
     Poppler::Document *doc;
     doc = Poppler::Document::load("../../../test/unittestcases/doublepage.pdf");
-    VERIFY( doc );
+    QVERIFY( doc );
 
-    FETCH( QString, key );
-    FETCH( QString, value );
-    COMPARE( doc->info(key), value );
+    QFETCH( QString, key );
+    QFETCH( QString, value );
+    QCOMPARE( doc->info(key), value );
 }
 
 void TestMetaData::checkLinearised()
 {
     Poppler::Document *doc;
     doc = Poppler::Document::load("../../../test/unittestcases/orientation.pdf");
-    VERIFY( doc );
+    QVERIFY( doc );
 
-    VERIFY( doc->isLinearized() );
+    QVERIFY( doc->isLinearized() );
 }
 
 void TestMetaData::checkPortraitOrientation()
 {
     Poppler::Document *doc;
     doc = Poppler::Document::load("../../../test/unittestcases/orientation.pdf");
-    VERIFY( doc );
+    QVERIFY( doc );
   
-    COMPARE( doc->page(0)->orientation(), Poppler::Page::Portrait );
+    QCOMPARE( doc->page(0)->orientation(), Poppler::Page::Portrait );
 }
 
 void TestMetaData::checkLandscapeOrientation()
 {
     Poppler::Document *doc;
     doc = Poppler::Document::load("../../../test/unittestcases/orientation.pdf");
-    VERIFY( doc );
+    QVERIFY( doc );
   
-    COMPARE( doc->page(1)->orientation(), Poppler::Page::Landscape );
+    QCOMPARE( doc->page(1)->orientation(), Poppler::Page::Landscape );
 }
 
 void TestMetaData::checkUpsideDownOrientation()
 {
     Poppler::Document *doc;
     doc = Poppler::Document::load("../../../test/unittestcases/orientation.pdf");
-    VERIFY( doc );
+    QVERIFY( doc );
 
-    COMPARE( doc->page(2)->orientation(), Poppler::Page::UpsideDown );
+    QCOMPARE( doc->page(2)->orientation(), Poppler::Page::UpsideDown );
 }
 
 void TestMetaData::checkSeascapeOrientation()
 {
     Poppler::Document *doc;
     doc = Poppler::Document::load("../../../test/unittestcases/orientation.pdf");
-    VERIFY( doc );
+    QVERIFY( doc );
 
-    COMPARE( doc->page(3)->orientation(), Poppler::Page::Seascape );
+    QCOMPARE( doc->page(3)->orientation(), Poppler::Page::Seascape );
 }
 
 void TestMetaData::checkVersion()
 {
     Poppler::Document *doc;
     doc = Poppler::Document::load("../../../test/unittestcases/doublepage.pdf");
-    VERIFY( doc );
+    QVERIFY( doc );
 
-    COMPARE( doc->pdfVersion(), 1.6 );
+    QCOMPARE( doc->pdfVersion(), 1.6 );
 }
 
-QTTEST_MAIN(TestMetaData)
+QTEST_MAIN(TestMetaData)
 #include "check_metadata.moc"
 
