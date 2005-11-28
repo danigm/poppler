@@ -54,24 +54,49 @@ Page::~Page()
 
 void Page::splashRenderToPixmap(QPixmap **q, int x, int y, int w, int h) const
 {
-  SplashOutputDev *output_dev;
+  splashRenderToPixmap(q, x, y, w, h, 72.0, 72.0);
+}
+
+void Page::splashRenderToPixmap(QPixmap **q, int x, int y, int w, int h, double xres, double yres) const
+{
   SplashColor white;
-  SplashBitmap *bitmap;
   white[0] = 255;
   white[1] = 255;
   white[2] = 255;
-  SplashColorPtr color_ptr;
-  output_dev = new SplashOutputDev(splashModeRGB8, 4, gFalse, white);
+  SplashOutputDev *output_dev = new SplashOutputDev(splashModeRGB8, 4, gFalse, white);
   output_dev->startDoc(m_page->parentDoc->m_doc->doc.getXRef ());
   
-  m_page->parentDoc->m_doc->doc.displayPageSlice(output_dev, m_page->index + 1, 72, 72,
-      0, false, true, false, -1, -1, -1, -1);
-  bitmap = output_dev->getBitmap ();
-  color_ptr = bitmap->getDataPtr ();
-
-  QImage * img = new QImage( (uchar*)color_ptr, bitmap->getWidth(), bitmap->getHeight(), QImage::Format_RGB32 );
-  *q = new QPixmap(QPixmap::fromImage(*img));
+  m_page->parentDoc->m_doc->doc.displayPageSlice(output_dev, m_page->index + 1, xres, yres,
+						 0, false, true, false, -1, -1, -1, -1);
   
+  SplashBitmap *bitmap = output_dev->getBitmap ();
+  int bw = bitmap->getWidth();
+  int bh = bitmap->getHeight();
+  
+  // Produce a QImage and copy the image there pixel-by-pixel. This is
+  // quite slow and rather ugly, and the following two lines would be
+  // much nicer. But it does not work since the change to xpdf 3.01
+  // it's worth investigating
+
+  // -------- 
+  //  SplashColorPtr color_ptr = bitmap->getDataPtr ();
+  //  QImage *img = new QImage( (uchar*)color_ptr, bw, bh, QImage::Format_RGB32 );
+  // --------
+
+  QImage * img = new QImage( bw, bh, QImage::Format_RGB32 );
+  SplashColorPtr pixel = new Guchar[4];
+  for (int i = 0; i < bw; i++) {
+    for (int j = 0; j < bh; j++) {
+      output_dev->getBitmap()->getPixel(i, j, pixel);
+      img->setPixel( i, j, qRgb( pixel[0], pixel[1], pixel[2] ) );
+    }
+  }
+  delete[] pixel;
+ 
+  // Turn the QImage into a QPixmap
+  *q = new QPixmap(QPixmap::fromImage(*img));
+
+  // Delete temporary buffers
   delete img;
   delete output_dev;
 }

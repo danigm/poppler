@@ -9,7 +9,7 @@
 class PDFDisplay : public QWidget           // picture display widget
 {
 public:
-    PDFDisplay( Poppler::Document *d );
+    PDFDisplay( Poppler::Document *d, bool arthur );
     ~PDFDisplay();
 protected:
     void paintEvent( QPaintEvent * );
@@ -17,30 +17,40 @@ protected:
 private:
     void display();
     int m_currentPage;
-    QPixmap	*pixmap;
+    QPixmap *pixmap;
     Poppler::Document *doc;
+    bool useArthur;
 };
 
-PDFDisplay::PDFDisplay( Poppler::Document *d )
+PDFDisplay::PDFDisplay( Poppler::Document *d, bool arthur )
 {
     doc = d;
     m_currentPage = 0;
+    useArthur = arthur;
     display();
 }
 
 void PDFDisplay::display()
 {
     if (doc) {
-	Poppler::Page *page = doc->page(m_currentPage);
-	if (page) {
-	    qDebug() << "Displaying page: " << m_currentPage;
-	    pixmap = new QPixmap(page->pageSize());
-	    page->renderToPixmap(pixmap);
-	    update();
-	    delete page;
-	}
+        Poppler::Page *page = doc->page(m_currentPage);
+        if (page) {
+            pixmap = new QPixmap(page->pageSize());
+            if (useArthur)
+            {
+                qDebug() << "Displaying page using Arthur backend: " << m_currentPage;
+                page->renderToPixmap(pixmap);
+            }
+            else
+            {
+                qDebug() << "Displaying page using Splash backend: " << m_currentPage;
+                page->splashRenderToPixmap(&pixmap, -1, -1, 0, 0);
+            }
+            update();
+            delete page;
+        }
     } else {
-	qWarning() << "doc not loaded";
+        qWarning() << "doc not loaded";
     }
 }
 
@@ -88,10 +98,12 @@ int main( int argc, char **argv )
 {
     QApplication a( argc, argv );               // QApplication required!
 
-    if ( argc < 2  || (argc == 3 && strcmp(argv[2], "-extract") != 0) || argc > 3)
+    if ( argc < 2 ||
+        (argc == 3 && strcmp(argv[2], "-extract") != 0 && strcmp(argv[2], "-arthur") != 0) ||
+        argc > 3)
     {
 	// use argument as file name
-	qWarning() << "usage: test-poppler-qt filename [-extract]";
+	qWarning() << "usage: test-poppler-qt filename [-extract|-arthur]";
 	exit(1);
     }
   
@@ -128,13 +140,14 @@ int main( int argc, char **argv )
     Poppler::Page *page = doc->page(0);
     qDebug() << "    Page 1 size: " << page->pageSize().width()/72 << "inches x " << page->pageSize().height()/72 << "inches";
 
-    if (argc == 2)
-    {  
-	PDFDisplay test( doc );        // create picture display
-	test.setWindowTitle("Poppler-Qt4 Test");
-	test.show();                            // show it
+    if (argc == 2 || (argc == 3 && strcmp(argv[2], "-arthur") == 0))
+    {
+        bool useArthur = (argc == 3 && strcmp(argv[2], "-arthur") == 0);
+        PDFDisplay test( doc, useArthur );        // create picture display
+        test.setWindowTitle("Poppler-Qt4 Test");
+        test.show();                            // show it
 
-	return a.exec();                        // start event loop
+        return a.exec();                        // start event loop
     }
     else
     {

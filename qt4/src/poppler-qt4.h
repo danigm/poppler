@@ -124,16 +124,23 @@ namespace Poppler {
 	~Page();
 
 	/**
-	   Render the page to a pixmap using the Splash renderer
-	*/
+	 *  Render the page to a pixmap using the Splash renderer
+	 */
+	void splashRenderToPixmap(QPixmap **q, int x, int y, int w, int h, double xres, double yres) const;
+	
+	/**
+	 * This is a convenience function that is equivalent to
+	 * splashRenderToPixmap() with xres and yres set to 72.0. We keep it
+	 * only for binary compatibility
+	 */
 	void splashRenderToPixmap(QPixmap **q, int x, int y, int w, int h) const;
-
+	
 	/**
 	   Render the page to a pixmap using the Arthur (Qt4) renderer
-
+	   
 	   \param q pointer to a QPixmap that is already set to the
 	   intended size.
-
+	   
 	   You are meant to create the pixmap before passing it to
 	   this routine, using something like:
 	   \code
