@@ -1,3 +1,9 @@
+2005-12-01  Albert Astals Cid  <aacid@kde.org>
+	* poppler/JPXStream.cc:
+	* poppler/Stream.cc:
+	* poppler/Stream.h: Fix CAN-2005-3193 based on
+	ftp://ftp.foolabs.com/pub/xpdf/xpdf-3.01pl1.patch
+
 2005-11-28  Albert Astals Cid  <aacid@kde.org>
 
 	* qt4/src/poppler-page,cc:
