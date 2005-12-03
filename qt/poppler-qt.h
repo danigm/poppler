@@ -58,6 +58,64 @@ class TextBox
 };
 
 
+/**
+  Container class for information about a font within a PDF document
+*/
+class FontInfoData;
+class FontInfo {
+public:
+  enum Type {
+    unknown,
+    Type1,
+    Type1C,
+    Type3,
+    TrueType,
+    CIDType0,
+    CIDType0C,
+    CIDTrueType
+  };
+
+  /**
+    Create a new font information container
+  */
+  FontInfo( const QString &fontName, const bool isEmbedded,
+            const bool isSubset, Type type );
+
+  FontInfo();
+
+  ~FontInfo();
+
+  /**
+    The name of the font. Can be QString::null if the font has no name
+  */
+  const QString &name() const;
+
+  /**
+    Whether the font is embedded in the file, or not
+
+    \return true if the font is embedded
+  */
+  bool isEmbedded() const;
+
+  /**
+    Whether the font provided is only a subset of the full
+    font or not. This only has meaning if the font is embedded.
+
+    \return true if the font is only a subset
+  */
+  bool isSubset() const;
+
+  /**
+    The type of font encoding
+  */
+  Type type() const;
+
+  const QString &typeName() const;
+
+private:
+  FontInfoData *data;
+};
+
 class PageTransitionData;
 class PageTransition
 {
@@ -212,7 +270,27 @@ public:
   bool okToCopy() const;
   bool okToAddNotes() const;
   double getPDFVersion() const;
-  
+
+  /**
+    The fonts within the PDF document.
+
+    \note this can take a very long time to run with a large
+    document. You may wish to use the call below if you have more
+    than say 20 pages
+  */
+  QValueList<FontInfo> fonts() const;
+
+  /**
+    \overload
+
+    \param numPages the number of pages to scan
+    \param fontList pointer to the list where the font information
+    should be placed
+
+    \return false if the end of the document has been reached
+  */
+  bool scanForFonts( int numPages, QValueList<FontInfo> *fontList ) const;
+
   Document::~Document();
   
 private:

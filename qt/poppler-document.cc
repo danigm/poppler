@@ -43,6 +43,7 @@ Document *Document::load(const QString &filePath)
       pdoc->data->locked = true;
     else
       pdoc->data->locked = false;
+    pdoc->data->m_fontInfoScanner = new FontInfoScanner(&(doc->doc));
     return pdoc;
   }
   else
@@ -103,6 +104,34 @@ Document::PageMode Document::getPageMode(void) const
 int Document::getNumPages() const
 {
   return data->doc.getNumPages();
+}
+
+QValueList<FontInfo> Document::fonts() const
+{
+  QValueList<FontInfo> ourList;
+  scanForFonts(getNumPages(), &ourList);
+  return ourList;
+}
+
+bool Document::scanForFonts( int numPages, QValueList<FontInfo> *fontList ) const
+{
+  GooList *items = data->m_fontInfoScanner->scan( numPages );
+
+  if ( NULL == items )
+    return false;
+
+  for ( int i = 0; i < items->getLength(); ++i ) {
+    QString fontName;
+    if (((::FontInfo*)items->get(i))->getName())
+      fontName = ((::FontInfo*)items->get(i))->getName()->getCString();
+
+    FontInfo font(fontName,
+                  ((::FontInfo*)items->get(i))->getEmbedded(),
+                  ((::FontInfo*)items->get(i))->getSubset(),
+                  (Poppler::FontInfo::Type)((::FontInfo*)items->get(i))->getType());
+    fontList->append(font);
+  }
+  return true;
 }
 
 /* borrowed from kpdf */

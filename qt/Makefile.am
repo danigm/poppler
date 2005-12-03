@@ -15,6 +15,7 @@ poppler_include_HEADERS =			\
 lib_LTLIBRARIES=libpoppler-qt.la
 libpoppler_qt_la_SOURCES =			\
 	poppler-document.cc			\
+	poppler-fontinfo.cc			\
 	poppler-page.cc				\
 	poppler-private.h
 

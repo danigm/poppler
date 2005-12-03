@@ -19,6 +19,13 @@
 
 2005-12-03  Albert Astals Cid  <aacid@kde.org>
 
+	* qt4/src/poppler-qt4.h:
+	* qt4/src/poppler-fontinfo.cc:
+	* qt4/src/poppler-textbox.cc: Remove implementation of that classes
+	from the header, use pimpl
+
+2005-12-03  Albert Astals Cid  <aacid@kde.org>
+
 	* qt4/src/poppler-page.cc:
 	* qt4/src/Doxyfile:
 	* qt4/src/poppler-qt4.h:
@@ -27,7 +34,7 @@
 	BC. Patch by Stefan Kebekus
 
 2005-12-01  Albert Astals Cid  <aacid@kde.org>
-	
+
 	* poppler/JPXStream.cc:
 	* poppler/Stream.cc:
 	* poppler/Stream.h: Fix CAN-2005-3193 based on

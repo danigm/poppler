@@ -35,17 +35,16 @@ namespace Poppler {
 
     class PageData;
 
+    class TextBoxData;
     class TextBox {
     public:
-      TextBox(const QString& text, const QRectF &bBox) :
-	m_text(text), m_bBox(bBox) {};
+      TextBox(const QString& text, const QRectF &bBox);
       
-      QString text() const { return m_text; };
-      QRectF boundingBox() const { return m_bBox; };
+      const QString &text() const;
+      const QRectF &boundingBox() const;
 	
     private:
-	QString m_text;
-	QRectF m_bBox;
+	TextBoxData *m_data;
     };
 
 
@@ -53,6 +52,7 @@ namespace Poppler {
        Container class for information about a font within a PDF
        document
     */
+    class FontInfoData;
     class FontInfo {
     public:
 	enum Type {
@@ -69,27 +69,22 @@ namespace Poppler {
 	/**
 	   Create a new font information container
 	*/
-	FontInfo( const QString fontName, const bool isEmbedded,
-		  const bool isSubset, Type type):
-	    m_fontName(fontName),
-	    m_isEmbedded(isEmbedded),
-	    m_isSubset(isSubset),
-	    m_type(type)
-	    {};
+	FontInfo( const QString &fontName, const bool isEmbedded,
+		  const bool isSubset, Type type);
+	
+	~FontInfo();
 
 	/**
 	   The name of the font. Can be QString::null if the font has no name
 	*/
-	QString name() const
-	    { return m_fontName; }
+	const QString &name() const;
 
 	/**
 	   Whether the font is embedded in the file, or not
 
 	   \return true if the font is embedded
 	*/
-	bool isEmbedded() const
-	    { return m_isEmbedded; }
+	bool isEmbedded() const;
 
 	/**
 	   Whether the font provided is only a subset of the full
@@ -97,21 +92,17 @@ namespace Poppler {
 
 	   \return true if the font is only a subset
 	*/
-	bool isSubset() const
-	    { return m_isSubset; }
+	bool isSubset() const;
 
 	/**
 	   The type of font encoding
 	*/
-	Type type() const
-	    { return m_type; }
+	Type type() const;
 
-	QString typeName() const;
+	const QString &typeName() const;
+
     private:
-	QString m_fontName;
-	bool m_isEmbedded;
-	bool m_isSubset;
-	Type m_type;
+	FontInfoData *m_data;
     };
 
 

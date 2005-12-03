@@ -14,6 +14,8 @@ lib_LTLIBRARIES=libpoppler-qt4.la
 libpoppler_qt4_la_SOURCES =			\
 	poppler-document.cc			\
 	poppler-page.cc				\
+	poppler-fontinfo.cc			\
+	poppler-textbox.cc			\
 	poppler-private.h
 
 libpoppler_qt4_la_LIBADD= 			\

@@ -1,5 +1,5 @@
-/* poppler-private.h: qt interface to poppler
- * Copyright (C) 2005, Net Integration Technologies, Inc.
+/* poppler-qt.h: qt interface to poppler
+ * Copyright (C) 2005, Brad Hards <bradh@frogmouth.net>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,19 +16,34 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-#include <PDFDoc.h>
-#include <FontInfo.h>
+#define UNSTABLE_POPPLER_QT4
+
+#include "poppler-qt4.h"
 
 namespace Poppler {
 
-class DocumentData {
-  public:
-    DocumentData(GooString *filePath, GooString *password) : doc(filePath,password) {}
-  class PDFDoc doc;
-  bool locked;
-  FontInfoScanner *m_fontInfoScanner;
+class TextBoxData
+{
+	public:
+		QString text;
+		QRectF bBox;
+};
+
+TextBox::TextBox(const QString& text, const QRectF &bBox)
+{
+	m_data = new TextBoxData();
+	m_data->text = text;
+	m_data->bBox = bBox;
+}
+
+const QString &TextBox::text() const
+{
+	return m_data->text;
+}
+
+const QRectF &TextBox::boundingBox() const
+{
+	return m_data->bBox;
 };
 
 }
-
-
