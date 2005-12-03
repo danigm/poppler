@@ -30,7 +30,6 @@
 
 #include "PDFDoc.h"
 #include "GlobalParams.h"
-#include "SplashOutputDev.h"
 #include "ErrorCodes.h"
 #include <gtk/gtk.h>
 #include <glade/glade.h>
@@ -67,7 +66,7 @@ private:
   GladeXML *xml;
   GtkTreeModel *model;
   PDFDoc *doc;
-  SplashOutputDev *output;
+  CairoOutputDev *output;
 };
 
 
@@ -129,11 +128,7 @@ PdfInspector::PdfInspector(void)
       gtk_tree_view_column_set_sort_column_id (column, i);
     }
   doc = NULL;
-  SplashColor white;
-  white[0] = 255;
-  white[1] = 255;
-  white[2] = 255;
-  output = new SplashOutputDev(splashModeRGB8, 4, gFalse, white);
+  output = new CairoOutputDev();
 
   // set up initial widgets
   load (NULL);
