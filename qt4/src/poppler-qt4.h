@@ -124,16 +124,46 @@ namespace Poppler {
 	~Page();
 
 	/**
-	 *  Render the page to a pixmap using the Splash renderer
+	   Render the page to a QPixmap using the Splash renderer
+	 
+	   This method can be used to render the page to a QPixmap. It
+	   uses the "Splash" rendering engine that is included in the
+	   Poppler distribution. This method is reasonably well-tested
+	   and has produced good output so far. This method is used as
+	   follows.
+
+@code
+Poppler::Page* pdfPage;
+
+// Generate a QPixmap of the rendered page
+QPixmap* pixmap = pdfPage->splashRenderToPixmap(0, 0, 0, 0, xres, yres );
+if (pixmap == 0) {
+  ... error message ...
+  return;
+}
+
+... use pixmap ...
+
+delete pixmap;
+@endcode
+
+	   @param x UNUSED
+
+	   @param y UNUSED
+
+	   @param w UNUSED
+
+	   @param h UNUSED
+
+	   @param xres horizontal resolution of the graphics device,
+	   in dots per inch
+
+	   @param yres vertical resolution of the graphics device,
+	   in dots per inch
+
+	   @returns pointer to a QPixmap, or NULL on failure. The pixmap returned must be deleted.
 	 */
-	void splashRenderToPixmap(QPixmap **q, int x, int y, int w, int h, double xres, double yres) const;
-	
-	/**
-	 * This is a convenience function that is equivalent to
-	 * splashRenderToPixmap() with xres and yres set to 72.0. We keep it
-	 * only for binary compatibility
-	 */
-	void splashRenderToPixmap(QPixmap **q, int x, int y, int w, int h) const;
+	QPixmap *splashRenderToPixmap(int x, int y, int w, int h, double xres=72.0, double yres=72.0) const;
 	
 	/**
 	   Render the page to a pixmap using the Arthur (Qt4) renderer
@@ -148,14 +178,7 @@ namespace Poppler {
 	   page->renderToPixmap(myPixmap);
 	   \endcode
 	*/
-        void renderToPixmap(QPixmap *q, double xres, double yres) const;
-
-        /**
-         * This is a convenience function that is equivalent to
-	 * renderToPixmap() with xres and yres set to 72.0. We keep it
-	 * only for binary compatibility
-	 **/
-	void renderToPixmap(QPixmap *q) const;
+        void renderToPixmap(QPixmap *q, double xres=72.0, double yres=72.0) const;
 
 	/**
 	   Returns the text that is inside a specified rectangle

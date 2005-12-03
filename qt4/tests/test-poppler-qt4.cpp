@@ -39,12 +39,13 @@ void PDFDisplay::display()
             if (useArthur)
             {
                 qDebug() << "Displaying page using Arthur backend: " << m_currentPage;
-                page->renderToPixmap(pixmap);
+                page->renderToPixmap(pixmap, 72.0, 72.0);
             }
             else
             {
                 qDebug() << "Displaying page using Splash backend: " << m_currentPage;
-                page->splashRenderToPixmap(&pixmap, -1, -1, 0, 0);
+		delete pixmap;
+                pixmap = page->splashRenderToPixmap(-1, -1, 0, 0, 72.0, 72.0);
             }
             update();
             delete page;

@@ -51,13 +51,7 @@ Page::~Page()
   delete m_page;
 }
 
-
-void Page::splashRenderToPixmap(QPixmap **q, int x, int y, int w, int h) const
-{
-  splashRenderToPixmap(q, x, y, w, h, 72.0, 72.0);
-}
-
-void Page::splashRenderToPixmap(QPixmap **q, int x, int y, int w, int h, double xres, double yres) const
+QPixmap *Page::splashRenderToPixmap(int x, int y, int w, int h, double xres, double yres) const
 {
   SplashColor white;
   white[0] = 255;
@@ -83,27 +77,23 @@ void Page::splashRenderToPixmap(QPixmap **q, int x, int y, int w, int h, double 
   //  QImage *img = new QImage( (uchar*)color_ptr, bw, bh, QImage::Format_RGB32 );
   // --------
 
-  QImage * img = new QImage( bw, bh, QImage::Format_RGB32 );
+  QImage img( bw, bh, QImage::Format_RGB32 );
   SplashColorPtr pixel = new Guchar[4];
   for (int i = 0; i < bw; i++) {
     for (int j = 0; j < bh; j++) {
       output_dev->getBitmap()->getPixel(i, j, pixel);
-      img->setPixel( i, j, qRgb( pixel[0], pixel[1], pixel[2] ) );
+      img.setPixel( i, j, qRgb( pixel[0], pixel[1], pixel[2] ) );
     }
   }
   delete[] pixel;
  
   // Turn the QImage into a QPixmap
-  *q = new QPixmap(QPixmap::fromImage(*img));
+  QPixmap* out = new QPixmap(QPixmap::fromImage(img));
 
   // Delete temporary buffers
-  delete img;
   delete output_dev;
-}
 
-void Page::renderToPixmap(QPixmap *pixmap) const
-{
-  renderToPixmap(pixmap, 72.0, 72.0);
+  return out;
 }
 
 void Page::renderToPixmap(QPixmap *pixmap, double xres, double yres) const

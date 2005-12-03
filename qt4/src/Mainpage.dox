@@ -1,0 +1,91 @@
+/**
+@mainpage The Poppler Qt4 interface library
+
+The Poppler Qt4 interface library, libpoppler-qt4, is library that
+allows Qt4 programmers to easily load and render PDF files. The
+Poppler Qt4 interface library uses poppler internally to do its job,
+but the Qt4 programmer will never have to worry about poppler
+internals.
+
+
+@section help Current Status
+
+At the time this document was written (December '05) the Poppler Qt4
+interface library was still somewhat experimental. From the two
+rendering engines offered by the library, only the splash engine works
+well and has been tested.
+
+
+@section refimpl Example Programs
+
+Examples programs can be found in the qt4/test directory. The poppler
+Qt4 interface library is also used in the development version of KDE's
+document viewer kviewshell. The source files for kviewshell's PDF
+plugin can be found on the subversion server of the KDE project, under
+<a
+href="http://websvn.kde.org/trunk/KDE/kdegraphics/kviewshell/plugins/pdf">this
+URL</a>.
+
+
+@section req How to use the Poppler Qt4 interface library in three easy steps
+
+Programmer who would like to use the Poppler Qt4 interface library
+simply need to add the following two lines to their C++ source files:
+
+@code
+#define UNSTABLE_POPPLER_QT4
+#include <poppler-qt4.h>
+@endcode
+
+The #define statement is required at the moment. You indicate that you
+think you know what you are doing.
+
+A PDF document can then be loaded as follows.
+@code
+QString filename;
+
+Poppler::Document* document = Poppler::Document::load(filename.ascii());
+if (!document || document->isLocked()) {
+
+  ... error message ....
+
+  delete document;
+  return;
+}
+@endcode
+
+Pages can be rendered to QPixmaps with the following commands.
+
+@code
+// Paranoid safety check
+if (document == 0) {
+  ... error message ...
+  return;
+}
+
+// Access page of the PDF file
+Poppler::Page* pdfPage = document->page(pageNumber);  // Document starts at page 0
+if (pdfPage == 0) {
+  ... error message ...
+  return;
+}
+
+// Generate a QPixmap of the rendered page
+QPixmap* pixmap = pdfPage->splashRenderToPixmap(0, 0, 0, 0, xres, yres );
+if (pixmap == 0) {
+  ... error message ...
+  return;
+}
+
+... use pixmap ...
+
+delete pixmap;
+@endcode
+
+Finally, don't forget to destroy the document.
+
+@code
+delete document;
+@endcode
+ */
+

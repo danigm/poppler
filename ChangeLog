@@ -1,3 +1,11 @@
+2005-12-03  Albert Astals Cid  <aacid@kde.org>
+	* qt4/src/poppler-page.cc:
+	* qt4/src/Doxyfile:
+	* qt4/src/poppler-qt4.h:
+	* qt4/tests/test-poppler-qt4.cpp: Updated documentation and removed
+	some BC functions that were not needed as we still do not guarantee
+	BC. Patch by Stefan Kebekus
+
 2005-12-01  Albert Astals Cid  <aacid@kde.org>
 	* poppler/JPXStream.cc:
 	* poppler/Stream.cc:
