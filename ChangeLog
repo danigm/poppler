@@ -19,6 +19,9 @@
 
 2005-12-03  Albert Astals Cid  <aacid@kde.org>
 
+	* qt/poppler-document.cc:
+	* qt/poppler-private.h:
+	* qt/poppler-qt.h: Backported font retrieving from Qt4 frontend
 	* qt4/src/poppler-qt4.h:
 	* qt4/src/poppler-fontinfo.cc:
 	* qt4/src/poppler-textbox.cc: Remove implementation of that classes
