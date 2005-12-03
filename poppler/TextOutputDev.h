@@ -114,7 +114,7 @@ public:
   int getCharLen() { return charLen; }
 #endif
 
-//private:
+private:
 
   int rot;			// rotation, multiple of 90 degrees
 				//   (0, 1, 2, or 3)
@@ -219,7 +219,7 @@ public:
   void visitSelection(TextSelectionVisitor *visitor,
 		      PDFRectangle *selection);
 
-//private:
+private:
 
   TextBlock *blk;		// parent block
   int rot;			// text rotation
@@ -281,7 +281,7 @@ public:
   void visitSelection(TextSelectionVisitor *visitor,
 		      PDFRectangle *selection);
 
-//private:
+private:
 
   TextPage *page;		// the parent page
   int rot;			// text rotation
@@ -328,7 +328,7 @@ public:
   // primary axis.
   GBool blockFits(TextBlock *blk, TextBlock *prevBlk);
 
-//private:
+private:
 
   TextPage *page;		// the parent page
   double xMin, xMax;		// bounding box x coordinates
@@ -461,7 +461,7 @@ public:
   TextWordList *makeWordList(GBool physLayout);
 #endif
 
-//private:
+private:
 
   void clear();
   void assignColumns(TextLineFrag *frags, int nFrags, int rot);
