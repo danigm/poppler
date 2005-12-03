@@ -3086,7 +3086,7 @@ public:
   virtual void visitWord (TextWord *word, int begin, int end,
 			  PDFRectangle *selection) { };
 
-  GooString *TextSelectionDumper::getText(void);
+  GooString *getText(void);
 
 private:
   TextLineFrag *frags;

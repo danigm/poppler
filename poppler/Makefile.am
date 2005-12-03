@@ -90,7 +90,8 @@ libpoppler_la_LIBADD =				\
 	$(cairo_libs)				\
 	$(arthur_libs)				\
 	$(libjpeg_libs)				\
-	$(zlib_libs)
+	$(zlib_libs)				\
+	$(FREETYPE_LIBS)
 
 poppler_includedir = $(includedir)/poppler
 poppler_include_HEADERS =	\

@@ -24,7 +24,11 @@ libpoppler_qt_la_LIBADD= 			\
 	$(POPPLER_QT_LIBS)			\
 	$(FREETYPE_LIBS)
 
+if BUILD_SPLASH_OUTPUT
+
 noinst_PROGRAMS = test-poppler-qt
+
+endif
 
 test_poppler_qt_SOURCES =			\
        test-poppler-qt.cpp

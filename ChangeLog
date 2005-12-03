@@ -1,5 +1,22 @@
 2005-12-03  Kristian Høgsberg  <krh@redhat.com>
 
+	* qt/Makefile.am (noinst_PROGRAMS): Only build qt test program if
+	splash is enabled.
+
+	* poppler/CairoOutputDev.cc: Remove unused grid snapping code,
+	sidestepping #4507.
+
+	* glib/poppler-document.h (PopplerPermissions): Breaking enum
+	definition over multiple lines confuses glib-mkenums (#4600).
+
+	* poppler/Makefile.am (libpoppler_la_LIBADD): Add FREETYPE_LIBS
+	(#4515).
+
+	* poppler/TextOutputDev.cc: 
+	* qt/poppler-qt.h: GCC-4.1 fixes (#5031).
+
+2005-12-03  Kristian Høgsberg  <krh@redhat.com>
+
 	Fixes from Nickolay V. Shmyrev:
 	
 	* poppler/TextOutputDev.cc (TextLine::visitSelection,

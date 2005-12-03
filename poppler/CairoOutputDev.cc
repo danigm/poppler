@@ -33,8 +33,6 @@
 
 //------------------------------------------------------------------------
 
-#define soutRound(x) ((int)(x + 0.5))
-
 // #define LOG_CAIRO
 
 #ifdef LOG_CAIRO
@@ -276,8 +274,7 @@ void CairoOutputDev::updateFont(GfxState *state) {
   cairo_set_font_matrix (cairo, &matrix);
 }
 
-void CairoOutputDev::doPath(GfxState *state, GfxPath *path,
-			    GBool snapToGrid) {
+void CairoOutputDev::doPath(GfxState *state, GfxPath *path) {
   GfxSubpath *subpath;
   double x1, y1, x2, y2, x3, y3;
   int i, j;
@@ -286,9 +283,6 @@ void CairoOutputDev::doPath(GfxState *state, GfxPath *path,
     subpath = path->getSubpath(i);
     if (subpath->getNumPoints() > 0) {
       state->transform(subpath->getX(0), subpath->getY(0), &x1, &y1);
-      if (snapToGrid) {
-	x1 = round (x1); y1 = round (y1);
-      }
       cairo_move_to (cairo, x1, y1);
       LOG (printf ("move_to %f, %f\n", x1, y1));
       j = 1;
@@ -297,11 +291,6 @@ void CairoOutputDev::doPath(GfxState *state, GfxPath *path,
 	  state->transform(subpath->getX(j), subpath->getY(j), &x1, &y1);
 	  state->transform(subpath->getX(j+1), subpath->getY(j+1), &x2, &y2);
 	  state->transform(subpath->getX(j+2), subpath->getY(j+2), &x3, &y3);
-	  if (snapToGrid) {
-	    x1 = round (x1); y1 = round (y1);
-	    x2 = round (x2); y2 = round (y2);
-	    x3 = round (x3); y3 = round (y3);
-	  }
 	  cairo_curve_to (cairo, 
 			  x1, y1,
 			  x2, y2,
@@ -310,9 +299,6 @@ void CairoOutputDev::doPath(GfxState *state, GfxPath *path,
 	  j += 3;
 	} else {
 	  state->transform(subpath->getX(j), subpath->getY(j), &x1, &y1);
-	  if (snapToGrid) {
-	    x1 = round (x1); y1 = round (y1);
-	  }
 	  cairo_line_to (cairo, x1, y1);
 	  LOG(printf ("line_to %f, %f\n", x1, y1));
 	  ++j;
@@ -327,14 +313,14 @@ void CairoOutputDev::doPath(GfxState *state, GfxPath *path,
 }
 
 void CairoOutputDev::stroke(GfxState *state) {
-  doPath (state, state->getPath(), gFalse);
+  doPath (state, state->getPath());
   cairo_set_source (cairo, stroke_pattern);
   LOG(printf ("stroke\n"));
   cairo_stroke (cairo);
 }
 
 void CairoOutputDev::fill(GfxState *state) {
-  doPath (state, state->getPath(), gFalse);
+  doPath (state, state->getPath());
   cairo_set_fill_rule (cairo, CAIRO_FILL_RULE_WINDING);
   cairo_set_source (cairo, fill_pattern);
   LOG(printf ("fill\n"));
@@ -342,7 +328,7 @@ void CairoOutputDev::fill(GfxState *state) {
 }
 
 void CairoOutputDev::eoFill(GfxState *state) {
-  doPath (state, state->getPath(), gFalse);
+  doPath (state, state->getPath());
   cairo_set_fill_rule (cairo, CAIRO_FILL_RULE_EVEN_ODD);
   cairo_set_source (cairo, fill_pattern);
   LOG(printf ("fill-eo\n"));
@@ -350,14 +336,14 @@ void CairoOutputDev::eoFill(GfxState *state) {
 }
 
 void CairoOutputDev::clip(GfxState *state) {
-  doPath (state, state->getPath(), gFalse);
+  doPath (state, state->getPath());
   cairo_set_fill_rule (cairo, CAIRO_FILL_RULE_WINDING);
   cairo_clip (cairo);
   LOG (printf ("clip\n"));
 }
 
 void CairoOutputDev::eoClip(GfxState *state) {
-  doPath (state, state->getPath(), gFalse);
+  doPath (state, state->getPath());
   cairo_set_fill_rule (cairo, CAIRO_FILL_RULE_EVEN_ODD);
   cairo_clip (cairo);
   LOG (printf ("clip-eo\n"));
@@ -395,13 +381,10 @@ void CairoOutputDev::endString(GfxState *state)
   if (!currentFont)
     return;
    
-  // check for invisible text -- this is used by Acrobat Capture
+  // ignore empty strings and invisible text -- this is used by
+  // Acrobat Capture
   render = state->getRender();
-  if (render == 3)
-    return;
-
-  // ignore empty strings
-  if (glyphCount == 0) {
+  if (render == 3 || glyphCount == 0) {
     gfree(glyphs);
     glyphs = NULL;
     return;

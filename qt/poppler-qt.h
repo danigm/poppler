@@ -249,7 +249,7 @@ public:
     UseOC
   };
   
-  static Document *Document::load(const QString & filePath);
+  static Document *load(const QString & filePath);
   
   Page *getPage(int index) const{ return new Page(this, index); }
   
@@ -291,11 +291,11 @@ public:
   */
   bool scanForFonts( int numPages, QValueList<FontInfo> *fontList ) const;
 
-  Document::~Document();
+  ~Document();
   
 private:
   DocumentData *data;
-  Document::Document(DocumentData *dataA);
+  Document(DocumentData *dataA);
 };
 
 }

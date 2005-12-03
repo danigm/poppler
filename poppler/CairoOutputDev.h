@@ -133,7 +133,7 @@ public:
   void setSurface (cairo_surface_t *surface);
 
 protected:
-  void doPath(GfxState *state, GfxPath *path, GBool snapToGrid);
+  void doPath(GfxState *state, GfxPath *path);
   
   GfxRGB fill_color, stroke_color;
   cairo_pattern_t *fill_pattern, *stroke_pattern;
