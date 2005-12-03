@@ -35,7 +35,7 @@
 
 #define soutRound(x) ((int)(x + 0.5))
 
-//#define LOG_CAIRO
+// #define LOG_CAIRO
 
 #ifdef LOG_CAIRO
 #define LOG(x) (x)
@@ -55,6 +55,8 @@ CairoOutputDev::CairoOutputDev() {
   fontEngine = NULL;
   glyphs = NULL;
   surface = NULL;
+  fill_pattern = NULL;
+  stroke_pattern = NULL;
 }
 
 CairoOutputDev::~CairoOutputDev() {
@@ -63,6 +65,8 @@ CairoOutputDev::~CairoOutputDev() {
   }
   FT_Done_FreeType(ft_lib);
   cairo_surface_destroy (surface);
+  cairo_pattern_destroy (stroke_pattern);
+  cairo_pattern_destroy (fill_pattern);
 }
 
 void CairoOutputDev::setSurface(cairo_surface_t *surface)
@@ -194,21 +198,51 @@ void CairoOutputDev::updateLineWidth(GfxState *state) {
 
 void CairoOutputDev::updateFillColor(GfxState *state) {
   state->getFillRGB(&fill_color);
-  LOG(printf ("fill color: %f %f %f\n", fill_color.r, fill_color.g, fill_color.b));
+
+  cairo_pattern_destroy(fill_pattern);
+  fill_pattern = cairo_pattern_create_rgba(fill_color.r / 65535.0,
+					   fill_color.g / 65535.0,
+					   fill_color.b / 65535.0,
+					   fill_opacity);
+
+  LOG(printf ("fill color: %d %d %d\n",
+	      fill_color.r, fill_color.g, fill_color.b));
 }
 
 void CairoOutputDev::updateStrokeColor(GfxState *state) {
   state->getStrokeRGB(&stroke_color);
-  LOG(printf ("stroke color: %f %f %f\n", stroke_color.r, stroke_color.g, stroke_color.b));
+
+  cairo_pattern_destroy(stroke_pattern);
+  stroke_pattern = cairo_pattern_create_rgba(stroke_color.r / 65535.0,
+					     stroke_color.g / 65535.0,
+					     stroke_color.b / 65535.0,
+					     stroke_opacity);
+  
+  LOG(printf ("stroke color: %d %d %d\n",
+	      stroke_color.r, stroke_color.g, stroke_color.b));
 }
 
 void CairoOutputDev::updateFillOpacity(GfxState *state) {
   fill_opacity = state->getFillOpacity();
+
+  cairo_pattern_destroy(fill_pattern);
+  fill_pattern = cairo_pattern_create_rgba(fill_color.r / 65535.0,
+					   fill_color.g / 65535.0,
+					   fill_color.b / 65535.0,
+					   fill_opacity);
+
   LOG(printf ("fill opacity: %f\n", fill_opacity));
 }
 
 void CairoOutputDev::updateStrokeOpacity(GfxState *state) {
   stroke_opacity = state->getStrokeOpacity();
+
+  cairo_pattern_destroy(stroke_pattern);
+  stroke_pattern = cairo_pattern_create_rgba(stroke_color.r / 65535.0,
+					     stroke_color.g / 65535.0,
+					     stroke_color.b / 65535.0,
+					     stroke_opacity);
+  
   LOG(printf ("stroke opacity: %f\n", stroke_opacity));
 }
 
@@ -294,9 +328,7 @@ void CairoOutputDev::doPath(GfxState *state, GfxPath *path,
 
 void CairoOutputDev::stroke(GfxState *state) {
   doPath (state, state->getPath(), gFalse);
-  cairo_set_source_rgba (cairo,
-			 stroke_color.r, stroke_color.g, stroke_color.b,
-			 stroke_opacity);
+  cairo_set_source (cairo, stroke_pattern);
   LOG(printf ("stroke\n"));
   cairo_stroke (cairo);
 }
@@ -304,9 +336,7 @@ void CairoOutputDev::stroke(GfxState *state) {
 void CairoOutputDev::fill(GfxState *state) {
   doPath (state, state->getPath(), gFalse);
   cairo_set_fill_rule (cairo, CAIRO_FILL_RULE_WINDING);
-  cairo_set_source_rgba (cairo,
-			 fill_color.r, fill_color.g, fill_color.b,
-			 fill_opacity);
+  cairo_set_source (cairo, fill_pattern);
   LOG(printf ("fill\n"));
   cairo_fill (cairo);
 }
@@ -314,8 +344,7 @@ void CairoOutputDev::fill(GfxState *state) {
 void CairoOutputDev::eoFill(GfxState *state) {
   doPath (state, state->getPath(), gFalse);
   cairo_set_fill_rule (cairo, CAIRO_FILL_RULE_EVEN_ODD);
-  cairo_set_source_rgb (cairo,
-		       fill_color.r, fill_color.g, fill_color.b);
+  cairo_set_source (cairo, fill_pattern);
   LOG(printf ("fill-eo\n"));
   cairo_fill (cairo);
 }
@@ -380,16 +409,14 @@ void CairoOutputDev::endString(GfxState *state)
   
   if (!(render & 1)) {
     LOG (printf ("fill string\n"));
-    cairo_set_source_rgb (cairo,
-			 fill_color.r, fill_color.g, fill_color.b);
+    cairo_set_source (cairo, fill_pattern);
     cairo_show_glyphs (cairo, glyphs, glyphCount);
   }
   
   // stroke
   if ((render & 3) == 1 || (render & 3) == 2) {
     LOG (printf ("stroke string\n"));
-    cairo_set_source_rgb (cairo,
-			 stroke_color.r, stroke_color.g, stroke_color.b);
+    cairo_set_source (cairo, stroke_pattern);
     cairo_glyph_path (cairo, glyphs, glyphCount);
     cairo_stroke (cairo);
   }
@@ -490,7 +517,7 @@ void CairoOutputDev::drawImageMask(GfxState *state, Object *ref, Stream *str,
 
   cairo_pattern_set_filter (pattern, CAIRO_FILTER_BEST);
   /* FIXME: Doesn't the image mask support any colorspace? */
-  cairo_set_source_rgb (cairo, fill_color.r, fill_color.g, fill_color.b);
+  cairo_set_source (cairo, fill_pattern);
   cairo_mask (cairo, pattern);
 
   cairo_pattern_destroy (pattern);

@@ -390,7 +390,7 @@ poppler_page_set_selection_alpha (PopplerPage      *page,
 				  PopplerRectangle *selection)
 {
   GdkRegion *region;
-  gint n_rectangles, i, x, y;
+  gint n_rectangles, i, x, y, width, height;
   GdkRectangle *rectangles;
   int pixbuf_rowstride, pixbuf_n_channels;
   guchar *pixbuf_data, *dst;
@@ -398,9 +398,13 @@ poppler_page_set_selection_alpha (PopplerPage      *page,
   pixbuf_data = gdk_pixbuf_get_pixels (pixbuf);
   pixbuf_rowstride = gdk_pixbuf_get_rowstride (pixbuf);
   pixbuf_n_channels = gdk_pixbuf_get_n_channels (pixbuf);
+  width = gdk_pixbuf_get_width (pixbuf);
+  height = gdk_pixbuf_get_height (pixbuf);
 
   if (pixbuf_n_channels != 4)
     return;
+
+  gdk_pixbuf_fill(pixbuf, 0);
 
   region = poppler_page_get_selection_region (page, scale, selection);
 
@@ -460,14 +464,14 @@ poppler_page_render_selection (PopplerPage      *page,
 			     selection->x2, selection->y2);
 
   GfxColor gfx_background_color = { 
-    background_color->red / 65535.0,
-    background_color->green / 65535.0,
-    background_color->blue / 65535.0
+    background_color->red,
+    background_color->green,
+    background_color->blue
   };
   GfxColor gfx_glyph_color = {
-    glyph_color->red / 65535.0,
-    glyph_color->green / 65535.0,
-    glyph_color->blue / 65535.0
+    glyph_color->red,
+    glyph_color->green,
+    glyph_color->blue
   };
 
   text_dev = poppler_page_get_text_output_dev (page);

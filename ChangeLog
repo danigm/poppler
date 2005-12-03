@@ -1,4 +1,24 @@
+2005-12-03  Kristian Høgsberg  <krh@redhat.com>
+
+	Fixes from Nickolay V. Shmyrev:
+	
+	* poppler/TextOutputDev.cc (TextLine::visitSelection,
+	TextBlock::visitSelection): Fix selection crash with zero-width
+	word boxes or zero-height line boxes (#4402).
+
+	* poppler/CairoOutputDev.h: Fix wrong cairo-ft.h include (#4413).
+
+	* poppler/CairoOutputDev.cc (eoFill, fill): 
+	* glib/poppler-page.cc (poppler_page_render_selection): Update to
+	work with new GfxColor definition and use
+	cairo_pattern_create_rgba() to cache cairo_pattern_t's for the
+	fill and stroke colors.
+
+	* glib/poppler-page.cc (poppler_page_set_selection_alpha): Zero
+	out pixbuf first.
+
 2005-12-03  Albert Astals Cid  <aacid@kde.org>
+
 	* qt4/src/poppler-page.cc:
 	* qt4/src/Doxyfile:
 	* qt4/src/poppler-qt4.h:
@@ -7,6 +27,7 @@
 	BC. Patch by Stefan Kebekus
 
 2005-12-01  Albert Astals Cid  <aacid@kde.org>
+	
 	* poppler/JPXStream.cc:
 	* poppler/Stream.cc:
 	* poppler/Stream.h: Fix CAN-2005-3193 based on

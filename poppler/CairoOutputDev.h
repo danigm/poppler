@@ -15,7 +15,7 @@
 #endif
 
 #include "goo/gtypes.h"
-#include <cairo/cairo-ft.h>
+#include <cairo-ft.h>
 #include "OutputDev.h"
 #include "GfxState.h"
 
@@ -135,8 +135,8 @@ public:
 protected:
   void doPath(GfxState *state, GfxPath *path, GBool snapToGrid);
   
-  GfxRGB fill_color;
-  GfxRGB stroke_color;
+  GfxRGB fill_color, stroke_color;
+  cairo_pattern_t *fill_pattern, *stroke_pattern;
   double fill_opacity;
   double stroke_opacity;
   CairoFont *currentFont;
