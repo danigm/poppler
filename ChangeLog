@@ -1,5 +1,10 @@
 2005-12-03  Kristian Høgsberg  <krh@redhat.com>
 
+	* poppler/GfxState.cc: Fixing another problem with new GfxRGB
+	representation causing images to show up as random pixels (#5117).
+
+2005-12-03  Kristian Høgsberg  <krh@redhat.com>
+
 	* qt/Makefile.am (noinst_PROGRAMS): Only build qt test program if
 	splash is enabled.
 
