@@ -1,3 +1,8 @@
+2005-12-05  Brad Hards  <bradh@frogmouth.net>
+
+	* qt4/tests/check_fonts.cpp (checkType3): Add another case to fonts
+	unit test
+
 2005-12-04  Albert Astals Cid  <aacid@kde.org>
 
 	* poppler/JPXStream.cc: Fix error in merging CAN-2005-3193 fix. Thanks  

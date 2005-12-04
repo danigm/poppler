@@ -9,6 +9,7 @@ class TestFontsData: public QObject
 private slots:
     void checkNoFonts();
     void checkType1();
+    void checkType3();
 };
 
 void TestFontsData::checkNoFonts()
@@ -35,6 +36,29 @@ void TestFontsData::checkType1()
 
     QCOMPARE( listOfFonts.at(0).isEmbedded(), false );
     QCOMPARE( listOfFonts.at(0).isSubset(), false );
+}
+
+void TestFontsData::checkType3()
+{
+    Poppler::Document *doc;
+    doc = Poppler::Document::load("../../../test/tests/type3.pdf");
+    QVERIFY( doc );
+
+    QList<Poppler::FontInfo> listOfFonts = doc->fonts();
+    QCOMPARE( listOfFonts.size(), 2 );
+    QCOMPARE( listOfFonts.at(0).name(), QString("Helvetica") );
+    QCOMPARE( listOfFonts.at(0).type(), Poppler::FontInfo::Type1 );
+    QCOMPARE( listOfFonts.at(0).typeName(), QString("Type 1") );
+
+    QCOMPARE( listOfFonts.at(0).isEmbedded(), false );
+    QCOMPARE( listOfFonts.at(0).isSubset(), false );
+
+    QCOMPARE( listOfFonts.at(1).name(), QString("") );
+    QCOMPARE( listOfFonts.at(1).type(), Poppler::FontInfo::Type3 );
+    QCOMPARE( listOfFonts.at(1).typeName(), QString("Type 3") );
+
+    QCOMPARE( listOfFonts.at(1).isEmbedded(), true );
+    QCOMPARE( listOfFonts.at(1).isSubset(), false );
 }
 
 QTEST_MAIN(TestFontsData)
