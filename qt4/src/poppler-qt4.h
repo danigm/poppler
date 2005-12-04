@@ -96,10 +96,22 @@ namespace Poppler {
 
 	/**
 	   The type of font encoding
+
+	   \return a enumerated value corresponding to the font encoding used
+
+	   \sa typeName for a string equivalent
 	*/
 	Type type() const;
 
-	const QString &typeName() const;
+	/**
+	   The name of the font encoding used
+
+	   \note if you are looking for the name of the font (as opposed to the
+	   encoding format used), you probably want name().
+
+	   \sa type for a enumeration version
+	*/
+	const QString typeName() const;
 
     private:
 	FontInfoData *m_data;

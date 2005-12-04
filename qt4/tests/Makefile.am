@@ -46,12 +46,17 @@ stress_poppler_qt4_LDADD = $(LDADDS)
 
 if BUILD_POPPLER_QT4TESTS
 TESTS = \
+	check_fonts		\
 	check_metadata         \
 	check_permissions      \
 	check_pagemode    \
 	check_pagelayout
 
 check_PROGRAMS = $(TESTS)
+
+check_fonts_SOURCES = check_fonts.cpp
+check_fonts.$(OBJEXT): check_fonts.moc
+check_fonts_LDADD = $(UT_LDADDS)
 
 check_metadata_SOURCES = check_metadata.cpp
 check_metadata.$(OBJEXT): check_metadata.moc

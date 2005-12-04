@@ -1,7 +1,7 @@
 /**
 @mainpage The Poppler Qt4 interface library
 
-The Poppler Qt4 interface library, libpoppler-qt4, is library that
+The Poppler Qt4 interface library, libpoppler-qt4, is a library that
 allows Qt4 programmers to easily load and render PDF files. The
 Poppler Qt4 interface library uses poppler internally to do its job,
 but the Qt4 programmer will never have to worry about poppler
@@ -38,7 +38,8 @@ simply need to add the following two lines to their C++ source files:
 @endcode
 
 The #define statement is required at the moment. You indicate that you
-think you know what you are doing.
+think you know what you are doing, and understand that the API is
+subject to change.
 
 A PDF document can then be loaded as follows.
 @code

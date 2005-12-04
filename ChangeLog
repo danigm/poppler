@@ -1,3 +1,14 @@
+2005-12-04  Brad Hards  <bradh@frogmouth.net>
+
+	* qt4/src/poppler-qt4.h:
+	  qt4/src/fontinfo.cc: add implementation for
+	FontInfo::typeName()
+
+	* qt4/tests/check_fonts.cpp:
+	* qt4/tests/Makefile.am: add unit test for fonts
+
+	* qt4/src/Mainpage.dox: Minor typo fixes.
+
 2005-12-03  Kristian Høgsberg  <krh@redhat.com>
 
 	* glib/poppler-page.cc (poppler_page_set_selection_alpha): Use
