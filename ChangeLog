@@ -1,5 +1,12 @@
 2005-12-03  Kristian Høgsberg  <krh@redhat.com>
 
+	* glib/poppler-page.cc (poppler_page_set_selection_alpha): Use
+	Nickolays original fix instead of trying to be clever with
+	gdk_pixbuf_fill().
+
+	* poppler/CairoFontEngine.cc: Fix text corruption bug (#5149),
+	a rerun of an old classic (#3340).
+
 	* poppler/GfxState.cc: Fixing another problem with new GfxRGB
 	representation causing images to show up as random pixels (#5117).
 

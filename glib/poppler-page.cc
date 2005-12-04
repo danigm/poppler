@@ -404,7 +404,13 @@ poppler_page_set_selection_alpha (PopplerPage      *page,
   if (pixbuf_n_channels != 4)
     return;
 
-  gdk_pixbuf_fill(pixbuf, 0);
+  for (y = 0; y < height; y++) {
+      dst = pixbuf_data + y * pixbuf_rowstride;
+      for (x = 0; x < width; x++) {
+	  dst[3] = 0x00;
+	  dst += pixbuf_n_channels;
+      }
+  }
 
   region = poppler_page_get_selection_region (page, scale, selection);
 
