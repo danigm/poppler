@@ -1,5 +1,7 @@
 2005-12-04  Brad Hards  <bradh@frogmouth.net>
 
+	* qt4/tests/.cvsignore: Add unit test to cvs suppressions
+
 	* qt4/src/poppler-qt4.h:
 	  qt4/src/fontinfo.cc: add implementation for
 	FontInfo::typeName()
