@@ -41,6 +41,15 @@ FontInfo::FontInfo( const QString &fontName, const bool isEmbedded, const bool i
 	m_data->type = type;
 }
 
+FontInfo::FontInfo( const FontInfo &fi )
+{
+	m_data = new FontInfoData();
+	m_data->fontName = fi.m_data->fontName;
+	m_data->isEmbedded = fi.m_data->isEmbedded;
+	m_data->isSubset = fi.m_data->isSubset;
+	m_data->type = fi.m_data->type;
+}
+
 FontInfo::~FontInfo()
 {
 	delete m_data;

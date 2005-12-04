@@ -82,6 +82,8 @@ public:
             const bool isSubset, Type type );
 
   FontInfo();
+  
+  FontInfo( const FontInfo &fi );
 
   ~FontInfo();
 

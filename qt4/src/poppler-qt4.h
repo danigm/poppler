@@ -72,6 +72,8 @@ namespace Poppler {
 	FontInfo( const QString &fontName, const bool isEmbedded,
 		  const bool isSubset, Type type);
 	
+	FontInfo( const FontInfo &fi );
+	
 	~FontInfo();
 
 	/**
