@@ -1,5 +1,10 @@
 2005-12-04  Albert Astals Cid  <aacid@kde.org>
 
+	* poppler/JPXStream.cc: Fix error in merging CAN-2005-3193 fix. Thanks  
+	Daniel Gryniewicz for notifying
+
+2005-12-04  Albert Astals Cid  <aacid@kde.org>
+
 	* qt/poppler-qt.h:
 	* qt/poppler-fontinfo.h:
 	* qt4/src/poppler-qt4.h:
