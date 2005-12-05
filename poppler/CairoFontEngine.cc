@@ -162,15 +162,13 @@ CairoFont::CairoFont(GfxFont *gfxFont, XRef *xref, FT_Library lib, GBool useCIDs
     codeToGID = NULL;
     codeToGIDLen = 0;
 
-#if HAVE_FREETYPE_217_OR_OLDER
-    if (useCIDs)
+    if (!useCIDs)
     {
       if ((ff1c = FoFiType1C::load(fileName->getCString()))) {
         codeToGID = ff1c->getCIDToGIDMap(&codeToGIDLen);
         delete ff1c;
       }
     }
-#endif
 
     if (FT_New_Face(lib, fileName->getCString(), 0, &face)) {
       gfree(codeToGID);

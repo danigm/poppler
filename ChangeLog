@@ -5,6 +5,11 @@
 
 2005-12-04  Albert Astals Cid  <aacid@kde.org>
 
+	* poppler/CairoFontEngine.cc: Correct fix for #5149, i broke it when
+	merging xpdf 3.01 patches
+
+2005-12-04  Albert Astals Cid  <aacid@kde.org>
+
 	* poppler/JPXStream.cc: Fix error in merging CAN-2005-3193 fix. Thanks  
 	Daniel Gryniewicz for notifying
 
