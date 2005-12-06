@@ -1,7 +1,13 @@
+2005-12-06  Brad Hards  <bradh@frogmouth.net>
+
+	* qt4/tests/check_metadata.cpp : add unit tests
+	for date, more linearization, page sizes, number of pages
+
 2005-12-05  Brad Hards  <bradh@frogmouth.net>
 
 	* qt4/tests/check_fonts.cpp (checkType3): Add another case to fonts
 	unit test
+	(checkTrueType): Add test for TrueType as well.
 
 2005-12-04  Albert Astals Cid  <aacid@kde.org>
 

@@ -10,6 +10,7 @@ private slots:
     void checkNoFonts();
     void checkType1();
     void checkType3();
+    void checkTrueType();
 };
 
 void TestFontsData::checkNoFonts()
@@ -58,6 +59,29 @@ void TestFontsData::checkType3()
     QCOMPARE( listOfFonts.at(1).typeName(), QString("Type 3") );
 
     QCOMPARE( listOfFonts.at(1).isEmbedded(), true );
+    QCOMPARE( listOfFonts.at(1).isSubset(), false );
+}
+
+void TestFontsData::checkTrueType()
+{
+    Poppler::Document *doc;
+    doc = Poppler::Document::load("../../../test/unittestcases/truetype.pdf");
+    QVERIFY( doc );
+
+    QList<Poppler::FontInfo> listOfFonts = doc->fonts();
+    QCOMPARE( listOfFonts.size(), 2 );
+    QCOMPARE( listOfFonts.at(0).name(), QString("Arial-BoldMT") );
+    QCOMPARE( listOfFonts.at(0).type(), Poppler::FontInfo::TrueType );
+    QCOMPARE( listOfFonts.at(0).typeName(), QString("TrueType") );
+
+    QCOMPARE( listOfFonts.at(0).isEmbedded(), false );
+    QCOMPARE( listOfFonts.at(0).isSubset(), false );
+
+    QCOMPARE( listOfFonts.at(1).name(), QString("ArialMT") );
+    QCOMPARE( listOfFonts.at(1).type(), Poppler::FontInfo::TrueType );
+    QCOMPARE( listOfFonts.at(1).typeName(), QString("TrueType") );
+
+    QCOMPARE( listOfFonts.at(1).isEmbedded(), false );
     QCOMPARE( listOfFonts.at(1).isSubset(), false );
 }
 
