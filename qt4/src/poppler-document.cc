@@ -240,6 +240,28 @@ namespace Poppler {
 	return NULL;
     }
 
+    QStringList Document::infoKeys() const
+    {
+	QStringList keys;
+
+	Object info;
+	if ( m_doc->locked )
+	    return QStringList();
+
+	m_doc->doc.getDocInfo( &info );
+	if ( !info.isDict() )
+	    return QStringList();
+
+	Dict *infoDict = info.getDict();
+	// somehow iterate over keys in infoDict
+	for( int i=0; i < infoDict->getLength(); ++i ) {
+	    keys.append( QString::fromAscii(infoDict->getKey(i)) );
+	}
+
+	info.free();
+	return keys;
+    }
+
     /* borrowed from kpdf */
     QDateTime Document::date( const QString & type ) const
     {

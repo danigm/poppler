@@ -11,6 +11,7 @@ private slots:
     void checkStrings();
     void checkStrings2_data();
     void checkStrings2();
+    void checkStringKeys();
     void checkLinearised();
     void checkNumPages();
     void checkDate();
@@ -57,6 +58,8 @@ void TestMetaData::checkStrings2_data()
     QTest::newRow( "Creator" ) << "Creator" << "Safari: cgpdftops CUPS filter";
     QTest::newRow( "Producer" )  << "Producer" << "Acrobat Distiller 7.0 for Macintosh";
     QTest::newRow( "Keywords" ) << "Keywords" << "First\rSecond\rthird";
+    QTest::newRow( "Custom1" ) << "Custom1" << "CustomValue1";
+    QTest::newRow( "Custom2" ) << "Custom2" << "CustomValue2";
 }
 
 void TestMetaData::checkStrings2()
@@ -68,6 +71,21 @@ void TestMetaData::checkStrings2()
     QFETCH( QString, key );
     QFETCH( QString, value );
     QCOMPARE( doc->info(key), value );
+}
+
+void TestMetaData::checkStringKeys()
+{
+    Poppler::Document *doc;
+    doc = Poppler::Document::load("../../../test/unittestcases/truetype.pdf");
+    QVERIFY( doc );
+
+    QStringList keyList;
+    keyList << "Title" << "Author" << "Creator" << "Keywords" << "CreationDate";
+    keyList << "Producer" << "ModDate" << "Custom1" << "Custom2";
+    keyList.sort();
+    QStringList keysInDoc = doc->infoKeys();
+    keysInDoc.sort();
+    QCOMPARE( keysInDoc, keyList );
 }
 
 void TestMetaData::checkLinearised()

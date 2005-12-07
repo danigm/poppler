@@ -1,3 +1,10 @@
+2005-12-07  Brad Hards  <bradh@frogmouth.net>
+
+	* qt4/src/poppler-document.cc:
+	  qt4/src/poppler-qt4.h: add in a new method infoKeys() - to get metadata keys
+
+	* qt4/tests/check_metadata.cpp: add unit test for infoKeys().
+
 2005-12-06  Brad Hards  <bradh@frogmouth.net>
 
 	* qt4/tests/check_metadata.cpp : add unit tests

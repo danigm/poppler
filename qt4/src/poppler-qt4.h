@@ -348,8 +348,15 @@ delete pixmap;
 	   includes Author, Keywords, Creator and Producer.
 
 	   \param data the information that is required
+
+	   \sa infoKeys() to get a list of the available keys
 	*/
 	QString info( const QString & data ) const;
+
+	/**
+	   Obtain a list of the available string information keys.
+	*/
+	QStringList infoKeys() const;
 
 	/**
 	   Test if the document is encrypted
