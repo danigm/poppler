@@ -1,5 +1,7 @@
 2005-12-07  Brad Hards  <bradh@frogmouth.net>
 
+	* poppler/PDFDoc.cc: Remove the version check.
+
 	* qt4/src/poppler-document.cc:
 	  qt4/src/poppler-qt4.h: add in a new method infoKeys() - to get metadata keys
 

@@ -310,11 +310,7 @@ void PDFDoc::checkHeader() {
     pdfVersion = atof(p);
     setlocale(LC_NUMERIC, theLocale);
   }
-  if (!(hdrBuf[i+5] >= '0' && hdrBuf[i+5] <= '9') ||
-      pdfVersion > supportedPDFVersionNum + 0.0001) {
-    error(-1, "PDF version %s -- xpdf supports version %s"
-	  " (continuing anyway)", p, supportedPDFVersionStr);
-  }
+  // We don't do the version check. Don't add it back in.
 }
 
 GBool PDFDoc::checkEncryption(GooString *ownerPassword, GooString *userPassword) {
