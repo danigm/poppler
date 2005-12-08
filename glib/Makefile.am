@@ -14,8 +14,7 @@ INCLUDES =					\
 	$(cairo_includes)			\
 	$(POPPLER_GLIB_CFLAGS)			\
 	$(FREETYPE_CFLAGS)			\
-	$(cairo_includes)			\
-	-DDATADIR=\""$(datadir)"\"
+	$(cairo_includes)			
 
 stamp_files = stamp-poppler-enums.h
 

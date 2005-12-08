@@ -4,8 +4,7 @@ INCLUDES =					\
 	$(cairo_includes)			\
 	$(POPPLER_QT_CXXFLAGS)			\
 	$(SPLASH_CFLAGS)			\
-	$(FREETYPE_CFLAGS)			\
-	-DDATADIR=\""$(datadir)"\"
+	$(FREETYPE_CFLAGS)			
 
 
 poppler_includedir = $(includedir)/poppler

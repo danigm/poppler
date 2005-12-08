@@ -1,3 +1,11 @@
+2005-12-08  Albert Astals Cid  <aacid@kde.org>
+
+	* glib/Makefile.am:
+	* poppler/Makefile.am:
+	* qt/Makefile.am:
+	* test/Makefile.am: Remove -DDATADIR we are not using if for anything
+	and it shadows a windows typedef
+
 2005-12-07  Brad Hards  <bradh@frogmouth.net>
 
 	* poppler/PDFDoc.cc: Remove the version check.

@@ -31,8 +31,7 @@ INCLUDES =					\
 	-I$(top_srcdir)				\
 	-I$(top_srcdir)/poppler			\
 	$(cairo_includes)			\
-	$(GTK_TEST_CFLAGS)			\
-	-DDATADIR=\""$(datadir)"\"
+	$(GTK_TEST_CFLAGS)			
 
 noinst_PROGRAMS = $(gtk_splash_test) $(gtk_cairo_test) $(pdf_inspector)
 
