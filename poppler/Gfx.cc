@@ -549,7 +549,9 @@ void Gfx::go(GBool topLevel) {
   Object args[maxArgs];
   int numArgs, i;
   int lastAbortCheck;
+#ifdef HAVE_GETTIMEOFDAY
   GooTimer *timer;
+#endif
 
   // scan a sequence of objects
   updateLevel = lastAbortCheck = 0;
@@ -568,12 +570,15 @@ void Gfx::go(GBool topLevel) {
 	printf("\n");
 	fflush(stdout);
       }
+#ifdef HAVE_GETTIMEOFDAY
       if (profileCommands) 
 	timer = new GooTimer ();
+#endif
 
       // Run the operation
       execOp(&obj, args, numArgs);
 
+#ifdef HAVE_GETTIMEOFDAY
       // Update the profile information
       if (profileCommands) {
 	GooHash *hash;
@@ -594,6 +599,7 @@ void Gfx::go(GBool topLevel) {
 	}
 	delete (timer);
       }
+#endif
       obj.free();
       for (i = 0; i < numArgs; ++i)
 	args[i].free();

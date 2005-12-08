@@ -1,5 +1,17 @@
 2005-12-08  Albert Astals Cid  <aacid@kde.org>
 
+	* configure.ac: Detect if gettimeofday is available, fixes for correct
+	linking to Qt4 on windows
+	* goo/GooTimer.[cc|h]: Only build if gettimeofday is available
+	* poppler/Gfx.cc: Only use the timer for profiling if gettimeofday is
+	available
+	* poppler/GlobalParams.cc: Remove extra unlockGlobalParams that was
+	making windows hang
+	* splash/SplashFTFontEngine.cc: i need unistd.h on windows also
+	* splash/SplashFontFile.cc: i need unistd.h on windows also
+
+2005-12-08  Albert Astals Cid  <aacid@kde.org>
+
 	* glib/Makefile.am:
 	* poppler/Makefile.am:
 	* qt/Makefile.am:

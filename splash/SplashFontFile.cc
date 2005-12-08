@@ -11,9 +11,7 @@
 #endif
 
 #include <stdio.h>
-#ifndef WIN32
-#  include <unistd.h>
-#endif
+#include <unistd.h>
 #include "goo/GooString.h"
 #include "SplashFontFile.h"
 #include "SplashFontFileID.h"

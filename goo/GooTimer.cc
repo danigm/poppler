@@ -9,6 +9,8 @@
 
 #include <config.h>
 
+#ifdef HAVE_GETTIMEOFDAY
+
 #ifdef USE_GCC_PRAGMAS
 #pragma implementation
 #endif
@@ -61,3 +63,4 @@ GooTimer::getElapsed ()
   return total;
 }
 
+#endif

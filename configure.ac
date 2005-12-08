@@ -16,6 +16,7 @@ AC_PROG_CC_STDC
 #fi
 AC_PROG_CXX
 AC_PROG_INSTALL
+AC_CHECK_FUNC(gettimeofday, AC_DEFINE(HAVE_GETTIMEOFDAY, 1, [Defines if gettimeofday is available on your system]))
 
 dnl Enable these unconditionally.
 AC_DEFINE([A4_PAPER], [1], [Default to A4 paper.])
@@ -320,6 +321,7 @@ dnl What to test
 qt4_test_include="QtCore/QCoreApplication"
 qt4_test_la_library="libQtCore.la"
 qt4_test_library="libQtCore.so"
+qt4_windows_test_library="QtCore4.dll"
 
 dnl Check for Qt4 headers
 AC_MSG_CHECKING([for Qt4 headers])
@@ -345,6 +347,12 @@ for qt4_check in $qt4_libdirs ; do
         qt4_libdir="$qt4_check"
         break
     fi
+
+    if test -r "$qt4_check/$qt4_windows_test_library" ; then
+        qt4_libdir="$qt4_check"
+        windows_qt="yes"
+        break
+    fi
 done
 AC_MSG_RESULT([$qt4_libdir])
 
@@ -356,7 +364,11 @@ fi
 
 dnl Set the variables
 POPPLER_QT4_CXXFLAGS="-I$qt4_incdir"
-POPPLER_QT4_LIBS="-L$qt4_libdir -lQtCore -lQtGui"
+if test x$windows_qt = xyes; then
+	POPPLER_QT4_LIBS="-L$qt4_libdir -lQtCore4 -lQtGui4"
+else
+	POPPLER_QT4_LIBS="-L$qt4_libdir -lQtCore -lQtGui"
+fi
 
 AC_SUBST(POPPLER_QT4_CXXFLAGS)
 AC_SUBST(POPPLER_QT4_LIBS)

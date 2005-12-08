@@ -6,6 +6,8 @@
 //
 //========================================================================
 
+#ifdef HAVE_GETTIMEOFDAY
+
 #ifndef GOOTIMER_H
 #define GOOTIMER_H
 
@@ -36,5 +38,7 @@ private:
 	struct timeval end;
 	GBool active;
 };
+
+#endif
 
 #endif

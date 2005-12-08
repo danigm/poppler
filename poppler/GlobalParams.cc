@@ -1308,7 +1308,6 @@ DisplayFontParam *GlobalParams::getDisplayFont(GfxFont *font) {
     displayFonts->add(dfp->name,dfp);
   }
 fin:
-  unlockGlobalParams;
   if (m)
     FcPatternDestroy(m);
   if (p)
