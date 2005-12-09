@@ -92,6 +92,8 @@ libpoppler_la_LIBADD =				\
 	$(zlib_libs)				\
 	$(FREETYPE_LIBS)
 
+if ENABLE_XPDF_HEADERS
+
 poppler_includedir = $(includedir)/poppler
 poppler_include_HEADERS =	\
 	$(splash_headers)	\
@@ -147,6 +149,8 @@ poppler_include_HEADERS =	\
 	UTF8.h			\
 	XpdfPluginAPI.h		\
 	poppler-config.h
+
+endif
 
 libpoppler_la_SOURCES =		\
 	$(splash_sources)	\

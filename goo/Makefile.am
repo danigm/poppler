@@ -1,5 +1,7 @@
 noinst_LTLIBRARIES = libgoo.la
 
+if ENABLE_XPDF_HEADERS
+
 poppler_goo_includedir = $(includedir)/poppler/goo
 poppler_goo_include_HEADERS =			\
 	GooHash.h				\
@@ -12,6 +14,8 @@ poppler_goo_include_HEADERS =			\
 	gmem.h					\
 	gfile.h					\
 	FixedPoint.h
+
+endif
 
 libgoo_la_SOURCES =				\
 	gfile.cc				\

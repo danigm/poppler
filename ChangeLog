@@ -1,3 +1,10 @@
+2005-12-09  Kristian Høgsberg  <krh@redhat.com>
+
+	* configure.ac: 
+	* poppler/Makefile.am (poppler_includedir): 
+	* goo/Makefile.am (poppler_goo_include_HEADERS): Make installation
+	of xpdf header files optional.
+
 2005-12-08  Albert Astals Cid  <aacid@kde.org>
 
 	* configure.ac: Detect if gettimeofday is available, fixes for correct
@@ -23,7 +30,8 @@
 	* poppler/PDFDoc.cc: Remove the version check.
 
 	* qt4/src/poppler-document.cc:
-	  qt4/src/poppler-qt4.h: add in a new method infoKeys() - to get metadata keys
+	* qt4/src/poppler-qt4.h: add in a new method infoKeys() - to get
+	  metadata keys
 
 	* qt4/tests/check_metadata.cpp: add unit test for infoKeys().
 

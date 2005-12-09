@@ -24,6 +24,14 @@ AC_DEFINE([OPI_SUPPORT], [1], [Generate OPI comments in PS output.])
 AC_DEFINE([MULTITHREADED], [1], [Enable multithreading support.])
 AC_DEFINE([TEXTOUT_WORD_LIST], [1], [Enable word list support.])
 
+dnl Install xpdf headers
+AC_ARG_ENABLE(xpdf-headers,
+	      AC_HELP_STRING([--enable-xpdf-headers],
+	                     [Install unsupported xpdf headers.]),
+              enable_xpdf_headers=$enableval,
+              enable_xpdf_headers="no")
+AM_CONDITIONAL(ENABLE_XPDF_HEADERS, test x$enable_xpdf_headers = xyes)
+
 AC_ARG_ENABLE(fixedpoint,
 [  --enable-fixedpoint     use fixed point (instead of floating point) arithmetic],
 AC_DEFINE(USE_FIXEDPOINT, [], [Use fixed point arithmetic]))
