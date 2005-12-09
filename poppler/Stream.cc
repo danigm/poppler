@@ -2932,10 +2932,6 @@ GBool DCTStream::readBaselineSOF() {
     error(getPos(), "Bad number of components in DCT stream", prec);
     return gFalse;
   }
-  if (numComps <= 0 || numComps > 4) {
-    error(getPos(), "Bad number of components in DCT stream", prec);
-    return gFalse;
-  }
   if (prec != 8) {
     error(getPos(), "Bad DCT precision %d", prec);
     return gFalse;

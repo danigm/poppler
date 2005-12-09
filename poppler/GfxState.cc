@@ -198,9 +198,9 @@ void GfxColorSpace::getRGBLine(Guchar *in, unsigned int *out, int length) {
 
     getRGB (&color, &rgb);
     out[i] =
-	((int) (rgb.r >> 8) << 16) |
-	((int) (rgb.g >> 8) << 8) |
-	((int) (rgb.b >> 8) << 0);
+	((int) colToByte(rgb.r) << 16) |
+	((int) colToByte(rgb.g) << 8) |
+	((int) colToByte(rgb.b) << 0);
   }
 }
 

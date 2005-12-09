@@ -1,5 +1,10 @@
 2005-12-09  Kristian Høgsberg  <krh@redhat.com>
 
+	* poppler/GfxState.cc: Use colToByte() for converting GxfColorComp
+	to bytes (really fix #5117).
+
+	* poppler/Stream.cc: Remove duplicated check (#5243).
+
 	* configure.ac: 
 	* poppler/Makefile.am (poppler_includedir): 
 	* goo/Makefile.am (poppler_goo_include_HEADERS): Make installation
