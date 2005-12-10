@@ -1,3 +1,12 @@
+2005-12-10  Albert Astals Cid  <aacid@kde.org>
+
+	* qt4/src/poppler-page.cc:
+	* qt4/src/poppler-qt4.h:
+	* qt4/src/tests/test-poppler-qt4.cpp: The parameters x,y,w,h to the
+	method splashRenderToPixmap are now used. Convenient
+	defaults are provided. The test has been changed accordingly. Some
+	added documentation. Patch by Stefan Kebekus
+	
 2005-12-09  Kristian Høgsberg  <krh@redhat.com>
 
 	* poppler/GfxState.cc: Use colToByte() for converting GxfColorComp

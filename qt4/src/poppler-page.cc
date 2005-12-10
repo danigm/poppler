@@ -51,7 +51,7 @@ Page::~Page()
   delete m_page;
 }
 
-QPixmap *Page::splashRenderToPixmap(int x, int y, int w, int h, double xres, double yres) const
+QPixmap *Page::splashRenderToPixmap(double xres, double yres, int x, int y, int w, int h) const
 {
   SplashColor white;
   white[0] = 255;
@@ -61,7 +61,7 @@ QPixmap *Page::splashRenderToPixmap(int x, int y, int w, int h, double xres, dou
   output_dev->startDoc(m_page->parentDoc->m_doc->doc.getXRef ());
   
   m_page->parentDoc->m_doc->doc.displayPageSlice(output_dev, m_page->index + 1, xres, yres,
-						 0, false, true, false, -1, -1, -1, -1);
+						 0, false, true, false, x, y, w, h);
   
   SplashBitmap *bitmap = output_dev->getBitmap ();
   int bw = bitmap->getWidth();

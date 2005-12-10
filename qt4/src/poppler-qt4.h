@@ -152,23 +152,38 @@ if (pixmap == 0) {
 delete pixmap;
 @endcode
 
-	   @param x UNUSED
+           If x=y=w=h=-1, the method will automatically compute the
+           size of the pixmap from the horizontal and vertical
+           resolutions specified in xres and yres. Otherwise, the
+           method renders only a part of the page, specified by the
+           parameters (x, y, w, h) in pixel coordinates. The QPixmap
+           returned then has size (w, h), independent of the page
+           size.
 
-	   @param y UNUSED
+	   @param x specifies the left x-coordinate of the box, in
+	   pixels.
 
-	   @param w UNUSED
+	   @param y specifies the top y-coordinate of the box, in
+	   pixels.
 
-	   @param h UNUSED
+	   @param w specifies the width of the box, in pixels.
+
+	   @param h specifies the height of the box, in pixels.
 
 	   @param xres horizontal resolution of the graphics device,
 	   in dots per inch
 
-	   @param yres vertical resolution of the graphics device,
-	   in dots per inch
+	   @param yres vertical resolution of the graphics device, in
+	   dots per inch
 
-	   @returns pointer to a QPixmap, or NULL on failure. The pixmap returned must be deleted.
+	   @warning The parameter (x,y,w,h) are not
+	   well-tested. Unusual or meaningless paramerts may lead to
+	   rather unexpexted results.
+
+	   @returns pointer to a QPixmap, or NULL on failure. The
+	   pixmap returned must be deleted.
 	 */
-	QPixmap *splashRenderToPixmap(int x, int y, int w, int h, double xres=72.0, double yres=72.0) const;
+	QPixmap *splashRenderToPixmap(double xres=72.0, double yres=72.0, int x=-1, int y=-1, int w=-1, int h=-1) const;
 	
 	/**
 	   Render the page to a pixmap using the Arthur (Qt4) renderer

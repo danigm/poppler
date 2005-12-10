@@ -45,7 +45,7 @@ void PDFDisplay::display()
             {
                 qDebug() << "Displaying page using Splash backend: " << m_currentPage;
 		delete pixmap;
-                pixmap = page->splashRenderToPixmap(-1, -1, 0, 0, 72.0, 72.0);
+                pixmap = page->splashRenderToPixmap();
             }
             update();
             delete page;
