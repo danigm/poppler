@@ -1,3 +1,34 @@
+2005-12-12  Kristian Høgsberg  <krh@redhat.com>
+
+	* Makefile.am:
+	* configure.ac:
+	* goo/GooVector.h:
+	* utils/HtmlFonts.cc:
+	* utils/HtmlFonts.h:
+	* utils/HtmlLinks.cc:
+	* utils/HtmlLinks.h:
+	* utils/HtmlOutputDev.cc:
+	* utils/HtmlOutputDev.h:
+	* utils/ImageOutputDev.cc:
+	* utils/ImageOutputDev.h:
+	* utils/Makefile.am:
+	* utils/parseargs.c:
+	* utils/parseargs.h:
+	* utils/pdffonts.1:
+	* utils/pdffonts.cc:
+	* utils/pdfimages.1:
+	* utils/pdfimages.cc:
+	* utils/pdfinfo.1:
+	* utils/pdfinfo.cc:
+	* utils/pdftohtml.1:
+	* utils/pdftohtml.cc:
+	* utils/pdftoppm.1:
+	* utils/pdftoppm.cc:
+	* utils/pdftops.1:
+	* utils/pdftops.cc:
+	* utils/pdftotext.1:
+	* utils/pdftotext.cc: Add command line utilities from xpdf.
+
 2005-12-10  Albert Astals Cid  <aacid@kde.org>
 
 	* qt4/src/poppler-page.cc:

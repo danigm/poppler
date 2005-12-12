@@ -479,6 +479,13 @@ fi
 AM_CONDITIONAL(BUILD_GTK_TEST, test x$enable_gtk_test = xyes)
 
 
+AC_ARG_ENABLE(utils,
+              AC_HELP_STRING([--disable-utils],
+	                     [Don't compile poppler command line utils.]),
+              enable_utils=$enableval,
+              enable_utils="yes")
+AM_CONDITIONAL(BUILD_UTILS, test x$enable_utils = xyes)
+
 AC_ARG_ENABLE(compile-warnings,
               AC_HELP_STRING([--enable-compile-warnings=@<:@no/yes/kde@:>@]
                              [Turn on compiler warnings.]),,
@@ -505,6 +512,7 @@ goo/Makefile
 fofi/Makefile
 splash/Makefile
 poppler/Makefile
+utils/Makefile
 glib/Makefile
 test/Makefile
 qt/Makefile
@@ -521,11 +529,12 @@ poppler-qt4.pc])
 
 echo ""
 echo "Building poppler with support for:"
-echo "  splash output: $enable_splash_output"
-echo "  cairo output:  $enable_cairo_output"
-echo "  qt wrapper:    $enable_poppler_qt"
-echo "  qt4 wrapper:   $enable_poppler_qt4"
-echo "  qt4 unittests: $enable_poppler_qt4testlib"
-echo "  glib wrapper:  $enable_poppler_glib"
-echo "  use libjpeg:   $enable_libjpeg"
-echo "  use zlib:      $enable_zlib"
+echo "  splash output:      $enable_splash_output"
+echo "  cairo output:       $enable_cairo_output"
+echo "  qt wrapper:         $enable_poppler_qt"
+echo "  qt4 wrapper:        $enable_poppler_qt4"
+echo "  qt4 unittests:      $enable_poppler_qt4testlib"
+echo "  glib wrapper:       $enable_poppler_glib"
+echo "  use libjpeg:        $enable_libjpeg"
+echo "  use zlib:           $enable_zlib"
+echo "  command line utils: $enable_poppler_glib"
