@@ -1,3 +1,7 @@
+2005-12-12  Albert Astals Cid  <aacid@kde.org>
+
+	* poppler/Page.cc: Ignore cropBox if it seems incorrect
+
 2005-12-12  Kristian Høgsberg  <krh@redhat.com>
 
 	* Makefile.am:
