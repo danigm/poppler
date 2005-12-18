@@ -1,6 +1,7 @@
 INCLUDES =					\
 	-I$(top_srcdir)				\
-	-I$(top_srcdir)/poppler
+	-I$(top_srcdir)/poppler			\
+	$(UTILS_CFLAGS)
 
 LDADD =						\
 	$(top_builddir)/poppler/libpoppler.la

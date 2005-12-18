@@ -1,6 +1,9 @@
 2005-12-18  Albert Astals Cid  <aacid@kde.org>
 
 	* configure.ac: Better jpeg detection, refer to ml PCbsd problem
+	* utils/Makefile.am: Add fontconfig cflags to utils as not always is
+	on /usr/include Fixes build problems on Slackware. Patch adapted from
+	a Giovanni Venturi patch
 	
 2005-12-12  Albert Astals Cid  <aacid@kde.org>
 

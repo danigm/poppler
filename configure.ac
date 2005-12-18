@@ -581,6 +581,9 @@ AC_ARG_ENABLE(utils,
 	                     [Don't compile poppler command line utils.]),
               enable_utils=$enableval,
               enable_utils="yes")
+if test x$enable_utils = xyes; then
+  PKG_CHECK_MODULES(UTILS, fontconfig)
+fi
 AM_CONDITIONAL(BUILD_UTILS, test x$enable_utils = xyes)
 
 AC_ARG_ENABLE(compile-warnings,
