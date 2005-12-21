@@ -113,7 +113,7 @@ dnl Based on kde acinclude.m4.in, LGPL Licensed
 
 
 AC_PREREQ(2.59)
-AC_INIT(poppler, 0.5.0-cvs)
+AC_INIT(poppler, 0.5.0)
 AM_INIT_AUTOMAKE(AC_PACKAGE_NAME, AC_PACKAGE_VERSION)
 AM_CONFIG_HEADER(config.h)
 AM_CONFIG_HEADER(poppler/poppler-config.h)

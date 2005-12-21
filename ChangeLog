@@ -1,15 +1,23 @@
+2005-12-21  Kristian Høgsberg  <krh@redhat.com>
+
+	* utils/Makefile.am: Add parseargs.h to sources and add
+	-I$(top_srcdir)/poppler to INCLUDES.
+
+	* poppler/CairoFontEngine.cc: Apply patch from Hiroyuki Ikezoe to
+	man non-embedded CJK fonts work.
+
 2005-12-18  Albert Astals Cid  <aacid@kde.org>
 
 	* configure.ac: Better jpeg detection, refer to ml PCbsd problem
 	* utils/Makefile.am: Add fontconfig cflags to utils as not always is
 	on /usr/include Fixes build problems on Slackware. Patch adapted from
-	a Giovanni Venturi patch
+	a Giovanni Venturi patch.
 	* poppler/Page.cc: Only discard cropbox sizes one by one and not
-	completely. Jeff and Martin were right
+	completely. Jeff and Martin were right.
 	
 2005-12-12  Albert Astals Cid  <aacid@kde.org>
 
-	* poppler/Page.cc: Ignore cropBox if it seems incorrect
+	* poppler/Page.cc: Ignore cropBox if it seems incorrect.
 
 2005-12-12  Kristian Høgsberg  <krh@redhat.com>
 
