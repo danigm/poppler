@@ -7,6 +7,7 @@
 //========================================================================
 
 #include <config.h>
+#include <limits.h>
 
 #ifdef USE_GCC_PRAGMAS
 #pragma implementation

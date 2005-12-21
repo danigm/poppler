@@ -1,5 +1,13 @@
 2005-12-21  Kristian Høgsberg  <krh@redhat.com>
 
+	* NEWS: Sum up 0.5 changes so far.
+
+	* acinclude.m4: Split jpeg macros out into this file.
+
+	* poppler/Stream.cc: Apply latest CVE-2005-3191 updates.
+
+2005-12-21  Kristian Høgsberg  <krh@redhat.com>
+
 	* utils/Makefile.am: Add parseargs.h to sources and add
 	-I$(top_srcdir)/poppler to INCLUDES.
 

@@ -15,6 +15,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stddef.h>
+#include <limits.h>
 #ifndef WIN32
 #include <unistd.h>
 #endif
@@ -1283,7 +1284,7 @@ CCITTFaxStream::CCITTFaxStream(Stream *strA, int encodingA, GBool endOfLineA,
   endOfLine = endOfLineA;
   byteAlign = byteAlignA;
   columns = columnsA;
-  if (columns < 1) {
+  if (columns + 3 < 1 || columns + 4 < 1 || columns < 1) {
     columns = 1;
   }
   rows = rowsA;
@@ -2980,6 +2981,10 @@ GBool DCTStream::readScanInfo() {
 
   length = read16() - 2;
   scanInfo.numComps = str->getChar();
+  if (scanInfo.numComps <= 0 || scanInfo.numComps > 4) {
+    error(getPos(), "Bad number of components in DCT stream");
+    return gFalse;
+  }
   --length;
   if (length != 2 * scanInfo.numComps + 3) {
     error(getPos(), "Bad DCT scan info block");
@@ -3064,12 +3069,12 @@ GBool DCTStream::readHuffmanTables() {
   while (length > 0) {
     index = str->getChar();
     --length;
-    if ((index & 0x0f) >= 4) {
+    if ((index & ~0x10) >= 4 || (index & ~0x10) < 0) {
       error(getPos(), "Bad DCT Huffman table");
       return gFalse;
     }
     if (index & 0x10) {
-      index &= 0x0f;
+      index &= 0x03;
       if (index >= numACHuffTables)
 	numACHuffTables = index+1;
       tbl = &acHuffTables[index];

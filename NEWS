@@ -1,3 +1,11 @@
+Release 0.5.0
+
+	- Font matching code for non embedded fonts now use fontconfig
+          instead of hard coded list of fonts.
+	- Merge in Xpdf 3.01 changes.
+	- Add command line tools from Xpdf.
+	- Make install of Xpdf header files ./configure'able.
+
 Release 0.4.0
 
 	- Real text selection.
