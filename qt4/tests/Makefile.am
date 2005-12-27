@@ -46,13 +46,18 @@ stress_poppler_qt4_LDADD = $(LDADDS)
 
 if BUILD_POPPLER_QT4TESTS
 TESTS = \
+	check_dateConversion	\
 	check_fonts		\
-	check_metadata         \
-	check_permissions      \
-	check_pagemode    \
+	check_metadata         	\
+	check_permissions      	\
+	check_pagemode    	\
 	check_pagelayout
 
 check_PROGRAMS = $(TESTS)
+
+check_dateConversion_SOURCES = check_dateConversion.cpp
+check_dateConversion.$(OBJEXT): check_dateConversion.moc
+check_dateConversion_LDADD = $(UT_LDADDS)
 
 check_fonts_SOURCES = check_fonts.cpp
 check_fonts.$(OBJEXT): check_fonts.moc

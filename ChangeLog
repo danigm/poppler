@@ -1,5 +1,14 @@
 2005-12-27  Brad Hards  <bradh@frogmouth.net>
 
+	* qt4/src/poppler-qt4.h: 
+	* qt4/src/poppler-document.cc: add convertDate() function that
+	turns char* PDF date strings into QDateTime. This version handles
+	the timezone conversions. Refactored the existing date() method
+	to use it.
+	* qt4/tests/check_dateConversion.cpp: unit tests for convertDate()
+	* qt4/tests/check_metadata.cpp: update to reflect UTC.
+	* qt4/tests/.cvsignore: suppress check_dateConversion
+	
 	* qt4/src/Doxyfile (JAVADOC_AUTOBRIEF): Turned on automatic
 	\brief mode.
 

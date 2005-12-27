@@ -531,6 +531,11 @@ delete pixmap;
 	Document::Document(DocumentData *dataA);
     };
 
+    /**
+       Conversion from PDF date string format to QDateTime
+    */
+    QDateTime convertDate( char *dateString );
+
 }
 #endif
 

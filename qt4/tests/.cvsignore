@@ -9,6 +9,7 @@ stress-poppler-qt4
 test-poppler-qt4
 test-password-qt4
 poppler-fonts
+check_dateConversion
 check_fonts
 check_metadata
 check_permissions

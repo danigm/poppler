@@ -129,8 +129,8 @@ void TestMetaData::checkDate()
 
     doc = Poppler::Document::load("../../../test/unittestcases/truetype.pdf");
     QVERIFY( doc );
-    QCOMPARE( doc->date("ModDate"), QDateTime(QDate(2005, 12, 5), QTime(20,44,46) ) );
-    QCOMPARE( doc->date("CreationDate"), QDateTime(QDate(2005, 8, 13), QTime(11,12,11) ) );
+    QCOMPARE( doc->date("ModDate"), QDateTime(QDate(2005, 12, 5), QTime(9,44,46), Qt::UTC ) );
+    QCOMPARE( doc->date("CreationDate"), QDateTime(QDate(2005, 8, 13), QTime(1,12,11), Qt::UTC ) );
 }
 
 void TestMetaData::checkPageSize()

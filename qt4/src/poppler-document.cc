@@ -280,43 +280,15 @@ namespace Poppler {
 	char *s;
 	int year, mon, day, hour, min, sec;
 	Dict *infoDict = info.getDict();
-	QString result;
+	QDateTime result;
 
 	if ( infoDict->lookup( type.toLatin1().data(), &obj )->isString() )
 	{
-	    s = obj.getString()->getCString();
-	    if ( s[0] == 'D' && s[1] == ':' )
-		s += 2;
-	    /* FIXME process time zone on systems that support it */  
-	    if ( sscanf( s, "%4d%2d%2d%2d%2d%2d", &year, &mon, &day, &hour, &min, &sec ) == 6 )
-	    {
-		/* Workaround for y2k bug in Distiller 3 stolen from gpdf, hoping that it won't
-		 *   * be used after y2.2k */
-		if ( year < 1930 && strlen (s) > 14) {
-		    int century, years_since_1900;
-		    if ( sscanf( s, "%2d%3d%2d%2d%2d%2d%2d",
-				 &century, &years_since_1900,
-				 &mon, &day, &hour, &min, &sec) == 7 )
-			year = century * 100 + years_since_1900;
-		    else {
-			obj.free();
-			info.free();
-			return QDateTime();
-		    }
-		}
-
-		QDate d( year, mon, day );  //CHECK: it was mon-1, Jan->0 (??)
-		QTime t( hour, min, sec );
-		if ( d.isValid() && t.isValid() ) {
-		    obj.free();
-		    info.free();
-		    return QDateTime( d, t );
-		}
-	    }
+	    result = Poppler::convertDate(obj.getString()->getCString());
 	}
 	obj.free();
 	info.free();
-	return QDateTime();
+	return result;
     }
 
     bool Document::isEncrypted() const
@@ -388,6 +360,61 @@ namespace Poppler {
 	    return NULL;
 
 	return page(index);
+    }
+
+    QDateTime convertDate( char *dateString )
+    {
+        int year;
+        int mon = 1;
+        int day = 1;
+        int hour = 0;
+        int min = 0;
+        int sec = 0;
+        char tz = 0x00;
+        int tzHours = 0;
+        int tzMins = 0;
+
+        if ( dateString[0] == 'D' && dateString[1] == ':' )
+            dateString += 2;
+        if ( sscanf( dateString,
+		     "%4d%2d%2d%2d%2d%2d%c%2d%*c%2d",
+		     &year, &mon, &day, &hour, &min, &sec,
+		     &tz, &tzHours, &tzMins ) > 0 ) {
+            /* Workaround for y2k bug in Distiller 3 stolen from gpdf, hoping that it won't
+             * be used after y2.2k */
+            if ( year < 1930 && strlen (dateString) > 14) {
+                int century, years_since_1900;
+                if ( sscanf( dateString, "%2d%3d%2d%2d%2d%2d%2d",
+                             &century, &years_since_1900,
+                             &mon, &day, &hour, &min, &sec) == 7 )
+                    year = century * 100 + years_since_1900;
+                else {
+                    return QDateTime();
+                }
+            }
+
+            QDate d( year, mon, day );
+            QTime t( hour, min, sec );
+            if ( d.isValid() && t.isValid() ) {
+                QDateTime dt( d, t, Qt::UTC );
+                if ( tz ) {
+                    // then we have some form of timezone
+                    if ( 'Z' == tz  ) {
+                        // We are already at UTC
+                    } else if ( '+' == tz ) {
+                        // local time is ahead of UTC
+                        dt = dt.addSecs(-1*((tzHours*60)+tzMins)*60);
+                    } else if ( '-' == tz ) {
+                        // local time is behind UTC
+                        dt = dt.addSecs(((tzHours*60)+tzMins)*60);
+                    } else {
+                        qWarning("unexpected tz val");
+                    }
+                }
+                return dt;
+            }
+        }
+        return QDateTime();
     }
 
 }
