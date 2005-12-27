@@ -1,3 +1,11 @@
+2005-12-27  Brad Hards  <bradh@frogmouth.net>
+
+	* qt4/src/Doxyfile (JAVADOC_AUTOBRIEF): Turned on automatic
+	\brief mode.
+
+	* qt4/src/poppler-qt4.h: Update API documentation. Patch from
+	Stefan Kebekus, with some changes. Removed \brief entries.
+
 2005-12-21  Kristian Høgsberg  <krh@redhat.com>
 
 	* NEWS: Sum up 0.5 changes so far.

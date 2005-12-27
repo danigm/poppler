@@ -36,13 +36,36 @@ namespace Poppler {
     class PageData;
 
     class TextBoxData;
+
+    /**
+        describes the physical location of text on a document page
+       
+        This very simple class describes the physical location of text
+	on the page. It consists of
+	- a QString that contains the text
+	- a QRectF that gives a box that describes where on the page
+	the text is found.
+    */
     class TextBox {
     public:
+      /**
+	 The default constructor sets the text and the rectangle the
+	 contains the text. Coordinated for the bBox are in points =
+	 1/72 of an inch.
+      */
       TextBox(const QString& text, const QRectF &bBox);
-      
+
+      /**
+	  returns the text
+      */      
       const QString &text() const;
+
+      /**
+	  returns the position of the text, in point, i.e., 1/72 of
+	 an inch
+      */
       const QRectF &boundingBox() const;
-	
+
     private:
 	TextBoxData *m_data;
     };
@@ -129,7 +152,7 @@ namespace Poppler {
 	~Page();
 
 	/**
-	   Render the page to a QPixmap using the Splash renderer
+	    Render the page to a QPixmap using the Splash renderer
 	 
 	   This method can be used to render the page to a QPixmap. It
 	   uses the "Splash" rendering engine that is included in the
@@ -160,36 +183,42 @@ delete pixmap;
            returned then has size (w, h), independent of the page
            size.
 
-	   @param x specifies the left x-coordinate of the box, in
+	   \param x specifies the left x-coordinate of the box, in
 	   pixels.
 
-	   @param y specifies the top y-coordinate of the box, in
+	   \param y specifies the top y-coordinate of the box, in
 	   pixels.
 
-	   @param w specifies the width of the box, in pixels.
+	   \param w specifies the width of the box, in pixels.
 
-	   @param h specifies the height of the box, in pixels.
+	   \param h specifies the height of the box, in pixels.
 
-	   @param xres horizontal resolution of the graphics device,
+	   \param xres horizontal resolution of the graphics device,
 	   in dots per inch
 
-	   @param yres vertical resolution of the graphics device, in
+	   \param yres vertical resolution of the graphics device, in
 	   dots per inch
 
-	   @warning The parameter (x,y,w,h) are not
-	   well-tested. Unusual or meaningless paramerts may lead to
-	   rather unexpexted results.
+	   \warning The parameter (x,y,w,h) are not
+	   well-tested. Unusual or meaningless parameters may lead to
+	   rather unexpected results.
 
-	   @returns pointer to a QPixmap, or NULL on failure. The
+	   \returns pointer to a QPixmap, or NULL on failure. The
 	   pixmap returned must be deleted.
 	 */
 	QPixmap *splashRenderToPixmap(double xres=72.0, double yres=72.0, int x=-1, int y=-1, int w=-1, int h=-1) const;
 	
 	/**
-	   Render the page to a pixmap using the Arthur (Qt4) renderer
+	    Render the page to a pixmap using the Arthur (Qt4) renderer
 	   
 	   \param q pointer to a QPixmap that is already set to the
 	   intended size.
+
+	   \param xres horizontal resolution of the graphics device,
+	   in dots per inch
+
+	   \param yres vertical resolution of the graphics device, in
+	   dots per inch
 	   
 	   You are meant to create the pixmap before passing it to
 	   this routine, using something like:
@@ -197,26 +226,44 @@ delete pixmap;
 	   QPixmap* myPixmap = new QPixmap(page->pageSize());
 	   page->renderToPixmap(myPixmap);
 	   \endcode
+
+	   \warning This is a work in progress. Results are unlikely to be of
+	   high quality. 
 	*/
         void renderToPixmap(QPixmap *q, double xres=72.0, double yres=72.0) const;
 
 	/**
 	   Returns the text that is inside a specified rectangle
 
-	   \param rect the rectangle specifying the area of interest
+	   \param rect the rectangle specifying the area of interest,
+	   with coordinates given in points, i.e., 1/72th of an inch.
 	   If rect is null, all text on the page is given
 	**/
 	QString text(const QRectF &rect) const;
 
+	/**
+	   Returns a list of text of the page
+
+	   This method returns a QList of TextBoxes that contain all
+	   the text of the page, with roughly one text word of text
+	   per TextBox item.
+	   
+	   For text written in western languages (left-to-right and
+	   up-to-down), the QList contains the text in the proper
+	   order.
+
+	   \warning This method is not tested with Asian scripts
+	*/
+
 	QList<TextBox*> textList() const;
 
 	/**
-	   The dimensions of the page, in points.
+	   \return The dimensions of the page, in points (i.e. 1/72th on an inch)
 	*/
 	QSizeF pageSizeF() const;
 
 	/**
-	   The dimensions of the page, in points.
+	   The dimensions of the page, in pixels.
 	*/
 	QSize pageSize() const;
 
