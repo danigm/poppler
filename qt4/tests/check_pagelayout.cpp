@@ -19,6 +19,8 @@ void TestPageLayout::checkNone()
     QVERIFY( doc );
   
     QCOMPARE( doc->pageLayout(), Poppler::Document::NoLayout );
+
+    delete doc;
 }
 
 void TestPageLayout::checkSingle()
@@ -28,6 +30,8 @@ void TestPageLayout::checkSingle()
     QVERIFY( doc );
   
     QCOMPARE( doc->pageLayout(), Poppler::Document::SinglePage );
+
+    delete doc;
 }
 
 void TestPageLayout::checkFacing()
@@ -37,6 +41,8 @@ void TestPageLayout::checkFacing()
     QVERIFY( doc );
 
     QCOMPARE( doc->pageLayout(), Poppler::Document::TwoPageRight );
+
+    delete doc;
 }
 
 QTEST_MAIN(TestPageLayout)

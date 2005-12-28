@@ -53,6 +53,7 @@ namespace Poppler {
 	    return pdoc;
 	}
 	else
+	    delete doc;
 	    return NULL;
 
     }
@@ -64,6 +65,7 @@ namespace Poppler {
 
     Document::~Document()
     {
+	delete m_doc->m_fontInfoScanner;
 	delete m_doc;
     }
 
@@ -170,6 +172,7 @@ namespace Poppler {
 			      (Poppler::FontInfo::Type)((::FontInfo*)items->get(i))->getType()
 		));
 	}
+	deleteGooList(items, ::FontInfo);
 	return true;
     }
 

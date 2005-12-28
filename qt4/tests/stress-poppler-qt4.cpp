@@ -57,10 +57,12 @@ int main( int argc, char **argv )
 		    page->renderToPixmap(pixmap);
 		    page->pageSize();
 		    page->orientation();
+		    delete page;
 		    std::cout << ".";
 		    std::cout.flush();
 		}
 		std::cout << std::endl;
+		delete doc;
 	    }
 	}
     }

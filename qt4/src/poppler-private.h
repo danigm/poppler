@@ -25,7 +25,12 @@ namespace Poppler {
     class DocumentData {
     public:
 	DocumentData(GooString *filePath, GooString *ownerPassword, GooString *userPassword) :
-	    doc(filePath, ownerPassword, userPassword) {}
+	    doc(filePath, ownerPassword, userPassword)
+	    {
+		// It might be more appropriate to delete these in PDFDoc
+		delete ownerPassword;
+		delete userPassword;
+	    }
 	class PDFDoc doc;
 	bool locked;
 	FontInfoScanner *m_fontInfoScanner;

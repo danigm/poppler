@@ -46,6 +46,8 @@ void TestMetaData::checkStrings()
     QFETCH( QString, key );
     QFETCH( QString, value );
     QCOMPARE( doc->info(key), value );
+
+    delete doc;
 }
 
 void TestMetaData::checkStrings2_data()
@@ -71,6 +73,8 @@ void TestMetaData::checkStrings2()
     QFETCH( QString, key );
     QFETCH( QString, value );
     QCOMPARE( doc->info(key), value );
+
+    delete doc;
 }
 
 void TestMetaData::checkStringKeys()
@@ -86,6 +90,8 @@ void TestMetaData::checkStringKeys()
     QStringList keysInDoc = doc->infoKeys();
     keysInDoc.sort();
     QCOMPARE( keysInDoc, keyList );
+
+    delete doc;
 }
 
 void TestMetaData::checkLinearised()
@@ -96,10 +102,14 @@ void TestMetaData::checkLinearised()
 
     QVERIFY( doc->isLinearized() );
 
+    delete doc;
+
     doc = Poppler::Document::load("../../../test/unittestcases/truetype.pdf");
     QVERIFY( doc );
     QEXPECT_FAIL("", "We don't yet handle linearisation correctly", Continue);
     QCOMPARE( doc->isLinearized(), false );
+
+    delete doc;
 }
 
 void TestMetaData::checkPortraitOrientation()
@@ -108,7 +118,11 @@ void TestMetaData::checkPortraitOrientation()
     doc = Poppler::Document::load("../../../test/unittestcases/orientation.pdf");
     QVERIFY( doc );
   
-    QCOMPARE( doc->page(0)->orientation(), Poppler::Page::Portrait );
+    Poppler::Page *page = doc->page(0);
+    QCOMPARE( page->orientation(), Poppler::Page::Portrait );
+
+    delete page;
+    delete doc;
 }
 
 void TestMetaData::checkNumPages()
@@ -118,9 +132,13 @@ void TestMetaData::checkNumPages()
     QVERIFY( doc );
     QCOMPARE( doc->numPages(), 2 );
 
+    delete doc;
+
     doc = Poppler::Document::load("../../../test/unittestcases/truetype.pdf");
     QVERIFY( doc );
     QCOMPARE( doc->numPages(), 1 );
+
+    delete doc;
 }
 
 void TestMetaData::checkDate()
@@ -131,6 +149,8 @@ void TestMetaData::checkDate()
     QVERIFY( doc );
     QCOMPARE( doc->date("ModDate"), QDateTime(QDate(2005, 12, 5), QTime(9,44,46), Qt::UTC ) );
     QCOMPARE( doc->date("CreationDate"), QDateTime(QDate(2005, 8, 13), QTime(1,12,11), Qt::UTC ) );
+
+    delete doc;
 }
 
 void TestMetaData::checkPageSize()
@@ -139,8 +159,12 @@ void TestMetaData::checkPageSize()
 
     doc = Poppler::Document::load("../../../test/unittestcases/truetype.pdf");
     QVERIFY( doc );
-    QCOMPARE( doc->page(0)->pageSize(), QSize(595, 842) );
-    QCOMPARE( doc->page(0)->pageSizeF(), QSizeF(595.22, 842) );
+    Poppler::Page *page = doc->page(0);
+    QCOMPARE( page->pageSize(), QSize(595, 842) );
+    QCOMPARE( page->pageSizeF(), QSizeF(595.22, 842) );
+
+    delete page;
+    delete doc;
 }
 
 
@@ -150,7 +174,11 @@ void TestMetaData::checkLandscapeOrientation()
     doc = Poppler::Document::load("../../../test/unittestcases/orientation.pdf");
     QVERIFY( doc );
   
-    QCOMPARE( doc->page(1)->orientation(), Poppler::Page::Landscape );
+    Poppler::Page *page = doc->page(1);
+    QCOMPARE( page->orientation(), Poppler::Page::Landscape );
+
+    delete page;
+    delete doc;
 }
 
 void TestMetaData::checkUpsideDownOrientation()
@@ -159,7 +187,11 @@ void TestMetaData::checkUpsideDownOrientation()
     doc = Poppler::Document::load("../../../test/unittestcases/orientation.pdf");
     QVERIFY( doc );
 
-    QCOMPARE( doc->page(2)->orientation(), Poppler::Page::UpsideDown );
+    Poppler::Page *page = doc->page(2);
+    QCOMPARE( page->orientation(), Poppler::Page::UpsideDown );
+
+    delete page;
+    delete doc;
 }
 
 void TestMetaData::checkSeascapeOrientation()
@@ -168,7 +200,11 @@ void TestMetaData::checkSeascapeOrientation()
     doc = Poppler::Document::load("../../../test/unittestcases/orientation.pdf");
     QVERIFY( doc );
 
-    QCOMPARE( doc->page(3)->orientation(), Poppler::Page::Seascape );
+    Poppler::Page *page = doc->page(3);
+    QCOMPARE( page->orientation(), Poppler::Page::Seascape );
+
+    delete page;
+    delete doc;
 }
 
 void TestMetaData::checkVersion()
@@ -178,6 +214,8 @@ void TestMetaData::checkVersion()
     QVERIFY( doc );
 
     QCOMPARE( doc->pdfVersion(), 1.6 );
+
+    delete doc;
 }
 
 QTEST_MAIN(TestMetaData)

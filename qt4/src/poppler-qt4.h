@@ -326,6 +326,9 @@ delete pixmap;
 	   Load the document from a file on disk
 
 	   \param filePath the name (and path, if required) of the file to load
+
+	   \warning The application owns the pointer to Document, and this should
+	   be deleted when no longer required.
 	*/
 	static Document *Document::load(const QString & filePath,
 					const QByteArray &ownerPassword=QByteArray(),

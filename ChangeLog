@@ -1,3 +1,28 @@
+2005-12-28  Brad Hards  <bradh@frogmouth.net>
+
+	* qt4/src/poppler-private.h (Poppler): delete passwords after we've
+	initialised the PDFDoc
+
+	* qt4/src/poppler-qt4.h: Add warning about deleting the Document
+	when done.
+
+	* qt4/tests/check_*.cpp: Delete the Poppler::Document
+	and Poppler::Page objects to avoid leaks 
+
+	* qt4/tests/check_version.cpp: removed, there is a replacement
+	automated test.
+
+	* qt4/tests/poppler-fonts.cpp (main): Delete Poppler::Document on exit
+	to avoid a memory leak.
+
+	* qt4/tests/stress-poppler-qt4.cpp: Delete Poppler::Document and
+	Poppler::Page objects to avoid leaks.
+
+	* qt4/src/poppler-document.cc (Poppler): Delete *doc in 
+	Document::load(), to avoid a memory leak on failure.
+	Delete font results list, avoid a memory leak
+	Delete font scanner object, avoid a memory leak
+
 2005-12-27  Brad Hards  <bradh@frogmouth.net>
 
 	* qt4/src/poppler-qt4.h: 

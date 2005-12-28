@@ -36,6 +36,8 @@ void TestPermissions::permissions1()
 
     // we are allowed to assemble this document
     QVERIFY( doc->okToAssemble() );
+
+    delete doc;
 }
 
 QTEST_MAIN(TestPermissions)

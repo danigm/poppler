@@ -21,6 +21,8 @@ void TestFontsData::checkNoFonts()
 
     QList<Poppler::FontInfo> listOfFonts = doc->fonts();
     QCOMPARE( listOfFonts.size(), 0 );
+
+    delete doc;
 }
 
 void TestFontsData::checkType1()
@@ -37,6 +39,8 @@ void TestFontsData::checkType1()
 
     QCOMPARE( listOfFonts.at(0).isEmbedded(), false );
     QCOMPARE( listOfFonts.at(0).isSubset(), false );
+
+    delete doc;
 }
 
 void TestFontsData::checkType3()
@@ -60,6 +64,8 @@ void TestFontsData::checkType3()
 
     QCOMPARE( listOfFonts.at(1).isEmbedded(), true );
     QCOMPARE( listOfFonts.at(1).isSubset(), false );
+
+    delete doc;
 }
 
 void TestFontsData::checkTrueType()
@@ -83,6 +89,8 @@ void TestFontsData::checkTrueType()
 
     QCOMPARE( listOfFonts.at(1).isEmbedded(), false );
     QCOMPARE( listOfFonts.at(1).isSubset(), false );
+
+    delete doc;
 }
 
 QTEST_MAIN(TestFontsData)

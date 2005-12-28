@@ -21,6 +21,8 @@ void TestPageMode::checkNone()
     QVERIFY( doc );
   
     QCOMPARE( doc->pageMode(), Poppler::Document::UseNone );
+
+    delete doc;
 }
 
 void TestPageMode::checkFullScreen()
@@ -30,6 +32,8 @@ void TestPageMode::checkFullScreen()
     QVERIFY( doc );
 
     QCOMPARE( doc->pageMode(), Poppler::Document::FullScreen );
+
+    delete doc;
 }
 
 void TestPageMode::checkAttachments()
@@ -39,6 +43,8 @@ void TestPageMode::checkAttachments()
     QVERIFY( doc );
   
     QCOMPARE( doc->pageMode(), Poppler::Document::UseAttach );
+
+    delete doc;
 }
 
 void TestPageMode::checkThumbs()
@@ -48,6 +54,8 @@ void TestPageMode::checkThumbs()
     QVERIFY( doc );
 
     QCOMPARE( doc->pageMode(), Poppler::Document::UseThumbs );
+
+    delete doc;
 }
 
 void TestPageMode::checkOC()
@@ -57,6 +65,8 @@ void TestPageMode::checkOC()
     QVERIFY( doc );
 
     QCOMPARE( doc->pageMode(), Poppler::Document::UseOC );
+
+    delete doc;
 }
 
 QTEST_MAIN(TestPageMode)
