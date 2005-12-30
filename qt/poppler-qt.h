@@ -24,6 +24,8 @@
 #include <qdatetime.h>
 #include <qpixmap.h>
 
+#include <PageTransition.h>
+
 namespace Poppler {
 
 class Document;
@@ -116,76 +118,6 @@ public:
 
 private:
   FontInfoData *data;
-};
-
-class PageTransitionData;
-class PageTransition
-{
-friend class Page;
-public:
-  enum Type {
-    Replace,
-    Split,
-    Blinds,
-    Box,
-    Wipe,
-    Dissolve,
-    Glitter,
-    Fly,
-    Push,
-    Cover,
-    Uncover,
-    Fade
-  };
-
-  enum Alignment {
-    Horizontal,
-    Vertical
-  };
-
-  enum Direction {
-    Inward,
-    Outward
-  };
-
-
-  // Destructor
-  ~PageTransition();
-
-  // Get type of the transition.
-  Type getType() const { return type; }
-
-  // Get duration of the transition in seconds.
-  int getDuration() const { return duration; }
-
-  // Get dimension in which the transition effect
-  // occurs.
-  Alignment getAlignment() const { return alignment; }
-
-  // Get direction of motion of the transition effect.
-  Direction getDirection() const { return direction; }
-
-  // Get direction in which the transition effect moves.
-  int getAngle() const { return angle; }
-
-  // Get starting or ending scale.
-  double getScale() const { return scale; }
-
-  // Returns true if the area to be flown is rectangular and
-  // opaque.
-  bool isRectangular() const { return rectangular; }
-
-private:
-  // Construct a new PageTransition object from a page dictionary.
-  PageTransition( const PageTransitionData &data );
-
-  Type type;
-  int duration;
-  Alignment alignment;
-  Direction direction;
-  int angle;
-  double scale;
-  bool rectangular;
 };
 
 class PageData;

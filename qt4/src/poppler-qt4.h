@@ -26,6 +26,8 @@
 #include <QtCore/QDateTime>
 #include <QtGui/QPixmap>
 
+#include <PageTransition.h>
+
 /**
    The Poppler Qt bindings
 */
@@ -254,7 +256,6 @@ delete pixmap;
 
 	   \warning This method is not tested with Asian scripts
 	*/
-
 	QList<TextBox*> textList() const;
 
 	/**
@@ -267,6 +268,17 @@ delete pixmap;
 	*/
 	QSize pageSize() const;
 
+	/**
+	  \brief Returns the transition of this page
+
+	  @returns a pointer to a PageTransition structure that
+	  defines how transition to this page shall be performed. The
+	  PageTransition structure is owned by this page, and will
+	  automatically be destroyed when this page class is
+	  destroyed.
+	**/
+	PageTransition *transition() const;
+	
 	/**
 	   Types of orientations that are possible
 	*/

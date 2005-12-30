@@ -185,6 +185,7 @@ libpoppler_la_SOURCES =		\
 	Outline.cc		\
 	OutputDev.cc 		\
 	Page.cc 		\
+	PageTransition.cc 	\
 	Parser.cc 		\
 	PDFDoc.cc 		\
 	PDFDocEncoding.cc	\

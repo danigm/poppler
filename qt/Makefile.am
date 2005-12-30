@@ -9,7 +9,7 @@ INCLUDES =					\
 
 poppler_includedir = $(includedir)/poppler
 poppler_include_HEADERS =			\
-	poppler-qt.h
+	poppler-qt.h ../poppler/PageTransition.h
 
 lib_LTLIBRARIES=libpoppler-qt.la
 libpoppler_qt_la_SOURCES =			\

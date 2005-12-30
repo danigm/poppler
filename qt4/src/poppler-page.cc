@@ -26,6 +26,7 @@
 #include <Catalog.h>
 #include <ErrorCodes.h>
 #include <ArthurOutputDev.h>
+#include <Private.h>
 #include <TextOutputDev.h>
 #include "poppler-private.h"
 
@@ -38,12 +39,14 @@ class PageData {
   public:
   const Document *parentDoc;
   int index;
+  PageTransition *transition;
 };
 
 Page::Page(const Document *doc, int index) {
   m_page = new PageData();
   m_page->index = index;
   m_page->parentDoc = doc;
+  m_page->transition = 0;
 }
 
 Page::~Page()
@@ -174,7 +177,7 @@ QList<TextBox*> Page::textList() const
     double xMin, yMin, xMax, yMax;
     word->getBBox(&xMin, &yMin, &xMax, &yMax);
     
-    TextBox* text_box = new TextBox(string, QRectF(xMin, yMin, xMax, yMax));
+    TextBox* text_box = new TextBox(string, QRectF(xMin, yMin, xMax-xMin, yMax-yMin));
     
     output_list.append(text_box);
   }
@@ -183,6 +186,18 @@ QList<TextBox*> Page::textList() const
   delete output_dev;
   
   return output_list;
+}
+
+PageTransition *Page::transition() const
+{
+  if (!m_page->transition) {
+    Object o;
+    PageTransitionParams params;
+    params.dictObj = m_page->parentDoc->m_doc->doc.getCatalog()->getPage(m_page->index + 1)->getTrans(&o);
+    m_page->transition = new PageTransition(params);
+    o.free();
+  }
+  return m_page->transition;
 }
 
 QSizeF Page::pageSizeF() const
