@@ -27,7 +27,9 @@
 #include "config.h"
 #include "Error.h"
 #include "GfxState.h"
+#ifdef ENABLE_LIBJPEG
 #include "DCTStream.h"
+#endif
 #include "GlobalParams.h"
 #include "HtmlOutputDev.h"
 #include "HtmlFonts.h"

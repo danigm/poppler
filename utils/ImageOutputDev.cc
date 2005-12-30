@@ -22,7 +22,9 @@
 #include "GfxState.h"
 #include "Object.h"
 #include "Stream.h"
+#ifdef ENABLE_LIBJPEG
 #include "DCTStream.h"
+#endif
 #include "ImageOutputDev.h"
 
 ImageOutputDev::ImageOutputDev(char *fileRootA, GBool dumpJPEGA) {

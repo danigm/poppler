@@ -1,3 +1,8 @@
+2005-12-30  Albert Astals Cid  <aacid@kde.org>
+
+	* utils/HtmlOutputDev.cc:
+	* utils/ImageOutputDev.cc: Fix build when using --disable-libjpeg
+
 2005-12-28  Brad Hards  <bradh@frogmouth.net>
 
 	* qt4/src/poppler-private.h (Poppler): delete passwords after we've
