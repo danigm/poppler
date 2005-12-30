@@ -51,6 +51,7 @@ Page::Page(const Document *doc, int index) {
 
 Page::~Page()
 {
+  delete m_page->transition;
   delete m_page;
 }
 
