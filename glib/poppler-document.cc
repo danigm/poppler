@@ -59,6 +59,18 @@ struct _PopplerDocumentClass
 
 G_DEFINE_TYPE (PopplerDocument, poppler_document, G_TYPE_OBJECT);
 
+/**
+ * poppler_document_new_from_file:
+ * @uri: uri of the file to load
+ * @password: password to unlock the file with, or %NULL
+ * @error: Return location for an error, or %NULL
+ * 
+ * Creates a new #PopplerDocument.  If %NULL is returned, then @error will be
+ * set. Possible errors include those in the #POPPLER_ERROR and #G_FILE_ERROR
+ * domains.
+ * 
+ * Return value: A newly created #PopplerDocument, or %NULL
+ **/
 PopplerDocument *
 poppler_document_new_from_file (const char  *uri,
 				const char  *password,
@@ -126,6 +138,17 @@ poppler_document_new_from_file (const char  *uri,
   return document;
 }
 
+/**
+ * poppler_document_save:
+ * @document: a #PopplerDocument
+ * @uri: uri of file to save
+ * @error: return location for an error, or %NULL
+ * 
+ * Saves @document.  If @error is set, %FALSE will be returned. Possible errors
+ * include those in the #G_FILE_ERROR domain.
+ * 
+ * Return value: %TRUE, if the document was successfully saved
+ **/
 gboolean
 poppler_document_save (PopplerDocument  *document,
 		       const char       *uri,
@@ -155,6 +178,14 @@ poppler_document_finalize (GObject *object)
   delete document->doc;
 }
 
+/**
+ * poppler_document_get_n_pages:
+ * @document: A #PopplerDocument
+ * 
+ * Returns the number of pages in a loaded document.
+ * 
+ * Return value: Number of pages
+ **/
 int
 poppler_document_get_n_pages (PopplerDocument *document)
 {
@@ -163,6 +194,18 @@ poppler_document_get_n_pages (PopplerDocument *document)
   return document->doc->getNumPages();
 }
 
+/**
+ * poppler_document_get_page:
+ * @document: A #PopplerDocument
+ * @index: a page index 
+ * 
+ * Returns the #PopplerPage indexed at @index.  This object is owned by the
+ * caller.
+ *
+ * #PopplerPage<!-- -->s are indexed starting at 0.
+ * 
+ * Return value: The #PopplerPage at @index
+ **/
 PopplerPage *
 poppler_document_get_page (PopplerDocument  *document,
 			   int               index)
@@ -180,6 +223,19 @@ poppler_document_get_page (PopplerDocument  *document,
   return _poppler_page_new (document, page, index);
 }
 
+/**
+ * poppler_document_get_page_by_label:
+ * @document: A #PopplerDocument
+ * @label: a page label
+ * 
+ * Returns the #PopplerPage reference by @label.  This object is owned by the
+ * caller.  @label is a human-readable string representation of the page number,
+ * and can be document specific.  Typically, it is a value such as "iii" or "3".
+ *
+ * By default, "1" refers to the first page.
+ * 
+ * Return value: The #PopplerPage referenced by @label
+ **/
 PopplerPage *
 poppler_document_get_page_by_label (PopplerDocument  *document,
 				    const char       *label)
@@ -633,6 +689,15 @@ poppler_index_iter_get_type (void)
   return our_type;
 }
 
+/**
+ * poppler_index_iter_copy:
+ * @iter: a #PopplerIndexIter
+ * 
+ * Creates a new #PopplerIndexIter as a copy of @iter.  This must be freed with
+ * poppler_index_iter_free().
+ * 
+ * Return value: a new #PopplerIndexIter
+ **/
 PopplerIndexIter *
 poppler_index_iter_copy (PopplerIndexIter *iter)
 {
@@ -647,6 +712,45 @@ poppler_index_iter_copy (PopplerIndexIter *iter)
 	return new_iter;
 }
 
+/**
+ * poppler_index_iter_new:
+ * @document: a #PopplerDocument
+ * 
+ * Returns the root #PopplerIndexIter for @document, or %NULL.  This must be
+ * freed with poppler_index_iter_free().
+ *
+ * Certain documents have an index associated with them.  This index can be used
+ * to help the user navigate the document, and is similar to a table of
+ * contents.  Each node in the index will contain a #PopplerAction that can be
+ * displayed to the user &mdash; typically a #POPPLER_ACTION_GOTO_DEST or a
+ * #POPPLER_ACTION_URI<!-- -->.
+ *
+ * Here is a simple example of some code that walks the full index:
+ *
+ * <informalexample><programlisting>
+ * static void
+ * walk_index (PopplerIndexIter *iter)
+ * {
+ *   do
+ *     {
+ *       /<!-- -->* Get the the action and do something with it *<!-- -->/
+ *       PopplerIndexIter *child = poppler_index_iter_get_child (iter);
+ *       if (child)
+ *         walk_index (child);
+ *       poppler_index_iter_free (child);
+ *     }
+ *   while (poppler_index_iter_next (iter));
+ * }
+ * ...
+ * {
+ *   iter = poppler_index_iter_new (document);
+ *   walk_index (iter);
+ *   poppler_index_iter_free (iter);
+ * }
+ *</programlisting></informalexample>
+ *
+ * Return value: a new #PopplerIndexIter
+ **/
 PopplerIndexIter *
 poppler_index_iter_new (PopplerDocument *document)
 {
@@ -670,6 +774,15 @@ poppler_index_iter_new (PopplerDocument *document)
 	return iter;
 }
 
+/**
+ * poppler_index_iter_get_child:
+ * @parent: a #PopplerIndexIter
+ * 
+ * Returns a newly created child of @parent, or %NULL if the iter has no child.
+ * See poppler_index_iter_new() for more information on this function.
+ * 
+ * Return value: a new #PopplerIndexIter
+ **/
 PopplerIndexIter *
 poppler_index_iter_get_child (PopplerIndexIter *parent)
 {
@@ -716,6 +829,16 @@ unicode_to_char (Unicode *unicode,
 	return g_strdup (gstr.getCString ());
 }
 
+/**
+ * poppler_index_iter_is_open:
+ * @iter: a #PopplerIndexIter
+ * 
+ * Returns whether this node should be expanded by default to the user.  The
+ * document can provide a hint as to how the document's index should be expanded
+ * initially.
+ * 
+ * Return value: %TRUE, if the document wants @iter to be expanded
+ **/
 gboolean
 poppler_index_iter_is_open (PopplerIndexIter *iter)
 {
@@ -726,6 +849,15 @@ poppler_index_iter_is_open (PopplerIndexIter *iter)
 	return item->isOpen();
 }
 
+/**
+ * poppler_index_iter_get_action:
+ * @iter: a #PopplerIndexIter
+ * 
+ * Returns the #PopplerAction associated with @iter.  It must be freed with
+ * poppler_action_free().
+ * 
+ * Return value: a new #PopplerAction
+ **/
 PopplerAction *
 poppler_index_iter_get_action (PopplerIndexIter  *iter)
 {
@@ -748,6 +880,15 @@ poppler_index_iter_get_action (PopplerIndexIter  *iter)
 	return action;
 }
 
+/**
+ * poppler_index_iter_next:
+ * @iter: a #PopplerIndexIter
+ * 
+ * Sets @iter to point to the next action at the current level, if valid.  See
+ * poppler_index_iter_new() for more information.
+ * 
+ * Return value: %TRUE, if @iter was set to the next action
+ **/
 gboolean
 poppler_index_iter_next (PopplerIndexIter *iter)
 {
@@ -760,6 +901,12 @@ poppler_index_iter_next (PopplerIndexIter *iter)
 	return TRUE;
 }
 
+/**
+ * poppler_index_iter_free:
+ * @iter: a #PopplerIndexIter
+ * 
+ * Frees @iter.
+ **/
 void
 poppler_index_iter_free (PopplerIndexIter *iter)
 {
@@ -1013,7 +1160,7 @@ poppler_ps_file_set_paper_size (PopplerPSFile *ps_file,
 
 /**
  * poppler_ps_file_set_duplex:
- * @ps_file a PopplerPSFile which was not yet printed to
+ * @ps_file: a PopplerPSFile which was not yet printed to
  * @duplex: whether to force duplex printing (on printers which support this)
  *
  * Enable or disable Duplex printing. 
@@ -1031,7 +1178,7 @@ poppler_ps_file_set_duplex (PopplerPSFile *ps_file, gboolean duplex)
  * poppler_ps_file_free:
  * @ps_file: a PopplerPSFile
  * 
- * Free a PopplerPSFile
+ * Frees @ps_file
  * 
  **/
 void

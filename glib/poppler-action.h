@@ -128,8 +128,6 @@ struct _PopplerActionMovie
 {
 	PopplerActionType type;
 	gchar *title;
-
-	// Annot
 };
 
 union _PopplerAction

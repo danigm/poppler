@@ -97,7 +97,7 @@ gboolean         poppler_document_save              (PopplerDocument  *document,
 						     GError          **error);
 int              poppler_document_get_n_pages       (PopplerDocument  *document);
 PopplerPage     *poppler_document_get_page          (PopplerDocument  *document,
-						     int               page);
+						     int               index);
 PopplerPage     *poppler_document_get_page_by_label (PopplerDocument  *document,
 						     const char       *label);
 
@@ -133,7 +133,7 @@ gboolean          poppler_fonts_iter_next          (PopplerFontsIter  *iter);
 /* Export to ps */
 PopplerPSFile *poppler_ps_file_new            (PopplerDocument *document,
                                                const char      *filename,
-                                               int              first_pages,
+                                               int              first_page,
                                                int              n_pages);
 void           poppler_ps_file_set_paper_size (PopplerPSFile   *ps_file,
                                                double           width,

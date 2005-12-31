@@ -29,6 +29,14 @@ GQuark poppler_error_quark (void)
   return q;
 }
 
+/**
+ * poppler_get_backend:
+ * @void: 
+ * 
+ * Returns the backend compiled into the poppler library.
+ * 
+ * Return value: The backend used by poppler
+ **/
 PopplerBackend
 poppler_get_backend (void)
 {
@@ -43,6 +51,14 @@ poppler_get_backend (void)
 
 static const char poppler_version[] = PACKAGE_VERSION;
 
+/**
+ * poppler_get_version:
+ * @void: 
+ * 
+ * Returns the version of poppler in use.  This result is not to be freed.
+ * 
+ * Return value: the version of poppler.
+ **/
 const char *
 poppler_get_version (void)
 {

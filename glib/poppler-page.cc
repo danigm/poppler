@@ -73,6 +73,14 @@ poppler_page_finalize (GObject *object)
   /* page->page is owned by the document */
 }
 
+/**
+ * poppler_page_get_size:
+ * @page: A #PopplerPage
+ * @width: return location for the width of @page
+ * @height: return location for the height of @page
+ * 
+ * Gets the size of @page at the current scale and rotation.
+ **/
 void
 poppler_page_get_size (PopplerPage *page,
 		       double      *width,
@@ -98,6 +106,14 @@ poppler_page_get_size (PopplerPage *page,
     *height = page_height;
 }
 
+/**
+ * poppler_page_get_index:
+ * @page: a #PopplerPage
+ * 
+ * Returns the index of @page
+ * 
+ * Return value: index value of @page
+ **/
 int
 poppler_page_get_index (PopplerPage *page)
 {
@@ -333,6 +349,18 @@ poppler_page_get_text_output_dev (PopplerPage *page)
   return page->text_dev;
 }
 
+/**
+ * poppler_page_get_selection_region:
+ * @page: a #PopplerPage
+ * @scale: scale specified as pixels per point
+ * @selection: start and end point of selection as a rectangle
+ * 
+ * Returns a region containing the area that would be rendered by
+ * poppler_page_render_selection().  The returned region must be freed with
+ * gdk_region_destroy().
+ * 
+ * Return value: a newly allocated #GdkRegion
+ **/
 GdkRegion *
 poppler_page_get_selection_region (PopplerPage      *page,
 				   gdouble           scale,

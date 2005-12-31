@@ -8,6 +8,24 @@
 
 
 static void
+print_index (PopplerIndexIter *iter)
+{
+  do
+    {
+      PopplerAction *action;
+
+      action = poppler_index_iter_get_action (iter);
+      g_print ("Action: %d\n", action->type);
+      poppler_action_free (action);
+      PopplerIndexIter *child = poppler_index_iter_get_child (iter);
+      if (child)
+	print_index (child);
+      poppler_index_iter_free (child);
+    }
+  while (poppler_index_iter_next (iter));
+}
+
+static void
 print_document_info (PopplerDocument *document)
 {
   gchar *title, *format, *author, *subject, *keywords, *creator, *producer, *linearized;
@@ -67,6 +85,17 @@ print_document_info (PopplerDocument *document)
   }
   poppler_font_info_free (font_info);
 
+  PopplerIndexIter *index_iter;
+  index_iter = poppler_index_iter_new (document);
+  if (index_iter)
+    {
+      g_print ("\tindex:\n");
+      print_index (index_iter);
+      poppler_index_iter_free (index_iter);
+    }
+  
+
+  
   /* FIXME: print out the view prefs when we support it */
 
   g_free (title);

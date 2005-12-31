@@ -51,6 +51,12 @@ poppler_action_get_type (void)
   return our_type;
 }
 
+/**
+ * poppler_action_free:
+ * @action: a #PopplerAction
+ * 
+ * Frees @action
+ **/
 void
 poppler_action_free (PopplerAction *action)
 {
@@ -71,6 +77,14 @@ poppler_action_free (PopplerAction *action)
 	g_free (action);
 }
 
+/**
+ * poppler_action_copy:
+ * @action: a #PopplerAction
+ * 
+ * Copies @action, creating an identical #PopplerAction.
+ * 
+ * Return value: a new action identical to @action
+ **/
 PopplerAction *
 poppler_action_copy (PopplerAction *action)
 {
