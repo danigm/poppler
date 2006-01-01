@@ -65,7 +65,6 @@ namespace Poppler {
 
     Document::~Document()
     {
-	delete m_doc->m_fontInfoScanner;
 	delete m_doc;
     }
 

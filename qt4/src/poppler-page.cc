@@ -27,11 +27,11 @@
 #include <ErrorCodes.h>
 #include <ArthurOutputDev.h>
 #include <Private.h>
-#include <TextOutputDev.h>
-#include "poppler-private.h"
-
 #include <SplashOutputDev.h>
+#include <TextOutputDev.h>
 #include <splash/SplashBitmap.h>
+
+#include "poppler-private.h"
 
 namespace Poppler {
 
@@ -57,12 +57,7 @@ Page::~Page()
 
 QPixmap *Page::splashRenderToPixmap(double xres, double yres, int x, int y, int w, int h) const
 {
-  SplashColor white;
-  white[0] = 255;
-  white[1] = 255;
-  white[2] = 255;
-  SplashOutputDev *output_dev = new SplashOutputDev(splashModeRGB8, 4, gFalse, white);
-  output_dev->startDoc(m_page->parentDoc->m_doc->doc.getXRef ());
+  SplashOutputDev *output_dev = m_page->parentDoc->m_doc->getSplashOutputDev();
   
   m_page->parentDoc->m_doc->doc.displayPageSlice(output_dev, m_page->index + 1, xres, yres,
 						 0, false, true, false, x, y, w, h);
@@ -90,12 +85,9 @@ QPixmap *Page::splashRenderToPixmap(double xres, double yres, int x, int y, int 
     }
   }
   delete[] pixel;
- 
+
   // Turn the QImage into a QPixmap
   QPixmap* out = new QPixmap(QPixmap::fromImage(img));
-
-  // Delete temporary buffers
-  delete output_dev;
 
   return out;
 }

@@ -1,5 +1,9 @@
 2006-01-01  Albert Astals Cid  <aacid@kde.org>
 
+	* qt4/src/poppler-private.h:
+	* qt4/src/poppler-page.cc:
+	* qt4/src/poppler-document.cc: Don't create a SplashOutputDev for
+	every splashRenderToPixmap
 	* qt/poppler-page.cc:
 	* qt/poppler-private.h: Don't create a SplashOutputDev for every
 	renderToPixmap.
