@@ -61,13 +61,8 @@ void Page::renderToPixmap(QPixmap **q, int x, int y, int w, int h, double xres, 
 {
   SplashOutputDev *output_dev;
   SplashBitmap *bitmap;
-  SplashColor white;
-  white[0] = 255;
-  white[1] = 255;
-  white[2] = 255;
   SplashColorPtr color_ptr;
-  output_dev = new SplashOutputDev(splashModeRGB8, 4, gFalse, white);
-  output_dev->startDoc(data->doc->data->doc.getXRef ());
+  output_dev = data->doc->data->getOutputDev();
   
   data->doc->data->doc.displayPageSlice(output_dev, data->index + 1, xres, yres,
       0, false, false, false, -1, -1, -1, -1);
@@ -89,7 +84,6 @@ void Page::renderToPixmap(QPixmap **q, int x, int y, int w, int h, double xres, 
   *q = new QPixmap( *img );
   
   delete img;
-  delete output_dev;
 }
 
 QString Page::getText(const Rectangle &r) const

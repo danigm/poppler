@@ -23,10 +23,32 @@ namespace Poppler {
 
 class DocumentData {
   public:
-    DocumentData(GooString *filePath, GooString *password) : doc(filePath,password) {}
+    DocumentData(GooString *filePath, GooString *password) : doc(filePath,password), m_outputDev(0) {}
+
+    ~DocumentData()
+    {
+        delete m_outputDev;
+        delete m_fontInfoScanner;
+    }
+
+    SplashOutputDev *getOutputDev()
+    {
+        if (!m_outputDev)
+        {
+            SplashColor white;
+            white[0] = 255;
+            white[1] = 255;
+            white[2] = 255;
+            m_outputDev = new SplashOutputDev(splashModeRGB8, 4, gFalse, white);
+            m_outputDev->startDoc(doc.getXRef());
+        }
+        return m_outputDev;
+    }
+
   class PDFDoc doc;
   bool locked;
   FontInfoScanner *m_fontInfoScanner;
+  SplashOutputDev *m_outputDev;
 };
 
 }

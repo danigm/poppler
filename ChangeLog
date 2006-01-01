@@ -1,3 +1,9 @@
+2006-01-01  Albert Astals Cid  <aacid@kde.org>
+
+	* qt/poppler-page.cc:
+	* qt/poppler-private.h: Don't create a SplashOutputDev for every
+	renderToPixmap.
+
 Sun Jan  1 15:32:08 2006  Jonathan Blandford  <jrb@redhat.com>
 
 	* glib/reference/*: More gtk-doc work.  Not enabled for building
