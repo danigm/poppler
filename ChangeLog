@@ -1,3 +1,8 @@
+Sun Jan  1 15:32:08 2006  Jonathan Blandford  <jrb@redhat.com>
+
+	* glib/reference/*: More gtk-doc work.  Not enabled for building
+	by default, but filled in.
+
 Fri Dec 30 21:08:33 2005  Jonathan Blandford  <jrb@redhat.com>
 
 	* glib/*{cc,h}: Update inline doc comments.  This is in
