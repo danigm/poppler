@@ -18,6 +18,7 @@
 
 #include <iostream>
 
+#include "Error.h"
 #include "Object.h"
 #include "PageTransition.h"
 #include "Private.h"
@@ -49,11 +50,11 @@ PageTransition::PageTransition(const PageTransitionParams &params)
 
   // Paranoid safety checks
   if (params.dictObj == 0) {
-    std::cerr << "ERROR in the poppler library: the method PageTransition_x::PageTransition_x(Object *params.dictObj) was called with params.dictObj==0\n";
+    error(-1, "PageTransition::PageTransition() called with params.dictObj==0");
     return;
   }
   if (params.dictObj->isDict() == false) {
-    std::cerr << "ERROR in the poppler library: the method PageTransition_x::PageTransition_x(Object *params.dictObj) was called where params.dictObj->isDict()==false\n";
+    error(-1, "PageTransition::PageTransition() called with params.dictObj->isDict()==false");
     return;
   }
 
