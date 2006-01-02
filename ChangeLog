@@ -1,3 +1,11 @@
+Sun Jan  1 18:50:51 2006  Jonathan Blandford  <jrb@redhat.com>
+
+	* Makefile.am:
+	* autogen.sh:
+	* configure.ac:
+	* gtk-doc.make:
+	* glib/Makefile.am: enable gtk-doc support.
+
 2006-01-01  Albert Astals Cid  <aacid@kde.org>
 
 	* qt4/src/poppler-private.h:

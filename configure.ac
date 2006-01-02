@@ -202,6 +202,8 @@ if test x$enable_poppler_glib = xyes; then
 fi
 AM_CONDITIONAL(BUILD_POPPLER_GLIB, test x$enable_poppler_glib = xyes)
 
+GTK_DOC_CHECK([1.0])
+
 AC_ARG_ENABLE(poppler-qt,
 	      AC_HELP_STRING([--disable-poppler-qt],
 			     [Don't compile poppler qt wrapper.]),
@@ -500,6 +502,7 @@ splash/Makefile
 poppler/Makefile
 utils/Makefile
 glib/Makefile
+glib/reference/Makefile
 test/Makefile
 qt/Makefile
 qt4/Makefile
@@ -521,6 +524,7 @@ echo "  qt wrapper:         $enable_poppler_qt"
 echo "  qt4 wrapper:        $enable_poppler_qt4"
 echo "  qt4 unittests:      $enable_poppler_qt4testlib"
 echo "  glib wrapper:       $enable_poppler_glib"
+echo "  use gtk-doc:        $enable_gtk_doc"
 echo "  use libjpeg:        $enable_libjpeg"
 echo "  use zlib:           $enable_zlib"
 echo "  command line utils: $enable_poppler_glib"

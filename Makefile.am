@@ -1,3 +1,5 @@
+ACLOCAL_AMFLAGS = -I m4
+
 if BUILD_SPLASH_OUTPUT
 splash_subdir = splash
 splash_pc_file = poppler-splash.pc

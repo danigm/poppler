@@ -8,6 +8,7 @@ cairo_libs =					\
 
 endif
 
+SUBDIRS=. reference
 INCLUDES =					\
 	-I$(top_srcdir)				\
 	-I$(top_srcdir)/poppler			\

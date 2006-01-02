@@ -4,6 +4,7 @@
 PKG_NAME=${PKG_NAME:-Poppler}
 
 # Default version requirements
+REQUIRED_GTK_DOC_VERSION=${REQUIRED_GTK_DOC_VERSION:-1.0}
 REQUIRED_AUTOMAKE_VERSION=${REQUIRED_AUTOMAKE_VERSION:-1.7}
 
 case $REQUIRED_AUTOMAKE_VERSION in
@@ -101,8 +102,21 @@ version_check() {
     return $vc_status
 }
 
+want_gtk_doc=false
+if [ ! "`echo $@ |grep -- --enable-gtk-doc`" = "" ]; then
+    version_check gtk-doc GTKDOCIZE gtkdocize $REQUIRED_GTK_DOC_VERSION \
+"http://ftp.gnome.org/pub/GNOME/sources/gtk-doc/" || DIE=1
+    want_gtk_doc=true
+fi
+
 version_check automake AUTOMAKE "$automake_progs" $REQUIRED_AUTOMAKE_VERSION \
 "http://ftp.gnu.org/pub/gnu/automake/automake-$REQUIRED_AUTOMAKE_VERSION.tar.gz" || DIE=1
 
 autoreconf -v -i
+
+if $want_gtk_doc; then
+    printbold "Running $GTKDOCIZE..."
+    $GTKDOCIZE --copy || exit 1
+fi
+
 ./configure $@
