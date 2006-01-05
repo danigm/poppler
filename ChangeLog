@@ -1,3 +1,8 @@
+2006-01-06  Albert Astals Cid  <aacid@kde.org>
+	
+	* poppler/DCTStream.cc: Fix handling of malformed jpeg streams like
+	the one at http://bugs.kde.org/show_bug.cgi?id=119569 
+
 2006-01-02  Albert Astals Cid  <aacid@kde.org>
 
 	* qt/poppler-page.cc:
