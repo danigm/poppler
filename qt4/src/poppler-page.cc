@@ -55,7 +55,7 @@ Page::~Page()
   delete m_page;
 }
 
-QPixmap *Page::splashRenderToPixmap(double xres, double yres, int x, int y, int w, int h) const
+QImage Page::splashRenderToImage(double xres, double yres, int x, int y, int w, int h) const
 {
   SplashOutputDev *output_dev = m_page->parentDoc->m_doc->getSplashOutputDev();
   
@@ -85,6 +85,13 @@ QPixmap *Page::splashRenderToPixmap(double xres, double yres, int x, int y, int 
     }
   }
   delete[] pixel;
+
+  return img;
+}
+
+QPixmap *Page::splashRenderToPixmap(double xres, double yres, int x, int y, int w, int h) const
+{
+  QImage img = splashRenderToImage(xres, yres, x, y, w, h);
 
   // Turn the QImage into a QPixmap
   QPixmap* out = new QPixmap(QPixmap::fromImage(img));

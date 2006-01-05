@@ -1,5 +1,13 @@
 2006-01-02  Albert Astals Cid  <aacid@kde.org>
 
+	* qt/poppler-page.cc:
+	* qt/poppler-qt.h:
+	* qt4/src/poppler-page.cc:
+	* qt4/src/poppler-qt4.h: Introduce variants of renderTo that return a
+	QImage and do not use a QPixmap so threading is possible.
+	
+2006-01-02  Albert Astals Cid  <aacid@kde.org>
+
 	* poppler/PageTransition.cc: Use error() insted of std::cerr
 
 Sun Jan  1 18:50:51 2006  Jonathan Blandford  <jrb@redhat.com>

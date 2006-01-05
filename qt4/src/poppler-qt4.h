@@ -153,31 +153,14 @@ namespace Poppler {
     public:
 	~Page();
 
-	/**
-	    Render the page to a QPixmap using the Splash renderer
-	 
+	/** 
+	   Render the page to a QImage using the Splash renderer
+	   
 	   This method can be used to render the page to a QPixmap. It
-	   uses the "Splash" rendering engine that is included in the
-	   Poppler distribution. This method is reasonably well-tested
-	   and has produced good output so far. This method is used as
-	   follows.
-
-@code
-Poppler::Page* pdfPage;
-
-// Generate a QPixmap of the rendered page
-QPixmap* pixmap = pdfPage->splashRenderToPixmap(0, 0, 0, 0, xres, yres );
-if (pixmap == 0) {
-  ... error message ...
-  return;
-}
-
-... use pixmap ...
-
-delete pixmap;
-@endcode
-
-           If x=y=w=h=-1, the method will automatically compute the
+	   uses the "Splash" rendering engine. This method is reasonably
+	   well-tested and has produced good output so far.
+	   
+	   If x=y=w=h=-1, the method will automatically compute the
            size of the pixmap from the horizontal and vertical
            resolutions specified in xres and yres. Otherwise, the
            method renders only a part of the page, specified by the
@@ -205,11 +188,33 @@ delete pixmap;
 	   well-tested. Unusual or meaningless parameters may lead to
 	   rather unexpected results.
 
-	   \returns pointer to a QPixmap, or NULL on failure. The
-	   pixmap returned must be deleted.
+	   \returns a QImage of the page, or a null image on failure.
+        */
+	QImage splashRenderToImage(double xres=72.0, double yres=72.0, int x=-1, int y=-1, int w=-1, int h=-1) const;
+	
+	/**
+	   Render the page to a QPixmap using the Splash renderer
+	   
+	   This member function is provided for convenience. It behaves essentially like the above function.
+	   It is used as follows.
+
+@code
+Poppler::Page* pdfPage;
+
+// Generate a QPixmap of the rendered page
+QPixmap* pixmap = pdfPage->splashRenderToPixmap(0, 0, 0, 0, xres, yres );
+if (pixmap == 0) {
+  ... error message ...
+  return;
+}
+
+... use pixmap ...
+
+delete pixmap;
+@endcode
 	 */
 	QPixmap *splashRenderToPixmap(double xres=72.0, double yres=72.0, int x=-1, int y=-1, int w=-1, int h=-1) const;
-	
+
 	/**
 	    Render the page to a pixmap using the Arthur (Qt4) renderer
 	   

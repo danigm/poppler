@@ -59,31 +59,37 @@ void Page::renderToPixmap(QPixmap **q, int x, int y, int w, int h) const
 
 void Page::renderToPixmap(QPixmap **q, int x, int y, int w, int h, double xres, double yres) const
 {
+  QImage img = renderToImage(xres, yres);
+  *q = new QPixmap( img );
+}
+
+QImage Page::renderToImage(double xres, double yres) const
+{
   SplashOutputDev *output_dev;
   SplashBitmap *bitmap;
   SplashColorPtr color_ptr;
   output_dev = data->doc->data->getOutputDev();
-  
+
   data->doc->data->doc.displayPageSlice(output_dev, data->index + 1, xres, yres,
       0, false, false, false, -1, -1, -1, -1);
   bitmap = output_dev->getBitmap ();
   color_ptr = bitmap->getDataPtr ();
   int bw = output_dev->getBitmap()->getWidth();
   int bh = output_dev->getBitmap()->getHeight();
-  QImage * img = new QImage( bw, bh, 32 );
+
+  QImage img( bw, bh, 32 );
   SplashColorPtr pixel = new Guchar[4];
   for (int i = 0; i < bw; i++)
   {
     for (int j = 0; j < bh; j++)
     {
       output_dev->getBitmap()->getPixel(i, j, pixel);
-      img->setPixel( i, j, qRgb( pixel[0], pixel[1], pixel[2] ) );
+      img.setPixel( i, j, qRgb( pixel[0], pixel[1], pixel[2] ) );
     }
   }
   delete[] pixel;
-  *q = new QPixmap( *img );
-  
-  delete img;
+
+  return img;
 }
 
 QString Page::getText(const Rectangle &r) const

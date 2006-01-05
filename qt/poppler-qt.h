@@ -128,12 +128,32 @@ class Page {
     void renderToPixmap(QPixmap **q, int x, int y, int w, int h, double xres, double yres) const;
 
     /**
-     * This is a convenience function that is equivalent to
-     * renderToPixmap() with xres and yres set to 72.0. We keep it
-     * only for binary compatibility
-     **/
+      This is a convenience function that is equivalent to
+      renderToPixmap() with xres and yres set to 72.0. We keep it
+      only for binary compatibility
+
+      \sa renderToImage()
+     */
     void renderToPixmap(QPixmap **q, int x, int y, int w, int h) const;
-    
+
+    /**
+      \brief Render the page to a QImage using the Splash renderer
+
+     This method can be used to render the page to a QImage. It
+     uses the "Splash" rendering engine.
+
+     \param xres horizontal resolution of the graphics device,
+     in dots per inch (defaults to 72 dpi)
+
+     \param yres vertical resolution of the graphics device, in
+     dots per inch (defaults to 72 dpi)
+
+     \returns a QImage of the page.
+
+     \sa renderToPixmap()
+    */
+    QImage renderToImage(double xres = 72.0, double yres = 72.0) const;
+
     /**
      * Returns the size of the page in points
      **/
