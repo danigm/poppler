@@ -1,5 +1,4 @@
 dnl Based on Xpdf configure.in and evince configure.ac
-
 dnl Based on kde acinclude.m4.in, LGPL Licensed
 
 AC_DEFUN([AC_FIND_FILE],
@@ -53,10 +52,10 @@ else
   AC_MSG_RESULT(no)
   $3
 fi
-
 ])
 
-AC_DEFUN([AC_FIND_JPEG],
+
+AC_DEFUN([POPPLER_FIND_JPEG],
 [
 dnl first look for libraries
 KDE_FIND_JPEG_HELPER(6b, 6b,
@@ -108,5 +107,3 @@ AH_VERBATIM(_AC_CHECK_JPEG,
 #endif
 ])
 ])
-
-dnl Based on kde acinclude.m4.in, LGPL Licensed

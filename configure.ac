@@ -116,7 +116,7 @@ AC_ARG_ENABLE(libjpeg,
               enable_libjpeg=$enableval,
               enable_libjpeg="try")
 if test x$enable_libjpeg != xno; then
-  AC_FIND_JPEG
+  POPPLER_FIND_JPEG
 fi
 
 AM_CONDITIONAL(BUILD_LIBJPEG, test x$enable_libjpeg = xyes)
@@ -210,80 +210,15 @@ AC_ARG_ENABLE(poppler-qt,
 	      enable_poppler_qt=$enableval,
 	      enable_poppler_qt="try")
 
-have_qt=no
-dnl ===================================================================
-dnl Check whether the Qt libraries are available.
-dnl Adapted from OpenOffice.org configure.in
-dnl ===================================================================
-
-dnl Search paths for Qt 
-qt_incdirs="$QTINC /usr/local/qt/include /usr/include/qt /usr/include /usr/X11R6/include/X11/qt /usr/X11R6/include/qt /usr/lib/qt3/include /usr/lib/qt/include /usr/share/qt3/include"
-qt_libdirs="$QTLIB /usr/local/qt/lib /usr/lib/qt /usr/lib /usr/X11R6/lib/X11/qt /usr/X11R6/lib/qt /usr/lib/qt3/lib /usr/lib/qt/lib /usr/share/qt3/lib"
-if test -n "$QTDIR" ; then
-    qt_incdirs="$QTDIR/include $qt_incdirs"
-    qt_libdirs="$QTDIR/lib $qt_libdirs"
+if test x$enable_poppler_qt = xyes; then
+  POPPLER_FIND_QT(POPPLER_QT,,)
+elif test x$enable_poppler_qt = xtry; then
+  POPPLER_FIND_QT(POPPLER_QT,
+		  [enable_poppler_qt="yes"],
+                  [enable_poppler_qt="no"])
 fi
-
-dnl What to test
-qt_test_include="qstyle.h"
-qt_test_la_library="libqt-mt.la"
-qt_test_library="libqt-mt.so"
-
-dnl Check for Qt headers
-AC_MSG_CHECKING([for Qt headers])
-qt_incdir="no"
-for it in $qt_incdirs ; do
-    if test -r "$it/$qt_test_include" ; then
-        qt_incdir="$it"
-        break
-    fi
-done
-AC_MSG_RESULT([$qt_incdir])
-
-dnl Check for Qt libraries
-AC_MSG_CHECKING([for Qt libraries])
-qt_libdir="no"
-for qt_check in $qt_libdirs ; do
-    if test -r "$qt_check/$qt_test_la_library" ; then
-        qt_libdir="$qt_check"
-        break
-    fi
-
-    if test -r "$qt_check/$qt_test_library" ; then
-        qt_libdir="$qt_check"
-        break
-    fi
-done
-AC_MSG_RESULT([$qt_libdir])
-
-if test "x$qt_libdir" != "xno" ; then
-    if test "x$qt_incdir" != "xno" ; then
-        have_qt=yes;
-    fi
-fi
-
-dnl Set the variables
-POPPLER_QT_CXXFLAGS="-I$qt_incdir"
-POPPLER_QT_LIBS="$qt_libdir/$qt_test_library"
-
 AC_SUBST(POPPLER_QT_CXXFLAGS)
 AC_SUBST(POPPLER_QT_LIBS)
-
-if test x$have_qt = xno ; then
-    AC_MSG_WARN([Qt development libraries not found])
-fi
-
-if test x$enable_poppler_qt = xyes; then
-  if test x$have_qt = xno; then
-    AC_MSG_ERROR([Qt integration explicitly required, and Qt libraries not found])
-  fi
-elif test x$enable_poppler_qt = xtry; then
-  if test x$have_qt = xyes; then
-    enable_poppler_qt="yes"
-  else
-    enable_poppler_qt="no"
-  fi
-fi
 AM_CONDITIONAL(BUILD_POPPLER_QT, test x$enable_poppler_qt = xyes)
 
 dnl 
@@ -295,147 +230,23 @@ AC_ARG_ENABLE(poppler-qt4,
 	      enable_poppler_qt4=$enableval,
 	      enable_poppler_qt4="try")
 
-have_qt4=no
-dnl ===================================================================
-dnl Check whether the Qt4 libraries are available.
-dnl Adapted from Qt3 check above!
-dnl ===================================================================
-
-dnl Search paths for Qt4 - not much real experience with this yet.
-qt4_incdirs="/usr/local/qt/include /usr/include/qt4 /usr/include/qt /usr/include /usr/X11R6/include/X11/qt /usr/X11R6/include/qt /usr/lib/qt/include"
-qt4_libdirs="/usr/local/qt/lib /usr/lib/qt /usr/lib /usr/X11R6/lib/X11/qt /usr/X11R6/lib/qt /usr/lib/qt/lib"
-
-if test -n "$QTDIR" ; then
-    qt4_incdirs="$QTDIR/include $qt4_incdirs"
-    qt4_libdirs="$QTDIR/lib $qt4_libdirs"
-fi
-
-dnl What to test
-qt4_test_include="QtCore/QCoreApplication"
-qt4_test_la_library="libQtCore.la"
-qt4_test_library="libQtCore.so"
-qt4_windows_test_library="QtCore4.dll"
-
-dnl Check for Qt4 headers
-AC_MSG_CHECKING([for Qt4 headers])
-qt4_incdir="no"
-for it in $qt4_incdirs ; do
-    if test -r "$it/$qt4_test_include" ; then
-        qt4_incdir="$it"
-        break
-    fi
-done
-AC_MSG_RESULT([$qt4_incdir])
-
-dnl Check for Qt4 libraries
-AC_MSG_CHECKING([for Qt4 libraries])
-qt4_libdir="no"
-for qt4_check in $qt4_libdirs ; do
-    if test -r "$qt4_check/$qt4_test_la_library" ; then
-        qt4_libdir="$qt4_check"
-        break
-    fi
-
-    if test -r "$qt4_check/$qt4_test_library" ; then
-        qt4_libdir="$qt4_check"
-        break
-    fi
-
-    if test -r "$qt4_check/$qt4_windows_test_library" ; then
-        qt4_libdir="$qt4_check"
-        windows_qt="yes"
-        break
-    fi
-done
-AC_MSG_RESULT([$qt4_libdir])
-
-if test "x$qt4_libdir" != "xno" ; then
-    if test "x$qt4_incdir" != "xno" ; then
-        have_qt4=yes;
-    fi
-fi
-
-dnl Set the variables
-POPPLER_QT4_CXXFLAGS="-I$qt4_incdir"
-if test x$windows_qt = xyes; then
-	POPPLER_QT4_LIBS="-L$qt4_libdir -lQtCore4 -lQtGui4"
-else
-	POPPLER_QT4_LIBS="-L$qt4_libdir -lQtCore -lQtGui"
+if test x$enable_poppler_qt4 = xyes; then
+  POPPLER_FIND_QT4(POPPLER_QT4)
+elif test x$enable_poppler_qt4 = xtry; then
+  POPPLER_FIND_QT4(POPPLER_QT4,
+		  [enable_poppler_qt4="yes"],
+                  [enable_poppler_qt4="no"])
 fi
 
 AC_SUBST(POPPLER_QT4_CXXFLAGS)
 AC_SUBST(POPPLER_QT4_LIBS)
-
-if test x$have_qt4 = xno ; then
-    AC_MSG_WARN([Qt4 development libraries not found])
-fi
-
-if test x$enable_poppler_qt4 = xyes; then
-  if test x$have_qt4 = xno; then
-    AC_MSG_ERROR([Qt4 integration explicitly required, and Qt4 libraries not found])
-  fi
-elif test x$enable_poppler_qt4 = xtry; then
-  if test x$have_qt4 = xyes; then
-    enable_poppler_qt4="yes"
-  else
-    enable_poppler_qt4="no"
-  fi
-fi
 AM_CONDITIONAL(BUILD_POPPLER_QT4, test x$enable_poppler_qt4 = xyes)
 
-
-have_qt4testlib=no
-dnl ===================================================================
-dnl Check whether the QtTestLib headers and libs  are available.
-dnl Adapted from Qt4 check above!
-dnl ===================================================================
-
-dnl We re-use much of the Qt4 environment.
-
-dnl What to test
-qt4test_test_include="QtTest/QtTest"
-qt4test_test_la_library="libQtTest.la"
-qt4test_test_library="libQtTest.so"
-
-dnl Check for QtTestLib headers
-AC_MSG_CHECKING([for QtTestLib headers])
-qt4test_incdir="no"
-for it in $qt4_incdirs ; do
-    if test -r "$it/$qt4test_test_include" ; then
-        qt4test_incdir="$it"
-        break
-    fi
-done
-AC_MSG_RESULT([$qt4test_incdir])
-
-dnl Check for Qt4 libraries
-AC_MSG_CHECKING([for QtTestLib libraries])
-qt4test_libdir="no"
-for qt4test_check in $qt4_libdirs ; do
-    if test -r "$qt4test_check/$qt4test_test_la_library" ; then
-        qt4test_libdir="$qt4test_check"
-        break
-    fi
-
-    if test -r "$qt4test_check/$qt4test_test_library" ; then
-        qt4test_libdir="$qt4test_check"
-        break
-    fi
-done
-AC_MSG_RESULT([$qt4test_libdir])
-
-if test "x$qt4test_libdir" != "xno" ; then
-    if test "x$qt4test_incdir" != "xno" ; then
-        have_qt4testlib=yes;
-    fi
+if test x$enable_poppler_qt4 = xyes; then
+  POPPLER_FIND_QT4TEST(POPPLER_QTTEST)
+  AC_SUBST(POPPLER_QTTEST_CXXFLAGS)
+  AC_SUBST(POPPLER_QTTEST_LIBS)
 fi
-
-dnl Set the variables
-POPPLER_QTTEST_CXXFLAGS="-I$qt4test_incdir"
-POPPLER_QTTEST_LIBS="-L$qt4test_libdir -lQtTest"
-
-AC_SUBST(POPPLER_QTTEST_CXXFLAGS)
-AC_SUBST(POPPLER_QTTEST_LIBS)
 
 if test x$have_qt4testlib = xno ; then
     AC_MSG_WARN([QtTestLib libraries not found])

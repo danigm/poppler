@@ -3369,8 +3369,6 @@ void TextSelectionPainter::visitWord (TextWord *word, int begin, int end,
 
   out->beginString(state, string);
 
-#warning krh this is yours have a look here
-//TODO what value of nBytes should we use? i put a 1 but not sure
   for (i = begin; i < end; i++)
     out->drawChar(state, word->edge[i], word->base, 0, 0, 0, 0,
 		  word->charcode[i], 1, NULL, 0);

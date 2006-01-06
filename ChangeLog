@@ -1,3 +1,29 @@
+2006-01-06  Kristian Høgsberg  <krh@redhat.com>
+
+	* qt/poppler-page.cc:
+	* qt/poppler-private.h:
+	* qt/poppler-qt.h:
+	* qt4/src/Makefile.am: 
+	* qt/Makefile.am: 
+	* poppler/Makefile.am: Move PageTransition to qt bindings, move
+	contents from Private.h to qt/poppler-private.h.
+
+	* poppler/TextOutputDev.cc (visitWord): Remove #warning.
+
+	* utils/Makefile.am (pdfimages_SOURCES): Add ImageOutputDev.h, use
+	dist_man1_MANS so we actually dist the man pages.
+
+	* goo/Makefile.am (poppler_goo_include_HEADERS): Add GooVector.h.
+
+	* glib/reference/Makefile.am: DOC_SOURCE_DIR must be relative to
+	$(srcdir), fix this to make distchek run.
+
+	* m4/qt.m4:
+	* m4/libjpeg.m4: 
+	* acinclude.m4:
+	* configure.ac: Split out Qt and libjpeg checks from configure.ac
+	and acinclude.m4 to m4/qt.m4 and m4/libjpeg.m4.
+	
 2006-01-06  Albert Astals Cid  <aacid@kde.org>
 	
 	* poppler/DCTStream.cc: Fix handling of malformed jpeg streams like

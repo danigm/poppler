@@ -24,7 +24,7 @@
 #include <qdatetime.h>
 #include <qpixmap.h>
 
-#include <PageTransition.h>
+#include <poppler-page-transition.h>
 
 namespace Poppler {
 

@@ -22,7 +22,6 @@
 #include <qimage.h>
 #include <GlobalParams.h>
 #include <PDFDoc.h>
-#include <Private.h>
 #include <Catalog.h>
 #include <ErrorCodes.h>
 #include <SplashOutputDev.h>

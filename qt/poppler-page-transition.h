@@ -20,10 +20,9 @@
 #ifndef __PAGETRANSITION_X_H__
 #define __PAGETRANSITION_X_H__
 
-class PageTransitionParams;
-
 namespace Poppler {
 
+class PageTransitionParams;
 class PageTransitionData;
 
 class PageTransition {

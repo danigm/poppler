@@ -9,16 +9,18 @@ INCLUDES =					\
 
 poppler_includedir = $(includedir)/poppler
 poppler_include_HEADERS =			\
-	poppler-qt.h ../poppler/PageTransition.h
+	poppler-qt.h				\
+	poppler-page-transition.h
 
-lib_LTLIBRARIES=libpoppler-qt.la
+lib_LTLIBRARIES = libpoppler-qt.la
 libpoppler_qt_la_SOURCES =			\
 	poppler-document.cc			\
 	poppler-fontinfo.cc			\
 	poppler-page.cc				\
+	poppler-page-transition.cc		\
 	poppler-private.h
 
-libpoppler_qt_la_LIBADD= 			\
+libpoppler_qt_la_LIBADD = 			\
 	$(top_builddir)/poppler/libpoppler.la	\
 	$(POPPLER_QT_LIBS)			\
 	$(FREETYPE_LIBS)

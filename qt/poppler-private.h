@@ -16,8 +16,10 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
+#include <SplashOutputDev.h>
 #include <PDFDoc.h>
 #include <FontInfo.h>
+#include <Object.h>
 
 namespace Poppler {
 
@@ -51,6 +53,9 @@ class DocumentData {
   SplashOutputDev *m_outputDev;
 };
 
+class PageTransitionParams {
+  public:
+    Object *dictObj;
+};
+
 }
-
-
