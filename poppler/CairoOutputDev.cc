@@ -55,6 +55,8 @@ CairoOutputDev::CairoOutputDev() {
   surface = NULL;
   fill_pattern = NULL;
   stroke_pattern = NULL;
+  stroke_opacity = 1.0;
+  fill_opacity = 1.0;
 }
 
 CairoOutputDev::~CairoOutputDev() {
