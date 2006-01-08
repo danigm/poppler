@@ -253,8 +253,11 @@ void CairoOutputDev::updateFont(GfxState *state) {
   cairo_matrix_t matrix;
 
   LOG(printf ("updateFont() font=%s\n", state->getFont()->getName()->getCString()));
-  
+
   needFontUpdate = gFalse;
+
+  if (state->getFont()->getType() == fontType3)
+    return;
 
   currentFont = fontEngine->getFont (state->getFont(), xref);
 

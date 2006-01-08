@@ -1,5 +1,9 @@
 2006-01-08  Jeff Muizelaar  <jeff@infidigm.net>
 
+	* poppler/CairoOutputDev.cc: Don't try and load type3 fonts (#4030).
+
+2006-01-08  Jeff Muizelaar  <jeff@infidigm.net>
+
 	* poppler/Page.cc: use colToByte for reading thumbnails (#5420).
 	
 	Patch by Nickolay V. Shmyrev.
@@ -33,7 +37,7 @@
 	* acinclude.m4:
 	* configure.ac: Split out Qt and libjpeg checks from configure.ac
 	and acinclude.m4 to m4/qt.m4 and m4/libjpeg.m4.
-	
+
 2006-01-06  Albert Astals Cid  <aacid@kde.org>
 	
 	* poppler/DCTStream.cc: Fix handling of malformed jpeg streams like
