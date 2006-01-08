@@ -1,3 +1,9 @@
+2006-01-08  Jeff Muizelaar  <jeff@infidigm.net>
+
+	* poppler/Page.cc: use colToByte for reading thumbnails (#5420).
+	
+	Patch by Nickolay V. Shmyrev.
+
 2006-01-07  Jeff Muizelaar <jeff@infidigm.net>
 
 	* poppler/CairoOutputDev.cc: Initialize (fill|stroke)_opacity.

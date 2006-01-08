@@ -502,9 +502,9 @@ GBool Page::loadThumb(unsigned char **data_out,
       imgstr->getPixel(pix);
       colorMap->getRGB(pix, &rgb);
 
-      *p++ = (unsigned char)(rgb.r * 255 + 0.5);
-      *p++ = (unsigned char)(rgb.g * 255 + 0.5);
-      *p++ = (unsigned char)(rgb.b * 255 + 0.5);
+      *p++ = colToByte(rgb.r);
+      *p++ = colToByte(rgb.g);
+      *p++ = colToByte(rgb.b);
     }
   }
 
