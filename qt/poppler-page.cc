@@ -28,6 +28,7 @@
 #include <TextOutputDev.h>
 #include <splash/SplashBitmap.h>
 #include "poppler-private.h"
+#include "poppler-page-transition-private.h"
 
 namespace Poppler {
 

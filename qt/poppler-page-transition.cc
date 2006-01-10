@@ -19,7 +19,7 @@
 #include "Object.h"
 #include "Error.h"
 #include "poppler-page-transition.h"
-#include "poppler-private.h"
+#include "poppler-page-transition-private.h"
 
 namespace Poppler {
 

@@ -26,7 +26,7 @@
 #include <QtCore/QDateTime>
 #include <QtGui/QPixmap>
 
-#include <PageTransition.h>
+#include <poppler-page-transition.h>
 
 /**
    The Poppler Qt bindings

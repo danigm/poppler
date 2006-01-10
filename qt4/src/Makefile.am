@@ -1,6 +1,7 @@
 INCLUDES =					\
 	-I$(top_srcdir)				\
 	-I$(top_srcdir)/poppler			\
+	-I$(top_srcdir)/qt			\
 	$(POPPLER_QT4_CXXFLAGS)
 
 

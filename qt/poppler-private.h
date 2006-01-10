@@ -53,9 +53,4 @@ class DocumentData {
   SplashOutputDev *m_outputDev;
 };
 
-class PageTransitionParams {
-  public:
-    Object *dictObj;
-};
-
 }

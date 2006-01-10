@@ -243,19 +243,13 @@ AC_SUBST(POPPLER_QT4_LIBS)
 AM_CONDITIONAL(BUILD_POPPLER_QT4, test x$enable_poppler_qt4 = xyes)
 
 if test x$enable_poppler_qt4 = xyes; then
-  POPPLER_FIND_QT4TEST(POPPLER_QTTEST)
+  POPPLER_FIND_QT4TEST(POPPLER_QTTEST,
+                      [enable_poppler_qt4testlib="yes"],
+                      [enable_poppler_qt4testlib="no"])
   AC_SUBST(POPPLER_QTTEST_CXXFLAGS)
   AC_SUBST(POPPLER_QTTEST_LIBS)
-fi
-
-if test x$have_qt4testlib = xno ; then
-    AC_MSG_WARN([QtTestLib libraries not found])
-fi
-
-if test x$have_qt4testlib = xyes; then
-    enable_poppler_qt4testlib="yes"
 else
-    enable_poppler_qt4testlib="no"
+  enable_poppler_qt4testlib="no"
 fi
 
 AM_CONDITIONAL(BUILD_POPPLER_QT4TESTS, test x$enable_poppler_qt4testlib = xyes)
