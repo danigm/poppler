@@ -5,6 +5,8 @@ INCLUDES =					\
 
 noinst_LTLIBRARIES = libsplash.la
 
+if ENABLE_XPDF_HEADERS
+
 poppler_splash_includedir = $(includedir)/poppler/splash
 poppler_splash_include_HEADERS =		\
 	Splash.h				\
@@ -30,6 +32,8 @@ poppler_splash_include_HEADERS =		\
 	SplashTypes.h				\
 	SplashXPath.h				\
 	SplashXPathScanner.h
+
+endif
 
 libsplash_la_SOURCES =				\
 	Splash.cc				\
