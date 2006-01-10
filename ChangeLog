@@ -1,3 +1,17 @@
+2006-01-10  Jeff Muizelaar  <jeff@infidigm.net>
+
+	* poppler/CairoOutputDev.cc:
+	* poppler/CairoOutputDev.h:
+	Fix the following fixme in CairoOutputDevice.
+
+	// FIXME: This is quite right yet, we need to accumulate all
+	// glyphs within one text object before we clip.  Right now this
+	// just add this one string.
+
+	The fix uses a strategy similar to the one the Splash backend.
+	textClipPath is used to store the appended path from each call to
+	endString(). The accumulated path is clipped in endTextObject.
+
 2006-01-08  Jeff Muizelaar  <jeff@infidigm.net>
 
 	* poppler/CairoOutputDev.cc: Don't try and load type3 fonts (#4030).

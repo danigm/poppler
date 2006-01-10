@@ -150,6 +150,7 @@ protected:
   cairo_surface_t *surface;
   cairo_glyph_t *glyphs;
   int glyphCount;
+  cairo_path_t *textClipPath;
 };
 
 #endif

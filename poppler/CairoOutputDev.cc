@@ -57,6 +57,7 @@ CairoOutputDev::CairoOutputDev() {
   stroke_pattern = NULL;
   stroke_opacity = 1.0;
   fill_opacity = 1.0;
+  textClipPath = NULL;
 }
 
 CairoOutputDev::~CairoOutputDev() {
@@ -411,12 +412,22 @@ void CairoOutputDev::endString(GfxState *state)
 
   // clip
   if (render & 4) {
-    // FIXME: This is quite right yet, we need to accumulate all
-    // glyphs within one text object before we clip.  Right now this
-    // just add this one string.
     LOG (printf ("clip string\n"));
+    // append the glyph path to textClipPath.
+
+    // set textClipPath as the currentPath
+    if (textClipPath) {
+      cairo_append_path (cairo, textClipPath);
+      cairo_path_destroy (textClipPath);
+    }
+    
+    // append the glyph path
     cairo_glyph_path (cairo, glyphs, glyphCount);
-    cairo_clip (cairo);
+   
+    // move the path back into textClipPath 
+    // and clear the current path
+    textClipPath = cairo_copy_path (cairo);
+    cairo_new_path (cairo);
   }
   
   gfree (glyphs);
@@ -440,6 +451,14 @@ void CairoOutputDev::type3D1(GfxState *state, double wx, double wy,
 }
 
 void CairoOutputDev::endTextObject(GfxState *state) {
+  if (textClipPath) {
+    // clip the accumulated text path
+    cairo_append_path (cairo, textClipPath);
+    cairo_clip (cairo);
+    cairo_path_destroy (textClipPath);
+    textClipPath = NULL;
+  }
+
 }
 
 
