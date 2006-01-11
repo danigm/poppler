@@ -1,3 +1,9 @@
+2006-01-11  Kristian Høgsberg  <krh@redhat.com>
+
+	* poppler/JBIG2Stream.cc:
+	* poppler/Stream.cc: Merge patch to fix CVE-2005-3624,
+	CVE-2005-3625 and CVE-2005-3627 issues.
+
 2006-01-10  Albert Astals Cid  <aacid@kde.org>
 
 	* configure.ac:

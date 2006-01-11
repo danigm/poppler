@@ -2930,7 +2930,8 @@ GBool DCTStream::readBaselineSOF() {
   width = read16();
   numComps = str->getChar();
   if (numComps <= 0 || numComps > 4) {
-    error(getPos(), "Bad number of components in DCT stream", prec);
+    numComps = 0;
+    error(getPos(), "Bad number of components in DCT stream");
     return gFalse;
   }
   if (prec != 8) {
@@ -2982,6 +2983,7 @@ GBool DCTStream::readScanInfo() {
   length = read16() - 2;
   scanInfo.numComps = str->getChar();
   if (scanInfo.numComps <= 0 || scanInfo.numComps > 4) {
+    scanInfo.numComps = 0;
     error(getPos(), "Bad number of components in DCT stream");
     return gFalse;
   }
@@ -3193,9 +3195,9 @@ int DCTStream::readMarker() {
     do {
       c = str->getChar();
     } while (c != 0xff && c != EOF);
-    do {
+    while (c == 0xff) {
       c = str->getChar();
-    } while (c == 0xff);
+    }
   } while (c == 0x00);
   return c;
 }
