@@ -1,3 +1,7 @@
+2006-01-12  Jeff Muizelaar  <jeff@infidigm.net>
+
+	* poppler/GlobalParams.cc: Make buildFcPattern() static.
+
 2006-01-11  Kristian Høgsberg  <krh@redhat.com>
 
 	* poppler/JBIG2Stream.cc:

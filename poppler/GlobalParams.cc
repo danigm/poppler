@@ -1122,7 +1122,7 @@ GBool findModifier(const char *name, const char *modifier, const char **start)
   }
 }
 
-FcPattern *buildFcPattern(GfxFont *font)
+static FcPattern *buildFcPattern(GfxFont *font)
 {
   int weight = FC_WEIGHT_NORMAL,
       slant = FC_SLANT_ROMAN,
