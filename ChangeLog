@@ -1,3 +1,13 @@
+2006-01-10  Albert Astals Cid  <aacid@kde.org>
+
+	* poppler/Lexer.cc:
+	* poppler/Lexer.h:
+	* poppler/Parser.cc:
+	* poppler/Parser.h:
+	* poppler/XRef.cc:
+	* poppler/XRef.h: When doing the parsing check with XREF we did not
+	grow too much. Fixes serialata10a.pdf
+
 2006-01-12  Jeff Muizelaar  <jeff@infidigm.net>
 
 	* poppler/GlobalParams.cc: Make buildFcPattern() static.
