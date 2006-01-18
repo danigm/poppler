@@ -1,4 +1,11 @@
-2006-01-10  Albert Astals Cid  <aacid@kde.org>
+2006-01-18  Albert Astals Cid  <aacid@kde.org>
+
+	* poppler/CharCodeToUnicode.cc: Fix check for length that was not
+	having into account that there could be \n or \r in tokens an that
+	those do not have to be took into account. Fixes
+	http://bugs.kde.org/show_bug.cgi?id=120310
+
+2006-01-17  Albert Astals Cid  <aacid@kde.org>
 
 	* poppler/Lexer.cc:
 	* poppler/Lexer.h:
