@@ -182,7 +182,7 @@ build_goto_dest (PopplerDocument *document,
 		 LinkGoTo        *link)
 {
 	LinkDest *link_dest;
-	GooString *named_dest;
+	UGooString *named_dest;
 
 	/* Return if it isn't OK */
 	if (! link->isOk ()) {

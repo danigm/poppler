@@ -25,10 +25,13 @@
 #include <GlobalParams.h>
 #include <PDFDoc.h>
 #include <Catalog.h>
+#include "UGooString.h"
 #include <ErrorCodes.h>
 #include <SplashOutputDev.h>
 #include <splash/SplashBitmap.h>
 #include "poppler-private.h"
+#include <Stream.h>
+#include <QtCore/QDebug>
 
 namespace Poppler {
 
@@ -50,6 +53,15 @@ namespace Poppler {
 	    else
 		pdoc->m_doc->locked = false;
 	    pdoc->m_doc->m_fontInfoScanner = new FontInfoScanner(&(doc->doc));
+	    int numEmb = doc->doc.getCatalog()->numEmbeddedFiles();
+	    if (!(0 == numEmb)) {
+		// we have some embedded documents, build the list
+		for (int yalv = 0; yalv < numEmb; ++yalv) {
+		    EmbFile *ef = doc->doc.getCatalog()->embeddedFile(yalv);
+		    pdoc->m_doc->m_embeddedFiles.append(new EmbeddedFile(ef));
+		    delete ef;
+		}
+	    }
 	    return pdoc;
 	}
 	else
@@ -148,6 +160,11 @@ namespace Poppler {
 	QList<FontInfo> ourList;
 	scanForFonts(numPages(), &ourList);
 	return ourList;
+    }
+
+    const QList<EmbeddedFile*> &Document::embeddedFiles() const
+    {
+	return m_doc->m_embeddedFiles;
     }
 
     bool Document::scanForFonts( int numPages, QList<FontInfo> *fontList ) const
@@ -257,7 +274,7 @@ namespace Poppler {
 	Dict *infoDict = info.getDict();
 	// somehow iterate over keys in infoDict
 	for( int i=0; i < infoDict->getLength(); ++i ) {
-	    keys.append( QString::fromAscii(infoDict->getKey(i)) );
+	    keys.append( QString::fromAscii(infoDict->getKey(i)->getCString()) );
 	}
 
 	info.free();
@@ -279,8 +296,6 @@ namespace Poppler {
 	}
 
 	Object obj;
-	char *s;
-	int year, mon, day, hour, min, sec;
 	Dict *infoDict = info.getDict();
 	QDateTime result;
 
@@ -362,6 +377,11 @@ namespace Poppler {
 	    return NULL;
 
 	return page(index);
+    }
+
+    bool Document::hasEmbeddedFiles() const
+    {
+	return (!(0 == m_doc->doc.getCatalog()->numEmbeddedFiles()));
     }
 
     QDateTime convertDate( char *dateString )

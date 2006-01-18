@@ -15,12 +15,13 @@
 
 #include "Object.h"
 
+class UGooString;
 //------------------------------------------------------------------------
 // Dict
 //------------------------------------------------------------------------
 
 struct DictEntry {
-  char *key;
+  UGooString *key;
   Object val;
 };
 
@@ -40,20 +41,20 @@ public:
   // Get number of entries.
   int getLength() { return length; }
 
-  // Add an entry.  NB: does not copy key.
-  void add(char *key, Object *val);
+  // Add an entry
+  void add(const UGooString &key, Object *val);
 
   // Check if dictionary is of specified type.
   GBool is(char *type);
 
   // Look up an entry and return the value.  Returns a null object
   // if <key> is not in the dictionary.
-  Object *lookup(char *key, Object *obj);
-  Object *lookupNF(char *key, Object *obj);
+  Object *lookup(const UGooString &key, Object *obj);
+  Object *lookupNF(const UGooString &key, Object *obj);
   GBool lookupInt(const char *key, const char *alt_key, int *value);
 
   // Iterative accessors.
-  char *getKey(int i);
+  UGooString *getKey(int i);
   Object *getVal(int i, Object *obj);
   Object *getValNF(int i, Object *obj);
 
@@ -70,7 +71,7 @@ private:
   int length;			// number of entries in dictionary
   int ref;			// reference count
 
-  DictEntry *find(char *key);
+  DictEntry *find(const UGooString &key);
 };
 
 #endif

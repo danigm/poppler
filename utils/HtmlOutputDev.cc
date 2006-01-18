@@ -33,6 +33,7 @@
 #include "GlobalParams.h"
 #include "HtmlOutputDev.h"
 #include "HtmlFonts.h"
+#include "UGooString.h"
 
 int HtmlPage::pgNum=0;
 int HtmlOutputDev::imgNum=1;

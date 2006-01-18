@@ -24,6 +24,7 @@
 #include <Catalog.h>
 #include <ErrorCodes.h>
 #include <SplashOutputDev.h>
+#include <UGooString.h>
 #include <splash/SplashBitmap.h>
 #include "poppler-private.h"
 

@@ -28,6 +28,7 @@
 #include <fofi/FoFiType1.h>
 #include <fofi/FoFiType1C.h>
 #include <fofi/FoFiTrueType.h>
+#include "UGooString.h"
 #include "GfxFont.h"
 
 //------------------------------------------------------------------------
@@ -1549,8 +1550,10 @@ GfxFontDict::GfxFontDict(XRef *xref, Ref *fontDictRef, Dict *fontDict) {
 	  r.gen = 999999;
 	}
       }
-      fonts[i] = GfxFont::makeFont(xref, fontDict->getKey(i),
+      char *aux = fontDict->getKey(i)->getCString();
+      fonts[i] = GfxFont::makeFont(xref, aux,
 				   r, obj2.getDict());
+      delete[] aux;
       if (fonts[i] && !fonts[i]->isOk()) {
 	delete fonts[i];
 	fonts[i] = NULL;

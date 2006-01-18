@@ -18,6 +18,7 @@
 #include "Catalog.h"
 #include "Gfx.h"
 #include "Lexer.h"
+#include "UGooString.h"
 #include "Annot.h"
 
 //------------------------------------------------------------------------

@@ -35,6 +35,7 @@
 #include "Stream.h"
 #include "Annot.h"
 #include "PSOutputDev.h"
+#include "UGooString.h"
 
 #ifdef MACOS
 // needed for setting type/creator of MacOS files
@@ -2188,7 +2189,9 @@ void PSOutputDev::setupType3Font(GfxFont *font, GooString *psName,
     t3Cacheable = gFalse;
     for (i = 0; i < charProcs->getLength(); ++i) {
       writePS("/");
-      writePSName(charProcs->getKey(i));
+      char *aux = charProcs->getKey(i)->getCString();
+      writePSName(aux);
+      delete[] aux;
       writePS(" {\n");
       gfx->display(charProcs->getVal(i, &charProc));
       charProc.free();

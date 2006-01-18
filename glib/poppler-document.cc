@@ -28,6 +28,7 @@
 #include <Stream.h>
 #include <FontInfo.h>
 #include <PDFDocEncoding.h>
+#include <UGooString.h>
 
 #include "poppler.h"
 #include "poppler-private.h"

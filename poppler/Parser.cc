@@ -20,6 +20,7 @@
 #include "XRef.h"
 #include "Error.h"
 #include "Decrypt.h"
+#include "UGooString.h"
 
 Parser::Parser(XRef *xrefA, Lexer *lexerA) {
   xref = xrefA;
@@ -82,6 +83,7 @@ Object *Parser::getObj(Object *obj,
 	  break;
 	}
 	obj->dictAdd(key, getObj(&obj2, fileKey, keyLength, objNum, objGen));
+	gfree(key);
       }
     }
     if (buf1.isEOF())

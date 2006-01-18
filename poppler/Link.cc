@@ -21,6 +21,7 @@
 #include "Array.h"
 #include "Dict.h"
 #include "Link.h"
+#include "UGooString.h"
 
 //------------------------------------------------------------------------
 // LinkAction
@@ -421,9 +422,9 @@ LinkGoTo::LinkGoTo(Object *destObj) {
 
   // named destination
   if (destObj->isName()) {
-    namedDest = new GooString(destObj->getName());
+    namedDest = new UGooString(destObj->getName());
   } else if (destObj->isString()) {
-    namedDest = destObj->getString()->copy();
+    namedDest = new UGooString(*destObj->getString());
 
   // destination dictionary
   } else if (destObj->isArray()) {
@@ -459,9 +460,9 @@ LinkGoToR::LinkGoToR(Object *fileSpecObj, Object *destObj) {
 
   // named destination
   if (destObj->isName()) {
-    namedDest = new GooString(destObj->getName());
+    namedDest = new UGooString(destObj->getName());
   } else if (destObj->isString()) {
-    namedDest = destObj->getString()->copy();
+    namedDest = new UGooString(*destObj->getString());
 
   // destination dictionary
   } else if (destObj->isArray()) {

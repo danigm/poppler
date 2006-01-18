@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <assert.h>
+#include "UGooString.h"
 
 #include "PageLabelInfo.h"
 

@@ -19,7 +19,7 @@ SUFFIXES: .moc
 	moc -i $< -o $@
 
 noinst_PROGRAMS = test-poppler-qt4 stress-poppler-qt4 \
-	poppler-fonts test-password-qt4
+	poppler-fonts test-password-qt4 poppler-attachments
 
 
 test_poppler_qt4_SOURCES =			\
@@ -39,6 +39,11 @@ poppler_fonts_SOURCES =			\
 
 poppler_fonts_LDADD = $(LDADDS)
 
+poppler_attachments_SOURCES =			\
+       poppler-attachments.cpp
+
+poppler_attachments_LDADD = $(LDADDS)
+
 
 stress_poppler_qt4_SOURCES =			\
        stress-poppler-qt4.cpp
@@ -47,7 +52,8 @@ stress_poppler_qt4_LDADD = $(LDADDS)
 
 if BUILD_POPPLER_QT4TESTS
 TESTS = \
-	check_dateConversion	\
+	check_attachments	\
+	check_dateConversion 	\
 	check_fonts		\
 	check_metadata         	\
 	check_permissions      	\
@@ -55,6 +61,10 @@ TESTS = \
 	check_pagelayout
 
 check_PROGRAMS = $(TESTS)
+
+check_attachments_SOURCES = check_attachments.cpp
+check_attachments.$(OBJEXT): check_attachments.moc
+check_attachments_LDADD = $(UT_LDADDS)
 
 check_dateConversion_SOURCES = check_dateConversion.cpp
 check_dateConversion.$(OBJEXT): check_dateConversion.moc
@@ -73,7 +83,7 @@ check_pagemode.$(OBJEXT): check_pagemode.moc
 check_pagemode_LDADD = $(UT_LDADDS)
 
 check_permissions_SOURCES = check_permissions.cpp
-check_metadata.$(OBJEXT): check_permissions.moc
+check_permissions.$(OBJEXT): check_permissions.moc
 check_permissions_LDADD = $(UT_LDADDS)
 
 check_pagelayout_SOURCES = check_pagelayout.cpp

@@ -33,6 +33,7 @@
 #include "JBIG2Stream.h"
 #include "JPXStream.h"
 #include "Stream-CCITT.h"
+#include "UGooString.h"
 
 #ifdef ENABLE_LIBJPEG
 #include "DCTStream.h"

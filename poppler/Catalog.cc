@@ -23,6 +23,7 @@
 #include "Error.h"
 #include "Link.h"
 #include "PageLabelInfo.h"
+#include "UGooString.h"
 #include "Catalog.h"
 
 //------------------------------------------------------------------------
@@ -83,10 +84,13 @@ Catalog::Catalog(XRef *xrefA) {
   // read named destination dictionary
   catDict.dictLookup("Dests", &dests);
 
-  // read root of named destination tree
+  // read root of named destination tree - PDF1.6 table 3.28
   if (catDict.dictLookup("Names", &obj)->isDict()) {
     obj.dictLookup("Dests", &obj2);
     destNameTree.init(xref, &obj2);
+    obj2.free();
+    obj.dictLookup("EmbeddedFiles", &obj2);
+    embeddedFileNameTree.init(xref, &obj2);
     obj2.free();
   }
   obj.free();
@@ -178,6 +182,7 @@ Catalog::~Catalog() {
   }
   dests.free();
   destNameTree.free();
+  embeddedFileNameTree.free();
   if (baseURI) {
     delete baseURI;
   }
@@ -291,7 +296,7 @@ int Catalog::findPage(int num, int gen) {
   return 0;
 }
 
-LinkDest *Catalog::findDest(GooString *name) {
+LinkDest *Catalog::findDest(UGooString *name) {
   LinkDest *dest;
   Object obj1, obj2;
   GBool found;
@@ -299,7 +304,7 @@ LinkDest *Catalog::findDest(GooString *name) {
   // try named destination dictionary then name tree
   found = gFalse;
   if (dests.isDict()) {
-    if (!dests.dictLookup(name->getCString(), &obj1)->isNull())
+    if (!dests.dictLookup(*name, &obj1)->isNull())
       found = gTrue;
     else
       obj1.free();
@@ -335,6 +340,97 @@ LinkDest *Catalog::findDest(GooString *name) {
   return dest;
 }
 
+EmbFile *Catalog::embeddedFile(int i)
+{
+    Object efDict;
+    Object fileSpec;
+    Object fileDesc;
+    Object paramDict;
+    Object paramObj;
+    Object strObj;
+    Object obj, obj2;
+    obj = embeddedFileNameTree.getValue(i);
+    GooString *fileName = new GooString();
+    char *descString = embeddedFileNameTree.getName(i)->getCString();
+    GooString *desc = new GooString(descString);
+    delete[] descString;
+    GooString *createDate = new GooString();
+    GooString *modDate = new GooString();
+    Stream *efStream;
+    if (obj.isRef()) {
+	if (obj.fetch(xref, &efDict)->isDict()) {
+	    // efDict matches Table 3.40 in the PDF1.6 spec
+	    efDict.dictLookup("F", &fileSpec);
+	    if (fileSpec.isString()) {
+		delete fileName;
+		fileName = new GooString(fileSpec.getString());
+	    }
+	    fileSpec.free();
+
+	    // the logic here is that the description from the name
+	    // dictionary is used if we don't have a more specific
+	    // description - see the Note: on page 157 of the PDF1.6 spec
+	    efDict.dictLookup("Desc", &fileDesc);
+	    if (fileDesc.isString()) {
+		delete desc;
+		desc = new GooString(fileDesc.getString());
+	    } else {
+		efDict.dictLookup("Description", &fileDesc);
+		if (fileDesc.isString()) {
+		    delete desc;
+		    desc = new GooString(fileDesc.getString());
+		}
+	    }
+	    fileDesc.free();
+	    
+	    efDict.dictLookup("EF", &obj2);
+	    if (obj2.isDict()) {
+		// This gives us the raw data stream bytes
+
+		obj2.dictLookup("F", &strObj);
+		if (strObj.isStream()) {
+		    efStream = strObj.getStream();
+		}
+
+		// dataDict corresponds to Table 3.41 in the PDF1.6 spec.
+		Dict *dataDict = efStream->getDict();
+
+		// subtype is normally mimetype. You can extract it with code like this:
+		// Object subtypeName;
+		// dataDict->lookup( "Subtype", &subtypeName );
+		// It is optional, so this will sometimes return a null object
+		// if (subtypeName.isName()) {
+		//        std::cout << "got subtype name: " << subtypeName.getName() << std::endl;
+		// }
+
+		// paramDict corresponds to Table 3.42 in the PDF1.6 spec
+		Object paramDict;
+		dataDict->lookup( "Params", &paramDict );
+		if (paramDict.isDict()) {
+		    paramDict.dictLookup("ModDate", &paramObj);
+		    if (paramObj.isString()) {
+			delete modDate;
+		        modDate = new GooString(paramObj.getString());
+		    }
+		    paramObj.free();
+		    paramDict.dictLookup("CreationDate", &paramObj);
+		    if (paramObj.isString()) {
+			delete createDate;
+		        createDate = new GooString(paramObj.getString());
+		    }
+		    paramObj.free();
+		}
+		paramDict.free();
+	    }
+	    efDict.free();
+	    obj2.free();
+	}
+    }
+    EmbFile *embeddedFile = new EmbFile(fileName, desc, createDate, modDate, strObj);
+    strObj.free();
+    return embeddedFile;
+}
+
 NameTree::NameTree(void)
 {
   size = 0;
@@ -343,12 +439,15 @@ NameTree::NameTree(void)
 }
 
 NameTree::Entry::Entry(Array *array, int index) {
-  if (!array->getString(index, &name) || !array->getNF(index + 1, &value))
-    error(-1, "Invalid page tree");
+    GooString n;
+    if (!array->getString(index, &n) || !array->getNF(index + 1, &value))
+	error(-1, "Invalid page tree");
+    name = new UGooString(n);
 }
 
 NameTree::Entry::~Entry() {
   value.free();
+  delete name;
 }
 
 void NameTree::addEntry(Entry *entry)
@@ -402,13 +501,13 @@ void NameTree::parse(Object *tree) {
 
 int NameTree::Entry::cmp(const void *voidKey, const void *voidEntry)
 {
-  GooString *key = (GooString *) voidKey;
+  UGooString *key = (UGooString *) voidKey;
   Entry *entry = *(NameTree::Entry **) voidEntry;
 
-  return key->cmp(&entry->name);
+  return key->cmp(entry->name);
 }
 
-GBool NameTree::lookup(GooString *name, Object *obj)
+GBool NameTree::lookup(UGooString *name, Object *obj)
 {
   Entry **entry;
 
@@ -422,6 +521,24 @@ GBool NameTree::lookup(GooString *name, Object *obj)
     obj->initNull();
     return gFalse;
   }
+}
+
+Object NameTree::getValue(int index)
+{
+  if (index < length) {
+    return entries[index]->value;
+  } else {
+    return Object();
+  }
+}
+
+UGooString *NameTree::getName(int index)
+{
+    if (index < length) {
+	return entries[index]->name;
+    } else {
+	return NULL;
+    }
 }
 
 void NameTree::free()

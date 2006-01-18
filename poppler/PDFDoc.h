@@ -123,7 +123,7 @@ public:
 
   // Find a named destination.  Returns the link destination, or
   // NULL if <name> is not a destination.
-  LinkDest *findDest(GooString *name)
+  LinkDest *findDest(UGooString *name)
     { return catalog->findDest(name); }
 
 #ifndef DISABLE_OUTLINE

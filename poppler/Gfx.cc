@@ -35,6 +35,7 @@
 #include "Error.h"
 #include "Gfx.h"
 #include "ProfileData.h"
+#include "UGooString.h"
 
 // the MSVC math.h doesn't define this
 #ifndef M_PI

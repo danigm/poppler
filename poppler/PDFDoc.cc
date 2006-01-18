@@ -38,6 +38,7 @@
 #include "Outline.h"
 #endif
 #include "PDFDoc.h"
+#include "UGooString.h"
 
 //------------------------------------------------------------------------
 

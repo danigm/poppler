@@ -21,6 +21,7 @@
 #include "Array.h"
 #include "Page.h"
 #include "GfxState.h"
+#include "UGooString.h"
 
 //------------------------------------------------------------------------
 

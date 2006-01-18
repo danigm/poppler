@@ -1,5 +1,47 @@
 2006-01-18  Albert Astals Cid  <aacid@kde.org>
 
+	* glib/poppler-action.cc:
+	* glib/poppler-document.cc:
+	* poppler/Annot.cc:
+	* poppler/Catalog.cc:
+	* poppler/Catalog.h:
+	* poppler/Dict.cc:
+	* poppler/Dict.h:
+	* poppler/FontInfo.cc:
+	* poppler/Function.cc:
+	* poppler/Gfx.cc:
+	* poppler/GfxFont.cc:
+	* poppler/GfxState.cc:
+	* poppler/Link.cc:
+	* poppler/Link.h:
+	* poppler/Makefile.am:
+	* poppler/Object.h:
+	* poppler/Outline.cc:
+	* poppler/PDFDoc.cc:
+	* poppler/PDFDoc.h:
+	* poppler/PSOutputDev.cc:
+	* poppler/Page.cc:
+	* poppler/PageLabelInfo.cc:
+	* poppler/Parser.cc:
+	* poppler/SecurityHandler.cc:
+	* poppler/Stream.cc:
+	* poppler/XRef.cc:
+	* qt/poppler-document.cc:
+	* qt/poppler-page-transition.cc:
+	* qt4/src/Makefile.am:
+	* qt4/src/poppler-document.cc:
+	* qt4/src/poppler-private.h:
+	* qt4/src/poppler-qt4.h:
+	* qt4/tests/Makefile.am:
+	* utils/HtmlOutputDev.cc:
+	* utils/pdffonts.cc:
+	* utils/pdfinfo.cc:
+	* utils/pdftohtml.cc:
+	* utils/pdftotext.cc: Brad patch for embedded document extraction,
+	only has Qt4 bindings for now, needs Qt3 and glib work
+
+2006-01-18  Albert Astals Cid  <aacid@kde.org>
+
 	* qt/poppler-page-transition.h:
 	* qt4/src/Doxyfile: Add some more documentation to PageTransition,
 	patch by Stefan Kebekus

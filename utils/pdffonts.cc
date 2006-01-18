@@ -23,6 +23,7 @@
 #include "Annot.h"
 #include "PDFDoc.h"
 #include "config.h"
+#include "UGooString.h"
 
 static char *fontTypeNames[] = {
   "unknown",

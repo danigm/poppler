@@ -19,6 +19,7 @@ class Page;
 class PageAttrs;
 struct Ref;
 class LinkDest;
+class UGooString;
 class PageLabelInfo;
 
 //------------------------------------------------------------------------
@@ -30,14 +31,18 @@ public:
   NameTree();
   void init(XRef *xref, Object *tree);
   void parse(Object *tree);
-  GBool lookup(GooString *name, Object *obj);
+  GBool lookup(UGooString *name, Object *obj);
   void free();
+  int numEntries() { return length; };
+  // iterator accessor
+  Object getValue(int i);
+  UGooString *getName(int i);
 
 private:
   struct Entry {
     Entry(Array *array, int index);
     ~Entry();
-    GooString name;
+    UGooString *name;
     Object value;
     void free();
     static int cmp(const void *key, const void *entry);
@@ -48,7 +53,45 @@ private:
   XRef *xref;
   Object *root;
   Entry **entries;
-  int size, length;
+  int size, length; // size is the number of entries in
+                    // the array of Entry*
+                    // length is the number of real Entry
+};
+
+class EmbFile {
+public:
+  EmbFile(GooString *name, GooString *description, 
+	  GooString *createDate,
+	  GooString *modDate, Object objStr) :
+    m_name(name),
+    m_description(description),
+    m_createDate(createDate),
+    m_modDate(modDate)
+  {
+    objStr.copy(&m_objStr);
+  }
+
+  ~EmbFile()
+  {
+    delete m_name;
+    delete m_description;
+    delete m_modDate;
+    delete m_createDate;
+    m_objStr.free();
+  }
+
+  GooString *name() { return m_name; }
+  GooString *description() { return m_description; }
+  GooString *modDate() { return m_modDate; }
+  GooString *createDate() { return m_createDate; }
+  Object &streamObject() { return m_objStr; }
+
+private:
+  GooString *m_name;
+  GooString *m_description;
+  GooString *m_createDate;
+  GooString *m_modDate;
+  Object m_objStr;
 };
 
 //------------------------------------------------------------------------
@@ -92,7 +135,13 @@ public:
 
   // Find a named destination.  Returns the link destination, or
   // NULL if <name> is not a destination.
-  LinkDest *findDest(GooString *name);
+  LinkDest *findDest(UGooString *name);
+
+  // Get the number of embedded files
+  int numEmbeddedFiles() { return embeddedFileNameTree.numEntries(); }
+
+  // Get the i'th file embedded (at the Document level) in the document
+  EmbFile *embeddedFile(int i);
 
   // Convert between page indices and page labels.
   GBool labelToIndex(GooString *label, int *index);
@@ -132,7 +181,8 @@ private:
   int numPages;			// number of pages
   int pagesSize;		// size of pages array
   Object dests;			// named destination dictionary
-  NameTree destNameTree;	// name tree
+  NameTree destNameTree;	// named destination name-tree
+  NameTree embeddedFileNameTree;  // embedded file name-tree
   GooString *baseURI;		// base URI for URI-type links
   Object metadata;		// metadata stream
   Object structTreeRoot;	// structure tree root dictionary

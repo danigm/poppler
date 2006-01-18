@@ -16,6 +16,7 @@
 #include "Object.h"
 
 class GooString;
+class UGooString;
 class Array;
 class Dict;
 
@@ -134,13 +135,13 @@ public:
   // Accessors.
   virtual LinkActionKind getKind() { return actionGoTo; }
   LinkDest *getDest() { return dest; }
-  GooString *getNamedDest() { return namedDest; }
+  UGooString *getNamedDest() { return namedDest; }
 
 private:
 
   LinkDest *dest;		// regular destination (NULL for remote
 				//   link with bad destination)
-  GooString *namedDest;		// named destination (only one of dest and
+  UGooString *namedDest;	// named destination (only one of dest and
 				//   and namedDest may be non-NULL)
 };
 
@@ -165,14 +166,14 @@ public:
   virtual LinkActionKind getKind() { return actionGoToR; }
   GooString *getFileName() { return fileName; }
   LinkDest *getDest() { return dest; }
-  GooString *getNamedDest() { return namedDest; }
+  UGooString *getNamedDest() { return namedDest; }
 
 private:
 
   GooString *fileName;		// file name
   LinkDest *dest;		// regular destination (NULL for remote
 				//   link with bad destination)
-  GooString *namedDest;		// named destination (only one of dest and
+  UGooString *namedDest;	// named destination (only one of dest and
 				//   and namedDest may be non-NULL)
 };
 

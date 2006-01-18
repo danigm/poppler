@@ -29,6 +29,7 @@
 #endif
 #include "Error.h"
 #include "Page.h"
+#include "UGooString.h"
 
 //------------------------------------------------------------------------
 // PageAttrs

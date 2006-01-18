@@ -146,6 +146,7 @@ poppler_include_HEADERS =	\
 	PSOutputDev.h		\
 	TextOutputDev.h		\
 	SecurityHandler.h	\
+	UGooString.h		\
 	UTF8.h			\
 	XpdfPluginAPI.h		\
 	poppler-config.h
@@ -199,4 +200,5 @@ libpoppler_la_SOURCES =		\
 	PageLabelInfo.h		\
 	PageLabelInfo.cc	\
 	SecurityHandler.cc	\
+	UGooString.cc	 	\
 	XpdfPluginAPI.cc

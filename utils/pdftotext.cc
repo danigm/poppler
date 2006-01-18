@@ -29,6 +29,7 @@
 #include "CharTypes.h"
 #include "UnicodeMap.h"
 #include "Error.h"
+#include "UGooString.h"
 #include "config.h"
 
 static void printInfoString(FILE *f, Dict *infoDict, char *key,

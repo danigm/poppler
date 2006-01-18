@@ -26,6 +26,7 @@
 #  include "XpdfPluginAPI.h"
 #endif
 #include "SecurityHandler.h"
+#include "UGooString.h"
 
 //------------------------------------------------------------------------
 // SecurityHandler

@@ -34,6 +34,7 @@ namespace Poppler {
 	
 	~DocumentData()
 	{
+		qDeleteAll(m_embeddedFiles);
 		delete m_splashOutputDev;
 		delete m_fontInfoScanner;
 	}
@@ -56,6 +57,7 @@ namespace Poppler {
 	bool locked;
 	FontInfoScanner *m_fontInfoScanner;
 	SplashOutputDev *m_splashOutputDev;
+	QList<EmbeddedFile*> m_embeddedFiles;
     };
 
 }

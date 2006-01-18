@@ -23,6 +23,7 @@ class XRef;
 class Array;
 class Dict;
 class Stream;
+class UGooString;
 
 //------------------------------------------------------------------------
 // Ref
@@ -163,11 +164,11 @@ public:
 
   // Dict accessors.
   int dictGetLength();
-  void dictAdd(char *key, Object *val);
+  void dictAdd(const UGooString &key, Object *val);
   GBool dictIs(char *dictType);
-  Object *dictLookup(char *key, Object *obj);
-  Object *dictLookupNF(char *key, Object *obj);
-  char *dictGetKey(int i);
+  Object *dictLookup(const UGooString &key, Object *obj);
+  Object *dictLookupNF(const UGooString &key, Object *obj);
+  UGooString *dictGetKey(int i);
   Object *dictGetVal(int i, Object *obj);
   Object *dictGetValNF(int i, Object *obj);
 
@@ -238,7 +239,7 @@ inline Object *Object::arrayGetNF(int i, Object *obj)
 inline int Object::dictGetLength()
   { return dict->getLength(); }
 
-inline void Object::dictAdd(char *key, Object *val)
+inline void Object::dictAdd(const UGooString &key, Object *val)
   { dict->add(key, val); }
 
 inline GBool Object::dictIs(char *dictType)
@@ -247,13 +248,13 @@ inline GBool Object::dictIs(char *dictType)
 inline GBool Object::isDict(char *dictType)
   { return type == objDict && dictIs(dictType); }
 
-inline Object *Object::dictLookup(char *key, Object *obj)
+inline Object *Object::dictLookup(const UGooString &key, Object *obj)
   { return dict->lookup(key, obj); }
 
-inline Object *Object::dictLookupNF(char *key, Object *obj)
+inline Object *Object::dictLookupNF(const UGooString &key, Object *obj)
   { return dict->lookupNF(key, obj); }
 
-inline char *Object::dictGetKey(int i)
+inline UGooString *Object::dictGetKey(int i)
   { return dict->getKey(i); }
 
 inline Object *Object::dictGetVal(int i, Object *obj)

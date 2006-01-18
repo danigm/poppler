@@ -28,6 +28,8 @@
 
 #include <poppler-page-transition.h>
 
+class EmbFile;
+
 /**
    The Poppler Qt bindings
 */
@@ -142,6 +144,58 @@ namespace Poppler {
 
     private:
 	FontInfoData *m_data;
+    };
+
+
+    /**
+       Container class for an embedded file with a PDF document
+    */
+    class EmbeddedFileData;
+    class EmbeddedFile {
+    public:
+	/**
+	   Create a new embedded file container
+	*/
+	EmbeddedFile(EmbFile *embfile);
+	
+	EmbeddedFile(const EmbeddedFile &ef);
+	
+	~EmbeddedFile();
+
+	/**
+	   The name associated with the file
+	*/
+	QString name() const;
+
+	/**
+	   The description associated with the file, if any.
+
+	   This will return an empty QString if there is no description element
+	*/
+	QString description() const;
+
+	/**
+	   The modification date for the embedded file, if known.
+	*/
+	QDateTime modDate() const;
+
+	/**
+	   The creation date for the embedded file, if known.
+	*/
+	QDateTime createDate() const;
+
+	/**
+	   The data as an array
+	*/
+	QByteArray data();
+
+	/**
+	   A QDataStream for the actual data?
+	*/
+	//QDataStream dataStream() const;
+
+    private:
+	EmbeddedFileData *m_embeddedFile;
     };
 
 
@@ -543,6 +597,20 @@ delete pixmap;
 	   \return false if the end of the document has been reached
 	*/
 	bool scanForFonts( int numPages, QList<FontInfo> *fontList ) const; 
+
+
+	/**
+	   The documents embedded within the PDF document.
+
+	   \note there are two types of embedded document - this call
+	   only accesses documents that are embedded at the document level.
+	*/
+	const QList<EmbeddedFile*> &embeddedFiles() const;
+
+	/**
+	   Whether there are any documents embedded in this PDF document.
+	*/
+	bool hasEmbeddedFiles() const;
 
 	Document::~Document();
   

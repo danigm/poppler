@@ -17,6 +17,7 @@ libpoppler_qt4_la_SOURCES =			\
 	poppler-document.cc			\
 	poppler-page.cc				\
 	poppler-fontinfo.cc			\
+	poppler-embeddedfile.cc			\
 	poppler-textbox.cc			\
 	../../qt/poppler-page-transition.cc	\
 	poppler-private.h
