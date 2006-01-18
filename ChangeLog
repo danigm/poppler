@@ -1,5 +1,11 @@
 2006-01-18  Albert Astals Cid  <aacid@kde.org>
 
+	* qt/poppler-page-transition.h:
+	* qt4/src/Doxyfile: Add some more documentation to PageTransition,
+	patch by Stefan Kebekus
+
+2006-01-18  Albert Astals Cid  <aacid@kde.org>
+
 	* poppler/CharCodeToUnicode.cc: Fix check for length that was not
 	having into account that there could be \n or \r in tokens an that
 	those do not have to be took into account. Fixes

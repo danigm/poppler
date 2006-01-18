@@ -25,8 +25,25 @@ namespace Poppler {
 class PageTransitionParams;
 class PageTransitionData;
 
+/**
+   \brief Describes how a PDF file viewer shall perform the transition
+   from one page to another
+
+   In PDF files there is a way to specify if the viewer shall use
+   certain effects to perform the transition from one page to
+   another. This feature can be used, e.g., in a PDF-based beamer
+   presentation.
+
+   This utility class represents the transition effect, and can be
+   used to extract the information from a PDF object.
+*/
+
+
 class PageTransition {
  public:
+
+  /** \brief transition effect that shall be used
+   */
   enum Type {
     Replace,
     Split,
@@ -42,11 +59,15 @@ class PageTransition {
     Fade
   };
   
+  /** \brief alignment of the transition effect that shall be used
+   */
   enum Alignment {
     Horizontal,
     Vertical
   };
   
+  /** \brief direction of the transition effect that shall be used
+   */
   enum Direction {
     Inward,
     Outward
@@ -54,17 +75,22 @@ class PageTransition {
   
   /** \brief Construct a new PageTransition object from a page dictionary.
 
-  In case or error, this method will print an error message to stderr,
+  Users of the library will rarely need to construct a
+  PageTransition object themselves. Instead, the method
+  Poppler::Page::transition() can be used to find out if a certain
+  transition effect is specified.
+
+  @warning In case or error, this method will print an error message to stderr,
   and construct a default object.
 
-  @param dictObj pointer to an object whose dictionary will be read
-  and parsed. The pointer dictObj must point to a valid object, whose
-  dictionaries are accessed by the constructor. The dictObj is only
-  accessed by this constructor, and may be deleted after the
-  constructor returns.
+  @param params an object whose dictionary will be read and
+   parsed. This must be a valid object, whose dictionaries are
+   accessed by the constructor. The object is only accessed by this
+   constructor, and may be deleted after the constructor returns.
   */
   PageTransition(const PageTransitionParams &params);
-  
+
+  /** \brief copy constructor */
   PageTransition(const PageTransition &pt);
   
   /**
