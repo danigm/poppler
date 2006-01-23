@@ -6,12 +6,13 @@
 // Copyright 1999-2000 G. Ovtcharov
 //========================================================================
 
+#include "config.h"
+#include <poppler-config.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <stddef.h>
 #include <string.h>
 #include <dirent.h>
-#include <poppler-config.h>
 #include <time.h>
 #include "parseargs.h"
 #include "goo/GooString.h"
@@ -29,7 +30,6 @@
 #include "GlobalParams.h"
 #include "Error.h"
 #include "UGooString.h"
-#include "config.h"
 #include "goo/gfile.h"
 
 #ifndef GHOSTSCRIPT

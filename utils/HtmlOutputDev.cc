@@ -14,6 +14,7 @@
 #pragma implementation
 #endif
 
+#include "config.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
@@ -24,7 +25,6 @@
 #include "goo/GooList.h"
 #include "UnicodeMap.h"
 #include "goo/gmem.h"
-#include "config.h"
 #include "Error.h"
 #include "GfxState.h"
 #ifdef ENABLE_LIBJPEG

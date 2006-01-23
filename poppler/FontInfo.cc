@@ -1,3 +1,4 @@
+#include "config.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <stddef.h>
@@ -10,7 +11,6 @@
 #include "GfxFont.h"
 #include "Annot.h"
 #include "PDFDoc.h"
-#include "config.h"
 #include "FontInfo.h"
 #include "UGooString.h"
 

@@ -6,6 +6,7 @@
 //
 //========================================================================
 
+#include "config.h"
 #include <poppler-config.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -22,7 +23,6 @@
 #include "GfxFont.h"
 #include "Annot.h"
 #include "PDFDoc.h"
-#include "config.h"
 #include "UGooString.h"
 
 static char *fontTypeNames[] = {

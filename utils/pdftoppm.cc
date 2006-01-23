@@ -6,6 +6,7 @@
 //
 //========================================================================
 
+#include "config.h"
 #include <poppler-config.h>
 #include <stdio.h>
 #include "parseargs.h"
@@ -17,7 +18,6 @@
 #include "splash/SplashBitmap.h"
 #include "splash/Splash.h"
 #include "SplashOutputDev.h"
-#include "config.h"
 
 static int firstPage = 1;
 static int lastPage = 0;

@@ -8,6 +8,7 @@
 //
 //========================================================================
 
+#include "config.h"
 #include <poppler-config.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -30,7 +31,6 @@
 #include "UnicodeMap.h"
 #include "Error.h"
 #include "UGooString.h"
-#include "config.h"
 
 static void printInfoString(FILE *f, Dict *infoDict, char *key,
 			    char *text1, char *text2, UnicodeMap *uMap);

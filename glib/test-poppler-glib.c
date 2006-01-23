@@ -13,11 +13,12 @@ print_index (PopplerIndexIter *iter)
   do
     {
       PopplerAction *action;
+      PopplerIndexIter *child;
 
       action = poppler_index_iter_get_action (iter);
       g_print ("Action: %d\n", action->type);
       poppler_action_free (action);
-      PopplerIndexIter *child = poppler_index_iter_get_child (iter);
+      child = poppler_index_iter_get_child (iter);
       if (child)
 	print_index (child);
       poppler_index_iter_free (child);
@@ -35,6 +36,7 @@ print_document_info (PopplerDocument *document)
   PopplerViewerPreferences view_prefs;
   PopplerFontInfo *font_info;
   PopplerFontsIter *fonts_iter;
+  PopplerIndexIter *index_iter;
   GEnumValue *enum_value;
 
   g_object_get (document,
@@ -85,7 +87,6 @@ print_document_info (PopplerDocument *document)
   }
   poppler_font_info_free (font_info);
 
-  PopplerIndexIter *index_iter;
   index_iter = poppler_index_iter_new (document);
   if (index_iter)
     {

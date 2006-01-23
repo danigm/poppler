@@ -1,5 +1,10 @@
 2006-01-23  Kristian Høgsberg  <krh@redhat.com>
 
+	* glib/test-poppler-glib.c (print_document_info, print_index):
+	Move variable declarations to top (#5692).
+
+	* utils/*.cc: Move config.h #include to top of #include's (#5693).
+
 	* splash/SplashFTFont.cc: Don't use deprecated freetype include
 	files.
 

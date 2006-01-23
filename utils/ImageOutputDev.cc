@@ -6,6 +6,7 @@
 //
 //========================================================================
 
+#include "config.h"
 #include <poppler-config.h>
 
 #ifdef USE_GCC_PRAGMAS
@@ -17,7 +18,6 @@
 #include <stddef.h>
 #include <ctype.h>
 #include "goo/gmem.h"
-#include "config.h"
 #include "Error.h"
 #include "GfxState.h"
 #include "Object.h"

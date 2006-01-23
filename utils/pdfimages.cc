@@ -8,6 +8,7 @@
 //
 //========================================================================
 
+#include "config.h"
 #include <poppler-config.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -27,7 +28,6 @@
 #include "PDFDoc.h"
 #include "ImageOutputDev.h"
 #include "Error.h"
-#include "config.h"
 
 static int firstPage = 1;
 static int lastPage = 0;
