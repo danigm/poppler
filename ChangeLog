@@ -1,5 +1,14 @@
 2006-01-23  Kristian Høgsberg  <krh@redhat.com>
 
+	* configure.ac:
+	* poppler/GlobalParams.cc:
+	* poppler/poppler-config.h.in:
+	* utils/pdftohtml.cc:
+	* utils/pdftops.cc: Respect command line paper size settings (#5641).
+	Drop the built-in paper sizes.
+
+2006-01-23  Kristian Høgsberg  <krh@redhat.com>
+
 	* glib/test-poppler-glib.c (print_document_info, print_index):
 	Move variable declarations to top (#5692).
 

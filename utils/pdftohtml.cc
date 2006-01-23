@@ -316,12 +316,10 @@ int main(int argc, char *argv[]) {
     psFileName = new GooString(htmlFileName->getCString());
     psFileName->append(".ps");
 
-    globalParams->setPSPaperWidth(w);
-    globalParams->setPSPaperHeight(h);
     // XXX
     // globalParams->setPSNoText(gTrue);
     psOut = new PSOutputDev(psFileName->getCString(), doc->getXRef(),
-			    doc->getCatalog(), firstPage, lastPage, psModePS);
+			    doc->getCatalog(), firstPage, lastPage, psModePS, w, h);
     doc->displayPages(psOut, firstPage, lastPage, 72, 72, 0,
 		      gTrue, gFalse, gFalse);
     delete psOut;

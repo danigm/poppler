@@ -14,11 +14,6 @@
 // around #undef look odd, but it's to silence warnings about
 // redefining those symbols.
 
-/* Use A4 paper size instead of Letter for PostScript output. */
-#ifndef A4_PAPER
-#undef A4_PAPER
-#endif
-
 /* Enable multithreading support. */
 #ifndef MULTITHREADING
 #undef MULTITHREADED

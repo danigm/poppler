@@ -17,7 +17,6 @@ AC_PROG_INSTALL
 AC_CHECK_FUNC(gettimeofday, AC_DEFINE(HAVE_GETTIMEOFDAY, 1, [Defines if gettimeofday is available on your system]))
 
 dnl Enable these unconditionally.
-AC_DEFINE([A4_PAPER], [1], [Default to A4 paper.])
 AC_DEFINE([OPI_SUPPORT], [1], [Generate OPI comments in PS output.])
 AC_DEFINE([MULTITHREADED], [1], [Enable multithreading support.])
 AC_DEFINE([TEXTOUT_WORD_LIST], [1], [Enable word list support.])

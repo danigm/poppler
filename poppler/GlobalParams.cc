@@ -23,9 +23,6 @@
 #ifdef WIN32
 #  include <shlobj.h>
 #endif
-#if HAVE_PAPER_H
-#include <paper.h>
-#endif
 #include <fontconfig/fontconfig.h>
 #include "goo/gmem.h"
 #include "goo/GooString.h"
@@ -324,24 +321,8 @@ GlobalParams::GlobalParams(char *cfgFileName) {
   cMapDirs = new GooHash(gTrue);
   toUnicodeDirs = new GooList();
   displayFonts = new GooHash();
-#if HAVE_PAPER_H
-  char *paperName;
-  const struct paper *paperType;
-  paperinit();
-  if ((paperName = systempapername())) {
-    paperType = paperinfo(paperName);
-    psPaperWidth = (int)paperpswidth(paperType);
-    psPaperHeight = (int)paperpsheight(paperType);
-  } else {
-    error(-1, "No paper information available - using defaults");
-    psPaperWidth = defPaperWidth;
-    psPaperHeight = defPaperHeight;
-  }
-  paperdone();
-#else
-  psPaperWidth = defPaperWidth;
-  psPaperHeight = defPaperHeight;
-#endif
+  psPaperWidth = -1;
+  psPaperHeight = -1;
   psImageableLLX = psImageableLLY = 0;
   psImageableURX = psPaperWidth;
   psImageableURY = psPaperHeight;

@@ -307,7 +307,9 @@ int main(int argc, char *argv[]) {
 
   // write PostScript file
   psOut = new PSOutputDev(psFileName->getCString(), doc->getXRef(),
-			  doc->getCatalog(), firstPage, lastPage, mode);
+			  doc->getCatalog(), firstPage, lastPage, mode,
+			  globalParams->getPSPaperWidth(),
+			  globalParams->getPSPaperHeight());
   if (psOut->isOk()) {
     doc->displayPages(psOut, firstPage, lastPage, 72, 72,
 		      0, globalParams->getPSCrop(), gFalse, gFalse);
