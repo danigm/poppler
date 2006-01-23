@@ -1,3 +1,8 @@
+2006-01-23  Kristian Høgsberg  <krh@redhat.com>
+
+	* splash/SplashFTFont.cc: Don't use deprecated freetype include
+	files.
+
 2006-01-21  Jeff Muizelaar  <jeff@infidigm.net>
 
 	* TODO: Add my todo list.
