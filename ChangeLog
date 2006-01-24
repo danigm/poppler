@@ -1,3 +1,19 @@
+Tue Jan 24 01:19:40 2006  Jonathan Blandford  <jrb@redhat.com>
+
+	* glib/Makefile.am:
+	* glib/poppler-attachment.cc:
+	* glib/poppler-attachment.h:
+	* glib/poppler-document.cc:
+	* glib/poppler-document.h:
+	* glib/poppler-page.cc:
+	* glib/poppler-private.h:
+	* glib/poppler.h:
+	* glib/test-poppler-glib.c:
+	* glib/reference/tmpl/poppler-enums.sgml:
+	* glib/reference/tmpl/poppler-unused.sgml: glib bindings for the
+	embedded file support.  It doesn't support mtime and ctime yet,
+	but the rest works.
+
 2006-01-23  Kristian Høgsberg  <krh@redhat.com>
 
 	* configure.ac:

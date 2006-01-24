@@ -1,4 +1,4 @@
-/* poppler.h: glib wrapper for poppler
+/* poppler-page.cc: glib wrapper for poppler
  * Copyright (C) 2005, Red Hat, Inc.
  *
  * This program is free software; you can redistribute it and/or modify

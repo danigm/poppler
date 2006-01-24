@@ -69,5 +69,6 @@ G_END_DECLS
 #include "poppler-page.h"
 #include "poppler-action.h"
 #include "poppler-enums.h"
+#include "poppler-attachment.h"
 
 #endif /* __POPPLER_GLIB_H__ */

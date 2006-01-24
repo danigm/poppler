@@ -100,6 +100,10 @@ PopplerPage     *poppler_document_get_page          (PopplerDocument  *document,
 						     int               index);
 PopplerPage     *poppler_document_get_page_by_label (PopplerDocument  *document,
 						     const char       *label);
+/* Attachments */
+gboolean         poppler_document_has_attachments   (PopplerDocument  *document);
+GList           *poppler_document_get_attachments   (PopplerDocument  *document);
+
 
 
 /* Interface for getting the Index of a poppler_document */
@@ -141,6 +145,8 @@ void           poppler_ps_file_set_paper_size (PopplerPSFile   *ps_file,
 void           poppler_ps_file_set_duplex     (PopplerPSFile   *ps_file,
                                                gboolean         duplex);
 void           poppler_ps_file_free           (PopplerPSFile   *ps_file);
+
+
 
 G_END_DECLS
 

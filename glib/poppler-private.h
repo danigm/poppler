@@ -8,6 +8,9 @@
 #include <Gfx.h>
 #include <FontInfo.h>
 #include <TextOutputDev.h>
+#include <Catalog.h>
+
+#include "poppler-attachment.h"
 
 #if defined (HAVE_CAIRO)
 #include <CairoOutputDev.h>
@@ -62,5 +65,6 @@ PopplerAction *_poppler_action_new (PopplerDocument *document,
 				    LinkAction      *link,
 				    const gchar     *title);
 
-
+PopplerAttachment *_poppler_attachment_new (PopplerDocument *document,
+					    EmbFile         *file);
 #endif

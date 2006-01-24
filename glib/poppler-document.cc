@@ -32,6 +32,7 @@
 
 #include "poppler.h"
 #include "poppler-private.h"
+#include "poppler-attachment.h"
 #include "poppler-enums.h"
 
 enum {
@@ -250,6 +251,68 @@ poppler_document_get_page_by_label (PopplerDocument  *document,
     return NULL;
 
   return poppler_document_get_page (document, index);
+}
+
+/**
+ * poppler_document_has_attachments:
+ * @document: A #PopplerDocument
+ * 
+ * Returns %TRUE of @document has any attachments.
+ * 
+ * Return value: %TRUE, if @document has attachments.
+ **/
+gboolean
+poppler_document_has_attachments (PopplerDocument *document)
+{
+  Catalog *catalog;
+  int n_files = 0;
+
+  g_return_val_if_fail (POPPLER_IS_DOCUMENT (document), FALSE);
+
+  catalog = document->doc->getCatalog ();
+  if (catalog && catalog->isOk ())
+    {
+      n_files = catalog->numEmbeddedFiles ();
+    }
+
+  return (n_files != 0);
+}
+
+/**
+ * poppler_document_get_attachments:
+ * @document: A #PopplerDocument
+ * 
+ * Returns a #GList containing #PopplerAttachment<!-- -->s.  These attachments
+ * are unowned, and must be unreffed, and the list must be freed with
+ * g_list_free().
+ * 
+ * Return value: a list of available attachments.
+ **/
+GList *
+poppler_document_get_attachments (PopplerDocument *document)
+{
+  Catalog *catalog;
+  int n_files, i;
+  GList *retval = NULL;
+
+  g_return_val_if_fail (POPPLER_IS_DOCUMENT (document), NULL);
+
+  catalog = document->doc->getCatalog ();
+  if (catalog == NULL || ! catalog->isOk ())
+    return NULL;
+
+  n_files = catalog->numEmbeddedFiles ();
+  for (i = 0; i < n_files; i++)
+    {
+      PopplerAttachment *attachment;
+      EmbFile *emb_file;
+
+      emb_file = catalog->embeddedFile (i);
+      attachment = _poppler_attachment_new (document, emb_file);
+
+      retval = g_list_prepend (retval, attachment);
+    }
+  return g_list_reverse (retval);
 }
 
 static gboolean

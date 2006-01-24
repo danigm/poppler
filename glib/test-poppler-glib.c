@@ -198,7 +198,31 @@ int main (int argc, char *argv[])
 
       printf ("  (%f,%f)-(%f,%f)\n", rect->x1, rect->y1, rect->x2, rect->y2);
     }
-    
+
+  if (poppler_document_has_attachments (document))
+    {
+      int i = 0;
+
+      g_print ("Attachments found:\n\n");
+
+      list = poppler_document_get_attachments (document);
+      for (l = list; l; l = l->next)
+	{
+	  PopplerAttachment *attachment;
+	  char *name;
+
+	  name = g_strdup_printf ("/tmp/attach%d", i);
+	  attachment = l->data;
+	  g_print ("\tname: %s\n", attachment->name);
+	  g_print ("\tdescription: %s\n\n", attachment->description);
+	  poppler_attachment_save (attachment, name, NULL);
+	  i++;
+	}
+      g_list_foreach (list, g_object_unref, NULL);
+      g_list_free (list);
+    }
+  else
+    g_print ("no attachment\n");
 
   g_object_unref (G_OBJECT (page));
 
