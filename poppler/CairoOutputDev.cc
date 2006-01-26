@@ -194,7 +194,11 @@ void CairoOutputDev::updateMiterLimit(GfxState *state) {
 
 void CairoOutputDev::updateLineWidth(GfxState *state) {
   LOG(printf ("line width: %f\n", state->getTransformedLineWidth()));
-  cairo_set_line_width (cairo, state->getTransformedLineWidth());
+  if (state->getTransformedLineWidth() == 0.0) {
+      cairo_set_line_width (cairo, 72.0/300.0);
+  } else {
+      cairo_set_line_width (cairo, state->getTransformedLineWidth());
+  }
 }
 
 void CairoOutputDev::updateFillColor(GfxState *state) {
