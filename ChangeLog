@@ -1,3 +1,8 @@
+2006-01-28  Jeff Muizelaar  <jeff@infidigm.net>
+
+	* glib/poppler-attachment.h: fix compile by adding <time.h> include.
+	Acked-by: Jonathan Blanford <jrb@redhat.com>
+
 2006-01-26  Kristian Høgsberg  <krh@redhat.com>
 
 	* poppler/CairoOutputDev.cc: Patch from Christian Krause; handle

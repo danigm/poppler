@@ -19,6 +19,7 @@
 #ifndef __POPPLER_ATTACHMENT_H__
 #define __POPPLER_ATTACHMENT_H__
 
+#include <time.h>
 #include <glib-object.h>
 
 #include "poppler.h"
