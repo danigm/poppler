@@ -1,3 +1,8 @@
+2006-01-31  Jeff Muizelaar  <jeff@infidigm.net>
+
+	* poppler/GlobalParams.cc (GlobalParams::getDisplayFont):
+	Allow ttc fonts to be used.
+
 2006-01-28  Jeff Muizelaar  <jeff@infidigm.net>
 
 	* glib/poppler-attachment.h: fix compile by adding <time.h> include.
