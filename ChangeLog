@@ -1,5 +1,10 @@
 2006-02-02  Albert Astals Cid  <aacid@kde.org>
 
+	* splash/SplashXPathScanner.cc: CVE-2006-0301 fix by Derek (xpdf man
+	itslef) got though Dirk Mueller of KDE security team
+
+2006-02-02  Albert Astals Cid  <aacid@kde.org>
+
 	* fofi/FoFiTrueType.cc
 	* fofi/FoFiTrueType.h
 	* fofi/FoFiType1C.h
