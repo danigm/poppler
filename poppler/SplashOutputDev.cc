@@ -941,10 +941,13 @@ void SplashOutputDev::updateFont(GfxState *state) {
   GfxFontType fontType;
   SplashOutFontFileID *id;
   SplashFontFile *fontFile;
+  SplashFontSrc *fontsrc;
   FoFiTrueType *ff;
   Ref embRef;
   Object refObj, strObj;
-  GooString *tmpFileName, *fileName, *substName;
+  GooString *fileName, *substName;
+  char *tmpBuf;
+  int tmpBufLen;
   FILE *tmpFile;
   Gushort *codeToGID;
   DisplayFontParam *dfp;
@@ -954,10 +957,12 @@ void SplashOutputDev::updateFont(GfxState *state) {
   char *name;
   Unicode uBuf[8];
   int c, substIdx, n, code, cmap;
+  int faceIndex = 0;
 
   needFontUpdate = gFalse;
   font = NULL;
-  tmpFileName = NULL;
+  fileName = NULL;
+  tmpBuf = NULL;
   substIdx = -1;
   dfp = NULL;
 
@@ -978,22 +983,9 @@ void SplashOutputDev::updateFont(GfxState *state) {
 
     // if there is an embedded font, write it to disk
     if (gfxFont->getEmbeddedFontID(&embRef)) {
-      if (!openTempFile(&tmpFileName, &tmpFile, "wb", NULL)) {
-	error(-1, "Couldn't create temporary font file");
+      tmpBuf = gfxFont->readEmbFontFile(xref, &tmpBufLen);
+      if (! tmpBuf)
 	goto err2;
-      }
-      refObj.initRef(embRef.num, embRef.gen);
-      refObj.fetch(xref, &strObj);
-      refObj.free();
-      strObj.streamReset();
-      while ((c = strObj.streamGetChar()) != EOF) {
-	fputc(c, tmpFile);
-      }
-      strObj.streamClose();
-      strObj.free();
-      fclose(tmpFile);
-      fileName = tmpFileName;
-
     // if there is an external font file, use it
     } else if (!(fileName = gfxFont->getExtFontFile())) {
 
@@ -1016,18 +1008,23 @@ void SplashOutputDev::updateFont(GfxState *state) {
       case displayFontTT:
 	fileName = dfp->tt.fileName;
 	fontType = gfxFont->isCIDFont() ? fontCIDType2 : fontTrueType;
+	faceIndex = dfp->tt.faceIndex;
 	break;
       }
     }
 
+    fontsrc = new SplashFontSrc;
+    if (fileName)
+      fontsrc->setFile(fileName, gFalse);
+    else
+      fontsrc->setBuf(tmpBuf, tmpBufLen, gFalse);
+
     // load the font file
     switch (fontType) {
     case fontType1:
-      if (!(fontFile = fontEngine->loadType1Font(
-			   id,
-			   fileName->getCString(),
-			   fileName == tmpFileName,
-			   ((Gfx8BitFont *)gfxFont)->getEncoding()))) {
+      fontFile = fontEngine->loadType1Font(id, fontsrc, 
+					   ((Gfx8BitFont *)gfxFont)->getEncoding());
+      if (! fontFile) {
 	error(-1, "Couldn't create a font for '%s'",
 	      gfxFont->getName() ? gfxFont->getName()->getCString()
 	                         : "(unnamed)");
@@ -1035,11 +1032,9 @@ void SplashOutputDev::updateFont(GfxState *state) {
       }
       break;
     case fontType1C:
-      if (!(fontFile = fontEngine->loadType1CFont(
-			   id,
-			   fileName->getCString(),
-			   fileName == tmpFileName,
-			   ((Gfx8BitFont *)gfxFont)->getEncoding()))) {
+      fontFile = fontEngine->loadType1CFont(id, fontsrc,
+					    ((Gfx8BitFont *)gfxFont)->getEncoding());
+      if (! fontFile) {
 	error(-1, "Couldn't create a font for '%s'",
 	      gfxFont->getName() ? gfxFont->getName()->getCString()
 	                         : "(unnamed)");
@@ -1047,7 +1042,8 @@ void SplashOutputDev::updateFont(GfxState *state) {
       }
       break;
     case fontTrueType:
-      if ((ff = FoFiTrueType::load(fileName->getCString()))) {
+      if ((ff = FoFiTrueType::load(fileName->getCString())) ||
+      	 (ff = new FoFiTrueType(tmpBuf, tmpBufLen, gFalse))) {
       codeToGID = ((Gfx8BitFont *)gfxFont)->getCodeToGIDMap(ff);
 	n = 256;
       delete ff;
@@ -1057,8 +1053,7 @@ void SplashOutputDev::updateFont(GfxState *state) {
       }
       if (!(fontFile = fontEngine->loadTrueTypeFont(
 			   id,
-			   fileName->getCString(),
-			   fileName == tmpFileName,
+			   fontsrc,
 			   codeToGID, n))) {
 	error(-1, "Couldn't create a font for '%s'",
 	      gfxFont->getName() ? gfxFont->getName()->getCString()
@@ -1068,10 +1063,8 @@ void SplashOutputDev::updateFont(GfxState *state) {
       break;
     case fontCIDType0:
     case fontCIDType0C:
-      if (!(fontFile = fontEngine->loadCIDFont(
-			   id,
-			   fileName->getCString(),
-			   fileName == tmpFileName))) {
+      fontFile = fontEngine->loadCIDFont(id, fontsrc);
+      if (! fontFile) {
 	error(-1, "Couldn't create a font for '%s'",
 	      gfxFont->getName() ? gfxFont->getName()->getCString()
 	                         : "(unnamed)");
@@ -1084,7 +1077,8 @@ void SplashOutputDev::updateFont(GfxState *state) {
       if (dfp) {
 	// create a CID-to-GID mapping, via Unicode
 	if ((ctu = ((GfxCIDFont *)gfxFont)->getToUnicode())) {
-	  if ((ff = FoFiTrueType::load(fileName->getCString()))) {
+	  if ((ff = FoFiTrueType::load(fileName->getCString())) ||
+	  	(ff = new FoFiTrueType(tmpBuf, tmpBufLen, gFalse))) {
 	    // look for a Unicode cmap
 	    for (cmap = 0; cmap < ff->getNumCmaps(); ++cmap) {
 	      if ((ff->getCmapPlatform(cmap) == 3 &&
@@ -1116,16 +1110,28 @@ void SplashOutputDev::updateFont(GfxState *state) {
       } else {
 	if (((GfxCIDFont *)gfxFont)->getCIDToGID()) {
       n = ((GfxCIDFont *)gfxFont)->getCIDToGIDLen();
-	  codeToGID = (Gushort *)gmallocn(n, sizeof(Gushort));
-      memcpy(codeToGID, ((GfxCIDFont *)gfxFont)->getCIDToGID(),
-	     n * sizeof(Gushort));
+	if (n) {
+		codeToGID = (Gushort *)gmallocn(n, sizeof(Gushort));
+		memcpy(codeToGID, ((GfxCIDFont *)gfxFont)->getCIDToGID(),
+			n * sizeof(Gushort));
+	} else {
+		if (fileName)
+		 ff = FoFiTrueType::load(fileName->getCString());
+		else
+		 ff = new FoFiTrueType(tmpBuf, tmpBufLen, gFalse);
+		if (! ff)
+		 goto err2;
+		codeToGID = ((GfxCIDFont *)gfxFont)->getCodeToGIDMap(ff, &n);
+		delete ff;
+	}
 	}
       }
       if (!(fontFile = fontEngine->loadTrueTypeFont(
 			   id,
-			   fileName->getCString(),
-			   fileName == tmpFileName,
-			   codeToGID, n))) {
+			   fontsrc,
+			   codeToGID,
+			   n,
+			   faceIndex))) {
 	error(-1, "Couldn't create a font for '%s'",
 	      gfxFont->getName() ? gfxFont->getName()->getCString()
 	                         : "(unnamed)");
@@ -1153,17 +1159,11 @@ void SplashOutputDev::updateFont(GfxState *state) {
   }
   font = fontEngine->getFont(fontFile, mat);
 
-  if (tmpFileName) {
-    delete tmpFileName;
-  }
   return;
 
  err2:
   delete id;
  err1:
-  if (tmpFileName) {
-    delete tmpFileName;
-  }
   return;
 }
 

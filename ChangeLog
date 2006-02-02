@@ -1,3 +1,29 @@
+2006-01-18  Albert Astals Cid  <aacid@kde.org>
+
+	* fofi/FoFiTrueType.cc
+	* fofi/FoFiTrueType.h
+	* fofi/FoFiType1C.h
+	* goo/gfile.cc
+	* poppler/GfxFont.cc
+	* poppler/GfxFont.h
+	* poppler/GlobalParams.cc
+	* poppler/GlobalParams.h
+	* poppler/SplashOutputDev.cc
+	* splash/SplashFTFontEngine.cc
+	* splash/SplashFTFontEngine.h
+	* splash/SplashFTFontFile.cc
+	* splash/SplashFTFontFile.h
+	* splash/SplashFontEngine.cc
+	* splash/SplashFontEngine.h
+	* splash/SplashFontFile.cc
+	* splash/SplashFontFile.h
+	* splash/SplashT1FontEngine.cc
+	* splash/SplashT1FontFile.cc
+	* splash/SplashT1FontFile.h: Merge patch to not use external file
+	  when passing the font to Freetype, original patch by Takashi Iwai
+	  adapted by me to kpdf rediffed by Stefan Schweizer against poppler
+	  cvs
+
 2006-01-31  Jeff Muizelaar  <jeff@infidigm.net>
 
 	* poppler/GlobalParams.cc (GlobalParams::getDisplayFont):

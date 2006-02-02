@@ -29,11 +29,12 @@ class FoFiTrueType: public FoFiBase {
 public:
 
   // Create a FoFiTrueType object from a memory buffer.
-  static FoFiTrueType *make(char *fileA, int lenA);
+  static FoFiTrueType *make(char *fileA, int lenA, int faceIndexA=0);
 
   // Create a FoFiTrueType object from a file on disk.
-  static FoFiTrueType *load(char *fileName);
+  static FoFiTrueType *load(char *fileName, int faceIndexA=0);
 
+  FoFiTrueType(char *fileA, int lenA, GBool freeFileDataA, int faceIndexA=0);
   virtual ~FoFiTrueType();
 
   // Return the number of cmaps defined by this font.
@@ -104,7 +105,6 @@ public:
 
 private:
 
-  FoFiTrueType(char *fileA, int lenA, GBool freeFileDataA);
   void cvtEncoding(char **encoding,
 		   FoFiOutputFunc outputFunc,
 		   void *outputStream);
@@ -133,6 +133,7 @@ private:
   GooHash *nameToGID;
 
   GBool parsedOk;
+  int faceIndex;
 };
 
 #endif

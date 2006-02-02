@@ -19,6 +19,7 @@
 
 class SplashFontFile;
 class SplashFontFileID;
+class SplashFontSrc;
 
 //------------------------------------------------------------------------
 // SplashFTFontEngine
@@ -32,15 +33,12 @@ public:
   ~SplashFTFontEngine();
 
   // Load fonts.
-  SplashFontFile *loadType1Font(SplashFontFileID *idA, char *fileName,
-				GBool deleteFile, char **enc);
-  SplashFontFile *loadType1CFont(SplashFontFileID *idA, char *fileName,
-				 GBool deleteFile, char **enc);
-  SplashFontFile *loadCIDFont(SplashFontFileID *idA, char *fileName,
-			      GBool deleteFile);
-  SplashFontFile *loadTrueTypeFont(SplashFontFileID *idA, char *fileName,
-				   GBool deleteFile,
-				   Gushort *codeToGID, int codeToGIDLen);
+  SplashFontFile *loadType1Font(SplashFontFileID *idA, SplashFontSrc *src, char **enc);
+  SplashFontFile *loadType1CFont(SplashFontFileID *idA, SplashFontSrc *src, char **enc);
+  SplashFontFile *loadCIDFont(SplashFontFileID *idA, SplashFontSrc *src);
+  SplashFontFile *loadTrueTypeFont(SplashFontFileID *idA, SplashFontSrc *src,
+				   Gushort *codeToGID, int codeToGIDLen,
+				   int faceIndex=0);
 
 private:
 

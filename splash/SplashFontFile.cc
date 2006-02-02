@@ -12,6 +12,7 @@
 
 #include <stdio.h>
 #include <unistd.h>
+#include "goo/gmem.h"
 #include "goo/GooString.h"
 #include "SplashFontFile.h"
 #include "SplashFontFileID.h"
@@ -26,19 +27,15 @@ extern "C" int unlink(char *filename);
 // SplashFontFile
 //------------------------------------------------------------------------
 
-SplashFontFile::SplashFontFile(SplashFontFileID *idA, char *fileNameA,
-			       GBool deleteFileA) {
+SplashFontFile::SplashFontFile(SplashFontFileID *idA, SplashFontSrc *srcA) {
   id = idA;
-  fileName = new GooString(fileNameA);
-  deleteFile = deleteFileA;
+  src = srcA;
+  src->ref();
   refCnt = 0;
 }
 
 SplashFontFile::~SplashFontFile() {
-  if (deleteFile) {
-    unlink(fileName->getCString());
-  }
-  delete fileName;
+  src->unref();
   delete id;
 }
 
@@ -51,3 +48,60 @@ void SplashFontFile::decRefCnt() {
     delete this;
   }
 }
+
+//
+
+SplashFontSrc::SplashFontSrc() {
+  isFile = gFalse;
+  deleteSrc = gFalse;
+  fileName = NULL;
+  buf = NULL;
+  refcnt = 1;
+}
+
+SplashFontSrc::~SplashFontSrc() {
+  if (deleteSrc) {
+    if (isFile) {
+      if (fileName)
+	unlink(fileName->getCString());
+    } else {
+      if (buf)
+	gfree(buf);
+    }
+  }
+
+  if (isFile && fileName)
+    delete fileName;
+}
+
+void SplashFontSrc::ref() {
+  refcnt++;
+}
+
+void SplashFontSrc::unref() {
+  if (! --refcnt)
+    delete this;
+}
+
+void SplashFontSrc::setFile(GooString *file, GBool del)
+{
+  isFile = gTrue;
+  fileName = file->copy();
+  deleteSrc = del;
+}
+
+void SplashFontSrc::setFile(const char *file, GBool del)
+{
+  isFile = gTrue;
+  fileName = new GooString(file);
+  deleteSrc = del;
+}
+
+void SplashFontSrc::setBuf(char *bufA, int bufLenA, GBool del)
+{
+  isFile = gFalse;
+  buf = bufA;
+  bufLen = bufLenA;
+  deleteSrc = del;
+}
+

@@ -1278,6 +1278,7 @@ DisplayFontParam *GlobalParams::getDisplayFont(GfxFont *font) {
     {
       dfp = new DisplayFontParam(fontName->copy(), displayFontTT);  
       dfp->tt.fileName = new GooString((char*)s);
+      FcPatternGetInteger(m, FC_INDEX, 0, &(dfp->tt.faceIndex));
     }
     else if (!strncasecmp(ext,".pfa",4) || !strncasecmp(ext,".pfb",4)) 
     {

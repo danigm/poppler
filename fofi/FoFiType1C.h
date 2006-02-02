@@ -138,6 +138,7 @@ public:
   // Create a FoFiType1C object from a file on disk.
   static FoFiType1C *load(char *fileName);
 
+  FoFiType1C(char *fileA, int lenA, GBool freeFileDataA);
   virtual ~FoFiType1C();
 
   // Return the font name.
@@ -173,7 +174,6 @@ public:
 
 private:
 
-  FoFiType1C(char *fileA, int lenA, GBool freeFileDataA);
   void eexecCvtGlyph(Type1CEexecBuf *eb, char *glyphName,
 		     int offset, int nBytes,
 		     Type1CIndex *subrIdx,

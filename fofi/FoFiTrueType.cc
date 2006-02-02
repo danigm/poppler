@@ -241,10 +241,10 @@ static char *macGlyphNames[258] = {
 // FoFiTrueType
 //------------------------------------------------------------------------
 
-FoFiTrueType *FoFiTrueType::make(char *fileA, int lenA) {
+FoFiTrueType *FoFiTrueType::make(char *fileA, int lenA, int faceIndexA) {
   FoFiTrueType *ff;
 
-  ff = new FoFiTrueType(fileA, lenA, gFalse);
+  ff = new FoFiTrueType(fileA, lenA, gFalse, faceIndexA);
   if (!ff->parsedOk) {
     delete ff;
     return NULL;
@@ -252,7 +252,7 @@ FoFiTrueType *FoFiTrueType::make(char *fileA, int lenA) {
   return ff;
 }
 
-FoFiTrueType *FoFiTrueType::load(char *fileName) {
+FoFiTrueType *FoFiTrueType::load(char *fileName, int faceIndexA) {
   FoFiTrueType *ff;
   char *fileA;
   int lenA;
@@ -260,7 +260,7 @@ FoFiTrueType *FoFiTrueType::load(char *fileName) {
   if (!(fileA = FoFiBase::readFile(fileName, &lenA))) {
     return NULL;
   }
-  ff = new FoFiTrueType(fileA, lenA, gTrue);
+  ff = new FoFiTrueType(fileA, lenA, gTrue, faceIndexA);
   if (!ff->parsedOk) {
     delete ff;
     return NULL;
@@ -268,7 +268,7 @@ FoFiTrueType *FoFiTrueType::load(char *fileName) {
   return ff;
 }
 
-FoFiTrueType::FoFiTrueType(char *fileA, int lenA, GBool freeFileDataA):
+FoFiTrueType::FoFiTrueType(char *fileA, int lenA, GBool freeFileDataA, int faceIndexA):
   FoFiBase(fileA, lenA, freeFileDataA)
 {
   tables = NULL;
@@ -277,6 +277,7 @@ FoFiTrueType::FoFiTrueType(char *fileA, int lenA, GBool freeFileDataA):
   nCmaps = 0;
   nameToGID = NULL;
   parsedOk = gFalse;
+  faceIndex = faceIndexA;
 
   parse();
 }
@@ -1535,9 +1536,12 @@ Guint FoFiTrueType::computeTableChecksum(Guchar *data, int length) {
   return checksum;
 }
 
+#define toTag(a,b,c,d) (((unsigned int)(a)<<24) | ((unsigned int)(b)<<16) | ((unsigned int)(c)<<8) | (d))
+
 void FoFiTrueType::parse() {
   Guint topTag;
   int pos, i, j;
+  unsigned int head;
 
   parsedOk = gTrue;
 
@@ -1556,12 +1560,37 @@ void FoFiTrueType::parse() {
   }
 
   // read the table directory
-  nTables = getU16BE(pos + 4, &parsedOk);
+  head = getU32BE(pos, &parsedOk);
+  if (! parsedOk)
+    return;
+  if (head == toTag('t','t','c','f')) {
+    /* TTC font */
+    unsigned int tableDir;
+    int dircount;
+
+    dircount = getU32BE(8, &parsedOk);
+    if (!parsedOk)
+      return;
+    if (! dircount) {
+      parsedOk = gFalse;
+      return;
+    }
+
+    if (faceIndex >= dircount)
+      faceIndex = 0;
+    pos = getU32BE(12 + faceIndex * 4, &parsedOk);
+    if (! parsedOk)
+      return;
+  }
+
+  pos += 4;
+  nTables = getU16BE(pos, &parsedOk);
   if (!parsedOk) {
     return;
   }
+
+  pos += 8;
   tables = (TrueTypeTable *)gmallocn(nTables, sizeof(TrueTypeTable));
-  pos += 12;
   for (i = 0; i < nTables; ++i) {
     tables[i].tag = getU32BE(pos, &parsedOk);
     tables[i].checksum = getU32BE(pos + 4, &parsedOk);

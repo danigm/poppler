@@ -361,7 +361,7 @@ CharCodeToUnicode *GfxFont::readToUnicodeCMap(Dict *fontDict, int nBits,
 
 void GfxFont::findExtFontFile() {
   static char *type1Exts[] = { ".pfa", ".pfb", ".ps", "", NULL };
-  static char *ttExts[] = { ".ttf", NULL };
+  static char *ttExts[] = { ".ttf", ".ttc", NULL };
 
   if (name) {
     if (type == fontType1) {
@@ -1520,6 +1520,53 @@ CharCodeToUnicode *GfxCIDFont::getToUnicode() {
 
 GooString *GfxCIDFont::getCollection() {
   return cMap ? cMap->getCollection() : (GooString *)NULL;
+}
+
+Gushort *GfxCIDFont::getCodeToGIDMap(FoFiTrueType *ff, int *mapsizep) {
+  Gushort *map;
+  int cmapPlatform, cmapEncoding;
+  int unicodeCmap, macRomanCmap, msSymbolCmap, cmap;
+  GBool useMacRoman, useUnicode;
+  char *charName;
+  Unicode u;
+  int code, i;
+  int mapsize;
+  int cidlen;
+
+  *mapsizep = 0;
+
+  /* we use only unicode cmap */
+  cmap = -1;
+  for (i = 0; i < ff->getNumCmaps(); ++i) {
+    cmapPlatform = ff->getCmapPlatform(i);
+    cmapEncoding = ff->getCmapEncoding(i);
+    if ((cmapPlatform == 3 && cmapEncoding == 1) || cmapPlatform == 0)
+      cmap = i;
+  }
+  if (cmap < 0)
+    return NULL;
+
+  cidlen = 0;
+  mapsize = 64;
+  map = (Gushort *)gmalloc(mapsize * sizeof(Gushort));
+
+  while (cidlen < ctu->getLength()) {
+    int n;
+    if ((n = ctu->mapToUnicode((CharCode)cidlen, &u, 1)) == 0) {
+      cidlen++;
+      continue;
+    }
+    if (cidlen >= mapsize) {
+      while (cidlen >= mapsize)
+	mapsize *= 2;
+      map = (Gushort *)grealloc(map, mapsize * sizeof(Gushort));
+    }
+    map[cidlen] = ff->mapCodeToGID(cmap, u);
+    cidlen++;
+  }
+
+  *mapsizep = cidlen;
+  return map;
 }
 
 //------------------------------------------------------------------------

@@ -55,6 +55,7 @@ struct DisplayFontParamT1 {
 
 struct DisplayFontParamTT {
   GooString *fileName;
+  int faceIndex;
 };
 
 class DisplayFontParam {
