@@ -5,6 +5,9 @@
 	Schweizer
 	* utils/pdf2xml.dtd: Added a DTD of the xml pdftohtml creates patch by
 	Stefan Schweizer
+	* poppler/SplashOutputDev.cc: Remove bug from "do not use an external
+	file to pass fonts to Freetype" patch, patch by Stefan Schweizer
+		
 
 2006-02-02  Albert Astals Cid  <aacid@kde.org>
 

@@ -1042,8 +1042,11 @@ void SplashOutputDev::updateFont(GfxState *state) {
       }
       break;
     case fontTrueType:
-      if ((ff = FoFiTrueType::load(fileName->getCString())) ||
-      	 (ff = new FoFiTrueType(tmpBuf, tmpBufLen, gFalse))) {
+	if (fileName)
+	 ff = FoFiTrueType::load(fileName->getCString());
+	else
+	 ff = new FoFiTrueType(tmpBuf, tmpBufLen, gFalse);
+	if (ff) {
       codeToGID = ((Gfx8BitFont *)gfxFont)->getCodeToGIDMap(ff);
 	n = 256;
       delete ff;
@@ -1077,8 +1080,11 @@ void SplashOutputDev::updateFont(GfxState *state) {
       if (dfp) {
 	// create a CID-to-GID mapping, via Unicode
 	if ((ctu = ((GfxCIDFont *)gfxFont)->getToUnicode())) {
-	  if ((ff = FoFiTrueType::load(fileName->getCString())) ||
-	  	(ff = new FoFiTrueType(tmpBuf, tmpBufLen, gFalse))) {
+		if (fileName)
+		 ff = FoFiTrueType::load(fileName->getCString());
+		else
+		 ff = new FoFiTrueType(tmpBuf, tmpBufLen, gFalse);
+		if (ff) {
 	    // look for a Unicode cmap
 	    for (cmap = 0; cmap < ff->getNumCmaps(); ++cmap) {
 	      if ((ff->getCmapPlatform(cmap) == 3 &&
