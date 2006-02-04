@@ -1,3 +1,9 @@
+2006-02-04  Jeff Muizelaar  <jeff@infidigm.net>
+
+	* poppler/GlobalParams.cc: Check all fonts returned by fontconfig.
+	Discard the ones that are not truetype or type1. Fixes #5758.
+	Patch by Ed Catmur.
+
 2006-02-04  Albert Astals Cid  <aacid@kde.org>
 
 	* utils/Makefile.am:
