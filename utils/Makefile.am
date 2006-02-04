@@ -16,6 +16,8 @@ bin_PROGRAMS =					\
 	pdftohtml				\
 	pdftoppm
 
+EXTRA_DIST = pdf2xml.dtd
+
 dist_man1_MANS =				\
 	pdffonts.1				\
 	pdfimages.1				\
