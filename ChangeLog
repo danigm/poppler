@@ -1,5 +1,13 @@
 2006-02-04  Jeff Muizelaar  <jeff@infidigm.net>
 
+	* poppler/Gfx.cc:
+	* poppler/OutputDev.cc:
+	* poppler/OutputDev.h: Let output devices know about pdf grouping
+	operators.
+	Patch by Thorkild Stray.
+
+2006-02-04  Jeff Muizelaar  <jeff@infidigm.net>
+
 	* poppler/GlobalParams.cc: Check all fonts returned by fontconfig.
 	Discard the ones that are not truetype or type1. Fixes #5758.
 	Patch by Ed Catmur.

@@ -3591,9 +3591,16 @@ void Gfx::opBeginMarkedContent(Object args[], int numArgs) {
     printf("\n");
     fflush(stdout);
   }
+
+  if(numArgs == 2) {
+    out->beginMarkedContent(args[0].getName(),args[1].getDict());
+  } else {
+    out->beginMarkedContent(args[0].getName());
+  }
 }
 
 void Gfx::opEndMarkedContent(Object args[], int numArgs) {
+  out->endMarkedContent();
 }
 
 void Gfx::opMarkPoint(Object args[], int numArgs) {
@@ -3604,6 +3611,13 @@ void Gfx::opMarkPoint(Object args[], int numArgs) {
     printf("\n");
     fflush(stdout);
   }
+
+  if(numArgs == 2) {
+    out->markPoint(args[0].getName(),args[1].getDict());
+  } else {
+    out->markPoint(args[0].getName());
+  }
+
 }
 
 //------------------------------------------------------------------------

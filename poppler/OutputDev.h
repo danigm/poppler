@@ -183,6 +183,16 @@ public:
 				   int maskWidth, int maskHeight,
 				   GfxImageColorMap *maskColorMap);
 
+  //----- grouping operators
+
+  virtual void endMarkedContent();
+  virtual void beginMarkedContent(char *name);
+  virtual void beginMarkedContent(char *name, Dict *properties);
+  virtual void markPoint(char *name);
+  virtual void markPoint(char *name, Dict *properties);
+  
+  
+
 #if OPI_SUPPORT
   //----- OPI functions
   virtual void opiBegin(GfxState *state, Dict *opiDict);

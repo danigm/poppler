@@ -121,6 +121,22 @@ void OutputDev::drawSoftMaskedImage(GfxState *state, Object *ref, Stream *str,
   drawImage(state, ref, str, width, height, colorMap, NULL, gFalse);
 }
 
+void OutputDev::endMarkedContent() {
+}
+
+void OutputDev::beginMarkedContent(char *name) {
+}
+
+void OutputDev::beginMarkedContent(char *name, Dict *properties) {
+}
+
+void OutputDev::markPoint(char *name) {
+}
+
+void OutputDev::markPoint(char *name, Dict *properties) {
+}
+
+
 #if OPI_SUPPORT
 void OutputDev::opiBegin(GfxState *state, Dict *opiDict) {
 }
