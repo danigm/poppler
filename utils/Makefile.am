@@ -13,7 +13,8 @@ bin_PROGRAMS =					\
 	pdfinfo					\
 	pdftops					\
 	pdftotext				\
-	pdftohtml
+	pdftohtml				\
+	pdftoppm
 
 dist_man1_MANS =				\
 	pdffonts.1				\
@@ -21,7 +22,8 @@ dist_man1_MANS =				\
 	pdfinfo.1				\
 	pdftops.1				\
 	pdftotext.1				\
-	pdftohtml.1
+	pdftohtml.1				\
+	pdftoppm.1
 
 common = parseargs.c parseargs.h
 
@@ -55,4 +57,8 @@ pdftohtml_SOURCES =				\
 	HtmlLinks.h				\
 	HtmlOutputDev.cc			\
 	HtmlOutputDev.h				\
+	$(common)
+
+pdftoppm_SOURCES =				\
+	pdftoppm.cc				\
 	$(common)

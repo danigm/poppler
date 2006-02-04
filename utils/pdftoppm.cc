@@ -108,7 +108,6 @@ int main(int argc, char *argv[]) {
 
   // read config file
   globalParams = new GlobalParams(cfgFileName);
-  globalParams->setupBaseFonts(NULL);
   if (enableT1libStr[0]) {
     if (!globalParams->setEnableT1lib(enableT1libStr)) {
       fprintf(stderr, "Bad '-t1lib' value on command line\n");
@@ -158,14 +157,16 @@ int main(int argc, char *argv[]) {
     lastPage = doc->getNumPages();
 
   // write PPM files
-  paperColor.rgb8 = splashMakeRGB8(255, 255, 255);
+  paperColor[0] = 255;
+  paperColor[1] = 255;
+  paperColor[2] = 255;
   splashOut = new SplashOutputDev(mono ? splashModeMono1 :
 				    gray ? splashModeMono8 :
-				             splashModeRGB8,
+				             splashModeRGB8, 4,
 				  gFalse, paperColor);
   splashOut->startDoc(doc->getXRef());
   for (pg = firstPage; pg <= lastPage; ++pg) {
-    doc->displayPage(splashOut, pg, resolution, resolution, 0, gTrue, gFalse);
+    doc->displayPage(splashOut, pg, resolution, resolution, 0, gTrue, gFalse, gFalse);
     sprintf(ppmFile, "%.*s-%06d.%s",
 	    (int)sizeof(ppmFile) - 32, ppmRoot, pg,
 	    mono ? "pbm" : gray ? "pgm" : "ppm");
