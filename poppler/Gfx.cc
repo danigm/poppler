@@ -3526,6 +3526,7 @@ Stream *Gfx::buildImageStream() {
 	break;
       }
       dict.dictAdd(key, &obj);
+      gfree(key);
     }
     parser->getObj(&obj);
   }

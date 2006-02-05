@@ -948,7 +948,6 @@ void SplashOutputDev::updateFont(GfxState *state) {
   GooString *fileName, *substName;
   char *tmpBuf;
   int tmpBufLen;
-  FILE *tmpFile;
   Gushort *codeToGID;
   DisplayFontParam *dfp;
   CharCodeToUnicode *ctu;

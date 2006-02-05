@@ -1,3 +1,11 @@
+2006-02-05  Albert Astals Cid  <aacid@kde.org>
+
+	* poppler/Gfx.cc: Fix small leak
+	* poppler/GfxFont.cc: I needed that guard in kpdf to fix a crash and
+	it surely does not hurt
+	* poppler/JBIG2Stream.cc: Improve check (comes from kpdf)
+	* poppler/SplashOutputDev.cc: Unneeded var--
+
 2006-02-04  Jeff Muizelaar  <jeff@infidigm.net>
 
 	* poppler/Gfx.cc:
