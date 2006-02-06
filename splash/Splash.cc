@@ -2020,10 +2020,10 @@ SplashError Splash::fillGlyph(SplashCoord x, SplashCoord y,
 	  for (xx = 0, x1 = x0 - glyph->x; xx < glyph->w; ++xx, ++x1) {
 	    alpha = *p++;
 	    if (softMask) {
-	      alpha = (int)(alpha * state->fillAlpha *
+	      alpha = (int)(alpha * (float)state->fillAlpha *
 			    softMask->data[y1 * softMask->rowSize + x1]);
 	    } else {
-	      alpha = (int)(alpha * state->fillAlpha);
+	      alpha = (int)(alpha * (float)state->fillAlpha);
 	    }
 	    if (alpha > 0) {
 	      if (noClip || state->clip->test(x1, y1)) {

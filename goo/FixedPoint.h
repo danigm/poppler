@@ -11,7 +11,7 @@
 #ifndef FIXEDPOINT_H
 #define FIXEDPOINT_H
 
-#include <aconf.h>
+#include <config.h>
 
 #if USE_FIXEDPOINT
 

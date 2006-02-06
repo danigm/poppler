@@ -14,7 +14,7 @@
 //------------------------------------------------------------------------
 
 #if USE_FIXEDPOINT
-#include "FixedPoint.h"
+#include "goo/FixedPoint.h"
 typedef FixedPoint SplashCoord;
 #else
 typedef double SplashCoord;

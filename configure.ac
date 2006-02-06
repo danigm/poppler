@@ -31,7 +31,7 @@ AM_CONDITIONAL(ENABLE_XPDF_HEADERS, test x$enable_xpdf_headers = xyes)
 
 AC_ARG_ENABLE(fixedpoint,
 [  --enable-fixedpoint     use fixed point (instead of floating point) arithmetic],
-AC_DEFINE(USE_FIXEDPOINT, [], [Use fixed point arithmetic]))
+AC_DEFINE(USE_FIXEDPOINT, [1], [Use fixed point arithmetic]))
 
 dnl ##### Path to xpdfrc.
 dnl This ugly kludge to get the sysconfdir path is needed because
