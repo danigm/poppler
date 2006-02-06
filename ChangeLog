@@ -1,3 +1,9 @@
+2006-02-06  Albert Astals Cid  <aacid@kde.org>
+	
+	* poppler/Annot.cc: Fix small leaks
+	* poppler/JBIG2Stream.cc: Remove check improving as really did not
+	improve anything
+	
 2006-02-05  Albert Astals Cid  <aacid@kde.org>
 
 	* poppler/Gfx.cc: Fix small leak

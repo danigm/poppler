@@ -2325,7 +2325,7 @@ void JBIG2Stream::readHalftoneRegionSeg(Guint segNum, GBool imm,
     error(getPos(), "Bad size in JBIG2 halftone segment");
     return;
   }
-  if (h < 0 || w == 0 || h >= INT_MAX / w) {
+  if (w == 0 || h >= INT_MAX / w) {
      error(getPos(), "Bad size in JBIG2 bitmap segment");
     return;
   }
