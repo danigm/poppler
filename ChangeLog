@@ -1,5 +1,10 @@
 2006-02-13  Albert Astals Cid  <aacid@kde.org>
 
+	* poppler/ArthurOutputDev.cc: Make it compile after changing code so
+	we did not pass files to freetype but buffers
+
+2006-02-13  Albert Astals Cid  <aacid@kde.org>
+
 	* poppler/PSOutputDev.cc: Commit setupExternalCIDTrueTypeFont patch
 	kpdf got from Takashi Iwai (SuSe) a long time ago
 

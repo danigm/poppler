@@ -245,11 +245,13 @@ void ArthurOutputDev::updateFont(GfxState *state)
   GfxFontType fontType;
   SplashOutFontFileID *id;
   SplashFontFile *fontFile;
+  SplashFontSrc *fontsrc;
   FoFiTrueType *ff;
   Ref embRef;
   Object refObj, strObj;
-  GooString *tmpFileName, *fileName, *substName;
-  FILE *tmpFile;
+  GooString *fileName, *substName;
+  char *tmpBuf;
+  int tmpBufLen;
   Gushort *codeToGID;
   DisplayFontParam *dfp;
   double m11, m12, m21, m22, w1, w2;
@@ -259,7 +261,8 @@ void ArthurOutputDev::updateFont(GfxState *state)
 
   m_needFontUpdate = false;
   m_font = NULL;
-  tmpFileName = NULL;
+  fileName = NULL;
+  tmpBuf = NULL;
   substIdx = -1;
 
   if (!(gfxFont = state->getFont())) {
@@ -279,22 +282,9 @@ void ArthurOutputDev::updateFont(GfxState *state)
 
     // if there is an embedded font, write it to disk
     if (gfxFont->getEmbeddedFontID(&embRef)) {
-      if (!openTempFile(&tmpFileName, &tmpFile, "wb", NULL)) {
-	error(-1, "Couldn't create temporary font file");
+      tmpBuf = gfxFont->readEmbFontFile(xref, &tmpBufLen);
+      if (! tmpBuf)
 	goto err2;
-      }
-      refObj.initRef(embRef.num, embRef.gen);
-      refObj.fetch(xref, &strObj);
-      refObj.free();
-      strObj.streamReset();
-      while ((c = strObj.streamGetChar()) != EOF) {
-	fputc(c, tmpFile);
-      }
-      strObj.streamClose();
-      strObj.free();
-      fclose(tmpFile);
-      fileName = tmpFileName;
-
     // if there is an external font file, use it
     } else if (!(fileName = gfxFont->getExtFontFile())) {
 
@@ -321,13 +311,18 @@ void ArthurOutputDev::updateFont(GfxState *state)
       }
     }
 
+    fontsrc = new SplashFontSrc;
+    if (fileName)
+      fontsrc->setFile(fileName, gFalse);
+    else
+      fontsrc->setBuf(tmpBuf, tmpBufLen, gFalse);
+
     // load the font file
     switch (fontType) {
     case fontType1:
       if (!(fontFile = m_fontEngine->loadType1Font(
 			   id,
-			   fileName->getCString(),
-			   fileName == tmpFileName,
+			   fontsrc,
 			   ((Gfx8BitFont *)gfxFont)->getEncoding()))) {
 	error(-1, "Couldn't create a font for '%s'",
 	      gfxFont->getName() ? gfxFont->getName()->getCString()
@@ -338,8 +333,7 @@ void ArthurOutputDev::updateFont(GfxState *state)
     case fontType1C:
       if (!(fontFile = m_fontEngine->loadType1CFont(
 			   id,
-			   fileName->getCString(),
-			   fileName == tmpFileName,
+			   fontsrc,
 			   ((Gfx8BitFont *)gfxFont)->getEncoding()))) {
 	error(-1, "Couldn't create a font for '%s'",
 	      gfxFont->getName() ? gfxFont->getName()->getCString()
@@ -355,8 +349,7 @@ void ArthurOutputDev::updateFont(GfxState *state)
       delete ff;
       if (!(fontFile = m_fontEngine->loadTrueTypeFont(
 			   id,
-			   fileName->getCString(),
-			   fileName == tmpFileName,
+			   fontsrc,
 			   codeToGID, 256))) {
 	error(-1, "Couldn't create a font for '%s'",
 	      gfxFont->getName() ? gfxFont->getName()->getCString()
@@ -368,8 +361,7 @@ void ArthurOutputDev::updateFont(GfxState *state)
     case fontCIDType0C:
       if (!(fontFile = m_fontEngine->loadCIDFont(
 			   id,
-			   fileName->getCString(),
-			   fileName == tmpFileName))) {
+			   fontsrc))) {
 	error(-1, "Couldn't create a font for '%s'",
 	      gfxFont->getName() ? gfxFont->getName()->getCString()
 	                         : "(unnamed)");
@@ -383,8 +375,7 @@ void ArthurOutputDev::updateFont(GfxState *state)
 	     n * sizeof(Gushort));
       if (!(fontFile = m_fontEngine->loadTrueTypeFont(
 			   id,
-			   fileName->getCString(),
-			   fileName == tmpFileName,
+			   fontsrc,
 			   codeToGID, n))) {
 	error(-1, "Couldn't create a font for '%s'",
 	      gfxFont->getName() ? gfxFont->getName()->getCString()
@@ -408,17 +399,11 @@ void ArthurOutputDev::updateFont(GfxState *state)
   mat[2] = m21;  mat[3] = -m22;
   m_font = m_fontEngine->getFont(fontFile, mat);
 
-  if (tmpFileName) {
-    delete tmpFileName;
-  }
   return;
 
  err2:
   delete id;
  err1:
-  if (tmpFileName) {
-    delete tmpFileName;
-  }
   return;
 }
 
