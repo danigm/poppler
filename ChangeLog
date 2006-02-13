@@ -1,3 +1,8 @@
+2006-02-13  Albert Astals Cid  <aacid@kde.org>
+
+	* poppler/PSOutputDev.cc: Commit setupExternalCIDTrueTypeFont patch
+	kpdf got from Takashi Iwai (SuSe) a long time ago
+
 2006-02-06  Albert Astals Cid  <aacid@kde.org>
 
 	* configure.ac:
