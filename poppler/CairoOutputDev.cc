@@ -481,6 +481,26 @@ void CairoOutputDev::drawImageMask(GfxState *state, Object *ref, Stream *str,
   int invert_bit;
   int row_stride;
 
+  ctm = state->getCTM();
+  LOG (printf ("drawImageMask %dx%d, matrix: %f, %f, %f, %f, %f, %f\n",
+	       width, height, ctm[0], ctm[1], ctm[2], ctm[3], ctm[4], ctm[5]));
+  matrix.xx = ctm[0] / width;
+  matrix.xy = -ctm[2] / height;
+  matrix.yx = ctm[1] / width;
+  matrix.yy = -ctm[3] / height;
+  matrix.x0 = ctm[2] + ctm[4];
+  matrix.y0 = ctm[3] + ctm[5];
+
+  /* work around a cairo bug when scaling 1x1 surfaces */
+  if (width == 1 && height == 1) {
+    cairo_save (cairo);
+    cairo_set_matrix (cairo, &matrix);
+    cairo_rectangle (cairo, 0., 0., 1., 1.);
+    cairo_fill (cairo);
+    cairo_restore (cairo);
+    return;
+  }
+
   row_stride = (width + 3) & ~3;
   buffer = (unsigned char *) malloc (height * row_stride);
   if (buffer == NULL) {
@@ -514,19 +534,14 @@ void CairoOutputDev::drawImageMask(GfxState *state, Object *ref, Stream *str,
   if (pattern == NULL)
     return;
 
-  ctm = state->getCTM();
-  LOG (printf ("drawImageMask %dx%d, matrix: %f, %f, %f, %f, %f, %f\n",
-	       width, height, ctm[0], ctm[1], ctm[2], ctm[3], ctm[4], ctm[5]));
-  matrix.xx = ctm[0] / width;
-  matrix.xy = -ctm[2] / height;
-  matrix.yx = ctm[1] / width;
-  matrix.yy = -ctm[3] / height;
-  matrix.x0 = ctm[2] + ctm[4];
-  matrix.y0 = ctm[3] + ctm[5];
   cairo_matrix_invert (&matrix);
   cairo_pattern_set_matrix (pattern, &matrix);
 
+  /* we should actually be using CAIRO_FILTER_NEAREST here. However,
+   * cairo doesn't yet do minifaction filtering causing scaled down
+   * images with CAIRO_FILTER_NEAREST to look really bad */
   cairo_pattern_set_filter (pattern, CAIRO_FILTER_BEST);
+
   /* FIXME: Doesn't the image mask support any colorspace? */
   cairo_set_source (cairo, fill_pattern);
   cairo_mask (cairo, pattern);
