@@ -83,6 +83,8 @@ libpoppler_glib_la_LIBADD =			\
 	$(FREETYPE_LIBS)			\
 	$(cairo_libs)
 
+libpoppler_glib_la_LDFLAGS = -version-info 1:0:0
+
 noinst_PROGRAMS = test-poppler-glib
 
 test_poppler_glib_SOURCES =			\

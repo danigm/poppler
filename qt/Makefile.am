@@ -25,6 +25,8 @@ libpoppler_qt_la_LIBADD = 			\
 	$(POPPLER_QT_LIBS)			\
 	$(FREETYPE_LIBS)
 
+libpoppler_qt_la_LDFLAGS = -version-info 1:0:0
+
 if BUILD_SPLASH_OUTPUT
 
 noinst_PROGRAMS = test-poppler-qt

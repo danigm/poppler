@@ -92,6 +92,8 @@ libpoppler_la_LIBADD =				\
 	$(zlib_libs)				\
 	$(FREETYPE_LIBS)
 
+libpoppler_la_LDFLAGS = -version-info 1:0:0
+
 if ENABLE_XPDF_HEADERS
 
 poppler_includedir = $(includedir)/poppler

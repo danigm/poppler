@@ -1,3 +1,11 @@
+2006-02-16  Albert Astals Cid  <aacid@kde.org>
+
+	* qt4/src/Makefile.am:
+	* qt/Makefile.am:
+	* poppler/Makefile.am:
+	* glib/Makefile.am: Update soname as we are not really compatible
+	anymore with previous releases that had soname 0.0.0
+
 2006-02-13  Albert Astals Cid  <aacid@kde.org>
 
 	* poppler/ArthurOutputDev.cc: Make it compile after changing code so
