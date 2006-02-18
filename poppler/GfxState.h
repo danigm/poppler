@@ -151,6 +151,7 @@ public:
   virtual void getRGB(GfxColor *color, GfxRGB *rgb) = 0;
   virtual void getCMYK(GfxColor *color, GfxCMYK *cmyk) = 0;
   virtual void getRGBLine(Guchar *in, unsigned int *out, int length);
+  virtual void getGrayLine(Guchar *in, Guchar *out, int length);
 
   // Return the number of color components.
   virtual int getNComps() = 0;
@@ -869,6 +870,7 @@ public:
   void getGray(Guchar *x, GfxGray *gray);
   void getRGB(Guchar *x, GfxRGB *rgb);
   void getRGBLine(Guchar *in, unsigned int *out, int length);
+  void getGrayLine(Guchar *in, Guchar *out, int length);
   void getCMYK(Guchar *x, GfxCMYK *cmyk);
   void getColor(Guchar *x, GfxColor *color);
 

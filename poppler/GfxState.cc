@@ -205,6 +205,23 @@ void GfxColorSpace::getRGBLine(Guchar *in, unsigned int *out, int length) {
   }
 }
 
+void GfxColorSpace::getGrayLine(Guchar *in, unsigned char *out, int length) {
+  int i, j, n;
+  GfxColor color;
+  GfxGray gray;
+
+  n = getNComps();
+  for (i = 0; i < length; i++) {
+    
+    for (j = 0; j < n; j++)
+      color.c[j] = in[i * n + j] * 256;
+
+    getGray (&color, &gray);
+    out[i] = colToByte(gray);
+  }
+}
+
+
 //------------------------------------------------------------------------
 // GfxDeviceGrayColorSpace
 //------------------------------------------------------------------------
@@ -3432,6 +3449,39 @@ void GfxImageColorMap::getRGB(Guchar *x, GfxRGB *rgb) {
     }
     colorSpace->getRGB(&color, rgb);
   }
+}
+
+void GfxImageColorMap::getGrayLine(Guchar *in, Guchar *out, int length) {
+  GfxColor color;
+  double *p;
+  int i, j;
+  Guchar *inp, *outp, *tmp_line;
+  GfxColorSpace *base;
+
+  switch (colorSpace->getMode()) {
+  case csIndexed:
+  case csSeparation:
+    tmp_line = (Guchar *) gmalloc (length * nComps2);
+    for (i = 0; i < length; i++) {
+      for (j = 0; j < nComps2; j++) {
+	tmp_line[i * nComps2 + j] = byte_lookup[in[i] * nComps2 + j];
+      }
+    }
+    colorSpace2->getGrayLine(tmp_line, out, length);
+    gfree (tmp_line);
+    break;
+
+  default:
+    inp = in;
+    for (j = 0; j < length; j++)
+      for (i = 0; i < nComps; i++) {
+	*inp = byte_lookup[*inp * nComps + i];
+	inp++;
+      }
+    colorSpace->getGrayLine(in, out, length);
+    break;
+  }
+
 }
 
 void GfxImageColorMap::getRGBLine(Guchar *in, unsigned int *out, int length) {

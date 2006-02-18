@@ -1,3 +1,11 @@
+2006-02-18  Jeff Muizelaar  <jeff@infidigm.net>
+
+	* poppler/CairoOutputDev.cc:
+	* poppler/CairoOutputDev.h:
+	* poppler/GfxState.cc:
+	* poppler/GfxState.h: Add support for drawSoftMaskedImage to
+	CairoOutputDev. Ugly but works.
+
 2006-02-16  Jeff Muizelaar  <jeff@infidigm.net>
 
 	* poppler/CairoOutputDev.cc: Work around cairo bug when scaling

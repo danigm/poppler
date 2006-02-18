@@ -117,6 +117,12 @@ public:
   virtual void drawImage(GfxState *state, Object *ref, Stream *str,
 			 int width, int height, GfxImageColorMap *colorMap,
 			 int *maskColors, GBool inlineImg);
+  virtual void drawSoftMaskedImage(GfxState *state, Object *ref, Stream *str,
+				int width, int height,
+				GfxImageColorMap *colorMap,
+				Stream *maskStr,
+				int maskWidth, int maskHeight,
+				GfxImageColorMap *maskColorMap);
 
   //----- Type 3 font operators
   virtual void type3D0(GfxState *state, double wx, double wy);
