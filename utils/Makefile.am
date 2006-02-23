@@ -14,7 +14,7 @@ bin_PROGRAMS =					\
 	pdftops					\
 	pdftotext				\
 	pdftohtml				\
-	pdftoppm
+	$(pdftoppm_binary)
 
 EXTRA_DIST = pdf2xml.dtd
 
@@ -25,7 +25,8 @@ dist_man1_MANS =				\
 	pdftops.1				\
 	pdftotext.1				\
 	pdftohtml.1				\
-	pdftoppm.1
+	$(pdftoppm_manpage)
+	
 
 common = parseargs.c parseargs.h
 
@@ -61,6 +62,14 @@ pdftohtml_SOURCES =				\
 	HtmlOutputDev.h				\
 	$(common)
 
+if BUILD_SPLASH_OUTPUT
+
 pdftoppm_SOURCES =				\
 	pdftoppm.cc				\
 	$(common)
+
+pdftoppm_binary = pdftoppm
+
+pdftoppm_manpage =pdftoppm.1
+
+endif
