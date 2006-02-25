@@ -18,6 +18,7 @@
 #include "Dict.h"
 #include "Error.h"
 #include "Stream.h"
+#include "UGooString.h"
 #include "XRef.h"
 
 //------------------------------------------------------------------------
@@ -184,7 +185,7 @@ void Object::print(FILE *f) {
   case objDict:
     fprintf(f, "<<");
     for (i = 0; i < dictGetLength(); ++i) {
-      fprintf(f, " /%s ", dictGetKey(i));
+      fprintf(f, " /%s ", dictGetKey(i)->getCString());
       dictGetValNF(i, &obj);
       obj.print(f);
       obj.free();

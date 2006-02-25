@@ -1,3 +1,7 @@
+2006-02-25  Albert Astals Cid  <aacid@kde.org>
+
+	* poppler/Object.cc: Fix warning
+
 2006-02-23  Albert Astals Cid  <aacid@kde.org>
 
 	* utils/Makefile.am: Do not build pdftoppm when SplashOutputDev is
