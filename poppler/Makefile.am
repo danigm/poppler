@@ -34,19 +34,16 @@ endif
 
 if BUILD_CAIRO_OUTPUT
 
-cairo_sources =					\
-	CairoFontEngine.cc			\
-	CairoOutputDev.cc
-
-cairo_headers =					\
-	CairoFontEngine.h			\
-	CairoOutputDev.h
+poppler_cairo = libpoppler-cairo.la
 
 cairo_includes =				\
 	$(CAIRO_CFLAGS)
 
-cairo_libs =					\
-	$(CAIRO_LIBS)
+libpoppler_cairo_la_SOURCES =			\
+	CairoFontEngine.cc			\
+	CairoFontEngine.h			\
+	CairoOutputDev.cc			\
+	CairoOutputDev.h
 
 endif
 
@@ -82,11 +79,12 @@ INCLUDES =					\
 
 lib_LTLIBRARIES = libpoppler.la
 
+noinst_LTLIBRARIES = $(poppler_cairo)
+
 libpoppler_la_LIBADD =				\
 	$(top_builddir)/goo/libgoo.la		\
 	$(top_builddir)/fofi/libfofi.la		\
 	$(splash_libs)				\
-	$(cairo_libs)				\
 	$(arthur_libs)				\
 	$(libjpeg_libs)				\
 	$(zlib_libs)				\
@@ -99,7 +97,6 @@ if ENABLE_XPDF_HEADERS
 poppler_includedir = $(includedir)/poppler
 poppler_include_HEADERS =	\
 	$(splash_headers)	\
-	$(cairo_headers)	\
 	$(arthur_headers)	\
 	Annot.h			\
 	Array.h			\

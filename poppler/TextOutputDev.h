@@ -101,7 +101,7 @@ public:
 
 #if TEXTOUT_WORD_LIST
   int getLength() { return len; }
-  Unicode getChar(int idx) { return text[idx]; }
+  const Unicode *getChar(int idx) { return &text[idx]; }
   GooString *getText();
   GooString *getFontName() { return font->fontName; }
   void getColor(double *r, double *g, double *b)
@@ -113,7 +113,10 @@ public:
   int getCharPos() { return charPos; }
   int getCharLen() { return charLen; }
 #endif
-
+  double getEdge(int i) { return edge[i]; }
+  double getBaseline () { return base; }
+  GBool hasSpaceAfter  () { return spaceAfter; }
+  TextWord* nextWord () { return next; };
 private:
 
   int rot;			// rotation, multiple of 90 degrees

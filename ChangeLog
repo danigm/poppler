@@ -1,5 +1,16 @@
 2006-02-28  Kristian Høgsberg  <krh@redhat.com>
 
+	* configure.ac: Bump release to 0.5.1.
+
+	* NEWS: Sum up 0.5.1 changes so far.
+
+	* TextOutputDev.h: add getters for a couple of attributes.
+	
+	* glib/Makefile.am: 
+	* poppler/Makefile.am: Move cairo link dependency to glib bindings.
+
+2006-02-28  Kristian Høgsberg  <krh@redhat.com>
+
 	* goo/gmem.c: (gmalloc), (grealloc):
 	* poppler/JBIG2Stream.cc:
 	* poppler/Stream.cc:

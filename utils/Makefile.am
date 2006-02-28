@@ -1,3 +1,15 @@
+if BUILD_SPLASH_OUTPUT
+
+pdftoppm_SOURCES =				\
+	pdftoppm.cc				\
+	$(common)
+
+pdftoppm_binary = pdftoppm
+
+pdftoppm_manpage = pdftoppm.1
+
+endif
+
 INCLUDES =					\
 	-I$(top_srcdir)				\
 	-I$(top_srcdir)/utils			\
@@ -5,7 +17,8 @@ INCLUDES =					\
 	$(UTILS_CFLAGS)
 
 LDADD =						\
-	$(top_builddir)/poppler/libpoppler.la
+	$(top_builddir)/poppler/libpoppler.la	\
+	$(UTILS_LIBS)
 
 bin_PROGRAMS =					\
 	pdffonts				\
@@ -26,7 +39,6 @@ dist_man1_MANS =				\
 	pdftotext.1				\
 	pdftohtml.1				\
 	$(pdftoppm_manpage)
-	
 
 common = parseargs.c parseargs.h
 
@@ -62,14 +74,7 @@ pdftohtml_SOURCES =				\
 	HtmlOutputDev.h				\
 	$(common)
 
-if BUILD_SPLASH_OUTPUT
+# Yay, automake!  It should be able to figure out that it has to dist
+# this file, but nooo.  So we just add it here.
 
-pdftoppm_SOURCES =				\
-	pdftoppm.cc				\
-	$(common)
-
-pdftoppm_binary = pdftoppm
-
-pdftoppm_manpage =pdftoppm.1
-
-endif
+EXTRA_DIST = pdftoppm.1

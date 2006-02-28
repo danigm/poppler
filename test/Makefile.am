@@ -45,18 +45,20 @@ gtk_splash_test_LDADD =				\
 gtk_cairo_test_SOURCES =			\
        gtk-cairo-test.cc
 
-gtk_cairo_test_LDADD =				\
-	$(top_builddir)/poppler/libpoppler.la	\
-	$(CAIRO_LIBS)				\
+gtk_cairo_test_LDADD =					\
+	$(top_builddir)/poppler/libpoppler.la		\
+	$(top_builddir)/poppler/libpoppler-cairo.la	\
+	$(CAIRO_LIBS)					\
 	$(GTK_TEST_LIBS)
 
 pdf_inspector_SOURCES =			\
        pdf-inspector.cc
 
-pdf_inspector_LDADD =				\
-	$(top_builddir)/poppler/libpoppler.la	\
-	$(CAIRO_LIBS)				\
-	$(FREETYPE_LIBS)			\
+pdf_inspector_LDADD =					\
+	$(top_builddir)/poppler/libpoppler.la		\
+	$(top_builddir)/poppler/libpoppler-cairo.la	\
+	$(CAIRO_LIBS)					\
+	$(FREETYPE_LIBS)				\
 	$(GTK_TEST_LIBS)
 
 EXTRA_DIST =					\

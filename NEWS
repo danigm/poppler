@@ -1,3 +1,13 @@
+Release 0.5.1
+
+	- Support for embedded files.
+	- Handle 0-width lines correctly.
+	- Avoid external file use when opening fonts.
+	- Only use vector fonts returned from fontconfig (#5758).
+	- Fix scaled 1x1 pixmaps use for drawing lines (#3387).
+	- drawSoftMaskedImage support in cairo backend.
+	- Misc bug fixes: #5922, #5946, #5749, #5952, #4030, #5420.
+
 Release 0.5.0
 
 	- Font matching code for non embedded fonts now use fontconfig

@@ -8,7 +8,7 @@ cairo_libs =					\
 
 endif
 
-SUBDIRS=. reference
+SUBDIRS = . reference
 INCLUDES =					\
 	-I$(top_srcdir)				\
 	-I$(top_srcdir)/poppler			\
@@ -77,10 +77,11 @@ libpoppler_glib_la_SOURCES =			\
 	poppler.cc				\
 	poppler-private.h
 
-libpoppler_glib_la_LIBADD =			\
-	$(top_builddir)/poppler/libpoppler.la	\
-	$(POPPLER_GLIB_LIBS)			\
-	$(FREETYPE_LIBS)			\
+libpoppler_glib_la_LIBADD =				\
+	$(top_builddir)/poppler/libpoppler.la		\
+	$(top_builddir)/poppler/libpoppler-cairo.la	\
+	$(POPPLER_GLIB_LIBS)				\
+	$(FREETYPE_LIBS)				\
 	$(cairo_libs)
 
 libpoppler_glib_la_LDFLAGS = -version-info 1:0:0
