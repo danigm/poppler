@@ -1,5 +1,10 @@
 2006-02-28  Kristian Høgsberg  <krh@redhat.com>
 
+	* poppler/PSOutputDev.cc: Make PSOutputDev constructor respect
+	passed in paper size (#5946, #5749).
+
+2006-02-28  Kristian Høgsberg  <krh@redhat.com>
+
 	* glib/poppler-document.cc (info_dict_get_string): Refactor
 	_popper_goo_string_to_utf8() out into it's own function.
 

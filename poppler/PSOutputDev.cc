@@ -994,9 +994,6 @@ void PSOutputDev::init(PSOutputFunc outputFuncA, void *outputStreamA,
   imgLLY = imgLLYA;
   imgURX = imgURXA;
   imgURY = imgURYA;
-  if (imgLLX == 0 && imgURX == 0 && imgLLY == 0 && imgURY == 0) {
-    globalParams->getPSImageableArea(&imgLLX, &imgLLY, &imgURX, &imgURY);
-  }
   if (paperWidth < 0 || paperHeight < 0) {
     // this check is needed in case the document has zero pages
     if (firstPage > 0 && firstPage <= catalog->getNumPages()) {
@@ -1007,9 +1004,14 @@ void PSOutputDev::init(PSOutputFunc outputFuncA, void *outputStreamA,
       paperWidth = 1;
       paperHeight = 1;
     }
-    imgLLX = imgLLY = 0;
-    imgURX = paperWidth;
-    imgURY = paperHeight;
+  }
+  if (imgLLX == 0 && imgURX == 0 && imgLLY == 0 && imgURY == 0) {
+    globalParams->getPSImageableArea(&imgLLX, &imgLLY, &imgURX, &imgURY);
+    if (imgURX <= 0 || imgURY <= 0) {
+      imgLLX = imgLLY = 0;
+      imgURX = paperWidth;
+      imgURY = paperHeight;
+    }
   }
   manualCtrl = manualCtrlA;
   if (mode == psModeForm) {
