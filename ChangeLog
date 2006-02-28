@@ -1,3 +1,17 @@
+2006-02-28  Kristian Høgsberg  <krh@redhat.com>
+
+	* glib/poppler-document.cc (info_dict_get_string): Refactor
+	_popper_goo_string_to_utf8() out into it's own function.
+
+	* glib/poppler-page.cc (poppler_page_get_property): Use
+	_popper_goo_string_to_utf8() here to convert ucs2 page labels.
+
+	* glib/poppler-page.cc (poppler_page_get_selection_region): Add
+	braces to fix warning.
+
+	* poppler/PageLabelInfo.cc: If the label prefix string has a ucs2
+	marker, append the number part of the label as ucs2 (#5952).
+
 2006-02-25  Albert Astals Cid  <aacid@kde.org>
 
 	* poppler/Object.cc: Fix warning

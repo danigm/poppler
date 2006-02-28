@@ -498,14 +498,18 @@ poppler_page_render_selection (PopplerPage      *page,
 			     selection->x2, selection->y2);
 
   GfxColor gfx_background_color = { 
-    background_color->red,
-    background_color->green,
-    background_color->blue
+      {
+	  background_color->red,
+	  background_color->green,
+	  background_color->blue
+      }
   };
   GfxColor gfx_glyph_color = {
-    glyph_color->red,
-    glyph_color->green,
-    glyph_color->blue
+      {
+	  glyph_color->red,
+	  glyph_color->green,
+	  glyph_color->blue
+      }
   };
 
   text_dev = poppler_page_get_text_output_dev (page);
@@ -687,7 +691,7 @@ poppler_page_find_text (PopplerPage *page,
   matches = NULL;
   xMin = 0;
   yMin = 0;
-#warning you probably want to add caseSensitive and backwards as parameters
+
   while (output_dev->findText (ucs4, ucs4_len,
 			       gFalse, gTrue, // startAtTop, stopAtBottom
 			       gTrue, gFalse, // startAtLast, stopAtLast
@@ -745,12 +749,15 @@ poppler_page_get_property (GObject *object,
 {
   PopplerPage *page = POPPLER_PAGE (object);
   GooString label;
+  char *utf8_label;
 
   switch (prop_id)
     {
     case PROP_LABEL:
       page->document->doc->getCatalog ()->indexToLabel (page->index, &label);
-      g_value_set_string (value, label.getCString());
+      utf8_label = _poppler_goo_string_to_utf8(&label);
+      g_value_set_string (value, utf8_label);
+      g_free (utf8_label);  
       break;
     }
 }

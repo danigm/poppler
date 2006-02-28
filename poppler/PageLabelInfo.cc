@@ -158,9 +158,9 @@ PageLabelInfo::Interval::Interval(Object *dict, int baseA) {
   obj.free();
 
   if (dict->dictLookup("P", &obj)->isString())
-    prefix = copyString(obj.getString()->getCString());
+    prefix = obj.getString()->copy();
   else
-    prefix = copyString("");
+    prefix = new GooString("");
   obj.free();
 
   if (dict->dictLookup("St", &obj)->isInt())
@@ -173,7 +173,7 @@ PageLabelInfo::Interval::Interval(Object *dict, int baseA) {
 }
 
 PageLabelInfo::Interval::~Interval() {
-  gfree(prefix);
+  delete prefix;
 }
 
 PageLabelInfo::PageLabelInfo(Object *tree, int numPages) {
@@ -248,8 +248,8 @@ GBool PageLabelInfo::labelToIndex(GooString *label, int *index)
   base = 0;
   for (i = 0; i < intervals.getLength(); i++) {
     interval = (Interval *) intervals.get(i);
-    prefixLength = strlen(interval->prefix);
-    if (strncmp(str, interval->prefix, prefixLength) != 0)
+    prefixLength = interval->prefix->getLength();
+    if (label->cmpN(interval->prefix, prefixLength) != 0)
       continue;
 
     switch (interval->style) {
@@ -291,9 +291,9 @@ GBool PageLabelInfo::indexToLabel(int index, GooString *label)
   char buffer[32];
   int i, base, number;
   Interval *interval;
+  GooString number_string;
 
   base = 0;
-  label->clear();
   interval = NULL;
   for (i = 0; i < intervals.getLength(); i++) {
     interval = (Interval *) intervals.get(i);
@@ -305,19 +305,17 @@ GBool PageLabelInfo::indexToLabel(int index, GooString *label)
   if (i == intervals.getLength())
     return gFalse;
 
-  label->append(interval->prefix);
-
   number = index - base + interval->first;
   switch (interval->style) {
   case Interval::Arabic:
     snprintf (buffer, sizeof(buffer), "%d", number);
-    label->append(buffer);
+    number_string.append(buffer);
     break;
   case Interval::LowercaseRoman:
-    toRoman(number, label, gFalse);
+    toRoman(number, &number_string, gFalse);
     break;
   case Interval::UppercaseRoman:
-    toRoman(number, label, gTrue);
+    toRoman(number, &number_string, gTrue);
     break;
   case Interval::UppercaseLatin:
   case Interval::LowercaseLatin:
@@ -325,6 +323,25 @@ GBool PageLabelInfo::indexToLabel(int index, GooString *label)
     break;
   case Interval::None:
     break;
+  }
+
+  label->clear();
+  label->append(interval->prefix);
+  if (label->hasUnicodeMarker()) {
+      int i, len;
+      char ucs2_char[2];
+
+      /* Convert the ascii number string to ucs2 and append. */
+      len = number_string.getLength ();
+      ucs2_char[0] = 0;
+      for (i = 0; i < len; ++i) {
+	  ucs2_char[1] = number_string.getChar(i);
+	  label->append(ucs2_char, 2);
+      }
+      ucs2_char[1] = 0;
+      label->append(ucs2_char, 2);
+  } else {
+      label->append(&number_string);
   }
 
   return gTrue;

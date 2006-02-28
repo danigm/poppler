@@ -23,7 +23,7 @@ private:
   struct Interval {
     Interval(Object *dict, int baseA);
     ~Interval();
-    char *prefix;
+    GooString *prefix;
     enum NumberStyle {
       None,
       Arabic,

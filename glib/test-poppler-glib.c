@@ -218,7 +218,7 @@ int main (int argc, char *argv[])
 	  poppler_attachment_save (attachment, name, NULL);
 	  i++;
 	}
-      g_list_foreach (list, g_object_unref, NULL);
+      g_list_foreach (list, (GFunc) g_object_unref, NULL);
       g_list_free (list);
     }
   else

@@ -15,6 +15,8 @@
 #pragma interface
 #endif
 
+#include "gtypes.h"
+
 class GooString {
 public:
 
@@ -83,6 +85,8 @@ public:
   int cmpN(GooString *str, int n);
   int cmp(const char *sA);
   int cmpN(const char *sA, int n);
+
+  GBool hasUnicodeMarker(void);
 
 private:
 

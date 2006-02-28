@@ -67,4 +67,7 @@ PopplerAction *_poppler_action_new (PopplerDocument *document,
 
 PopplerAttachment *_poppler_attachment_new (PopplerDocument *document,
 					    EmbFile         *file);
+
+char *_poppler_goo_string_to_utf8(GooString *s);
+
 #endif

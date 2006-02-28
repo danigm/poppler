@@ -317,3 +317,8 @@ int GooString::cmpN(const char *sA, int n) {
   }
   return 0;
 }
+
+GBool GooString::hasUnicodeMarker(void)
+{
+    return (s[0] & 0xff) == 0xfe && (s[1] & 0xff) == 0xff;
+}

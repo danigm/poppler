@@ -315,11 +315,32 @@ poppler_document_get_attachments (PopplerDocument *document)
   return g_list_reverse (retval);
 }
 
-static gboolean
-has_unicode_marker (GooString *string)
+char *_poppler_goo_string_to_utf8(GooString *s)
 {
-  return ((string->getChar (0) & 0xff) == 0xfe &&
-	  (string->getChar (1) & 0xff) == 0xff);
+  char *result;
+
+  if (s->hasUnicodeMarker()) {
+    result = g_convert (s->getCString () + 2,
+			s->getLength () - 2,
+			"UTF-8", "UTF-16BE", NULL, NULL, NULL);
+  } else {
+    int len;
+    gunichar *ucs4_temp;
+    int i;
+    
+    len = s->getLength ();
+    ucs4_temp = g_new (gunichar, len + 1);
+    for (i = 0; i < len; ++i) {
+      ucs4_temp[i] = pdfDocEncoding[(unsigned char)s->getChar(i)];
+    }
+    ucs4_temp[i] = 0;
+
+    result = g_ucs4_to_utf8 (ucs4_temp, -1, NULL, NULL, NULL);
+
+    g_free (ucs4_temp);
+  }
+
+  return result;
 }
 
 static void
@@ -336,26 +357,7 @@ info_dict_get_string (Dict *info_dict, const gchar *key, GValue *value)
 
   goo_value = obj.getString ();
 
-  if (has_unicode_marker (goo_value)) {
-    result = g_convert (goo_value->getCString () + 2,
-			goo_value->getLength () - 2,
-			"UTF-8", "UTF-16BE", NULL, NULL, NULL);
-  } else {
-    int len;
-    gunichar *ucs4_temp;
-    int i;
-    
-    len = goo_value->getLength ();
-    ucs4_temp = g_new (gunichar, len + 1);
-    for (i = 0; i < len; ++i) {
-      ucs4_temp[i] = pdfDocEncoding[(unsigned char)goo_value->getChar(i)];
-    }
-    ucs4_temp[i] = 0;
-
-    result = g_ucs4_to_utf8 (ucs4_temp, -1, NULL, NULL, NULL);
-
-    g_free (ucs4_temp);
-  }
+  result = _poppler_goo_string_to_utf8(goo_value);
 
   obj.free ();
 
@@ -382,7 +384,7 @@ info_dict_get_date (Dict *info_dict, const gchar *key, GValue *value)
 
   goo_value = obj.getString (); 
 
-  if (has_unicode_marker (goo_value)) {
+  if (goo_value->hasUnicodeMarker()) {
     date_string = g_convert (goo_value->getCString () + 2,
 			goo_value->getLength () - 2,
 			"UTF-8", "UTF-16BE", NULL, NULL, NULL);		
