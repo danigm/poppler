@@ -1,5 +1,15 @@
 2006-02-28  Kristian Høgsberg  <krh@redhat.com>
 
+	* goo/gmem.c: (gmalloc), (grealloc):
+	* poppler/JBIG2Stream.cc:
+	* poppler/Stream.cc:
+	* poppler/Stream.h:
+	* splash/SplashXPathScanner.cc:
+
+	More integer overflow fixes from Derek Noonburg (#5922).
+
+2006-02-28  Kristian Høgsberg  <krh@redhat.com>
+
 	* poppler/PSOutputDev.cc: Make PSOutputDev constructor respect
 	passed in paper size (#5946, #5749).
 

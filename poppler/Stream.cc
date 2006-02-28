@@ -421,6 +421,12 @@ StreamPredictor::StreamPredictor(Stream *strA, int predictorA,
   predLine = NULL;
   ok = gFalse;
 
+  if (width <= 0 || nComps <= 0 || nBits <= 0 ||
+      nComps >= INT_MAX/nBits ||
+      width >= INT_MAX/nComps/nBits ||
+      nVals * nBits + 7 < 0) {
+    return;
+  }
   nVals = width * nComps;
   totalBits = nVals * nBits;
   if (totalBits == 0 ||
@@ -3082,6 +3088,7 @@ GBool DCTStream::readHuffmanTables() {
 	numACHuffTables = index+1;
       tbl = &acHuffTables[index];
     } else {
+      index &= 0x0f;
       if (index >= numDCHuffTables)
 	numDCHuffTables = index+1;
       tbl = &dcHuffTables[index];
