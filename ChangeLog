@@ -1,3 +1,8 @@
+2006-03-09  Albert Astals Cid <aacid@kde.org>
+
+	* glib/Makefile.am: Build with cairo disabled, patch by Eduardo de
+	Barros Lima
+
 2006-02-28  Kristian Høgsberg  <krh@redhat.com>
 
 	* configure.ac: Bump release to 0.5.1.
