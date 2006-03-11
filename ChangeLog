@@ -1,3 +1,16 @@
+2006-03-11  Albert Astals Cid <aacid@kde.org>
+
+	* poppler/FontInfo.cc:
+	* poppler/FontInfo.h: Add getFile() function that returns
+	the path of the font that is beign used in the system to
+	represent that font
+	* qt4/src/poppler-document.cc:
+	* qt4/src/poppler-fontinfo.cc:
+	* qt4/src/poppler-private.h:
+	* qt4/src/poppler-qt4.h: Add the file() function
+	* qt4/tests/poppler-fonts.cpp: Show the path of the font
+	used to represent each font
+
 2006-03-09  Albert Astals Cid <aacid@kde.org>
 
 	* glib/Makefile.am: Build with cairo disabled, patch by Eduardo de

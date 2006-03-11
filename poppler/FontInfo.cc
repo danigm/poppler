@@ -152,6 +152,14 @@ FontInfo::FontInfo(GfxFont *font, PDFDoc *doc) {
   } else {
     name = NULL;
   }
+
+  DisplayFontParam *dfp = globalParams->getDisplayFont(font);
+  if (dfp)
+  {
+    if (dfp->kind == displayFontT1) file = dfp->t1.fileName->copy();
+    else file = dfp->tt.fileName->copy();
+  }
+  else file = NULL;
   
   // font type
   type = (FontInfo::Type)font->getType();
@@ -186,6 +194,7 @@ FontInfo::FontInfo(GfxFont *font, PDFDoc *doc) {
 
 FontInfo::FontInfo(FontInfo& f) {
   name = f.name->copy();
+  file = f.file->copy();
   type = f.type;
   emb = f.emb;
   subset = f.subset;
@@ -195,4 +204,5 @@ FontInfo::FontInfo(FontInfo& f) {
 
 FontInfo::~FontInfo() {
   delete name;
+  delete file;
 }

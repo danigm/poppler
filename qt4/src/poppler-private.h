@@ -19,6 +19,7 @@
 #include <PDFDoc.h>
 #include <GfxState.h>
 #include <FontInfo.h>
+#include <SplashOutputDev.h>
 
 namespace Poppler {
 
@@ -58,6 +59,34 @@ namespace Poppler {
 	FontInfoScanner *m_fontInfoScanner;
 	SplashOutputDev *m_splashOutputDev;
 	QList<EmbeddedFile*> m_embeddedFiles;
+    };
+
+    class FontInfoData
+    {
+	public:
+		FontInfoData( const FontInfoData &fid )
+		{
+			fontName = fid.fontName;
+			fontFile = fid.fontFile;
+			isEmbedded = fid.isEmbedded;
+			isSubset = fid.isSubset;
+			type = fid.type;
+		}
+		
+		FontInfoData( ::FontInfo* fi )
+		{
+			if (fi->getName()) fontName = fi->getName()->getCString();
+			if (fi->getFile()) fontFile = fi->getFile()->getCString();
+			isEmbedded = fi->getEmbedded();
+			isSubset = fi->getSubset();
+			type = (Poppler::FontInfo::Type)fi->getType();
+		}
+
+		QString fontName;
+		QString fontFile;
+		bool isEmbedded;
+		bool isSubset;
+		FontInfo::Type type;
     };
 
 }

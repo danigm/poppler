@@ -27,7 +27,6 @@
 #include <Catalog.h>
 #include "UGooString.h"
 #include <ErrorCodes.h>
-#include <SplashOutputDev.h>
 #include <splash/SplashBitmap.h>
 #include "poppler-private.h"
 #include <Stream.h>
@@ -175,18 +174,7 @@ namespace Poppler {
 	    return false;
 
 	for ( int i = 0; i < items->getLength(); ++i ) {
-	    if (((::FontInfo*)items->get(i))->getName())
-		fontList->append(FontInfo(((::FontInfo*)items->get(i))->getName()->getCString(),
-			      ((::FontInfo*)items->get(i))->getEmbedded(),
-			      ((::FontInfo*)items->get(i))->getSubset(),
-			      (Poppler::FontInfo::Type)((::FontInfo*)items->get(i))->getType()
-		));
-	    else
-		fontList->append(FontInfo(QString::null,
-			      ((::FontInfo*)items->get(i))->getEmbedded(),
-			      ((::FontInfo*)items->get(i))->getSubset(),
-			      (Poppler::FontInfo::Type)((::FontInfo*)items->get(i))->getType()
-		));
+	    fontList->append( FontInfo(FontInfoData((::FontInfo*)items->get(i))) );
 	}
 	deleteGooList(items, ::FontInfo);
 	return true;

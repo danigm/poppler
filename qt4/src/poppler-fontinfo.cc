@@ -20,34 +20,18 @@
 #define UNSTABLE_POPPLER_QT4
 
 #include "poppler-qt4.h"
+#include "poppler-private.h"
 
 namespace Poppler {
 
-class FontInfoData
+FontInfo::FontInfo( const FontInfoData &fid )
 {
-	public:
-		QString fontName;
-		bool isEmbedded;
-		bool isSubset;
-		FontInfo::Type type;
-};
-
-FontInfo::FontInfo( const QString &fontName, const bool isEmbedded, const bool isSubset, Type type )
-{
-	m_data = new FontInfoData();
-	m_data->fontName = fontName;
-	m_data->isEmbedded = isEmbedded;
-	m_data->isSubset = isSubset;
-	m_data->type = type;
+	m_data = new FontInfoData(fid);
 }
 
 FontInfo::FontInfo( const FontInfo &fi )
 {
-	m_data = new FontInfoData();
-	m_data->fontName = fi.m_data->fontName;
-	m_data->isEmbedded = fi.m_data->isEmbedded;
-	m_data->isSubset = fi.m_data->isSubset;
-	m_data->type = fi.m_data->type;
+	m_data = new FontInfoData(*fi.m_data);
 }
 
 FontInfo::~FontInfo()
@@ -58,6 +42,11 @@ FontInfo::~FontInfo()
 const QString &FontInfo::name() const
 {
 	return m_data->fontName;
+}
+
+const QString &FontInfo::file() const
+{
+	return m_data->fontFile;
 }
 
 bool FontInfo::isEmbedded() const

@@ -21,9 +21,9 @@ int main( int argc, char **argv )
 	exit(1);
     }
 
-    std::cout << "name                                 type         emb sub";
+    std::cout << "name                                 type         emb sub font file";
     std::cout << std::endl;
-    std::cout << "------------------------------------ ------------ --- ---";
+    std::cout << "------------------------------------ ------------ --- --- ---------";
     std::cout << std::endl;
   
     foreach( Poppler::FontInfo font, doc->fonts() ) {
@@ -69,6 +69,7 @@ int main( int argc, char **argv )
 	} else {
 	    std::cout << "no  ";
 	}
+	std::cout << qPrintable( QString("%1").arg(font.file()) );
 	std::cout << std::endl;
     }
     delete doc;

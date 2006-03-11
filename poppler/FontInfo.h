@@ -25,6 +25,7 @@ public:
   ~FontInfo();
 
   GooString *getName()      { return name; };
+  GooString *getFile()      { return file; };
   Type       getType()      { return type; };
   GBool      getEmbedded()  { return emb; };
   GBool      getSubset()    { return subset; };
@@ -32,6 +33,7 @@ public:
 
 private:
   GooString *name;
+  GooString *file;
   Type type;
   GBool emb;
   GBool subset;

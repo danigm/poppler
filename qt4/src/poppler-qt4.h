@@ -96,8 +96,7 @@ namespace Poppler {
 	/**
 	   Create a new font information container
 	*/
-	FontInfo( const QString &fontName, const bool isEmbedded,
-		  const bool isSubset, Type type);
+	FontInfo( const FontInfoData &fid );
 	
 	FontInfo( const FontInfo &fi );
 	
@@ -107,6 +106,11 @@ namespace Poppler {
 	   The name of the font. Can be QString::null if the font has no name
 	*/
 	const QString &name() const;
+
+	/**
+	   The path of the font file used to represent this font on this system.
+	*/
+	const QString &file() const;
 
 	/**
 	   Whether the font is embedded in the file, or not
