@@ -1,3 +1,8 @@
+2006-03-14  Albert Astals Cid <aacid@kde.org>
+
+	* qt4/src/poppler-qt4.h: Fix compilation with gcc4.1, patch by  
+	Michael Olbrich
+
 2006-03-11  Albert Astals Cid <aacid@kde.org>
 
 	* poppler/FontInfo.cc:

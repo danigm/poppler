@@ -405,9 +405,9 @@ delete pixmap;
 	   \warning The application owns the pointer to Document, and this should
 	   be deleted when no longer required.
 	*/
-	static Document *Document::load(const QString & filePath,
-					const QByteArray &ownerPassword=QByteArray(),
-					const QByteArray &userPassword=QByteArray());
+	static Document *load(const QString & filePath,
+			      const QByteArray &ownerPassword=QByteArray(),
+			      const QByteArray &userPassword=QByteArray());
   
 	/**
 	   Get a specified page
@@ -616,11 +616,11 @@ delete pixmap;
 	*/
 	bool hasEmbeddedFiles() const;
 
-	Document::~Document();
+	~Document();
   
     private:
 	DocumentData *m_doc;
-	Document::Document(DocumentData *dataA);
+	Document(DocumentData *dataA);
     };
 
     /**
