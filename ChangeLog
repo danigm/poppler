@@ -1,5 +1,9 @@
 2006-03-14  Albert Astals Cid <aacid@kde.org>
 
+	* poppler/FontInfo.cc: Embedded fonts don't have a font file
+
+2006-03-14  Albert Astals Cid <aacid@kde.org>
+
 	* qt4/src/poppler-qt4.h: Fix compilation with gcc4.1, patch by  
 	Michael Olbrich
 
