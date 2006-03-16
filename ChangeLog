@@ -1,4 +1,10 @@
-2006-03-14  Albert Astals Cid <aacid@kde.org>
+2006-03-16  Albert Astals Cid <aacid@kde.org>
+
+	* poppler/Page.cc: Remove a #ifdef that was never defined (nice to
+	have so sucky W args), probably came from gpdf (it's not on xpdf
+	sources) and was causing bugs 6079 and 6167
+
+2006-03-16  Albert Astals Cid <aacid@kde.org>
 
 	* poppler/FontInfo.cc: Embedded fonts don't have a font file
 

@@ -391,7 +391,6 @@ void Page::displaySlice(OutputDev *out, double hDPI, double vDPI,
   // draw non-link annotations
   annotList = new Annots(xref, catalog, annots.fetch(xref, &obj));
   obj.free();
-#ifdef USE_ANNOTS_VIEW
   if (annotList->getNumAnnots() > 0) {
     if (globalParams->getPrintCommands()) {
       printf("***** Annotations\n");
@@ -405,7 +404,6 @@ void Page::displaySlice(OutputDev *out, double hDPI, double vDPI,
     }
     out->dump();
   }
-#endif
   delete annotList;
 
   delete gfx;
