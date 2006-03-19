@@ -1,4 +1,4 @@
-2006-03-16  Albert Astals Cid <aacid@kde.org>
+2006-03-19  Albert Astals Cid <aacid@kde.org>
 
 	* utils/HtmlOutputDev.[cc|h]: Fix broken code
 
