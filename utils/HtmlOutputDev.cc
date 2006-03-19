@@ -1066,7 +1066,7 @@ void HtmlOutputDev::endString(GfxState *state) {
 void HtmlOutputDev::drawChar(GfxState *state, double x, double y,
 	      double dx, double dy,
 	      double originX, double originY,
-	      CharCode code, Unicode *u, int uLen) 
+	      CharCode code, int /*nBytes*/, Unicode *u, int uLen) 
 {
   if ( !showHidden && (state->getRender() & 3) == 3) {
     return;

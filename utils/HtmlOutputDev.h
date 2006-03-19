@@ -247,7 +247,7 @@ public:
   virtual void drawChar(GfxState *state, double x, double y,
 			double dx, double dy,
 			double originX, double originY,
-			CharCode code, Unicode *u, int uLen);
+			CharCode code, int nBytes, Unicode *u, int uLen);
   
   virtual void drawImageMask(GfxState *state, Object *ref, 
 			     Stream *str,
