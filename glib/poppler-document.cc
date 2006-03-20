@@ -1169,8 +1169,8 @@ poppler_font_info_free (PopplerFontInfo *font_info)
 	g_return_if_fail (font_info != NULL);
 
 	delete font_info->scanner;
-
 	g_object_unref (font_info->document);
+	g_free (font_info);
 }
 
 /**

@@ -1,3 +1,9 @@
+2006-03-20  Carlos Garcia Campos  <calosgc@gnome.org>
+
+	reviewed by: Jeff Muizelaar <jeff@infidigm.net>
+
+	* glib/poppler-document.cc: Fix memory leak in poppler_font_info_free
+
 2006-03-20  Jeff Muizelaar  <jeff@infidigm.net>
 
 	* poppler/CairoFontEngine.h: remove unused variables
