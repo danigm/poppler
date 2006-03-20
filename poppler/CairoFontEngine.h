@@ -31,7 +31,6 @@ private:
 
   Gushort *codeToGID;
   int codeToGIDLen;
-  double m11, m12, m21, m22;
 };
 
 //------------------------------------------------------------------------
