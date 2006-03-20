@@ -223,7 +223,7 @@ QDateTime Document::getDate( const QString & type ) const
 
   if ( infoDict->lookup( (char*)type.latin1(), &obj )->isString() )
   {
-    s = obj.getString()->getCString();
+    s = UGooString(*obj.getString()).getCString();
     if ( s[0] == 'D' && s[1] == ':' )
       s += 2;
     /* FIXME process time zone on systems that support it */  

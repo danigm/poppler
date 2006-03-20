@@ -289,7 +289,7 @@ namespace Poppler {
 
 	if ( infoDict->lookup( type.toLatin1().data(), &obj )->isString() )
 	{
-	    result = Poppler::convertDate(obj.getString()->getCString());
+	    result = Poppler::convertDate(UGooString(*obj.getString()).getCString());
 	}
 	obj.free();
 	info.free();

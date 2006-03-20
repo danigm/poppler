@@ -1,3 +1,9 @@
+2006-03-20  Albert Astals Cid <aacid@kde.org>
+
+	* qt/poppler-document.cc:
+	* qt4/src/poppler-document.cc: Use UGooString for dates, fixes KDE
+	bug 123938
+
 2006-03-20  Carlos Garcia Campos  <calosgc@gnome.org>
 
 	reviewed by: Jeff Muizelaar <jeff@infidigm.net>
