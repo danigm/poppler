@@ -749,15 +749,12 @@ poppler_page_get_property (GObject *object,
 {
   PopplerPage *page = POPPLER_PAGE (object);
   GooString label;
-  char *utf8_label;
 
   switch (prop_id)
     {
     case PROP_LABEL:
       page->document->doc->getCatalog ()->indexToLabel (page->index, &label);
-      utf8_label = _poppler_goo_string_to_utf8(&label);
-      g_value_set_string (value, utf8_label);
-      g_free (utf8_label);  
+      g_value_take_string (value, _poppler_goo_string_to_utf8(&label));
       break;
     }
 }
