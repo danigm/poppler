@@ -1,3 +1,8 @@
+2006-03-20  Jeff Muizelaar  <jeff@infidigm.net>
+
+	* glib/poppler-page.cc: Fix memory leak in poppler_page_get_text
+	Patch by chpe.
+
 2006-03-20  Albert Astals Cid <aacid@kde.org>
 
 	* qt/poppler-document.cc:

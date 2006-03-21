@@ -630,7 +630,7 @@ poppler_page_get_text (PopplerPage      *page,
 {
   TextOutputDev *text_dev;
   PDFDoc *doc;
-  GooString *sel_text = new GooString;
+  GooString *sel_text;
   double height, y1, y2;
   char *result;
   PDFRectangle pdf_selection;
