@@ -129,9 +129,9 @@ fi
 if test "x$have_qt4" == "xyes"; then
     $1[]_CXXFLAGS="-I$qt4_incdir"
     if test x$windows_qt = xyes; then
-	$1[]_LIBS="-L$qt4_libdir -lQtCore4 -lQtGui4"
+	$1[]_LIBS="-L$qt4_libdir -lQtCore4 -lQtGui4 -lQtXml4"
     else
-	$1[]_LIBS="-L$qt4_libdir -lQtCore -lQtGui"
+	$1[]_LIBS="-L$qt4_libdir -lQtCore -lQtGui -lQtXml"
     fi
     ifelse([$2], , :, [$2])
 else

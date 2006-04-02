@@ -1,5 +1,9 @@
 /* poppler-private.h: qt interface to poppler
  * Copyright (C) 2005, Net Integration Technologies, Inc.
+ * Copyright (C) 2006 by Albert Astals Cid <aacid@kde.org>
+ * Inspired on code by
+ * Copyright (C) 2004 by Albert Astals Cid <tsdgeos@terra.es>
+ * Copyright (C) 2004 by Enrico Ros <eros.kde@email.it>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,12 +20,46 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-#include <PDFDoc.h>
 #include <GfxState.h>
+#include <Link.h>
+#include <Outline.h>
+#include <PDFDoc.h>
 #include <FontInfo.h>
 #include <SplashOutputDev.h>
+#include <UGooString.h>
+
+
 
 namespace Poppler {
+
+    /* borrowed from kpdf */
+    static QString unicodeToQString(Unicode* u, int len) {
+	QString ret;
+	ret.resize(len);
+	QChar* qch = (QChar*) ret.unicode();
+	for (;len;--len)
+	    *qch++ = (QChar) *u++;
+	return ret;
+    }
+
+    static UGooString *QStringToUGooString(const QString &s) {
+	int len = s.length();
+	Unicode *u = (Unicode *)gmallocn(s.length(), sizeof(Unicode));
+	for (int i = 0; i < len; ++i)
+		u[i] = s.at(i).unicode();
+	return new UGooString(u, len);
+    }
+
+    class LinkDestinationData
+    {
+        public:
+		LinkDestinationData( LinkDest *l, PDFDoc *pdfdoc ) : ld(l), doc(pdfdoc)
+		{
+		}
+	
+	LinkDest *ld;
+	PDFDoc *doc;
+    };
 
     class DocumentData {
     public:
@@ -54,6 +92,61 @@ namespace Poppler {
 		return m_splashOutputDev;
 	}
 	
+	void addTocChildren( QDomDocument * docSyn, QDomNode * parent, GooList * items )
+	{
+		int numItems = items->getLength();
+		for ( int i = 0; i < numItems; ++i )
+		{
+			// iterate over every object in 'items'
+			OutlineItem * outlineItem = (OutlineItem *)items->get( i );
+			
+			// 1. create element using outlineItem's title as tagName
+			QString name;
+			Unicode * uniChar = outlineItem->getTitle();
+			int titleLength = outlineItem->getTitleLength();
+			name = unicodeToQString(uniChar, titleLength);
+			if ( name.isEmpty() )
+				continue;
+			
+			QDomElement item = docSyn->createElement( name );
+			parent->appendChild( item );
+			
+			// 2. find the page the link refers to
+			LinkAction * a = outlineItem->getAction();
+			if ( a && ( a->getKind() == actionGoTo || a->getKind() == actionGoToR ) )
+			{
+				// page number is contained/referenced in a LinkGoTo
+				LinkGoTo * g = static_cast< LinkGoTo * >( a );
+				LinkDest * destination = g->getDest();
+				if ( !destination && g->getNamedDest() )
+				{
+					// no 'destination' but an internal 'named reference'. we could
+					// get the destination for the page now, but it's VERY time consuming,
+					// so better storing the reference and provide the viewport on demand
+					UGooString *s = g->getNamedDest();
+					QString aux = unicodeToQString( s->unicode(), s->getLength() );
+					item.setAttribute( "DestinationName", aux );
+				}
+				else if ( destination->isOk() )
+				{
+					LinkDestinationData ldd(destination, &doc);
+					item.setAttribute( "Destination", LinkDestination(ldd).toString() );
+				}
+				if ( a->getKind() == actionGoToR )
+				{
+					LinkGoToR * g2 = static_cast< LinkGoToR * >( a );
+					item.setAttribute( "ExternalFileName", g2->getFileName()->getCString() );
+				}
+			}
+			
+			// 3. recursively descend over children
+			outlineItem->open();
+			GooList * children = outlineItem->getKids();
+			if ( children )
+				addTocChildren( docSyn, &item, children );
+		}
+	}
+
 	class PDFDoc doc;
 	bool locked;
 	FontInfoScanner *m_fontInfoScanner;

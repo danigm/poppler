@@ -18,19 +18,26 @@
  */
 
 #define UNSTABLE_POPPLER_QT4
-#include <poppler-qt4.h>
+
+#include "poppler-qt4.h"
+
+#include <ErrorCodes.h>
+#include <GlobalParams.h>
+#include <Outline.h>
+#include <PDFDoc.h>
+#include <PSOutputDev.h>
+#include <Stream.h>
+#include <UGooString.h>
+#include <Catalog.h>
+
+#include <splash/SplashBitmap.h>
+
+#include <QtCore/QDebug>
 #include <QtCore/QFile>
 #include <QtGui/QImage>
 #include <QtCore/QByteArray>
-#include <GlobalParams.h>
-#include <PDFDoc.h>
-#include <Catalog.h>
-#include "UGooString.h"
-#include <ErrorCodes.h>
-#include <splash/SplashBitmap.h>
+
 #include "poppler-private.h"
-#include <Stream.h>
-#include <QtCore/QDebug>
 
 namespace Poppler {
 
@@ -180,16 +187,6 @@ namespace Poppler {
 	return true;
     }
 
-
-    /* borrowed from kpdf */
-    static QString unicodeToQString(Unicode* u, int len) {
-	QString ret;
-	ret.resize(len);
-	QChar* qch = (QChar*) ret.unicode();
-	for (;len;--len)
-	    *qch++ = (QChar) *u++;
-	return ret;
-    }
 
     /* borrowed from kpdf */
     QString Document::info( const QString & type ) const
@@ -370,6 +367,58 @@ namespace Poppler {
     bool Document::hasEmbeddedFiles() const
     {
 	return (!(0 == m_doc->doc.getCatalog()->numEmbeddedFiles()));
+    }
+    
+    QDomDocument *Document::toc() const
+    {
+        Outline * outline = m_doc->doc.getOutline();
+        if ( !outline )
+            return NULL;
+
+        GooList * items = outline->getItems();
+        if ( !items || items->getLength() < 1 )
+            return NULL;
+
+        QDomDocument *toc = new QDomDocument();
+        if ( items->getLength() > 0 )
+           m_doc->addTocChildren( toc, toc, items );
+
+        return toc;
+    }
+
+    LinkDestination *Document::linkDestination( const QString &name )
+    {
+        UGooString * namedDest = QStringToUGooString( name );
+        LinkDest * destination = m_doc->doc.findDest( namedDest );
+        if ( destination )
+        {
+            LinkDestinationData ldd(destination, &m_doc->doc);
+            LinkDestination *ld = new LinkDestination(ldd);
+            delete namedDest;
+            return ld;
+        }
+        else return NULL;
+    }
+    
+    bool Document::print(const QString &file, const QList<int> pageList, double hDPI, double vDPI, int rotate)
+    {
+        PSOutputDev *psOut = new PSOutputDev(file.toLatin1().data(), m_doc->doc.getXRef(), m_doc->doc.getCatalog(), 1, m_doc->doc.getNumPages(), psModePS);
+
+        if (psOut->isOk())
+        {
+            foreach(int page, pageList)
+            {
+                m_doc->doc.displayPage(psOut, page, hDPI, vDPI, rotate, gFalse, globalParams->getPSCrop(), gFalse);
+            }
+
+            delete psOut;
+            return true;
+        }
+        else
+        {
+            delete psOut;
+            return false;
+        }
     }
 
     QDateTime convertDate( char *dateString )

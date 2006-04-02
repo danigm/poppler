@@ -25,6 +25,7 @@
 #include <QtCore/QByteArray>
 #include <QtCore/QDateTime>
 #include <QtGui/QPixmap>
+#include <QtXml/QDomDocument>
 
 #include <poppler-page-transition.h>
 
@@ -83,14 +84,14 @@ namespace Poppler {
     class FontInfo {
     public:
 	enum Type {
-	    unknown,
-	    Type1,
-	    Type1C,
-	    Type3,
-	    TrueType,
-	    CIDType0,
-	    CIDType0C,
-	    CIDTrueType
+	    unknown = 0,
+	    Type1 = 1,
+	    Type1C = 2,
+	    Type3 = 3,
+	    TrueType = 4,
+	    CIDType0 = 5,
+	    CIDType0C = 6,
+	    CIDTrueType = 7
 	};
 	
 	/**
@@ -356,9 +357,59 @@ delete pixmap;
 	   The orientation of the page
 	*/
 	Orientation orientation() const;
+	
+	/**
+	  The default CTM
+	*/
+	void defaultCTM(double *CTM, double dpiX, double dpiY, int rotate, bool upsideDown);
+	
     private:
 	Page(const Document *doc, int index);
 	PageData *m_page;
+    };
+
+    class LinkDestinationData;
+    
+    class LinkDestination
+    {
+        public:
+            enum Kind
+            {
+                destXYZ = 1,
+                destFit = 2,
+                destFitH = 3,
+                destFitV = 4,
+                destFitR = 5,
+                destFitB = 6,
+                destFitBH = 7,
+                destFitBV = 8
+            };
+
+            LinkDestination(const LinkDestinationData &data);
+            LinkDestination(const QString &description);
+
+            // Accessors.
+            Kind kind() const;
+            int pageNumber() const;
+            double left() const;
+            double bottom() const;
+            double right() const;
+            double top() const;
+            double zoom() const;
+            bool isChangeLeft() const;
+            bool isChangeTop() const;
+            bool isChangeZoom() const;
+
+            QString toString() const;
+
+        private:
+            Kind m_kind; // destination type
+            int m_pageNum; // page number
+            double m_left, m_bottom; // position
+            double m_right, m_top;
+            double m_zoom; // zoom factor
+            bool m_changeLeft, m_changeTop; // for destXYZ links, which position
+            bool m_changeZoom; //   components to change
     };
 
     class DocumentData;
@@ -615,6 +666,25 @@ delete pixmap;
 	   Whether there are any documents embedded in this PDF document.
 	*/
 	bool hasEmbeddedFiles() const;
+	
+	/**
+	  Gets the TOC of the Document, it is application responsabiliy to delete
+	  it when no longer needed
+	
+	  * In the tree the tag name is the 'screen' name of the entry. A tag can have
+	  * attributes. Here follows the list of tag attributes with meaning:
+	  * - Destination: A string description of the referred destination
+	  * - DestinationName: A 'named reference' to the viewport that must be converted
+	  *      using linkDestination( *destination_name* )
+	  * - ExternalFileName: A link to a external filename
+	
+	  Returns NULL if the Document does not have TOC
+	*/
+	QDomDocument *toc() const;
+	
+	LinkDestination *linkDestination( const QString &name );
+	
+	bool print(const QString &fileName, const QList<int> pageList, double hDPI, double vDPI, int rotate);
 
 	~Document();
   

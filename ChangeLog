@@ -1,3 +1,10 @@
+2006-04-02  Albert Astals Cid <aacid@kde.org>
+
+	* m4/qt.m4: Add QtXml lib to Qt4 binding as now it's needed
+	* qt4/src/poppler-document.cc: Add the possibility to get the toc of
+	a file, print it to PS and get a LinkDestination from a "symbolic" name
+	* qt4/src/poppler-page.cc: Add the possibility of getting the defaultCTM
+
 2006-04-01  Albert Astals Cid <aacid@kde.org>
 
 	* poppler/XRef.cc: Fix parsing of some TOCs, bug was due a int to uint

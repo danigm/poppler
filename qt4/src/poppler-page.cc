@@ -194,7 +194,7 @@ PageTransition *Page::transition() const
     Object o;
     PageTransitionParams params;
     params.dictObj = m_page->parentDoc->m_doc->doc.getCatalog()->getPage(m_page->index + 1)->getTrans(&o);
-    m_page->transition = new PageTransition(params);
+    if (params.dictObj->isDict()) m_page->transition = new PageTransition(params);
     o.free();
   }
   return m_page->transition;
@@ -233,6 +233,13 @@ Page::Orientation Page::orientation() const
   default:
     return Page::Portrait;
   }
+}
+
+void Page::defaultCTM(double *CTM, double dpiX, double dpiY, int rotate, bool upsideDown)
+{
+  ::Page *p;
+  p = m_page->parentDoc->m_doc->doc.getCatalog()->getPage(m_page->index + 1);
+  p->getDefaultCTM(CTM, dpiX, dpiY, rotate, upsideDown);
 }
 
 }
