@@ -53,7 +53,7 @@ SplashFTFont::SplashFTFont(SplashFTFontFile *fontFileA, SplashCoord *matA):
   SplashFont(fontFileA, matA, fontFileA->engine->aa)
 {
   FT_Face face;
-  SplashCoord size, div;
+  double size, div;
   int x, y;
 
   face = fontFileA->face;
