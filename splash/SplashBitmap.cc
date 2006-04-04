@@ -36,7 +36,7 @@ SplashBitmap::SplashBitmap(int widthA, int heightA, int rowPad,
     break;
   case splashModeRGB8:
   case splashModeBGR8:
-    rowSize = width * 3;
+    rowSize = width * 4;
     break;
   case splashModeARGB8:
   case splashModeBGRA8:
@@ -128,7 +128,7 @@ SplashError SplashBitmap::writePNMFile(char *fileName) {
 	fputc(splashRGB8R(p), f);
 	fputc(splashRGB8G(p), f);
 	fputc(splashRGB8B(p), f);
-	p += 3;
+	p += 4;
       }
       row += rowSize;
     }
@@ -213,10 +213,10 @@ void SplashBitmap::getPixel(int x, int y, SplashColorPtr pixel) {
     break;
   case splashModeRGB8:
   case splashModeBGR8:
-    p = &data[y * rowSize + 3 * x];
-    pixel[0] = p[0];
+    p = &data[y * rowSize + 4 * x];
+    pixel[0] = p[2];
     pixel[1] = p[1];
-    pixel[2] = p[2];
+    pixel[2] = p[0];
     break;
   case splashModeARGB8:
   case splashModeBGRA8:

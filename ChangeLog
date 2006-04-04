@@ -1,5 +1,14 @@
 2006-04-04  Albert Astals Cid <aacid@kde.org>
 
+	* splash/Splash.cc:
+	* splash/SplashBitmap.cc: Make Splashbitmap RGB8 use 32bits internally
+	* qt/poppler-page.cc:
+	* qt4/src/poppler-page.cc: Adapt to splashbitmap change so copying to
+	QImage is faster.
+	Patch by Frank Meerkötter slightly modified by Albert Astals Cid
+
+2006-04-04  Albert Astals Cid <aacid@kde.org>
+
 	* splash/SplashFTFont.cc: Fix crash when using fixedpoint math. Patch
 	by Frank Meerkoetter
 

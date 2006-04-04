@@ -76,18 +76,12 @@ QImage Page::renderToImage(double xres, double yres) const
   color_ptr = bitmap->getDataPtr ();
   int bw = output_dev->getBitmap()->getWidth();
   int bh = output_dev->getBitmap()->getHeight();
-
-  QImage img( bw, bh, 32 );
-  SplashColorPtr pixel = new Guchar[4];
-  for (int i = 0; i < bw; i++)
-  {
-    for (int j = 0; j < bh; j++)
-    {
-      output_dev->getBitmap()->getPixel(i, j, pixel);
-      img.setPixel( i, j, qRgb( pixel[0], pixel[1], pixel[2] ) );
-    }
-  }
-  delete[] pixel;
+  SplashColorPtr dataPtr = output_dev->getBitmap()->getDataPtr();
+  // construct a qimage SHARING the raw bitmap data in memory
+  QImage img( dataPtr, bw, bh, 32, 0, 0, QImage::IgnoreEndian );
+  img = img.copy();
+  // unload underlying xpdf bitmap
+  output_dev->startPage( 0, NULL );
 
   return img;
 }
