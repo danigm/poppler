@@ -594,6 +594,7 @@ void CairoOutputDev::drawSoftMaskedImage(GfxState *state, Object *ref, Stream *s
   int alpha, i;
   double *ctm;
   cairo_matrix_t matrix;
+  cairo_matrix_t maskMatrix;
   int is_identity_transform;
 
   buffer = (unsigned char *)gmalloc (width * height * 4);
@@ -636,10 +637,18 @@ void CairoOutputDev::drawSoftMaskedImage(GfxState *state, Object *ref, Stream *s
   matrix.x0 = ctm[2] + ctm[4];
   matrix.y0 = ctm[3] + ctm[5];
 
+  maskMatrix.xx = ctm[0] / maskWidth;
+  maskMatrix.xy = -ctm[2] / maskHeight;
+  maskMatrix.yx = ctm[1] / maskWidth;
+  maskMatrix.yy = -ctm[3] / maskHeight;
+  maskMatrix.x0 = ctm[2] + ctm[4];
+  maskMatrix.y0 = ctm[3] + ctm[5];
+
   cairo_matrix_invert (&matrix);
+  cairo_matrix_invert (&maskMatrix);
 
   cairo_pattern_set_matrix (pattern, &matrix);
-  cairo_pattern_set_matrix (maskPattern, &matrix);
+  cairo_pattern_set_matrix (maskPattern, &maskMatrix);
 
   cairo_pattern_set_filter (pattern, CAIRO_FILTER_BILINEAR);
   cairo_set_source (cairo, pattern);

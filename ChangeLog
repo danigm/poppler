@@ -1,3 +1,8 @@
+2006-04-05  Jeff Muizelaar  <jeff@infidigm.net>
+
+	* poppler/CairoOutputDev.cc: use a separate matrix for the softmask.
+	fixes #6492.
+
 2006-04-04  Albert Astals Cid <aacid@kde.org>
 
 	* splash/Splash.cc:
