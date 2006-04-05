@@ -1,3 +1,8 @@
+2006-04-05  Albert Astals Cid <aacid@kde.org>
+
+	* poppler/JBIG2Stream.cc: Fix for some buggy JBIG2 documents, patch by
+	Raj Kumar and Paul Walmsley. Fixes bug 6500
+
 2006-04-05  Jeff Muizelaar  <jeff@infidigm.net>
 
 	* poppler/CairoOutputDev.cc: use a separate matrix for the softmask.
