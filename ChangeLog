@@ -1,3 +1,9 @@
+2006-04-08  Albert Astals Cid <aacid@kde.org>
+
+	* poppler/Makefile.am:
+	* qt4/src/Makefile.am: Don't link Qt4 in libpoppler when using Qt4 frontend
+	Patch by Stefan Schweizer
+
 2006-04-05  Albert Astals Cid <aacid@kde.org>
 
 	* poppler/JBIG2Stream.cc: Fix for some buggy JBIG2 documents, patch by

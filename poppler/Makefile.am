@@ -17,10 +17,10 @@ endif
 
 if BUILD_POPPLER_QT4
 
-arthur_headers =				\
-	ArthurOutputDev.h
+poppler_arthur = libpoppler-arthur.la
 
-arthur_sources =				\
+libpoppler_arthur_la_SOURCES =			\
+	ArthurOutputDev.h			\
 	ArthurOutputDev.cc
 
 arthur_includes =				\
@@ -79,13 +79,13 @@ INCLUDES =					\
 
 lib_LTLIBRARIES = libpoppler.la
 
-noinst_LTLIBRARIES = $(poppler_cairo)
+noinst_LTLIBRARIES = $(poppler_cairo)		\
+	$(poppler_arthur)
 
 libpoppler_la_LIBADD =				\
 	$(top_builddir)/goo/libgoo.la		\
 	$(top_builddir)/fofi/libfofi.la		\
 	$(splash_libs)				\
-	$(arthur_libs)				\
 	$(libjpeg_libs)				\
 	$(zlib_libs)				\
 	$(FREETYPE_LIBS)
@@ -97,7 +97,6 @@ if ENABLE_XPDF_HEADERS
 poppler_includedir = $(includedir)/poppler
 poppler_include_HEADERS =	\
 	$(splash_headers)	\
-	$(arthur_headers)	\
 	Annot.h			\
 	Array.h			\
 	BaseFile.h		\

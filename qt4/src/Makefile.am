@@ -25,6 +25,7 @@ libpoppler_qt4_la_SOURCES =			\
 
 libpoppler_qt4_la_LIBADD = 			\
 	$(top_builddir)/poppler/libpoppler.la	\
+	$(top_builddir)/poppler/libpoppler-arthur.la	\
 	$(POPPLER_QT4_LIBS)
 
 libpoppler_qt4_la_LDFLAGS = -version-info 1:0:0
