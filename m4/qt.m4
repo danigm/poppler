@@ -53,8 +53,34 @@ if test "x$qt_libdir" != "xno" ; then
 fi
 
 if test "x$have_qt" == "xyes"; then
+    AC_LANG_PUSH([C++])
+    pthread_needed=no
+
+    save_LDFLAGS=$LDFLAGS
+    save_CXXFLAGS=$CXXFLAGS
+    save_LIBS=$LIBS
+    CXXFLAGS="$CXXFLAGS -I$qt_incdir"
+    LIBS="$LIBS $qt_libdir/$qt_test_library"
+    AC_MSG_CHECKING([if Qt needs -pthread])
+    AC_TRY_LINK([#include <qt.h>], [QString s;], [pthread_needed=no], [pthread_needed=yes])
+    if test "x$pthread_needed" = "xyes"; then
+        LDFLAGS="$LDFLAGS -pthread"
+        AC_TRY_LINK([#include <qt.h>], [QString s;], [pthread_needed=yes], [pthread_needed=no])
+    fi
+    AC_MSG_RESULT([$pthread_needed])
+    LDFLAGS=$save_LDFLAGS
+    CXXFLAGS=$save_CXXFLAGS
+    LIBS=$save_LIBS
+
+    AC_LANG_POP
+
+    qtpthread=''
+    if test "x$pthread_needed" = "xyes"; then
+        qtpthread="-pthread"
+    fi
+
     $1[]_CXXFLAGS="-I$qt_incdir"
-    $1[]_LIBS="$qt_libdir/$qt_test_library"
+    $1[]_LIBS="$qtpthread $qt_libdir/$qt_test_library"
     ifelse([$2], , :, [$2])
 else
     ifelse([$3], , [AC_MSG_FAILURE(dnl

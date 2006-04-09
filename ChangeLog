@@ -1,3 +1,8 @@
+2006-04-09  Albert Astals Cid <aacid@kde.org>
+
+	* m4/qt.m4: Improve for systems that need -pthread to be linked when
+	linking Qt. Patch by Diego Pettenò
+
 2006-04-08  Albert Astals Cid <aacid@kde.org>
 
 	* poppler/Makefile.am:
