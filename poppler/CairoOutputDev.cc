@@ -378,7 +378,7 @@ void CairoOutputDev::drawChar(GfxState *state, double x, double y,
   double tx, ty;
 
   glyphs[glyphCount].index = currentFont->getGlyph (code, u, uLen);
-  state->transform(x, y, &tx, &ty);
+  state->transform(x - originX, y - originY, &tx, &ty);
   glyphs[glyphCount].x = tx;
   glyphs[glyphCount].y = ty;
   glyphCount++;
