@@ -65,7 +65,9 @@ CairoOutputDev::~CairoOutputDev() {
     delete fontEngine;
   }
   FT_Done_FreeType(ft_lib);
-  cairo_destroy (cairo);
+  
+  if (cairo)
+    cairo_destroy (cairo);
   cairo_pattern_destroy (stroke_pattern);
   cairo_pattern_destroy (fill_pattern);
 }

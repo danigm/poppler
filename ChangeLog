@@ -1,3 +1,8 @@
+2006-04-12  Jeff Muizelaar  <jeff@infidigm.net>
+
+	* poppler/CairoOutputDev.cc: Fix breakage by krh by only calling
+	cairo_destroy on non-null.
+
 2006-04-11  Kristian Høgsberg  <krh@redhat.com>
 
 	* configure.ac:
