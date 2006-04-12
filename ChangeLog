@@ -1,5 +1,13 @@
 2006-04-12  Jeff Muizelaar  <jeff@infidigm.net>
 
+	* poppler/CairoOutputDev.cc:
+	* poppler/CairoOutputDev.h: Add support for masked images to the cairo
+	backend. CairoOutputDevice really should have been refactored before
+	committing this, but the results were so pretty I couldn't resist.
+	Fixes #6174.
+
+2006-04-12  Jeff Muizelaar  <jeff@infidigm.net>
+
 	* poppler/CairoOutputDev.cc: Fix breakage by krh by only calling
 	cairo_destroy on non-null.
 

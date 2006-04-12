@@ -549,6 +549,124 @@ void CairoOutputDev::drawImageMask(GfxState *state, Object *ref, Stream *str,
   delete imgStr;
 }
 
+void CairoOutputDev::drawMaskedImage(GfxState *state, Object *ref,
+				Stream *str, int width, int height,
+				GfxImageColorMap *colorMap,
+				Stream *maskStr, int maskWidth,
+				int maskHeight, GBool maskInvert)
+{
+  ImageStream *maskImgStr;
+  maskImgStr = new ImageStream(maskStr, maskWidth, 1, 1);
+  maskImgStr->reset();
+
+  int row_stride = (maskWidth + 3) & ~3;
+  unsigned char *maskBuffer;
+  maskBuffer = (unsigned char *)gmalloc (row_stride * maskHeight);
+  unsigned char *maskDest;
+  cairo_surface_t *maskImage;
+  cairo_pattern_t *maskPattern;
+  Guchar *pix;
+  int x, y;
+
+  int invert_bit;
+  
+  invert_bit = maskInvert ? 1 : 0;
+
+  for (y = 0; y < height; y++) {
+    pix = maskImgStr->getLine();
+    maskDest = maskBuffer + y * row_stride;
+    for (x = 0; x < width; x++) {
+      if (pix[x] ^ invert_bit)
+	*maskDest++ = 0;
+      else
+	*maskDest++ = 255;
+    }
+  }
+
+  maskImage = cairo_image_surface_create_for_data (maskBuffer, CAIRO_FORMAT_A8,
+						 maskWidth, maskHeight, row_stride);
+
+  delete maskImgStr;
+  maskStr->close();
+
+  unsigned char *buffer;
+  unsigned int *dest;
+  cairo_surface_t *image;
+  cairo_pattern_t *pattern;
+  ImageStream *imgStr;
+  GfxRGB rgb;
+  int alpha, i;
+  double *ctm;
+  cairo_matrix_t matrix;
+  cairo_matrix_t maskMatrix;
+  int is_identity_transform;
+
+  buffer = (unsigned char *)gmalloc (width * height * 4);
+
+  /* TODO: Do we want to cache these? */
+  imgStr = new ImageStream(str, width,
+			   colorMap->getNumPixelComps(),
+			   colorMap->getBits());
+  imgStr->reset();
+  
+  /* ICCBased color space doesn't do any color correction
+   * so check its underlying color space as well */
+  is_identity_transform = colorMap->getColorSpace()->getMode() == csDeviceRGB ||
+		  colorMap->getColorSpace()->getMode() == csICCBased && 
+		  ((GfxICCBasedColorSpace*)colorMap->getColorSpace())->getAlt()->getMode() == csDeviceRGB;
+
+  for (y = 0; y < height; y++) {
+    dest = (unsigned int *) (buffer + y * 4 * width);
+    pix = imgStr->getLine();
+    colorMap->getRGBLine (pix, dest, width);
+  }
+
+  image = cairo_image_surface_create_for_data (buffer, CAIRO_FORMAT_RGB24,
+						 width, height, width * 4);
+
+  if (image == NULL)
+    return;
+  pattern = cairo_pattern_create_for_surface (image);
+  maskPattern = cairo_pattern_create_for_surface (maskImage);
+  if (pattern == NULL)
+    return;
+
+  ctm = state->getCTM();
+  LOG (printf ("drawImageMask %dx%d, matrix: %f, %f, %f, %f, %f, %f\n",
+	       width, height, ctm[0], ctm[1], ctm[2], ctm[3], ctm[4], ctm[5]));
+  matrix.xx = ctm[0] / width;
+  matrix.xy = -ctm[2] / height;
+  matrix.yx = ctm[1] / width;
+  matrix.yy = -ctm[3] / height;
+  matrix.x0 = ctm[2] + ctm[4];
+  matrix.y0 = ctm[3] + ctm[5];
+
+  maskMatrix.xx = ctm[0] / maskWidth;
+  maskMatrix.xy = -ctm[2] / maskHeight;
+  maskMatrix.yx = ctm[1] / maskWidth;
+  maskMatrix.yy = -ctm[3] / maskHeight;
+  maskMatrix.x0 = ctm[2] + ctm[4];
+  maskMatrix.y0 = ctm[3] + ctm[5];
+
+  cairo_matrix_invert (&matrix);
+  cairo_matrix_invert (&maskMatrix);
+
+  cairo_pattern_set_matrix (pattern, &matrix);
+  cairo_pattern_set_matrix (maskPattern, &maskMatrix);
+
+  cairo_pattern_set_filter (pattern, CAIRO_FILTER_BILINEAR);
+  cairo_set_source (cairo, pattern);
+  cairo_mask (cairo, maskPattern);
+
+  cairo_pattern_destroy (maskPattern);
+  cairo_surface_destroy (maskImage);
+  cairo_pattern_destroy (pattern);
+  cairo_surface_destroy (image);
+  free (buffer);
+  free (maskBuffer);
+  delete imgStr;
+}
+
 void CairoOutputDev::drawSoftMaskedImage(GfxState *state, Object *ref, Stream *str,
 				int width, int height,
 				GfxImageColorMap *colorMap,

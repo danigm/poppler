@@ -124,6 +124,14 @@ public:
 				int maskWidth, int maskHeight,
 				GfxImageColorMap *maskColorMap);
 
+  virtual void drawMaskedImage(GfxState *state, Object *ref, Stream *str,
+				int width, int height,
+				GfxImageColorMap *colorMap,
+				Stream *maskStr,
+				int maskWidth, int maskHeight,
+				GBool maskInvert);
+
+
   //----- Type 3 font operators
   virtual void type3D0(GfxState *state, double wx, double wy);
   virtual void type3D1(GfxState *state, double wx, double wy,
