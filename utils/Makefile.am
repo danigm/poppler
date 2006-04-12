@@ -29,8 +29,6 @@ bin_PROGRAMS =					\
 	pdftohtml				\
 	$(pdftoppm_binary)
 
-EXTRA_DIST = pdf2xml.dtd
-
 dist_man1_MANS =				\
 	pdffonts.1				\
 	pdfimages.1				\
@@ -75,6 +73,6 @@ pdftohtml_SOURCES =				\
 	$(common)
 
 # Yay, automake!  It should be able to figure out that it has to dist
-# this file, but nooo.  So we just add it here.
+# pdftoppm.1, but nooo.  So we just add it here.
 
-EXTRA_DIST = pdftoppm.1
+EXTRA_DIST = pdf2xml.dtd pdftoppm.1

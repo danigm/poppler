@@ -13,136 +13,23 @@
 #pragma implementation
 #endif
 
-#include <goo/gmem.h>
-#include <splash/SplashTypes.h>
-#include <splash/SplashBitmap.h>
-#include "Object.h"
-#include "GfxState.h"
-
+#include <math.h>
 #include <gdk/gdk.h>
 #include <gdk/gdkx.h>
-#include "CairoOutputDev.h"
 #include <cairo-xlib.h>
 #include <X11/Xutil.h>
-
-#include "PDFDoc.h"
-#include "GlobalParams.h"
-#include "ErrorCodes.h"
 #include <gtk/gtk.h>
-
-class GDKCairoOutputDev: public CairoOutputDev {
-public:
-
-  GDKCairoOutputDev(GdkDrawable *drawable,
-		    void (*redrawCbkA)(void *data),
-		    void *redrawCbkDataA);
-  
-  virtual ~GDKCairoOutputDev();
-
-  // Start a page.
-  virtual void startPage(int pageNum, GfxState *state);
-
-  //----- special access
-
-  // Clear out the document (used when displaying an empty window).
-  void clear();
-
-  // Copy the rectangle (srcX, srcY, width, height) to (destX, destY)
-  // in destDC.
-  void redraw(int srcX, int srcY,
-              GdkDrawable *drawable,
-	      int destX, int destY,
-	      int width, int height);
-
-  int getPixmapWidth (void) { return pixmapWidth; }
-  int getPixmapHeight (void) { return pixmapHeight; }
-
-private:
-
-  int incrementalUpdate;
-  void (*redrawCbk)(void *data);
-  void *redrawCbkData;
-  int pixmapWidth, pixmapHeight;
-  GdkPixmap *pixmap, *drawable;
-};
-
-GDKCairoOutputDev::GDKCairoOutputDev(GdkDrawable *drawableA,
-				     void (*redrawCbkA)(void *data),
-				     void *redrawCbkDataA):
-  CairoOutputDev()
-{
-  drawable = drawableA;
-  redrawCbk = redrawCbkA;
-  redrawCbkData = redrawCbkDataA;
-  pixmap = NULL;
-}
-
-GDKCairoOutputDev::~GDKCairoOutputDev() {
-}
-
-void
-GDKCairoOutputDev::startPage(int pageNum, GfxState *state) {
-  Display *display;
-  Drawable xid;
-  GdkGC *gc;
-  GdkColor white;
-  cairo_surface_t *surface;
-  int w, h;
-
-  w = state ? (int)(state->getPageWidth() + 0.5) : 1;
-  h = state ? (int)(state->getPageHeight() + 0.5) : 1;
-
-  if (!pixmap || pixmapWidth != w || h != pixmapHeight != h) {
-    if (pixmap)
-      g_object_unref (G_OBJECT (pixmap));
-
-    pixmap = gdk_pixmap_new (drawable, w, h, -1);
-    pixmapWidth = w;
-    pixmapHeight = h;
-
-    gc = gdk_gc_new (pixmap);
-    white.red = 0xffff;
-    white.green = 0xffff;
-    white.blue = 0xffff;
-    gdk_gc_set_rgb_fg_color (gc, &white);
-    gdk_draw_rectangle (pixmap, gc, TRUE, 0, 0, w, h);
-    g_object_unref (G_OBJECT (gc));
-  }
-
-  if (pixmap) {
-    display = gdk_x11_drawable_get_xdisplay (pixmap);
-    xid = gdk_x11_drawable_get_xid (pixmap);
-
-    surface = cairo_xlib_surface_create(display, xid,
-					DefaultVisual(display, DefaultScreen(display)),
-					w, h);
-    setSurface(surface);
-    cairo_surface_destroy (surface);
-  }
-
-  CairoOutputDev::startPage(pageNum, state);
-}
-
-void GDKCairoOutputDev::redraw(int srcX, int srcY,
-			       GdkDrawable *drawable,
-			       int destX, int destY,
-			       int width, int height) {
-  GdkGC *gc;
-
-  gc = gdk_gc_new (drawable);
-  gdk_draw_drawable (drawable, gc,
-		     pixmap, srcX, srcY,
-		     destX, destY, width, height);
-  g_object_unref (gc);
-}
+#include <poppler.h>
 
 typedef struct
 {
   GtkWidget *window;
   GtkWidget *sw;
   GtkWidget *drawing_area;
-  GDKCairoOutputDev *out;
-  PDFDoc *doc;
+  PopplerPage *page;
+  PopplerDocument *document;
+  cairo_surface_t *surface;
+  int *window_count;
 } View;
 
 static void
@@ -153,66 +40,35 @@ drawing_area_expose (GtkWidget      *drawing_area,
   View *v = (View*) data;
   GdkRectangle document;
   GdkRectangle draw;
+  cairo_t *cr;
 
   gdk_window_clear (drawing_area->window);
-  
-  document.x = 0;
-  document.y = 0;
-  document.width = v->out->getPixmapWidth();
-  document.height = v->out->getPixmapHeight();
+  cr = gdk_cairo_create (drawing_area->window);
 
-  if (gdk_rectangle_intersect (&document, &event->area, &draw))
-    {
-      v->out->redraw (draw.x, draw.y,
-                      drawing_area->window,
-                      draw.x, draw.y,
-                      draw.width, draw.height);
-    }
-}
-
-static int
-view_load (View       *v,
-           const char *filename)
-{
-  PDFDoc *newDoc;
-  int err;
-  GooString *filename_g;
-  int w, h;
-
-  filename_g = new GooString (filename);
-
-  // open the PDF file
-  newDoc = new PDFDoc(filename_g, 0, 0);
-
-  delete filename_g;
-  
-  if (!newDoc->isOk())
-    {
-      err = newDoc->getErrorCode();
-      delete newDoc;
-      return err;
-    }
-
-  if (v->doc)
-    delete v->doc;
-  v->doc = newDoc;
-  
-  v->out->startDoc(v->doc->getXRef());
-
-  v->doc->displayPage (v->out, 1, 72, 72, 0, gFalse, gTrue, gTrue);
-  
-  w = v->out->getPixmapWidth();
-  h = v->out->getPixmapHeight();
-  
-  gtk_widget_set_size_request (v->drawing_area, w, h);
-
-  return errNone;
+  cairo_set_source_surface (cr, v->surface, 0, 0);
+  cairo_paint (cr);
+  cairo_destroy (cr);
 }
 
 static void
-view_show (View *v)
+view_set_page (View *v, int page)
 {
-  gtk_widget_show (v->window);
+  int err;
+  int w, h;
+  double width, height;
+  cairo_t *cr;
+
+  v->page = poppler_document_get_page (v->document, page);
+  poppler_page_get_size (v->page, &width, &height);
+  w = (int) ceil(width);
+  h = (int) ceil(height);
+  cairo_surface_destroy (v->surface);
+  v->surface = cairo_image_surface_create (CAIRO_FORMAT_ARGB32, w, h);
+  cr = cairo_create (v->surface);
+  poppler_page_render (v->page, cr);
+  cairo_destroy (cr);
+  gtk_widget_set_size_request (v->drawing_area, w, h);
+  gtk_widget_queue_draw (v->drawing_area);
 }
 
 static void
@@ -223,39 +79,78 @@ redraw_callback (void *data)
   gtk_widget_queue_draw (v->drawing_area);
 }
 
+static void
+page_changed_callback (GtkSpinButton *button, View *v)
+{
+    int page;
+
+    page = gtk_spin_button_get_value_as_int (button);
+    view_set_page (v, page);
+}
+
+static void
+destroy_window_callback (GtkWindow *window, View *v)
+{
+    if (--(*v->window_count) == 0)
+	gtk_main_quit();
+}
+
 static View*
-view_new (void)
+view_new (const char *filename, int *window_count)
 {
   View *v;
   GtkWidget *window;
   GtkWidget *drawing_area;
   GtkWidget *sw;
+  GtkWidget *vbox, *hbox;
+  GtkWidget *spin_button;
+  int n_pages;
+
+  v = g_new0 (View, 1);
+
+  v->document = poppler_document_new_from_file (filename, NULL, NULL);
+  if (v->document == NULL)
+      return NULL;
 
   window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
+  vbox = gtk_vbox_new(FALSE, 5);
 
+  gtk_container_add (GTK_CONTAINER (window), vbox);
   drawing_area = gtk_drawing_area_new ();
 
   sw = gtk_scrolled_window_new (NULL, NULL);
 
-  gtk_container_add (GTK_CONTAINER (window), sw);
-  gtk_scrolled_window_add_with_viewport (GTK_SCROLLED_WINDOW (sw), drawing_area);
+  gtk_box_pack_end (GTK_BOX (vbox), sw, TRUE, TRUE, 0);
+  gtk_scrolled_window_add_with_viewport (GTK_SCROLLED_WINDOW (sw),
+					 drawing_area);
 
-  gtk_widget_show_all (sw);
+  n_pages = poppler_document_get_n_pages (v->document);
+  spin_button = gtk_spin_button_new_with_range  (0, n_pages - 1, 1);
+  g_signal_connect (G_OBJECT (spin_button), "value-changed",
+		    G_CALLBACK (page_changed_callback), v);
+  hbox = gtk_hbox_new (FALSE, 5);
+  gtk_box_pack_end (GTK_BOX (hbox), spin_button, FALSE, TRUE, 0);
+
+  gtk_box_pack_end (GTK_BOX (vbox), hbox, FALSE, TRUE, 0);
+
+  gtk_widget_show_all (window);
   gtk_widget_realize (window);
-
-  v = g_new0 (View, 1);
 
   v->window = window;
   v->drawing_area = drawing_area;
   v->sw = sw;
-  v->out = new GDKCairoOutputDev (window->window, redraw_callback, (void*) v);
-  v->doc = 0;
+  v->window_count = window_count;
 
   g_signal_connect (drawing_area,
                     "expose_event",
                     G_CALLBACK (drawing_area_expose),
                     (void*) v);
   
+  g_signal_connect (window,
+                    "destroy",
+                    G_CALLBACK (destroy_window_callback),
+                    (void*) v);
+
   return v;
 }
 
@@ -263,11 +158,9 @@ int
 main (int argc, char *argv [])
 {
   View *v;
-  int i;
-  
+  int i, window_count;
+
   gtk_init (&argc, &argv);
-  
-  globalParams = new GlobalParams("/etc/xpdfrc");
   
   if (argc == 1)
     {
@@ -275,27 +168,20 @@ main (int argc, char *argv [])
       return -1;
     }
       
-
-  i = 1;
-  while (i < argc)
-    {
-      int err;
+  window_count = 0;
+  for (i = 1; i < argc; i++) {
+      v = view_new (argv[i], &window_count);
+      if (v == NULL) {
+	  g_printerr ("Error loading %s\n", argv[i]);
+	  continue;
+      }
       
-      v = view_new ();
-
-      err = view_load (v, argv[i]);
-
-      if (err != errNone)
-        g_printerr ("Error loading document!\n");
-      
-      view_show (v);
-
-      ++i;
-    }
+      view_set_page (v, 0);
+      window_count++;
+  }
   
-  gtk_main ();
-  
-  delete globalParams;
+  if (window_count > 0)
+    gtk_main ();
   
   return 0;
 }

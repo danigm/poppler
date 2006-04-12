@@ -30,6 +30,8 @@ endif
 INCLUDES =					\
 	-I$(top_srcdir)				\
 	-I$(top_srcdir)/poppler			\
+	-I$(top_srcdir)/glib			\
+	-I$(top_builddir)/glib			\
 	$(cairo_includes)			\
 	$(GTK_TEST_CFLAGS)			
 
@@ -47,7 +49,7 @@ gtk_cairo_test_SOURCES =			\
 
 gtk_cairo_test_LDADD =					\
 	$(top_builddir)/poppler/libpoppler.la		\
-	$(top_builddir)/poppler/libpoppler-cairo.la	\
+	$(top_builddir)/glib/libpoppler-glib.la		\
 	$(CAIRO_LIBS)					\
 	$(GTK_TEST_LIBS)
 

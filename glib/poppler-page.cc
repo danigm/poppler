@@ -127,6 +127,7 @@ poppler_page_get_index (PopplerPage *page)
 typedef struct {
   unsigned char *cairo_data;
   cairo_surface_t *surface;
+  cairo_t *cairo;
 } OutputDevData;
 
 static void
@@ -138,19 +139,13 @@ poppler_page_prepare_output_dev (PopplerPage *page,
 {
   CairoOutputDev *output_dev;
   cairo_surface_t *surface;
+  double width, height;
   int cairo_width, cairo_height, cairo_rowstride;
-  int rotate;
   unsigned char *cairo_data;
 
-  rotate = (rotation + page->page->getRotate()) % 360;
-
-  if (rotate == 90 || rotate == 270) {
-    cairo_width = MAX ((int)(page->page->getCropHeight() * scale + 0.5), 1);
-    cairo_height = MAX ((int)(page->page->getCropWidth() * scale + 0.5), 1);
-  } else {
-    cairo_width = MAX ((int)(page->page->getCropWidth() * scale + 0.5), 1);
-    cairo_height = MAX ((int)(page->page->getCropHeight() * scale + 0.5), 1);
-  }
+  poppler_page_get_size (page, &width, &height);
+  cairo_width = (int) ceil(width * scale);
+  cairo_height = (int) ceil(height * scale);
 
   output_dev = page->document->output_dev;
   cairo_rowstride = cairo_width * 4;
@@ -167,7 +162,8 @@ poppler_page_prepare_output_dev (PopplerPage *page,
 
   output_dev_data->cairo_data = cairo_data;
   output_dev_data->surface = surface;
-  output_dev->setSurface (surface);
+  output_dev_data->cairo = cairo_create (surface);
+  output_dev->setCairo (output_dev_data->cairo);
 }
 
 static void
@@ -194,7 +190,6 @@ poppler_page_copy_to_pixbuf (PopplerPage *page,
     cairo_width = gdk_pixbuf_get_width (pixbuf);
   if (cairo_height > gdk_pixbuf_get_height (pixbuf))
     cairo_height = gdk_pixbuf_get_height (pixbuf);
-
   for (y = 0; y < cairo_height; y++)
     {
       src = (unsigned int *) (cairo_data + y * cairo_rowstride);
@@ -211,8 +206,9 @@ poppler_page_copy_to_pixbuf (PopplerPage *page,
 	}
     }
 
-  page->document->output_dev->setSurface (NULL);
+  page->document->output_dev->setCairo (NULL);
   cairo_surface_destroy (output_dev_data->surface);
+  cairo_destroy (output_dev_data->cairo);
   gfree (output_dev_data->cairo_data);
 }
 
@@ -282,13 +278,44 @@ poppler_page_copy_to_pixbuf(PopplerPage *page,
 
 #endif
 
+#if defined (HAVE_CAIRO)
+
 /**
- * poppler_page_render_to_pixbuf:
+ * poppler_page_render:
  * @page: the page to render from
- * @src_x: x coordinate of upper left corner
- * @src_y: y coordinate of upper left corner
- * @src_width: width of rectangle to render
- * @src_height: height of rectangle to render
+ * @cairo: cairo context to render to
+ *
+ * Render the page to the given cairo context.
+ **/
+void
+poppler_page_render (PopplerPage *page,
+		     cairo_t *cairo)
+{
+  CairoOutputDev *output_dev;
+
+  g_return_if_fail (POPPLER_IS_PAGE (page));
+
+  output_dev = page->document->output_dev;
+  output_dev->setCairo (cairo);
+
+  page->page->displaySlice(output_dev,
+			   72.0, 72.0, 0,
+			   gFalse, /* useMediaBox */
+			   gTrue, /* Crop */
+			   0, 0,
+			   (int) ceil (page->page->getCropWidth ()),
+			   (int) ceil (page->page->getCropHeight ()),
+			   NULL, /* links */
+			   page->document->doc->getCatalog ());
+
+  output_dev->setCairo (NULL);
+}
+
+#endif
+
+/**
+ * poppler_page_render:
+ * @page: the page to render from
  * @scale: scale specified as pixels per point
  * @rotation: rotate the document by the specified degree
  * @pixbuf: pixbuf to render into

@@ -182,7 +182,14 @@ AM_CONDITIONAL(BUILD_CAIRO_OUTPUT, test x$enable_cairo_output = xyes)
 AH_TEMPLATE([HAVE_CAIRO], [Use cairo for rendering.])
 if test x$enable_cairo_output = xyes; then
   AC_DEFINE(HAVE_CAIRO)
+  CAIRO_FEATURE="#define POPPLER_HAS_CAIRO 1"
+  CAIRO_REQ="cairo"
+else
+  CAIRO_FEATURE="#undef POPPLER_HAS_CAIRO"
+  CAIRO_REQ=""
 fi
+AC_SUBST(CAIRO_FEATURE)
+AC_SUBST(CAIRO_REQ)
 
 AC_ARG_ENABLE(poppler-glib,
               AC_HELP_STRING([--disable-poppler-glib],
@@ -306,6 +313,7 @@ splash/Makefile
 poppler/Makefile
 utils/Makefile
 glib/Makefile
+glib/poppler-features.h
 glib/reference/Makefile
 test/Makefile
 qt/Makefile

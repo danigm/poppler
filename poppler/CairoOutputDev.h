@@ -57,10 +57,10 @@ public:
   //----- initialization and control
 
   // Start a page.
-  virtual void startPage(int pageNum, GfxState *state);
+  virtual void startPage(int pageNum, GfxState *state) { }
 
   // End a page.
-  virtual void endPage();
+  virtual void endPage() { }
 
   //----- link borders
   virtual void drawLink(Link *link, Catalog *catalog);
@@ -136,7 +136,7 @@ public:
  
   GBool isReverseVideo() { return gFalse; }
   
-  void setSurface (cairo_surface_t *surface);
+  void setCairo (cairo_t *cr);
 
 protected:
   void doPath(GfxState *state, GfxPath *path);

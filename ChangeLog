@@ -1,3 +1,26 @@
+2006-04-11  Kristian Høgsberg  <krh@redhat.com>
+
+	* configure.ac:
+	* poppler-glib.pc.in:
+	* glib/Makefile.am:
+	* glib/poppler-page.cc:
+	* glib/poppler-page.h:
+	* glib/poppler.h:
+	* poppler/CairoOutputDev.cc:
+	* poppler/CairoOutputDev.h:
+	* glib/poppler-features.h.in:
+	Make the CairoOutputDev render to a cairo_t instead of a
+	cairo_surface_t and expose that functionality in the glib wrapper
+	(poppler_page_render).
+
+	* test/Makefile.am:
+	* test/gtk-cairo-test.cc:
+	Update gtk-cairo-test to use this new interface and add a spin
+	button for changing page (#5951).
+
+	* utils/Makefile.am (EXTRA_DIST): Fix warning where this was
+	assigned twice.
+	
 2006-04-10  Jeff Muizelaar  <jeff@infidigm.net>
 
 	* poppler/CairoOutputDev.cc: take originX and originY into account in

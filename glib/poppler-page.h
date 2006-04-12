@@ -24,6 +24,10 @@
 #include <gdk/gdkcolor.h>
 #include <gdk-pixbuf/gdk-pixbuf.h>
 
+#ifdef POPPLER_HAS_CAIRO
+#include <cairo.h>
+#endif
+
 #include "poppler.h"
 
 G_BEGIN_DECLS
@@ -43,6 +47,12 @@ void                poppler_page_render_to_pixbuf     (PopplerPage        *page,
 						       double              scale,
 						       int                 rotation,
 						       GdkPixbuf          *pixbuf);
+
+#ifdef POPPLER_HAS_CAIRO
+void                poppler_page_render               (PopplerPage        *page,
+						       cairo_t            *cairo);
+#endif
+
 void                poppler_page_get_size             (PopplerPage        *page,
 						       double             *width,
 						       double             *height);
