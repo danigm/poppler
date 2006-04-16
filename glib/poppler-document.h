@@ -104,7 +104,9 @@ PopplerPage     *poppler_document_get_page_by_label (PopplerDocument  *document,
 gboolean         poppler_document_has_attachments   (PopplerDocument  *document);
 GList           *poppler_document_get_attachments   (PopplerDocument  *document);
 
-
+/* Links */
+PopplerDest     *poppler_document_find_dest         (PopplerDocument  *document,
+						     const gchar      *link_name);
 
 /* Interface for getting the Index of a poppler_document */
 GType             poppler_index_iter_get_type   (void) G_GNUC_CONST;

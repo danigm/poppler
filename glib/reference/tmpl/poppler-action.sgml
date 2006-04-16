@@ -44,6 +44,7 @@ poppler-action
 @POPPLER_DEST_FITB: 
 @POPPLER_DEST_FITBH: 
 @POPPLER_DEST_FITBV: 
+@POPPLER_DEST_NAMED: 
 
 <!-- ##### STRUCT PopplerActionAny ##### -->
 <para>
@@ -120,6 +121,7 @@ poppler-action
 @right: 
 @top: 
 @zoom: 
+@named_dest: 
 @change_left: 
 @change_top: 
 @change_zoom: 

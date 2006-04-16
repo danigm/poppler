@@ -120,8 +120,6 @@ The #PopplerDocument is an object used to refer to a main document.
 @document: 
 @index: 
 @Returns: 
-<!-- # Unused Parameters # -->
-@page: 
 
 
 <!-- ##### FUNCTION poppler_document_get_page_by_label ##### -->
@@ -321,8 +319,6 @@ The #PopplerDocument is an object used to refer to a main document.
 @first_page: 
 @n_pages: 
 @Returns: 
-<!-- # Unused Parameters # -->
-@first_pages: 
 
 
 <!-- ##### FUNCTION poppler_ps_file_set_paper_size ##### -->

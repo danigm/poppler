@@ -51,6 +51,7 @@ typedef struct _PopplerPage        PopplerPage;
 typedef struct _PopplerFontInfo    PopplerFontInfo;
 typedef struct _PopplerPSFile      PopplerPSFile;
 typedef union  _PopplerAction      PopplerAction;
+typedef struct _PopplerDest        PopplerDest;
 
 
 typedef enum

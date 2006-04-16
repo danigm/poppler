@@ -47,6 +47,7 @@ typedef enum
 	POPPLER_DEST_FITB,
 	POPPLER_DEST_FITBH,
 	POPPLER_DEST_FITBV,
+	POPPLER_DEST_NAMED
 } PopplerDestType;
 
 /* Define the PopplerAction types */
@@ -58,8 +59,6 @@ typedef struct _PopplerActionUri        PopplerActionUri;
 typedef struct _PopplerActionNamed      PopplerActionNamed;
 typedef struct _PopplerActionMovie      PopplerActionMovie;
 
-typedef struct _PopplerDest PopplerDest;
-
 struct _PopplerDest
 {
 	PopplerDestType type;
@@ -70,6 +69,7 @@ struct _PopplerDest
 	double right;
 	double top;
 	double zoom;
+	gchar *named_dest;
 	guint change_left : 1;
 	guint change_top : 1;
 	guint change_zoom : 1;
@@ -146,9 +146,12 @@ union _PopplerAction
 #define POPPLER_ACTION(obj)             (G_TYPE_CHECK_INSTANCE_CAST ((obj), POPPLER_TYPE_ACTION, PopplerAction))
 
 GType          poppler_action_get_type (void) G_GNUC_CONST;
+
 void           poppler_action_free     (PopplerAction *action);
 PopplerAction *poppler_action_copy     (PopplerAction *action);
 
+void           poppler_dest_free       (PopplerDest   *dest);
+PopplerDest   *poppler_dest_copy       (PopplerDest   *dest);
 
 G_END_DECLS
 

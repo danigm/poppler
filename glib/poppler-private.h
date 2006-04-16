@@ -64,6 +64,8 @@ PopplerPage   *_poppler_page_new   (PopplerDocument *document,
 PopplerAction *_poppler_action_new (PopplerDocument *document,
 				    LinkAction      *link,
 				    const gchar     *title);
+PopplerDest   *_poppler_dest_new_goto (PopplerDocument *document,
+				       LinkDest        *link_dest);
 
 PopplerAttachment *_poppler_attachment_new (PopplerDocument *document,
 					    EmbFile         *file);

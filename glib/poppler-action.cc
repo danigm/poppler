@@ -16,12 +16,20 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
+#include <UGooString.h>
 
 #include "poppler.h"
 #include "poppler-private.h"
 
-
-static PopplerDest *
+/**
+ * poppler_dest_copy:
+ * @dest: a #PopplerDest
+ *
+ * Copies @dest, creating an identical #PopplerDest.
+ *
+ * Return value: a new destination identical to @dest
+ **/
+PopplerDest *
 poppler_dest_copy (PopplerDest *dest)
 {
 	PopplerDest *new_dest;
@@ -29,12 +37,28 @@ poppler_dest_copy (PopplerDest *dest)
 	new_dest = g_new0 (PopplerDest, 1);
 	memcpy (new_dest, dest, sizeof (PopplerDest));
 
+	if (dest->named_dest)
+		new_dest->named_dest = g_strdup (dest->named_dest);
+
 	return new_dest;
 }
 
-static void
+
+/**
+ * poppler_dest_free:
+ * @dest: a #PopplerDest
+ *
+ * Frees @dest
+ **/
+void
 poppler_dest_free (PopplerDest *dest)
 {
+	if (!dest)
+		return;
+	
+	if (dest->named_dest)
+		g_free (dest->named_dest);
+	
 	g_free (dest);
 }
 
@@ -64,15 +88,31 @@ poppler_action_free (PopplerAction *action)
 		return;
 
 	/* Action specific stuff */
-	if (action->type == POPPLER_ACTION_GOTO_DEST) {
+	switch (action->type) {
+	case POPPLER_ACTION_GOTO_DEST:
 		poppler_dest_free (action->goto_dest.dest);
-	} else if (action->type == POPPLER_ACTION_GOTO_REMOTE) {
+		break;
+	case POPPLER_ACTION_GOTO_REMOTE:
 		poppler_dest_free (action->goto_remote.dest);
 		g_free (action->goto_remote.file_name);
-	} else if (action->type == POPPLER_ACTION_URI) {
+		break;
+	case POPPLER_ACTION_URI:
 		g_free (action->uri.uri);
+		break;
+	case POPPLER_ACTION_LAUNCH:
+		g_free (action->launch.file_name);
+		g_free (action->launch.params);
+		break;
+	case POPPLER_ACTION_NAMED:
+		g_free (action->named.named_dest);
+		break;
+	case POPPLER_ACTION_MOVIE:
+		/* TODO */
+		break;
+	default:
+		break;
 	}
-
+	
 	g_free (action->any.title);
 	g_free (action);
 }
@@ -99,18 +139,42 @@ poppler_action_copy (PopplerAction *action)
 	if (action->any.title != NULL)
 		new_action->any.title = g_strdup (action->any.title);
 
-	if (action->type == POPPLER_ACTION_GOTO_DEST) {
+	switch (action->type) {
+	case POPPLER_ACTION_GOTO_DEST:
 		new_action->goto_dest.dest = poppler_dest_copy (action->goto_dest.dest);
-	} else if (action->type == POPPLER_ACTION_GOTO_REMOTE) {
+		break;
+	case POPPLER_ACTION_GOTO_REMOTE:
 		new_action->goto_remote.dest = poppler_dest_copy (action->goto_remote.dest);
+		if (action->goto_remote.file_name)
+			new_action->goto_remote.file_name = g_strdup (action->goto_remote.file_name);
+		break;
+	case POPPLER_ACTION_URI:
+		if (action->uri.uri)
+			new_action->uri.uri = g_strdup (action->uri.uri);
+		break;
+	case POPPLER_ACTION_LAUNCH:
+		if (action->launch.file_name)
+			new_action->launch.file_name = g_strdup (action->launch.file_name);
+		if (action->launch.params)
+			new_action->launch.params = g_strdup (action->launch.params);
+		break;
+	case POPPLER_ACTION_NAMED:
+		if (action->named.named_dest)
+			new_action->named.named_dest = g_strdup (action->named.named_dest);
+		break;
+	case POPPLER_ACTION_MOVIE:
+		/* TODO */
+		break;
+	default:
+		break;
 	}
 	    
 	return new_action;
 }
 
-static PopplerDest *
-build_dest (PopplerDocument *document,
-	    LinkDest        *link_dest)
+PopplerDest *
+dest_new_goto (PopplerDocument *document,
+	       LinkDest        *link_dest)
 {
 	PopplerDest *dest;
 
@@ -176,6 +240,24 @@ build_dest (PopplerDocument *document,
 	return dest;
 }
 
+static PopplerDest *
+dest_new_named (UGooString *named_dest)
+{
+	PopplerDest *dest;
+
+	dest = g_new0 (PopplerDest, 1);
+
+	if (named_dest == NULL) {
+		dest->type = POPPLER_DEST_UNKNOWN;
+		return dest;
+	}
+
+	dest->type = POPPLER_DEST_NAMED;
+	dest->named_dest = g_strdup (named_dest->getCString ());
+
+	return dest;
+}
+
 static void
 build_goto_dest (PopplerDocument *document,
 		 PopplerAction   *action,
@@ -186,7 +268,7 @@ build_goto_dest (PopplerDocument *document,
 
 	/* Return if it isn't OK */
 	if (! link->isOk ()) {
-		action->goto_dest.dest = build_dest (NULL, NULL);
+		action->goto_dest.dest = dest_new_goto (NULL, NULL);
 		return;
 	}
 	
@@ -194,13 +276,11 @@ build_goto_dest (PopplerDocument *document,
 	named_dest = link->getNamedDest ();
 
 	if (link_dest != NULL) {
-		action->goto_dest.dest = build_dest (document, link_dest);
+		action->goto_dest.dest = dest_new_goto (document, link_dest);
 	} else if (named_dest != NULL) {
-		link_dest = document->doc->findDest (named_dest);
-		action->goto_dest.dest = build_dest (document, link_dest);
-		delete link_dest;
+		action->goto_dest.dest = dest_new_named (named_dest);
 	} else {
-		action->goto_dest.dest = build_dest (document, NULL);
+		action->goto_dest.dest = dest_new_goto (document, NULL);
 	}
 }
 
@@ -208,17 +288,28 @@ static void
 build_goto_remote (PopplerAction *action,
 		   LinkGoToR     *link)
 {
+	LinkDest *link_dest;
+	UGooString *named_dest;
+	
 	/* Return if it isn't OK */
 	if (! link->isOk ()) {
-		action->goto_remote.dest = build_dest (NULL, NULL);
+		action->goto_remote.dest = dest_new_goto (NULL, NULL);
 		return;
 	}
 
 	if (link->getFileName()->getCString ())
 		action->goto_remote.file_name = g_strdup (link->getFileName()->getCString ());
 
-	/* FIXME, we don't handle named dest yet. */
-	action->goto_dest.dest = build_dest (NULL, link->getDest ());
+	link_dest = link->getDest ();
+	named_dest = link->getNamedDest ();
+	
+	if (link_dest != NULL) {
+		action->goto_remote.dest = dest_new_goto (NULL, link_dest);
+	} else if (named_dest != NULL) {
+		action->goto_remote.dest = dest_new_named (named_dest);
+	} else {
+		action->goto_remote.dest = dest_new_goto (NULL, NULL);
+	}
 }
 
 static void
@@ -229,7 +320,7 @@ build_launch (PopplerAction *action,
 		action->launch.file_name = link->getFileName()->getCString ();
 	}
 	if (link->getParams()) {
-		action->launch.file_name = link->getParams()->getCString ();
+		action->launch.params = link->getParams()->getCString ();
 	}
 }
 
@@ -246,9 +337,13 @@ build_uri (PopplerAction *action,
 
 static void
 build_named (PopplerAction *action,
-	     LinkAction    *link)
+	     LinkNamed     *link)
 {
-	/* FIXME: Write */
+	gchar *name;
+
+	name = link->getName ()->getCString ();
+	if (name != NULL)
+		action->named.named_dest = g_strdup (name);
 }
 
 static void
@@ -294,7 +389,7 @@ _poppler_action_new (PopplerDocument *document,
 		break;
 	case actionNamed:
 		action->type = POPPLER_ACTION_NAMED;
-		build_named (action, link);
+		build_named (action, dynamic_cast <LinkNamed *> (link));
 		break;
 	case actionMovie:
 		action->type = POPPLER_ACTION_MOVIE;
@@ -307,4 +402,11 @@ _poppler_action_new (PopplerDocument *document,
 	}
 
 	return action;
+}
+
+PopplerDest *
+_poppler_dest_new_goto (PopplerDocument *document,
+			LinkDest        *link_dest)
+{
+	return dest_new_goto (document, link_dest);
 }

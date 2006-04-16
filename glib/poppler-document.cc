@@ -315,6 +315,43 @@ poppler_document_get_attachments (PopplerDocument *document)
   return g_list_reverse (retval);
 }
 
+/**
+ * poppler_document_find_dest:
+ * @document: A #PopplerDocument
+ * @link_name: a named destination
+ *
+ * Finds named destination @link_name in @document
+ *
+ * Return value: The #PopplerDest destination or %NULL if
+ * @link_name is not a destination. Returned value must
+ * be freed with #poppler_dest_free
+ **/
+PopplerDest *
+poppler_document_find_dest (PopplerDocument *document,
+			    const gchar     *link_name)
+{
+	PopplerDest *dest = NULL;
+	LinkDest *link_dest = NULL;
+	UGooString *g_link_name;
+
+	g_return_val_if_fail (POPPLER_IS_DOCUMENT (document), NULL);
+	g_return_val_if_fail (link_name != NULL, NULL);
+
+	g_link_name = new UGooString (link_name);
+
+	if (g_link_name) {
+		link_dest = document->doc->findDest (g_link_name);
+		delete g_link_name;
+	}
+
+	if (link_dest) {
+		dest = _poppler_dest_new_goto (document, link_dest);
+		delete link_dest;
+	}
+
+	return dest;
+}
+
 char *_poppler_goo_string_to_utf8(GooString *s)
 {
   char *result;
