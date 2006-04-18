@@ -22,10 +22,10 @@ private:
      storage=tmp;
     }
 
-   T* copy(T* src1,T* scr2,T* dest){
+   T* copy(T* src1,T* src2,T* dest){
      T* tmp=src1;
      T* d=dest;
-      while(tmp!=scr2){
+      while(tmp!=src2){
         *d=*tmp;
          d++;tmp++;
        }
