@@ -1,3 +1,8 @@
+2006-04-23  Albert Astals Cid <aacid@kde.org>
+
+	* qt4/src/poppler-private.h: Protect us against a link not having
+	a destination or a namedDestination
+
 2006-04-18  Albert Astals Cid <aacid@kde.org>
 
 	* goo/GooVector.h: Fix typo that was preventing build with MSVC8

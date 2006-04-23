@@ -127,7 +127,7 @@ namespace Poppler {
 					QString aux = unicodeToQString( s->unicode(), s->getLength() );
 					item.setAttribute( "DestinationName", aux );
 				}
-				else if ( destination->isOk() )
+				else if ( destination && destination->isOk() )
 				{
 					LinkDestinationData ldd(destination, &doc);
 					item.setAttribute( "Destination", LinkDestination(ldd).toString() );
