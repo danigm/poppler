@@ -525,11 +525,15 @@ void CairoOutputDev::drawImageMask(GfxState *state, Object *ref, Stream *str,
 
   image = cairo_image_surface_create_for_data (buffer, CAIRO_FORMAT_A8,
 					       width, height, row_stride);
-  if (image == NULL)
+  if (image == NULL) {
+    delete imgStr;
     return;
+  }
   pattern = cairo_pattern_create_for_surface (image);
-  if (pattern == NULL)
+  if (pattern == NULL) {
+    delete imgStr;
     return;
+  }
 
   cairo_matrix_invert (&matrix);
   cairo_pattern_set_matrix (pattern, &matrix);
@@ -624,12 +628,16 @@ void CairoOutputDev::drawMaskedImage(GfxState *state, Object *ref,
   image = cairo_image_surface_create_for_data (buffer, CAIRO_FORMAT_RGB24,
 						 width, height, width * 4);
 
-  if (image == NULL)
+  if (image == NULL) {
+    delete imgStr;
     return;
+  }
   pattern = cairo_pattern_create_for_surface (image);
   maskPattern = cairo_pattern_create_for_surface (maskImage);
-  if (pattern == NULL)
+  if (pattern == NULL) {
+    delete imgStr;
     return;
+  }
 
   ctm = state->getCTM();
   LOG (printf ("drawImageMask %dx%d, matrix: %f, %f, %f, %f, %f, %f\n",
@@ -735,12 +743,16 @@ void CairoOutputDev::drawSoftMaskedImage(GfxState *state, Object *ref, Stream *s
   image = cairo_image_surface_create_for_data (buffer, CAIRO_FORMAT_RGB24,
 						 width, height, width * 4);
 
-  if (image == NULL)
+  if (image == NULL) {
+    delete imgStr;
     return;
+  }
   pattern = cairo_pattern_create_for_surface (image);
   maskPattern = cairo_pattern_create_for_surface (maskImage);
-  if (pattern == NULL)
+  if (pattern == NULL) {
+    delete imgStr;
     return;
+  }
 
   ctm = state->getCTM();
   LOG (printf ("drawImageMask %dx%d, matrix: %f, %f, %f, %f, %f, %f\n",
@@ -843,11 +855,15 @@ void CairoOutputDev::drawImage(GfxState *state, Object *ref, Stream *str,
 						 width, height, width * 4);
   }
 
-  if (image == NULL)
-    return;
+  if (image == NULL) {
+   delete imgStr;
+   return;
+  }
   pattern = cairo_pattern_create_for_surface (image);
-  if (pattern == NULL)
+  if (pattern == NULL) {
+    delete imgStr;
     return;
+  }
 
   ctm = state->getCTM();
   LOG (printf ("drawImageMask %dx%d, matrix: %f, %f, %f, %f, %f, %f\n",

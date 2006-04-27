@@ -1,3 +1,9 @@
+2006-04-27  Jeff Muizelaar  <jeff@infidigm.net>
+
+	* poppler/CairoOutputDev.cc: delete imgStr if some of the cairo
+	functions fail. Fixes coverty reports #2106, #2107, #2077 and 
+	bug #6764. Patch by Kjartan Maraas.
+
 2006-04-23  Albert Astals Cid <aacid@kde.org>
 
 	* qt4/src/poppler-private.h: Protect us against a link not having
