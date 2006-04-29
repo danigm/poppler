@@ -2459,6 +2459,7 @@ void JBIG2Stream::readHalftoneRegionSeg(Guint segNum, GBool imm,
     }
   }
 
+  delete skipBitmap;
   gfree(grayImg);
 
   // combine the region bitmap into the page bitmap
