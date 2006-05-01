@@ -194,6 +194,17 @@ namespace Poppler {
 		FontInfo::Type type;
     };
 
+    class TextBoxData
+    {
+	public:
+		QString text;
+		QRectF bBox;
+		TextBox *nextWord;
+		QVector<double> edge;	// "near" edge x or y coord of each char
+					//   (plus one extra entry for the last char)
+		bool hasSpaceAfter;
+    };
+
 }
 
 

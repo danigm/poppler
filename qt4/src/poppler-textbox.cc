@@ -19,15 +19,9 @@
 #define UNSTABLE_POPPLER_QT4
 
 #include "poppler-qt4.h"
+#include "poppler-private.h"
 
 namespace Poppler {
-
-class TextBoxData
-{
-	public:
-		QString text;
-		QRectF bBox;
-};
 
 TextBox::TextBox(const QString& text, const QRectF &bBox)
 {
@@ -45,5 +39,20 @@ const QRectF &TextBox::boundingBox() const
 {
 	return m_data->bBox;
 };
+
+TextBox *TextBox::nextWord() const
+{
+	return m_data->nextWord;
+}
+
+double TextBox::edge(int i) const
+{
+	return m_data->edge[i];
+}
+
+bool TextBox::hasSpaceAfter() const
+{
+	return m_data->hasSpaceAfter;
+}
 
 }

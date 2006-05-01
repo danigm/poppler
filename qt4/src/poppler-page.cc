@@ -19,6 +19,7 @@
 #define UNSTABLE_POPPLER_QT4
 #include <poppler-qt4.h>
 #include <QtCore/QFile>
+#include <QtCore/QMap>
 #include <QtGui/QImage>
 #include <QtGui/QPixmap>
 #include <GlobalParams.h>
@@ -168,6 +169,8 @@ QList<TextBox*> Page::textList() const
     return output_list;
   }
   
+  QMap<TextWord *, TextBox*> wordBoxMap;
+  
   for (int i = 0; i < word_list->getLength(); i++) {
     TextWord *word = word_list->get(i);
     QString string = QString::fromUtf8(word->getText()->getCString());
@@ -175,8 +178,19 @@ QList<TextBox*> Page::textList() const
     word->getBBox(&xMin, &yMin, &xMax, &yMax);
     
     TextBox* text_box = new TextBox(string, QRectF(xMin, yMin, xMax-xMin, yMax-yMin));
+    text_box->m_data->hasSpaceAfter = word->hasSpaceAfter() == gTrue;
+    text_box->m_data->edge.reserve(word->getLength() + 1);
+    for (int j = 0; j <= word->getLength(); ++j) text_box->m_data->edge[j] = word->getEdge(j);
+    
+    wordBoxMap.insert(word, text_box);
     
     output_list.append(text_box);
+  }
+  
+  for (int i = 0; i < word_list->getLength(); i++) {
+    TextWord *word = word_list->get(i);
+    TextBox* text_box = wordBoxMap[word];
+    text_box->m_data->nextWord = wordBoxMap[word->nextWord()];
   }
   
   delete word_list;

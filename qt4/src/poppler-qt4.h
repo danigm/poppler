@@ -24,6 +24,7 @@
 
 #include <QtCore/QByteArray>
 #include <QtCore/QDateTime>
+#include <QtCore/QVector>
 #include <QtGui/QPixmap>
 #include <QtXml/QDomDocument>
 
@@ -52,6 +53,7 @@ namespace Poppler {
 	the text is found.
     */
     class TextBox {
+    friend class Page;
     public:
       /**
 	 The default constructor sets the text and the rectangle the
@@ -70,6 +72,12 @@ namespace Poppler {
 	 an inch
       */
       const QRectF &boundingBox() const;
+
+      TextBox *nextWord() const;
+
+      double edge(int i) const;
+
+      bool hasSpaceAfter() const;
 
     private:
 	TextBoxData *m_data;
