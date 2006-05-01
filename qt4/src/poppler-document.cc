@@ -420,6 +420,16 @@ namespace Poppler {
             return false;
         }
     }
+    
+    void Document::setPaperColor(const QColor &color)
+    {
+        m_doc->setPaperColor(color);
+    }
+    
+    QColor Document::paperColor() const
+    {
+    	return m_doc->paperColor;
+    }
 
     QDateTime convertDate( char *dateString )
     {

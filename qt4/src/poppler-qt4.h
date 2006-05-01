@@ -685,6 +685,12 @@ delete pixmap;
 	LinkDestination *linkDestination( const QString &name );
 	
 	bool print(const QString &fileName, const QList<int> pageList, double hDPI, double vDPI, int rotate);
+	
+	/**
+	  Sets the paper color, if not set it is white by default.
+	 */
+	void setPaperColor(const QColor &color);
+	QColor paperColor() const;
 
 	~Document();
   

@@ -66,6 +66,7 @@ namespace Poppler {
 	DocumentData(GooString *filePath, GooString *ownerPassword, GooString *userPassword) :
 	    doc(filePath, ownerPassword, userPassword), m_splashOutputDev(0)
 	    {
+		paperColor = Qt::white;
 		// It might be more appropriate to delete these in PDFDoc
 		delete ownerPassword;
 		delete userPassword;
@@ -82,11 +83,11 @@ namespace Poppler {
 	{
 		if (!m_splashOutputDev)
 		{
-			SplashColor white;
-			white[0] = 255;
-			white[1] = 255;
-			white[2] = 255;
-			m_splashOutputDev = new SplashOutputDev(splashModeRGB8, 4, gFalse, white);
+			SplashColor bgColor;
+			bgColor[0] = paperColor.red();
+			bgColor[1] = paperColor.green();
+			bgColor[2] = paperColor.blue();
+			m_splashOutputDev = new SplashOutputDev(splashModeRGB8, 4, gFalse, bgColor);
 			m_splashOutputDev->startDoc(doc.getXRef());
 		}
 		return m_splashOutputDev;
@@ -146,12 +147,23 @@ namespace Poppler {
 				addTocChildren( docSyn, &item, children );
 		}
 	}
+	
+	void setPaperColor(const QColor &color)
+	{
+		if (color != paperColor)
+		{
+			paperColor = color;
+			delete m_splashOutputDev;
+			m_splashOutputDev = NULL;
+		}
+	}
 
 	class PDFDoc doc;
 	bool locked;
 	FontInfoScanner *m_fontInfoScanner;
 	SplashOutputDev *m_splashOutputDev;
 	QList<EmbeddedFile*> m_embeddedFiles;
+	QColor paperColor;
     };
 
     class FontInfoData
