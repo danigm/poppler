@@ -3359,6 +3359,7 @@ void TextSelectionPainter::visitWord (TextWord *word, int begin, int end,
 
   state->setFillColor(glyph_color);
   out->updateFillColor(state);
+  word->font->gfxFont->incRefCnt();
   state->setFont(word->font->gfxFont, word->fontSize);
   out->updateFont(state);
 

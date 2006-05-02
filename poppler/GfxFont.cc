@@ -148,6 +148,7 @@ GfxFont::GfxFont(char *tagA, Ref idA, GooString *nameA) {
   family = NULL;
   stretch = StretchNotDefined;
   weight = WeightNotDefined;
+  refCnt = 1;
 }
 
 GfxFont::~GfxFont() {
@@ -165,6 +166,15 @@ GfxFont::~GfxFont() {
   if (extFontFile) {
     delete extFontFile;
   }
+}
+
+void GfxFont::incRefCnt() {
+  refCnt++;
+}
+
+void GfxFont::decRefCnt() {
+  if (--refCnt == 0)
+    delete this;
 }
 
 void GfxFont::readFontDescriptor(XRef *xref, Dict *fontDict) {
@@ -457,6 +467,7 @@ Gfx8BitFont::Gfx8BitFont(XRef *xref, char *tagA, Ref idA, GooString *nameA,
   Object obj1, obj2, obj3;
   int n, i, a, b, m;
 
+  refCnt = 1;
   type = typeA;
   ctu = NULL;
 
@@ -1108,6 +1119,7 @@ GfxCIDFont::GfxCIDFont(XRef *xref, char *tagA, Ref idA, GooString *nameA,
   int c1, c2;
   int excepsSize, i, j, k, n;
 
+  refCnt = 1;
   ascent = 0.95;
   descent = -0.35;
   fontBBox[0] = fontBBox[1] = fontBBox[2] = fontBBox[3] = 0;
@@ -1620,7 +1632,7 @@ GfxFontDict::~GfxFontDict() {
 
   for (i = 0; i < numFonts; ++i) {
     if (fonts[i]) {
-      delete fonts[i];
+      fonts[i]->decRefCnt();
     }
   }
   gfree(fonts);

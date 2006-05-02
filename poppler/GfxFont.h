@@ -115,6 +115,9 @@ public:
 
   GBool isOk() { return ok; }
 
+  void incRefCnt();
+  void decRefCnt();
+
   // Get font tag.
   GooString *getTag() { return tag; }
 
@@ -215,6 +218,7 @@ protected:
   double missingWidth;		// "default" width
   double ascent;		// max height above baseline
   double descent;		// max depth below baseline
+  int refCnt;
   GBool ok;
 };
 

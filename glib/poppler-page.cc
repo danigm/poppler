@@ -273,7 +273,7 @@ poppler_page_copy_to_pixbuf(PopplerPage *page,
       dst += pixbuf_n_channels;
     }
   }
-  delete pixel;
+  delete [] pixel;
 }
 
 #endif

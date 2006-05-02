@@ -1,3 +1,13 @@
+2006-05-02  Kristian Høgsberg  <krh@redhat.com>
+
+	* glib/poppler-page.cc:
+	* poppler/Gfx.cc:
+	* poppler/GfxFont.cc:
+	* poppler/GfxFont.h:
+	* poppler/GfxState.cc:
+	* poppler/TextOutputDev.cc: Patch from Gary Coady to add reference
+	counting to GfxFont so we don't crash on text selection.
+
 2006-05-01  Albert Astals Cid <aacid@kde.org>
 
 	* qt4/src/poppler-page.cc:

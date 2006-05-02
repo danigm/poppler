@@ -21,6 +21,7 @@
 #include "Array.h"
 #include "Page.h"
 #include "GfxState.h"
+#include "GfxFont.h"
 #include "UGooString.h"
 
 //------------------------------------------------------------------------
@@ -3849,6 +3850,9 @@ GfxState::~GfxState() {
   if (saved) {
     delete saved;
   }
+  if (font) {
+    font->decRefCnt();
+  }
 }
 
 // Used for copy();
@@ -3870,6 +3874,9 @@ GfxState::GfxState(GfxState *state) {
     lineDash = (double *)gmallocn(lineDashLength, sizeof(double));
     memcpy(lineDash, state->lineDash, lineDashLength * sizeof(double));
   }
+  if (font)
+    font->incRefCnt();
+
   saved = NULL;
 }
 

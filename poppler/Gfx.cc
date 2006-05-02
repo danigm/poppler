@@ -2523,6 +2523,8 @@ void Gfx::opSetFont(Object args[], int numArgs) {
 	   args[1].getNum());
     fflush(stdout);
   }
+
+  font->incRefCnt();
   state->setFont(font, args[1].getNum());
   fontChanged = gTrue;
 }
