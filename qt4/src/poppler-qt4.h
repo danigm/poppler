@@ -314,6 +314,22 @@ delete pixmap;
 	   If rect is null, all text on the page is given
 	**/
 	QString text(const QRectF &rect) const;
+	
+	
+	enum SearchDirection { FromTop, NextResult, PreviousResult };
+	enum SearchMode { CaseSensitive, CaseInsensitive };
+	
+	/**
+	   Returns true if the specified text was found.
+
+	   \param text the text the search
+	   \param rect in all directions is used to return where the text was found, for NextResult and PreviousResult
+	               indicates where to continue searching for
+	   \param direction in which direction do the search
+	   \param caseSensitive be case sensitive?
+	**/
+	bool search(const QString &text, QRectF &rect, SearchDirection direction, SearchMode caseSensitive) const;
+	
 
 	/**
 	   Returns a list of text of the page

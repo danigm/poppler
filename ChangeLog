@@ -1,3 +1,8 @@
+2006-05-04  Albert Astals Cid <aacid@kde.org>
+
+	* qt4/src/poppler-qt4.h:
+	* qt4/src/poppler-page.cc: Implement search functionality 
+
 2006-05-02  Kristian Høgsberg  <krh@redhat.com>
 
 	* glib/poppler-page.cc:

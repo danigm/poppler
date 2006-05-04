@@ -151,6 +151,49 @@ QString Page::text(const QRectF &r) const
   return result;
 }
 
+bool Page::search(const QString &text, QRectF &rect, SearchDirection direction, SearchMode caseSensitive) const
+{
+  const QChar * str = text.unicode();
+  int len = text.length();
+  QVector<Unicode> u(len);
+  for (int i = 0; i < len; ++i) u[i] = str[i].unicode();
+
+  GBool sCase;
+  if (caseSensitive == CaseSensitive) sCase = gTrue;
+  else sCase = gFalse;
+
+  bool found = false;
+  double sLeft, sTop, sRight, sBottom;
+  sLeft = rect.left();
+  sTop = rect.top();
+  sRight = rect.right();
+  sBottom = rect.bottom();
+
+  // fetch ourselves a textpage
+  TextOutputDev td(NULL, gTrue, gFalse, gFalse);
+  m_page->parentDoc->m_doc->doc.displayPage( &td, m_page->index + 1, 72, 72, 0, false, true, false );
+  TextPage *textPage=td.takeText();
+
+  if (direction == FromTop)
+    found = textPage->findText( u.data(), len, 
+            gTrue, gTrue, gFalse, gFalse, sCase, gFalse, &sLeft, &sTop, &sRight, &sBottom );
+  else if ( direction == NextResult )
+    found = textPage->findText( u.data(), len, 
+            gFalse, gTrue, gTrue, gFalse, sCase, gFalse, &sLeft, &sTop, &sRight, &sBottom );
+  else if ( direction == PreviousResult )
+    found = textPage->findText( u.data(), len, 
+            gTrue, gFalse, gFalse, gTrue, sCase, gFalse, &sLeft, &sTop, &sRight, &sBottom );
+
+  delete textPage;
+
+  rect.setLeft( sLeft );
+  rect.setTop( sTop );
+  rect.setRight( sRight );
+  rect.setBottom( sBottom );
+
+  return found;
+}
+
 QList<TextBox*> Page::textList() const
 {
   TextOutputDev *output_dev;
