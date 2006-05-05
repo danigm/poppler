@@ -1,3 +1,7 @@
+2006-05-05  Albert Astals Cid <aacid@kde.org>
+
+	* poppler/Function.cc: quick fix for KDE bug #126760
+
 2006-05-04  Albert Astals Cid <aacid@kde.org>
 
 	* qt4/src/poppler-qt4.h:
