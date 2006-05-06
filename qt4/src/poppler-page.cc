@@ -223,7 +223,7 @@ QList<TextBox*> Page::textList() const
     TextBox* text_box = new TextBox(string, QRectF(xMin, yMin, xMax-xMin, yMax-yMin));
     text_box->m_data->hasSpaceAfter = word->hasSpaceAfter() == gTrue;
     text_box->m_data->edge.reserve(word->getLength() + 1);
-    for (int j = 0; j <= word->getLength(); ++j) text_box->m_data->edge[j] = word->getEdge(j);
+    for (int j = 0; j <= word->getLength(); ++j) text_box->m_data->edge.append(word->getEdge(j));
     
     wordBoxMap.insert(word, text_box);
     
