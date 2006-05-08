@@ -510,6 +510,7 @@ int NameTree::Entry::cmp(const void *voidKey, const void *voidEntry)
 GBool NameTree::lookup(UGooString *name, Object *obj)
 {
   Entry **entry;
+  char *cname;
 
   entry = (Entry **) bsearch(name, entries,
 			     length, sizeof(Entry *), Entry::cmp);
@@ -517,7 +518,9 @@ GBool NameTree::lookup(UGooString *name, Object *obj)
     (*entry)->value.fetch(xref, obj);
     return gTrue;
   } else {
-    printf("failed to look up %s\n", name->getCString());
+    cname = name->getCString();
+    printf("failed to look up %s\n", cname);
+    delete[] cname;
     obj->initNull();
     return gFalse;
   }
