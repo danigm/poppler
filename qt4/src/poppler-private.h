@@ -53,12 +53,13 @@ namespace Poppler {
     class LinkDestinationData
     {
         public:
-		LinkDestinationData( LinkDest *l, PDFDoc *pdfdoc ) : ld(l), doc(pdfdoc)
+		LinkDestinationData( LinkDest *l, UGooString *nd, Poppler::DocumentData *pdfdoc ) : ld(l), namedDest(nd), doc(pdfdoc)
 		{
 		}
 	
 	LinkDest *ld;
-	PDFDoc *doc;
+	UGooString *namedDest;
+	Poppler::DocumentData *doc;
     };
 
     class DocumentData {
@@ -113,7 +114,7 @@ namespace Poppler {
 			parent->appendChild( item );
 			
 			// 2. find the page the link refers to
-			LinkAction * a = outlineItem->getAction();
+			::LinkAction * a = outlineItem->getAction();
 			if ( a && ( a->getKind() == actionGoTo || a->getKind() == actionGoToR ) )
 			{
 				// page number is contained/referenced in a LinkGoTo
@@ -130,7 +131,7 @@ namespace Poppler {
 				}
 				else if ( destination && destination->isOk() )
 				{
-					LinkDestinationData ldd(destination, &doc);
+					LinkDestinationData ldd(destination, NULL, this);
 					item.setAttribute( "Destination", LinkDestination(ldd).toString() );
 				}
 				if ( a->getKind() == actionGoToR )

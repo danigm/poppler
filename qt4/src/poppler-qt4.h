@@ -29,6 +29,7 @@
 #include <QtXml/QDomDocument>
 
 #include <poppler-page-transition.h>
+#include <poppler-link.h>
 
 class EmbFile;
 
@@ -250,6 +251,8 @@ namespace Poppler {
 
 	   \param yres vertical resolution of the graphics device, in
 	   dots per inch
+	
+	   \param doLinks calculate links
 
 	   \warning The parameter (x,y,w,h) are not
 	   well-tested. Unusual or meaningless parameters may lead to
@@ -257,7 +260,7 @@ namespace Poppler {
 
 	   \returns a QImage of the page, or a null image on failure.
         */
-	QImage splashRenderToImage(double xres=72.0, double yres=72.0, int x=-1, int y=-1, int w=-1, int h=-1) const;
+	QImage splashRenderToImage(double xres=72.0, double yres=72.0, int x=-1, int y=-1, int w=-1, int h=-1, bool doLinks = false) const;
 	
 	/**
 	   Render the page to a QPixmap using the Splash renderer
@@ -280,7 +283,7 @@ if (pixmap == 0) {
 delete pixmap;
 @endcode
 	 */
-	QPixmap *splashRenderToPixmap(double xres=72.0, double yres=72.0, int x=-1, int y=-1, int w=-1, int h=-1) const;
+	QPixmap *splashRenderToPixmap(double xres=72.0, double yres=72.0, int x=-1, int y=-1, int w=-1, int h=-1, bool doLinks = false) const;
 
 	/**
 	    Render the page to a pixmap using the Arthur (Qt4) renderer
@@ -387,53 +390,14 @@ delete pixmap;
 	*/
 	void defaultCTM(double *CTM, double dpiX, double dpiY, int rotate, bool upsideDown);
 	
+	/**
+	  Gets the links of the page once it has been rendered if doLinks was true
+	*/
+	QList<Link*> links() const;
+	
     private:
 	Page(const Document *doc, int index);
 	PageData *m_page;
-    };
-
-    class LinkDestinationData;
-    
-    class LinkDestination
-    {
-        public:
-            enum Kind
-            {
-                destXYZ = 1,
-                destFit = 2,
-                destFitH = 3,
-                destFitV = 4,
-                destFitR = 5,
-                destFitB = 6,
-                destFitBH = 7,
-                destFitBV = 8
-            };
-
-            LinkDestination(const LinkDestinationData &data);
-            LinkDestination(const QString &description);
-
-            // Accessors.
-            Kind kind() const;
-            int pageNumber() const;
-            double left() const;
-            double bottom() const;
-            double right() const;
-            double top() const;
-            double zoom() const;
-            bool isChangeLeft() const;
-            bool isChangeTop() const;
-            bool isChangeZoom() const;
-
-            QString toString() const;
-
-        private:
-            Kind m_kind; // destination type
-            int m_pageNum; // page number
-            double m_left, m_bottom; // position
-            double m_right, m_top;
-            double m_zoom; // zoom factor
-            bool m_changeLeft, m_changeTop; // for destXYZ links, which position
-            bool m_changeZoom; //   components to change
     };
 
     class DocumentData;

@@ -31,6 +31,11 @@ namespace Poppler {
 	{
 		LinkDest *ld = data.ld;
 		
+		if ( data.namedDest && !ld )
+			ld = data.doc->doc.findDest( data.namedDest );
+		
+		if (!ld) return;
+		
 		if (ld->getKind() == ::destXYZ) m_kind = destXYZ;
 		else if (ld->getKind() == ::destFit) m_kind = destFit;
 		else if (ld->getKind() == ::destFitH) m_kind = destFitH;
@@ -44,16 +49,26 @@ namespace Poppler {
 		else
 		{
 			Ref ref = ld->getPageRef();
-			m_pageNum = data.doc->findPage( ref.num, ref.gen );
+			m_pageNum = data.doc->doc.findPage( ref.num, ref.gen );
 		}
-		m_left = ld->getLeft();
-		m_bottom = ld->getBottom();
-		m_right = ld->getRight();
-		m_top = ld->getTop();
+		double left = ld->getLeft();
+		double bottom = ld->getBottom();
+		double right = ld->getRight();
+		double top = ld->getTop();
 		m_zoom = ld->getZoom();
 		m_changeLeft = ld->getChangeLeft();
 		m_changeTop = ld->getChangeTop();
 		m_changeZoom = ld->getChangeZoom();
+		
+		int leftAux, topAux, rightAux, bottomAux;
+		
+		data.doc->m_splashOutputDev->cvtUserToDev( left, top, &leftAux, &topAux );
+		data.doc->m_splashOutputDev->cvtUserToDev( right, bottom, &rightAux, &bottomAux );
+		
+		m_left = leftAux;
+		m_top = topAux;
+		m_right = rightAux;
+		m_bottom = bottomAux;
 	}
 	
 	LinkDestination::LinkDestination(const QString &description)
@@ -133,6 +148,110 @@ namespace Poppler {
 		s += ";" + QString::number( (qint8)m_changeTop );
 		s += ";" + QString::number( (qint8)m_changeZoom );
 		return s;
+	}
+	
+	
+	// Link
+	Link::~Link()
+	{
+	}
+	
+	Link::Link(const QRectF &linkArea) : m_linkArea(linkArea)
+	{
+	}
+	
+	Link::LinkType Link::linkType() const
+	{
+		return None;
+	}
+	
+	QRectF Link::linkArea() const
+	{
+		return m_linkArea;
+	}
+	
+	// LinkGoto
+	LinkGoto::LinkGoto( const QRectF &linkArea, QString extFileName, const LinkDestination & destination ) : Link(linkArea), m_extFileName(extFileName), m_destination(destination)
+	{
+	}
+	
+	bool LinkGoto::isExternal() const
+	{
+		return !m_extFileName.isEmpty();
+	}
+	
+	const QString &LinkGoto::fileName() const
+	{
+		return m_extFileName;
+	}
+	
+	const LinkDestination &LinkGoto::destination() const
+	{
+		return m_destination;
+	}
+	
+	Link::LinkType LinkGoto::linkType() const
+	{
+		return Goto;
+	}
+	
+	// LinkExecute
+	LinkExecute::LinkExecute( const QRectF &linkArea, const QString & file, const QString & params ) : Link(linkArea), m_fileName(file), m_parameters(params)
+	{
+	}
+	
+	const QString & LinkExecute::fileName() const
+	{
+		return m_fileName;
+	}
+	const QString & LinkExecute::parameters() const
+	{
+		return m_parameters;
+	}
+
+	Link::LinkType LinkExecute::linkType() const
+	{
+		return Execute;
+	}
+
+	// LinkBrowse
+	LinkBrowse::LinkBrowse( const QRectF &linkArea, const QString &url ) : Link(linkArea), m_url(url)
+	{
+	}
+	
+	const QString & LinkBrowse::url() const
+	{
+		return m_url;
+	}
+	
+	Link::LinkType LinkBrowse::linkType() const
+	{
+		return Browse;
+	}
+
+	// LinkAction
+	LinkAction::LinkAction( const QRectF &linkArea, ActionType actionType ) : Link(linkArea), m_type(actionType)
+	{
+	}
+		
+	LinkAction::ActionType LinkAction::actionType() const
+	{
+		return m_type;
+	}
+
+	Link::LinkType LinkAction::linkType() const
+	{
+		return Action;
+	}
+
+	// LinkMovie
+	LinkMovie::LinkMovie( const QRectF &linkArea ) : Link(linkArea)
+	{
+	}
+	
+	Link::LinkType LinkMovie::linkType() const
+	{
+		return Movie;
 	}
 
 }

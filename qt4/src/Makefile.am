@@ -9,6 +9,7 @@ poppler_includedir = $(includedir)/poppler
 
 poppler_include_HEADERS =			\
 	poppler-qt4.h				\
+	poppler-link.h				\
 	../../qt/poppler-page-transition.h
 
 lib_LTLIBRARIES = libpoppler-qt4.la

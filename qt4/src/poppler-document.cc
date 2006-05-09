@@ -389,15 +389,10 @@ namespace Poppler {
     LinkDestination *Document::linkDestination( const QString &name )
     {
         UGooString * namedDest = QStringToUGooString( name );
-        LinkDest * destination = m_doc->doc.findDest( namedDest );
-        if ( destination )
-        {
-            LinkDestinationData ldd(destination, &m_doc->doc);
-            LinkDestination *ld = new LinkDestination(ldd);
-            delete namedDest;
-            return ld;
-        }
-        else return NULL;
+        LinkDestinationData ldd(NULL, namedDest, m_doc);
+        LinkDestination *ld = new LinkDestination(ldd);
+        delete namedDest;
+        return ld;
     }
     
     bool Document::print(const QString &file, const QList<int> pageList, double hDPI, double vDPI, int rotate)

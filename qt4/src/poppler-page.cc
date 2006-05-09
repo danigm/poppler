@@ -56,30 +56,20 @@ Page::~Page()
   delete m_page;
 }
 
-QImage Page::splashRenderToImage(double xres, double yres, int x, int y, int w, int h) const
+QImage Page::splashRenderToImage(double xres, double yres, int x, int y, int w, int h, bool doLinks) const
 {
   SplashOutputDev *output_dev = m_page->parentDoc->m_doc->getSplashOutputDev();
   
   m_page->parentDoc->m_doc->doc.displayPageSlice(output_dev, m_page->index + 1, xres, yres,
-						 0, false, true, false, x, y, w, h);
+						 0, false, true, doLinks, x, y, w, h);
   
   SplashBitmap *bitmap = output_dev->getBitmap ();
   int bw = bitmap->getWidth();
   int bh = bitmap->getHeight();
   
-  // Produce a QImage and copy the image there pixel-by-pixel. This is
-  // quite slow and rather ugly, and the following two lines would be
-  // much nicer. But it does not work since the change to xpdf 3.01
-  // it's worth investigating
-
-  // -------- 
-  //  SplashColorPtr color_ptr = bitmap->getDataPtr ();
-  //  QImage *img = new QImage( (uchar*)color_ptr, bw, bh, QImage::Format_RGB32 );
-  // --------
-
   SplashColorPtr dataPtr = output_dev->getBitmap()->getDataPtr();
   // construct a qimage SHARING the raw bitmap data in memory
-  QImage img( dataPtr, bw, bh, QImage::Format_RGB32 );
+  QImage img( dataPtr, bw, bh, QImage::Format_ARGB32 );
   img = img.copy();
   // unload underlying xpdf bitmap
   output_dev->startPage( 0, NULL );
@@ -87,9 +77,9 @@ QImage Page::splashRenderToImage(double xres, double yres, int x, int y, int w, 
   return img;
 }
 
-QPixmap *Page::splashRenderToPixmap(double xres, double yres, int x, int y, int w, int h) const
+QPixmap *Page::splashRenderToPixmap(double xres, double yres, int x, int y, int w, int h, bool doLinks) const
 {
-  QImage img = splashRenderToImage(xres, yres, x, y, w, h);
+  QImage img = splashRenderToImage(xres, yres, x, y, w, h, doLinks);
 
   // Turn the QImage into a QPixmap
   QPixmap* out = new QPixmap(QPixmap::fromImage(img));
@@ -294,6 +284,125 @@ void Page::defaultCTM(double *CTM, double dpiX, double dpiY, int rotate, bool up
   ::Page *p;
   p = m_page->parentDoc->m_doc->doc.getCatalog()->getPage(m_page->index + 1);
   p->getDefaultCTM(CTM, dpiX, dpiY, rotate, upsideDown);
+}
+
+QList<Link*> Page::links() const
+{
+  QList<Link*> popplerLinks;
+
+  Links *xpdfLinks = m_page->parentDoc->m_doc->doc.takeLinks();
+  for (int i = 0; i < xpdfLinks->getNumLinks(); ++i)
+  {
+    ::Link *xpdfLink = xpdfLinks->getLink(i);
+    
+    double left, top, right, bottom;
+    int leftAux, topAux, rightAux, bottomAux;
+    xpdfLink->getRect( &left, &top, &right, &bottom );
+    QRectF linkArea;
+    
+    m_page->parentDoc->m_doc->m_splashOutputDev->cvtUserToDev( left, top, &leftAux, &topAux );
+    m_page->parentDoc->m_doc->m_splashOutputDev->cvtUserToDev( right, bottom, &rightAux, &bottomAux );
+    linkArea.setLeft(leftAux);
+    linkArea.setTop(topAux);
+    linkArea.setRight(rightAux);
+    linkArea.setBottom(bottomAux);
+
+    if (!xpdfLink->isOk()) continue;
+
+    Link *popplerLink = NULL;
+    ::LinkAction *a = xpdfLink->getAction();
+    if ( a )
+    {
+      switch ( a->getKind() )
+      {
+        case actionGoTo:
+        {
+          LinkGoTo * g = (LinkGoTo *) a;
+          // create link: no ext file, namedDest, object pointer
+          popplerLink = new LinkGoto( linkArea, QString::null, LinkDestination( LinkDestinationData(g->getDest(), g->getNamedDest(), m_page->parentDoc->m_doc ) ) );
+        }
+        break;
+
+        case actionGoToR:
+        {
+          LinkGoToR * g = (LinkGoToR *) a;
+          // copy link file
+          const char * fileName = g->getFileName()->getCString();
+          // ceate link: fileName, namedDest, object pointer
+          popplerLink = new LinkGoto( linkArea, (QString)fileName, LinkDestination( LinkDestinationData(g->getDest(), g->getNamedDest(), m_page->parentDoc->m_doc ) ) );
+        }
+        break;
+
+        case actionLaunch:
+          LinkLaunch * e = (LinkLaunch *)a;
+          GooString * p = e->getParams();
+          popplerLink = new LinkExecute( linkArea, e->getFileName()->getCString(), p ? p->getCString() : 0 );
+        break;
+
+        case actionNamed:
+          const char * name = ((LinkNamed *)a)->getName()->getCString();
+          if ( !strcmp( name, "NextPage" ) )
+              popplerLink = new LinkAction( linkArea, LinkAction::PageNext );
+          else if ( !strcmp( name, "PrevPage" ) )
+              popplerLink = new LinkAction( linkArea, LinkAction::PagePrev );
+          else if ( !strcmp( name, "FirstPage" ) )
+              popplerLink = new LinkAction( linkArea, LinkAction::PageFirst );
+          else if ( !strcmp( name, "LastPage" ) )
+              popplerLink = new LinkAction( linkArea, LinkAction::PageLast );
+          else if ( !strcmp( name, "GoBack" ) )
+              popplerLink = new LinkAction( linkArea, LinkAction::HistoryBack );
+          else if ( !strcmp( name, "GoForward" ) )
+              popplerLink = new LinkAction( linkArea, LinkAction::HistoryForward );
+          else if ( !strcmp( name, "Quit" ) )
+              popplerLink = new LinkAction( linkArea, LinkAction::Quit );
+          else if ( !strcmp( name, "GoToPage" ) )
+              popplerLink = new LinkAction( linkArea, LinkAction::GoToPage );
+          else if ( !strcmp( name, "Find" ) )
+              popplerLink = new LinkAction( linkArea, LinkAction::Find );
+          else if ( !strcmp( name, "FullScreen" ) )
+              popplerLink = new LinkAction( linkArea, LinkAction::Presentation );
+          else if ( !strcmp( name, "Close" ) )
+          {
+              // acroread closes the document always, doesnt care whether 
+              // its presentation mode or not
+              // popplerLink = new LinkAction( linkArea, LinkAction::EndPresentation );
+              popplerLink = new LinkAction( linkArea, LinkAction::Close );
+          }
+          else
+          {
+                // TODO
+          }
+        break;
+
+        case actionURI:
+          popplerLink = new LinkBrowse( linkArea, ((LinkURI *)a)->getURI()->getCString() );
+        break;
+
+        case actionMovie:
+/*      TODO this (Movie link)
+          m_type = Movie;
+          LinkMovie * m = (LinkMovie *) a;
+          // copy Movie parameters (2 IDs and a const char *)
+          Ref * r = m->getAnnotRef();
+          m_refNum = r->num;
+          m_refGen = r->gen;
+          copyString( m_uri, m->getTitle()->getCString() );
+*/      break;
+
+        case actionUnknown:
+        break;
+      }
+    }
+    
+    if (popplerLink)
+    {
+      popplerLinks.append(popplerLink);
+    }
+  }
+
+  delete xpdfLinks;
+  
+  return popplerLinks;
 }
 
 }
