@@ -335,12 +335,15 @@ QList<Link*> Page::links() const
         break;
 
         case actionLaunch:
+	{
           LinkLaunch * e = (LinkLaunch *)a;
           GooString * p = e->getParams();
           popplerLink = new LinkExecute( linkArea, e->getFileName()->getCString(), p ? p->getCString() : 0 );
+	}
         break;
 
         case actionNamed:
+	{
           const char * name = ((LinkNamed *)a)->getName()->getCString();
           if ( !strcmp( name, "NextPage" ) )
               popplerLink = new LinkAction( linkArea, LinkAction::PageNext );
@@ -373,10 +376,13 @@ QList<Link*> Page::links() const
           {
                 // TODO
           }
+	}
         break;
 
         case actionURI:
+	{
           popplerLink = new LinkBrowse( linkArea, ((LinkURI *)a)->getURI()->getCString() );
+	}
         break;
 
         case actionMovie:
