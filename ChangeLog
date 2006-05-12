@@ -1,3 +1,17 @@
+2006-05-12  Albert Astals Cid <aacid@kde.org>
+
+	* qt4/src/Makefile.am
+	* qt4/src/poppler-annotation-helper.h
+	* qt4/src/poppler-annotation.cc
+	* qt4/src/poppler-annotation.h
+	* qt4/src/poppler-link.cc
+	* qt4/src/poppler-link.h
+	* qt4/src/poppler-page.cc
+	* qt4/src/poppler-qt4.h: Code for annotations stripped from oKular,
+	it's all based on Enrico's work, so ask him for details, the problem
+	is that he left KDE development a while ago.
+	
+
 2006-05-09  Albert Astals Cid <aacid@kde.org>
 
 	* qt4/src/Makefile.am:

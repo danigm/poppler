@@ -1,5 +1,7 @@
-/* poppler-page.cc: qt interface to poppler
+/* poppler-link.cc: qt interface to poppler
  * Copyright (C) 2006, Albert Astals Cid
+ * Adapting code from
+ *   Copyright (C) 2004 by Enrico Ros <eros.kde@email.it>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by

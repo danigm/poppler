@@ -28,8 +28,9 @@
 #include <QtGui/QPixmap>
 #include <QtXml/QDomDocument>
 
-#include <poppler-page-transition.h>
+#include <poppler-annotation.h>
 #include <poppler-link.h>
+#include <poppler-page-transition.h>
 
 class EmbFile;
 
@@ -394,6 +395,11 @@ delete pixmap;
 	  Gets the links of the page once it has been rendered if doLinks was true
 	*/
 	QList<Link*> links() const;
+	
+	/**
+	 Returns the annotations of the page
+	*/
+	QList<Annotation*> annotations () const;
 	
     private:
 	Page(const Document *doc, int index);

@@ -1,4 +1,4 @@
-/* poppler-link.cc: qt interface to poppler
+/* poppler-link.h: qt interface to poppler
  * Copyright (C) 2006, Albert Astals Cid <aacid@kde.org>
  * Adapting code from
  *   Copyright (C) 2004 by Enrico Ros <eros.kde@email.it>

@@ -10,6 +10,7 @@ poppler_includedir = $(includedir)/poppler
 poppler_include_HEADERS =			\
 	poppler-qt4.h				\
 	poppler-link.h				\
+	poppler-annotation.h			\
 	../../qt/poppler-page-transition.h
 
 lib_LTLIBRARIES = libpoppler-qt4.la
@@ -21,6 +22,7 @@ libpoppler_qt4_la_SOURCES =			\
 	poppler-embeddedfile.cc			\
 	poppler-textbox.cc			\
 	poppler-link.cc				\
+	poppler-annotation.cc			\
 	../../qt/poppler-page-transition.cc	\
 	poppler-private.h
 
