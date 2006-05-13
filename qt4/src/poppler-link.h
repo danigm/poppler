@@ -150,8 +150,18 @@ class LinkAction : public Link
 {
 	public:
 		// define types of actions
-		enum ActionType { PageFirst, PagePrev, PageNext, PageLast, HistoryBack, HistoryForward,
-		                  Quit, Presentation, EndPresentation, Find, GoToPage, Close };
+		enum ActionType { PageFirst = 1,
+		                  PagePrev = 2,
+		                  PageNext = 3,
+		                  PageLast = 4,
+		                  HistoryBack = 5,
+		                  HistoryForward = 6,
+		                  Quit = 7,
+		                  Presentation = 8,
+		                  EndPresentation = 9,
+		                  Find = 10,
+		                  GoToPage = 11,
+		                  Close = 12 };
 
 		// query for action type
 		ActionType actionType() const;
