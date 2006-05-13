@@ -1127,8 +1127,7 @@ public:
   void setLineJoin(int lineJoin1) { lineJoin = lineJoin1; }
   void setLineCap(int lineCap1) { lineCap = lineCap1; }
   void setMiterLimit(double limit) { miterLimit = limit; }
-  void setFont(GfxFont *fontA, double fontSizeA)
-    { font = fontA; fontSize = fontSizeA; }
+  void setFont(GfxFont *fontA, double fontSizeA);
   void setTextMat(double a, double b, double c,
 		  double d, double e, double f)
     { textMat[0] = a; textMat[1] = b; textMat[2] = c;

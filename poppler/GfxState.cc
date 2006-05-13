@@ -4046,6 +4046,14 @@ void GfxState::setStrokePattern(GfxPattern *pattern) {
   strokePattern = pattern;
 }
 
+void GfxState::setFont(GfxFont *fontA, double fontSizeA) {
+  if (font)
+    font->decRefCnt();
+
+  font = fontA;
+  fontSize = fontSizeA;
+}
+
 void GfxState::setLineDash(double *dash, int length, double start) {
   if (lineDash)
     gfree(lineDash);

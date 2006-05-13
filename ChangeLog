@@ -1,5 +1,11 @@
 2006-05-13  Albert Astals Cid <aacid@kde.org>
 
+	* poppler/GfxState.cc:
+	* poppler/GfxState.h: Fix memleak, patch by
+	        Carlos Garcia Campos <carlosgc@gnome.org>
+
+2006-05-13  Albert Astals Cid <aacid@kde.org>
+
 	* qt4/src/poppler-document.cc: leak--
 	* qt4/src/poppler-private.h: Refcount globalparams
 	* qt4/tests/test-poppler-qt4.cpp: Some leaks less
