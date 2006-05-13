@@ -41,13 +41,11 @@
 
 namespace Poppler {
 
+  int DocumentData::count = 0;
+
   Document *Document::load(const QString &filePath, const QByteArray &ownerPassword,
 			   const QByteArray &userPassword)
     {
-	if (!globalParams) {
-	    globalParams = new GlobalParams("/etc/xpdfrc");
-	}
-
 	DocumentData *doc = new DocumentData(new GooString(QFile::encodeName(filePath)), 
 					     new GooString(ownerPassword.data()),
 					     new GooString(userPassword.data()));
@@ -286,7 +284,9 @@ namespace Poppler {
 
 	if ( infoDict->lookup( type.toLatin1().data(), &obj )->isString() )
 	{
-	    result = Poppler::convertDate(UGooString(*obj.getString()).getCString());
+	    char *aux = UGooString(*obj.getString()).getCString();
+	    result = Poppler::convertDate(aux);
+	    delete[] aux;
 	}
 	obj.free();
 	info.free();

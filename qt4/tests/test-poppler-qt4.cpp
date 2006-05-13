@@ -25,6 +25,7 @@ private:
 PDFDisplay::PDFDisplay( Poppler::Document *d, bool arthur )
 {
     doc = d;
+    pixmap = 0;
     m_currentPage = 0;
     useArthur = arthur;
     display();
@@ -35,16 +36,16 @@ void PDFDisplay::display()
     if (doc) {
         Poppler::Page *page = doc->page(m_currentPage);
         if (page) {
-            pixmap = new QPixmap(page->pageSize());
             if (useArthur)
             {
                 qDebug() << "Displaying page using Arthur backend: " << m_currentPage;
+                pixmap = new QPixmap(page->pageSize());
                 page->renderToPixmap(pixmap, 72.0, 72.0);
             }
             else
             {
                 qDebug() << "Displaying page using Splash backend: " << m_currentPage;
-		delete pixmap;
+                delete pixmap;
                 pixmap = page->splashRenderToPixmap();
             }
             update();
@@ -140,6 +141,7 @@ int main( int argc, char **argv )
 
     Poppler::Page *page = doc->page(0);
     qDebug() << "    Page 1 size: " << page->pageSize().width()/72 << "inches x " << page->pageSize().height()/72 << "inches";
+    delete page;
 
     if (argc == 2 || (argc == 3 && strcmp(argv[2], "-arthur") == 0))
     {

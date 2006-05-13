@@ -21,6 +21,7 @@
  */
 
 #include <GfxState.h>
+#include <GlobalParams.h>
 #include <Link.h>
 #include <Outline.h>
 #include <PDFDoc.h>
@@ -71,6 +72,9 @@ namespace Poppler {
 		// It might be more appropriate to delete these in PDFDoc
 		delete ownerPassword;
 		delete userPassword;
+		
+		if ( count == 0 ) globalParams = new GlobalParams("/etc/xpdfrc");
+		count ++;
 	    }
 	
 	~DocumentData()
@@ -78,6 +82,9 @@ namespace Poppler {
 		qDeleteAll(m_embeddedFiles);
 		delete m_splashOutputDev;
 		delete m_fontInfoScanner;
+		
+		count --;
+		if ( count == 0 ) delete globalParams;
 	}
 	
 	SplashOutputDev *getSplashOutputDev()
@@ -165,6 +172,7 @@ namespace Poppler {
 	SplashOutputDev *m_splashOutputDev;
 	QList<EmbeddedFile*> m_embeddedFiles;
 	QColor paperColor;
+	static int count;
     };
 
     class FontInfoData
