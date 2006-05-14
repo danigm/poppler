@@ -197,8 +197,8 @@ FontInfo::FontInfo(GfxFont *font, PDFDoc *doc) {
 }
 
 FontInfo::FontInfo(FontInfo& f) {
-  name = f.name->copy();
-  file = f.file->copy();
+  name = f.name ? f.name->copy() : NULL;
+  file = f.file ? f.file->copy() : NULL;
   type = f.type;
   emb = f.emb;
   subset = f.subset;
