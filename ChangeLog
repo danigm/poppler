@@ -131,7 +131,7 @@
 	* poppler/GfxFont.h:
 	* poppler/GfxState.cc:
 	* poppler/TextOutputDev.cc: Patch from Gary Coady to add reference
-	counting to GfxFont so we don't crash on text selection.
+	counting to GfxFont so we don't crash on text selection (#4481).
 
 2006-05-01  Albert Astals Cid <aacid@kde.org>
 
