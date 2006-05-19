@@ -483,6 +483,7 @@ Gfx::Gfx(XRef *xrefA, OutputDev *outA, Dict *resDict,
   // initialize
   out = outA;
   state = new GfxState(72, 72, box, 0, gFalse);
+  out->updateAll(state);
   fontChanged = gFalse;
   clip = clipNone;
   ignoreUndef = 0;

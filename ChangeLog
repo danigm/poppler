@@ -1,3 +1,17 @@
+2006-05-19  Kristian Høgsberg  <krh@redhat.com>
+
+	Memory leak patch from Carlos Garcia Campos (#6947).
+
+	* glib/poppler-action.cc:
+	* glib/poppler-document.cc:
+	* glib/poppler-page.cc:
+	* poppler/CairoFontEngine.cc:
+	* poppler/CairoFontEngine.h:
+	* poppler/CairoOutputDev.cc:
+	* poppler/CairoOutputDev.h:
+	* poppler/Gfx.cc:
+	* poppler/TextOutputDev.cc:  Fix various memory leaks.
+
 2006-05-19  Albert Astals Cid <aacid@kde.org>
 
 	* qt4/src/poppler-link.cc: Patch by Pino Toscano, ensure the

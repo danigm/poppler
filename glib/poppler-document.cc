@@ -411,7 +411,7 @@ info_dict_get_date (Dict *info_dict, const gchar *key, GValue *value)
   int year, mon, day, hour, min, sec;
   int scanned_items;
   struct tm *time;
-  gchar *date_string;
+  gchar *date_string, *ds;
   GTime result;
 
   if (!info_dict->lookup ((gchar *)key, &obj)->isString ()) {
@@ -428,7 +428,8 @@ info_dict_get_date (Dict *info_dict, const gchar *key, GValue *value)
   } else {
     date_string = g_strndup (goo_value->getCString (), goo_value->getLength ());
   }
-
+  ds = date_string;
+  
   /* See PDF Reference 1.3, Section 3.8.2 for PDF Date representation */
 
   if (date_string [0] == 'D' && date_string [1] == ':')
@@ -438,9 +439,12 @@ info_dict_get_date (Dict *info_dict, const gchar *key, GValue *value)
   scanned_items = sscanf (date_string, "%4d%2d%2d%2d%2d%2d",
 		&year, &mon, &day, &hour, &min, &sec);
 
-  if (scanned_items != 6)
+  if (scanned_items != 6) {
+    obj.free ();
+    g_free (ds);
     return;
-
+  }
+  
   /* Workaround for y2k bug in Distiller 3, hoping that it won't
    * be used after y2.2k */
   if (year < 1930 && strlen (date_string) > 14) {
@@ -448,9 +452,12 @@ info_dict_get_date (Dict *info_dict, const gchar *key, GValue *value)
     scanned_items = sscanf (date_string, "%2d%3d%2d%2d%2d%2d%2d",
 		&century, &years_since_1900, &mon, &day, &hour, &min, &sec);
 						
-    if (scanned_items != 7)
+    if (scanned_items != 7) {
+      obj.free ();
+      g_free (ds);
       return;
-	
+    }
+    
     year = century * 100 + years_since_1900;
   }
 
@@ -468,12 +475,15 @@ info_dict_get_date (Dict *info_dict, const gchar *key, GValue *value)
  
   /* compute tm_wday and tm_yday and check date */
   if (mktime (time) == (time_t) - 1) {
+    obj.free ();
+    g_free (ds);
     return;
   } else {
   	result = mktime (time);
   }       
     
   obj.free ();
+  g_free (ds);
   
   g_value_set_int (value, result);
 }
@@ -540,6 +550,7 @@ poppler_document_get_property (GObject    *object,
       document->doc->getDocInfo (&obj);
       if (obj.isDict ())
 	info_dict_get_string (obj.getDict(), "Title", value);
+      obj.free ();
       break;
     case PROP_FORMAT:
       str = g_strndup("PDF-", 15); /* allocates 16 chars, pads with \0s */
@@ -551,36 +562,43 @@ poppler_document_get_property (GObject    *object,
       document->doc->getDocInfo (&obj);
       if (obj.isDict ())
 	info_dict_get_string (obj.getDict(), "Author", value);
+      obj.free ();
       break;
     case PROP_SUBJECT:
       document->doc->getDocInfo (&obj);
       if (obj.isDict ())
 	info_dict_get_string (obj.getDict(), "Subject", value);
+      obj.free ();
       break;
     case PROP_KEYWORDS:
       document->doc->getDocInfo (&obj);
       if (obj.isDict ())
 	info_dict_get_string (obj.getDict(), "Keywords", value);
+      obj.free ();
       break;
     case PROP_CREATOR:
       document->doc->getDocInfo (&obj);
       if (obj.isDict ())
 	info_dict_get_string (obj.getDict(), "Creator", value);
+      obj.free ();
       break;
     case PROP_PRODUCER:
       document->doc->getDocInfo (&obj);
       if (obj.isDict ())
 	info_dict_get_string (obj.getDict(), "Producer", value);
+      obj.free ();
       break;
     case PROP_CREATION_DATE:
       document->doc->getDocInfo (&obj);
       if (obj.isDict ())
 	info_dict_get_date (obj.getDict(), "CreationDate", value);
+      obj.free ();
       break;
     case PROP_MOD_DATE:
       document->doc->getDocInfo (&obj);
       if (obj.isDict ())
 	info_dict_get_date (obj.getDict(), "ModDate", value);
+      obj.free ();
 	break;
     case PROP_LINEARIZED:
       if (document->doc->isLinearized ()) {	
@@ -1017,7 +1035,6 @@ poppler_index_iter_free (PopplerIndexIter *iter)
 		return;
 
 	g_object_unref (iter->document);
-//	delete iter->items;
 	g_free (iter);
 	
 }

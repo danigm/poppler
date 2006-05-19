@@ -244,6 +244,7 @@ static PopplerDest *
 dest_new_named (UGooString *named_dest)
 {
 	PopplerDest *dest;
+	gchar *name;
 
 	dest = g_new0 (PopplerDest, 1);
 
@@ -253,7 +254,9 @@ dest_new_named (UGooString *named_dest)
 	}
 
 	dest->type = POPPLER_DEST_NAMED;
-	dest->named_dest = g_strdup (named_dest->getCString ());
+	name = named_dest->getCString ();
+	dest->named_dest = g_strdup (name);
+	delete[] name;
 
 	return dest;
 }
@@ -317,10 +320,10 @@ build_launch (PopplerAction *action,
 	      LinkLaunch    *link)
 {
 	if (link->getFileName()) {
-		action->launch.file_name = link->getFileName()->getCString ();
+		action->launch.file_name = g_strdup (link->getFileName()->getCString ());
 	}
 	if (link->getParams()) {
-		action->launch.params = link->getParams()->getCString ();
+		action->launch.params = g_strdup (link->getParams()->getCString ());
 	}
 }
 

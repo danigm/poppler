@@ -2375,6 +2375,8 @@ void TextPage::coalesce(GBool physLayout) {
   //----- column assignment
 
   // sort blocks into xy order for column assignment
+  if (blocks)
+    gfree (blocks);
   blocks = (TextBlock **)gmallocn(nBlocks, sizeof(TextBlock *));
   for (blk = blkList, i = 0; blk; blk = blk->next, ++i) {
     blocks[i] = blk;
@@ -2512,6 +2514,11 @@ void TextPage::coalesce(GBool physLayout) {
   //~ this also needs to account for right-to-left column ordering
   blkArray = (TextBlock **)gmallocn(nBlocks, sizeof(TextBlock *));
   memcpy(blkArray, blocks, nBlocks * sizeof(TextBlock *));
+  while (flows) {
+    flow = flows;
+    flows = flows->next;
+    delete flow;
+  }
   flows = lastFlow = NULL;
   firstBlkIdx = 0;
   nBlocksLeft = nBlocks;
@@ -3375,6 +3382,8 @@ void TextSelectionPainter::visitWord (TextWord *word, int begin, int end,
 		  word->charcode[i], 1, NULL, 0);
   
   out->endString(state);
+
+  delete string;
 }
 
 void TextWord::visitSelection(TextSelectionVisitor *visitor,

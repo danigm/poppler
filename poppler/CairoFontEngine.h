@@ -18,19 +18,26 @@
 
 class CairoFont {
 public:
-  CairoFont(GfxFont *gfxFont, XRef *xref, FT_Library lib, GBool useCIDs);
-  ~CairoFont();
+  static CairoFont *create(GfxFont *gfxFont, XRef *xref,
+			   FT_Library lib, GBool useCIDs);
+
+  CairoFont *reference() { refcount++; return this; }
+  void unreference() { if (--refcount == 0) delete this; }
 
   GBool matches(Ref &other);
   cairo_font_face_t *getFontFace(void);
   unsigned long getGlyph(CharCode code, Unicode *u, int uLen);
-private:
-  Ref ref;
-  cairo_font_face_t *cairo_font_face;
-  FT_Face face;
 
+protected:
+  CairoFont(GfxFont *gfxFont, XRef *xref);
+  virtual ~CairoFont();
+
+  Ref ref;
+  XRef *xref;
+  cairo_font_face_t *cairo_font_face;
   Gushort *codeToGID;
   int codeToGIDLen;
+  int refcount;
 };
 
 //------------------------------------------------------------------------

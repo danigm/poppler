@@ -860,6 +860,8 @@ poppler_page_get_link_mapping (PopplerPage *page)
 		map_list = g_list_prepend (map_list, mapping);
 	}
 
+	delete links;
+
 	return map_list;
 }
 
