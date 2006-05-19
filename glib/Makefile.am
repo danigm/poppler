@@ -11,6 +11,7 @@ endif
 
 SUBDIRS = . reference
 INCLUDES =					\
+	-DG_LOG_DOMAIN=\"Poppler\"		\
 	-I$(top_srcdir)				\
 	-I$(top_srcdir)/poppler			\
 	$(cairo_includes)			\

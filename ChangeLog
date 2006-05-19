@@ -1,5 +1,8 @@
 2006-05-19  Kristian Høgsberg  <krh@redhat.com>
 
+	* glib/Makefile.am (INCLUDES): Add define for G_LOG_DOMAIN, from
+	Kouhei Souto (#6899).
+
 	* glib/poppler-document.cc (poppler_document_save): Memleak patch
 	from Paolo Borelli (#6908).
 
