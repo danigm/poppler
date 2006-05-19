@@ -137,6 +137,10 @@ gboolean	  poppler_fonts_iter_is_subset     (PopplerFontsIter  *iter);
 gboolean          poppler_fonts_iter_next          (PopplerFontsIter  *iter);
 
 /* Export to ps */
+#define POPPLER_TYPE_PS_FILE             (poppler_ps_file_get_type ())
+#define POPPLER_PS_FILE(obj)             (G_TYPE_CHECK_INSTANCE_CAST ((obj), POPPLER_TYPE_PS_FILE, PopplerPSFile))
+#define POPPLER_IS_PS_FILE(obj)          (G_TYPE_CHECK_INSTANCE_TYPE ((obj), POPPLER_TYPE_PS_FILE))
+GType          poppler_ps_file_get_type       (void) G_GNUC_CONST;
 PopplerPSFile *poppler_ps_file_new            (PopplerDocument *document,
                                                const char      *filename,
                                                int              first_page,

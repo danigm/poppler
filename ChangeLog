@@ -1,5 +1,16 @@
 2006-05-19  Kristian Høgsberg  <krh@redhat.com>
 
+	Patch from Kouhei Sutou (#6905).
+	
+	* glib/poppler-document.cc:
+	* glib/poppler-document.h:
+	* glib/poppler-private.h:
+	* glib/reference/tmpl/poppler-private.sgml:
+	* glib/reference/tmpl/poppler.sgml: Make PopplerPSOutput a proper
+	glib object.
+
+2006-05-19  Kristian Høgsberg  <krh@redhat.com>
+
 	* glib/poppler-page.cc (poppler_page_prepare_output_dev): Fix
 	rotation bug (#6913, #6926).
 

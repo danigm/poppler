@@ -1227,6 +1227,45 @@ poppler_font_info_free (PopplerFontInfo *font_info)
 	g_free (font_info);
 }
 
+
+typedef struct _PopplerPSFileClass PopplerPSFileClass;
+struct _PopplerPSFileClass
+{
+        GObjectClass parent_class;
+};
+
+G_DEFINE_TYPE (PopplerPSFile, poppler_ps_file, G_TYPE_OBJECT);
+
+static void poppler_ps_file_finalize (GObject *object);
+
+
+static void
+poppler_ps_file_class_init (PopplerPSFileClass *klass)
+{
+        GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
+
+        gobject_class->finalize = poppler_ps_file_finalize;
+}
+
+static void
+poppler_ps_file_init (PopplerPSFile *ps_file)
+{
+        ps_file->out = NULL;
+        ps_file->paper_width = -1;
+        ps_file->paper_height = -1;
+        ps_file->duplex = FALSE;
+}
+
+static void
+poppler_ps_file_finalize (GObject *object)
+{
+        PopplerPSFile *ps_file = POPPLER_PS_FILE (object);
+
+        delete ps_file->out;
+        g_object_unref (ps_file->document);
+        g_free (ps_file->filename);
+}
+
 /**
  * poppler_ps_file_new:
  * @document: a #PopplerDocument
@@ -1248,12 +1287,12 @@ poppler_ps_file_new (PopplerDocument *document, const char *filename,
 	g_return_val_if_fail (filename != NULL, NULL);
 	g_return_val_if_fail (n_pages > 0, NULL);
 
-	ps_file = g_new0 (PopplerPSFile, 1);
+        ps_file = (PopplerPSFile *) g_object_new (POPPLER_TYPE_PS_FILE, NULL);
 	ps_file->document = (PopplerDocument *) g_object_ref (document);
         ps_file->filename = g_strdup (filename);
         ps_file->first_page = first_page + 1;
         ps_file->last_page = first_page + 1 + n_pages - 1;
-        
+
 	return ps_file;
 }
 
@@ -1305,11 +1344,5 @@ void
 poppler_ps_file_free (PopplerPSFile *ps_file)
 {
 	g_return_if_fail (ps_file != NULL);
-
-	delete ps_file->out;
-	g_object_unref (ps_file->document);
-        g_free (ps_file->filename);
-	g_free (ps_file);
+        g_object_unref (ps_file);
 }
-
-

@@ -32,6 +32,8 @@ struct _PopplerDocument
 
 struct _PopplerPSFile
 {
+  GObject parent_instance;
+
   PopplerDocument *document;
   PSOutputDev *out;
   char *filename;
