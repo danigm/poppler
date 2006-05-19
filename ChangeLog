@@ -1,3 +1,8 @@
+2006-05-19  Albert Astals Cid <aacid@kde.org>
+
+	* qt4/src/poppler-link.cc: Patch by Pino Toscano, ensure the
+	splashoutput is created when parsing the TOC.
+
 2006-05-14  Albert Astals Cid <aacid@kde.org>
 
 	* poppler/FontInfo.cc: Fix possible crash, half patch 
