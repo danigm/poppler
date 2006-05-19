@@ -142,8 +142,14 @@ poppler_page_prepare_output_dev (PopplerPage *page,
   double width, height;
   int cairo_width, cairo_height, cairo_rowstride;
   unsigned char *cairo_data;
+  int rotate;
 
-  poppler_page_get_size (page, &width, &height);
+  rotate = (rotation + page->page->getRotate()) % 360;
+  if (rotate == 90 || rotate == 270)
+      poppler_page_get_size (page, &height, &width);
+  else
+      poppler_page_get_size (page, &width, &height);
+
   cairo_width = (int) ceil(width * scale);
   cairo_height = (int) ceil(height * scale);
 
@@ -316,6 +322,10 @@ poppler_page_render (PopplerPage *page,
 /**
  * poppler_page_render:
  * @page: the page to render from
+ * @src_x: x coordinate of upper left corner  
+ * @src_y: y coordinate of upper left corner  
+ * @src_width: width of rectangle to render  
+ * @src_height: height of rectangle to render
  * @scale: scale specified as pixels per point
  * @rotation: rotate the document by the specified degree
  * @pixbuf: pixbuf to render into

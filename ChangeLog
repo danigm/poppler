@@ -1,5 +1,8 @@
 2006-05-19  Kristian Høgsberg  <krh@redhat.com>
 
+	* glib/poppler-page.cc (poppler_page_prepare_output_dev): Fix
+	rotation bug (#6913, #6926).
+
 	Memory leak patch from Carlos Garcia Campos (#6947).
 
 	* glib/poppler-action.cc:
