@@ -140,15 +140,17 @@ poppler_page_prepare_output_dev (PopplerPage *page,
   CairoOutputDev *output_dev;
   cairo_surface_t *surface;
   double width, height;
-  int cairo_width, cairo_height, cairo_rowstride;
+  int cairo_width, cairo_height, cairo_rowstride, rotate;
   unsigned char *cairo_data;
-  int rotate;
 
-  rotate = (rotation + page->page->getRotate()) % 360;
-  if (rotate == 90 || rotate == 270)
-      poppler_page_get_size (page, &height, &width);
-  else
-      poppler_page_get_size (page, &width, &height);
+  rotate = rotation + page->page->getRotate ();
+  if (rotate == 90 || rotate == 270) {
+    height = page->page->getCropWidth ();
+    width = page->page->getCropHeight ();
+  } else {
+    width = page->page->getCropWidth ();
+    height = page->page->getCropHeight ();
+  }
 
   cairo_width = (int) ceil(width * scale);
   cairo_height = (int) ceil(height * scale);

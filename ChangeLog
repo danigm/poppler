@@ -1,5 +1,10 @@
 2006-05-19  Kristian Høgsberg  <krh@redhat.com>
 
+	* glib/poppler-page.cc (poppler_page_prepare_output_dev): Fix the
+	rotation bug for real.
+
+2006-05-19  Kristian Høgsberg  <krh@redhat.com>
+
 	Patch from Kouhei Sutou (#6905).
 	
 	* glib/poppler-document.cc:
