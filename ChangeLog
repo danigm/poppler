@@ -1,5 +1,9 @@
 2006-05-19  Kristian Høgsberg  <krh@redhat.com>
 
+	* glib/poppler-document.h (POPPLER_TYPE_INDEX_ITER)
+	(POPPLER_TYPE_FONTS_ITER): Add these macros, patch from Kouhei
+	Souto (#6897).
+
 	* glib/Makefile.am (INCLUDES): Add define for G_LOG_DOMAIN, from
 	Kouhei Souto (#6899).
 

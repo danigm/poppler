@@ -109,6 +109,7 @@ PopplerDest     *poppler_document_find_dest         (PopplerDocument  *document,
 						     const gchar      *link_name);
 
 /* Interface for getting the Index of a poppler_document */
+#define POPPLER_TYPE_INDEX_ITER                 (poppler_index_iter_get_type ())
 GType             poppler_index_iter_get_type   (void) G_GNUC_CONST;
 PopplerIndexIter *poppler_index_iter_new        (PopplerDocument   *document);
 PopplerIndexIter *poppler_index_iter_copy       (PopplerIndexIter  *iter);
@@ -126,6 +127,7 @@ gboolean          poppler_font_info_scan           (PopplerFontInfo   *font_info
 						    PopplerFontsIter **iter);
 void		  poppler_font_info_free	   (PopplerFontInfo   *font_info);
 
+#define POPPLER_TYPE_FONTS_ITER                    (poppler_fonts_iter_get_type ())
 GType             poppler_fonts_iter_get_type      (void) G_GNUC_CONST;
 PopplerFontsIter *poppler_fonts_iter_copy          (PopplerFontsIter  *iter);
 void              poppler_fonts_iter_free          (PopplerFontsIter  *iter);
