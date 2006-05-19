@@ -136,6 +136,9 @@ poppler_include_HEADERS =	\
 	UnicodeMap.h		\
 	UnicodeMapTables.h	\
 	UnicodeTypeTable.h	\
+	UnicodeCClassTables.h	\
+	UnicodeCompTables.h	\
+	UnicodeDecompTables.h	\
 	XRef.h			\
 	CharTypes.h		\
 	CompactFontTables.h	\
@@ -200,3 +203,5 @@ libpoppler_la_SOURCES =		\
 	SecurityHandler.cc	\
 	UGooString.cc	 	\
 	XpdfPluginAPI.cc
+
+EXTRA_DIST = gen-unicode-tables.py

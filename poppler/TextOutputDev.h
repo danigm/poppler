@@ -240,6 +240,9 @@ private:
   int convertedLen;		// total number of converted characters
   GBool hyphenated;		// set if last char is a hyphen
   TextLine *next;		// next line in block
+  Unicode *normalized;		// normalized form of Unicode text
+  int normalized_len;		// number of normalized Unicode chars
+  int *normalized_idx;		// indices of normalized chars into Unicode text
 
   friend class TextLineFrag;
   friend class TextBlock;

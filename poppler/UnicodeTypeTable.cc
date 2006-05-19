@@ -9,6 +9,7 @@
 #include <stdlib.h>
 #include "CharTypes.h"
 #include "UnicodeTypeTable.h"
+#include "goo/gmem.h"
 
 struct UnicodeMapTableEntry {
   char *vector;
@@ -947,3 +948,237 @@ Unicode unicodeToUpper(Unicode c) {
   return c;
 }
 
+#define UNICODE_LAST_CHAR 0x10FFFF
+#define UNICODE_MAX_TABLE_INDEX (UNICODE_LAST_CHAR / 256 + 1)
+// large empty block between U+2FA1D and U+E0001
+#define UNICODE_LAST_CHAR_PART1 0x2FAFF
+#define UNICODE_LAST_PAGE_PART1 (UNICODE_LAST_CHAR_PART1 / 256)
+#define UNICODE_PART2_START 0xE0000
+
+#include "UnicodeCClassTables.h"
+#include "UnicodeCompTables.h"
+#include "UnicodeDecompTables.h"
+
+#define CC_PART1(Page, Char) \
+  ((combining_class_table_part1[Page] >= UNICODE_MAX_TABLE_INDEX) \
+   ? (combining_class_table_part1[Page] - UNICODE_MAX_TABLE_INDEX) \
+   : (cclass_data[combining_class_table_part1[Page]][Char]))
+
+#define CC_PART2(Page, Char) \
+  ((combining_class_table_part2[Page] >= UNICODE_MAX_TABLE_INDEX) \
+   ? (combining_class_table_part2[Page] - UNICODE_MAX_TABLE_INDEX) \
+   : (cclass_data[combining_class_table_part2[Page]][Char]))
+
+#define COMBINING_CLASS(u) (((u) <= UNICODE_LAST_CHAR_PART1) \
+    ? CC_PART1((u) / 256, (u) % 256) \
+    : (((u) >= UNICODE_PART2_START && (u) <= UNICODE_LAST_CHAR) \
+      ? CC_PART2(((u) - UNICODE_PART2_START) / 256, (u) % 256) \
+      : 0))
+
+// Write the compatibility decomposition of @u into @buf, returning the number 
+// of characters written. @buf may be NULL, in which case the length of the
+// decomposition is returned but nothing is written. If @u is its own
+// decomposition, write @u into @buf and return 1.
+static int decomp_compat(Unicode u, Unicode *buf) {
+  // decomposition tables stored as lists {character, decomp_length, offset}
+  // so we do a binary search
+  int start = 0, end = DECOMP_TABLE_LENGTH;
+  if (u >= decomp_table[start].character 
+      && u <= decomp_table[end - 1].character)
+    while (gTrue) {
+      int midpoint = (start + end) / 2;
+      if (u == decomp_table[midpoint].character) {
+	int offset = decomp_table[midpoint].offset;
+	if (offset == -1)
+	  break;
+	else {
+	  int length = decomp_table[midpoint].length, i;
+	  if (buf)
+	    for (i = 0; i < length; ++i)
+	      buf[i] = decomp_expansion[offset + i];
+	  return length;
+	}
+      } else if (midpoint == start)
+	break;
+      else if (u > decomp_table[midpoint].character)
+	start = midpoint;
+      else
+	end = midpoint;
+    }
+  if (buf)
+    *buf = u;
+  return 1;
+}
+
+#define CI(Page, Char) \
+  ((compose_table[Page] >= UNICODE_MAX_TABLE_INDEX) \
+   ? (compose_table[Page] - UNICODE_MAX_TABLE_INDEX) \
+   : (compose_data[compose_table[Page]][Char]))
+
+#define COMPOSE_INDEX(u) \
+     ((((u) / 256) > (COMPOSE_TABLE_LAST)) ? 0 : CI((u) / 256, (u) % 255))
+
+// If @add combines with @base, write the combination to @out and return 
+// gTrue. Otherwise return gFalse.
+static GBool combine(Unicode base, Unicode add, Unicode *out) {
+  unsigned short idx_base, idx_add;
+
+  idx_base = COMPOSE_INDEX(base);
+  if (idx_base >= COMPOSE_FIRST_SINGLE_START 
+      && idx_base < COMPOSE_SECOND_START) {
+    if (compose_first_single[idx_base - COMPOSE_FIRST_SINGLE_START][0]
+	== add) {
+      *out = compose_first_single[idx_base - COMPOSE_FIRST_SINGLE_START][1];
+      return gTrue;
+    } else
+      return gFalse;
+  }
+
+  idx_add = COMPOSE_INDEX(add);
+  if (idx_add >= COMPOSE_SECOND_SINGLE_START) {
+    if (compose_second_single[idx_add - COMPOSE_SECOND_SINGLE_START][0]
+	== base) {
+      *out = compose_second_single[idx_add - COMPOSE_SECOND_SINGLE_START][1];
+      return gTrue;
+    } else
+      return gFalse;
+  }
+
+  if (idx_base >= COMPOSE_FIRST_START && idx_base < COMPOSE_FIRST_SINGLE_START 
+      && idx_add >= COMPOSE_SECOND_START 
+      && idx_add < COMPOSE_SECOND_SINGLE_START) {
+    Unicode o = compose_array[idx_base - COMPOSE_FIRST_START]
+      [idx_add - COMPOSE_SECOND_START];
+    if (o) {
+      *out = o;
+      return gTrue;
+    }
+  }
+
+  return gFalse;
+}
+
+#define HANGUL_S_BASE 0xAC00
+#define HANGUL_L_BASE 0x1100
+#define HANGUL_V_BASE 0x1161
+#define HANGUL_T_BASE 0x11A7
+#define HANGUL_L_COUNT 19
+#define HANGUL_V_COUNT 21
+#define HANGUL_T_COUNT 28
+#define HANGUL_S_COUNT (HANGUL_L_COUNT * HANGUL_V_COUNT * HANGUL_T_COUNT)
+#define HANGUL_N_COUNT (HANGUL_V_COUNT * HANGUL_T_COUNT)
+#define HANGUL_IS_L(u) (((u) >= HANGUL_L_BASE) \
+    && ((u) < HANGUL_L_BASE + HANGUL_L_COUNT))
+#define HANGUL_IS_V(u) (((u) >= HANGUL_V_BASE) \
+    && ((u) < HANGUL_V_BASE + HANGUL_V_COUNT))
+#define HANGUL_IS_T(u) (((u) >= HANGUL_T_BASE) \
+    && ((u) < HANGUL_T_BASE + HANGUL_T_COUNT))
+#define HANGUL_IS_SYLLABLE(u) (((u) >= HANGUL_S_BASE) \
+    && ((u) < HANGUL_S_BASE + HANGUL_S_COUNT))
+#define HANGUL_SYLLABLE_IS_LV(u) (((u) - HANGUL_S_BASE) % HANGUL_T_COUNT == 0)
+#define IS_HANGUL(u) (HANGUL_IS_L(u) || HANGUL_IS_V(u) || HANGUL_IS_T(u) \
+    || HANGUL_IS_SYLLABLE(u))
+#define HANGUL_COMPOSE_L_V(l, v) (HANGUL_S_BASE + (HANGUL_T_COUNT * \
+      (((v) - HANGUL_V_BASE) + (HANGUL_V_COUNT * ((l) - HANGUL_L_BASE)))))
+#define HANGUL_COMPOSE_LV_T(lv, t) ((lv) + ((t) - HANGUL_T_BASE))
+
+// Converts Unicode string @in of length @len to its normalization in form 
+// NFKC (compatibility decomposition + canonical composition). The length of
+// the resulting Unicode string is returned in @out_len. If non-NULL, @indices
+// is assigned the location of a newly-allocated array of length @out_len + 1, 
+// for each character in the normalized string giving the index in @in of the 
+// corresponding unnormalized character. @indices is not guaranteed monotone or
+// onto.
+Unicode *unicodeNormalizeNFKC(Unicode *in, int len, 
+			      int *out_len, int **indices) {
+  Unicode *out;
+  int i, o, *classes, *idx = NULL;
+
+  for (i = 0, o = 0; i < len; ++i) {
+    if (HANGUL_IS_L(in[i]) || HANGUL_IS_SYLLABLE(in[i])) {
+      o += 1;
+    } else
+      o += decomp_compat(in[i], NULL);
+  }
+  
+  out = (Unicode *) gmallocn(o, sizeof(Unicode));
+  classes = (int *) gmallocn(o, sizeof(int));
+  if (indices)
+    idx = (int *) gmallocn(o + 1, sizeof(int));
+
+  for (i = 0, o = 0; i < len; ) {
+    Unicode u = in[i];
+    if (IS_HANGUL(u)) {
+      if (HANGUL_IS_L(u)) {
+	Unicode l = u;
+	if (i+1 < len && HANGUL_IS_V(in[i+1])) {
+	  Unicode lv = HANGUL_COMPOSE_L_V(l, in[++i]);
+	  if (i+1 < len && HANGUL_IS_T(in[i+1]))
+	    out[o] = HANGUL_COMPOSE_LV_T(lv, in[++i]);
+	  else
+	    out[o] = lv;
+	} else
+	  out[o] = l;
+      } else if (HANGUL_SYLLABLE_IS_LV(u)) {
+	Unicode lv = u;
+	if (i+1 < len && HANGUL_IS_T(in[i+1]))
+	  out[o] = HANGUL_COMPOSE_LV_T(lv, in[++i]);
+	else
+	  out[o] = lv;
+      } else
+	out[o] = u;
+      if (indices)
+	idx[o] = i;
+      ++i; ++o;
+    } else {
+      int j, p, q, r, s, dlen;
+      // write compatibility decompositions into out (we have enough space)
+      // chomp in until a starter is reached
+      for (j = i, p = o; j < len; ++j) {
+	u = in[j];
+	if (j != i && COMBINING_CLASS(u) == 0)
+	  break;
+	dlen = decomp_compat(u, out + p);
+	for (q = p; q < p + dlen; ++q) {
+	  classes[q] = COMBINING_CLASS(out[q]);
+	  if (indices)
+	    idx[q] = j;
+	}
+	p += dlen;
+      }
+      // put out[o, p) in canonical ordering
+      for (q = o + 1; q < p; ++q)
+	for (r = q; r > o + 1; --r) { 	// FIXME worth using a better sort?
+	  int swap;
+	  if (classes[r] >= classes[r-1])
+	    break;
+	  u = out[r]; out[r] = out[r - 1]; out[r - 1] = u;
+	  swap = classes[r]; classes[r] = classes[r - 1]; classes[r - 1] = swap;
+	  if (indices)
+	    swap = idx[r]; idx[r] = idx[r - 1]; idx[r - 1] = swap;
+	}
+      // canonical compose out[o, p)
+      for (q = o + 1; q < p; ++q)
+	if (!combine(out[o], out[q], &out[o]))
+	  break;
+      // move out[q, p) back to [o+1, ?)
+      if (q != o + 1)
+	for (r = q, s = o + 1; r < p; ++r, ++s) {
+	  out[s] = out[r];
+	  if (indices)
+	    idx[s] = idx[r];
+	}
+      else
+	s = p;
+      i = j; o = s;
+    }
+  }
+
+  *out_len = o;
+  gfree(classes);
+  if (indices) {
+    idx[o] = len;
+    *indices = idx;
+  }
+  return out;
+}

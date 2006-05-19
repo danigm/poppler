@@ -1,5 +1,18 @@
 2006-05-19  Kristian Høgsberg  <krh@redhat.com>
 
+	* TextOutputDev.h:
+	* TextOutputDev.cc:
+	* UnicodeTypeTable.h:
+	* UnicodeTypeTable.cc:
+	* UnicodeCClassTables.h:
+	* UnicodeCompTables.h:
+	* UnicodeDecompTables.h:
+	* gen-unicode-tables.py: Patch from Ed Catmur (#2929) to convert
+	search string and document text to unicode NFKC (compatibility
+	composition) before matching so ligatures match correctly.
+
+2006-05-19  Kristian Høgsberg  <krh@redhat.com>
+
 	* glib/poppler-page.cc (poppler_page_prepare_output_dev): Fix the
 	rotation bug for real.
 

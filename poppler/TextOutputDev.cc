@@ -497,6 +497,9 @@ TextLine::TextLine(TextBlock *blkA, int rotA, double baseA) {
   next = NULL;
   xMin = yMin = 0;
   xMax = yMax = -1;
+  normalized = NULL;
+  normalized_len = 0;
+  normalized_idx = NULL;
 }
 
 TextLine::~TextLine() {
@@ -510,6 +513,10 @@ TextLine::~TextLine() {
   gfree(text);
   gfree(edge);
   gfree(col);
+  if (normalized) {
+    gfree(normalized);
+    gfree(normalized_idx);
+  }
 }
 
 void TextLine::addWord(TextWord *word) {
@@ -2659,12 +2666,12 @@ GBool TextPage::findText(Unicode *s, int len,
 
   // convert the search string to uppercase
   if (!caseSensitive) {
-    s2 = (Unicode *)gmallocn(len, sizeof(Unicode));
+    s2 = unicodeNormalizeNFKC(s, len, &len, NULL);
     for (i = 0; i < len; ++i) {
-      s2[i] = unicodeToUpper(s[i]);
+      s2[i] = unicodeToUpper(s2[i]);
     }
   } else {
-    s2 = s;
+    s2 = unicodeNormalizeNFKC(s, len, &len, NULL);
   }
 
   txt = NULL;
@@ -2719,18 +2726,22 @@ GBool TextPage::findText(Unicode *s, int len,
 	continue;
       }
 
+      if (!line->normalized)
+	line->normalized = unicodeNormalizeNFKC(line->text, line->len, 
+						&line->normalized_len, 
+						&line->normalized_idx);
       // convert the line to uppercase
-      m = line->len;
+      m = line->normalized_len;
       if (!caseSensitive) {
 	if (m > txtSize) {
 	  txt = (Unicode *)greallocn(txt, m, sizeof(Unicode));
 	  txtSize = m;
 	}
 	for (k = 0; k < m; ++k) {
-	  txt[k] = unicodeToUpper(line->text[k]);
+	  txt[k] = unicodeToUpper(line->normalized[k]);
 	  }
 	  } else {
-	txt = line->text;
+	txt = line->normalized;
 	  }
 
       // search each position in this line
@@ -2749,28 +2760,28 @@ GBool TextPage::findText(Unicode *s, int len,
 	if (k == len) {
 	  switch (line->rot) {
 	  case 0:
-	    xMin1 = line->edge[j];
-	    xMax1 = line->edge[j + len];
+	    xMin1 = line->edge[line->normalized_idx[j]];
+	    xMax1 = line->edge[line->normalized_idx[j + len]];
 	    yMin1 = line->yMin;
 	    yMax1 = line->yMax;
 	    break;
 	  case 1:
 	    xMin1 = line->xMin;
 	    xMax1 = line->xMax;
-	    yMin1 = line->edge[j];
-	    yMax1 = line->edge[j + len];
+	    yMin1 = line->edge[line->normalized_idx[j]];
+	    yMax1 = line->edge[line->normalized_idx[j + len]];
 	    break;
 	  case 2:
-	    xMin1 = line->edge[j + len];
-	    xMax1 = line->edge[j];
+	    xMin1 = line->edge[line->normalized_idx[j + len]];
+	    xMax1 = line->edge[line->normalized_idx[j]];
 	    yMin1 = line->yMin;
 	    yMax1 = line->yMax;
 	    break;
 	  case 3:
 	    xMin1 = line->xMin;
 	    xMax1 = line->xMax;
-	    yMin1 = line->edge[j + len];
-	    yMax1 = line->edge[j];
+	    yMin1 = line->edge[line->normalized_idx[j + len]];
+	    yMax1 = line->edge[line->normalized_idx[j]];
 	    break;
 	  }
 	  if (backward) {
@@ -2814,8 +2825,8 @@ GBool TextPage::findText(Unicode *s, int len,
     }
     }
 
+  gfree(s2);
   if (!caseSensitive) {
-    gfree(s2);
     gfree(txt);
   }
 
