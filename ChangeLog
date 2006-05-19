@@ -1,5 +1,9 @@
 2006-05-19  Kristian Høgsberg  <krh@redhat.com>
 
+	* glib/poppler-action.h: 
+	* glib/poppler-action.cc: Add poppler_dest_get_type(), patch from
+	Kouhei Souto (#6907).
+
 	* poppler-glib.pc.in (Requires): Add gdk-2.0 dependency, from
 	Kouhei Souto (#6896).
 

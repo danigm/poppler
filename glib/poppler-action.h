@@ -150,6 +150,10 @@ GType          poppler_action_get_type (void) G_GNUC_CONST;
 void           poppler_action_free     (PopplerAction *action);
 PopplerAction *poppler_action_copy     (PopplerAction *action);
 
+
+#define POPPLER_TYPE_DEST              (poppler_dest_get_type ())
+GType          poppler_dest_get_type   (void) G_GNUC_CONST;
+
 void           poppler_dest_free       (PopplerDest   *dest);
 PopplerDest   *poppler_dest_copy       (PopplerDest   *dest);
 

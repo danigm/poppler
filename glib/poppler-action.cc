@@ -21,6 +21,19 @@
 #include "poppler.h"
 #include "poppler-private.h"
 
+GType
+poppler_dest_get_type (void)
+{
+  static GType our_type = 0;
+
+  if (our_type == 0)
+    our_type = g_boxed_type_register_static ("PopplerDest",
+					     (GBoxedCopyFunc) poppler_dest_copy,
+					     (GBoxedFreeFunc) poppler_dest_free);
+
+  return our_type;
+}
+
 /**
  * poppler_dest_copy:
  * @dest: a #PopplerDest
