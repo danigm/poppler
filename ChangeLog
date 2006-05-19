@@ -1,5 +1,10 @@
 2006-05-19  Kristian Høgsberg  <krh@redhat.com>
 
+	* glib/poppler-document.cc (poppler_document_save): Memleak patch
+	from Paolo Borelli (#6908).
+
+2006-05-19  Kristian Høgsberg  <krh@redhat.com>
+	
 	* TextOutputDev.h:
 	* TextOutputDev.cc:
 	* UnicodeTypeTable.h:

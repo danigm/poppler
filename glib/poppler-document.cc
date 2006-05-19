@@ -166,6 +166,8 @@ poppler_document_save (PopplerDocument  *document,
     GooString *fname = new GooString (filename);
 
     retval = document->doc->saveAs (fname);
+
+    delete fname;
   }
 
   return retval;
