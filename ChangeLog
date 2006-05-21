@@ -1,3 +1,9 @@
+2006-05-21  Kristian Høgsberg  <krh@redhat.com>
+
+	* poppler/CairoFontEngine.cc:
+	* poppler/CairoFontEngine.h: Back out type3 font work committed by
+	accident.
+
 2006-05-21  Albert Astals Cid <aacid@kde.org>
 
 	* qt4/src/poppler-page.cc:
