@@ -37,7 +37,7 @@
 
 2006-05-19  Kristian Høgsberg  <krh@redhat.com>
 
-	Patch from Kouhei Sutou (#6905).
+	Patch from Kouhei Souto (#6905).
 	
 	* glib/poppler-document.cc:
 	* glib/poppler-document.h:
