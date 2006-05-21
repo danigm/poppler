@@ -69,6 +69,23 @@ QImage Page::splashRenderToImage(double xres, double yres, int x, int y, int w, 
   int bh = bitmap->getHeight();
   
   SplashColorPtr dataPtr = output_dev->getBitmap()->getDataPtr();
+  
+  if (QSysInfo::BigEndian == QSysInfo::ByteOrder)
+  {
+    uchar c;
+    int count = bw * bh * 4;
+    for (int k = 0; k < count; k += 4)
+    {
+      c = dataPtr[k];
+      dataPtr[k] = dataPtr[k+3];
+      dataPtr[k+3] = c;
+
+      c = dataPtr[k+1];
+      dataPtr[k+1] = dataPtr[k+2];
+      dataPtr[k+2] = c;
+    }
+  }
+  
   // construct a qimage SHARING the raw bitmap data in memory
   QImage img( dataPtr, bw, bh, QImage::Format_ARGB32 );
   img = img.copy();

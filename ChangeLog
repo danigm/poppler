@@ -1,3 +1,10 @@
+2006-05-21  Albert Astals Cid <aacid@kde.org>
+
+	* qt4/src/poppler-page.cc:
+	* qt/src/poppler-page.cc: Swap byte order on bigendian machines.
+	Thanks a lot to Jonathan Riddell <jr@jriddell.org> for letting me use
+	his minimac for	testing
+
 2006-05-19  Kristian Høgsberg  <krh@redhat.com>
 
 	* glib/poppler-action.h: 

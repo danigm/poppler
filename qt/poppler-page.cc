@@ -77,6 +77,23 @@ QImage Page::renderToImage(double xres, double yres) const
   int bw = output_dev->getBitmap()->getWidth();
   int bh = output_dev->getBitmap()->getHeight();
   SplashColorPtr dataPtr = output_dev->getBitmap()->getDataPtr();
+  
+  if (QImage::BigEndian == QImage::systemByteOrder())
+  {
+    uchar c;
+    int count = bw * bh * 4;
+    for (int k = 0; k < count; k += 4)
+    {
+      c = dataPtr[k];
+      dataPtr[k] = dataPtr[k+3];
+      dataPtr[k+3] = c;
+
+      c = dataPtr[k+1];
+      dataPtr[k+1] = dataPtr[k+2];
+      dataPtr[k+2] = c;
+    }
+  }
+  
   // construct a qimage SHARING the raw bitmap data in memory
   QImage img( dataPtr, bw, bh, 32, 0, 0, QImage::IgnoreEndian );
   img = img.copy();
