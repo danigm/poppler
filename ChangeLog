@@ -2,17 +2,17 @@
 
 	* glib/poppler-action.h: 
 	* glib/poppler-action.cc: Add poppler_dest_get_type(), patch from
-	Kouhei Souto (#6907).
+	Kouhei Sutou (#6907).
 
 	* poppler-glib.pc.in (Requires): Add gdk-2.0 dependency, from
-	Kouhei Souto (#6896).
+	Kouhei Sutou (#6896).
 
 	* glib/poppler-document.h (POPPLER_TYPE_INDEX_ITER)
 	(POPPLER_TYPE_FONTS_ITER): Add these macros, patch from Kouhei
-	Souto (#6897).
+	Sutou (#6897).
 
 	* glib/Makefile.am (INCLUDES): Add define for G_LOG_DOMAIN, from
-	Kouhei Souto (#6899).
+	Kouhei Sutou (#6899).
 
 	* glib/poppler-document.cc (poppler_document_save): Memleak patch
 	from Paolo Borelli (#6908).
@@ -37,7 +37,7 @@
 
 2006-05-19  Kristian Høgsberg  <krh@redhat.com>
 
-	Patch from Kouhei Souto (#6905).
+	Patch from Kouhei Sutou (#6905).
 	
 	* glib/poppler-document.cc:
 	* glib/poppler-document.h:
