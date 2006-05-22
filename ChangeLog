@@ -1,5 +1,10 @@
 2006-05-22  Kristian Høgsberg  <krh@redhat.com>
 
+	* configure.ac: Bump release.
+	* NEWS: Sum up changes.
+
+2006-05-22  Kristian Høgsberg  <krh@redhat.com>
+
 	Patch from Rainer Keller to fix the ImageOutputDev (#6984).
 	
 	* utils/ImageOutputDev.cc (drawImage): Upate to work with new

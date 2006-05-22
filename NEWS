@@ -1,6 +1,15 @@
 Release 0.5.2
 
-	- 
+	- Much improved Qt bindings (Albert Astals Cid).
+	- Cairo backend now supports masked images (Jeff Muizelaar, #6174).
+	- Patches from Kouhei Sutou to make glib bindings more
+	  language binding friendly (#6907, #6897, #6899, #6905).
+	- Search now works with ligatures (Ed Catmull, #2929).
+	- The glib bindings now has an entry point to render to a cairo_t.
+	- GCC 4.1 and MSVC compilation fixes.
+	- Memory leaks plugged: #6908, #6947, #6765, #6764, #6187
+	- Misc bug fixes: #6984, #6896, #6913, #6926, #4481, #5951,
+	  #6551, #6500, #6492, #6454, #6079, #6167.
 
 Release 0.5.1
 
