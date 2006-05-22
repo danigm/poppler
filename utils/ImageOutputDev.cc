@@ -184,9 +184,9 @@ void ImageOutputDev::drawImage(GfxState *state, Object *ref, Stream *str,
       p = imgStr->getLine();
       for (x = 0; x < width; ++x) {
 	colorMap->getRGB(p, &rgb);
-	fputc((int)(rgb.r * 255 + 0.5), f);
-	fputc((int)(rgb.g * 255 + 0.5), f);
-	fputc((int)(rgb.b * 255 + 0.5), f);
+	fputc(colToByte(rgb.r), f);
+	fputc(colToByte(rgb.g), f);
+	fputc(colToByte(rgb.b), f);
 	p += colorMap->getNumPixelComps();
       }
     }

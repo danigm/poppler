@@ -1,3 +1,12 @@
+2006-05-22  Kristian Høgsberg  <krh@redhat.com>
+
+	Patch from Rainer Keller to fix the ImageOutputDev (#6984).
+	
+	* utils/ImageOutputDev.cc (drawImage): Upate to work with new
+	16-bit color representation.
+
+	* utils/ImageOutputDev.h: Return gTrue for needNonText().
+
 2006-05-21  Kristian Høgsberg  <krh@redhat.com>
 
 	* poppler/CairoFontEngine.cc:

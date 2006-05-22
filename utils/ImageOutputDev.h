@@ -45,7 +45,7 @@ public:
   virtual GBool interpretType3Chars() { return gFalse; }
 
   // Does this device need non-text content?
-  virtual GBool needNonText() { return gFalse; }
+  virtual GBool needNonText() { return gTrue; }
 
   //---- get info about output device
 
