@@ -24,6 +24,7 @@ libpoppler_qt4_la_SOURCES =			\
 	poppler-link.cc				\
 	poppler-annotation.cc			\
 	../../qt/poppler-page-transition.cc	\
+	poppler-annotation-helper.h		\
 	poppler-private.h
 
 libpoppler_qt4_la_LIBADD = 			\
