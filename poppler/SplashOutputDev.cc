@@ -626,6 +626,7 @@ void SplashOutputDev::startPage(int pageNum, GfxState *state) {
     break;
   case splashModeRGB8:
   case splashModeBGR8:
+  case splashModeRGB8Qt:
     color[0] = color[1] = color[2] = 0;
     break;
   case splashModeAMono8:
@@ -877,6 +878,7 @@ SplashPattern *SplashOutputDev::getColor(GfxGray gray, GfxRGB *rgb) {
     pattern = new SplashSolidColor(color1);
     break;
   case splashModeRGB8:
+  case splashModeRGB8Qt:
     color1[0] = colToByte(r);
     color1[1] = colToByte(g);
     color1[2] = colToByte(b);
@@ -1670,6 +1672,7 @@ GBool SplashOutputDev::imageSrc(void *data, SplashColorPtr line) {
     break;
   case splashModeRGB8:
     case splashModeBGR8:
+    case splashModeRGB8Qt:
       for (x = 0, p = imgData->imgStr->getLine(), q = line;
 	   x < imgData->width;
 	   ++x, ++p) {
@@ -1713,6 +1716,7 @@ GBool SplashOutputDev::imageSrc(void *data, SplashColorPtr line) {
       }
 	break;
     case splashModeRGB8:
+    case splashModeRGB8Qt:
       for (x = 0, p = imgData->imgStr->getLine(), q = line;
 	   x < imgData->width;
 	   ++x, p += nComps) {
@@ -1797,6 +1801,7 @@ GBool SplashOutputDev::alphaImageSrc(void *data, SplashColorPtr line) {
 	*q++ = imgData->lookup[*p];
 	break;
       case splashModeRGB8:
+      case splashModeRGB8Qt:
 	*q++ = alpha;
 	col = &imgData->lookup[3 * *p];
 	*q++ = col[0];
@@ -1838,6 +1843,7 @@ GBool SplashOutputDev::alphaImageSrc(void *data, SplashColorPtr line) {
 	*q++ = colToByte(gray);
 	break;
       case splashModeRGB8:
+      case splashModeRGB8Qt:
 	imgData->colorMap->getRGB(p, &rgb);
 	*q++ = alpha;
 	*q++ = colToByte(rgb.r);
@@ -2043,6 +2049,7 @@ GBool SplashOutputDev::maskedImageSrc(void *data, SplashColorPtr line) {
 	*q++ = imgData->lookup[*p];
 	break;
       case splashModeRGB8:
+      case splashModeRGB8Qt:
 	*q++ = alpha;
 	col = &imgData->lookup[3 * *p];
 	*q++ = col[0];
@@ -2084,6 +2091,7 @@ GBool SplashOutputDev::maskedImageSrc(void *data, SplashColorPtr line) {
 	*q++ = colToByte(gray);
 	break;
       case splashModeRGB8:
+      case splashModeRGB8Qt:
 	imgData->colorMap->getRGB(p, &rgb);
 	*q++ = alpha;
 	*q++ = colToByte(rgb.r);

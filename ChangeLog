@@ -1,3 +1,14 @@
+2006-05-21  Albert Astals Cid <aacid@kde.org>
+
+	* poppler/SplashOutputDev.cc:
+	* qt4/src/poppler-private.h:
+	* splash/Splash.cc:
+	* splash/SplashBitmap.cc:
+	* splash/SplashTypes.h: bring splashModeRGB8 back to the old code
+	(before Frank's patch), create splashModeRGB8Qt that has Frank's 
+	codepath and is used by Qt frontends. Fixes corruption on
+	other programs expecting the old behaviour.
+
 2006-05-23  Kristian Høgsberg  <krh@redhat.com>
 
 	* qt4/src/Makefile.am (libpoppler_qt4_la_SOURCES): Add missing

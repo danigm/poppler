@@ -95,7 +95,7 @@ namespace Poppler {
 			bgColor[0] = paperColor.red();
 			bgColor[1] = paperColor.green();
 			bgColor[2] = paperColor.blue();
-			m_splashOutputDev = new SplashOutputDev(splashModeRGB8, 4, gFalse, bgColor);
+			m_splashOutputDev = new SplashOutputDev(splashModeRGB8Qt, 4, gFalse, bgColor);
 			m_splashOutputDev->startDoc(doc.getXRef());
 		}
 		return m_splashOutputDev;

@@ -41,7 +41,7 @@ class DocumentData {
             white[0] = 255;
             white[1] = 255;
             white[2] = 255;
-            m_outputDev = new SplashOutputDev(splashModeRGB8, 4, gFalse, white);
+            m_outputDev = new SplashOutputDev(splashModeRGB8Qt, 4, gFalse, white);
             m_outputDev->startDoc(doc.getXRef());
         }
         return m_outputDev;

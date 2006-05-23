@@ -319,6 +319,27 @@ void Splash::clear(SplashColorPtr color) {
       for (y = 0; y < bitmap->height; ++y) {
 	p = row;
 	for (x = 0; x < bitmap->width; ++x) {
+	  *p++ = color[0];
+	  *p++ = color[1];
+	  *p++ = color[2];
+	}
+	row += bitmap->rowSize;
+      }
+    }
+    break;
+  case splashModeRGB8Qt:
+    if (color[0] == color[1] && color[1] == color[2]) {
+      if (bitmap->rowSize < 0) {
+	memset(bitmap->data + bitmap->rowSize * (bitmap->height - 1),
+	       color[0], -bitmap->rowSize * bitmap->height);
+      } else {
+	memset(bitmap->data, color[0], bitmap->rowSize * bitmap->height);
+      }
+    } else {
+      row = bitmap->data;
+      for (y = 0; y < bitmap->height; ++y) {
+	p = row;
+	for (x = 0; x < bitmap->width; ++x) {
 	  *p++ = color[2];
 	  *p++ = color[1];
 	  *p++ = color[0];
@@ -964,6 +985,13 @@ void Splash::drawPixel(int x, int y, SplashColorPtr color,
 	break;
       case splashModeRGB8:
       case splashModeBGR8:
+	p = &bitmap->data[y * bitmap->rowSize + 3 * x];
+	(*blendFunc)(color, p, blend, bitmap->mode);
+	p[0] = (alpha2 * blend[0] + ialpha2 * p[0]) >> 8;
+	p[1] = (alpha2 * blend[1] + ialpha2 * p[1]) >> 8;
+	p[2] = (alpha2 * blend[2] + ialpha2 * p[2]) >> 8;
+	break;
+      case splashModeRGB8Qt:
 	p = &bitmap->data[y * bitmap->rowSize + 4 * x];
 	(*blendFunc)(color, p, blend, bitmap->mode);
 	p[0] = (alpha2 * blend[2] + ialpha2 * p[0]) >> 8;
@@ -1015,6 +1043,12 @@ void Splash::drawPixel(int x, int y, SplashColorPtr color,
 	break;
       case splashModeRGB8:
       case splashModeBGR8:
+	p = &bitmap->data[y * bitmap->rowSize + 3 * x];
+	p[0] = color[0];
+	p[1] = color[1];
+	p[2] = color[2];
+	break;
+      case splashModeRGB8Qt:
 	p = &bitmap->data[y * bitmap->rowSize + 4 * x];
 	p[0] = color[2];
 	p[1] = color[1];
@@ -1093,6 +1127,13 @@ void Splash::drawPixel(int x, int y, SplashPattern *pattern,
 	break;
       case splashModeRGB8:
       case splashModeBGR8:
+	p = &bitmap->data[y * bitmap->rowSize + 3 * x];
+	(*blendFunc)(color, p, blend, bitmap->mode);
+	p[0] = (alpha2 * blend[0] + ialpha2 * p[0]) >> 8;
+	p[1] = (alpha2 * blend[1] + ialpha2 * p[1]) >> 8;
+	p[2] = (alpha2 * blend[2] + ialpha2 * p[2]) >> 8;
+	break;
+      case splashModeRGB8Qt:
 	p = &bitmap->data[y * bitmap->rowSize + 4 * x];
 	(*blendFunc)(color, p, blend, bitmap->mode);
 	p[0] = (alpha2 * blend[2] + ialpha2 * p[0]) >> 8;
@@ -1145,6 +1186,12 @@ void Splash::drawPixel(int x, int y, SplashPattern *pattern,
 	break;
       case splashModeRGB8:
       case splashModeBGR8:
+	p = &bitmap->data[y * bitmap->rowSize + 3 * x];
+	p[0] = color[0];
+	p[1] = color[1];
+	p[2] = color[2];
+	break;
+      case splashModeRGB8Qt:
 	p = &bitmap->data[y * bitmap->rowSize + 4 * x];
 	p[0] = color[2];
 	p[1] = color[1];
@@ -1406,6 +1453,51 @@ void Splash::drawSpan(int x0, int x1, int y, SplashPattern *pattern,
 
     case splashModeRGB8:
     case splashModeBGR8:
+      p = &bitmap->data[y * bitmap->rowSize + 3 * x0];
+      if (pattern->isStatic()) {
+	pattern->getColor(0, 0, color);
+	for (i = 0; i < n; ++i) {
+	  if (noClip || state->clip->test(x0 + i, y)) {
+	    if (softMask) {
+	      alpha2 = (int)(alpha *
+			     softMask->data[y * softMask->rowSize + x0 + i]);
+	      ialpha2 = 255 - alpha2;
+	    }
+	    (*blendFunc)(color, p, blend, bitmap->mode);
+	    p[0] = (alpha2 * blend[0] + ialpha2 * p[0]) >> 8;
+	    p[1] = (alpha2 * blend[1] + ialpha2 * p[1]) >> 8;
+	    p[2] = (alpha2 * blend[2] + ialpha2 * p[2]) >> 8;
+	    if (!noClip) {
+	      updateModX(x0 + i);
+	      updateModY(y);
+	    }
+	  }
+	  p += 3;
+	}
+      } else {
+	for (i = 0; i < n; ++i) {
+	  if (noClip || state->clip->test(x0 + i, y)) {
+	    pattern->getColor(x0 + i, y, color);
+	    if (softMask) {
+	      alpha2 = (int)(alpha *
+			     softMask->data[y * softMask->rowSize + x0 + i]);
+	      ialpha2 = 255 - alpha2;
+	    }
+	    (*blendFunc)(color, p, blend, bitmap->mode);
+	    p[0] = (alpha2 * blend[0] + ialpha2 * p[0]) >> 8;
+	    p[1] = (alpha2 * blend[1] + ialpha2 * p[1]) >> 8;
+	    p[2] = (alpha2 * blend[2] + ialpha2 * p[2]) >> 8;
+	    if (!noClip) {
+	      updateModX(x0 + i);
+	      updateModY(y);
+	    }
+	  }
+	  p += 3;
+	}
+      }
+      break;
+
+    case splashModeRGB8Qt:
       p = &bitmap->data[y * bitmap->rowSize + 4 * x0];
       if (pattern->isStatic()) {
 	pattern->getColor(0, 0, color);
@@ -1699,6 +1791,39 @@ void Splash::drawSpan(int x0, int x1, int y, SplashPattern *pattern,
 
     case splashModeRGB8:
     case splashModeBGR8:
+      p = &bitmap->data[y * bitmap->rowSize + 3 * x0];
+      if (pattern->isStatic()) {
+	pattern->getColor(0, 0, color);
+	for (i = 0; i < n; ++i) {
+	  if (noClip || state->clip->test(x0 + i, y)) {
+	    p[0] = color[0];
+	    p[1] = color[1];
+	    p[2] = color[2];
+	    if (!noClip) {
+	      updateModX(x0 + i);
+	      updateModY(y);
+	    }
+	  }
+	  p += 3;
+	}
+      } else {
+	for (i = 0; i < n; ++i) {
+	  if (noClip || state->clip->test(x0 + i, y)) {
+	    pattern->getColor(x0 + i, y, color);
+	    p[0] = color[0];
+	    p[1] = color[1];
+	    p[2] = color[2];
+	    if (!noClip) {
+	      updateModX(x0 + i);
+	      updateModY(y);
+	    }
+	  }
+	  p += 3;
+	}
+      }
+      break;
+
+    case splashModeRGB8Qt:
       p = &bitmap->data[y * bitmap->rowSize + 4 * x0];
       if (pattern->isStatic()) {
 	pattern->getColor(0, 0, color);
@@ -1899,6 +2024,23 @@ void Splash::xorSpan(int x0, int x1, int y, SplashPattern *pattern,
 
   case splashModeRGB8:
   case splashModeBGR8:
+    p = &bitmap->data[y * bitmap->rowSize + 3 * x0];
+    for (i = 0; i < n; ++i) {
+      if (noClip || state->clip->test(x0 + i, y)) {
+	pattern->getColor(x0 + i, y, color);
+	p[0] ^= color[0];
+	p[1] ^= color[1];
+	p[2] ^= color[2];
+	if (!noClip) {
+	  updateModX(x0 + i);
+	  updateModY(y);
+	}
+      }
+      p += 3;
+    }
+    break;
+
+  case splashModeRGB8Qt:
     p = &bitmap->data[y * bitmap->rowSize + 4 * x0];
     for (i = 0; i < n; ++i) {
       if (noClip || state->clip->test(x0 + i, y)) {
@@ -2056,6 +2198,13 @@ SplashError Splash::fillGlyph(SplashCoord x, SplashCoord y,
 		  break;
 		case splashModeRGB8:
 		case splashModeBGR8:
+		  pix = &bitmap->data[y1 * bitmap->rowSize + 3 * x1];
+		  (*blendFunc)(fg, pix, blend, bitmap->mode);
+		  pix[0] = (alpha * blend[0] + ialpha * pix[0]) >> 8;
+		  pix[1] = (alpha * blend[1] + ialpha * pix[1]) >> 8;
+		  pix[2] = (alpha * blend[2] + ialpha * pix[2]) >> 8;
+		  break;
+		case splashModeRGB8Qt:
 		  pix = &bitmap->data[y1 * bitmap->rowSize + 4 * x1];
 		  (*blendFunc)(fg, pix, blend, bitmap->mode);
 		  pix[0] = (alpha * blend[2] + ialpha * pix[0]) >> 8;
@@ -2137,6 +2286,13 @@ SplashError Splash::fillGlyph(SplashCoord x, SplashCoord y,
 		    break;
 		  case splashModeRGB8:
 		  case splashModeBGR8:
+		    pix = &bitmap->data[y1 * bitmap->rowSize + 3 * x1];
+		    (*blendFunc)(fg, pix, blend, bitmap->mode);
+		    pix[0] = (alpha * blend[0] + ialpha * pix[0]) >> 8;
+		    pix[1] = (alpha * blend[1] + ialpha * pix[1]) >> 8;
+		    pix[2] = (alpha * blend[2] + ialpha * pix[2]) >> 8;
+		    break;
+		  case splashModeRGB8Qt:
 		    pix = &bitmap->data[y1 * bitmap->rowSize + 4 * x1];
 		    (*blendFunc)(fg, pix, blend, bitmap->mode);
 		    pix[0] = (alpha * blend[2] + ialpha * pix[0]) >> 8;
@@ -2212,6 +2368,12 @@ SplashError Splash::fillGlyph(SplashCoord x, SplashCoord y,
 		  break;
 		case splashModeRGB8:
 		case splashModeBGR8:
+		  pix = &bitmap->data[y1 * bitmap->rowSize + 3 * x1];
+		  pix[0] = (alpha * fg[0] + ialpha * pix[0]) >> 8;
+		  pix[1] = (alpha * fg[1] + ialpha * pix[1]) >> 8;
+		  pix[2] = (alpha * fg[2] + ialpha * pix[2]) >> 8;
+		  break;
+		case splashModeRGB8Qt:
 		  pix = &bitmap->data[y1 * bitmap->rowSize + 4 * x1];
 		  pix[0] = (alpha * fg[2] + ialpha * pix[0]) >> 8;
 		  pix[1] = (alpha * fg[1] + ialpha * pix[1]) >> 8;
@@ -2277,6 +2439,12 @@ SplashError Splash::fillGlyph(SplashCoord x, SplashCoord y,
 		    break;
 		  case splashModeRGB8:
 		  case splashModeBGR8:
+		    pix = &bitmap->data[y1 * bitmap->rowSize + 3 * x1];
+		    pix[0] = fg[0];
+		    pix[1] = fg[1];
+		    pix[2] = fg[2];
+		    break;
+		  case splashModeRGB8Qt:
 		    pix = &bitmap->data[y1 * bitmap->rowSize + 4 * x1];
 		    pix[0] = fg[2];
 		    pix[1] = fg[1];
@@ -2634,6 +2802,7 @@ SplashError Splash::drawImage(SplashImageSource src, void *srcData,
     ok = gFalse;
     nComps = 2;
     break;
+  case splashModeRGB8Qt:
   case splashModeRGB8:
     ok = srcMode == splashModeRGB8 || srcMode == splashModeARGB8;
     srcAlpha = srcMode == splashModeARGB8;
