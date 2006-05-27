@@ -52,7 +52,7 @@ public:
 
   // Does this device use beginType3Char/endType3Char?  Otherwise,
   // text in Type 3 fonts will be drawn with drawChar/drawString.
-  virtual GBool interpretType3Chars() { return gFalse; }
+  virtual GBool interpretType3Chars() { return gTrue; }
 
   //----- initialization and control
 

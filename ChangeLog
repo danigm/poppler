@@ -1,3 +1,9 @@
+2006-05-27  Jeff Muizelaar  <jeff@infidigm.net>
+
+	* poppler/CairoOutputDev.cc:
+	* poppler/CairoOutputDev.h: Back out the rest of krh's type3
+	font work. This fixes type3 fonts in CairoOutputDevice.
+
 2006-05-21  Albert Astals Cid <aacid@kde.org>
 
 	* poppler/SplashOutputDev.cc:

@@ -258,6 +258,9 @@ void CairoOutputDev::updateFont(GfxState *state) {
 
   needFontUpdate = gFalse;
 
+  if (state->getFont()->getType() == fontType3)	 
+    return;
+
   currentFont = fontEngine->getFont (state->getFont(), xref);
 
   state->getFontTransMat(&m11, &m12, &m21, &m22);
