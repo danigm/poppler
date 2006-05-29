@@ -263,6 +263,8 @@ void CairoOutputDev::updateFont(GfxState *state) {
 
   currentFont = fontEngine->getFont (state->getFont(), xref);
 
+  if (!currentFont)
+    return;
   state->getFontTransMat(&m11, &m12, &m21, &m22);
   m11 *= state->getHorizScaling();
   m12 *= state->getHorizScaling();
@@ -374,6 +376,9 @@ void CairoOutputDev::drawChar(GfxState *state, double x, double y,
 {
   double tx, ty;
 
+  if (!currentFont)
+    return;
+  
   glyphs[glyphCount].index = currentFont->getGlyph (code, u, uLen);
   state->transform(x - originX, y - originY, &tx, &ty);
   glyphs[glyphCount].x = tx;

@@ -18,13 +18,15 @@
 
 class CairoFont {
 public:
-  CairoFont(GfxFont *gfxFont, XRef *xref, FT_Library lib, GBool useCIDs);
+  static CairoFont *create(GfxFont *gfxFont, XRef *xref, FT_Library lib, GBool useCIDs);
   ~CairoFont();
 
   GBool matches(Ref &other);
   cairo_font_face_t *getFontFace(void);
   unsigned long getGlyph(CharCode code, Unicode *u, int uLen);
 private:
+  CairoFont(Ref ref, cairo_font_face_t *cairo_font_face, FT_Face face,
+      Gushort *codeToGID, int codeToGIDLen);
   Ref ref;
   cairo_font_face_t *cairo_font_face;
   FT_Face face;

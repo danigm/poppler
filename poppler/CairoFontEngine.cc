@@ -38,7 +38,7 @@ static void cairo_font_face_destroy (void *data)
   delete font;
 }
 
-CairoFont::CairoFont(GfxFont *gfxFont, XRef *xref, FT_Library lib, GBool useCIDs) {
+CairoFont *CairoFont::create(GfxFont *gfxFont, XRef *xref, FT_Library lib, GBool useCIDs) {
   Ref embRef;
   Object refObj, strObj;
   GooString *tmpFileName, *fileName, *substName,*tmpFileName2;
@@ -52,7 +52,13 @@ CairoFont::CairoFont(GfxFont *gfxFont, XRef *xref, FT_Library lib, GBool useCIDs
   FoFiType1C *ff1c;
   CharCodeToUnicode *ctu;
   Unicode uBuf[8];
+  Ref ref;
   static cairo_user_data_key_t cairo_font_face_key;
+  cairo_font_face_t *cairo_font_face;
+  FT_Face face;
+
+  Gushort *codeToGID;
+  int codeToGIDLen;
   
   dfp = NULL;
   codeToGID = NULL;
@@ -160,6 +166,7 @@ CairoFont::CairoFont(GfxFont *gfxFont, XRef *xref, FT_Library lib, GBool useCIDs
         error(-1, "Couldn't find a mapping to Unicode for font '%s'",
               gfxFont->getName() ? gfxFont->getName()->getCString()
                         : "(unnamed)");
+	goto err2;
       }
     } else {
       if (((GfxCIDFont *)gfxFont)->getCIDToGID()) {
@@ -241,18 +248,25 @@ CairoFont::CairoFont(GfxFont *gfxFont, XRef *xref, FT_Library lib, GBool useCIDs
     error(-1, "could not create cairo font\n");
     goto err2; /* this doesn't do anything, but it looks like we're
 		* handling the error */
-  }
-
+  } {
+  CairoFont *ret = new CairoFont(ref, cairo_font_face, face, codeToGID, codeToGIDLen);
   cairo_font_face_set_user_data (cairo_font_face, 
 				 &cairo_font_face_key,
-				 this,
+				 ret,
 				 cairo_font_face_destroy);
 
-  return;
+  return ret;
+  }
  err2:
   /* hmm? */
   printf ("some font thing failed\n");
+  return NULL;
 }
+
+CairoFont::CairoFont(Ref ref, cairo_font_face_t *cairo_font_face, FT_Face face,
+    Gushort *codeToGID, int codeToGIDLen) : ref(ref), cairo_font_face(cairo_font_face),
+					    face(face), codeToGID(codeToGID),
+					    codeToGIDLen(codeToGIDLen) { }
 
 CairoFont::~CairoFont() {
   FT_Done_Face (face);
@@ -336,7 +350,8 @@ CairoFontEngine::getFont(GfxFont *gfxFont, XRef *xref) {
     }
   }
   
-  font = new CairoFont (gfxFont, xref, lib, useCIDs);
+  font = CairoFont::create (gfxFont, xref, lib, useCIDs);
+  //XXX: if font is null should we still insert it into the cache?
   if (fontCache[cairoFontCacheSize - 1]) {
     delete fontCache[cairoFontCacheSize - 1];
   }
