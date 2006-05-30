@@ -1,3 +1,7 @@
+2006-05-30  Kristian Høgsberg  <krh@redhat.com>
+
+	* test/gtk-cairo-test.cc: Add --page option to gtk-cairo-test.
+
 2006-05-29  Jeff Muizelaar  <jeff@infidigm.net>
 
 	* poppler/CairoFontEngine.cc:

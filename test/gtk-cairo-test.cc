@@ -26,6 +26,7 @@ typedef struct
   GtkWidget *window;
   GtkWidget *sw;
   GtkWidget *drawing_area;
+  GtkWidget *spin_button;
   PopplerPage *page;
   PopplerDocument *document;
   cairo_surface_t *surface;
@@ -69,6 +70,7 @@ view_set_page (View *v, int page)
   cairo_destroy (cr);
   gtk_widget_set_size_request (v->drawing_area, w, h);
   gtk_widget_queue_draw (v->drawing_area);
+  gtk_spin_button_set_value (GTK_SPIN_BUTTON (v->spin_button), page);
 }
 
 static void
@@ -140,6 +142,7 @@ view_new (const char *filename, int *window_count)
   v->drawing_area = drawing_area;
   v->sw = sw;
   v->window_count = window_count;
+  v->spin_button = spin_button;
 
   g_signal_connect (drawing_area,
                     "expose_event",
@@ -154,17 +157,29 @@ view_new (const char *filename, int *window_count)
   return v;
 }
 
+static int option_page = 0;
+static GOptionEntry demo_options[] = {
+  { "page", 0, 0, G_OPTION_ARG_INT, &option_page, "Page number", "PAGE" },
+  { NULL }
+};
+    
 int
 main (int argc, char *argv [])
 {
   View *v;
   int i, window_count;
+  GOptionContext *ctx;
+
+  ctx = g_option_context_new("FILENAME ...");
+  g_option_context_add_main_entries(ctx, demo_options, "main");
+  g_option_context_parse(ctx, &argc, &argv, NULL);
+  g_option_context_free(ctx);
 
   gtk_init (&argc, &argv);
-  
+   
   if (argc == 1)
     {
-      fprintf (stderr, "usage: %s PDF-FILES...\n", argv[0]);
+      fprintf (stderr, "usage: %s PDF-FILES...\n", g_basename (argv[0]));
       return -1;
     }
       
@@ -176,7 +191,7 @@ main (int argc, char *argv [])
 	  continue;
       }
       
-      view_set_page (v, 0);
+      view_set_page (v, option_page);
       window_count++;
   }
   
