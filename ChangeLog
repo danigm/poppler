@@ -1,3 +1,9 @@
+2006-05-31  Kristian Høgsberg  <krh@redhat.com>
+
+	* NEWS: Sum up changes.
+
+	* configure.ac: Bump release to 0.5.3.
+
 2006-05-30  Kristian Høgsberg  <krh@redhat.com>
 
 	* poppler-glib.pc.in: 

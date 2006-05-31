@@ -1,3 +1,11 @@
+Release 0.5.3
+
+	- Add poppler as a private requires of poppler-glib.
+	- Allow CairoFont creation to fail more gracefully (#4030).
+	- Back out the rest of krh's type3 font work.
+	- Revert splashModeRGB8 changes.
+ 	- Add missing poppler-annotation-helper.h.
+
 Release 0.5.2
 
 	- Much improved Qt bindings (Albert Astals Cid).
