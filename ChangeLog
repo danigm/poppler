@@ -1,5 +1,11 @@
 2006-05-30  Kristian Høgsberg  <krh@redhat.com>
 
+	* poppler-glib.pc.in: 
+	* configure.ac: Add poppler as a private requires if pkg-config
+	supports it.
+
+2006-05-30  Kristian Høgsberg  <krh@redhat.com>
+
 	* test/gtk-cairo-test.cc: Add --page option to gtk-cairo-test.
 
 2006-05-29  Jeff Muizelaar  <jeff@infidigm.net>

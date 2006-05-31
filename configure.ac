@@ -304,6 +304,17 @@ case "$enable_compile_warnings" in
 		-fno-common $CXXFLAGS" ;;
 esac
 
+case $($PKG_CONFIG --version) in
+  0.?|0.1[0-7])
+    PC_REQUIRES_PRIVATE="";
+    PC_REQUIRES="poppler = $VERSION";;
+  *)
+    PC_REQUIRES_PRIVATE="Requires.private: poppler = $VERSION";
+    PC_REQUIRES="";;
+esac
+
+AC_SUBST(PC_REQUIRES)
+AC_SUBST(PC_REQUIRES_PRIVATE)
 
 AC_OUTPUT([
 Makefile
