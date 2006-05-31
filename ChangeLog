@@ -1,3 +1,10 @@
+2006-05-31  Jeff Muizelaar  <jeff@infidigm.net>
+
+	* poppler/CairoOutputDev.cc:
+	* poppler/CairoOutputDev.h: Change the cairo backend to use the
+	transformation in cairo instead of doing all of the transformations in
+	the OutputDevice. Fixes #6948.
+
 2006-05-31  Kristian Høgsberg  <krh@redhat.com>
 
 	* NEWS: Sum up changes.
