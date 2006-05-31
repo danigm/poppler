@@ -45,10 +45,7 @@ Done:
 Jeff Muizelaar's TODO:
 	Short Term:
 	- factor out some of the color conversion code from CairoOutputDev and ArthurOutputDev.
-	- add CairoOutputDev::drawSoftMaskedImage. (done, but too messy)
-	- fix CairoOutputDev asking cairo to draw nonexistant glyphs.
 	- fix patterned text fills.
-	- merge kpdf's ttc support code.
 	Long Term:
 	- use cairo glyph cache for type3 fonts.
 	- try to use cairo pattern support.
