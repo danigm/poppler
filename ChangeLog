@@ -1,3 +1,9 @@
+2006-05-31  Albert Astals Cid  <aacid@kde.org>
+
+	* poppler/SplashOutputDev.cc:
+	* splash/Splash.cc: Fix splashModeRGB8Qt mode, that is, make it
+	show images
+
 2006-05-31  Jeff Muizelaar  <jeff@infidigm.net>
 
 	* TODO: Remove items's from my list that are done.

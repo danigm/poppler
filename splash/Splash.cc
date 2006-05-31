@@ -3115,6 +3115,7 @@ SplashError Splash::drawImage(SplashImageSource src, void *srcData,
 #endif
 	    case splashModeRGB8:
 	    case splashModeBGR8:
+	    case splashModeRGB8Qt:
 	      pix[2] = (int)((SplashCoord)pixAcc2 * pixMul);
 	      pix[1] = (int)((SplashCoord)pixAcc1 * pixMul);
 	      // fall through
@@ -3249,6 +3250,7 @@ SplashError Splash::drawImage(SplashImageSource src, void *srcData,
 	  break;
 	case splashModeRGB8:
 	case splashModeBGR8:
+	case splashModeRGB8Qt:
 	  p = pixBuf + xSrc * 3;
 	  pixAcc0 = pixAcc1 = pixAcc2 = 0;
 	  for (i = 0; i < n; ++i) {
@@ -3294,6 +3296,7 @@ SplashError Splash::drawImage(SplashImageSource src, void *srcData,
 	    // fall through
 #endif
 	  case splashModeRGB8:
+	  case splashModeRGB8Qt:
 	  case splashModeBGR8:
 	    pix[2] = (int)((SplashCoord)pixAcc2 * pixMul);
 	    pix[1] = (int)((SplashCoord)pixAcc1 * pixMul);

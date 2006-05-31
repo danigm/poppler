@@ -227,6 +227,7 @@ static void splashOutBlendHue(SplashColorPtr src, SplashColorPtr dest,
     blend[0] = dest[0];
     break;
   case splashModeRGB8:
+  case splashModeRGB8Qt:
     cvtRGBToHSV(src[0], src[1], src[2], &hs, &ss, &vs);
     cvtRGBToHSV(dest[0], dest[1], dest[2], &hd, &sd, &vd);
     cvtHSVToRGB(hs, sd, vd, &blend[0], &blend[1], &blend[2]);
@@ -273,6 +274,7 @@ static void splashOutBlendSaturation(SplashColorPtr src, SplashColorPtr dest,
     blend[0] = dest[0];
     break;
   case splashModeRGB8:
+  case splashModeRGB8Qt:
     cvtRGBToHSV(src[0], src[1], src[2], &hs, &ss, &vs);
     cvtRGBToHSV(dest[0], dest[1], dest[2], &hd, &sd, &vd);
     cvtHSVToRGB(hd, ss, vd, &blend[0], &blend[1], &blend[2]);
@@ -318,6 +320,7 @@ static void splashOutBlendColor(SplashColorPtr src, SplashColorPtr dest,
     blend[0] = dest[0];
     break;
   case splashModeRGB8:
+  case splashModeRGB8Qt:
     cvtRGBToHSV(src[0], src[1], src[2], &hs, &ss, &vs);
     cvtRGBToHSV(dest[0], dest[1], dest[2], &hd, &sd, &vd);
     cvtHSVToRGB(hs, ss, vd, &blend[0], &blend[1], &blend[2]);
@@ -364,6 +367,7 @@ static void splashOutBlendLuminosity(SplashColorPtr src, SplashColorPtr dest,
     blend[0] = dest[0];
     break;
   case splashModeRGB8:
+  case splashModeRGB8Qt:
     cvtRGBToHSV(src[0], src[1], src[2], &hs, &ss, &vs);
     cvtRGBToHSV(dest[0], dest[1], dest[2], &hd, &sd, &vd);
     cvtHSVToRGB(hd, sd, vs, &blend[0], &blend[1], &blend[2]);
@@ -1935,6 +1939,7 @@ void SplashOutputDev::drawImage(GfxState *state, Object *ref, Stream *str,
       }
       break;
     case splashModeRGB8:
+    case splashModeRGB8Qt:
       imgData.lookup = (SplashColorPtr)gmalloc(3 * n);
       for (i = 0; i < n; ++i) {
 	pix = (Guchar)i;
@@ -1979,6 +1984,7 @@ void SplashOutputDev::drawImage(GfxState *state, Object *ref, Stream *str,
     srcMode = maskColors ? splashModeAMono8 : splashModeMono8;
     break;
   case splashModeRGB8:
+  case splashModeRGB8Qt:
     srcMode = maskColors ? splashModeARGB8 : splashModeRGB8;
     break;
   case splashModeBGR8:
@@ -2215,6 +2221,7 @@ void SplashOutputDev::drawMaskedImage(GfxState *state, Object *ref,
       }
       break;
     case splashModeRGB8:
+    case splashModeRGB8Qt:
       imgData.lookup = (SplashColorPtr)gmalloc(3 * n);
       for (i = 0; i < n; ++i) {
 	pix = (Guchar)i;
@@ -2259,6 +2266,7 @@ void SplashOutputDev::drawMaskedImage(GfxState *state, Object *ref,
     srcMode = splashModeAMono8;
     break;
   case splashModeRGB8:
+  case splashModeRGB8Qt:
     srcMode = splashModeARGB8;
     break;
   case splashModeBGR8:
@@ -2373,6 +2381,7 @@ void SplashOutputDev::drawSoftMaskedImage(GfxState *state, Object *ref,
       }
       break;
     case splashModeRGB8:
+    case splashModeRGB8Qt:
       imgData.lookup = (SplashColorPtr)gmalloc(3 * n);
       for (i = 0; i < n; ++i) {
 	pix = (Guchar)i;
@@ -2417,6 +2426,7 @@ void SplashOutputDev::drawSoftMaskedImage(GfxState *state, Object *ref,
     srcMode = splashModeMono8;
     break;
   case splashModeRGB8:
+  case splashModeRGB8Qt:
     srcMode = splashModeRGB8;
     break;
   case splashModeBGR8:
