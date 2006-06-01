@@ -21,6 +21,7 @@
 #include <qimage.h>
 #include <GlobalParams.h>
 #include <PDFDoc.h>
+#include <PSOutputDev.h>
 #include <Catalog.h>
 #include <ErrorCodes.h>
 #include <SplashOutputDev.h>
@@ -291,6 +292,23 @@ bool Document::okToAddNotes() const
 double Document::getPDFVersion() const
 {
   return data->doc.getPDFVersion();
+}
+
+bool Document::print(const QString &file, QValueList<int> pageList, double hDPI, double vDPI, int rotate)
+{
+  PSOutputDev *psOut = new PSOutputDev(file.latin1(), data->doc.getXRef(), data->doc.getCatalog(), 1, data->doc.getNumPages(), psModePS);
+  
+  if (psOut->isOk()) {
+    QValueList<int>::iterator it;
+    for (it = pageList.begin(); it != pageList.end(); ++it )
+      data->doc.displayPage(psOut, *it, hDPI, vDPI, rotate, gFalse, globalParams->getPSCrop(), gFalse);
+    
+    delete psOut;
+    return true;
+  } else {
+    delete psOut;
+    return false;
+  }
 }
 
 }
