@@ -57,12 +57,14 @@ Page::~Page()
   delete m_page;
 }
 
-QImage Page::splashRenderToImage(double xres, double yres, int x, int y, int w, int h, bool doLinks) const
+QImage Page::splashRenderToImage(double xres, double yres, int x, int y, int w, int h, bool doLinks, Rotation rotate) const
 {
   SplashOutputDev *output_dev = m_page->parentDoc->m_doc->getSplashOutputDev();
   
+  int rotation = (int)rotate * 90;
+  
   m_page->parentDoc->m_doc->doc.displayPageSlice(output_dev, m_page->index + 1, xres, yres,
-						 0, false, true, doLinks, x, y, w, h);
+						 rotation, false, true, doLinks, x, y, w, h);
   
   SplashBitmap *bitmap = output_dev->getBitmap ();
   int bw = bitmap->getWidth();
@@ -95,9 +97,9 @@ QImage Page::splashRenderToImage(double xres, double yres, int x, int y, int w, 
   return img;
 }
 
-QPixmap *Page::splashRenderToPixmap(double xres, double yres, int x, int y, int w, int h, bool doLinks) const
+QPixmap *Page::splashRenderToPixmap(double xres, double yres, int x, int y, int w, int h, bool doLinks, Rotation rotate) const
 {
-  QImage img = splashRenderToImage(xres, yres, x, y, w, h, doLinks);
+  QImage img = splashRenderToImage(xres, yres, x, y, w, h, doLinks, rotate);
 
   // Turn the QImage into a QPixmap
   QPixmap* out = new QPixmap(QPixmap::fromImage(img));
@@ -159,7 +161,7 @@ QString Page::text(const QRectF &r) const
   return result;
 }
 
-bool Page::search(const QString &text, QRectF &rect, SearchDirection direction, SearchMode caseSensitive) const
+bool Page::search(const QString &text, QRectF &rect, SearchDirection direction, SearchMode caseSensitive, Rotation rotate) const
 {
   const QChar * str = text.unicode();
   int len = text.length();
@@ -177,9 +179,11 @@ bool Page::search(const QString &text, QRectF &rect, SearchDirection direction, 
   sRight = rect.right();
   sBottom = rect.bottom();
 
+  int rotation = (int)rotate * 90;
+
   // fetch ourselves a textpage
   TextOutputDev td(NULL, gTrue, gFalse, gFalse);
-  m_page->parentDoc->m_doc->doc.displayPage( &td, m_page->index + 1, 72, 72, 0, false, true, false );
+  m_page->parentDoc->m_doc->doc.displayPage( &td, m_page->index + 1, 72, 72, rotation, false, true, false );
   TextPage *textPage=td.takeText();
 
   if (direction == FromTop)
@@ -202,16 +206,18 @@ bool Page::search(const QString &text, QRectF &rect, SearchDirection direction, 
   return found;
 }
 
-QList<TextBox*> Page::textList() const
+QList<TextBox*> Page::textList(Rotation rotate) const
 {
   TextOutputDev *output_dev;
   
   QList<TextBox*> output_list;
   
   output_dev = new TextOutputDev(0, gFalse, gFalse, gFalse);
+  
+  int rotation = (int)rotate * 90;
 
   m_page->parentDoc->m_doc->doc.displayPageSlice(output_dev, m_page->index + 1, 72, 72,
-      0, false, false, false, -1, -1, -1, -1);
+      rotation, false, false, false, -1, -1, -1, -1);
 
   TextWordList *word_list = output_dev->makeWordList();
   

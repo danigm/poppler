@@ -222,6 +222,8 @@ namespace Poppler {
     public:
 	~Page();
 
+	enum Rotation { Rotate0 = 0, Rotate90 = 1, Rotate180 = 2, Rotate270 = 3 };
+
 	/** 
 	   Render the page to a QImage using the Splash renderer
 	   
@@ -254,6 +256,8 @@ namespace Poppler {
 	   dots per inch
 	
 	   \param doLinks calculate links
+	   
+	   \param rotate how to rotate the page
 
 	   \warning The parameter (x,y,w,h) are not
 	   well-tested. Unusual or meaningless parameters may lead to
@@ -261,8 +265,7 @@ namespace Poppler {
 
 	   \returns a QImage of the page, or a null image on failure.
         */
-	QImage splashRenderToImage(double xres=72.0, double yres=72.0, int x=-1, int y=-1, int w=-1, int h=-1, bool doLinks = false) const;
-	
+    QImage splashRenderToImage(double xres=72.0, double yres=72.0, int x=-1, int y=-1, int w=-1, int h=-1, bool doLinks = false, Rotation rotate = Rotate0) const;
 	/**
 	   Render the page to a QPixmap using the Splash renderer
 	   
@@ -284,7 +287,8 @@ if (pixmap == 0) {
 delete pixmap;
 @endcode
 	 */
-	QPixmap *splashRenderToPixmap(double xres=72.0, double yres=72.0, int x=-1, int y=-1, int w=-1, int h=-1, bool doLinks = false) const;
+	
+	QPixmap *splashRenderToPixmap(double xres=72.0, double yres=72.0, int x=-1, int y=-1, int w=-1, int h=-1, bool doLinks = false, Rotation rotate = Rotate0) const;
 
 	/**
 	    Render the page to a pixmap using the Arthur (Qt4) renderer
@@ -332,7 +336,7 @@ delete pixmap;
 	   \param direction in which direction do the search
 	   \param caseSensitive be case sensitive?
 	**/
-	bool search(const QString &text, QRectF &rect, SearchDirection direction, SearchMode caseSensitive) const;
+	bool search(const QString &text, QRectF &rect, SearchDirection direction, SearchMode caseSensitive, Rotation rotate = Rotate0) const;
 	
 
 	/**
@@ -348,7 +352,7 @@ delete pixmap;
 
 	   \warning This method is not tested with Asian scripts
 	*/
-	QList<TextBox*> textList() const;
+	QList<TextBox*> textList(Rotation rotate = Rotate0) const;
 
 	/**
 	   \return The dimensions of the page, in points (i.e. 1/72th on an inch)

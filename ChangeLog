@@ -1,5 +1,11 @@
 2006-06-01  Albert Astals Cid  <aacid@kde.org>
 
+	* qt4/src/poppler-qt4.h:
+	* qt4/src/poppler-page.cc: Add Rotation parameter that is  passed
+	to the respective output devs
+
+2006-06-01  Albert Astals Cid  <aacid@kde.org>
+
 	* qt/poppler-document.cc:
 	* qt/poppler-qt.h: Add printing support, patch by  
 	Stefan Kebekus <stefan.kebekus@math.uni-koeln.de>
