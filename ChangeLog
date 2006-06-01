@@ -1,3 +1,9 @@
+2006-06-01  Jeff Muizelaar  <jeff@infidigm.net>
+
+	* poppler/PSOutputDev.cc:
+	* poppler/PSOutputDev.h: Change filename parameter to PSOutputDev
+	constructor from char * to const char *.
+
 2006-05-31  Albert Astals Cid  <aacid@kde.org>
 
 	* poppler/SplashOutputDev.cc:

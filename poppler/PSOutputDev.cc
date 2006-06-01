@@ -886,7 +886,7 @@ static void outputToFile(void *stream, char *data, int len) {
   fwrite(data, 1, len, (FILE *)stream);
 }
 
-PSOutputDev::PSOutputDev(char *fileName, XRef *xrefA, Catalog *catalog,
+PSOutputDev::PSOutputDev(const char *fileName, XRef *xrefA, Catalog *catalog,
 			 int firstPage, int lastPage, PSOutMode modeA,
                          int paperWidthA, int paperHeightA, GBool duplexA,
 			 int imgLLXA, int imgLLYA, int imgURXA, int imgURYA,
