@@ -1,3 +1,12 @@
+2006-06-11  Albert Astals Cid  <aacid@kde.org>
+
+	* poppler/UGooString.cc: When any of the chars that we
+	are passing to the UGooString is not pdfencodable, do not
+	encode the string, because we loose information if we do,
+	this fixes rendering of 
+	http://publikationen.ub.uni-frankfurt.de/volltexte/2005/890/pdf/TR_abs_g.pdf
+	and other docs with type3 fonts and ligatures
+
 2006-06-01  Albert Astals Cid  <aacid@kde.org>
 
 	* qt4/src/poppler-qt4.h:
