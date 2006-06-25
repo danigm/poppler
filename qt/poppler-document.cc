@@ -137,16 +137,6 @@ bool Document::scanForFonts( int numPages, QValueList<FontInfo> *fontList ) cons
 }
 
 /* borrowed from kpdf */
-static QString unicodeToQString(Unicode* u, int len) {
-  QString ret;
-  ret.setLength(len);
-  QChar* qch = (QChar*) ret.unicode();
-  for (;len;--len)
-    *qch++ = (QChar) *u++;
-  return ret;
-}
-
-/* borrowed from kpdf */
 QString Document::getInfo( const QString & type ) const
 {
   // [Albert] Code adapted from pdfinfo.cc on xpdf
@@ -292,6 +282,15 @@ bool Document::okToAddNotes() const
 double Document::getPDFVersion() const
 {
   return data->doc.getPDFVersion();
+}
+
+LinkDestination *Document::linkDestination( const QString &name )
+{
+  UGooString * namedDest = QStringToUGooString( name );
+  LinkDestinationData ldd(NULL, namedDest, data);
+  LinkDestination *ld = new LinkDestination(ldd);
+  delete namedDest;
+  return ld;
 }
 
 bool Document::print(const QString &file, QValueList<int> pageList, double hDPI, double vDPI, int rotate)

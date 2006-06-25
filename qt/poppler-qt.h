@@ -24,6 +24,7 @@
 #include <qdatetime.h>
 #include <qpixmap.h>
 
+#include <poppler-link.h>
 #include <poppler-page-transition.h>
 
 namespace Poppler {
@@ -125,7 +126,7 @@ class Page {
   friend class Document;
   public:
     ~Page();
-    void renderToPixmap(QPixmap **q, int x, int y, int w, int h, double xres, double yres) const;
+    void renderToPixmap(QPixmap **q, int x, int y, int w, int h, double xres, double yres, bool doLinks = false) const;
 
     /**
       This is a convenience function that is equivalent to
@@ -134,7 +135,7 @@ class Page {
 
       \sa renderToImage()
      */
-    void renderToPixmap(QPixmap **q, int x, int y, int w, int h) const;
+    void renderToPixmap(QPixmap **q, int x, int y, int w, int h, bool doLinks = false) const;
 
     /**
       \brief Render the page to a QImage using the Splash renderer
@@ -152,7 +153,7 @@ class Page {
 
      \sa renderToPixmap()
     */
-    QImage renderToImage(double xres = 72.0, double yres = 72.0) const;
+    QImage renderToImage(double xres = 72.0, double yres = 72.0, bool doLinks = false) const;
 
     /**
      * Returns the size of the page in points
@@ -184,6 +185,11 @@ class Page {
     **/
     Orientation orientation() const;
     
+    /**
+      Gets the links of the page once it has been rendered if doLinks was true
+    */
+    QValueList<Link*> links() const;
+
   private:
     Page(const Document *doc, int index);
     PageData *data;
@@ -246,6 +252,8 @@ public:
     \return false if the end of the document has been reached
   */
   bool scanForFonts( int numPages, QValueList<FontInfo> *fontList ) const;
+
+  LinkDestination *linkDestination( const QString &name );
 
   ~Document();
   

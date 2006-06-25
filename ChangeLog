@@ -1,3 +1,14 @@
+2006-06-25  Albert Astals Cid  <aacid@kde.org>
+
+	* qt/Makefile.am
+	* qt/poppler-document.cc
+	* qt/poppler-page.cc
+	* qt/poppler-private.h
+	* qt/poppler-qt.h
+	* qt/poppler-link.cc
+	* qt/poppler-link.h: Adding link support to Qt3 frontend, patch by  
+	Wilfried Huss based on Qt4 code
+
 2006-06-11  Albert Astals Cid  <aacid@kde.org>
 
 	* poppler/UGooString.cc: When any of the chars that we

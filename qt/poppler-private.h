@@ -16,12 +16,43 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
+#include <Object.h>
 #include <SplashOutputDev.h>
+#include <Link.h>
 #include <PDFDoc.h>
 #include <FontInfo.h>
-#include <Object.h>
+#include <UGooString.h>
 
 namespace Poppler {
+    
+/* borrowed from kpdf */
+static QString unicodeToQString(Unicode* u, int len) {
+  QString ret;
+  ret.setLength(len);
+  QChar* qch = (QChar*) ret.unicode();
+  for (;len;--len)
+    *qch++ = (QChar) *u++;
+  return ret;
+}
+
+static UGooString *QStringToUGooString(const QString &s) {
+  int len = s.length();
+  Unicode *u = (Unicode *)gmallocn(s.length(), sizeof(Unicode));
+  for (int i = 0; i < len; ++i)
+    u[i] = s.at(i).unicode();
+  return new UGooString(u, len);
+}
+    
+class LinkDestinationData {
+  public:
+     LinkDestinationData( LinkDest *l, UGooString *nd, Poppler::DocumentData *pdfdoc ) : ld(l), namedDest(nd), doc(pdfdoc)
+     {
+     }
+	
+     LinkDest *ld;
+     UGooString *namedDest;
+     Poppler::DocumentData *doc;
+};
 
 class DocumentData {
   public:
