@@ -231,7 +231,7 @@ public:
   bool okToAddNotes() const;
   double getPDFVersion() const;
 
-  bool print(const QString &fileName, QValueList<int> pageList, double hDPI, double vDPI, int rotate, int paperWidth = -1, int paperHeight = -1);
+  bool print(const QString &fileName, QValueList<int> pageList, double hDPI, double vDPI, int rotate);
 
   /**
     The fonts within the PDF document.
