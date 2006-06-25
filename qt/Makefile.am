@@ -11,7 +11,7 @@ poppler_includedir = $(includedir)/poppler
 poppler_include_HEADERS =			\
 	poppler-qt.h				\
 	poppler-page-transition.h               \
-	poppler-link.h
+	poppler-link-qt3.h
 
 lib_LTLIBRARIES = libpoppler-qt.la
 libpoppler_qt_la_SOURCES =			\

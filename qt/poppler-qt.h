@@ -24,7 +24,7 @@
 #include <qdatetime.h>
 #include <qpixmap.h>
 
-#include <poppler-link.h>
+#include <poppler-link-qt3.h>
 #include <poppler-page-transition.h>
 
 namespace Poppler {
@@ -231,7 +231,7 @@ public:
   bool okToAddNotes() const;
   double getPDFVersion() const;
 
-  bool print(const QString &fileName, QValueList<int> pageList, double hDPI, double vDPI, int rotate);
+  bool print(const QString &fileName, QValueList<int> pageList, double hDPI, double vDPI, int rotate, int paperWidth = -1, int paperHeight = -1);
 
   /**
     The fonts within the PDF document.
