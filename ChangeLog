@@ -1,5 +1,13 @@
 2006-06-25  Albert Astals Cid  <aacid@kde.org>
 
+	* qt/poppler-document.cc
+	* qt/poppler-qt.h
+	* qt4/src/poppler-document.cc
+	* qt4/src/poppler-qt4.h: Ask for paper size width and height to pass
+	it to PSOutputDev
+
+2006-06-25  Albert Astals Cid  <aacid@kde.org>
+
 	* qt/Makefile.am
 	* qt/poppler-document.cc
 	* qt/poppler-page.cc

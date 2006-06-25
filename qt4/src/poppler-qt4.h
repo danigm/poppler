@@ -682,7 +682,15 @@ delete pixmap;
 	
 	LinkDestination *linkDestination( const QString &name );
 	
-	bool print(const QString &fileName, const QList<int> pageList, double hDPI, double vDPI, int rotate);
+	/**
+	  If you are using QPrinter you can get paper size by doing
+	  QPrinter dummy(QPrinter::PrinterResolution);
+	  dummy.setFullPage(true);
+	  dummy.setPageSize(myPageSize);
+	  width = dummy.width();
+	  height = dummy.height();
+	*/
+	bool print(const QString &fileName, const QList<int> pageList, double hDPI, double vDPI, int rotate, int paperWidth, int paperHeight);
 	
 	/**
 	  Sets the paper color, if not set it is white by default.

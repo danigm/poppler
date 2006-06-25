@@ -293,9 +293,14 @@ LinkDestination *Document::linkDestination( const QString &name )
   return ld;
 }
 
-bool Document::print(const QString &file, QValueList<int> pageList, double hDPI, double vDPI, int rotate)
+bool Document::print(const QString &fileName, QValueList<int> pageList, double hDPI, double vDPI, int rotate)
 {
-  PSOutputDev *psOut = new PSOutputDev(file.latin1(), data->doc.getXRef(), data->doc.getCatalog(), 1, data->doc.getNumPages(), psModePS);
+  return print(fileName, pageList, hDPI, vDPI, rotate, -1, -1);
+}
+
+bool Document::print(const QString &file, QValueList<int> pageList, double hDPI, double vDPI, int rotate, int paperWidth, int paperHeight)
+{
+  PSOutputDev *psOut = new PSOutputDev(file.latin1(), data->doc.getXRef(), data->doc.getCatalog(), 1, data->doc.getNumPages(), psModePS, paperWidth, paperHeight);
   
   if (psOut->isOk()) {
     QValueList<int>::iterator it;

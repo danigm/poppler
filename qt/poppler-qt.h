@@ -233,6 +233,15 @@ public:
 
   bool print(const QString &fileName, QValueList<int> pageList, double hDPI, double vDPI, int rotate);
 
+  // If you are using QPrinter you can get paper size doing
+  // QPrinter dummy(QPrinter::PrinterResolution);
+  // dummy.setFullPage(true);
+  // dummy.setPageSize(thePageSizeYouWant);
+  // QPaintDeviceMetrics metrics(&dummy);
+  // int width = metrics.width();
+  // int height = metrics.height();
+  bool print(const QString &fileName, QValueList<int> pageList, double hDPI, double vDPI, int rotate, int paperWidth, int paperHeight);
+
   /**
     The fonts within the PDF document.
 
