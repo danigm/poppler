@@ -1,3 +1,10 @@
+2006-06-28  Albert Astals Cid  <aacid@kde.org>
+
+	* poppler/DCTStream.cc:
+	* poppler/DCTStream.h: Reset jpeg structures on reset.
+	Fixes crash while printing pdf at
+	http://bugs.kde.org/attachment.cgi?id=16818&action=view
+
 2006-06-25  Albert Astals Cid  <aacid@kde.org>
 
 	* qt/poppler-document.cc
