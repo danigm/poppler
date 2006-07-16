@@ -3369,6 +3369,10 @@ GfxImageColorMap::GfxImageColorMap(int bitsA, Object *decode,
   obj.free();
  err1:
   ok = gFalse;
+  for (k = 0; k < gfxColorMaxComps; ++k) {
+    lookup[k] = NULL;
+  }
+  byte_lookup = NULL;
 }
 
 GfxImageColorMap::GfxImageColorMap(GfxImageColorMap *colorMap) {

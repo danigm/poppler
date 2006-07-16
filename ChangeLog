@@ -1,3 +1,10 @@
+2006-07-16  Albert Astals Cid  <aacid@kde.org>
+
+	* poppler/GfxState.cc: Do not crash when we can not
+	parse a GfxImageColorMap
+	Fixes crash on pdf that can be found at
+	http://bugs.kde.org/show_bug.cgi?id=130846
+
 2006-06-28  Albert Astals Cid  <aacid@kde.org>
 
 	* poppler/DCTStream.cc:
