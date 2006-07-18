@@ -1,5 +1,11 @@
 2006-07-18  Jeff Muizelaar  <jeff@infidigm.net>
 
+	* poppler/Gfx.cc: fix opCloseStroke to match the behaviour of
+	a separate opClose and opStroke. Previously, opCloseStroke only
+	closes if there is a path however opClose closes unconditionally.
+
+2006-07-18  Jeff Muizelaar  <jeff@infidigm.net>
+
 	* poppler/TextOutputDev.cc: call setDefaultCTM() after start page
 	like in Gfx.cc. This fixes a regression caused by the fix to #6948.
 

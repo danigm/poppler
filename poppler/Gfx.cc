@@ -1212,8 +1212,8 @@ void Gfx::opCloseStroke(Object args[], int numArgs) {
     //error(getPos(), "No path in closepath/stroke");
     return;
   }
+  state->closePath();
   if (state->isPath()) {
-    state->closePath();
     out->stroke(state);
   }
   doEndPath();
