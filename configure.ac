@@ -138,7 +138,7 @@ else
 
   AC_PATH_PROG(FREETYPE_CONFIG, freetype-config, no)
   if test "x$FREETYPE_CONFIG" != "xno" ; then
-	  
+
     FREETYPE_CFLAGS=`$FREETYPE_CONFIG --cflags`
     FREETYPE_LIBS=`$FREETYPE_CONFIG --libs`
     AC_DEFINE(HAVE_FREETYPE_H, 1, [Have FreeType2 include files])
@@ -150,13 +150,12 @@ fi
 AC_SUBST(FREETYPE_CFLAGS)
 AC_SUBST(FREETYPE_LIBS)
 
+PKG_CHECK_MODULES(FONTCONFIG, fontconfig)
+
 AC_ARG_ENABLE(splash-output,
               AC_HELP_STRING([--disable-splash-output],
 	                     [Don't build the Splash graphics backend.]),,
               enable_splash_output="yes")
-if test x$enable_splash_output = xyes; then
-  PKG_CHECK_MODULES(SPLASH, fontconfig)
-fi
 AM_CONDITIONAL(BUILD_SPLASH_OUTPUT, test x$enable_splash_output = xyes)
 AH_TEMPLATE([HAVE_SPLASH], [Use splash for rendering.])
 if test x$enable_splash_output = xyes; then
@@ -171,9 +170,9 @@ AC_ARG_ENABLE(cairo-output,
               enable_cairo_output=$enableval,
               enable_cairo_output="try")
 if test x$enable_cairo_output = xyes; then
-  PKG_CHECK_MODULES(CAIRO, cairo >= $CAIRO_VERSION fontconfig)
+  PKG_CHECK_MODULES(CAIRO, cairo >= $CAIRO_VERSION)
 elif test x$enable_cairo_output = xtry; then
-  PKG_CHECK_MODULES(CAIRO, cairo >= $CAIRO_VERSION fontconfig,
+  PKG_CHECK_MODULES(CAIRO, cairo >= $CAIRO_VERSION,
                     [enable_cairo_output="yes"],
                     [enable_cairo_output="no"])
 fi
@@ -197,9 +196,9 @@ AC_ARG_ENABLE(poppler-glib,
               enable_poppler_glib=$enableval,
               enable_poppler_glib="try")
 if test x$enable_poppler_glib = xyes; then
-  PKG_CHECK_MODULES(POPPLER_GLIB, gdk-2.0 >= 2.4.0 fontconfig)
+  PKG_CHECK_MODULES(POPPLER_GLIB, gdk-2.0 >= 2.4.0)
 elif test x$enable_poppler_glib = xtry; then
-  PKG_CHECK_MODULES(POPPLER_GLIB, gdk-2.0 >= 2.4.0 fontconfig,
+  PKG_CHECK_MODULES(POPPLER_GLIB, gdk-2.0 >= 2.4.0,
                     [enable_poppler_glib="yes"],
                     [enable_poppler_glib="no"])
 fi
@@ -280,9 +279,6 @@ AC_ARG_ENABLE(utils,
 	                     [Don't compile poppler command line utils.]),
               enable_utils=$enableval,
               enable_utils="yes")
-if test x$enable_utils = xyes; then
-  PKG_CHECK_MODULES(UTILS, fontconfig)
-fi
 AM_CONDITIONAL(BUILD_UTILS, test x$enable_utils = xyes)
 
 AC_ARG_ENABLE(compile-warnings,

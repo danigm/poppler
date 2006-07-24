@@ -1,3 +1,8 @@
+2006-07-24  Kristian Høgsberg  <krh@redhat.com>
+
+	* configure.ac:
+	* poppler/Makefile.am: Move fontconfig dependency to libpoppler.
+
 2006-07-18  Jeff Muizelaar  <jeff@infidigm.net>
 
 	* poppler/Gfx.cc: fix opCloseStroke to match the behaviour of

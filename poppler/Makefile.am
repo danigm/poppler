@@ -75,7 +75,8 @@ INCLUDES =					\
 	$(splash_includes)			\
 	$(cairo_includes)			\
 	$(arthur_includes)			\
-	$(FREETYPE_CFLAGS)			
+	$(FREETYPE_CFLAGS)			\
+	$(FONTCONFIG_CFLAGS)
 
 lib_LTLIBRARIES = libpoppler.la
 
@@ -88,7 +89,8 @@ libpoppler_la_LIBADD =				\
 	$(splash_libs)				\
 	$(libjpeg_libs)				\
 	$(zlib_libs)				\
-	$(FREETYPE_LIBS)
+	$(FREETYPE_LIBS)			\
+	$(FONTCONFIG_LIBS)
 
 libpoppler_la_LDFLAGS = -version-info 1:0:0
 
