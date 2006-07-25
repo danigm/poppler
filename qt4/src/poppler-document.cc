@@ -397,7 +397,7 @@ namespace Poppler {
     
     bool Document::print(const QString &file, const QList<int> pageList, double hDPI, double vDPI, int rotate, int paperWidth, int paperHeight)
     {
-        PSOutputDev *psOut = new PSOutputDev(file.toLatin1().data(), m_doc->doc.getXRef(), m_doc->doc.getCatalog(), 1, m_doc->doc.getNumPages(), psModePS, paperWidth, paperHeight);
+        PSOutputDev *psOut = new PSOutputDev(file.toLatin1().data(), m_doc->doc.getXRef(), m_doc->doc.getCatalog(), 1, m_doc->doc.getNumPages(), psModePS, paperWidth, paperHeight, gFalse);
 
         if (psOut->isOk())
         {

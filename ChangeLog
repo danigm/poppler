@@ -1,3 +1,9 @@
+2006-07-25  Albert Astals Cid  <aacid@kde.org>
+
+	* qt4/src/poppler-document.cc: Obey kdeprint masters in that a library
+	should output as much device independent PS as posible, so disabling
+	duplex printing for default is a good idea.
+
 2006-07-24  Kristian Høgsberg  <krh@redhat.com>
 
 	* configure.ac:
