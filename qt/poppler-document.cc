@@ -20,6 +20,7 @@
 #include <qfile.h>
 #include <qimage.h>
 #include <GlobalParams.h>
+#include <Outline.h>
 #include <PDFDoc.h>
 #include <PSOutputDev.h>
 #include <Catalog.h>
@@ -282,6 +283,23 @@ bool Document::okToAddNotes() const
 double Document::getPDFVersion() const
 {
   return data->doc.getPDFVersion();
+}
+
+QDomDocument *Document::toc() const
+{
+  Outline * outline = data->doc.getOutline();
+  if ( !outline )
+    return NULL;
+
+  GooList * items = outline->getItems();
+  if ( !items || items->getLength() < 1 )
+    return NULL;
+
+  QDomDocument *toc = new QDomDocument();
+  if ( items->getLength() > 0 )
+    data->addTocChildren( toc, toc, items );
+
+  return toc;
 }
 
 LinkDestination *Document::linkDestination( const QString &name )

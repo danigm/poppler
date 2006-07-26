@@ -16,7 +16,10 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
+#include <qdom.h>
+
 #include <Object.h>
+#include <Outline.h>
 #include <SplashOutputDev.h>
 #include <Link.h>
 #include <PDFDoc.h>
@@ -76,6 +79,61 @@ class DocumentData {
             m_outputDev->startDoc(doc.getXRef());
         }
         return m_outputDev;
+    }
+
+    void addTocChildren( QDomDocument * docSyn, QDomNode * parent, GooList * items )
+    {
+        int numItems = items->getLength();
+        for ( int i = 0; i < numItems; ++i )
+        {
+            // iterate over every object in 'items'
+            OutlineItem * outlineItem = (OutlineItem *)items->get( i );
+
+            // 1. create element using outlineItem's title as tagName
+            QString name;
+            Unicode * uniChar = outlineItem->getTitle();
+            int titleLength = outlineItem->getTitleLength();
+            name = unicodeToQString(uniChar, titleLength);
+            if ( name.isEmpty() )
+                continue;
+
+            QDomElement item = docSyn->createElement( name );
+            parent->appendChild( item );
+
+            // 2. find the page the link refers to
+            ::LinkAction * a = outlineItem->getAction();
+            if ( a && ( a->getKind() == actionGoTo || a->getKind() == actionGoToR ) )
+            {
+                // page number is contained/referenced in a LinkGoTo
+                LinkGoTo * g = static_cast< LinkGoTo * >( a );
+                LinkDest * destination = g->getDest();
+                if ( !destination && g->getNamedDest() )
+                {
+                    // no 'destination' but an internal 'named reference'. we could
+                    // get the destination for the page now, but it's VERY time consuming,
+                    // so better storing the reference and provide the viewport on demand
+                    UGooString *s = g->getNamedDest();
+                    QString aux = unicodeToQString( s->unicode(), s->getLength() );
+                    item.setAttribute( "DestinationName", aux );
+                }
+                else if ( destination && destination->isOk() )
+                {
+                    LinkDestinationData ldd(destination, NULL, this);
+                    item.setAttribute( "Destination", LinkDestination(ldd).toString() );
+                }
+                if ( a->getKind() == actionGoToR )
+                {
+                    LinkGoToR * g2 = static_cast< LinkGoToR * >( a );
+                    item.setAttribute( "ExternalFileName", g2->getFileName()->getCString() );
+                }
+            }
+
+            // 3. recursively descend over children
+            outlineItem->open();
+            GooList * children = outlineItem->getKids();
+            if ( children )
+                addTocChildren( docSyn, &item, children );
+        }
     }
 
   class PDFDoc doc;

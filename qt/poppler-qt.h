@@ -22,6 +22,7 @@
 
 #include <qcstring.h>
 #include <qdatetime.h>
+#include <qdom.h>
 #include <qpixmap.h>
 
 #include <poppler-link-qt3.h>
@@ -261,6 +262,21 @@ public:
     \return false if the end of the document has been reached
   */
   bool scanForFonts( int numPages, QValueList<FontInfo> *fontList ) const;
+
+  /**
+    Gets the TOC of the Document, it is application responsabiliy to delete
+    it when no longer needed
+
+    * In the tree the tag name is the 'screen' name of the entry. A tag can have
+    * attributes. Here follows the list of tag attributes with meaning:
+    * - Destination: A string description of the referred destination
+    * - DestinationName: A 'named reference' to the viewport that must be converted
+    *      using linkDestination( *destination_name* )
+    * - ExternalFileName: A link to a external filename
+
+     \returns NULL if the Document does not have TOC
+  */
+  QDomDocument *toc() const;
 
   LinkDestination *linkDestination( const QString &name );
 

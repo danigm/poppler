@@ -1,3 +1,10 @@
+2006-07-26  Albert Astals Cid  <aacid@kde.org>
+
+	* qt/poppler-document.cc:
+	* qt/poppler-private.h:
+	* qt/poppler-qt.h: Port the QDomDocument *Document::toc() const method
+	from the qt4 frontend to the qt frontend. Patch by Wilfried Huss
+
 2006-07-25  Albert Astals Cid  <aacid@kde.org>
 
 	* qt4/src/poppler-document.cc: Obey kdeprint masters in that a library
