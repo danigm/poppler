@@ -1,4 +1,4 @@
-2006-07-26  Albert Astals Cid  <aacid@kde.org>
+2006-07-27  Albert Astals Cid  <aacid@kde.org>
 
 	* poppler/Stream.cc: If you are going to test a variable, better
 	initialize it first ;-) Fixes bug 7646
