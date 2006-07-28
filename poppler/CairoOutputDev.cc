@@ -292,8 +292,8 @@ void CairoOutputDev::updateFont(GfxState *state) {
   matrix.yx = m[1] * fontSize;
   matrix.xy = -m[2] * fontSize;
   matrix.yy = -m[3] * fontSize;
-  matrix.x0 = m[4];
-  matrix.y0 = m[5];
+  matrix.x0 = 0;
+  matrix.y0 = 0;
   cairo_set_font_matrix (cairo, &matrix);
 }
 

@@ -1,3 +1,8 @@
+2006-07-28  Kristian Høgsberg  <krh@redhat.com>
+
+	* poppler/CairoOutputDev.cc: Don't set font matrix translation
+	(fix from Behdad Esfahbod).
+
 2006-07-27  Albert Astals Cid  <aacid@kde.org>
 
 	* poppler/Stream.cc: If you are going to test a variable, better
