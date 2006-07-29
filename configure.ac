@@ -224,7 +224,12 @@ elif test x$enable_poppler_qt = xtry; then
 fi
 AC_SUBST(POPPLER_QT_CXXFLAGS)
 AC_SUBST(POPPLER_QT_LIBS)
-AM_CONDITIONAL(BUILD_POPPLER_QT, test x$enable_poppler_qt = xyes)
+if test x$enable_splash_output != xyes; then
+  if test x$enable_poppler_qt = xyes; then
+    enable_poppler_qt="no because of disabled splash"
+  fi
+fi
+AM_CONDITIONAL(BUILD_POPPLER_QT, test "x$enable_poppler_qt" = "xyes")
 
 dnl 
 dnl Try Qt4
@@ -245,7 +250,12 @@ fi
 
 AC_SUBST(POPPLER_QT4_CXXFLAGS)
 AC_SUBST(POPPLER_QT4_LIBS)
-AM_CONDITIONAL(BUILD_POPPLER_QT4, test x$enable_poppler_qt4 = xyes)
+if test x$enable_splash_output != xyes; then
+  if test x$enable_poppler_qt4 = xyes; then
+    enable_poppler_qt4="no because of disabled splash"
+  fi
+fi
+AM_CONDITIONAL(BUILD_POPPLER_QT4, test "x$enable_poppler_qt4" = "xyes")
 
 if test x$enable_poppler_qt4 = xyes; then
   POPPLER_FIND_QT4TEST(POPPLER_QTTEST,
@@ -290,8 +300,8 @@ if test "x$GCC" != xyes; then
   enable_compile_warnings=no
 fi
 case "$enable_compile_warnings" in
-  no)	;;
-  yes)	CXXFLAGS="-Wall -Wno-unused $CXXFLAGS" ;;
+  no)	CXXFLAGS="-Wl,--no-undefined $CXXFLAGS" ;;
+  yes)	CXXFLAGS="-Wall -Wno-unused  -Wl,--no-undefined $CXXFLAGS" ;;
   kde)	CXXFLAGS="-Wnon-virtual-dtor -Wno-long-long -Wundef -ansi \
 		-D_XOPEN_SOURCE=500 -D_BSD_SOURCE -Wcast-align \
 		-Wconversion -Wchar-subscripts -Wall -W -Wpointer-arith \
