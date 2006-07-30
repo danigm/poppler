@@ -126,7 +126,8 @@ SplashFontFile *SplashFontEngine::loadType1Font(SplashFontFileID *idA,
   // semantics, this will remove the last link; otherwise it will
   // return an error, leaving the file to be deleted later (if
   // loadXYZFont failed, the file will always be deleted)
-  src->unref();
+  if (src->isFile)
+    src->unref();
 #endif
 
   return fontFile;
@@ -154,7 +155,8 @@ SplashFontFile *SplashFontEngine::loadType1CFont(SplashFontFileID *idA,
   // semantics, this will remove the last link; otherwise it will
   // return an error, leaving the file to be deleted later (if
   // loadXYZFont failed, the file will always be deleted)
-  src->unref();
+  if (src->isFile)
+    src->unref();
 #endif
 
   return fontFile;
@@ -176,7 +178,8 @@ SplashFontFile *SplashFontEngine::loadCIDFont(SplashFontFileID *idA,
   // semantics, this will remove the last link; otherwise it will
   // return an error, leaving the file to be deleted later (if
   // loadXYZFont failed, the file will always be deleted)
-  src->unref();
+  if (src->isFile)
+    src->unref();
 #endif
 
   return fontFile;
@@ -206,7 +209,8 @@ SplashFontFile *SplashFontEngine::loadTrueTypeFont(SplashFontFileID *idA,
   // semantics, this will remove the last link; otherwise it will
   // return an error, leaving the file to be deleted later (if
   // loadXYZFont failed, the file will always be deleted)
-  src->unref();
+  if (src->isFile)
+    src->unref();
 #endif
 
   return fontFile;

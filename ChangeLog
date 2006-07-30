@@ -1,5 +1,11 @@
 2006-07-29  Albert Astals Cid  <aacid@kde.org>
 
+	* splash/SplashFontEngine.cc:
+	* poppler/SplashOutputDev.cc: Fix memory leak when using embedded
+	fonts in the pdf file. Patch by Krzysztof Kowalczyk
+
+2006-07-29  Albert Astals Cid  <aacid@kde.org>
+
 	* configure.ac: Disable qt and qt4 frontends if splash backend is
 	disabled
 

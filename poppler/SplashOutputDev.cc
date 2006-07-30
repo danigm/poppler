@@ -947,7 +947,7 @@ void SplashOutputDev::updateFont(GfxState *state) {
   GfxFontType fontType;
   SplashOutFontFileID *id;
   SplashFontFile *fontFile;
-  SplashFontSrc *fontsrc;
+  SplashFontSrc *fontsrc = NULL;
   FoFiTrueType *ff;
   Ref embRef;
   Object refObj, strObj;
@@ -1022,7 +1022,7 @@ void SplashOutputDev::updateFont(GfxState *state) {
     if (fileName)
       fontsrc->setFile(fileName, gFalse);
     else
-      fontsrc->setBuf(tmpBuf, tmpBufLen, gFalse);
+      fontsrc->setBuf(tmpBuf, tmpBufLen, gTrue);
 
     // load the font file
     switch (fontType) {
@@ -1170,11 +1170,15 @@ void SplashOutputDev::updateFont(GfxState *state) {
   }
   font = fontEngine->getFont(fontFile, mat);
 
+  if (fontsrc)
+      fontsrc->unref();
   return;
 
  err2:
   delete id;
  err1:
+  if (fontsrc)
+      fontsrc->unref();
   return;
 }
 
