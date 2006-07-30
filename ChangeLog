@@ -1,3 +1,10 @@
+2006-07-30  Albert Astals Cid  <aacid@kde.org>
+
+	* poppler/GfxState.cc: make nGfxBlendModeNames define return the
+	correct size of the gfxBlendModeNames array so it does not access
+	invalid memory areas when the blend mode is not found. Discovered by
+	Krzysztof Kowalczyk
+
 2006-07-29  Albert Astals Cid  <aacid@kde.org>
 
 	* splash/SplashFontEngine.cc:
