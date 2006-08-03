@@ -1,3 +1,8 @@
+2006-08-03  Albert Astals Cid  <aacid@kde.org>
+
+	* configure.ac: Use the correct variable to output the utils status.
+	Patch by Dom Lachowicz
+
 2006-07-30  Albert Astals Cid  <aacid@kde.org>
 
 	* poppler/GfxState.cc: make nGfxBlendModeNames define return the
