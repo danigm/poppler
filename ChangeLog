@@ -1,3 +1,10 @@
+2006-08-05  Albert Astals Cid  <aacid@kde.org>
+
+	* utils/pdftotext.cc:
+	* utils/pdfinfo.cc:
+	* utils/pdffonts.cc: Add the posibility of reading a file from stdin.
+	Patch by Dom Lachowicz
+
 2006-08-03  Albert Astals Cid  <aacid@kde.org>
 
 	* configure.ac: Use the correct variable to output the utils status.

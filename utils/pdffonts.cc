@@ -115,7 +115,16 @@ int main(int argc, char *argv[]) {
   } else {
     userPW = NULL;
   }
-  doc = new PDFDoc(fileName, ownerPW, userPW);
+
+  if(fileName->cmp("-") != 0) {
+      doc = new PDFDoc(fileName, ownerPW, userPW);
+  } else {
+      Object obj;
+
+      obj.initNull();
+      doc = new PDFDoc(new FileStream(stdin, 0, gFalse, 0, &obj), ownerPW, userPW);
+  }
+
   if (userPW) {
     delete userPW;
   }
