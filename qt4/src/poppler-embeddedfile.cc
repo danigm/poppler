@@ -25,6 +25,7 @@
 #include "Object.h"
 #include "Stream.h"
 #include "Catalog.h"
+#include "UGooString.h"
 
 #include "poppler-qt4.h"
 
@@ -45,7 +46,7 @@ EmbeddedFile::EmbeddedFile(EmbFile *embfile)
 {
 	m_embeddedFile = new EmbeddedFileData();
 	m_embeddedFile->m_label = QString(embfile->name()->getCString());
-	m_embeddedFile->m_description = QString(embfile->description()->getCString());
+	m_embeddedFile->m_description = QString(UGooString(*embfile->description()).getCString());
 	m_embeddedFile->m_modDate = convertDate(embfile->modDate()->getCString());
 	m_embeddedFile->m_createDate = convertDate(embfile->createDate()->getCString());
 	embfile->streamObject().copy(&m_embeddedFile->m_streamObject);

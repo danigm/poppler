@@ -1,5 +1,13 @@
 2006-08-05  Albert Astals Cid  <aacid@kde.org>
 
+	* poppler/Catalog.cc: The name array can contain references to strings
+	instead of stings themselves, or at least PDF of
+	https://bugs.freedesktop.org/show_bug.cgi?id=7780 does. This makes it
+	work with that file
+	* qt4/src/poppler-embeddedfile.cc: Use UGooString for description
+
+2006-08-05  Albert Astals Cid  <aacid@kde.org>
+
 	* utils/pdftotext.cc:
 	* utils/pdfinfo.cc:
 	* utils/pdffonts.cc: Add the posibility of reading a file from stdin.
