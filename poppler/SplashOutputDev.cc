@@ -1170,14 +1170,14 @@ void SplashOutputDev::updateFont(GfxState *state) {
   }
   font = fontEngine->getFont(fontFile, mat);
 
-  if (fontsrc)
+  if (fontsrc && !fontsrc->isFile)
       fontsrc->unref();
   return;
 
  err2:
   delete id;
  err1:
-  if (fontsrc)
+  if (fontsrc && !fontsrc->isFile)
       fontsrc->unref();
   return;
 }

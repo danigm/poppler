@@ -1,3 +1,7 @@
+2006-08-10  Albert Astals Cid  <aacid@kde.org>
+
+	* poppler/SplashOutputDev.cc: Try to fix refs to fonts yet again.
+
 2006-08-05  Albert Astals Cid  <aacid@kde.org>
 
 	* poppler/Catalog.cc: The name array can contain references to strings
