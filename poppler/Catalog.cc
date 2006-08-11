@@ -495,6 +495,7 @@ void NameTree::parse(Object *tree) {
       addEntry(entry);
     }
   }
+  names.free();
 
   // root or intermediate node
   if (tree->dictLookup("Kids", &kids)->isArray()) {
