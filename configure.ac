@@ -82,7 +82,7 @@ fi
 dnl Test for zlib
 AC_ARG_ENABLE(zlib,
 	      AC_HELP_STRING([--disable-zlib],
-	                     [Don't build against zlib.]),
+	                     [Don't build against zlib. This is the default value as the zlib code is known to fail in some cases.]),
               enable_zlib=$enableval,
               enable_zlib="no")
 if test x$enable_zlib = xyes; then
@@ -301,7 +301,7 @@ if test "x$GCC" != xyes; then
 fi
 case "$enable_compile_warnings" in
   no)	;;
-  yes)	CXXFLAGS="-Wall -Wno-unused $CXXFLAGS" ;;
+  yes)	CXXFLAGS="-g3 -Wall -Wno-unused $CXXFLAGS" ;;
   kde)	CXXFLAGS="-Wnon-virtual-dtor -Wno-long-long -Wundef -ansi \
 		-D_XOPEN_SOURCE=500 -D_BSD_SOURCE -Wcast-align \
 		-Wconversion -Wchar-subscripts -Wall -W -Wpointer-arith \

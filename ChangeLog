@@ -1,3 +1,7 @@
+2006-08-16  Albert Astals Cid  <aacid@kde.org>
+
+	* configure.ac: Add a warning saying zlib code is not perfect.
+
 2006-08-11  Albert Astals Cid  <aacid@kde.org>
 
 	* poppler/Catalog.cc: Fix leak
