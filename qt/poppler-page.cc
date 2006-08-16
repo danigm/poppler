@@ -186,8 +186,14 @@ PageTransition *Page::getTransition() const
 
 QSize Page::pageSize() const
 {
-  ::Page *p = data->doc->data->doc.getCatalog()->getPage(data->index + 1);
-  return QSize( (int)p->getMediaWidth(), (int)p->getMediaHeight() );
+  ::Page *p;
+
+  p = data->doc->data->doc.getCatalog()->getPage(data->index + 1);
+  if ( ( Page::Landscape == orientation() ) || (Page::Seascape == orientation() ) ) {
+    return QSize( (int)p->getCropHeight(), (int)p->getCropWidth() );
+  } else {
+    return QSize( (int)p->getCropWidth(), (int)p->getCropHeight() );
+  }
 }
 
 Page::Orientation Page::orientation() const
