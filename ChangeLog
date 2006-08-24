@@ -1,3 +1,8 @@
+2006-08-25  Albert Astals Cid  <aacid@kde.org>
+
+	* qt4/src/poppler-private.h: Init m_fontInfoScanner to NULL. Discovered by
+	Rafael Rodríguez <rafael.rodriguez.tf@gmail.com>
+
 2006-08-16  Albert Astals Cid  <aacid@kde.org>
 
 	* qt/poppler-page.cc: Report correct page size. Backport from Qt4
