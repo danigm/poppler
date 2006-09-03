@@ -1,3 +1,12 @@
+2006-09-03  Albert Astals Cid  <aacid@kde.org>
+
+	* poppler/Dict.cc:
+	* poppler/Dict.h:
+	* poppler/Object.h:
+	* poppler/Parser.cc: Patch by Krzysztof Kowalczyk to increase speed by
+	means of doing less copies between objects. See bug 8112 for more
+	information.
+
 2006-08-25  Albert Astals Cid  <aacid@kde.org>
 
 	* qt4/src/poppler-private.h: Init m_fontInfoScanner to NULL. Discovered by

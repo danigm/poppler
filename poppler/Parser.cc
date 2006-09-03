@@ -39,7 +39,6 @@ Parser::~Parser() {
 Object *Parser::getObj(Object *obj,
 		       Guchar *fileKey, int keyLength,
 		       int objNum, int objGen) {
-  char *key;
   Stream *str;
   Object obj2;
   int num;
@@ -76,14 +75,14 @@ Object *Parser::getObj(Object *obj,
 	error(getPos(), "Dictionary key must be a name object");
 	shift();
       } else {
-	key = copyString(buf1.getName());
+        // buf1 might go away in shift(), so construct the key
+        UGooString *key = new UGooString(buf1.getName());
 	shift();
 	if (buf1.isEOF() || buf1.isError()) {
 	  gfree(key);
 	  break;
 	}
-	obj->dictAdd(key, getObj(&obj2, fileKey, keyLength, objNum, objGen));
-	gfree(key);
+	obj->dictAddOwnKeyVal(key, getObj(&obj2, fileKey, keyLength, objNum, objGen));
       }
     }
     if (buf1.isEOF())
@@ -130,7 +129,11 @@ Object *Parser::getObj(Object *obj,
 
   // simple object
   } else {
-    buf1.copy(obj);
+    // avoid re-allocating memory for complex objects like strings by
+    // shallow copy of <buf1> to <obj> and nulling <buf1> so that
+    // subsequent buf1.free() won't free this memory
+    buf1.shallowCopy(obj);
+    buf1.initNull();
     shift();
   }
 
@@ -208,7 +211,7 @@ void Parser::shift(int objNum) {
     inlineImg = 1;
   }
   buf1.free();
-  buf1 = buf2;
+  buf2.shallowCopy(&buf1);
   if (inlineImg > 0)		// don't buffer inline image data
     buf2.initNull();
   else

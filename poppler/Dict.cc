@@ -41,7 +41,7 @@ Dict::~Dict() {
   gfree(entries);
 }
 
-void Dict::add(const UGooString &key, Object *val) {
+void Dict::addOwnKeyVal(UGooString *key, Object *val) {
   if (length == size) {
     if (length == 0) {
       size = 8;
@@ -50,7 +50,7 @@ void Dict::add(const UGooString &key, Object *val) {
     }
     entries = (DictEntry *)greallocn(entries, size, sizeof(DictEntry));
   }
-  entries[length].key = new UGooString(key);
+  entries[length].key = key;
   entries[length].val = *val;
   ++length;
 }

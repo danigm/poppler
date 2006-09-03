@@ -14,8 +14,8 @@
 #endif
 
 #include "Object.h"
+#include "UGooString.h"
 
-class UGooString;
 //------------------------------------------------------------------------
 // Dict
 //------------------------------------------------------------------------
@@ -42,7 +42,14 @@ public:
   int getLength() { return length; }
 
   // Add an entry
-  void add(const UGooString &key, Object *val);
+  void addOwnKeyVal(UGooString *key, Object *val);
+  // FIXME: should also be renamed to addOwnVal()
+  void add(const UGooString &key, Object *val) {
+    addOwnKeyVal(new UGooString(key), val);
+  }
+  void addOwnVal(const char *key, Object *val) {
+    addOwnKeyVal(new UGooString(key), val);
+  }
 
   // Check if dictionary is of specified type.
   GBool is(char *type);

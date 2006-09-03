@@ -107,6 +107,10 @@ public:
 
   // Copy an object.
   Object *copy(Object *obj);
+  Object *shallowCopy(Object *obj) {
+    *obj = *this;
+    return obj;
+  }
 
   // If object is a Ref, fetch and return the referenced object.
   // Otherwise, return a copy of the object.
@@ -164,7 +168,9 @@ public:
 
   // Dict accessors.
   int dictGetLength();
+  void dictAddOwnKeyVal(UGooString *key, Object *val);
   void dictAdd(const UGooString &key, Object *val);
+  void dictAddOwnVal(const char *key, Object *val);
   GBool dictIs(char *dictType);
   Object *dictLookup(const UGooString &key, Object *obj);
   Object *dictLookupNF(const UGooString &key, Object *obj);
@@ -241,6 +247,12 @@ inline int Object::dictGetLength()
 
 inline void Object::dictAdd(const UGooString &key, Object *val)
   { dict->add(key, val); }
+
+inline void Object::dictAddOwnVal(const char *key, Object *val)
+  { dict->addOwnVal(key, val); }
+
+inline void Object::dictAddOwnKeyVal(UGooString *key, Object *val)
+  { dict->addOwnKeyVal(key, val); }
 
 inline GBool Object::dictIs(char *dictType)
   { return dict->is(dictType); }
