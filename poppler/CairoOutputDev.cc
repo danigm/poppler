@@ -58,6 +58,7 @@ CairoOutputDev::CairoOutputDev() {
   fill_opacity = 1.0;
   textClipPath = NULL;
   cairo = NULL;
+  currentFont = NULL;
 }
 
 CairoOutputDev::~CairoOutputDev() {
