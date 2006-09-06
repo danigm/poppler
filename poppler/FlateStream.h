@@ -57,7 +57,8 @@ private:
   z_stream d_stream;
   StreamPredictor *pred;
   int status;
-  unsigned char in_buf[4096];
+  /* in_buf currently needs to be 1 or we over read from EmbedStreams */
+  unsigned char in_buf[1];
   unsigned char out_buf[4096];
   int out_pos;
   int out_buf_len;

@@ -16,6 +16,7 @@ FlateStream::FlateStream(Stream *strA, int predictor, int columns, int colors, i
   }
   out_pos = 0;
   memset(&d_stream, 0, sizeof(d_stream));
+  inflateInit(&d_stream);
 }
 
 FlateStream::~FlateStream() {
@@ -27,9 +28,13 @@ FlateStream::~FlateStream() {
 void FlateStream::reset() {
   //FIXME: what are the semantics of reset?
   //i.e. how much intialization has to happen in the constructor?
-  str->reset();
+
+  /* reinitialize zlib */
+  inflateEnd(&d_stream);
   memset(&d_stream, 0, sizeof(d_stream));
   inflateInit(&d_stream);
+
+  str->reset();
   d_stream.avail_in = 0;
   status = Z_OK;
   out_pos = 0;
@@ -61,25 +66,35 @@ int FlateStream::lookChar() {
 }
 
 int FlateStream::fill_buffer() {
+  /* only fill the buffer if it has all been used */
   if (out_pos >= out_buf_len) {
+    /* check if the flatestream has been exhausted */
     if (status == Z_STREAM_END) {
       return -1;
     }
+
+    /* set to the begining of out_buf */
     d_stream.avail_out = sizeof(out_buf);
     d_stream.next_out = out_buf;
     out_pos = 0;
-    /* buffer is empty so we need to fill it */
-    if (d_stream.avail_in == 0) {
-      int c;
-      /* read from the source stream */
-      while (d_stream.avail_in < sizeof(in_buf) && (c = str->getChar()) != EOF) {
-	in_buf[d_stream.avail_in++] = c;
+
+    while (1) {
+      /* buffer is empty so we need to fill it */
+      if (d_stream.avail_in == 0) {
+	int c;
+	/* read from the source stream */
+	while (d_stream.avail_in < sizeof(in_buf) && (c = str->getChar()) != EOF) {
+	  in_buf[d_stream.avail_in++] = c;
+	}
+	d_stream.next_in = in_buf;
       }
-      d_stream.next_in = in_buf;
-    }
-    while (d_stream.avail_out && d_stream.avail_in && (status == Z_OK || status == Z_BUF_ERROR)) {
+
+      /* keep decompressing until we can't anymore */
+      if (d_stream.avail_out == 0 || d_stream.avail_in == 0 || (status != Z_OK && status != Z_BUF_ERROR))
+	break;
       status = inflate(&d_stream, Z_SYNC_FLUSH);
     }
+
     out_buf_len = sizeof(out_buf) - d_stream.avail_out;
     if (status != Z_OK && status != Z_STREAM_END)
       return -1;

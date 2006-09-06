@@ -82,7 +82,7 @@ fi
 dnl Test for zlib
 AC_ARG_ENABLE(zlib,
 	      AC_HELP_STRING([--disable-zlib],
-	                     [Don't build against zlib. This is the default value as the zlib code is known to fail in some cases.]),
+	                     [Don't build against zlib.]),
               enable_zlib=$enableval,
               enable_zlib="no")
 if test x$enable_zlib = xyes; then

@@ -1,3 +1,12 @@
+2006-09-06  Jeff Muizelaar  <jeff@infidigm.net>
+
+	* configure.ac:
+	* poppler/FlateStream.cc:
+	* poppler/FlateStream.h: Fix FlateStream to not read more than it
+	needs. This has a performance impact because our input buffer is now
+	only 1 byte large, however correctness is better than performance.
+	This should fix #3948.
+
 2006-09-04  Jeff Muizelaar  <jeff@infidigm.net>
 
 	* poppler/CairoOutputDev.cc: Initialize currentFont to NULL before
