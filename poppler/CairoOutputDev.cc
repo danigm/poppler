@@ -395,7 +395,13 @@ void CairoOutputDev::endString(GfxState *state)
 
   if (!currentFont)
     return;
-   
+
+  // endString can be called without a corresponding beginString. If this
+  // happens glyphs will be null so don't draw anything, just return.
+  // XXX: OutputDevs should probably not have to deal with this...
+  if (!glyphs)
+    return;
+
   // ignore empty strings and invisible text -- this is used by
   // Acrobat Capture
   render = state->getRender();
