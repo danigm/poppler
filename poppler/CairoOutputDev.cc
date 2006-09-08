@@ -504,9 +504,11 @@ void CairoOutputDev::drawImageMask(GfxState *state, Object *ref, Stream *str,
   cairo_matrix_t matrix;
   int invert_bit;
   int row_stride;
-  
-  /* work around a cairo bug when scaling 1x1 surfaces */
 
+  /* FIXME: Doesn't the image mask support any colorspace? */
+  cairo_set_source (cairo, fill_pattern);
+
+  /* work around a cairo bug when scaling 1x1 surfaces */
   if (width == 1 && height == 1) {
     cairo_save (cairo);
     cairo_rectangle (cairo, 0., 0., width, height);
@@ -563,8 +565,6 @@ void CairoOutputDev::drawImageMask(GfxState *state, Object *ref, Stream *str,
    * images with CAIRO_FILTER_NEAREST to look really bad */
   cairo_pattern_set_filter (pattern, CAIRO_FILTER_BEST);
 
-  /* FIXME: Doesn't the image mask support any colorspace? */
-  cairo_set_source (cairo, fill_pattern);
   cairo_mask (cairo, pattern);
 
   cairo_pattern_destroy (pattern);
