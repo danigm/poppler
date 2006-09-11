@@ -39,10 +39,108 @@ namespace Poppler {
 
 class PageData {
   public:
+  Link* convertLinkActionToLink(::LinkAction * a, const QRectF &linkArea, DocumentData * doc);
+
   const Document *parentDoc;
   int index;
   PageTransition *transition;
 };
+
+Link* PageData::convertLinkActionToLink(::LinkAction * a, const QRectF &linkArea, DocumentData * doc)
+{
+  if ( !a )
+    return NULL;
+
+  Link * popplerLink = NULL;
+  switch ( a->getKind() )
+  {
+    case actionGoTo:
+    {
+      LinkGoTo * g = (LinkGoTo *) a;
+      // create link: no ext file, namedDest, object pointer
+      popplerLink = new LinkGoto( linkArea, QString::null, LinkDestination( LinkDestinationData(g->getDest(), g->getNamedDest(), doc ) ) );
+    }
+    break;
+
+    case actionGoToR:
+    {
+      LinkGoToR * g = (LinkGoToR *) a;
+      // copy link file
+      const char * fileName = g->getFileName()->getCString();
+      // ceate link: fileName, namedDest, object pointer
+      popplerLink = new LinkGoto( linkArea, (QString)fileName, LinkDestination( LinkDestinationData(g->getDest(), g->getNamedDest(), doc ) ) );
+    }
+    break;
+
+    case actionLaunch:
+    {
+      LinkLaunch * e = (LinkLaunch *)a;
+      GooString * p = e->getParams();
+      popplerLink = new LinkExecute( linkArea, e->getFileName()->getCString(), p ? p->getCString() : 0 );
+    }
+    break;
+
+    case actionNamed:
+    {
+      const char * name = ((LinkNamed *)a)->getName()->getCString();
+      if ( !strcmp( name, "NextPage" ) )
+        popplerLink = new LinkAction( linkArea, LinkAction::PageNext );
+      else if ( !strcmp( name, "PrevPage" ) )
+        popplerLink = new LinkAction( linkArea, LinkAction::PagePrev );
+      else if ( !strcmp( name, "FirstPage" ) )
+        popplerLink = new LinkAction( linkArea, LinkAction::PageFirst );
+      else if ( !strcmp( name, "LastPage" ) )
+        popplerLink = new LinkAction( linkArea, LinkAction::PageLast );
+      else if ( !strcmp( name, "GoBack" ) )
+        popplerLink = new LinkAction( linkArea, LinkAction::HistoryBack );
+      else if ( !strcmp( name, "GoForward" ) )
+        popplerLink = new LinkAction( linkArea, LinkAction::HistoryForward );
+      else if ( !strcmp( name, "Quit" ) )
+        popplerLink = new LinkAction( linkArea, LinkAction::Quit );
+      else if ( !strcmp( name, "GoToPage" ) )
+        popplerLink = new LinkAction( linkArea, LinkAction::GoToPage );
+      else if ( !strcmp( name, "Find" ) )
+        popplerLink = new LinkAction( linkArea, LinkAction::Find );
+      else if ( !strcmp( name, "FullScreen" ) )
+        popplerLink = new LinkAction( linkArea, LinkAction::Presentation );
+      else if ( !strcmp( name, "Close" ) )
+      {
+        // acroread closes the document always, doesnt care whether 
+        // its presentation mode or not
+        // popplerLink = new LinkAction( linkArea, LinkAction::EndPresentation );
+        popplerLink = new LinkAction( linkArea, LinkAction::Close );
+      }
+      else
+      {
+        // TODO
+      }
+    }
+    break;
+
+    case actionURI:
+    {
+      popplerLink = new LinkBrowse( linkArea, ((LinkURI *)a)->getURI()->getCString() );
+    }
+    break;
+
+    case actionMovie:
+/*      TODO this (Movie link)
+          m_type = Movie;
+          LinkMovie * m = (LinkMovie *) a;
+          // copy Movie parameters (2 IDs and a const char *)
+          Ref * r = m->getAnnotRef();
+          m_refNum = r->num;
+          m_refGen = r->gen;
+          copyString( m_uri, m->getTitle()->getCString() );
+*/  break;
+
+    case actionUnknown:
+    break;
+  }
+
+  return popplerLink;
+}
+
 
 Page::Page(const Document *doc, int index) {
   m_page = new PageData();
@@ -333,97 +431,7 @@ QList<Link*> Page::links() const
 
     if (!xpdfLink->isOk()) continue;
 
-    Link *popplerLink = NULL;
-    ::LinkAction *a = xpdfLink->getAction();
-    if ( a )
-    {
-      switch ( a->getKind() )
-      {
-        case actionGoTo:
-        {
-          LinkGoTo * g = (LinkGoTo *) a;
-          // create link: no ext file, namedDest, object pointer
-          popplerLink = new LinkGoto( linkArea, QString::null, LinkDestination( LinkDestinationData(g->getDest(), g->getNamedDest(), m_page->parentDoc->m_doc ) ) );
-        }
-        break;
-
-        case actionGoToR:
-        {
-          LinkGoToR * g = (LinkGoToR *) a;
-          // copy link file
-          const char * fileName = g->getFileName()->getCString();
-          // ceate link: fileName, namedDest, object pointer
-          popplerLink = new LinkGoto( linkArea, (QString)fileName, LinkDestination( LinkDestinationData(g->getDest(), g->getNamedDest(), m_page->parentDoc->m_doc ) ) );
-        }
-        break;
-
-        case actionLaunch:
-	{
-          LinkLaunch * e = (LinkLaunch *)a;
-          GooString * p = e->getParams();
-          popplerLink = new LinkExecute( linkArea, e->getFileName()->getCString(), p ? p->getCString() : 0 );
-	}
-        break;
-
-        case actionNamed:
-	{
-          const char * name = ((LinkNamed *)a)->getName()->getCString();
-          if ( !strcmp( name, "NextPage" ) )
-              popplerLink = new LinkAction( linkArea, LinkAction::PageNext );
-          else if ( !strcmp( name, "PrevPage" ) )
-              popplerLink = new LinkAction( linkArea, LinkAction::PagePrev );
-          else if ( !strcmp( name, "FirstPage" ) )
-              popplerLink = new LinkAction( linkArea, LinkAction::PageFirst );
-          else if ( !strcmp( name, "LastPage" ) )
-              popplerLink = new LinkAction( linkArea, LinkAction::PageLast );
-          else if ( !strcmp( name, "GoBack" ) )
-              popplerLink = new LinkAction( linkArea, LinkAction::HistoryBack );
-          else if ( !strcmp( name, "GoForward" ) )
-              popplerLink = new LinkAction( linkArea, LinkAction::HistoryForward );
-          else if ( !strcmp( name, "Quit" ) )
-              popplerLink = new LinkAction( linkArea, LinkAction::Quit );
-          else if ( !strcmp( name, "GoToPage" ) )
-              popplerLink = new LinkAction( linkArea, LinkAction::GoToPage );
-          else if ( !strcmp( name, "Find" ) )
-              popplerLink = new LinkAction( linkArea, LinkAction::Find );
-          else if ( !strcmp( name, "FullScreen" ) )
-              popplerLink = new LinkAction( linkArea, LinkAction::Presentation );
-          else if ( !strcmp( name, "Close" ) )
-          {
-              // acroread closes the document always, doesnt care whether 
-              // its presentation mode or not
-              // popplerLink = new LinkAction( linkArea, LinkAction::EndPresentation );
-              popplerLink = new LinkAction( linkArea, LinkAction::Close );
-          }
-          else
-          {
-                // TODO
-          }
-	}
-        break;
-
-        case actionURI:
-	{
-          popplerLink = new LinkBrowse( linkArea, ((LinkURI *)a)->getURI()->getCString() );
-	}
-        break;
-
-        case actionMovie:
-/*      TODO this (Movie link)
-          m_type = Movie;
-          LinkMovie * m = (LinkMovie *) a;
-          // copy Movie parameters (2 IDs and a const char *)
-          Ref * r = m->getAnnotRef();
-          m_refNum = r->num;
-          m_refGen = r->gen;
-          copyString( m_uri, m->getTitle()->getCString() );
-*/      break;
-
-        case actionUnknown:
-        break;
-      }
-    }
-    
+    Link *popplerLink = m_page->convertLinkActionToLink(xpdfLink->getAction(), linkArea, m_page->parentDoc->m_doc);
     if (popplerLink)
     {
       popplerLinks.append(popplerLink);
@@ -790,9 +798,50 @@ QList<Annotation*> Page::annotations() const
         }
         else if ( subType == "Link" )
         {
-            // ignore links (this may change in future)
-            annot.free();
-            continue;
+            // parse Link params
+            LinkAnnotation * l = new LinkAnnotation();
+            annotation = l;
+
+            // -> hlMode
+            QString hlModeString;
+            XPDFReader::lookupString( annotDict, "H", hlModeString );
+            if ( hlModeString == "N" )
+                l->linkHLMode = LinkAnnotation::None;
+            else if ( hlModeString == "I" )
+                l->linkHLMode = LinkAnnotation::Invert;
+            else if ( hlModeString == "O" )
+                l->linkHLMode = LinkAnnotation::Outline;
+            else if ( hlModeString == "P" )
+                l->linkHLMode = LinkAnnotation::Push;
+
+            // -> link region
+            double c[8];
+            int num = XPDFReader::lookupNumArray( annotDict, "QuadPoints", c, 8 );
+            if ( num > 0 && num != 8 )
+            {
+                qDebug() << "Wrong QuadPoints for a Link annotation." << endl;
+                delete annotation;
+                annot.free();
+                continue;
+            }
+            if ( num == 8 )
+            {
+                XPDFReader::transform( MTX, c[ 0 ], c[ 1 ], l->linkRegion[ 0 ] );
+                XPDFReader::transform( MTX, c[ 2 ], c[ 3 ], l->linkRegion[ 1 ] );
+                XPDFReader::transform( MTX, c[ 4 ], c[ 5 ], l->linkRegion[ 2 ] );
+                XPDFReader::transform( MTX, c[ 6 ], c[ 7 ], l->linkRegion[ 3 ] );
+            }
+
+            // reading link action
+            Object objPA;
+            annotDict->lookup( "PA", &objPA );
+            ::LinkAction * a = ::LinkAction::parseAction( &objPA, m_page->parentDoc->m_doc->doc.getCatalog()->getBaseURI() );
+            Link * popplerLink = m_page->convertLinkActionToLink( a, QRectF(), m_page->parentDoc->m_doc );
+            if ( popplerLink )
+            {
+                l->linkDestination = popplerLink;
+            }
+            objPA.free();
         }
         else
         {

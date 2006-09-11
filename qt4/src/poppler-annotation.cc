@@ -24,6 +24,7 @@
 
 // local includes
 #include "poppler-annotation.h"
+#include "poppler-link.h"
 
 namespace Poppler {
 
@@ -322,12 +323,12 @@ void Annotation::store( QDomNode & annNode, QDomDocument & document ) const
 /** TextAnnotation [Annotation] */
 
 TextAnnotation::TextAnnotation()
-    : Annotation(), textType( Linked ), textIcon( "Comment" ),
+    : Annotation(), textType( Linked ), textIcon( "Note" ),
     inplaceAlign( 0 ), inplaceIntent( Unknown )
 {}
 
 TextAnnotation::TextAnnotation( const QDomNode & node )
-    : Annotation( node ), textType( Linked ), textIcon( "Comment" ),
+    : Annotation( node ), textType( Linked ), textIcon( "Note" ),
     inplaceAlign( 0 ), inplaceIntent( Unknown )
 {
     // loop through the whole children looking for a 'text' element
@@ -667,11 +668,11 @@ void HighlightAnnotation::store( QDomNode & node, QDomDocument & document ) cons
 /** StampAnnotation [Annotation] */
 
 StampAnnotation::StampAnnotation()
-    : Annotation(), stampIconName( "oKular" )
+    : Annotation(), stampIconName( "Draft" )
 {}
 
 StampAnnotation::StampAnnotation( const QDomNode & node )
-    : Annotation( node ), stampIconName( "oKular" )
+    : Annotation( node ), stampIconName( "Draft" )
 {
     // loop through the whole children looking for a 'stamp' element
     QDomNode subNode = node.firstChild();
@@ -701,7 +702,7 @@ void StampAnnotation::store( QDomNode & node, QDomDocument & document ) const
     node.appendChild( stampElement );
 
     // append the optional attributes
-    if ( stampIconName != "oKular" )
+    if ( stampIconName != "Draft" )
         stampElement.setAttribute( "icon", stampIconName );
 }
 
@@ -788,5 +789,224 @@ void InkAnnotation::store( QDomNode & node, QDomDocument & document ) const
         }
     }
 }
+
+
+/** LinkAnnotation [Annotation] */
+
+LinkAnnotation::LinkAnnotation()
+    : Annotation(), linkDestination( 0 ), linkHLMode( Invert )
+{}
+
+LinkAnnotation::LinkAnnotation( const QDomNode & node )
+    : Annotation( node ), linkDestination( 0 ), linkHLMode( Invert )
+{
+    // loop through the whole children looking for a 'link' element
+    QDomNode subNode = node.firstChild();
+    while( subNode.isElement() )
+    {
+        QDomElement e = subNode.toElement();
+        subNode = subNode.nextSibling();
+        if ( e.tagName() != "link" )
+            continue;
+
+        // parse the attributes
+        if ( e.hasAttribute( "hlmode" ) )
+            linkHLMode = (LinkAnnotation::HighlightMode)e.attribute( "hlmode" ).toInt();
+
+        // parse all 'quad' subnodes
+        QDomNode quadNode = e.firstChild();
+        for ( ; quadNode.isElement(); quadNode = quadNode.nextSibling() )
+        {
+            QDomElement qe = quadNode.toElement();
+            if ( qe.tagName() == "quad" )
+            {
+                linkRegion[0].setX(qe.attribute( "ax", "0.0" ).toDouble());
+                linkRegion[0].setY(qe.attribute( "ay", "0.0" ).toDouble());
+                linkRegion[1].setX(qe.attribute( "bx", "0.0" ).toDouble());
+                linkRegion[1].setY(qe.attribute( "by", "0.0" ).toDouble());
+                linkRegion[2].setX(qe.attribute( "cx", "0.0" ).toDouble());
+                linkRegion[2].setY(qe.attribute( "cy", "0.0" ).toDouble());
+                linkRegion[3].setX(qe.attribute( "dx", "0.0" ).toDouble());
+                linkRegion[3].setY(qe.attribute( "dy", "0.0" ).toDouble());
+            }
+            else if ( qe.tagName() == "link" )
+            {
+                QString type = qe.attribute( "type" );
+                if ( type == "GoTo" )
+                {
+                    Poppler::LinkGoto * go = new Poppler::LinkGoto( QRect(), qe.attribute( "filename" ), LinkDestination( qe.attribute( "destination" ) ) );
+                    linkDestination = go;
+                }
+                else if ( type == "Exec" )
+                {
+                    Poppler::LinkExecute * exec = new Poppler::LinkExecute( QRect(), qe.attribute( "filename" ), qe.attribute( "parameters" ) );
+                    linkDestination = exec;
+                }
+                else if ( type == "Browse" )
+                {
+                    Poppler::LinkBrowse * browse = new Poppler::LinkBrowse( QRect(), qe.attribute( "url" ) );
+                    linkDestination = browse;
+                }
+                else if ( type == "Action" )
+                {
+                    Poppler::LinkAction::ActionType act;
+                    QString actString = qe.attribute( "action" );
+                    if ( actString == "PageFirst" )
+                        act = Poppler::LinkAction::PageFirst;
+                    else if ( actString == "PagePrev" )
+                        act = Poppler::LinkAction::PagePrev;
+                    else if ( actString == "PageNext" )
+                        act = Poppler::LinkAction::PageNext;
+                    else if ( actString == "PageLast" )
+                        act = Poppler::LinkAction::PageLast;
+                    else if ( actString == "HistoryBack" )
+                        act = Poppler::LinkAction::HistoryBack;
+                    else if ( actString == "HistoryForward" )
+                        act = Poppler::LinkAction::HistoryForward;
+                    else if ( actString == "Quit" )
+                        act = Poppler::LinkAction::Quit;
+                    else if ( actString == "Presentation" )
+                        act = Poppler::LinkAction::Presentation;
+                    else if ( actString == "EndPresentation" )
+                        act = Poppler::LinkAction::EndPresentation;
+                    else if ( actString == "Find" )
+                        act = Poppler::LinkAction::Find;
+                    else if ( actString == "GoToPage" )
+                        act = Poppler::LinkAction::GoToPage;
+                    else if ( actString == "Close" )
+                        act = Poppler::LinkAction::Close;
+                    Poppler::LinkAction * action = new Poppler::LinkAction( QRect(), act );
+                    linkDestination = action;
+                }
+                else if ( type == "Movie" )
+                {
+                    Poppler::LinkMovie * movie = new Poppler::LinkMovie( QRect() );
+                    linkDestination = movie;
+                }
+            }
+        }
+
+        // loading complete
+        break;
+    }
+}
+
+LinkAnnotation::~LinkAnnotation()
+{
+    delete linkDestination;
+}
+
+void LinkAnnotation::store( QDomNode & node, QDomDocument & document ) const
+{
+    // recurse to parent objects storing properties
+    Annotation::store( node, document );
+
+    // create [hl] element
+    QDomElement linkElement = document.createElement( "link" );
+    node.appendChild( linkElement );
+
+    // append the optional attributes
+    if ( linkHLMode != Invert )
+        linkElement.setAttribute( "hlmode", (int)linkHLMode );
+
+    // saving region
+    QDomElement quadElement = document.createElement( "quad" );
+    linkElement.appendChild( quadElement );
+    quadElement.setAttribute( "ax", linkRegion[0].x() );
+    quadElement.setAttribute( "ay", linkRegion[0].y() );
+    quadElement.setAttribute( "bx", linkRegion[1].x() );
+    quadElement.setAttribute( "by", linkRegion[1].y() );
+    quadElement.setAttribute( "cx", linkRegion[2].x() );
+    quadElement.setAttribute( "cy", linkRegion[2].y() );
+    quadElement.setAttribute( "dx", linkRegion[3].x() );
+    quadElement.setAttribute( "dy", linkRegion[3].y() );
+
+    // saving link
+    QDomElement hyperlinkElement = document.createElement( "link" );
+    linkElement.appendChild( hyperlinkElement );
+    if ( linkDestination )
+    {
+        switch( linkDestination->linkType() )
+        {
+            case Poppler::Link::Goto:
+            {
+                Poppler::LinkGoto * go = static_cast< Poppler::LinkGoto * >( linkDestination );
+                hyperlinkElement.setAttribute( "type", "GoTo" );
+                hyperlinkElement.setAttribute( "filename", go->fileName() );
+                hyperlinkElement.setAttribute( "destionation", go->destination().toString() );
+                break;
+            }
+            case Poppler::Link::Execute:
+            {
+                Poppler::LinkExecute * exec = static_cast< Poppler::LinkExecute * >( linkDestination );
+                hyperlinkElement.setAttribute( "type", "Exec" );
+                hyperlinkElement.setAttribute( "filename", exec->fileName() );
+                hyperlinkElement.setAttribute( "parameters", exec->parameters() );
+                break;
+            }
+            case Poppler::Link::Browse:
+            {
+                Poppler::LinkBrowse * browse = static_cast< Poppler::LinkBrowse * >( linkDestination );
+                hyperlinkElement.setAttribute( "type", "Browse" );
+                hyperlinkElement.setAttribute( "url", browse->url() );
+                break;
+            }
+            case Poppler::Link::Action:
+            {
+                Poppler::LinkAction * action = static_cast< Poppler::LinkAction * >( linkDestination );
+                hyperlinkElement.setAttribute( "type", "Action" );
+                switch ( action->actionType() )
+                {
+                    case Poppler::LinkAction::PageFirst:
+                        hyperlinkElement.setAttribute( "action", "PageFirst" );
+                        break;
+                    case Poppler::LinkAction::PagePrev:
+                        hyperlinkElement.setAttribute( "action", "PagePrev" );
+                        break;
+                    case Poppler::LinkAction::PageNext:
+                        hyperlinkElement.setAttribute( "action", "PageNext" );
+                        break;
+                    case Poppler::LinkAction::PageLast:
+                        hyperlinkElement.setAttribute( "action", "PageLast" );
+                        break;
+                    case Poppler::LinkAction::HistoryBack:
+                        hyperlinkElement.setAttribute( "action", "HistoryBack" );
+                        break;
+                    case Poppler::LinkAction::HistoryForward:
+                        hyperlinkElement.setAttribute( "action", "HistoryForward" );
+                        break;
+                    case Poppler::LinkAction::Quit:
+                        hyperlinkElement.setAttribute( "action", "Quit" );
+                        break;
+                    case Poppler::LinkAction::Presentation:
+                        hyperlinkElement.setAttribute( "action", "Presentation" );
+                        break;
+                    case Poppler::LinkAction::EndPresentation:
+                        hyperlinkElement.setAttribute( "action", "EndPresentation" );
+                        break;
+                    case Poppler::LinkAction::Find:
+                        hyperlinkElement.setAttribute( "action", "Find" );
+                        break;
+                    case Poppler::LinkAction::GoToPage:
+                        hyperlinkElement.setAttribute( "action", "GoToPage" );
+                        break;
+                    case Poppler::LinkAction::Close:
+                        hyperlinkElement.setAttribute( "action", "Close" );
+                        break;
+                }
+                break;
+            }
+            case Poppler::Link::Movie:
+            {
+                Poppler::LinkMovie * movie = static_cast< Poppler::LinkMovie * >( linkDestination );
+                hyperlinkElement.setAttribute( "type", "Movie" );
+                break;
+            }
+            case Poppler::Link::None:
+                break;
+        }
+    }
+}
+
 
 }

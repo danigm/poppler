@@ -30,6 +30,7 @@
 namespace Poppler {
 
 class Annotation;
+class Link;
 
 /**
  * @short Helper class for (recoursive) annotation retrieval/storage.
@@ -70,7 +71,7 @@ struct Annotation
     // enum definitions
     // WARNING!!! oKular uses that very same values so if you change them notify the author!
     enum SubType { AText = 1, ALine = 2, AGeom = 3, AHighlight = 4, AStamp = 5,
-                   AInk = 6, A_BASE = 0 };
+                   AInk = 6, ALink = 7, A_BASE = 0 };
     enum Flag { Hidden = 1, FixedSize = 2, FixedRotation = 4, DenyPrint = 8,
                 DenyWrite = 16, DenyDelete = 32, ToggleHidingOnMouse = 64, External = 128 };
     enum LineStyle { Solid = 1, Dashed = 2, Beveled = 4, Inset = 8, Underline = 16 };
@@ -170,7 +171,7 @@ struct TextAnnotation : public Annotation
 
     // data fields
     TextType        textType;               // Linked
-    QString         textIcon;               // 'Comment'
+    QString         textIcon;               // 'Note'
     QFont           textFont;               // app def font
     int             inplaceAlign;           // 0:left, 1:center, 2:right
     QString         inplaceText;            // '' overrides contents
@@ -240,7 +241,7 @@ struct StampAnnotation : public Annotation
     AN_COMMONDECL( StampAnnotation, AStamp )
 
     // data fields
-    QString         stampIconName;          // 'kpdf'
+    QString         stampIconName;          // 'Draft'
 };
 
 struct InkAnnotation : public Annotation
@@ -250,6 +251,21 @@ struct InkAnnotation : public Annotation
 
     // data fields
     QList< QLinkedList<QPointF> > inkPaths;
+};
+
+struct LinkAnnotation : public Annotation
+{
+    // common stuff for Annotation derived classes
+    AN_COMMONDECL( LinkAnnotation, ALink );
+    virtual ~LinkAnnotation();
+
+    // local enums
+    enum HighlightMode { None, Invert, Outline, Push };
+
+    // data fields
+    Link *          linkDestination;        //
+    HighlightMode   linkHLMode;             // Invert
+    QPointF         linkRegion[4];          //
 };
 
 }
