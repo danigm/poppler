@@ -5,6 +5,13 @@
 	* qt4/src/poppler-page.cc: Add support for LinkAnnotation. Patch by
 	Pino Toscano
 
+2006-09-08  Jeff Muizelaar  <jeff@infidigm.net>
+
+	* poppler/CairoOutputDev.cc: The work-around for 1x1 imagemasks was
+	not calling cairo_set_source causing the rectangles to be drawn
+	the wrong colour occasionally. Fix by moving the existing call to
+	cairo_set_source above the work-around. Fixes #7113.
+
 2006-09-06  Jeff Muizelaar  <jeff@infidigm.net>
 
 	* poppler/CairoOutputDev.cc: Avoid crashing in CairoOutputDev if
