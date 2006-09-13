@@ -7,6 +7,7 @@ AM_CONFIG_HEADER(poppler/poppler-config.h)
 dnl ##### Checks for programs.
 AC_PROG_LIBTOOL
 AC_PROG_CC
+AC_PROG_CXX
 AC_ISC_POSIX
 AC_PROG_CC_STDC
 #if test -z "$CXX" -a "$CC" = "gcc"; then
@@ -196,7 +197,7 @@ AC_ARG_ENABLE(poppler-glib,
               enable_poppler_glib=$enableval,
               enable_poppler_glib="try")
 if test x$enable_poppler_glib = xyes; then
-  PKG_CHECK_MODULES(POPPLER_GLIB, gdk-2.0 >= 2.4.0)
+  PKG_CHECK_MODULES(POPPLER_GLIB, gdk-2.0 >= 2.4.0 glib >= 2.6)
 elif test x$enable_poppler_glib = xtry; then
   PKG_CHECK_MODULES(POPPLER_GLIB, gdk-2.0 >= 2.4.0,
                     [enable_poppler_glib="yes"],
