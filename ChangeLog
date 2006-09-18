@@ -1,5 +1,8 @@
 2006-09-13  Kristian Høgsberg  <krh@redhat.com>
 
+	* poppler/Makefile.am (libpoppler_la_LIBADD): Add cairo libs to
+	link if configured.
+
 	* configure.ac: Tighten glib check (#7906), add check for C++
 	compiler (#8048).
 

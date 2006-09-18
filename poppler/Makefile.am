@@ -39,6 +39,9 @@ poppler_cairo = libpoppler-cairo.la
 cairo_includes =				\
 	$(CAIRO_CFLAGS)
 
+cairo_libs =					\
+	$(CAIRO_LIBS)
+
 libpoppler_cairo_la_SOURCES =			\
 	CairoFontEngine.cc			\
 	CairoFontEngine.h			\
@@ -87,6 +90,7 @@ libpoppler_la_LIBADD =				\
 	$(top_builddir)/goo/libgoo.la		\
 	$(top_builddir)/fofi/libfofi.la		\
 	$(splash_libs)				\
+	$(cairo_libs)				\
 	$(libjpeg_libs)				\
 	$(zlib_libs)				\
 	$(FREETYPE_LIBS)			\
