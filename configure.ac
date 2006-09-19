@@ -34,20 +34,8 @@ AC_ARG_ENABLE(fixedpoint,
 [  --enable-fixedpoint     use fixed point (instead of floating point) arithmetic],
 AC_DEFINE(USE_FIXEDPOINT, [1], [Use fixed point arithmetic]))
 
-dnl ##### Path to xpdfrc.
-dnl This ugly kludge to get the sysconfdir path is needed because
-dnl autoconf doesn't actually set the prefix variable until later.
-if test "$sysconfdir" = '${prefix}/etc'; then
-  if test "x$prefix" = xNONE; then
-    system_xpdfrc="$ac_default_prefix/etc/xpdfrc"
-  else
-    system_xpdfrc="$prefix/etc/xpdfrc"
-  fi
-else
-  system_xpdfrc="$sysconfdir/xpdfrc"
-fi
-AC_DEFINE_UNQUOTED(SYSTEM_XPDFRC, "$system_xpdfrc",
-                   [Full path for the system-wide xpdfrc file.])
+AC_DEFINE_DIR(SYSTEM_XPDFRC, "{sysconfdir}/xpdfrc", [System wide config file])
+AC_DEFINE_DIR(POPPLER_DATADIR, "{datadir}/poppler", [Poppler data dir])
 
 dnl ##### Checks for header files.
 AC_PATH_XTRA

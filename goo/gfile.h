@@ -104,11 +104,13 @@ public:
   GDirEntry(char *dirPath, char *nameA, GBool doStat);
   ~GDirEntry();
   GooString *getName() { return name; }
+  GooString *getFullPath() { return fullPath; }
   GBool isDir() { return dir; }
 
 private:
 
   GooString *name;		// dir/file name
+  GooString *fullPath;
   GBool dir;			// is it a directory?
 };
 

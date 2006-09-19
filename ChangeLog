@@ -1,3 +1,10 @@
+2006-09-19  Kristian Høgsberg  <krh@redhat.com>
+
+	* poppler/GlobalParams.cc: Add scanEncodingDirs() to automatically
+	scan in any encodings found under ${datadir}/poppler.
+
+	* m4/define-dir.m4: New file, adds AC_DEFINE_DIR macro.
+
 2006-09-13  Kristian Høgsberg  <krh@redhat.com>
 
 	* poppler/Makefile.am (libpoppler_la_LIBADD): Add cairo libs to

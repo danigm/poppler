@@ -436,6 +436,8 @@ GlobalParams::GlobalParams(char *cfgFileName) {
     delete fileName;
     fclose(f);
   }
+
+  scanEncodingDirs();
 }
 
 void GlobalParams::parseFile(GooString *fileName, FILE *f) {
@@ -485,7 +487,11 @@ void GlobalParams::parseFile(GooString *fileName, FILE *f) {
 		fileName->getCString(), line);
 	}
       } else if (!cmd->cmp("nameToUnicode")) {
-	parseNameToUnicode(tokens, fileName, line);
+	if (tokens->getLength() != 2)
+	  error(-1, "Bad 'nameToUnicode' config file command (%s:%d)",
+		fileName->getCString(), line);
+	else
+	  parseNameToUnicode((GooString *) tokens->get(1));
       } else if (!cmd->cmp("cidToUnicode")) {
 	parseCIDToUnicode(tokens, fileName, line);
       } else if (!cmd->cmp("unicodeToUnicode")) {
@@ -603,27 +609,53 @@ void GlobalParams::parseFile(GooString *fileName, FILE *f) {
   }
 }
 
-void GlobalParams::parseNameToUnicode(GooList *tokens, GooString *fileName,
-					 int line) {
-  GooString *name;
+void GlobalParams::scanEncodingDirs() {
+  GDir *dir;
+  GDirEntry *entry;
+
+  dir = new GDir(POPPLER_DATADIR "/nameToUnicode", gFalse);
+  while (entry = dir->getNextEntry(), entry != NULL) {
+    parseNameToUnicode(entry->getFullPath());
+    delete entry;
+  }
+  delete dir;
+
+  dir = new GDir(POPPLER_DATADIR "/cidToUnicode", gFalse);
+  while (entry = dir->getNextEntry(), entry != NULL) {
+    addCIDToUnicode(entry->getName(), entry->getFullPath());
+    delete entry;
+  }
+  delete dir;
+
+  dir = new GDir(POPPLER_DATADIR "/unicodeMap", gFalse);
+  while (entry = dir->getNextEntry(), entry != NULL) {
+    addUnicodeMap(entry->getName(), entry->getFullPath());
+    delete entry;
+  }
+  delete dir;
+
+  dir = new GDir(POPPLER_DATADIR "/cMap", gFalse);
+  while (entry = dir->getNextEntry(), entry != NULL) {
+    addCMapDir(entry->getName(), entry->getFullPath());
+    toUnicodeDirs->append(entry->getFullPath()->copy());
+    delete entry;
+  }
+  delete dir;
+}
+
+void GlobalParams::parseNameToUnicode(GooString *name) {
   char *tok1, *tok2;
   FILE *f;
   char buf[256];
-  int line2;
+  int line;
   Unicode u;
 
-  if (tokens->getLength() != 2) {
-    error(-1, "Bad 'nameToUnicode' config file command (%s:%d)",
-	  fileName->getCString(), line);
-    return;
-  }
-  name = (GooString *)tokens->get(1);
   if (!(f = fopen(name->getCString(), "r"))) {
     error(-1, "Couldn't open 'nameToUnicode' file '%s'",
 	  name->getCString());
     return;
   }
-  line2 = 1;
+  line = 1;
   while (getLine(buf, sizeof(buf), f)) {
     tok1 = strtok(buf, " \t\r\n");
     tok2 = strtok(NULL, " \t\r\n");
@@ -632,28 +664,31 @@ void GlobalParams::parseNameToUnicode(GooList *tokens, GooString *fileName,
       nameToUnicode->add(tok2, u);
     } else {
       error(-1, "Bad line in 'nameToUnicode' file (%s:%d)",
-	    name->getCString(), line2);
+	    name->getCString(), line);
     }
-    ++line2;
+    ++line;
   }
   fclose(f);
 }
 
+void GlobalParams::addCIDToUnicode(GooString *collection,
+				   GooString *fileName) {
+  GooString *old;
+
+  if ((old = (GooString *)cidToUnicodes->remove(collection))) {
+    delete old;
+  }
+  cidToUnicodes->add(collection->copy(), fileName->copy());
+}
+
 void GlobalParams::parseCIDToUnicode(GooList *tokens, GooString *fileName,
 				     int line) {
-  GooString *collection, *name, *old;
-
   if (tokens->getLength() != 3) {
     error(-1, "Bad 'cidToUnicode' config file command (%s:%d)",
 	  fileName->getCString(), line);
     return;
   }
-  collection = (GooString *)tokens->get(1);
-  name = (GooString *)tokens->get(2);
-  if ((old = (GooString *)cidToUnicodes->remove(collection))) {
-    delete old;
-  }
-  cidToUnicodes->add(collection->copy(), name->copy());
+  addCIDToUnicode((GooString *)tokens->get(1), (GooString *)tokens->get(2));
 }
 
 void GlobalParams::parseUnicodeToUnicode(GooList *tokens, GooString *fileName,
@@ -673,39 +708,44 @@ void GlobalParams::parseUnicodeToUnicode(GooList *tokens, GooString *fileName,
   unicodeToUnicodes->add(font->copy(), file->copy());
 }
 
+void GlobalParams::addUnicodeMap(GooString *encodingName, GooString *fileName)
+{
+  GooString *old;
+
+  if ((old = (GooString *)unicodeMaps->remove(encodingName))) {
+    delete old;
+  }
+  unicodeMaps->add(encodingName->copy(), fileName->copy());
+}
+
 void GlobalParams::parseUnicodeMap(GooList *tokens, GooString *fileName,
 				   int line) {
-  GooString *encodingName, *name, *old;
 
   if (tokens->getLength() != 3) {
     error(-1, "Bad 'unicodeMap' config file command (%s:%d)",
 	  fileName->getCString(), line);
     return;
   }
-  encodingName = (GooString *)tokens->get(1);
-  name = (GooString *)tokens->get(2);
-  if ((old = (GooString *)unicodeMaps->remove(encodingName))) {
-    delete old;
-  }
-  unicodeMaps->add(encodingName->copy(), name->copy());
+  addUnicodeMap((GooString *)tokens->get(1), (GooString *)tokens->get(2));
 }
 
-void GlobalParams::parseCMapDir(GooList *tokens, GooString *fileName, int line) {
-  GooString *collection, *dir;
+void GlobalParams::addCMapDir(GooString *collection, GooString *dir) {
   GooList *list;
 
-  if (tokens->getLength() != 3) {
-    error(-1, "Bad 'cMapDir' config file command (%s:%d)",
-	  fileName->getCString(), line);
-    return;
-  }
-  collection = (GooString *)tokens->get(1);
-  dir = (GooString *)tokens->get(2);
   if (!(list = (GooList *)cMapDirs->lookup(collection))) {
     list = new GooList();
     cMapDirs->add(collection->copy(), list);
   }
   list->append(dir->copy());
+}
+
+void GlobalParams::parseCMapDir(GooList *tokens, GooString *fileName, int line) {
+  if (tokens->getLength() != 3) {
+    error(-1, "Bad 'cMapDir' config file command (%s:%d)",
+	  fileName->getCString(), line);
+    return;
+  }
+  addCMapDir((GooString *)tokens->get(1), (GooString *)tokens->get(2));
 }
 
 void GlobalParams::parseToUnicodeDir(GooList *tokens, GooString *fileName,

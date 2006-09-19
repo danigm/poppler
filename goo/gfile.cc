@@ -576,15 +576,15 @@ GDirEntry::GDirEntry(char *dirPath, char *nameA, GBool doStat) {
   char *p;
 #elif defined(WIN32)
   int fa;
-  GooString *s;
 #elif defined(ACORN)
 #else
   struct stat st;
-  GooString *s;
 #endif
 
   name = new GooString(nameA);
   dir = gFalse;
+  fullPath = new GooString(dirPath);
+  appendToPath(fullPath, nameA);
   if (doStat) {
 #ifdef VMS
     if (!strcmp(nameA, "-") ||
@@ -592,21 +592,19 @@ GDirEntry::GDirEntry(char *dirPath, char *nameA, GBool doStat) {
       dir = gTrue;
 #elif defined(ACORN)
 #else
-    s = new GooString(dirPath);
-    appendToPath(s, nameA);
 #ifdef WIN32
-    fa = GetFileAttributes(s->getCString());
+    fa = GetFileAttributes(fullPath->getCString());
     dir = (fa != 0xFFFFFFFF && (fa & FILE_ATTRIBUTE_DIRECTORY));
 #else
-    if (stat(s->getCString(), &st) == 0)
+    if (stat(fullPath->getCString(), &st) == 0)
       dir = S_ISDIR(st.st_mode);
 #endif
-    delete s;
 #endif
   }
 }
 
 GDirEntry::~GDirEntry() {
+  delete fullPath;
   delete name;
 }
 
@@ -678,10 +676,10 @@ GDirEntry *GDir::getNextEntry() {
   struct dirent *ent;
   e = NULL;
   if (dir) {
-    ent = readdir(dir);
-    if (ent && !strcmp(ent->d_name, ".")) {
+    do {
       ent = readdir(dir);
     }
+    while (ent && (!strcmp(ent->d_name, ".") || !strcmp(ent->d_name, "..")));
     if (ent) {
       e = new GDirEntry(path->getCString(), ent->d_name, doStat);
     }

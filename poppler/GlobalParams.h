@@ -220,7 +220,7 @@ public:
 private:
 
   void parseFile(GooString *fileName, FILE *f);
-  void parseNameToUnicode(GooList *tokens, GooString *fileName, int line);
+  void parseNameToUnicode(GooString *name);
   void parseCIDToUnicode(GooList *tokens, GooString *fileName, int line);
   void parseUnicodeToUnicode(GooList *tokens, GooString *fileName, int line);
   void parseUnicodeMap(GooList *tokens, GooString *fileName, int line);
@@ -243,6 +243,11 @@ private:
 		  GooList *tokens, GooString *fileName, int line);
   GBool parseYesNo2(char *token, GBool *flag);
   UnicodeMap *getUnicodeMap2(GooString *encodingName);
+
+  void scanEncodingDirs();
+  void addCIDToUnicode(GooString *collection, GooString *fileName);
+  void addUnicodeMap(GooString *encodingName, GooString *fileName);
+  void addCMapDir(GooString *collection, GooString *dir);
 
   //----- static tables
 
