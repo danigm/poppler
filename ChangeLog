@@ -1,3 +1,9 @@
+2006-09-20  Jeff Muizelaar  <jeff@infidigm.net>
+
+	* poppler/TextOutputDev.cc: TextFontInfo stores a copy of a pointer
+	to a GfxFont but does not increment the reference count. Fix the
+	problem by calling incRefCnt and decRefCnt appropriately. Fixes #4649
+
 2006-09-19  Kristian Høgsberg  <krh@redhat.com>
 
 	* poppler/GlobalParams.cc: Add scanEncodingDirs() to automatically

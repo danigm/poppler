@@ -118,6 +118,8 @@
 
 TextFontInfo::TextFontInfo(GfxState *state) {
   gfxFont = state->getFont();
+  if (gfxFont)
+    gfxFont->incRefCnt();
 #if TEXTOUT_WORD_LIST
   fontName = (gfxFont && gfxFont->getOrigName())
                  ? gfxFont->getOrigName()->copy()
@@ -126,6 +128,8 @@ TextFontInfo::TextFontInfo(GfxState *state) {
 }
 
 TextFontInfo::~TextFontInfo() {
+  if (gfxFont)
+    gfxFont->decRefCnt();
 #if TEXTOUT_WORD_LIST
   if (fontName) {
     delete fontName;
