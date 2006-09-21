@@ -446,6 +446,7 @@ Gfx::Gfx(XRef *xrefA, OutputDev *outA, int pageNum, Dict *resDict,
   ignoreUndef = 0;
   out->startPage(pageNum, state);
   out->setDefaultCTM(state->getCTM());
+  out->updateAll(state);
   for (i = 0; i < 6; ++i) {
     baseMatrix[i] = state->getCTM()[i];
   }
@@ -482,7 +483,6 @@ Gfx::Gfx(XRef *xrefA, OutputDev *outA, Dict *resDict,
   // initialize
   out = outA;
   state = new GfxState(72, 72, box, 0, gFalse);
-  out->updateAll(state);
   fontChanged = gFalse;
   clip = clipNone;
   ignoreUndef = 0;
