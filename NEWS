@@ -1,3 +1,13 @@
+Release 0.5.4
+
+	- Automatically read in CJK encoding files if they're
+          installed (#2984, #7105, #7093).  This works with the new
+          poppler-data package.
+	- Speed ups by Krzysztof Kowalczyk (#8112)
+	- Patch from Dom Lachowicz to let the utils take input on stdin.
+	- Bugs fixed (#8182, #4649, #7906, #8048, #7113, #4515, #3948,
+          #7924, #7780, #7646, #6948)
+
 Release 0.5.3
 
 	- Add poppler as a private requires of poppler-glib.
