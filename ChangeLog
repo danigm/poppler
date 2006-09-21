@@ -1,5 +1,8 @@
 2006-09-21  Kristian Høgsberg  <krh@redhat.com>
 
+	* configure.ac: Check for gtk+ 2.8 for the gtk+ test case, invert
+	help text for zlib option (#7788, #7661).
+
 	* utils/pdftops.cc: Get duplex setting from GlobalParams.
 
 	* glib/poppler-page.cc (_poppler_page_new): Make PopplerPage

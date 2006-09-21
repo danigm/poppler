@@ -69,11 +69,9 @@ if test "$xpdf_cv_func_fseek64" = yes -a "$xpdf_cv_func_ftell64" = yes; then
 fi
 
 dnl Test for zlib
-AC_ARG_ENABLE(zlib,
-	      AC_HELP_STRING([--disable-zlib],
-	                     [Don't build against zlib.]),
-              enable_zlib=$enableval,
-              enable_zlib="no")
+AC_ARG_ENABLE([zlib],
+  [AS_HELP_STRING([--enable-zlib],[Build with zlib])],
+  [],[enable_zlib="no"])
 if test x$enable_zlib = xyes; then
   AC_CHECK_LIB([z], [inflate],,
 	       AC_MSG_ERROR("*** zlib library not found ***"))
@@ -264,9 +262,9 @@ AC_ARG_ENABLE(gtk-test,
               enable_gtk_test=$enableval,
               enable_gtk_test="try")
 if test x$enable_gtk_test = xyes; then
-  PKG_CHECK_MODULES(GTK_TEST, gtk+-2.0 >= 2.2.0 gdk-pixbuf-2.0 libglade-2.0)
+  PKG_CHECK_MODULES(GTK_TEST, gtk+-2.0 >= 2.8.0 gdk-pixbuf-2.0 libglade-2.0)
 elif test x$enable_gtk_test = xtry; then
-  PKG_CHECK_MODULES(GTK_TEST, gtk+-2.0 >= 2.2.0 gdk-pixbuf-2.0 libglade-2.0,
+  PKG_CHECK_MODULES(GTK_TEST, gtk+-2.0 >= 2.8.0 gdk-pixbuf-2.0 libglade-2.0,
                     [enable_gtk_test="yes"],
                     [enable_gtk_test="no"])
 fi
