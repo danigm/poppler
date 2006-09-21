@@ -53,7 +53,7 @@ _poppler_page_new (PopplerDocument *document, Page *page, int index)
   g_return_val_if_fail (POPPLER_IS_DOCUMENT (document), NULL);
 
   poppler_page = (PopplerPage *) g_object_new (POPPLER_TYPE_PAGE, NULL, NULL);
-  poppler_page->document = document;
+  poppler_page->document = (PopplerDocument *) g_object_ref (document);
   poppler_page->page = page;
   poppler_page->index = index;
 
@@ -64,6 +64,9 @@ static void
 poppler_page_finalize (GObject *object)
 {
   PopplerPage *page = POPPLER_PAGE (object);
+
+  g_object_unref (page->document);
+  page->document = NULL;
 
   if (page->gfx != NULL)
     delete page->gfx;

@@ -1,5 +1,8 @@
 2006-09-21  Kristian Høgsberg  <krh@redhat.com>
 
+	* glib/poppler-page.cc (_poppler_page_new): Make PopplerPage
+	reference its document throughout the lifetime of the page (#7005).
+
 	* poppler/Gfx.cc: Remove the right out->updateAll() call.
 
 2006-09-20  Kristian Høgsberg  <krh@redhat.com>
