@@ -309,7 +309,8 @@ int main(int argc, char *argv[]) {
   psOut = new PSOutputDev(psFileName->getCString(), doc->getXRef(),
 			  doc->getCatalog(), firstPage, lastPage, mode,
 			  globalParams->getPSPaperWidth(),
-			  globalParams->getPSPaperHeight());
+			  globalParams->getPSPaperHeight(),
+			  globalParams->getPSDuplex());
   if (psOut->isOk()) {
     doc->displayPages(psOut, firstPage, lastPage, 72, 72,
 		      0, globalParams->getPSCrop(), gFalse, gFalse);

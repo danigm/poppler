@@ -1,5 +1,7 @@
 2006-09-21  Kristian Høgsberg  <krh@redhat.com>
 
+	* utils/pdftops.cc: Get duplex setting from GlobalParams.
+
 	* glib/poppler-page.cc (_poppler_page_new): Make PopplerPage
 	reference its document throughout the lifetime of the page (#7005).
 
