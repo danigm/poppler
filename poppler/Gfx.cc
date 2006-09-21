@@ -446,7 +446,6 @@ Gfx::Gfx(XRef *xrefA, OutputDev *outA, int pageNum, Dict *resDict,
   ignoreUndef = 0;
   out->startPage(pageNum, state);
   out->setDefaultCTM(state->getCTM());
-  out->updateAll(state);
   for (i = 0; i < 6; ++i) {
     baseMatrix[i] = state->getCTM()[i];
   }

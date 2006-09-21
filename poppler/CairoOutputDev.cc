@@ -517,7 +517,6 @@ void CairoOutputDev::drawImageMask(GfxState *state, Object *ref, Stream *str,
     return;
   }
 
-
   row_stride = (width + 3) & ~3;
   buffer = (unsigned char *) malloc (height * row_stride);
   if (buffer == NULL) {
