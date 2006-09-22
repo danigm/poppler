@@ -1,5 +1,7 @@
 2006-09-21  Kristian Høgsberg  <krh@redhat.com>
 
+	* NEWS: Update list of bugs fixes, release 0.5.4.
+
 	* configure.ac: Check for gtk+ 2.8 for the gtk+ test case, invert
 	help text for zlib option (#7788, #7661).
 
