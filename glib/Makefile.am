@@ -17,6 +17,7 @@ INCLUDES =					\
 	$(cairo_includes)			\
 	$(POPPLER_GLIB_CFLAGS)			\
 	$(FREETYPE_CFLAGS)			\
+	$(FONTCONFIG_CFLAGS)                    \
 	$(cairo_includes)			
 
 stamp_files = stamp-poppler-enums.h
@@ -84,6 +85,7 @@ libpoppler_glib_la_LIBADD =				\
 	$(top_builddir)/poppler/libpoppler.la		\
 	$(POPPLER_GLIB_LIBS)				\
 	$(FREETYPE_LIBS)				\
+	$(FONTCONFIG_LIBS)				\
 	$(cairo_libs)
 
 libpoppler_glib_la_LDFLAGS = -version-info 1:0:0

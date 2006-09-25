@@ -3,12 +3,14 @@ INCLUDES =					\
 	-I$(top_srcdir)/poppler			\
 	-I$(top_srcdir)/qt4/src			\
 	-I$(top_srcdir)/qt			\
+	$(FONTCONFIG_CFLAGS)			\
 	$(POPPLER_QT4_CXXFLAGS)			\
 	$(POPPLER_QTTEST_CXXFLAGS)
 
 LDADDS =					\
 	$(top_builddir)/poppler/libpoppler.la	\
 	$(top_builddir)/qt4/src/libpoppler-qt4.la	\
+	$(FONTCONFIG_LIBS)				\
 	$(POPPLER_QT4_LIBS)
 
 UT_LDADDS = $(LDADDS) $(POPPLER_QTTEST_LIBS)

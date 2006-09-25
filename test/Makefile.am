@@ -33,7 +33,8 @@ INCLUDES =					\
 	-I$(top_srcdir)/glib			\
 	-I$(top_builddir)/glib			\
 	$(cairo_includes)			\
-	$(GTK_TEST_CFLAGS)			
+	$(GTK_TEST_CFLAGS)			\
+	$(FONTCONFIG_CFLAGS)
 
 noinst_PROGRAMS = $(gtk_splash_test) $(gtk_cairo_test) $(pdf_inspector)
 
@@ -51,7 +52,8 @@ gtk_cairo_test_LDADD =					\
 	$(top_builddir)/poppler/libpoppler.la		\
 	$(top_builddir)/glib/libpoppler-glib.la		\
 	$(CAIRO_LIBS)					\
-	$(GTK_TEST_LIBS)
+	$(GTK_TEST_LIBS)				\
+	$(FONTCONFIG_LIBS)
 
 pdf_inspector_SOURCES =			\
        pdf-inspector.cc

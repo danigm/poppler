@@ -14,11 +14,13 @@ INCLUDES =					\
 	-I$(top_srcdir)				\
 	-I$(top_srcdir)/utils			\
 	-I$(top_srcdir)/poppler			\
-	$(UTILS_CFLAGS)
+	$(UTILS_CFLAGS)				\
+	$(FONTCONFIG_CFLAGS)
 
 LDADD =						\
 	$(top_builddir)/poppler/libpoppler.la	\
-	$(UTILS_LIBS)
+	$(UTILS_LIBS)				\
+	$(FONTCONFIG_LIBS)
 
 bin_PROGRAMS =					\
 	pdffonts				\

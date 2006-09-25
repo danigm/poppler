@@ -2,6 +2,7 @@ INCLUDES =					\
 	-I$(top_srcdir)				\
 	-I$(top_srcdir)/poppler			\
 	-I$(top_srcdir)/qt			\
+	$(FONTCONFIG_CFLAGS)			\			
 	$(POPPLER_QT4_CXXFLAGS)
 
 
@@ -30,6 +31,7 @@ libpoppler_qt4_la_SOURCES =			\
 libpoppler_qt4_la_LIBADD = 			\
 	$(top_builddir)/poppler/libpoppler.la	\
 	$(top_builddir)/poppler/libpoppler-arthur.la	\
+	$(FONTCONFIG_LIBS)				\
 	$(POPPLER_QT4_LIBS)
 
 libpoppler_qt4_la_LDFLAGS = -version-info 1:0:0

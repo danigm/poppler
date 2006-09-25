@@ -1,3 +1,13 @@
+2006-09-25  Albert Astals Cid <aacid@kde.org>
+
+	* glib/Makefile.am
+	* qt/Makefile.am
+	* qt4/src/Makefile.am
+	* qt4/tests/Makefile.am
+	* test/Makefile.am
+	* utils/Makefile.am: Add FONTCONFIG_CFLAGS FONTCONFIG_LIBS for people
+	that need them. Patch by morfoh@opensde.org. Fixes bug #8415
+
 2006-09-21  Kristian Høgsberg  <krh@redhat.com>
 
 	* NEWS: Update list of bugs fixes, release 0.5.4.
