@@ -804,7 +804,7 @@ QList<Annotation*> Page::annotations() const
 
             // -> hlMode
             QString hlModeString;
-            XPDFReader::lookupString( annotDict, "H", hlModeString );
+            XPDFReader::lookupName( annotDict, "H", hlModeString );
             if ( hlModeString == "N" )
                 l->linkHLMode = LinkAnnotation::None;
             else if ( hlModeString == "I" )
@@ -835,13 +835,16 @@ QList<Annotation*> Page::annotations() const
             // reading link action
             Object objPA;
             annotDict->lookup( "PA", &objPA );
-            ::LinkAction * a = ::LinkAction::parseAction( &objPA, m_page->parentDoc->m_doc->doc.getCatalog()->getBaseURI() );
-            Link * popplerLink = m_page->convertLinkActionToLink( a, QRectF(), m_page->parentDoc->m_doc );
-            if ( popplerLink )
+            if (!objPA.isNull())
             {
-                l->linkDestination = popplerLink;
+                ::LinkAction * a = ::LinkAction::parseAction( &objPA, m_page->parentDoc->m_doc->doc.getCatalog()->getBaseURI() );
+                Link * popplerLink = m_page->convertLinkActionToLink( a, QRectF(), m_page->parentDoc->m_doc );
+                if ( popplerLink )
+                {
+                     l->linkDestination = popplerLink;
+                }
+                objPA.free();
             }
-            objPA.free();
         }
         else
         {

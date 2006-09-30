@@ -1,3 +1,7 @@
+2006-09-30  Albert Astals Cid <aacid@kde.org>
+
+	* qt4/src/poppler-page.cc: PA is optional, H is a name not a string
+
 2006-09-25  Albert Astals Cid <aacid@kde.org>
 
 	* glib/Makefile.am
