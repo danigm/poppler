@@ -27,6 +27,7 @@
 namespace Poppler {
 
 class LinkDestinationData;
+class SoundObject;
 
 class LinkDestination
 {
@@ -83,7 +84,7 @@ class Link
 		Link( const QRectF &linkArea );
 		
 		// get link type (inherited classes mustreturn an unique identifier)
-		enum LinkType { None, Goto, Execute, Browse, Action, Movie };
+		enum LinkType { None, Goto, Execute, Browse, Action, Sound, Movie };
 		virtual LinkType linkType() const;
 
 		// virtual destructor
@@ -172,6 +173,29 @@ class LinkAction : public Link
 
 	private:
 		ActionType m_type;
+};
+
+/** Sound: a sound to be played **/
+class LinkSound : public Link
+{
+	public:
+		// create a Link_Sound
+		LinkSound( const QRectF &linkArea, double volume, bool sync, bool repeat, bool mix, SoundObject *sound );
+
+		LinkType linkType() const;
+
+		double volume() const;
+		bool synchronous() const;
+		bool repeat() const;
+		bool mix() const;
+		SoundObject *sound() const;
+
+	private:
+		double m_volume;
+		bool m_sync;
+		bool m_repeat;
+		bool m_mix;
+		SoundObject *m_sound;
 };
 
 /** Movie: Not yet defined -> think renaming to 'Media' link **/

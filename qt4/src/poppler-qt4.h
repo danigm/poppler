@@ -33,6 +33,7 @@
 #include <poppler-page-transition.h>
 
 class EmbFile;
+class Sound;
 
 /**
    The Poppler Qt bindings
@@ -224,6 +225,14 @@ namespace Poppler {
 
 	enum Rotation { Rotate0 = 0, Rotate90 = 1, Rotate180 = 2, Rotate270 = 3 };
 
+	/**
+	   The kinds of page actions
+	*/
+	enum PageAction {
+	    Opening,   ///< The action when a page is "opened"
+	    Closing    ///< The action when a page is "closed"
+	};
+
 	/** 
 	   Render the page to a QImage using the Splash renderer
 	   
@@ -374,6 +383,11 @@ delete pixmap;
 	  destroyed.
 	**/
 	PageTransition *transition() const;
+	
+	/**
+	  Gets the page action specified, or NULL if there is no action
+	**/
+	Link *action( PageAction act ) const;
 	
 	/**
 	   Types of orientations that are possible
@@ -709,6 +723,79 @@ delete pixmap;
        Conversion from PDF date string format to QDateTime
     */
     QDateTime convertDate( char *dateString );
+
+    class SoundData;
+    /**
+       Container class for a sound file in a PDF document.
+
+       A sound can be either External (in that case should be loaded the file
+       whose url is represented by url() ), or Embedded, and the player has to
+       play the data contained in data().
+    */
+    class SoundObject {
+    public:
+	/**
+	   The type of sound
+	*/
+	enum SoundType {
+	    External,     ///< The real sound file is external
+	    Embedded      ///< The sound is contained in the data
+	};
+
+	/**
+	   The encoding format used for the sound
+	*/
+	enum SoundEncoding {
+	    Raw,          ///< Raw encoding, with unspecified or unsigned values in the range [ 0, 2^B − 1 ]
+	    Signed,       ///< Twos-complement values
+	    muLaw,        ///< mu-law-encoded samples
+	    ALaw          ///< A-law-encoded samples
+	};
+
+	SoundObject(Sound *popplersound);
+	
+	SoundObject(const SoundObject &s);
+	
+	~SoundObject();
+
+	/**
+	   Is the sound embedded (@ref Embedded ) or external (@ref External )?
+	*/
+	SoundType soundType() const;
+
+	/**
+	   The URL of the sound file to be played, in case of @ref External
+	*/
+	QString url() const;
+
+	/**
+	   The data of the sound, in case of @ref Embedded
+	*/
+	QByteArray data() const;
+
+	/**
+	   The sampling rate of the sound
+	*/
+	double samplingRate() const;
+
+	/**
+	   The number of sound channels to use to play the sound
+	*/
+	int channels() const;
+
+	/**
+	   The number of bits per sample value per channel
+	*/
+	int bitsPerSample() const;
+
+	/**
+	   The encoding used for the sound
+	*/
+	SoundEncoding soundEncoding() const;
+
+    private:
+	SoundData *m_soundData;
+    };
 
 }
 #endif

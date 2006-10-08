@@ -247,6 +247,41 @@ namespace Poppler {
 		return Action;
 	}
 
+	// LinkSound
+	LinkSound::LinkSound( const QRectF &linkArea, double volume, bool sync, bool repeat, bool mix, SoundObject *sound ) : Link(linkArea), m_volume(volume), m_sync(sync), m_repeat(repeat), m_mix(mix), m_sound(sound)
+	{
+	}
+	
+	Link::LinkType LinkSound::linkType() const
+	{
+		return Sound;
+	}
+
+	double LinkSound::volume() const
+	{
+		return m_volume;
+	}
+
+	bool LinkSound::synchronous() const
+	{
+		return m_sync;
+	}
+
+	bool LinkSound::repeat() const
+	{
+		return m_repeat;
+	}
+
+	bool LinkSound::mix() const
+	{
+		return m_mix;
+	}
+
+	SoundObject *LinkSound::sound() const
+	{
+		return m_sound;
+	}
+
 	// LinkMovie
 	LinkMovie::LinkMovie( const QRectF &linkArea ) : Link(linkArea)
 	{

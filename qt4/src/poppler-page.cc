@@ -123,6 +123,12 @@ Link* PageData::convertLinkActionToLink(::LinkAction * a, const QRectF &linkArea
     }
     break;
 
+    case actionSound:
+    {
+      ::LinkSound *ls = (::LinkSound *)a;
+      popplerLink = new LinkSound( linkArea, ls->getVolume(), ls->getSynchronous(), ls->getRepeat(), ls->getMix(), new SoundObject( ls->getSound() ) );
+    }
+
     case actionMovie:
 /*      TODO this (Movie link)
           m_type = Movie;
@@ -364,6 +370,32 @@ PageTransition *Page::transition() const
     o.free();
   }
   return m_page->transition;
+}
+
+Link *Page::action( PageAction act ) const
+{
+  if ( act == Page::Opening || act == Page::Closing )
+  {
+    ::Page *p = m_page->parentDoc->m_doc->doc.getCatalog()->getPage(m_page->index + 1);
+    Object o;
+    p->getActions(&o);
+    if (!o.isDict())
+    {
+      o.free();
+      return 0;
+    }
+    Dict *dict = o.getDict();
+    Object o2;
+    const char *key = act == Page::Opening ? "O" : "C";
+    dict->lookup(key, &o2);
+    ::LinkAction *act = ::LinkAction::parseAction(&o2, m_page->parentDoc->m_doc->doc.getCatalog()->getBaseURI() );
+    o2.free();
+    Link *popplerLink = NULL;
+    if (act != NULL)
+      popplerLink = m_page->convertLinkActionToLink(act, QRectF(), m_page->parentDoc->m_doc);
+    return popplerLink;
+  }
+  return 0;
 }
 
 QSizeF Page::pageSizeF() const

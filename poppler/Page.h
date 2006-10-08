@@ -151,6 +151,9 @@ public:
   // Get transition.
   Object *getTrans(Object *obj) { return trans.fetch(xref, obj); }
 
+  // Get actions
+  Object *getActions(Object *obj) { return actions.fetch(xref, obj); }
+
   Gfx *createGfx(OutputDev *out, double hDPI, double vDPI,
 		 int rotate, GBool useMediaBox, GBool crop,
 		 int sliceX, int sliceY, int sliceW, int sliceH,
@@ -194,6 +197,7 @@ private:
   Object contents;		// page contents
   Object thumb;			// page thumbnail
   Object trans;			// page transition
+  Object actions;		// page addiction actions
   GBool ok;			// true if page is valid
 };
 

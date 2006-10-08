@@ -156,6 +156,7 @@ poppler_include_HEADERS =	\
 	UGooString.h		\
 	UTF8.h			\
 	XpdfPluginAPI.h		\
+	Sound.h			\
 	poppler-config.h
 
 endif
@@ -208,6 +209,7 @@ libpoppler_la_SOURCES =		\
 	PageLabelInfo.cc	\
 	SecurityHandler.cc	\
 	UGooString.cc	 	\
+	Sound.cc		\
 	XpdfPluginAPI.cc
 
 EXTRA_DIST = gen-unicode-tables.py

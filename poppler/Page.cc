@@ -230,6 +230,14 @@ Page::Page(XRef *xrefA, int numA, Dict *pageDict, PageAttrs *attrsA) {
             num, thumb.getTypeName());
       thumb.initNull(); 
   }
+
+  // actions
+  pageDict->lookupNF("AA", &actions);
+  if (!(actions.isDict() || actions.isNull())) {
+      error(-1, "Page additional action object (page %d) is wrong type (%s)",
+            num, actions.getTypeName());
+      actions.initNull();
+  }
   
   return;
 

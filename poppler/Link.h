@@ -19,6 +19,7 @@ class GooString;
 class UGooString;
 class Array;
 class Dict;
+class Sound;
 
 //------------------------------------------------------------------------
 // LinkAction
@@ -31,6 +32,7 @@ enum LinkActionKind {
   actionURI,			// URI
   actionNamed,			// named action
   actionMovie,			// movie action
+  actionSound,			// sound action
   actionUnknown			// anything else
 };
 
@@ -273,6 +275,36 @@ private:
 
   Ref annotRef;
   GooString *title;
+};
+
+//------------------------------------------------------------------------
+// LinkSound
+//------------------------------------------------------------------------
+
+class LinkSound: public LinkAction {
+public:
+
+  LinkSound(Object *soundObj);
+
+  virtual ~LinkSound();
+
+  virtual GBool isOk() { return sound != NULL; }
+
+  virtual LinkActionKind getKind() { return actionSound; }
+
+  double getVolume() { return volume; }
+  GBool getSynchronous() { return sync; }
+  GBool getRepeat() { return repeat; }
+  GBool getMix() { return mix; }
+  Sound *getSound() { return sound; }
+
+private:
+
+  double volume;
+  GBool sync;
+  GBool repeat;
+  GBool mix;
+  Sound *sound;
 };
 
 //------------------------------------------------------------------------

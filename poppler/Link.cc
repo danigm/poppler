@@ -21,6 +21,7 @@
 #include "Array.h"
 #include "Dict.h"
 #include "Link.h"
+#include "Sound.h"
 #include "UGooString.h"
 
 //------------------------------------------------------------------------
@@ -87,6 +88,10 @@ LinkAction *LinkAction::parseAction(Object *obj, GooString *baseURI) {
     action = new LinkMovie(&obj3, &obj4);
     obj3.free();
     obj4.free();
+
+  // Sound action
+  } else if (obj2.isName("Sound")) {
+    action = new LinkSound(obj);
 
   // unknown action
   } else if (obj2.isName()) {
@@ -623,6 +628,54 @@ LinkMovie::~LinkMovie() {
   if (title) {
     delete title;
   }
+}
+
+//------------------------------------------------------------------------
+// LinkSound
+//------------------------------------------------------------------------
+
+LinkSound::LinkSound(Object *soundObj) {
+  volume = 1.0;
+  sync = gFalse;
+  repeat = gFalse;
+  mix = gFalse;
+  sound = NULL;
+  if (soundObj->isDict())
+  {
+    Object tmp;
+    // volume
+    soundObj->dictLookup("Volume", &tmp);
+    if (tmp.isNum()) {
+      volume = tmp.getNum();
+    }
+    tmp.free();
+    // sync
+    soundObj->dictLookup("Synchronous", &tmp);
+    if (tmp.isBool()) {
+      sync = tmp.getBool();
+    }
+    tmp.free();
+    // repeat
+    soundObj->dictLookup("Repeat", &tmp);
+    if (tmp.isBool()) {
+      repeat = tmp.getBool();
+    }
+    tmp.free();
+    // mix
+    soundObj->dictLookup("Mix", &tmp);
+    if (tmp.isBool()) {
+      mix = tmp.getBool();
+    }
+    tmp.free();
+    // 'Sound' object
+    soundObj->dictLookup("Sound", &tmp);
+    sound = Sound::parseSound(&tmp);
+    tmp.free();
+  }
+}
+
+LinkSound::~LinkSound() {
+  delete sound;
 }
 
 //------------------------------------------------------------------------

@@ -1,3 +1,22 @@
+2006-10-08  Albert Astals Cid <aacid@kde.org>
+
+	* poppler/Link.cc:
+	* poppler/Link.h:
+	* poppler/Makefile.am:
+	* poppler/Page.cc:
+	* poppler/Page.h:
+	* poppler/Sound.cc:
+	* poppler/Sound.h: Make poppler able to read Sound objects, Sound
+	actions and Opening/Closing page actions. Patch by Pino Toscano.
+
+	* qt4/src/Makefile.am:
+	* qt4/src/poppler-link.cc:
+	* qt4/src/poppler-link.h:
+	* qt4/src/poppler-qt4.h:
+	* qt4/src/poppler-page.cc:
+	* qt4/src/poppler-sound.cc: Support for sounds, sound links and page
+	actions in the Qt4 backend. Patch by Pino Toscano.
+
 2006-09-30  Albert Astals Cid <aacid@kde.org>
 
 	* qt4/src/poppler-page.cc: PA is optional, H is a name not a string
