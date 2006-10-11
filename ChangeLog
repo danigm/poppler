@@ -1,3 +1,10 @@
+2006-10-12  Albert Astals Cid <aacid@kde.org>
+
+	* splash/Splash.cc:
+	* splash/SplashErrorCodes.h: Do not crash on documents that report a
+	0x0 mask for an image, like
+	http://bugs.kde.org/attachment.cgi?id=18083&action=view
+
 2006-10-08  Albert Astals Cid <aacid@kde.org>
 
 	* poppler/Link.cc:
