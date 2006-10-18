@@ -1,3 +1,10 @@
+2006-10-18  Albert Astals Cid <aacid@kde.org>
+
+	* qt4/src/poppler-document.cc:
+	* qt4/src/poppler-private.h: Do not crash when opening a
+	encrypted document. Do not crash when unlocking a locked
+	document.
+
 2006-10-12  Albert Astals Cid <aacid@kde.org>
 
 	* splash/Splash.cc:

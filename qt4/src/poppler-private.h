@@ -165,6 +165,20 @@ namespace Poppler {
 			m_splashOutputDev = NULL;
 		}
 	}
+	
+	void fillMembers()
+	{
+		m_fontInfoScanner = new FontInfoScanner(&doc);
+		int numEmb = doc.getCatalog()->numEmbeddedFiles();
+		if (!(0 == numEmb)) {
+			// we have some embedded documents, build the list
+			for (int yalv = 0; yalv < numEmb; ++yalv) {
+				EmbFile *ef = doc.getCatalog()->embeddedFile(yalv);
+				m_embeddedFiles.append(new EmbeddedFile(ef));
+				delete ef;
+			}
+		}
+	}
 
 	class PDFDoc doc;
 	bool locked;

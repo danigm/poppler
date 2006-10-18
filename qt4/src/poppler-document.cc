@@ -51,27 +51,21 @@ namespace Poppler {
 					     new GooString(userPassword.data()));
 	Document *pdoc;
 	if (doc->doc.isOk() || doc->doc.getErrorCode() == errEncrypted) {
-	    pdoc = new Document(doc);
-	    if (doc->doc.getErrorCode() == errEncrypted)
-		pdoc->m_doc->locked = true;
-	    else
-		pdoc->m_doc->locked = false;
-	    pdoc->m_doc->m_fontInfoScanner = new FontInfoScanner(&(doc->doc));
-	    int numEmb = doc->doc.getCatalog()->numEmbeddedFiles();
-	    if (!(0 == numEmb)) {
-		// we have some embedded documents, build the list
-		for (int yalv = 0; yalv < numEmb; ++yalv) {
-		    EmbFile *ef = doc->doc.getCatalog()->embeddedFile(yalv);
-		    pdoc->m_doc->m_embeddedFiles.append(new EmbeddedFile(ef));
-		    delete ef;
+		pdoc = new Document(doc);
+		if (doc->doc.getErrorCode() == errEncrypted)
+			pdoc->m_doc->locked = true;
+		else
+		{
+			pdoc->m_doc->locked = false;
+			pdoc->m_doc->fillMembers();
 		}
-	    }
-	    return pdoc;
+		return pdoc;
 	}
 	else
-	    delete doc;
-	    return NULL;
-
+	{
+		delete doc;
+	}
+	return NULL;
     }
 
     Document::Document(DocumentData *dataA)
@@ -94,19 +88,16 @@ namespace Poppler {
     {
 	if (m_doc->locked) {
 	    /* racier then it needs to be */
-	    GooString *ownerPwd = new GooString(ownerPassword.data());
-	    GooString *userPwd = new GooString(userPassword.data());
-	    DocumentData *doc2 = new DocumentData(m_doc->doc.getFileName(),
-						  ownerPwd,
-						  userPwd);
-	    delete ownerPwd;
-	    delete userPwd;
+	    DocumentData *doc2 = new DocumentData(new GooString(m_doc->doc.getFileName()),
+						  new GooString(ownerPassword.data()),
+						  new GooString(userPassword.data()));
 	    if (!doc2->doc.isOk()) {
 		delete doc2;
 	    } else {
 		delete m_doc;
 		m_doc = doc2;
 		m_doc->locked = false;
+		m_doc->fillMembers();
 	    }
 	}
 	return m_doc->locked;
