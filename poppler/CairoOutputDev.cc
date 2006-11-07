@@ -263,8 +263,6 @@ void CairoOutputDev::updateStrokeOpacity(GfxState *state) {
 
 void CairoOutputDev::updateFont(GfxState *state) {
   cairo_font_face_t *font_face;
-  double m11, m12, m21, m22;
-  double w;
   cairo_matrix_t matrix;
 
   LOG(printf ("updateFont() font=%s\n", state->getFont()->getName()->getCString()));
@@ -278,9 +276,6 @@ void CairoOutputDev::updateFont(GfxState *state) {
 
   if (!currentFont)
     return;
-  state->getFontTransMat(&m11, &m12, &m21, &m22);
-  m11 *= state->getHorizScaling();
-  m12 *= state->getHorizScaling();
 
   LOG(printf ("font matrix: %f %f %f %f\n", m11, m12, m21, m22));
   
@@ -289,8 +284,8 @@ void CairoOutputDev::updateFont(GfxState *state) {
  
   double fontSize = state->getFontSize();
   double *m = state->getTextMat();
-  matrix.xx = m[0] * fontSize;
-  matrix.yx = m[1] * fontSize;
+  matrix.xx = m[0] * fontSize * state->getHorizScaling();
+  matrix.yx = m[1] * fontSize * state->getHorizScaling();
   matrix.xy = -m[2] * fontSize;
   matrix.yy = -m[3] * fontSize;
   matrix.x0 = 0;
