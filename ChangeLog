@@ -1,3 +1,7 @@
+2006-11-11  Albert Astals Cid <aacid@kde.org>
+
+	* poppler/PSOutputDev.cc: Fix typo when outputing PS scale
+
 2006-11-07  Jeff Muizelaar  <jeff@infidigm.net>
 
 	* poppler/CairoOutputDev.cc: take horizontal scaling into account
