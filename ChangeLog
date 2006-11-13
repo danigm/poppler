@@ -1,3 +1,7 @@
+2006-11-13  Albert Astals Cid <aacid@kde.org>
+
+	* poppler/ArthurOutputDev.cc: Small fix to get colors right
+
 2006-11-11  Albert Astals Cid <aacid@kde.org>
 
 	* poppler/PSOutputDev.cc: Fix typo when outputing PS scale

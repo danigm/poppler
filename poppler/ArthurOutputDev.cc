@@ -210,7 +210,7 @@ void ArthurOutputDev::updateFillColor(GfxState *state)
   GfxRGB rgb;
   QColor brushColour = m_currentBrush.color();
   state->getFillRGB(&rgb);
-  brushColour.setRgbF(rgb.r, rgb.g, rgb.b, brushColour.alphaF());
+  brushColour.setRgbF(colToDbl(rgb.r), colToDbl(rgb.g), colToDbl(rgb.b), brushColour.alphaF());
   m_currentBrush.setColor(brushColour);
 }
 
@@ -219,7 +219,7 @@ void ArthurOutputDev::updateStrokeColor(GfxState *state)
   GfxRGB rgb;
   QColor penColour = m_currentPen.color();
   state->getStrokeRGB(&rgb);
-  penColour.setRgbF(rgb.r, rgb.g, rgb.b, penColour.alphaF());
+  penColour.setRgbF(colToDbl(rgb.r), colToDbl(rgb.g), colToDbl(rgb.b), penColour.alphaF());
   m_currentPen.setColor(penColour);
   m_painter->setPen(m_currentPen);
 }
@@ -526,11 +526,11 @@ void ArthurOutputDev::drawChar(GfxState *state, double x, double y,
       GfxRGB rgb;
       QColor brushColour = m_currentBrush.color();
       state->getFillRGB(&rgb);
-      brushColour.setRgbF(rgb.r, rgb.g, rgb.b, state->getFillOpacity());
+      brushColour.setRgbF(colToDbl(rgb.r), colToDbl(rgb.g), colToDbl(rgb.b), state->getFillOpacity());
       m_painter->setBrush(brushColour);
       QColor penColour = m_currentPen.color();
       state->getStrokeRGB(&rgb);
-      penColour.setRgbF(rgb.r, rgb.g, rgb.b, state->getStrokeOpacity());
+      penColour.setRgbF(colToDbl(rgb.r), colToDbl(rgb.g), colToDbl(rgb.b), state->getStrokeOpacity());
       m_painter->setPen(penColour);
       m_painter->drawPath( qPath );
       m_painter->restore();
