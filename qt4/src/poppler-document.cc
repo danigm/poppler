@@ -417,6 +417,20 @@ namespace Poppler {
     	return m_doc->paperColor;
     }
 
+    void Document::setRenderBackend( Document::RenderBackend backend )
+    {
+        // no need to delete the outputdev as for the moment we always create a splash one
+        // as the arthur one does not allow "precaching" due to it's signature
+        // delete m_doc->m_outputDev;
+        // m_doc->m_outputDev = NULL;
+        m_doc->m_backend = backend;
+    }
+
+    Document::RenderBackend Document::renderBackend() const
+    {
+        return m_doc->m_backend;
+    }
+
     QDateTime convertDate( char *dateString )
     {
         int year;

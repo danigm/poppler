@@ -53,8 +53,7 @@ int main( int argc, char **argv )
 
 		for( int index = 0; index < doc->numPages(); ++index ) {
 		    Poppler::Page *page = doc->page( index );
-		    QPixmap *pixmap = new QPixmap(page->pageSize());
-		    page->renderToPixmap(pixmap);
+		    QImage image = page->renderToImage();
 		    page->pageSize();
 		    page->orientation();
 		    delete page;

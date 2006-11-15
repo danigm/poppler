@@ -21,7 +21,7 @@
 #include <QtCore/QFile>
 #include <QtCore/QMap>
 #include <QtGui/QImage>
-#include <QtGui/QPixmap>
+#include <QtGui/QPainter>
 #include <GlobalParams.h>
 #include <PDFDoc.h>
 #include <Catalog.h>
@@ -161,75 +161,81 @@ Page::~Page()
   delete m_page;
 }
 
-QImage Page::splashRenderToImage(double xres, double yres, int x, int y, int w, int h, bool doLinks, Rotation rotate) const
+QImage Page::renderToImage(double xres, double yres, int x, int y, int w, int h, bool doLinks, Rotation rotate) const
 {
-  SplashOutputDev *output_dev = m_page->parentDoc->m_doc->getSplashOutputDev();
-  
   int rotation = (int)rotate * 90;
-  
-  m_page->parentDoc->m_doc->doc.displayPageSlice(output_dev, m_page->index + 1, xres, yres,
-						 rotation, false, true, doLinks, x, y, w, h);
-  
-  SplashBitmap *bitmap = output_dev->getBitmap ();
-  int bw = bitmap->getWidth();
-  int bh = bitmap->getHeight();
-  
-  SplashColorPtr dataPtr = output_dev->getBitmap()->getDataPtr();
-  
-  if (QSysInfo::BigEndian == QSysInfo::ByteOrder)
+  QImage img;
+  switch(m_page->parentDoc->m_doc->m_backend)
   {
-    uchar c;
-    int count = bw * bh * 4;
-    for (int k = 0; k < count; k += 4)
+    case Poppler::Document::SplashBackend:
     {
-      c = dataPtr[k];
-      dataPtr[k] = dataPtr[k+3];
-      dataPtr[k+3] = c;
+      SplashOutputDev *splash_output = static_cast<SplashOutputDev *>(m_page->parentDoc->m_doc->getOutputDev());
 
-      c = dataPtr[k+1];
-      dataPtr[k+1] = dataPtr[k+2];
-      dataPtr[k+2] = c;
+      m_page->parentDoc->m_doc->doc.displayPageSlice(splash_output, m_page->index + 1, xres, yres,
+						 rotation, false, true, doLinks, x, y, w, h);
+
+      SplashBitmap *bitmap = splash_output->getBitmap();
+      int bw = bitmap->getWidth();
+      int bh = bitmap->getHeight();
+
+      SplashColorPtr dataPtr = splash_output->getBitmap()->getDataPtr();
+
+      if (QSysInfo::BigEndian == QSysInfo::ByteOrder)
+      {
+        uchar c;
+        int count = bw * bh * 4;
+        for (int k = 0; k < count; k += 4)
+        {
+          c = dataPtr[k];
+          dataPtr[k] = dataPtr[k+3];
+          dataPtr[k+3] = c;
+
+          c = dataPtr[k+1];
+          dataPtr[k+1] = dataPtr[k+2];
+          dataPtr[k+2] = c;
+        }
+      }
+
+      // construct a qimage SHARING the raw bitmap data in memory
+      QImage tmpimg( dataPtr, bw, bh, QImage::Format_ARGB32 );
+      img = tmpimg.copy();
+      // unload underlying xpdf bitmap
+      splash_output->startPage( 0, NULL );
+      break;
     }
-  }
-  
-  // construct a qimage SHARING the raw bitmap data in memory
-  QImage img( dataPtr, bw, bh, QImage::Format_ARGB32 );
-  img = img.copy();
-  // unload underlying xpdf bitmap
-  output_dev->startPage( 0, NULL );
+    case Poppler::Document::ArthurBackend:
+    {
+      QSize size = pageSize();
+      QImage tmpimg(w == -1 ? size.width() : w, h == -1 ? size.height() : h, QImage::Format_ARGB32);
 
-  return img;
-}
-
-QPixmap *Page::splashRenderToPixmap(double xres, double yres, int x, int y, int w, int h, bool doLinks, Rotation rotate) const
-{
-  QImage img = splashRenderToImage(xres, yres, x, y, w, h, doLinks, rotate);
-
-  // Turn the QImage into a QPixmap
-  QPixmap* out = new QPixmap(QPixmap::fromImage(img));
-
-  return out;
-}
-
-void Page::renderToPixmap(QPixmap *pixmap, double xres, double yres) const
-{
-  QPainter* painter = new QPainter(pixmap);
-  painter->setRenderHint(QPainter::Antialiasing);
-  ArthurOutputDev output_dev(painter);
-  output_dev.startDoc(m_page->parentDoc->m_doc->doc.getXRef ());
-  m_page->parentDoc->m_doc->doc.displayPageSlice(&output_dev,
+      QPainter painter(&tmpimg);
+      painter.setRenderHint(QPainter::Antialiasing);
+      painter.save();
+      painter.translate(x == -1 ? 0 : -x, y == -1 ? 0 : -y);
+      if (w == -1 && h == -1)
+        painter.scale((double)w/(double)size.width(), (double)h/(double)size.height());
+      ArthurOutputDev arthur_output(&painter);
+      arthur_output.startDoc(m_page->parentDoc->m_doc->doc.getXRef());
+      m_page->parentDoc->m_doc->doc.displayPageSlice(&arthur_output,
 						 m_page->index + 1,
 						 xres,
 						 yres,
-						 0,
+						 rotation,
 						 false,
 						 true,
-						 false,
-						 -1,
-						 -1,
-						 -1,
-						 -1);
-  painter->end();
+						 doLinks,
+						 x,
+						 y,
+						 w,
+						 h);
+      painter.restore();
+      painter.end();
+      img = tmpimg;
+      break;
+    }
+  }
+
+  return img;
 }
 
 QString Page::text(const QRectF &r) const
@@ -412,7 +418,7 @@ QSizeF Page::pageSizeF() const
 
 QSize Page::pageSize() const
 {
-  return QSize( (int)pageSizeF().width(), (int)pageSizeF().height() );
+  return pageSizeF().toSize();
 }
 
 Page::Orientation Page::orientation() const
@@ -454,8 +460,9 @@ QList<Link*> Page::links() const
     xpdfLink->getRect( &left, &top, &right, &bottom );
     QRectF linkArea;
     
-    m_page->parentDoc->m_doc->m_splashOutputDev->cvtUserToDev( left, top, &leftAux, &topAux );
-    m_page->parentDoc->m_doc->m_splashOutputDev->cvtUserToDev( right, bottom, &rightAux, &bottomAux );
+    OutputDev *output_dev = m_page->parentDoc->m_doc->getOutputDev();
+    output_dev->cvtUserToDev( left, top, &leftAux, &topAux );
+    output_dev->cvtUserToDev( right, bottom, &rightAux, &bottomAux );
     linkArea.setLeft(leftAux);
     linkArea.setTop(topAux);
     linkArea.setRight(rightAux);

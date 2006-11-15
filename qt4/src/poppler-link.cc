@@ -64,7 +64,7 @@ namespace Poppler {
 		
 		int leftAux, topAux, rightAux, bottomAux;
 		
-		SplashOutputDev *sod = data.doc->getSplashOutputDev();
+		OutputDev *sod = data.doc->getOutputDev();
 		sod->cvtUserToDev( left, top, &leftAux, &topAux );
 		sod->cvtUserToDev( right, bottom, &rightAux, &bottomAux );
 		

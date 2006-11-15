@@ -1,3 +1,20 @@
+2006-11-15  Albert Astals Cid <aacid@kde.org>
+
+	* qt4/src/poppler-link.cc:
+	* qt4/src/poppler-page.cc:
+	* qt4/src/poppler-qt4.h:
+	* qt4/src/poppler-document.cc:
+	* qt4/src/poppler-private.h: Generalize the way we render the pages:
+	merge all the Page::renderTo* functions in only one that renders on
+	a QImage, taking into account the currently chosen backend.
+	It is possible to switch rendering backend using the Document.
+	Patch by Pino Toscano.
+
+	* qt4/tests/stress-poppler-qt4.cpp:
+	* qt4/tests/test-password-qt4.cpp:
+	* qt4/tests/test-poppler-qt4.cpp: Adapt the tests to the changes in
+	the rendering API of Page. Patch by Pino Toscano.
+
 2006-11-13  Albert Astals Cid <aacid@kde.org>
 
 	* poppler/ArthurOutputDev.cc: Small fix to get colors right

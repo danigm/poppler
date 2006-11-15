@@ -17,7 +17,7 @@ protected:
 private:
     void display();
     int m_currentPage;
-    QPixmap *pixmap;
+    QImage image;
     Poppler::Document *doc;
     bool useArthur;
 };
@@ -25,7 +25,6 @@ private:
 PDFDisplay::PDFDisplay( Poppler::Document *d, bool arthur )
 {
     doc = d;
-    pixmap = 0;
     m_currentPage = 0;
     useArthur = arthur;
     display();
@@ -39,15 +38,14 @@ void PDFDisplay::display()
             if (useArthur)
             {
                 qDebug() << "Displaying page using Arthur backend: " << m_currentPage;
-                pixmap = new QPixmap(page->pageSize());
-                page->renderToPixmap(pixmap, 72.0, 72.0);
+                doc->setRenderBackend(Poppler::Document::ArthurBackend);
             }
             else
             {
                 qDebug() << "Displaying page using Splash backend: " << m_currentPage;
-                delete pixmap;
-                pixmap = page->splashRenderToPixmap();
+                doc->setRenderBackend(Poppler::Document::SplashBackend);
             }
+            image = page->renderToImage();
             update();
             delete page;
         }
@@ -59,16 +57,15 @@ void PDFDisplay::display()
 PDFDisplay::~PDFDisplay()
 {
     delete doc;
-    delete pixmap;
 }
 
 void PDFDisplay::paintEvent( QPaintEvent *e )
 {
     QPainter paint( this );                     // paint widget
-    if (pixmap) {
-	paint.drawPixmap(0, 0, *pixmap);
+    if (!image.isNull()) {
+	paint.drawImage(0, 0, image);
     } else {
-	qWarning() << "no pixmap";
+	qWarning() << "null image";
     }
 }
 

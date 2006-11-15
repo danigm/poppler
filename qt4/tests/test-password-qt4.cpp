@@ -17,7 +17,7 @@ protected:
 private:
     void display();
     int m_currentPage;
-    QPixmap	*pixmap;
+    QImage image;
     Poppler::Document *doc;
 };
 
@@ -34,8 +34,7 @@ void PDFDisplay::display()
 	Poppler::Page *page = doc->page(m_currentPage);
 	if (page) {
 	    qDebug() << "Displaying page: " << m_currentPage;
-	    pixmap = new QPixmap(page->pageSize());
-	    page->renderToPixmap(pixmap);
+	    image = page->renderToImage();
 	    update();
 	    delete page;
 	}
@@ -47,16 +46,15 @@ void PDFDisplay::display()
 PDFDisplay::~PDFDisplay()
 {
     delete doc;
-    delete pixmap;
 }
 
 void PDFDisplay::paintEvent( QPaintEvent *e )
 {
     QPainter paint( this );                     // paint widget
-    if (pixmap) {
-	paint.drawPixmap(0, 0, *pixmap);
+    if (!image.isNull()) {
+	paint.drawImage(0, 0, image);
     } else {
-	qWarning() << "no pixmap";
+	qWarning() << "null image";
     }
 }
 

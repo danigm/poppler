@@ -234,18 +234,14 @@ namespace Poppler {
 	};
 
 	/** 
-	   Render the page to a QImage using the Splash renderer
-	   
-	   This method can be used to render the page to a QPixmap. It
-	   uses the "Splash" rendering engine. This method is reasonably
-	   well-tested and has produced good output so far.
+	   Render the page to a QImage using the specified renderer
 	   
 	   If x=y=w=h=-1, the method will automatically compute the
            size of the pixmap from the horizontal and vertical
            resolutions specified in xres and yres. Otherwise, the
            method renders only a part of the page, specified by the
-           parameters (x, y, w, h) in pixel coordinates. The QPixmap
-           returned then has size (w, h), independent of the page
+           parameters (x, y, w, h) in pixel coordinates. The returned
+           QImage then has size (w, h), independent of the page
            size.
 
 	   \param x specifies the left x-coordinate of the box, in
@@ -274,54 +270,7 @@ namespace Poppler {
 
 	   \returns a QImage of the page, or a null image on failure.
         */
-    QImage splashRenderToImage(double xres=72.0, double yres=72.0, int x=-1, int y=-1, int w=-1, int h=-1, bool doLinks = false, Rotation rotate = Rotate0) const;
-	/**
-	   Render the page to a QPixmap using the Splash renderer
-	   
-	   This member function is provided for convenience. It behaves essentially like the above function.
-	   It is used as follows.
-
-@code
-Poppler::Page* pdfPage;
-
-// Generate a QPixmap of the rendered page
-QPixmap* pixmap = pdfPage->splashRenderToPixmap(0, 0, 0, 0, xres, yres );
-if (pixmap == 0) {
-  ... error message ...
-  return;
-}
-
-... use pixmap ...
-
-delete pixmap;
-@endcode
-	 */
-	
-	QPixmap *splashRenderToPixmap(double xres=72.0, double yres=72.0, int x=-1, int y=-1, int w=-1, int h=-1, bool doLinks = false, Rotation rotate = Rotate0) const;
-
-	/**
-	    Render the page to a pixmap using the Arthur (Qt4) renderer
-	   
-	   \param q pointer to a QPixmap that is already set to the
-	   intended size.
-
-	   \param xres horizontal resolution of the graphics device,
-	   in dots per inch
-
-	   \param yres vertical resolution of the graphics device, in
-	   dots per inch
-	   
-	   You are meant to create the pixmap before passing it to
-	   this routine, using something like:
-	   \code
-	   QPixmap* myPixmap = new QPixmap(page->pageSize());
-	   page->renderToPixmap(myPixmap);
-	   \endcode
-
-	   \warning This is a work in progress. Results are unlikely to be of
-	   high quality. 
-	*/
-        void renderToPixmap(QPixmap *q, double xres=72.0, double yres=72.0) const;
+	QImage renderToImage(double xres=72.0, double yres=72.0, int x=-1, int y=-1, int w=-1, int h=-1, bool doLinks = false, Rotation rotate = Rotate0) const;
 
 	/**
 	   Returns the text that is inside a specified rectangle
@@ -458,6 +407,14 @@ delete pixmap;
 	    TwoColumnRight, ///< Display the pages in two columns, with odd-numbered pages on the right
 	    TwoPageLeft, ///< Display the pages two at a time, with odd-numbered pages on the left
 	    TwoPageRight, ///< Display the pages two at a time, with odd-numbered pages on the right
+	};
+
+	/**
+	   The render backends available
+	*/
+	enum RenderBackend {
+	    SplashBackend,   ///< Splash backend
+	    ArthurBackend,   ///< Arthur (Qt4) backend
 	};
 
 	/**
@@ -711,6 +668,14 @@ delete pixmap;
 	 */
 	void setPaperColor(const QColor &color);
 	QColor paperColor() const;
+
+	/**
+	 Sets the backend used to render the pages.
+
+	 The default backend is @ref SplashBackend
+	 */
+	void setRenderBackend( RenderBackend backend );
+	RenderBackend renderBackend() const;
 
 	~Document();
   

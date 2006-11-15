@@ -66,7 +66,8 @@ namespace Poppler {
     class DocumentData {
     public:
 	DocumentData(GooString *filePath, GooString *ownerPassword, GooString *userPassword) :
-	    doc(filePath, ownerPassword, userPassword), m_fontInfoScanner(0), m_splashOutputDev(0)
+	    doc(filePath, ownerPassword, userPassword), m_fontInfoScanner(0),
+	    m_backend(Document::SplashBackend), m_outputDev(0)
 	    {
 		paperColor = Qt::white;
 		// It might be more appropriate to delete these in PDFDoc
@@ -80,25 +81,35 @@ namespace Poppler {
 	~DocumentData()
 	{
 		qDeleteAll(m_embeddedFiles);
-		delete m_splashOutputDev;
+		delete m_outputDev;
 		delete m_fontInfoScanner;
 		
 		count --;
 		if ( count == 0 ) delete globalParams;
 	}
 	
-	SplashOutputDev *getSplashOutputDev()
+	OutputDev *getOutputDev()
 	{
-		if (!m_splashOutputDev)
+		if (!m_outputDev)
 		{
+			switch (m_backend)
+			{
+			case Document::ArthurBackend:
+			// create a splash backend even in case of the Arthur Backend
+			case Document::SplashBackend:
+			{
 			SplashColor bgColor;
 			bgColor[0] = paperColor.red();
 			bgColor[1] = paperColor.green();
 			bgColor[2] = paperColor.blue();
-			m_splashOutputDev = new SplashOutputDev(splashModeRGB8Qt, 4, gFalse, bgColor);
-			m_splashOutputDev->startDoc(doc.getXRef());
+			SplashOutputDev * splashOutputDev = new SplashOutputDev(splashModeRGB8Qt, 4, gFalse, bgColor);
+			splashOutputDev->startDoc(doc.getXRef());
+			m_outputDev = splashOutputDev;
+			break;
+			}
+			}
 		}
-		return m_splashOutputDev;
+		return m_outputDev;
 	}
 	
 	void addTocChildren( QDomDocument * docSyn, QDomNode * parent, GooList * items )
@@ -161,8 +172,8 @@ namespace Poppler {
 		if (color != paperColor)
 		{
 			paperColor = color;
-			delete m_splashOutputDev;
-			m_splashOutputDev = NULL;
+			delete m_outputDev;
+			m_outputDev = NULL;
 		}
 	}
 	
@@ -183,7 +194,8 @@ namespace Poppler {
 	class PDFDoc doc;
 	bool locked;
 	FontInfoScanner *m_fontInfoScanner;
-	SplashOutputDev *m_splashOutputDev;
+	Document::RenderBackend m_backend;
+	OutputDev *m_outputDev;
 	QList<EmbeddedFile*> m_embeddedFiles;
 	QColor paperColor;
 	static int count;
