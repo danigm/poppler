@@ -1,5 +1,14 @@
 2006-11-15  Albert Astals Cid <aacid@kde.org>
 
+	* qt4/src/Mainpage.dox:
+	* qt4/src/Doxyfile:
+	* qt4/src/poppler-annotation.h:
+	* qt4/src/poppler-link.h:
+	* qt4/src/poppler-qt4.h: Improve API documentation. Patch by
+	Pino Toscano.
+
+2006-11-15  Albert Astals Cid <aacid@kde.org>
+
 	* qt4/src/poppler-link.cc:
 	* qt4/src/poppler-page.cc:
 	* qt4/src/poppler-qt4.h:

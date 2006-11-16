@@ -37,7 +37,7 @@ simply need to add the following two lines to their C++ source files:
 #include <poppler-qt4.h>
 @endcode
 
-The #define statement is required at the moment. You indicate that you
+The \#define statement is required at the moment. You indicate that you
 think you know what you are doing, and understand that the API is
 subject to change.
 
