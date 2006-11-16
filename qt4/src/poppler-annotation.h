@@ -33,24 +33,31 @@ class Annotation;
 class Link;
 
 /**
- * @short Helper class for (recoursive) annotation retrieval/storage.
+ * \short Helper class for (recursive) Annotation retrieval/storage.
  *
  */
 class AnnotationUtils
 {
     public:
-        // restore an annotation (with revisions if needed) from a dom
-        // element. returns a pointer to the complete annotation or 0 if
-        // element is invalid.
+        /**
+         * Restore an Annotation (with revisions if needed) from the DOM
+         * element \p annElement.
+         * \returns a pointer to the complete Annotation or 0 if element is
+         * invalid.
+         */
         static Annotation * createAnnotation( const QDomElement & annElement );
 
-        // save the 'ann' annotations as a child of parentElement taking
-        // care of saving all revisions if 'ann' has any.
+        /**
+         * Save the Annotation \p ann as a child of \p annElement taking
+         * care of saving all revisions if \p ann has any.
+         */
         static void storeAnnotation( const Annotation * ann,
             QDomElement & annElement, QDomDocument & document );
 
-        // return an element called 'name' from the direct children of
-        // parentNode or a null element if not found
+        /**
+         * Returns an element called \p name from the direct children of
+         * \p parentNode or a null element if not found.
+         */
         static QDomElement findChildElement( const QDomNode & parentNode,
             const QString & name );
 
@@ -60,7 +67,7 @@ class AnnotationUtils
 
 
 /**
- * @short Annotation struct holds properties shared by all annotations.
+ * \short Annotation struct holds properties shared by all annotations.
  *
  * An Annotation is an object (text note, highlight, sound, popup window, ..)
  * contained by a Page in the document.
@@ -80,14 +87,14 @@ struct Annotation
     enum RevType { None = 1,  Marked = 2, Unmarked = 4,  Accepted = 8, Rejected = 16, Cancelled = 32, Completed = 64 };
 
 
-    /** properties: contents related */
+    /* properties: contents related */
     QString         author;                 // ''
     QString         contents;               // ''
     QString         uniqueName;             // '#NUMBER#'
     QDateTime       modifyDate;             // before or equal to currentDateTime()
     QDateTime       creationDate;           // before or equal to modifyDate
 
-    /** properties: look/interaction related */
+    /* properties: look/interaction related */
     int             flags;                  // 0
     QRectF          boundary;               // valid or isNull()
     struct Style
@@ -109,7 +116,7 @@ struct Annotation
         Style();
     }               style;
 
-    /** properties: popup window */
+    /* properties: popup window */
     struct Window
     {
         // window state (Hidden, FixedRotation, Deny* flags allowed)
@@ -126,7 +133,7 @@ struct Annotation
         Window();
     }               window;
 
-    /** properties: versioning */
+    /* properties: versioning */
     struct Revision
     {
         // child revision

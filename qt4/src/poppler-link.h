@@ -72,10 +72,10 @@ class LinkDestination
 };
 
 /**
- * @short Encapsulates data that describes a link.
+ * \short Encapsulates data that describes a link.
  *
  * This is the base class for links. It makes mandatory for inherited
- * widgets to reimplement the 'linkType' method and return the type of
+ * kind of links to reimplement the linkType() method and return the type of
  * the link described by the reimplemented class.
  */
 class Link
@@ -83,13 +83,37 @@ class Link
 	public:
 		Link( const QRectF &linkArea );
 		
-		// get link type (inherited classes mustreturn an unique identifier)
-		enum LinkType { None, Goto, Execute, Browse, Action, Sound, Movie };
+		/**
+		 * The possible kinds of link.
+		 *
+		 * \internal
+		 * Inherited classes must return an unique identifier
+		 */
+		enum LinkType
+		{
+		    None,     ///< Unknown link
+		    Goto,     ///< A "Go To" link
+		    Execute,
+		    Browse,
+		    Action,
+		    Sound,    ///< A link representing a sound to be played
+		    Movie
+		};
+
+		/**
+		 * The type of this link.
+		 */
 		virtual LinkType linkType() const;
 
 		// virtual destructor
 		virtual ~Link();
 		
+		/**
+		 * The area of a Page where the link should be active.
+		 *
+		 * \note this can be a null rect, in this case the link represents
+		 * a general action
+		 */
 		QRectF linkArea() const;
 		
 	private:
@@ -102,9 +126,13 @@ class LinkGoto : public Link
 {
 	public:
 		LinkGoto( const QRectF &linkArea, QString extFileName, const LinkDestination & destination );
-		
-		// query for goto parameters
+
+		/**
+		 * Whether the destination is in an external document
+		 * (i.e. not the current document)
+		 */
 		bool isExternal() const;
+		// query for goto parameters
 		const QString & fileName() const;
 		const LinkDestination & destination() const;
 		LinkType linkType() const;
@@ -118,7 +146,9 @@ class LinkGoto : public Link
 class LinkExecute : public Link
 {
 	public:
-		// query for filename / parameters
+		/**
+		 * The file name to be executed
+		 */
 		const QString & fileName() const;
 		const QString & parameters() const;
 
@@ -131,7 +161,7 @@ class LinkExecute : public Link
 		QString m_parameters;
 };
 
-/** Browse: an URL to open, ranging from 'http://' to 'mailto:' etc.. **/
+/** Browse: an URL to open, ranging from 'http://' to 'mailto:', etc. **/
 class LinkBrowse : public Link
 {
 	public:
@@ -150,7 +180,9 @@ class LinkBrowse : public Link
 class LinkAction : public Link
 {
 	public:
-		// define types of actions
+		/**
+		 * The possible types of actions
+		 */
 		enum ActionType { PageFirst = 1,
 		                  PagePrev = 2,
 		                  PageNext = 3,
@@ -164,7 +196,9 @@ class LinkAction : public Link
 		                  GoToPage = 11,
 		                  Close = 12 };
 
-		// query for action type
+		/**
+		 * The action of the current LinkAction
+		 */
 		ActionType actionType() const;
 
 		// create a Link_Action
@@ -184,10 +218,24 @@ class LinkSound : public Link
 
 		LinkType linkType() const;
 
+		/**
+		 * The volume to be used when playing the sound.
+		 *
+		 * The volume is in the range [ -1, 1 ], where:
+		 * - a negative number: no volume (mute)
+		 * - 1: full volume
+		 */
 		double volume() const;
 		bool synchronous() const;
+		/**
+		 * Whether the sound should be played continuously (that is,
+		 * started again when it ends)
+		 */
 		bool repeat() const;
 		bool mix() const;
+		/**
+		 * The sound object to be played
+		 */
 		SoundObject *sound() const;
 
 	private:

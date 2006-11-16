@@ -47,7 +47,7 @@ namespace Poppler {
     class TextBoxData;
 
     /**
-        describes the physical location of text on a document page
+        Describes the physical location of text on a document page
        
         This very simple class describes the physical location of text
 	on the page. It consists of
@@ -59,19 +59,19 @@ namespace Poppler {
     friend class Page;
     public:
       /**
-	 The default constructor sets the text and the rectangle the
-	 contains the text. Coordinated for the bBox are in points =
+	 The default constructor sets the \p text and the rectangle that
+	 contains the text. Coordinated for the \p bBox are in points =
 	 1/72 of an inch.
       */
       TextBox(const QString& text, const QRectF &bBox);
 
       /**
-	  returns the text
+	  Returns the text of this text box
       */      
       const QString &text() const;
 
       /**
-	  returns the position of the text, in point, i.e., 1/72 of
+	  Returns the position of the text, in point, i.e., 1/72 of
 	 an inch
       */
       const QRectF &boundingBox() const;
@@ -87,11 +87,11 @@ namespace Poppler {
     };
 
 
+    class FontInfoData;
     /**
        Container class for information about a font within a PDF
        document
     */
-    class FontInfoData;
     class FontInfo {
     public:
 	enum Type {
@@ -120,7 +120,8 @@ namespace Poppler {
 	const QString &name() const;
 
 	/**
-	   The path of the font file used to represent this font on this system.
+	   The path of the font file used to represent this font on this system,
+	   or a null string is the font is embedded
 	*/
 	const QString &file() const;
 
@@ -163,13 +164,15 @@ namespace Poppler {
     };
 
 
+    class EmbeddedFileData;
     /**
        Container class for an embedded file with a PDF document
     */
-    class EmbeddedFileData;
     class EmbeddedFile {
     public:
 	/**
+	   \internal
+
 	   Create a new embedded file container
 	*/
 	EmbeddedFile(EmbFile *embfile);
@@ -201,7 +204,7 @@ namespace Poppler {
 	QDateTime createDate() const;
 
 	/**
-	   The data as an array
+	   The data as a byte array
 	*/
 	QByteArray data();
 
@@ -234,14 +237,15 @@ namespace Poppler {
 	};
 
 	/** 
-	   Render the page to a QImage using the specified renderer
+	   Render the page to a QImage using the current Document renderer
+	   (see Document::renderBackend())
 	   
-	   If x=y=w=h=-1, the method will automatically compute the
-           size of the pixmap from the horizontal and vertical
-           resolutions specified in xres and yres. Otherwise, the
+	   If \p x = \p y = \p w = \p h = -1, the method will automatically
+           compute the size of the image from the horizontal and vertical
+           resolutions specified in \p xres and \p yres. Otherwise, the
            method renders only a part of the page, specified by the
-           parameters (x, y, w, h) in pixel coordinates. The returned
-           QImage then has size (w, h), independent of the page
+           parameters (\p x, \p y, \p w, \p h) in pixel coordinates. The returned
+           QImage then has size (\p w, \p h), independent of the page
            size.
 
 	   \param x specifies the left x-coordinate of the box, in
@@ -264,7 +268,7 @@ namespace Poppler {
 	   
 	   \param rotate how to rotate the page
 
-	   \warning The parameter (x,y,w,h) are not
+	   \warning The parameter (\p x, \p y, \p w, \p h) are not
 	   well-tested. Unusual or meaningless parameters may lead to
 	   rather unexpected results.
 
@@ -318,14 +322,14 @@ namespace Poppler {
 	QSizeF pageSizeF() const;
 
 	/**
-	   The dimensions of the page, in pixels.
+	   The size of the page, in pixels
 	*/
 	QSize pageSize() const;
 
 	/**
-	  \brief Returns the transition of this page
+	  Returns the transition of this page
 
-	  @returns a pointer to a PageTransition structure that
+	  \returns a pointer to a PageTransition structure that
 	  defines how transition to this page shall be performed. The
 	  PageTransition structure is owned by this page, and will
 	  automatically be destroyed when this page class is
@@ -359,7 +363,8 @@ namespace Poppler {
 	void defaultCTM(double *CTM, double dpiX, double dpiY, int rotate, bool upsideDown);
 	
 	/**
-	  Gets the links of the page once it has been rendered if doLinks was true
+	  Gets the links of the page once it has been rendered with renderToImage()
+	  if \c doLinks was true
 	*/
 	QList<Link*> links() const;
 	
@@ -430,7 +435,7 @@ namespace Poppler {
 			      const QByteArray &userPassword=QByteArray());
   
 	/**
-	   Get a specified page
+	   Get a specified Page
      
 	   Note that this follows the PDF standard of being zero based - if you
 	   want the first page, then you need an index of zero.
@@ -441,6 +446,7 @@ namespace Poppler {
 
 	/**
 	   \overload
+
 
 	   The intent is that you can pass in a label like "ix" and
 	   get the page with that label (which might be in the table of
@@ -486,11 +492,15 @@ namespace Poppler {
 
 	   You would use this method with something like:
 	   \code
-	   QDateTime created = m_doc->date("CreationDate");
-	   QDateTime modded = m_doc->date("ModDate");
+QDateTime created = m_doc->date("CreationDate");
+QDateTime modified = m_doc->date("ModDate");
 	   \endcode
 
-	   \param data the type of date that is required (such as CreationDate or ModDate)
+	   The available dates are:
+	   - CreationDate: the date of creation of the document
+	   - ModDate: the date of the last change in the document
+
+	   \param data the type of date that is required
 
 	*/
 	QDateTime date( const QString & data ) const;
@@ -500,12 +510,12 @@ namespace Poppler {
 
 	   You would use this method with something like:
 	   \code
-	   QString title = m_doc->info("Title");
-	   QString subject = m_doc->info("Subject");
+QString title = m_doc->info("Title");
+QString subject = m_doc->info("Subject");
 	   \endcode
 
-	   In addition to Title and Subject, other information that may be available
-	   includes Author, Keywords, Creator and Producer.
+	   In addition to \c Title and \c Subject, other information that may
+	   be available include \c Author, \c Keywords, \c Creator and \c Producer.
 
 	   \param data the information that is required
 
@@ -591,8 +601,9 @@ namespace Poppler {
 	/**
 	   Test if the permissions on the document allow it to be
 	   "assembled" - insertion, rotation and deletion of pages;
-	   or creation of bookmarks and thumbnail images. This can
-	   be true even if okToChange is false.
+	   or creation of bookmarks and thumbnail images.
+
+	   \note this can be true even if okToChange() is false
 	*/
 	bool okToAssemble() const;
 
@@ -613,6 +624,7 @@ namespace Poppler {
 
 	/**
 	   \overload
+
 
 	   \param numPages the number of pages to scan
 	   \param fontList pointer to the list where the font information
@@ -654,27 +666,43 @@ namespace Poppler {
 	LinkDestination *linkDestination( const QString &name );
 	
 	/**
-	  If you are using QPrinter you can get paper size by doing
-	  QPrinter dummy(QPrinter::PrinterResolution);
-	  dummy.setFullPage(true);
-	  dummy.setPageSize(myPageSize);
-	  width = dummy.width();
-	  height = dummy.height();
+	  Prints the document to the PostScript file \p fileName
+
+	  If you are using QPrinter you can get paper size by doing:
+	  \code
+QPrinter dummy(QPrinter::PrinterResolution);
+dummy.setFullPage(true);
+dummy.setPageSize(myPageSize);
+width = dummy.width();
+height = dummy.height();
+	  \endcode
 	*/
 	bool print(const QString &fileName, const QList<int> pageList, double hDPI, double vDPI, int rotate, int paperWidth, int paperHeight);
 	
 	/**
-	  Sets the paper color, if not set it is white by default.
+	  Sets the paper color
+
+	  \param color the new paper color
 	 */
 	void setPaperColor(const QColor &color);
+	/**
+	  The paper color
+
+	  The default color is white.
+	 */
 	QColor paperColor() const;
 
 	/**
 	 Sets the backend used to render the pages.
 
-	 The default backend is @ref SplashBackend
+	 \param backend the new rendering backend
 	 */
 	void setRenderBackend( RenderBackend backend );
+	/**
+	  The currently set render backend
+
+	  The default backend is \ref SplashBackend
+	 */
 	RenderBackend renderBackend() const;
 
 	~Document();
@@ -711,12 +739,15 @@ namespace Poppler {
 	   The encoding format used for the sound
 	*/
 	enum SoundEncoding {
-	    Raw,          ///< Raw encoding, with unspecified or unsigned values in the range [ 0, 2^B − 1 ]
+	    Raw,          ///< Raw encoding, with unspecified or unsigned values in the range [ 0, 2^B - 1 ]
 	    Signed,       ///< Twos-complement values
 	    muLaw,        ///< mu-law-encoded samples
 	    ALaw          ///< A-law-encoded samples
 	};
 
+	/**
+	  \internal
+	*/
 	SoundObject(Sound *popplersound);
 	
 	SoundObject(const SoundObject &s);
@@ -724,17 +755,17 @@ namespace Poppler {
 	~SoundObject();
 
 	/**
-	   Is the sound embedded (@ref Embedded ) or external (@ref External )?
+	   Is the sound embedded (\ref Embedded ) or external (\ref External )?
 	*/
 	SoundType soundType() const;
 
 	/**
-	   The URL of the sound file to be played, in case of @ref External
+	   The URL of the sound file to be played, in case of \ref External
 	*/
 	QString url() const;
 
 	/**
-	   The data of the sound, in case of @ref Embedded
+	   The data of the sound, in case of \ref Embedded
 	*/
 	QByteArray data() const;
 

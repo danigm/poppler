@@ -37,53 +37,51 @@ simply need to add the following two lines to their C++ source files:
 #include <poppler-qt4.h>
 @endcode
 
-The \#define statement is required at the moment. You indicate that you
+The \c \#define statement is required at the moment. You indicate that you
 think you know what you are doing, and understand that the API is
 subject to change.
 
-A PDF document can then be loaded as follows.
+A PDF document can then be loaded as follows:
 @code
 QString filename;
 
 Poppler::Document* document = Poppler::Document::load(filename.ascii());
 if (!document || document->isLocked()) {
 
-  ... error message ....
+  // ... error message ....
 
   delete document;
   return;
 }
 @endcode
 
-Pages can be rendered to QPixmaps with the following commands.
+Pages can be rendered to QImages with the following commands:
 
 @code
 // Paranoid safety check
 if (document == 0) {
-  ... error message ...
+  // ... error message ...
   return;
 }
 
 // Access page of the PDF file
 Poppler::Page* pdfPage = document->page(pageNumber);  // Document starts at page 0
 if (pdfPage == 0) {
-  ... error message ...
+  // ... error message ...
   return;
 }
 
-// Generate a QPixmap of the rendered page
-QPixmap* pixmap = pdfPage->splashRenderToPixmap(0, 0, 0, 0, xres, yres );
-if (pixmap == 0) {
-  ... error message ...
+// Generate a QImage of the rendered page
+QImage image = pdfPage->renderToImage(xres, yres, x, y, width, height);
+if (image.isNull()) {
+  // ... error message ...
   return;
 }
 
-... use pixmap ...
-
-delete pixmap;
+// ... use image ...
 @endcode
 
-Finally, don't forget to destroy the document.
+Finally, don't forget to destroy the document:
 
 @code
 delete document;
