@@ -667,6 +667,10 @@ QString subject = m_doc->info("Subject");
 	
 	/**
 	  Prints the document to the PostScript file \p fileName
+	  Sizes have to be in Points (1/72 inch)
+	  \param strictMargins defines if margins have to be scrictly
+	                       followed (even if that means changing aspect ratio) or
+	                       if the margins can be adapted to keep aspect ratio
 
 	  If you are using QPrinter you can get paper size by doing:
 	  \code
@@ -677,7 +681,7 @@ width = dummy.width();
 height = dummy.height();
 	  \endcode
 	*/
-	bool print(const QString &fileName, const QList<int> pageList, double hDPI, double vDPI, int rotate, int paperWidth, int paperHeight);
+	bool print(const QString &fileName, const QList<int> pageList, double hDPI, double vDPI, int rotate, int paperWidth, int paperHeight, int marginRight, int marginBottom, int marginLeft, int marginTop, bool strictMargins);
 	
 	/**
 	  Sets the paper color

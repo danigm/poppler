@@ -1,3 +1,9 @@
+2006-11-18  Albert Astals Cid <aacid@kde.org>
+
+	* qt4/src/poppler-document.cc
+	* qt4/src/poppler-qt4.h: Add int marginRight, int marginBottom, int
+	marginLeft, int marginTop, bool strictMargins to Document::print()
+
 2006-11-15  Albert Astals Cid <aacid@kde.org>
 
 	* qt4/src/Mainpage.dox:

@@ -386,9 +386,16 @@ namespace Poppler {
         return ld;
     }
     
-    bool Document::print(const QString &file, const QList<int> pageList, double hDPI, double vDPI, int rotate, int paperWidth, int paperHeight)
+    bool Document::print(const QString &file, const QList<int> pageList, double hDPI, double vDPI, int rotate, int paperWidth, int paperHeight, int marginRight, int marginBottom, int marginLeft, int marginTop, bool strictMargins)
     {
-        PSOutputDev *psOut = new PSOutputDev(file.toLatin1().data(), m_doc->doc.getXRef(), m_doc->doc.getCatalog(), 1, m_doc->doc.getNumPages(), psModePS, paperWidth, paperHeight, gFalse);
+        PSOutputDev *psOut = new PSOutputDev(file.toLatin1().data(), m_doc->doc.getXRef(), m_doc->doc.getCatalog(), 1, m_doc->doc.getNumPages(), psModePS, paperWidth, paperHeight, gFalse, marginRight, marginBottom, paperWidth - marginLeft, paperHeight - marginTop);
+
+        if (strictMargins)
+        {
+            double xScale = ((double)paperWidth - (double)marginLeft - (double)marginRight) / (double)paperWidth;
+            double yScale = ((double)paperHeight - (double)marginBottom - (double)marginTop) / (double)paperHeight;
+            psOut->setScale(xScale, yScale);
+        }
 
         if (psOut->isOk())
         {
