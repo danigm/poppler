@@ -490,7 +490,10 @@ QList<Annotation*> Page::annotations() const
     ::Page *pdfPage = m_page->parentDoc->m_doc->doc.getCatalog()->getPage(m_page->index + 1);
     pdfPage->getAnnots( &annotArray );
     if ( !annotArray.isArray() || annotArray.arrayGetLength() < 1 )
+    {
+        annotArray.free();
         return QList<Annotation*>();
+    }
 
     // ID to Annotation/PopupWindow maps
     QMap< int, Annotation * > annotationsMap;
@@ -1213,6 +1216,7 @@ QList<Annotation*> Page::annotations() const
         }
     }
 
+    annotArray.free();
     /** 5 - finally RETURN ANNOTATIONS */
     return annotationsMap.values();
 }
