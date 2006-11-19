@@ -30,6 +30,11 @@ TextBox::TextBox(const QString& text, const QRectF &bBox)
 	m_data->bBox = bBox;
 }
 
+TextBox::~TextBox()
+{
+	delete m_data;
+}
+
 const QString &TextBox::text() const
 {
 	return m_data->text;

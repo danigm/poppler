@@ -340,7 +340,9 @@ QList<TextBox*> Page::textList(Rotation rotate) const
   
   for (int i = 0; i < word_list->getLength(); i++) {
     TextWord *word = word_list->get(i);
-    QString string = QString::fromUtf8(word->getText()->getCString());
+    GooString *gooWord = word->getText();
+    QString string = QString::fromUtf8(gooWord->getCString());
+    delete gooWord;
     double xMin, yMin, xMax, yMax;
     word->getBBox(&xMin, &yMin, &xMax, &yMax);
     

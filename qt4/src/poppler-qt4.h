@@ -64,6 +64,7 @@ namespace Poppler {
 	 1/72 of an inch.
       */
       TextBox(const QString& text, const QRectF &bBox);
+      ~TextBox();
 
       /**
 	  Returns the text of this text box

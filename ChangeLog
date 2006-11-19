@@ -1,3 +1,11 @@
+2006-11-19  Albert Astals Cid <aacid@kde.org>
+
+	* qt4/src/poppler-link.cc:
+	* qt4/src/poppler-page.cc:
+	* qt4/src/poppler-qt4.h:
+	* qt4/src/poppler-textbox.cc: Fix memory leaks
+	* splash/Splash.cc: Initialize the values of nClipRes
+
 2006-11-18  Albert Astals Cid <aacid@kde.org>
 
 	* qt4/src/poppler-document.cc
