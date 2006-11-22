@@ -2,7 +2,7 @@ INCLUDES =					\
 	-I$(top_srcdir)				\
 	-I$(top_srcdir)/poppler			\
 	-I$(top_srcdir)/qt			\
-	$(FONTCONFIG_CFLAGS)			\			
+	$(FONTCONFIG_CFLAGS)			\
 	$(POPPLER_QT4_CXXFLAGS)
 
 
