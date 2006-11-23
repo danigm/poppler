@@ -68,7 +68,7 @@ KDE_FIND_JPEG_HELPER(6b, 6b,
 
 dnl then search the headers (can't use simply AC_TRY_xxx, as jpeglib.h
 dnl requires system dependent includes loaded before it)
-jpeg_incdirs="$includedir /usr/include /usr/local/include "
+jpeg_incdirs="`eval echo $includedir` /usr/include /usr/local/include "
 AC_FIND_FILE(jpeglib.h, $jpeg_incdirs, jpeg_incdir)
 test "x$jpeg_incdir" = xNO && jpeg_incdir=
 

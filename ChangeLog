@@ -1,3 +1,8 @@
+2006-11-23  Albert Astals Cid <aacid@kde.org>
+
+	* m4/libjpeg.m4: Make JPEG library header search work under MSYS.
+	Patch by Alexis	Wilke
+
 2006-11-19  Albert Astals Cid <aacid@kde.org>
 
 	* qt4/src/poppler-link.cc:
