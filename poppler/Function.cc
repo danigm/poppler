@@ -978,6 +978,7 @@ PostScriptFunction::PostScriptFunction(Object *funcObj, Dict *dict) {
   GooString *tok;
 
   code = NULL;
+  codeString = NULL;
   codeSize = 0;
   ok = gFalse;
 

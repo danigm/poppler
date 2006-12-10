@@ -1,3 +1,9 @@
+2006-12-09  Jeff Muizelaar  <jeff@infidigm.net>
+
+	* poppler/Function.cc: Initialize PostScriptFunction::codeString to
+	NULL so that it can safely deleted if initialization fails.
+	Fixes #9263.
+
 2006-11-23  Albert Astals Cid <aacid@kde.org>
 
 	* m4/libjpeg.m4: Make JPEG library header search work under MSYS.
