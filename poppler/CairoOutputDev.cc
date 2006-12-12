@@ -134,7 +134,7 @@ void CairoOutputDev::setDefaultCTM(double *ctm) {
   matrix.x0 = ctm[4];
   matrix.y0 = ctm[5];
 
-  cairo_set_matrix (cairo, &matrix);
+  cairo_transform (cairo, &matrix);
 
   OutputDev::setDefaultCTM(ctm);
 }
