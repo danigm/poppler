@@ -621,7 +621,6 @@ void CairoOutputDev::drawMaskedImage(GfxState *state, Object *ref,
   GfxRGB rgb;
   int alpha, i;
   cairo_matrix_t matrix;
-  cairo_matrix_t maskMatrix;
   int is_identity_transform;
 
   buffer = (unsigned char *)gmalloc (width * height * 4);
@@ -663,12 +662,9 @@ void CairoOutputDev::drawMaskedImage(GfxState *state, Object *ref,
   cairo_matrix_init_translate (&matrix, 0, height);
   cairo_matrix_scale (&matrix, width, -height);
 
-  cairo_matrix_init_translate (&maskMatrix, 0, maskHeight);
-  cairo_matrix_scale (&maskMatrix, maskWidth, -maskHeight);
-
-
+  /* scale the mask to the size of the image unlike softMask */
   cairo_pattern_set_matrix (pattern, &matrix);
-  cairo_pattern_set_matrix (maskPattern, &maskMatrix);
+  cairo_pattern_set_matrix (maskPattern, &matrix);
 
   cairo_pattern_set_filter (pattern, CAIRO_FILTER_BILINEAR);
   cairo_set_source (cairo, pattern);
