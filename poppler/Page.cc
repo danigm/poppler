@@ -492,6 +492,7 @@ GBool Page::loadThumb(unsigned char **data_out,
   obj1.free();
   if (!colorMap->isOk()) {
     fprintf (stderr, "Error: invalid colormap\n");
+    delete colorMap;
     goto fail1;
   }
 

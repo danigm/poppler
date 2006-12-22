@@ -3,6 +3,9 @@
 	* qt/poppler-page.cc: Fix memory leak in Page::textList. Patch by
 	Jerry Epplin <jepplin@globalvelocity.com>
 
+	* poppler/Page.cc: Fix memory leak when reading a wrong color map in a
+	thumbnail. Patch by Scott Turner <scotty1024@mac.com>
+
 2006-12-20  Jeff Muizelaar  <jeff@infidigm.net>
 
 	* poppler/CairoOutputDev.cc: Fix scaling of maskedImage masks. They
