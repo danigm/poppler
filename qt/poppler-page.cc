@@ -156,7 +156,9 @@ QValueList<TextBox*> Page::textList() const
   
   for (int i = 0; i < word_list->getLength(); i++) {
     TextWord *word = word_list->get(i);
-    QString string = QString::fromUtf8(word->getText()->getCString());
+    GooString *word_str = word->getText();
+    QString string = QString::fromUtf8(word_str->getCString());
+    delete word_str;
     double xMin, yMin, xMax, yMax;
     word->getBBox(&xMin, &yMin, &xMax, &yMax);
     
