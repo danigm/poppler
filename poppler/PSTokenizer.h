@@ -29,6 +29,7 @@ public:
 private:
 
   int lookChar();
+  void consumeChar();
   int getChar();
 
   int (*getCharFunc)(void *);

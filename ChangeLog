@@ -1,5 +1,11 @@
 2006-12-23  Albert Astals Cid <aacid@kde.org>
 
+	* poppler/PSTokenizer.cc: Enhance PSTokenizer::getToken performance.
+	Patch by Scott Turner <scotty1024@mac.com>. In a random pdf i tested
+	the patchs improves PSTokenizer::getToken performance by 15%
+
+2006-12-23  Albert Astals Cid <aacid@kde.org>
+
 	* qt/poppler-page.cc: Fix memory leak in Page::textList. Patch by
 	Jerry Epplin <jepplin@globalvelocity.com>
 

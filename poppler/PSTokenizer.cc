@@ -55,7 +55,7 @@ GBool PSTokenizer::getToken(char *buf, int size, int *length) {
   int c;
   int i;
 
-  // skip whitespace and comments
+  // skip leading whitespace and comments
   comment = gFalse;
   while (1) {
     if ((c = getChar()) == EOF) {
@@ -74,16 +74,19 @@ GBool PSTokenizer::getToken(char *buf, int size, int *length) {
     }
   }
 
+  // Reserve room for terminating '\0'
+  size--;
+
   // read a token
   i = 0;
   buf[i++] = c;
   if (c == '(') {
     backslash = gFalse;
     while ((c = lookChar()) != EOF) {
-      if (i < size - 1) {
+      consumeChar();
+      if (i < size) {
 	buf[i++] = c;
       }
-      getChar();
       if (c == '\\') {
 	backslash = gTrue;
       } else if (!backslash && c == ')') {
@@ -94,8 +97,8 @@ GBool PSTokenizer::getToken(char *buf, int size, int *length) {
     }
   } else if (c == '<') {
     while ((c = lookChar()) != EOF) {
-      getChar();
-      if (i < size - 1) {
+      consumeChar();
+      if (i < size) {
 	buf[i++] = c;
       }
       if (c == '>') {
@@ -104,13 +107,15 @@ GBool PSTokenizer::getToken(char *buf, int size, int *length) {
     }
   } else if (c != '[' && c != ']') {
     while ((c = lookChar()) != EOF && !specialChars[c]) {
-      getChar();
-      if (i < size - 1) {
+      consumeChar();
+      if (i < size) {
 	buf[i++] = c;
       }
     }
   }
+  // Zero terminate token string
   buf[i] = '\0';
+  // Return length of token
   *length = i;
 
   return gTrue;
@@ -123,13 +128,17 @@ int PSTokenizer::lookChar() {
   return charBuf;
 }
 
-int PSTokenizer::getChar() {
-  int c;
-
-  if (charBuf < 0) {
-    charBuf = (*getCharFunc)(data);
-  }
-  c = charBuf;
+void PSTokenizer::consumeChar() {
   charBuf = -1;
+}
+
+int PSTokenizer::getChar() {
+  int c = charBuf;
+
+  if (c < 0) {
+    c = (*getCharFunc)(data);
+  } else {
+    charBuf = -1;
+  }
   return c;
 }
