@@ -121,6 +121,7 @@ int main (int argc, char *argv[])
   double width, height;
   GList *list, *l;
   char *text;
+  double duration;
   PopplerRectangle area;
 
   if (argc != 3)
@@ -146,6 +147,12 @@ int main (int argc, char *argv[])
 
   poppler_page_get_size (page, &width, &height);
   printf ("\tpage size:\t%f inches by %f inches\n", width / 72, height / 72);
+
+  duration = poppler_page_get_duration (page);
+  if (duration > 0)
+    printf ("\tpage duration:\t%f second(s)\n", duration);
+  else
+    printf ("\tpage duration:\tno duration for page\n");
 
   thumb = poppler_page_get_thumbnail (page);
   if (thumb != NULL) {

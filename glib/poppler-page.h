@@ -57,6 +57,7 @@ void                poppler_page_get_size             (PopplerPage        *page,
 						       double             *width,
 						       double             *height);
 int                 poppler_page_get_index            (PopplerPage        *page);
+double              poppler_page_get_duration         (PopplerPage        *page);
 GdkPixbuf          *poppler_page_get_thumbnail        (PopplerPage        *page);
 gboolean            poppler_page_get_thumbnail_size   (PopplerPage        *page,
 						       int                *width,

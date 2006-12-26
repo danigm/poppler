@@ -189,9 +189,12 @@ GBool PageAttrs::readBox(Dict *dict, char *key, PDFRectangle *box) {
 //------------------------------------------------------------------------
 
 Page::Page(XRef *xrefA, int numA, Dict *pageDict, PageAttrs *attrsA) {
+  Object tmp;
+	
   ok = gTrue;
   xref = xrefA;
   num = numA;
+  duration = -1;
 
   // get attributes
   attrs = attrsA;
@@ -203,6 +206,16 @@ Page::Page(XRef *xrefA, int numA, Dict *pageDict, PageAttrs *attrsA) {
 	  num, trans.getTypeName());
     trans.free();
   }
+
+  // duration
+  pageDict->lookupNF("Dur", &tmp);
+  if (!(tmp.isNum() || tmp.isNull())) {
+    error(-1, "Page duration object (page %d) is wrong type (%s)",
+	  num, tmp.getTypeName());
+  } else if (tmp.isNum()) {
+    duration = tmp.getNum();
+  }
+  tmp.free();
 
   // annotations
   pageDict->lookupNF("Annots", &annots);

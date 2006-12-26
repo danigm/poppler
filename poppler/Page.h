@@ -151,6 +151,11 @@ public:
   // Get transition.
   Object *getTrans(Object *obj) { return trans.fetch(xref, obj); }
 
+  // Get duration, the maximum length of time, in seconds,
+  // that the page is displayed before the presentation automatically
+  // advances to the next page
+  double getDuration() { return duration; }
+
   // Get actions
   Object *getActions(Object *obj) { return actions.fetch(xref, obj); }
 
@@ -198,6 +203,7 @@ private:
   Object thumb;			// page thumbnail
   Object trans;			// page transition
   Object actions;		// page addiction actions
+  double duration;              // page duration
   GBool ok;			// true if page is valid
 };
 

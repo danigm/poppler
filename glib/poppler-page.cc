@@ -125,6 +125,22 @@ poppler_page_get_index (PopplerPage *page)
   return page->index;
 }
 
+/**
+ * poppler_page_get_duration:
+ * @page: a #PopplerPage
+ *
+ * Returns the duration of @page
+ *
+ * Return value: duration in seconds of @page or -1.
+ **/
+double
+poppler_page_get_duration (PopplerPage *page)
+{
+  g_return_val_if_fail (POPPLER_IS_PAGE (page), -1);
+
+  return page->page->getDuration ();
+}
+
 #if defined (HAVE_CAIRO)
 
 typedef struct {
