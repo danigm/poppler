@@ -1221,5 +1221,13 @@ QList<Annotation*> Page::annotations() const
     return annotationsMap.values();
 }
 
+double Page::duration() const
+{
+  ::Page *p;
+  p = m_page->parentDoc->m_doc->doc.getCatalog()->getPage(m_page->index + 1);
+  if (p) return p->getDuration();
+  else return -1;
+}
+
 
 }

@@ -1,5 +1,11 @@
 2006-12-26  Albert Astals Cid <aacid@kde.org>
 
+	* qt4/src/poppler-qt4.h:
+	* qt4/src/poppler-page.cc: Add Page::duration() function to the qt4
+	frontend.
+
+2006-12-26  Albert Astals Cid <aacid@kde.org>
+
 	* glib/test-poppler-glib.c:
 	* glib/poppler-page.cc:
 	* glib/poppler-page.h:

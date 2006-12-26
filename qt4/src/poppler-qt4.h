@@ -372,7 +372,14 @@ namespace Poppler {
 	/**
 	 Returns the annotations of the page
 	*/
-	QList<Annotation*> annotations () const;
+	QList<Annotation*> annotations() const;
+
+	/**
+	 Returns the page duration. That is the time, in seconds, that the page
+	 should be displayed before the presentation automatically advances to the next page.
+	 Returns < 0 if duration is not set.
+	*/
+	double duration() const;
 	
     private:
 	Page(const Document *doc, int index);
