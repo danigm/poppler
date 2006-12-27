@@ -1,5 +1,6 @@
 2006-12-27  Albert Astals Cid <aacid@kde.org>
 
+	* poppler/Catalog.h:
 	* qt4/src/poppler-qt4.h: Remove , after last value of enum. Thanks to
 	André Wöbbeking
 

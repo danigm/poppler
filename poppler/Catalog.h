@@ -166,7 +166,7 @@ public:
     pageLayoutTwoColumnLeft,
     pageLayoutTwoColumnRight,
     pageLayoutTwoPageLeft,
-    pageLayoutTwoPageRight,
+    pageLayoutTwoPageRight
   };
 
   // Returns the page mode.
