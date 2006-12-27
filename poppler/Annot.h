@@ -36,6 +36,7 @@ public:
 private:
 
   void generateAppearance(Dict *acroForm, Dict *dict);
+  void readArrayNum(Object *pdfArray, int key, double *value);
 
   XRef *xref;			// the xref table for this PDF file
   Object appearance;		// a reference to the Form XObject stream

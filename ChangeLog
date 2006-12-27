@@ -1,3 +1,9 @@
+2006-12-28  Albert Astals Cid <aacid@kde.org>
+
+	* poppler/Annot.cc:
+	* poppler/Annot.h: Add type checking to processing of "Rect". Patch by
+	Scott Turner <scotty1024@mac.com>
+
 2006-12-27  Albert Astals Cid <aacid@kde.org>
 
 	* poppler/Catalog.h:

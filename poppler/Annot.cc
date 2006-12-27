@@ -30,30 +30,27 @@ Annot::Annot(XRef *xrefA, Dict *acroForm, Dict *dict) {
   GBool regen, isTextField;
   double t;
 
-  ok = gFalse;
+  ok = gTrue;
   xref = xrefA;
   appearBuf = NULL;
 
   if (dict->lookup("Rect", &obj1)->isArray() &&
       obj1.arrayGetLength() == 4) {
-    //~ should check object types here
-    obj1.arrayGet(0, &obj2);
-    xMin = obj2.getNum();
-    obj2.free();
-    obj1.arrayGet(1, &obj2);
-    yMin = obj2.getNum();
-    obj2.free();
-    obj1.arrayGet(2, &obj2);
-    xMax = obj2.getNum();
-    obj2.free();
-    obj1.arrayGet(3, &obj2);
-    yMax = obj2.getNum();
-    obj2.free();
-    if (xMin > xMax) {
-      t = xMin; xMin = xMax; xMax = t;
-    }
-    if (yMin > yMax) {
-      t = yMin; yMin = yMax; yMax = t;
+    readArrayNum(&obj1, 0, &xMin);
+    readArrayNum(&obj1, 1, &yMin);
+    readArrayNum(&obj1, 2, &xMax);
+    readArrayNum(&obj1, 3, &yMax);
+    if (ok) {
+      if (xMin > xMax) {
+        t = xMin; xMin = xMax; xMax = t;
+      }
+      if (yMin > yMax) {
+        t = yMin; yMin = yMax; yMax = t;
+      }
+    } else {
+      //~ this should return an error
+      xMin = yMin = 0;
+      xMax = yMax = 1;
     }
   } else {
     //~ this should return an error
@@ -110,6 +107,19 @@ Annot::Annot(XRef *xrefA, Dict *acroForm, Dict *dict) {
 #if 0 //~ appearance stream generation is not finished yet
   }
 #endif
+}
+
+void Annot::readArrayNum(Object *pdfArray, int key, double *value) {
+  Object valueObject;
+
+  pdfArray->arrayGet(key, &valueObject);
+  if (valueObject.isNum()) {
+    *value = valueObject.getNum();
+  } else {
+    *value = 0;
+    ok = gFalse;
+  }
+  valueObject.free();
 }
 
 Annot::~Annot() {
