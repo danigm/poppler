@@ -248,7 +248,9 @@ namespace Poppler {
 	Dict *infoDict = info.getDict();
 	// somehow iterate over keys in infoDict
 	for( int i=0; i < infoDict->getLength(); ++i ) {
-	    keys.append( QString::fromAscii(infoDict->getKey(i)->getCString()) );
+	    const char *aux = infoDict->getKey(i)->getCString();
+	    keys.append( QString::fromAscii(aux) );
+	    delete[] aux;
 	}
 
 	info.free();

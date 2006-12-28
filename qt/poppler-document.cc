@@ -216,6 +216,7 @@ QDateTime Document::getDate( const QString & type ) const
   if ( infoDict->lookup( (char*)type.latin1(), &obj )->isString() )
   {
     s = UGooString(*obj.getString()).getCString();
+    const char *aux = s;
     if ( s[0] == 'D' && s[1] == ':' )
       s += 2;
     /* FIXME process time zone on systems that support it */  
@@ -232,6 +233,7 @@ QDateTime Document::getDate( const QString & type ) const
 	else {
 	  obj.free();
 	  info.free();
+	  delete[] aux;
 	  return QDateTime();
 	}
       }
@@ -241,9 +243,11 @@ QDateTime Document::getDate( const QString & type ) const
       if ( d.isValid() && t.isValid() ) {
 	obj.free();
 	info.free();
+	delete[] aux;
 	return QDateTime( d, t );
       }
     }
+    delete[] aux;
   }
   obj.free();
   info.free();

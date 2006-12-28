@@ -1,5 +1,11 @@
 2006-12-28  Albert Astals Cid <aacid@kde.org>
 
+	* qt4/src/poppler-embeddedfile.cc:
+	* qt4/src/poppler-document.cc:
+	* qt/poppler-document.cc: Fix memory leaks.
+
+2006-12-28  Albert Astals Cid <aacid@kde.org>
+
 	* goo/GooString.cc
 	* goo/GooString.h
 	* goo/gmem.c
