@@ -18,76 +18,119 @@
 #include <stddef.h>
 #include <string.h>
 #include <ctype.h>
+#include <assert.h>
 #include "gtypes.h"
 #include "GooString.h"
 
-static inline int size(int len) {
+int inline GooString::roundedSize(int len) {
   int delta;
-
+  if (len <= STR_STATIC_SIZE-1)
+      return STR_STATIC_SIZE;
   delta = len < 256 ? 7 : 255;
   return ((len + 1) + delta) & ~delta;
 }
 
-inline void GooString::resize(int length1) {
-  char *s1;
+// Make sure that the buffer is big enough to contain <newLength> characters
+// plus terminating 0.
+// We assume that if this is being called from the constructor, <s> was set
+// to NULL and <length> was set to 0 to indicate unused string before calling us.
+void inline GooString::resize(int newLength) {
+  char *s1 = s;
 
-  if (!s) {
-    s = new char[size(length1)];
-  } else if (size(length1) != size(length)) {
-    s1 = new char[size(length1)];
-    if (length1 < length) {
-      memcpy(s1, s, length1);
-      s1[length1] = '\0';
-    } else {
-      memcpy(s1, s, length + 1);
+  if (!s || (roundedSize(length) != roundedSize(newLength))) {
+    // requires re-allocating data for string
+    if (newLength < STR_STATIC_SIZE)
+        s1 = sStatic;
+    else
+        s1 = new char[roundedSize(newLength)];
+
+    // we had to re-allocate the memory, so copy the content of previous
+    // buffer into a new buffer
+    if (s) {
+      if (newLength < length) {
+        memcpy(s1, s, newLength);
+      } else {
+        memcpy(s1, s, length);
+      }
     }
-    delete[] s;
-    s = s1;
+    if (s != sStatic)
+      delete[] s;
   }
+
+  s = s1;
+  length = newLength;
+  s[length] = '\0';
+}
+
+GooString* GooString::Set(const char *s1, int s1Len, const char *s2, int s2Len)
+{
+    int newLen = 0;
+    char *p;
+
+    if (s1) {
+        if (CALC_STRING_LEN == s1Len) {
+            s1Len = strlen(s1);
+        } else
+            assert(s1Len >= 0);
+        newLen += s1Len;
+    }
+
+    if (s2) {
+        if (CALC_STRING_LEN == s2Len) {
+            s2Len = strlen(s2);
+        } else
+            assert(s2Len >= 0);
+        newLen += s2Len;
+    }
+
+    resize(newLen);
+    p = s;
+    if (s1) {
+        memcpy(p, s1, s1Len);
+        p += s1Len;
+    }
+    if (s2) {
+        memcpy(p, s2, s2Len);
+        p += s2Len;
+    }
+    return this;
 }
 
 GooString::GooString() {
   s = NULL;
-  resize(length = 0);
-  s[0] = '\0';
+  length = 0;
+  Set(NULL);
 }
 
 GooString::GooString(const char *sA) {
-  int n = strlen(sA);
-
   s = NULL;
-  resize(length = n);
-  memcpy(s, sA, n + 1);
+  length = 0;
+  Set(sA, CALC_STRING_LEN);
 }
 
 GooString::GooString(const char *sA, int lengthA) {
   s = NULL;
-  resize(length = lengthA);
-  memcpy(s, sA, length * sizeof(char));
-  s[length] = '\0';
+  length = 0;
+  Set(sA, lengthA);
 }
 
 GooString::GooString(GooString *str, int idx, int lengthA) {
   s = NULL;
-  resize(length = lengthA);
-  memcpy(s, str->getCString() + idx, length);
-  s[length] = '\0';
+  length = 0;
+  assert(idx + lengthA < str->length);
+  Set(str->getCString() + idx, lengthA);
 }
 
 GooString::GooString(GooString *str) {
   s = NULL;
-  resize(length = str->getLength());
-  memcpy(s, str->getCString(), length + 1);
+  length = 0;
+  Set(str->getCString(), str->length);
 }
 
 GooString::GooString(GooString *str1, GooString *str2) {
-  int n1 = str1->getLength();
-  int n2 = str2->getLength();
-
   s = NULL;
-  resize(length = n1 + n2);
-  memcpy(s, str1->getCString(), n1);
-  memcpy(s + n1, str2->getCString(), n2 + 1);
+  length = 0;
+  Set(str1->getCString(), str1->length, str2->getCString(), str2->length);
 }
 
 GooString *GooString::fromInt(int x) {
@@ -117,91 +160,50 @@ GooString *GooString::fromInt(int x) {
 }
 
 GooString::~GooString() {
-  delete[] s;
+  if (s != sStatic)
+    delete[] s;
 }
 
 GooString *GooString::clear() {
-  s[length = 0] = '\0';
   resize(0);
   return this;
 }
 
 GooString *GooString::append(char c) {
-  resize(length + 1);
-  s[length++] = c;
-  s[length] = '\0';
-  return this;
+  return append((const char*)&c, 1);
 }
 
 GooString *GooString::append(GooString *str) {
-  int n = str->getLength();
-
-  resize(length + n);
-  memcpy(s + length, str->getCString(), n + 1);
-  length += n;
-  return this;
-}
-
-GooString *GooString::append(const char *str) {
-  int n = strlen(str);
-
-  resize(length + n);
-  memcpy(s + length, str, n + 1);
-  length += n;
-  return this;
+  return append(str->getCString(), str->getLength());
 }
 
 GooString *GooString::append(const char *str, int lengthA) {
+  int prevLen = length;
+  if (CALC_STRING_LEN == lengthA)
+    lengthA = strlen(str);
   resize(length + lengthA);
-  memcpy(s + length, str, lengthA);
-  length += lengthA;
-  s[length] = '\0';
+  memcpy(s + prevLen, str, lengthA);
   return this;
 }
 
 GooString *GooString::insert(int i, char c) {
-  int j;
-
-  resize(length + 1);
-  for (j = length + 1; j > i; --j)
-    s[j] = s[j-1];
-  s[i] = c;
-  ++length;
-  return this;
+  return insert(i, (const char*)&c, 1);
 }
 
 GooString *GooString::insert(int i, GooString *str) {
-  int n = str->getLength();
-  int j;
-
-  resize(length + n);
-  for (j = length; j >= i; --j)
-    s[j+n] = s[j];
-  memcpy(s+i, str->getCString(), n);
-  length += n;
-  return this;
-}
-
-GooString *GooString::insert(int i, const char *str) {
-  int n = strlen(str);
-  int j;
-
-  resize(length + n);
-  for (j = length; j >= i; --j)
-    s[j+n] = s[j];
-  memcpy(s+i, str, n);
-  length += n;
-  return this;
+  return insert(i, str->getCString(), str->getLength());
 }
 
 GooString *GooString::insert(int i, const char *str, int lengthA) {
   int j;
+  int prevLen = length;
+  if (CALC_STRING_LEN == lengthA)
+    lengthA = strlen(str);
 
   resize(length + lengthA);
-  for (j = length; j >= i; --j)
+  for (j = prevLen; j >= i; --j)
     s[j+lengthA] = s[j];
   memcpy(s+i, str, lengthA);
-  length += lengthA;
   return this;
 }
 
@@ -215,7 +217,7 @@ GooString *GooString::del(int i, int n) {
     for (j = i; j <= length - n; ++j) {
       s[j] = s[j + n];
     }
-    resize(length -= n);
+    resize(length - n);
   }
   return this;
 }

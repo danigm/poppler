@@ -196,8 +196,7 @@ void gfree(void *p) {
     }
   }
 #else
-  if (p)
-    free(p);
+  free(p);
 #endif
 }
 

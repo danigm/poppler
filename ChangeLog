@@ -1,5 +1,20 @@
 2006-12-28  Albert Astals Cid <aacid@kde.org>
 
+	* goo/GooString.cc
+	* goo/GooString.h
+	* goo/gmem.c
+	* goo/gmem.h
+	* poppler/Lexer.cc
+	* poppler/Lexer.h
+	* poppler/PageLabelInfo.cc
+	* poppler/Parser.cc
+	* poppler/UGooString.cc
+	* poppler/UGooString.h: Patch by Krzysztof Kowalczyk
+	<kkowalczyk@gmail.com> to improve performance.
+	See bug 7808 for details.
+
+2006-12-28  Albert Astals Cid <aacid@kde.org>
+
 	* poppler/Annot.cc:
 	* poppler/Annot.h: Add type checking to processing of "Rect". Patch by
 	Scott Turner <scotty1024@mac.com>

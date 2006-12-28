@@ -50,6 +50,7 @@ static char specialChars[256] = {
 Lexer::Lexer(XRef *xrefA, Stream *str) {
   Object obj;
 
+  lookCharLastValueCached = LOOK_VALUE_NOT_CACHED;
   xref = xrefA;
 
   curStr.initStream(str);
@@ -63,6 +64,7 @@ Lexer::Lexer(XRef *xrefA, Stream *str) {
 Lexer::Lexer(XRef *xrefA, Object *obj) {
   Object obj2;
 
+  lookCharLastValueCached = LOOK_VALUE_NOT_CACHED;
   xref = xrefA;
 
   if (obj->isStream()) {
@@ -90,8 +92,14 @@ Lexer::~Lexer() {
   }
 }
 
-int Lexer::getChar() {
+int inline Lexer::getChar() {
   int c;
+
+  if (LOOK_VALUE_NOT_CACHED != lookCharLastValueCached) {
+    c = lookCharLastValueCached;
+    lookCharLastValueCached = LOOK_VALUE_NOT_CACHED;
+    return c;
+  }
 
   c = EOF;
   while (!curStr.isNone() && (c = curStr.streamGetChar()) == EOF) {
@@ -106,11 +114,12 @@ int Lexer::getChar() {
   return c;
 }
 
-int Lexer::lookChar() {
-  if (curStr.isNone()) {
-    return EOF;
+int inline Lexer::lookChar() {
+  if (LOOK_VALUE_NOT_CACHED != lookCharLastValueCached) {
+    return lookCharLastValueCached;
   }
-  return curStr.streamLookChar();
+  lookCharLastValueCached = getChar();
+  return lookCharLastValueCached;
 }
 
 Object *Lexer::getObj(Object *obj, int objNum) {

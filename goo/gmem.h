@@ -37,7 +37,7 @@ extern void *gmallocn(int nObjs, int objSize);
 extern void *greallocn(void *p, int nObjs, int objSize);
 
 /*
- * Same as free, but checks for and ignores NULL pointers.
+ * #ifdef DEBUG_MEM, adds debuging info. If not, same as free.
  */
 extern void gfree(void *p);
 

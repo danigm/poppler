@@ -39,6 +39,7 @@ Parser::~Parser() {
 Object *Parser::getObj(Object *obj,
 		       Guchar *fileKey, int keyLength,
 		       int objNum, int objGen) {
+  UGooString key;
   Stream *str;
   Object obj2;
   int num;
@@ -75,14 +76,13 @@ Object *Parser::getObj(Object *obj,
 	error(getPos(), "Dictionary key must be a name object");
 	shift();
       } else {
-        // buf1 might go away in shift(), so construct the key
-        UGooString *key = new UGooString(buf1.getName());
+	// buf1 might go away in shift(), so construct the key
+	key.Set(buf1.getName());
 	shift();
 	if (buf1.isEOF() || buf1.isError()) {
-	  gfree(key);
 	  break;
 	}
-	obj->dictAddOwnKeyVal(key, getObj(&obj2, fileKey, keyLength, objNum, objGen));
+	obj->dictAdd(key, getObj(&obj2, fileKey, keyLength, objNum, objGen));
       }
     }
     if (buf1.isEOF())
@@ -120,8 +120,8 @@ Object *Parser::getObj(Object *obj,
     s = obj->getString();
     decrypt = new Decrypt(fileKey, keyLength, objNum, objGen);
     for (i = 0, p = obj->getString()->getCString();
-	 i < s->getLength();
-	 ++i, ++p) {
+      i < s->getLength();
+      ++i, ++p) {
       *p = decrypt->decryptByte(*p);
     }
     delete decrypt;
@@ -174,6 +174,11 @@ Stream *Parser::makeStream(Object *dict) {
   baseStr = lexer->getStream()->getBaseStream();
 
   // skip over stream data
+  if (Lexer::LOOK_VALUE_NOT_CACHED != lexer->lookCharLastValueCached) {
+      // take into account the fact that we've cached one value
+      pos = pos - 1;
+      lexer->lookCharLastValueCached = Lexer::LOOK_VALUE_NOT_CACHED;
+  }
   lexer->setPos(pos + length);
 
   // refill token buffers and check for 'endstream'

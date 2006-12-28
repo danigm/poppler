@@ -63,6 +63,16 @@ public:
   // Returns true if <c> is a whitespace character.
   static GBool isSpace(int c);
 
+
+  // often (e.g. ~30% on PDF Refernce 1.6 pdf file from Adobe site) getChar
+  // is called right after lookChar. In order to avoid expensive re-doing
+  // getChar() of underlying stream, we cache the last value found by
+  // lookChar() in lookCharLastValueCached. A special value 
+  // LOOK_VALUE_NOT_CACHED that should never be part of stream indicates
+  // that no value was cached
+  static const int LOOK_VALUE_NOT_CACHED = -3;
+  int lookCharLastValueCached;
+
 private:
 
   int getChar();
