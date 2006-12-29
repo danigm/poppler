@@ -1,3 +1,8 @@
+2006-12-29  Albert Astals Cid <aacid@kde.org>
+
+	* poppler/UGooString.cc: Patch by Pino Toscano
+	<pino@kde.org> so that QStringToUGooString does not crash.
+
 2006-12-28  Brad Taylor  <brad@getcoded.net>
 	
 	* poppler/glib/poppler-document.h:

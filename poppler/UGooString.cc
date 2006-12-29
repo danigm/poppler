@@ -78,6 +78,7 @@ UGooString::UGooString(GooString &str)
 
 UGooString::UGooString(Unicode *u, int strLen)
 {
+  s = NULL;
   resize(strLen);
   s = u;
 }
