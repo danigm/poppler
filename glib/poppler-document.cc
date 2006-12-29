@@ -61,50 +61,14 @@ struct _PopplerDocumentClass
 
 G_DEFINE_TYPE (PopplerDocument, poppler_document, G_TYPE_OBJECT);
 
-/**
- * poppler_document_new_from_file:
- * @uri: uri of the file to load
- * @password: password to unlock the file with, or %NULL
- * @error: Return location for an error, or %NULL
- * 
- * Creates a new #PopplerDocument.  If %NULL is returned, then @error will be
- * set. Possible errors include those in the #POPPLER_ERROR and #G_FILE_ERROR
- * domains.
- * 
- * Return value: A newly created #PopplerDocument, or %NULL
- **/
-PopplerDocument *
-poppler_document_new_from_file (const char  *uri,
-				const char  *password,
-				GError     **error)
+static PopplerDocument *
+_poppler_document_new_from_pdfdoc (PDFDoc  *newDoc,
+                                   GError **error)
 {
   PopplerDocument *document;
-  PDFDoc *newDoc;
-  GooString *filename_g;
-  GooString *password_g;
   int err;
-  char *filename;
 
   document = (PopplerDocument *) g_object_new (POPPLER_TYPE_DOCUMENT, NULL, NULL);
-  
-  if (!globalParams) {
-    globalParams = new GlobalParams("/etc/xpdfrc");
-  }
-
-  filename = g_filename_from_uri (uri, NULL, error);
-  if (!filename)
-    return NULL;
-
-  filename_g = new GooString (filename);
-  g_free (filename);
-
-  password_g = NULL;
-  if (password != NULL)
-    password_g = new GooString (password);
-
-  newDoc = new PDFDoc(filename_g, password_g, password_g);
-  if (password_g)
-    delete password_g;
 
   if (!newDoc->isOk()) {
     err = newDoc->getErrorCode();
@@ -116,9 +80,8 @@ poppler_document_new_from_file (const char  *uri,
     } else {
       g_set_error (error, G_FILE_ERROR,
 		   G_FILE_ERROR_FAILED,
-		   "Failed to load document (error %d) '%s'\n",
-		   err,
-		   uri);
+		   "Failed to load document from data (error %d)'\n",
+		   err);
     }
 
     return NULL;
@@ -138,6 +101,96 @@ poppler_document_new_from_file (const char  *uri,
   document->output_dev->startDoc(document->doc->getXRef ());
 
   return document;
+}
+
+/**
+ * poppler_document_new_from_file:
+ * @uri: uri of the file to load
+ * @password: password to unlock the file with, or %NULL
+ * @error: Return location for an error, or %NULL
+ * 
+ * Creates a new #PopplerDocument.  If %NULL is returned, then @error will be
+ * set. Possible errors include those in the #POPPLER_ERROR and #G_FILE_ERROR
+ * domains.
+ * 
+ * Return value: A newly created #PopplerDocument, or %NULL
+ **/
+PopplerDocument *
+poppler_document_new_from_file (const char  *uri,
+				const char  *password,
+				GError     **error)
+{
+  PDFDoc *newDoc;
+  GooString *filename_g;
+  GooString *password_g;
+  int err;
+  char *filename;
+
+  if (!globalParams) {
+    globalParams = new GlobalParams("/etc/xpdfrc");
+  }
+
+  filename = g_filename_from_uri (uri, NULL, error);
+  if (!filename)
+    return NULL;
+
+  filename_g = new GooString (filename);
+  g_free (filename);
+
+  password_g = NULL;
+  if (password != NULL)
+    password_g = new GooString (password);
+
+  newDoc = new PDFDoc(filename_g, password_g, password_g);
+  if (password_g)
+    delete password_g;
+
+  return _poppler_document_new_from_pdfdoc (newDoc, error);
+}
+
+/**
+ * poppler_document_new_from_data:
+ * @data: the pdf data contained in a char array
+ * @length: the length of #data
+ * @password: password to unlock the file with, or %NULL
+ * @error: Return location for an error, or %NULL
+ * 
+ * Creates a new #PopplerDocument.  If %NULL is returned, then @error will be
+ * set. Possible errors include those in the #POPPLER_ERROR and #G_FILE_ERROR
+ * domains.
+ * 
+ * Return value: A newly created #PopplerDocument, or %NULL
+ **/
+PopplerDocument *
+poppler_document_new_from_data (char        *data,
+                                int          length,
+                                const char  *password,
+                                GError     **error)
+{
+  Object obj;
+  PDFDoc *newDoc;
+  MemStream *str;
+  GooString *password_g;
+  int err;
+  char *filename;
+
+  if (!globalParams) {
+    globalParams = new GlobalParams("/etc/xpdfrc");
+  }
+  
+  // create stream
+  obj.initNull();
+  str = new MemStream(data, 0, length, &obj);
+
+  password_g = NULL;
+  if (password != NULL)
+    password_g = new GooString (password);
+
+  newDoc = new PDFDoc(str, password_g, password_g);
+  if (password_g)
+    delete password_g;
+
+  return _poppler_document_new_from_pdfdoc (newDoc, error);
 }
 
 /**

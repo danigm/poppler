@@ -1,3 +1,9 @@
+2006-12-28  Brad Taylor  <brad@getcoded.net>
+	
+	* poppler/glib/poppler-document.h:
+	* poppler/glib/poppler-document.cc: Add poppler_document_new_from_data
+	  to allow loading PDFs out of memory.
+
 2006-12-28  Albert Astals Cid <aacid@kde.org>
 
 	* qt4/src/poppler-embeddedfile.cc:

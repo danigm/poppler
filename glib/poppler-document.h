@@ -92,6 +92,10 @@ GType            poppler_document_get_type          (void) G_GNUC_CONST;
 PopplerDocument *poppler_document_new_from_file     (const char       *uri,
 						     const char       *password,
 						     GError          **error);
+PopplerDocument *poppler_document_new_from_data     (char             *data,
+						     int               length,
+						     const char       *password,
+						     GError          **error);
 gboolean         poppler_document_save              (PopplerDocument  *document,
 						     const char       *uri,
 						     GError          **error);
