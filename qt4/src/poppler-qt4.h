@@ -464,7 +464,7 @@ namespace Poppler {
 
 	   \param label the page label
 	*/
-	Page *page(QString label) const;
+	Page *page(const QString &label) const;
 
 	/**
 	   The number of pages in the document
@@ -689,7 +689,7 @@ width = dummy.width();
 height = dummy.height();
 	  \endcode
 	*/
-	bool print(const QString &fileName, const QList<int> pageList, double hDPI, double vDPI, int rotate, int paperWidth, int paperHeight, int marginRight, int marginBottom, int marginLeft, int marginTop, bool strictMargins);
+	bool print(const QString &fileName, const QList<int> &pageList, double hDPI, double vDPI, int rotate, int paperWidth, int paperHeight, int marginRight, int marginBottom, int marginLeft, int marginTop, bool strictMargins);
 	
 	/**
 	  Sets the paper color

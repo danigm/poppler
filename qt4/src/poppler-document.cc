@@ -346,7 +346,7 @@ namespace Poppler {
 	return m_doc->doc.getPDFVersion();
     }
 
-    Page *Document::page(QString label) const
+    Page *Document::page(const QString &label) const
     {
 	GooString label_g(label.toAscii().data());
 	int index;
@@ -388,7 +388,7 @@ namespace Poppler {
         return ld;
     }
     
-    bool Document::print(const QString &file, const QList<int> pageList, double hDPI, double vDPI, int rotate, int paperWidth, int paperHeight, int marginRight, int marginBottom, int marginLeft, int marginTop, bool strictMargins)
+    bool Document::print(const QString &file, const QList<int> &pageList, double hDPI, double vDPI, int rotate, int paperWidth, int paperHeight, int marginRight, int marginBottom, int marginLeft, int marginTop, bool strictMargins)
     {
         PSOutputDev *psOut = new PSOutputDev(file.toLatin1().data(), m_doc->doc.getXRef(), m_doc->doc.getCatalog(), 1, m_doc->doc.getNumPages(), psModePS, paperWidth, paperHeight, gFalse, marginRight, marginBottom, paperWidth - marginLeft, paperHeight - marginTop);
 

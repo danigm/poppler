@@ -1,3 +1,9 @@
+2006-12-30  Albert Astals Cid <aacid@kde.org>
+
+	* qt4/src/poppler-qt4.h:
+	* qt4/src/poppler-document.cc: Add const & to some parameters. Patch
+	by Pino Toscano <pino@kde.org>
+
 2006-12-29  Albert Astals Cid <aacid@kde.org>
 
 	* poppler/UGooString.cc: Patch by Pino Toscano
