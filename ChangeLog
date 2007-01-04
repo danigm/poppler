@@ -1,3 +1,8 @@
+2007-01-04  Albert Astals Cid <aacid@kde.org>
+
+	* qt/poppler-page-transition.cc: Fix memory leak. Patch by 
+	Tobias Koenig <tokoe@kde.org>
+
 2006-12-30  Albert Astals Cid <aacid@kde.org>
 
 	* qt4/src/poppler-qt4.h:

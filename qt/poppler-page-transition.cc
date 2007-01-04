@@ -149,6 +149,7 @@ PageTransition::PageTransition(const PageTransition &pt)
 
 PageTransition::~PageTransition()
 {
+  delete data;
 }
 
 PageTransition::Type PageTransition::type() const
