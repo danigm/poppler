@@ -45,7 +45,7 @@ namespace Poppler {
 
     static UGooString *QStringToUGooString(const QString &s) {
 	int len = s.length();
-	Unicode *u = (Unicode *)gmallocn(s.length(), sizeof(Unicode));
+	Unicode *u = new Unicode[s.length()];
 	for (int i = 0; i < len; ++i)
 		u[i] = s.at(i).unicode();
 	return new UGooString(u, len);
