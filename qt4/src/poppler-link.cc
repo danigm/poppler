@@ -258,6 +258,11 @@ namespace Poppler {
 	{
 	}
 	
+	LinkSound::~LinkSound()
+	{
+		delete m_sound;
+	}
+	
 	Link::LinkType LinkSound::linkType() const
 	{
 		return Sound;

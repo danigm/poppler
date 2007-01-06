@@ -57,6 +57,7 @@ Sound::Sound(Object *obj)
 Sound::~Sound()
 {
   streamObj->free();
+  delete streamObj;
 }
 
 Stream *Sound::getStream()

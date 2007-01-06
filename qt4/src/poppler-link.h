@@ -215,6 +215,7 @@ class LinkSound : public Link
 	public:
 		// create a Link_Sound
 		LinkSound( const QRectF &linkArea, double volume, bool sync, bool repeat, bool mix, SoundObject *sound );
+		virtual ~LinkSound();
 
 		LinkType linkType() const;
 

@@ -39,6 +39,12 @@ public:
 	  : m_channels( 1 ), m_bitsPerSample( 8 ), m_soundEncoding( SoundObject::Raw ), m_soundObj( new Object() )
 	{ m_soundObj->initNull(); }
 
+	~SoundData()
+	{
+		m_soundObj->free();
+		delete m_soundObj;
+	}
+
 	QVariant m_data;
 	SoundObject::SoundType m_type;
 	double m_samplingRate;
@@ -135,7 +141,6 @@ SoundObject::SoundObject(const SoundObject &s)
 
 SoundObject::~SoundObject()
 {
-	m_soundData->m_soundObj->free();
 	delete m_soundData;
 }
 

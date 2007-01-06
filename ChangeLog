@@ -1,3 +1,12 @@
+2007-01-06  Albert Astals Cid <aacid@kde.org>
+
+	* poppler/Sound.cc
+	* qt4/src/poppler-link.cc
+	* qt4/src/poppler-link.h
+	* qt4/src/poppler-page.cc
+	* qt4/src/poppler-sound.cc: Patch by Pino Toscano
+	<pino@kde.org> to fix some memory leaks when dealing with sounds.
+
 2007-01-04  Albert Astals Cid <aacid@kde.org>
 
 	* qt4/src/poppler-private.h: gmallocn -> new[]

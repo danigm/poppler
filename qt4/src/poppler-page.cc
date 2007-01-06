@@ -398,9 +398,13 @@ Link *Page::action( PageAction act ) const
     dict->lookup(key, &o2);
     ::LinkAction *act = ::LinkAction::parseAction(&o2, m_page->parentDoc->m_doc->doc.getCatalog()->getBaseURI() );
     o2.free();
+    o.free();
     Link *popplerLink = NULL;
     if (act != NULL)
+    {
       popplerLink = m_page->convertLinkActionToLink(act, QRectF(), m_page->parentDoc->m_doc);
+      delete act;
+    }
     return popplerLink;
   }
   return 0;
