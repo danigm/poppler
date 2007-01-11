@@ -193,7 +193,7 @@ private:
   PageMode pageMode;		// page mode
   PageLayout pageLayout;	// page layout
 
-  int readPageTree(Dict *pages, PageAttrs *attrs, int start);
+  int readPageTree(Dict *pages, PageAttrs *attrs, int start, int callDepth);
   Object *findDestInTree(Object *tree, GooString *name, Object *obj);
 };
 
