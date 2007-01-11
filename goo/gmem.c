@@ -141,8 +141,11 @@ void *grealloc(void *p, size_t size) {
 void *gmallocn(int nObjs, int objSize) {
   int n;
 
+  if (nObjs == 0) {
+    return NULL;
+  }
   n = nObjs * objSize;
-  if (objSize == 0 || n / objSize != nObjs) {
+  if (objSize <= 0 || nObjs < 0 || nObjs >= INT_MAX / objSize) {
     fprintf(stderr, "Bogus memory allocation size\n");
     exit(1);
   }
@@ -152,8 +155,14 @@ void *gmallocn(int nObjs, int objSize) {
 void *greallocn(void *p, int nObjs, int objSize) {
   int n;
 
+  if (nObjs == 0) {
+    if (p) {
+      gfree(p);
+    }
+    return NULL;
+  }
   n = nObjs * objSize;
-  if (objSize == 0 || n / objSize != nObjs) {
+  if (objSize <= 0 || nObjs < 0 || nObjs >= INT_MAX / objSize) {
     fprintf(stderr, "Bogus memory allocation size\n");
     exit(1);
   }

@@ -1,5 +1,9 @@
 2007-01-11  Albert Astals Cid <aacid@kde.org>
 
+	* goo/gmem.c: Merge change from xpdf-3.01pl2
+
+2007-01-11  Albert Astals Cid <aacid@kde.org>
+
 	* poppler/Catalog.h:
 	* poppler/Catalog.cc: Limit max depth of recursive calls on
 	readPageTree to fix MOAB-06-01-2007
