@@ -237,11 +237,6 @@ fi
 
 AC_SUBST(POPPLER_QT4_CXXFLAGS)
 AC_SUBST(POPPLER_QT4_LIBS)
-if test x$enable_splash_output != xyes; then
-  if test x$enable_poppler_qt4 = xyes; then
-    enable_poppler_qt4="no because of disabled splash"
-  fi
-fi
 AM_CONDITIONAL(BUILD_POPPLER_QT4, test "x$enable_poppler_qt4" = "xyes")
 
 if test x$enable_poppler_qt4 = xyes; then

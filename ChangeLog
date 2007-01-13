@@ -1,5 +1,17 @@
 2007-01-13  Albert Astals Cid <aacid@kde.org>
 
+	* configure.ac
+	* poppler/Makefile.am
+	* qt4/src/Makefile.am
+	* qt4/src/poppler-document.cc
+	* qt4/src/poppler-link.cc
+	* qt4/src/poppler-page.cc
+	* qt4/src/poppler-private.h
+	* qt4/src/poppler-qt4.h: Make the Qt4 backend compilable even with
+	no Splash backend. Patch by Pino Toscano <pino@kde.org>.
+
+2007-01-13  Albert Astals Cid <aacid@kde.org>
+
 	* poppler/Stream.h:
 	* poppler/Stream.cc: Add MemStream::setNeedFree method
 	* qt4/src/poppler-document.cc:

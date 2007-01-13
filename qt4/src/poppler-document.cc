@@ -21,6 +21,7 @@
 
 #include "poppler-qt4.h"
 
+#include <config.h>
 #include <ErrorCodes.h>
 #include <GlobalParams.h>
 #include <Outline.h>
@@ -29,8 +30,6 @@
 #include <Stream.h>
 #include <UGooString.h>
 #include <Catalog.h>
-
-#include <splash/SplashBitmap.h>
 
 #include <QtCore/QDebug>
 #include <QtCore/QFile>
@@ -403,6 +402,9 @@ namespace Poppler {
 
     LinkDestination *Document::linkDestination( const QString &name )
     {
+        if ( m_doc->getOutputDev() == NULL )
+            return NULL;
+
         UGooString * namedDest = QStringToUGooString( name );
         LinkDestinationData ldd(NULL, namedDest, m_doc);
         LinkDestination *ld = new LinkDestination(ldd);
@@ -460,6 +462,16 @@ namespace Poppler {
     Document::RenderBackend Document::renderBackend() const
     {
         return m_doc->m_backend;
+    }
+
+    QSet<Document::RenderBackend> Document::availableRenderBackends()
+    {
+        QSet<Document::RenderBackend> ret;
+#if defined(HAVE_SPLASH)
+        ret << Document::SplashBackend;
+        ret << Document::ArthurBackend;
+#endif
+        return ret;
     }
 
     QDateTime convertDate( char *dateString )

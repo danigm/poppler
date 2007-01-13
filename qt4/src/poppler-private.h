@@ -20,14 +20,18 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
+#include <config.h>
 #include <GfxState.h>
 #include <GlobalParams.h>
 #include <Link.h>
 #include <Outline.h>
 #include <PDFDoc.h>
 #include <FontInfo.h>
-#include <SplashOutputDev.h>
 #include <UGooString.h>
+#include <OutputDev.h>
+#if defined(HAVE_SPLASH)
+#include <SplashOutputDev.h>
+#endif
 
 
 
@@ -111,6 +115,7 @@ namespace Poppler {
 			// create a splash backend even in case of the Arthur Backend
 			case Document::SplashBackend:
 			{
+#if defined(HAVE_SPLASH)
 			SplashColor bgColor;
 			bgColor[0] = paperColor.red();
 			bgColor[1] = paperColor.green();
@@ -118,6 +123,7 @@ namespace Poppler {
 			SplashOutputDev * splashOutputDev = new SplashOutputDev(splashModeRGB8Qt, 4, gFalse, bgColor);
 			splashOutputDev->startDoc(doc.getXRef());
 			m_outputDev = splashOutputDev;
+#endif
 			break;
 			}
 			}

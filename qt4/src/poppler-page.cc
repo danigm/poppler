@@ -22,14 +22,17 @@
 #include <QtCore/QMap>
 #include <QtGui/QImage>
 #include <QtGui/QPainter>
+#include <config.h>
 #include <GlobalParams.h>
 #include <PDFDoc.h>
 #include <Catalog.h>
 #include <ErrorCodes.h>
-#include <ArthurOutputDev.h>
-#include <SplashOutputDev.h>
 #include <TextOutputDev.h>
+#if defined(HAVE_SPLASH)
+#include <SplashOutputDev.h>
 #include <splash/SplashBitmap.h>
+#include <ArthurOutputDev.h>
+#endif
 
 #include "poppler-private.h"
 #include "poppler-page-transition-private.h"
@@ -169,6 +172,7 @@ QImage Page::renderToImage(double xres, double yres, int x, int y, int w, int h,
   {
     case Poppler::Document::SplashBackend:
     {
+#if defined(HAVE_SPLASH)
       SplashOutputDev *splash_output = static_cast<SplashOutputDev *>(m_page->parentDoc->m_doc->getOutputDev());
 
       m_page->parentDoc->m_doc->doc.displayPageSlice(splash_output, m_page->index + 1, xres, yres,
@@ -201,10 +205,12 @@ QImage Page::renderToImage(double xres, double yres, int x, int y, int w, int h,
       img = tmpimg.copy();
       // unload underlying xpdf bitmap
       splash_output->startPage( 0, NULL );
+#endif
       break;
     }
     case Poppler::Document::ArthurBackend:
     {
+#if defined(HAVE_SPLASH)
       QSize size = pageSize();
       QImage tmpimg(w == -1 ? size.width() : w, h == -1 ? size.height() : h, QImage::Format_ARGB32);
 
@@ -231,6 +237,7 @@ QImage Page::renderToImage(double xres, double yres, int x, int y, int w, int h,
       painter.restore();
       painter.end();
       img = tmpimg;
+#endif
       break;
     }
   }
@@ -455,6 +462,9 @@ void Page::defaultCTM(double *CTM, double dpiX, double dpiY, int rotate, bool up
 QList<Link*> Page::links() const
 {
   QList<Link*> popplerLinks;
+  OutputDev *output_dev = m_page->parentDoc->m_doc->getOutputDev();
+  if (output_dev == NULL)
+    return popplerLinks;
 
   Links *xpdfLinks = m_page->parentDoc->m_doc->doc.takeLinks();
   for (int i = 0; i < xpdfLinks->getNumLinks(); ++i)
@@ -466,7 +476,6 @@ QList<Link*> Page::links() const
     xpdfLink->getRect( &left, &top, &right, &bottom );
     QRectF linkArea;
     
-    OutputDev *output_dev = m_page->parentDoc->m_doc->getOutputDev();
     output_dev->cvtUserToDev( left, top, &leftAux, &topAux );
     output_dev->cvtUserToDev( right, bottom, &rightAux, &bottomAux );
     linkArea.setLeft(leftAux);

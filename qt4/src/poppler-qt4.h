@@ -24,6 +24,7 @@
 
 #include <QtCore/QByteArray>
 #include <QtCore/QDateTime>
+#include <QtCore/QSet>
 #include <QtCore/QVector>
 #include <QtGui/QPixmap>
 #include <QtXml/QDomDocument>
@@ -730,6 +731,11 @@ height = dummy.height();
 	  The default backend is \ref SplashBackend
 	 */
 	RenderBackend renderBackend() const;
+
+	/**
+	  The available rendering backends.
+	 */
+	static QSet<RenderBackend> availableRenderBackends();
 
 	~Document();
   
