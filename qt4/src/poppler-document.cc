@@ -56,13 +56,7 @@ namespace Poppler {
 			      const QByteArray &userPassword)
     {
 	// create stream
-	Object obj;
-	obj.initNull();
-	char *data = (char*)gmalloc(fileContents.length());
-	memcpy(data, fileContents.data(), fileContents.length() * sizeof(char));
-	MemStream *str = new MemStream(data, 0, fileContents.length(), &obj);
-	str->setNeedFree(true);
-	DocumentData *doc = new DocumentData(str,
+	DocumentData *doc = new DocumentData(fileContents,
 					     new GooString(ownerPassword.data()),
 					     new GooString(userPassword.data()));
 	return checkDocument(doc);
@@ -71,9 +65,9 @@ namespace Poppler {
     Document *Document::checkDocument(DocumentData *doc)
     {
 	Document *pdoc;
-	if (doc->doc.isOk() || doc->doc.getErrorCode() == errEncrypted) {
+	if (doc->doc->isOk() || doc->doc->getErrorCode() == errEncrypted) {
 		pdoc = new Document(doc);
-		if (doc->doc.getErrorCode() == errEncrypted)
+		if (doc->doc->getErrorCode() == errEncrypted)
 			pdoc->m_doc->locked = true;
 		else
 		{
@@ -109,10 +103,20 @@ namespace Poppler {
     {
 	if (m_doc->locked) {
 	    /* racier then it needs to be */
-	    DocumentData *doc2 = new DocumentData(new GooString(m_doc->doc.getFileName()),
-						  new GooString(ownerPassword.data()),
-						  new GooString(userPassword.data()));
-	    if (!doc2->doc.isOk()) {
+	    DocumentData *doc2;
+	    if (!m_doc->fileContents.isEmpty())
+	    {
+		doc2 = new DocumentData(m_doc->fileContents,
+					new GooString(ownerPassword.data()),
+					new GooString(userPassword.data()));
+	    }
+	    else
+	    {
+		doc2 = new DocumentData(new GooString(m_doc->doc->getFileName()),
+					new GooString(ownerPassword.data()),
+					new GooString(userPassword.data()));
+	    }
+	    if (!doc2->doc->isOk()) {
 		delete doc2;
 	    } else {
 		delete m_doc;
@@ -126,7 +130,7 @@ namespace Poppler {
 
     Document::PageMode Document::pageMode(void) const
     {
-	switch (m_doc->doc.getCatalog()->getPageMode()) {
+	switch (m_doc->doc->getCatalog()->getPageMode()) {
 	case Catalog::pageModeNone:
 	    return UseNone;
 	case Catalog::pageModeOutlines:
@@ -146,7 +150,7 @@ namespace Poppler {
 
     Document::PageLayout Document::pageLayout(void) const
     {
-	switch (m_doc->doc.getCatalog()->getPageLayout()) {
+	switch (m_doc->doc->getCatalog()->getPageLayout()) {
 	case Catalog::pageLayoutNone:
 	    return NoLayout;
 	case Catalog::pageLayoutSinglePage:
@@ -168,7 +172,7 @@ namespace Poppler {
 
     int Document::numPages() const
     {
-	return m_doc->doc.getNumPages();
+	return m_doc->doc->getNumPages();
     }
 
     QList<FontInfo> Document::fonts() const
@@ -206,7 +210,7 @@ namespace Poppler {
 	if ( m_doc->locked )
 	    return NULL;
 
-	m_doc->doc.getDocInfo( &info );
+	m_doc->doc->getDocInfo( &info );
 	if ( !info.isDict() )
 	    return NULL;
 
@@ -262,7 +266,7 @@ namespace Poppler {
 	if ( m_doc->locked )
 	    return QStringList();
 
-	m_doc->doc.getDocInfo( &info );
+	m_doc->doc->getDocInfo( &info );
 	if ( !info.isDict() )
 	    return QStringList();
 
@@ -286,7 +290,7 @@ namespace Poppler {
 	    return QDateTime();
 
 	Object info;
-	m_doc->doc.getDocInfo( &info );
+	m_doc->doc->getDocInfo( &info );
 	if ( !info.isDict() ) {
 	    info.free();
 	    return QDateTime();
@@ -309,42 +313,42 @@ namespace Poppler {
 
     bool Document::isEncrypted() const
     {
-	return m_doc->doc.isEncrypted();
+	return m_doc->doc->isEncrypted();
     }
 
     bool Document::isLinearized() const
     {
-	return m_doc->doc.isLinearized();
+	return m_doc->doc->isLinearized();
     }
 
     bool Document::okToPrint() const
     {
-	return m_doc->doc.okToPrint();
+	return m_doc->doc->okToPrint();
     }
 
     bool Document::okToPrintHighRes() const
     {
-	return m_doc->doc.okToPrintHighRes();
+	return m_doc->doc->okToPrintHighRes();
     }
 
     bool Document::okToChange() const
     {
-	return m_doc->doc.okToChange();
+	return m_doc->doc->okToChange();
     }
 
     bool Document::okToCopy() const
     {
-	return m_doc->doc.okToCopy();
+	return m_doc->doc->okToCopy();
     }
 
     bool Document::okToAddNotes() const
     {
-	return m_doc->doc.okToAddNotes();
+	return m_doc->doc->okToAddNotes();
     }
 
     bool Document::okToFillForm() const
     {
-	return m_doc->doc.okToFillForm();
+	return m_doc->doc->okToFillForm();
     }
 
     bool Document::okToCreateFormFields() const
@@ -354,17 +358,17 @@ namespace Poppler {
 
     bool Document::okToExtractForAccessibility() const
     {
-	return m_doc->doc.okToAccessibility();
+	return m_doc->doc->okToAccessibility();
     }
 
     bool Document::okToAssemble() const
     {
-	return m_doc->doc.okToAssemble();
+	return m_doc->doc->okToAssemble();
     }
 
     double Document::pdfVersion() const
     {
-	return m_doc->doc.getPDFVersion();
+	return m_doc->doc->getPDFVersion();
     }
 
     Page *Document::page(const QString &label) const
@@ -372,7 +376,7 @@ namespace Poppler {
 	GooString label_g(label.toAscii().data());
 	int index;
 
-	if (!m_doc->doc.getCatalog()->labelToIndex (&label_g, &index))
+	if (!m_doc->doc->getCatalog()->labelToIndex (&label_g, &index))
 	    return NULL;
 
 	return page(index);
@@ -380,12 +384,12 @@ namespace Poppler {
 
     bool Document::hasEmbeddedFiles() const
     {
-	return (!(0 == m_doc->doc.getCatalog()->numEmbeddedFiles()));
+	return (!(0 == m_doc->doc->getCatalog()->numEmbeddedFiles()));
     }
     
     QDomDocument *Document::toc() const
     {
-        Outline * outline = m_doc->doc.getOutline();
+        Outline * outline = m_doc->doc->getOutline();
         if ( !outline )
             return NULL;
 
@@ -414,7 +418,7 @@ namespace Poppler {
     
     bool Document::print(const QString &file, const QList<int> &pageList, double hDPI, double vDPI, int rotate, int paperWidth, int paperHeight, int marginRight, int marginBottom, int marginLeft, int marginTop, bool strictMargins)
     {
-        PSOutputDev *psOut = new PSOutputDev(file.toLatin1().data(), m_doc->doc.getXRef(), m_doc->doc.getCatalog(), 1, m_doc->doc.getNumPages(), psModePS, paperWidth, paperHeight, gFalse, marginRight, marginBottom, paperWidth - marginLeft, paperHeight - marginTop);
+        PSOutputDev *psOut = new PSOutputDev(file.toLatin1().data(), m_doc->doc->getXRef(), m_doc->doc->getCatalog(), 1, m_doc->doc->getNumPages(), psModePS, paperWidth, paperHeight, gFalse, marginRight, marginBottom, paperWidth - marginLeft, paperHeight - marginTop);
 
         if (strictMargins)
         {
@@ -427,7 +431,7 @@ namespace Poppler {
         {
             foreach(int page, pageList)
             {
-                m_doc->doc.displayPage(psOut, page, hDPI, vDPI, rotate, gFalse, globalParams->getPSCrop(), gFalse);
+                m_doc->doc->displayPage(psOut, page, hDPI, vDPI, rotate, gFalse, globalParams->getPSCrop(), gFalse);
             }
 
             delete psOut;

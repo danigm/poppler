@@ -37,7 +37,7 @@ namespace Poppler {
 		if ( data.namedDest && !ld )
 		{
 			deleteDest = true;
-			ld = data.doc->doc.findDest( data.namedDest );
+			ld = data.doc->doc->findDest( data.namedDest );
 		}
 		
 		if (!ld) return;
@@ -55,7 +55,7 @@ namespace Poppler {
 		else
 		{
 			Ref ref = ld->getPageRef();
-			m_pageNum = data.doc->doc.findPage( ref.num, ref.gen );
+			m_pageNum = data.doc->doc->findPage( ref.num, ref.gen );
 		}
 		double left = ld->getLeft();
 		double bottom = ld->getBottom();

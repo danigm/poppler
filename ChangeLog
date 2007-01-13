@@ -1,5 +1,16 @@
 2007-01-13  Albert Astals Cid <aacid@kde.org>
 
+	* poppler/Stream.h:
+	* poppler/Stream.cc: Remove MemStream::setNeedFree method i really did
+	not need it
+	* qt4/src/poppler-document.cc:
+	* qt4/src/poppler-link.cc:
+	* qt4/src/poppler-page.cc:
+	* qt4/src/poppler-private.h: Make Document::loadFromData work on
+	documents with a password and don't need to do a malloc and a memcpy.
+
+2007-01-13  Albert Astals Cid <aacid@kde.org>
+
 	* configure.ac
 	* poppler/Makefile.am
 	* qt4/src/Makefile.am

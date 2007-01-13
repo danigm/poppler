@@ -69,15 +69,19 @@ namespace Poppler {
 
     class DocumentData {
     public:
-	DocumentData(GooString *filePath, GooString *ownerPassword, GooString *userPassword) :
-	    doc(filePath, ownerPassword, userPassword)
+	DocumentData(GooString *filePath, GooString *ownerPassword, GooString *userPassword)
 	    {
+		doc = new PDFDoc(filePath, ownerPassword, userPassword);
 		init(ownerPassword, userPassword);
 	    }
 	
-	DocumentData(MemStream *str, GooString *ownerPassword, GooString *userPassword) :
-	    doc(str, ownerPassword, userPassword)
+	DocumentData(const QByteArray &data, GooString *ownerPassword, GooString *userPassword)
 	    {
+		Object obj;
+		fileContents = data;
+		obj.initNull();
+		MemStream *str = new MemStream((char*)fileContents.data(), 0, fileContents.length(), &obj);
+	        doc = new PDFDoc(str, ownerPassword, userPassword);
 		init(ownerPassword, userPassword);
 	    }
 	
@@ -97,6 +101,7 @@ namespace Poppler {
 	
 	~DocumentData()
 	{
+		delete doc;
 		qDeleteAll(m_embeddedFiles);
 		delete m_outputDev;
 		delete m_fontInfoScanner;
@@ -121,7 +126,7 @@ namespace Poppler {
 			bgColor[1] = paperColor.green();
 			bgColor[2] = paperColor.blue();
 			SplashOutputDev * splashOutputDev = new SplashOutputDev(splashModeRGB8Qt, 4, gFalse, bgColor);
-			splashOutputDev->startDoc(doc.getXRef());
+			splashOutputDev->startDoc(doc->getXRef());
 			m_outputDev = splashOutputDev;
 #endif
 			break;
@@ -198,19 +203,20 @@ namespace Poppler {
 	
 	void fillMembers()
 	{
-		m_fontInfoScanner = new FontInfoScanner(&doc);
-		int numEmb = doc.getCatalog()->numEmbeddedFiles();
+		m_fontInfoScanner = new FontInfoScanner(doc);
+		int numEmb = doc->getCatalog()->numEmbeddedFiles();
 		if (!(0 == numEmb)) {
 			// we have some embedded documents, build the list
 			for (int yalv = 0; yalv < numEmb; ++yalv) {
-				EmbFile *ef = doc.getCatalog()->embeddedFile(yalv);
+				EmbFile *ef = doc->getCatalog()->embeddedFile(yalv);
 				m_embeddedFiles.append(new EmbeddedFile(ef));
 				delete ef;
 			}
 		}
 	}
 
-	class PDFDoc doc;
+	PDFDoc *doc;
+	QByteArray fileContents;
 	bool locked;
 	FontInfoScanner *m_fontInfoScanner;
 	Document::RenderBackend m_backend;

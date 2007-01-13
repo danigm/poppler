@@ -806,11 +806,6 @@ void MemStream::doDecryption(Guchar *fileKey, int keyLength,
   }
 }
 
-void MemStream::setNeedFree(GBool needsFree)
-{
-  needFree = needsFree;
-}
-
 //------------------------------------------------------------------------
 // EmbedStream
 //------------------------------------------------------------------------

@@ -175,7 +175,7 @@ QImage Page::renderToImage(double xres, double yres, int x, int y, int w, int h,
 #if defined(HAVE_SPLASH)
       SplashOutputDev *splash_output = static_cast<SplashOutputDev *>(m_page->parentDoc->m_doc->getOutputDev());
 
-      m_page->parentDoc->m_doc->doc.displayPageSlice(splash_output, m_page->index + 1, xres, yres,
+      m_page->parentDoc->m_doc->doc->displayPageSlice(splash_output, m_page->index + 1, xres, yres,
 						 rotation, false, true, doLinks, x, y, w, h);
 
       SplashBitmap *bitmap = splash_output->getBitmap();
@@ -221,8 +221,8 @@ QImage Page::renderToImage(double xres, double yres, int x, int y, int w, int h,
       if (w == -1 && h == -1)
         painter.scale((double)w/(double)size.width(), (double)h/(double)size.height());
       ArthurOutputDev arthur_output(&painter);
-      arthur_output.startDoc(m_page->parentDoc->m_doc->doc.getXRef());
-      m_page->parentDoc->m_doc->doc.displayPageSlice(&arthur_output,
+      arthur_output.startDoc(m_page->parentDoc->m_doc->doc->getXRef());
+      m_page->parentDoc->m_doc->doc->displayPageSlice(&arthur_output,
 						 m_page->index + 1,
 						 xres,
 						 yres,
@@ -254,9 +254,9 @@ QString Page::text(const QRectF &r) const
   ::Page *p;
   
   output_dev = new TextOutputDev(0, gFalse, gFalse, gFalse);
-  m_page->parentDoc->m_doc->doc.displayPageSlice(output_dev, m_page->index + 1, 72, 72,
+  m_page->parentDoc->m_doc->doc->displayPageSlice(output_dev, m_page->index + 1, 72, 72,
       0, false, true, false, -1, -1, -1, -1);
-  p = m_page->parentDoc->m_doc->doc.getCatalog()->getPage(m_page->index + 1);
+  p = m_page->parentDoc->m_doc->doc->getCatalog()->getPage(m_page->index + 1);
   if (r.isNull())
   {
     rect = p->getCropBox();
@@ -300,7 +300,7 @@ bool Page::search(const QString &text, QRectF &rect, SearchDirection direction, 
 
   // fetch ourselves a textpage
   TextOutputDev td(NULL, gTrue, gFalse, gFalse);
-  m_page->parentDoc->m_doc->doc.displayPage( &td, m_page->index + 1, 72, 72, rotation, false, true, false );
+  m_page->parentDoc->m_doc->doc->displayPage( &td, m_page->index + 1, 72, 72, rotation, false, true, false );
   TextPage *textPage=td.takeText();
 
   if (direction == FromTop)
@@ -333,7 +333,7 @@ QList<TextBox*> Page::textList(Rotation rotate) const
   
   int rotation = (int)rotate * 90;
 
-  m_page->parentDoc->m_doc->doc.displayPageSlice(output_dev, m_page->index + 1, 72, 72,
+  m_page->parentDoc->m_doc->doc->displayPageSlice(output_dev, m_page->index + 1, 72, 72,
       rotation, false, false, false, -1, -1, -1, -1);
 
   TextWordList *word_list = output_dev->makeWordList();
@@ -380,7 +380,7 @@ PageTransition *Page::transition() const
   if (!m_page->transition) {
     Object o;
     PageTransitionParams params;
-    params.dictObj = m_page->parentDoc->m_doc->doc.getCatalog()->getPage(m_page->index + 1)->getTrans(&o);
+    params.dictObj = m_page->parentDoc->m_doc->doc->getCatalog()->getPage(m_page->index + 1)->getTrans(&o);
     if (params.dictObj->isDict()) m_page->transition = new PageTransition(params);
     o.free();
   }
@@ -391,7 +391,7 @@ Link *Page::action( PageAction act ) const
 {
   if ( act == Page::Opening || act == Page::Closing )
   {
-    ::Page *p = m_page->parentDoc->m_doc->doc.getCatalog()->getPage(m_page->index + 1);
+    ::Page *p = m_page->parentDoc->m_doc->doc->getCatalog()->getPage(m_page->index + 1);
     Object o;
     p->getActions(&o);
     if (!o.isDict())
@@ -403,7 +403,7 @@ Link *Page::action( PageAction act ) const
     Object o2;
     const char *key = act == Page::Opening ? "O" : "C";
     dict->lookup(key, &o2);
-    ::LinkAction *act = ::LinkAction::parseAction(&o2, m_page->parentDoc->m_doc->doc.getCatalog()->getBaseURI() );
+    ::LinkAction *act = ::LinkAction::parseAction(&o2, m_page->parentDoc->m_doc->doc->getCatalog()->getBaseURI() );
     o2.free();
     o.free();
     Link *popplerLink = NULL;
@@ -421,7 +421,7 @@ QSizeF Page::pageSizeF() const
 {
   ::Page *p;
   
-  p = m_page->parentDoc->m_doc->doc.getCatalog()->getPage(m_page->index + 1);
+  p = m_page->parentDoc->m_doc->doc->getCatalog()->getPage(m_page->index + 1);
   if ( ( Page::Landscape == orientation() ) || (Page::Seascape == orientation() ) ) {
       return QSizeF( p->getCropHeight(), p->getCropWidth() );
   } else {
@@ -436,7 +436,7 @@ QSize Page::pageSize() const
 
 Page::Orientation Page::orientation() const
 {
-  int rotation = m_page->parentDoc->m_doc->doc.getCatalog()->getPage(m_page->index + 1)->getRotate();
+  int rotation = m_page->parentDoc->m_doc->doc->getCatalog()->getPage(m_page->index + 1)->getRotate();
   switch (rotation) {
   case 90:
     return Page::Landscape;
@@ -455,7 +455,7 @@ Page::Orientation Page::orientation() const
 void Page::defaultCTM(double *CTM, double dpiX, double dpiY, int rotate, bool upsideDown)
 {
   ::Page *p;
-  p = m_page->parentDoc->m_doc->doc.getCatalog()->getPage(m_page->index + 1);
+  p = m_page->parentDoc->m_doc->doc->getCatalog()->getPage(m_page->index + 1);
   p->getDefaultCTM(CTM, dpiX, dpiY, rotate, upsideDown);
 }
 
@@ -466,7 +466,7 @@ QList<Link*> Page::links() const
   if (output_dev == NULL)
     return popplerLinks;
 
-  Links *xpdfLinks = m_page->parentDoc->m_doc->doc.takeLinks();
+  Links *xpdfLinks = m_page->parentDoc->m_doc->doc->takeLinks();
   for (int i = 0; i < xpdfLinks->getNumLinks(); ++i)
   {
     ::Link *xpdfLink = xpdfLinks->getLink(i);
@@ -500,7 +500,7 @@ QList<Link*> Page::links() const
 QList<Annotation*> Page::annotations() const
 {
     Object annotArray;
-    ::Page *pdfPage = m_page->parentDoc->m_doc->doc.getCatalog()->getPage(m_page->index + 1);
+    ::Page *pdfPage = m_page->parentDoc->m_doc->doc->getCatalog()->getPage(m_page->index + 1);
     pdfPage->getAnnots( &annotArray );
     if ( !annotArray.isArray() || annotArray.arrayGetLength() < 1 )
     {
@@ -894,7 +894,7 @@ QList<Annotation*> Page::annotations() const
             annotDict->lookup( "PA", &objPA );
             if (!objPA.isNull())
             {
-                ::LinkAction * a = ::LinkAction::parseAction( &objPA, m_page->parentDoc->m_doc->doc.getCatalog()->getBaseURI() );
+                ::LinkAction * a = ::LinkAction::parseAction( &objPA, m_page->parentDoc->m_doc->doc->getCatalog()->getBaseURI() );
                 Link * popplerLink = m_page->convertLinkActionToLink( a, QRectF(), m_page->parentDoc->m_doc );
                 if ( popplerLink )
                 {
@@ -1237,7 +1237,7 @@ QList<Annotation*> Page::annotations() const
 double Page::duration() const
 {
   ::Page *p;
-  p = m_page->parentDoc->m_doc->doc.getCatalog()->getPage(m_page->index + 1);
+  p = m_page->parentDoc->m_doc->doc->getCatalog()->getPage(m_page->index + 1);
   if (p) return p->getDuration();
   else return -1;
 }
