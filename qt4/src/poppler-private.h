@@ -66,9 +66,22 @@ namespace Poppler {
     class DocumentData {
     public:
 	DocumentData(GooString *filePath, GooString *ownerPassword, GooString *userPassword) :
-	    doc(filePath, ownerPassword, userPassword), m_fontInfoScanner(0),
-	    m_backend(Document::SplashBackend), m_outputDev(0)
+	    doc(filePath, ownerPassword, userPassword)
 	    {
+		init(ownerPassword, userPassword);
+	    }
+	
+	DocumentData(MemStream *str, GooString *ownerPassword, GooString *userPassword) :
+	    doc(str, ownerPassword, userPassword)
+	    {
+		init(ownerPassword, userPassword);
+	    }
+	
+	void init(GooString *ownerPassword, GooString *userPassword)
+	    {
+		m_fontInfoScanner = 0;
+		m_backend = Document::SplashBackend;
+		m_outputDev = 0;
 		paperColor = Qt::white;
 		// It might be more appropriate to delete these in PDFDoc
 		delete ownerPassword;

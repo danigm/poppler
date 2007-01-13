@@ -1,3 +1,11 @@
+2007-01-13  Albert Astals Cid <aacid@kde.org>
+
+	* poppler/Stream.h:
+	* poppler/Stream.cc: Add MemStream::setNeedFree method
+	* qt4/src/poppler-document.cc:
+	* qt4/src/poppler-private.h:
+	* qt4/src/poppler-qt4.h: Add Document::loadFromData method
+
 2007-01-11  Albert Astals Cid <aacid@kde.org>
 
 	* goo/gmem.c: Merge change from xpdf-3.01pl2

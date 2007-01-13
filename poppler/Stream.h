@@ -318,6 +318,7 @@ public:
   virtual void moveStart(int delta);
   virtual void doDecryption(Guchar *fileKey, int keyLength,
 			    int objNum, int objGen);
+  void setNeedFree(GBool needsFree);
 
 private:
 

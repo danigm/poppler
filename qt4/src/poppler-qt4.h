@@ -441,6 +441,20 @@ namespace Poppler {
 	static Document *load(const QString & filePath,
 			      const QByteArray &ownerPassword=QByteArray(),
 			      const QByteArray &userPassword=QByteArray());
+	
+	/**
+	   Load the document from memory
+
+	   \param fileContents the file contents. They are copied so there is no need 
+	                       to keep the byte array around for the full life time of 
+	                       the document.
+
+	   \warning The application owns the pointer to Document, and this should
+	   be deleted when no longer required.
+	*/
+	static Document *loadFromData(const QByteArray &fileContents,
+			      const QByteArray &ownerPassword=QByteArray(),
+			      const QByteArray &userPassword=QByteArray());
   
 	/**
 	   Get a specified Page
@@ -721,7 +735,9 @@ height = dummy.height();
   
     private:
 	DocumentData *m_doc;
+	
 	Document(DocumentData *dataA);
+	static Document *checkDocument(DocumentData *doc);
     };
 
     /**
