@@ -1,5 +1,5 @@
 /* poppler-sound.cc: qt interface to poppler
- * Copyright (C) 2006, Pino Toscano <pino@kde.org>
+ * Copyright (C) 2006-2007, Pino Toscano <pino@kde.org>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,12 +18,7 @@
 
 #define UNSTABLE_POPPLER_QT4
 
-#include <QtCore/QByteArray>
-#include <QtCore/QString>
-#include <QtCore/QVariant>
-
 #include "Object.h"
-#include "Dict.h"
 #include "Stream.h"
 #include "Sound.h"
 
@@ -36,107 +31,41 @@ class SoundData
 {
 public:
 	SoundData()
-	  : m_channels( 1 ), m_bitsPerSample( 8 ), m_soundEncoding( SoundObject::Raw ), m_soundObj( new Object() )
-	{ m_soundObj->initNull(); }
+	  : m_soundObj( 0 )
+	{
+	}
 
 	~SoundData()
 	{
-		m_soundObj->free();
 		delete m_soundObj;
 	}
 
-	QVariant m_data;
 	SoundObject::SoundType m_type;
-	double m_samplingRate;
-	int m_channels;
-	int m_bitsPerSample;
-	SoundObject::SoundEncoding m_soundEncoding;
-	Object *m_soundObj;
+	Sound *m_soundObj;
 };
 
 SoundObject::SoundObject(Sound *popplersound)
 {
 	m_soundData = new SoundData();
-	Dict *dict = popplersound->getStream()->getDict();
-	Object tmp;
-	// file specs / data
-	dict->lookup("F", &tmp);
-	if ( !tmp.isNull() )
+	switch ( popplersound->getSoundKind() )
 	{
-		// valid 'F' key -> external file
-		m_soundData->m_type = SoundObject::External;
-		// TODO read the file specifications
-		m_soundData->m_data = QVariant( QString() );
+		case soundEmbedded:
+			m_soundData->m_type = SoundObject::Embedded;
+			break;
+		case soundExternal:
+		default:
+			m_soundData->m_type = SoundObject::External;
+			break;
 	}
-	else
-	{
-		// no file specification, then the sound data have to be
-		// extracted from the stream
-		m_soundData->m_type = SoundObject::Embedded;
-		Stream *stream = popplersound->getStream();
-		stream->reset();
-		int dataLen = 0;
-		QByteArray fileArray;
-		int i;
-		while ( (i = stream->getChar()) != EOF) {
-			fileArray[dataLen] = (char)i;
-			++dataLen;
-		}
-		fileArray.resize(dataLen);
-		m_soundData->m_data = QVariant( fileArray );
-	}
-	tmp.free();
-	// sampling rate
-	dict->lookup( "R", &tmp );
-	if ( tmp.isNum() )
-	{
-		m_soundData->m_samplingRate = tmp.getNum();
-	}
-	tmp.free();
-	// sound channels
-	dict->lookup( "C", &tmp );
-	if ( tmp.isInt() )
-	{
-		m_soundData->m_channels = tmp.getInt();
-	}
-	tmp.free();
-	// sound channels
-	dict->lookup( "B", &tmp );
-	if ( tmp.isInt() )
-	{
-		m_soundData->m_bitsPerSample = tmp.getInt();
-	}
-	tmp.free();
-	// encoding format
-	dict->lookup( "E", &tmp );
-	if ( tmp.isName() )
-	{
-		const char *enc = tmp.getName();
-		if ( !strcmp( "Raw", enc ) )
-			m_soundData->m_soundEncoding = SoundObject::Raw;
-		else if ( !strcmp( "Signed", enc ) )
-			m_soundData->m_soundEncoding = SoundObject::Signed;
-		if ( !strcmp( "muLaw", enc ) )
-			m_soundData->m_soundEncoding = SoundObject::muLaw;
-		if ( !strcmp( "ALaw", enc ) )
-			m_soundData->m_soundEncoding = SoundObject::ALaw;
-	}
-	tmp.free();
-	// at the end, copying the object
-	popplersound->getObject()->copy(m_soundData->m_soundObj);
+
+	m_soundData->m_soundObj = popplersound->copy();
 }
 
 SoundObject::SoundObject(const SoundObject &s)
 {
 	m_soundData = new SoundData();
 	m_soundData->m_type = s.m_soundData->m_type;
-	m_soundData->m_data = s.m_soundData->m_data;
-	m_soundData->m_type = s.m_soundData->m_type;
-	m_soundData->m_samplingRate = s.m_soundData->m_samplingRate;
-	m_soundData->m_channels = s.m_soundData->m_channels;
-	m_soundData->m_bitsPerSample = s.m_soundData->m_bitsPerSample;
-	m_soundData->m_soundEncoding = s.m_soundData->m_soundEncoding;
-	s.m_soundData->m_soundObj->copy(m_soundData->m_soundObj);
+	m_soundData->m_soundObj = s.m_soundData->m_soundObj->copy();
 }
 
 SoundObject::~SoundObject()
@@ -151,32 +80,61 @@ SoundObject::SoundType SoundObject::soundType() const
 
 QString SoundObject::url() const
 {
-	return m_soundData->m_type == SoundObject::External ? m_soundData->m_data.toString() : QString();
+	if ( m_soundData->m_type != SoundObject::External )
+		return QString();
+
+	GooString * goo = m_soundData->m_soundObj->getFileName();
+	return goo ? QString( goo->getCString() ) : QString();
 }
 
 QByteArray SoundObject::data() const
 {
-	return m_soundData->m_type == SoundObject::Embedded ? m_soundData->m_data.toByteArray() : QByteArray();
+	if ( m_soundData->m_type != SoundObject::Embedded )
+		return QByteArray();
+
+	Stream *stream = m_soundData->m_soundObj->getStream();
+	stream->reset();
+	int dataLen = 0;
+	QByteArray fileArray;
+	int i;
+	while ( (i = stream->getChar()) != EOF) {
+		fileArray[dataLen] = (char)i;
+		++dataLen;
+	}
+	fileArray.resize(dataLen);
+
+	return fileArray;
 };
 
 double SoundObject::samplingRate() const
 {
-	return m_soundData->m_samplingRate;
+	return m_soundData->m_soundObj->getSamplingRate();
 }
 
 int SoundObject::channels() const
 {
-	return m_soundData->m_channels;
+	return m_soundData->m_soundObj->getChannels();
 }
 
 int SoundObject::bitsPerSample() const
 {
-	return m_soundData->m_bitsPerSample;
+	return m_soundData->m_soundObj->getBitsPerSample();
 }
 
 SoundObject::SoundEncoding SoundObject::soundEncoding() const
 {
-	return m_soundData->m_soundEncoding;
+	switch ( m_soundData->m_soundObj->getEncoding() )
+	{
+		case soundRaw:
+			return SoundObject::Raw;
+		case soundSigned:
+			return SoundObject::Signed;
+		case soundMuLaw:
+			return SoundObject::muLaw;
+		case soundALaw:
+			return SoundObject::ALaw;
+	}
+	return SoundObject::Raw;
 }
 
 }

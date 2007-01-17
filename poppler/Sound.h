@@ -1,5 +1,5 @@
 /* Sound.h - an object that holds the sound structure
- * Copyright (C) 2006, Pino Toscano <pino@kde.org>
+ * Copyright (C) 2006-2007, Pino Toscano <pino@kde.org>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,10 +19,23 @@
 #ifndef Sound_H
 #define Sound_H
 
+class GooString;
 class Object;
 class Stream;
 
 //------------------------------------------------------------------------
+
+enum SoundKind {
+  soundEmbedded,		// embedded sound
+  soundExternal			// external sound
+};
+
+enum SoundEncoding {
+  soundRaw,			// raw encoding
+  soundSigned,			// twos-complement values
+  soundMuLaw,			// mu-law-encoded samples
+  soundALaw			// A-law-encoded samples
+};
 
 class Sound
 {
@@ -36,11 +49,26 @@ public:
   Object *getObject() { return streamObj; }
   Stream *getStream();
 
+  SoundKind getSoundKind() { return kind; }
+  GooString *getFileName() { return fileName; }
+  double getSamplingRate() { return samplingRate; }
+  int getChannels() { return channels; }
+  int getBitsPerSample() { return bitsPerSample; }
+  SoundEncoding getEncoding() { return encoding; }
+
+  Sound *copy();
+
 private:
   // Create a sound. The Object obj is ensured to be a Stream with a Dict
-  Sound(Object *obj);
+  Sound(Object *obj, bool readAttrs = true);
 
   Object *streamObj;
+  SoundKind kind;
+  GooString *fileName;
+  double samplingRate;
+  int channels;
+  int bitsPerSample;
+  SoundEncoding encoding;
 };
 
 #endif

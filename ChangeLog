@@ -1,3 +1,11 @@
+2007-01-17  Albert Astals Cid <aacid@kde.org>
+
+	* poppler/Sound.h:
+	* poppler/Sound.cc:
+	* qt4/src/poppler-sound.cc: Move most of the sound reading code
+	into the Sound class, so frontends can use it easily.
+	Patch by Pino Toscano <pino@kde.org>.
+
 2007-01-13  Albert Astals Cid <aacid@kde.org>
 
 	* poppler/Stream.h:
@@ -18,7 +26,7 @@
 	* qt4/src/poppler-link.cc
 	* qt4/src/poppler-page.cc
 	* qt4/src/poppler-private.h
-	* qt4/src/poppler-qt4.h: Make the Qt4 backend compilable even with
+	* qt4/src/poppler-qt4.h: Make the Qt4 frontend compilable even with
 	no Splash backend. Patch by Pino Toscano <pino@kde.org>.
 
 2007-01-13  Albert Astals Cid <aacid@kde.org>
