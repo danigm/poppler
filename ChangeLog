@@ -1,3 +1,15 @@
+2007-01-21  Albert Astals Cid <aacid@kde.org>
+
+	* poppler-document.cc:
+	* poppler-page.cc:
+	* poppler-private.h:
+	* poppler-qt4.h:
+	No need to destroy the Splash output device to change its paper color.
+	Add the possibility to set flags that affect the rendering (some
+	backends supports only some of them, though).
+	Add a Page::label to get the label associated with a page.
+	Patches by Pino Toscano <pino@kde.org>.
+
 2007-01-17  Albert Astals Cid <aacid@kde.org>
 
 	* poppler/Sound.h:

@@ -478,6 +478,26 @@ namespace Poppler {
         return ret;
     }
 
+    void Document::setRenderHint( Document::RenderHint hint, bool on )
+    {
+        if ( on )
+            m_doc->m_hints |= hint;
+        else
+            m_doc->m_hints &= ~(int)hint;
+
+        // the only way to set the textAA for Splash is on creation
+        if ( m_doc->m_backend == Document::SplashBackend && hint == Document::TextAntialiasing )
+        {
+            delete m_doc->m_outputDev;
+            m_doc->m_outputDev = NULL;
+        }
+    }
+
+    Document::RenderHints Document::renderHints() const
+    {
+        return Document::RenderHints() & m_doc->m_hints;
+    }
+
     QDateTime convertDate( char *dateString )
     {
         int year;

@@ -125,7 +125,8 @@ namespace Poppler {
 			bgColor[0] = paperColor.red();
 			bgColor[1] = paperColor.green();
 			bgColor[2] = paperColor.blue();
-			SplashOutputDev * splashOutputDev = new SplashOutputDev(splashModeRGB8Qt, 4, gFalse, bgColor);
+			GBool AA = m_hints & Document::TextAntialiasing ? gTrue : gFalse;
+			SplashOutputDev * splashOutputDev = new SplashOutputDev(splashModeRGB8Qt, 4, gFalse, bgColor, gTrue, AA);
 			splashOutputDev->startDoc(doc->getXRef());
 			m_outputDev = splashOutputDev;
 #endif
@@ -193,11 +194,28 @@ namespace Poppler {
 	
 	void setPaperColor(const QColor &color)
 	{
-		if (color != paperColor)
+		if (color == paperColor)
+			return;
+
+		paperColor = color;
+		if ( m_outputDev == NULL )
+			return;
+
+		switch ( m_backend )
 		{
-			paperColor = color;
-			delete m_outputDev;
-			m_outputDev = NULL;
+			case Document::SplashBackend:
+			{
+#if defined(HAVE_SPLASH)
+				SplashOutputDev *splash_output = static_cast<SplashOutputDev *>( m_outputDev );
+				SplashColor bgColor;
+				bgColor[0] = paperColor.red();
+				bgColor[1] = paperColor.green();
+				bgColor[2] = paperColor.blue();
+				splash_output->setPaperColor(bgColor);
+#endif
+				break;
+			}
+			default: ;
 		}
 	}
 	
@@ -223,6 +241,7 @@ namespace Poppler {
 	OutputDev *m_outputDev;
 	QList<EmbeddedFile*> m_embeddedFiles;
 	QColor paperColor;
+	int m_hints;
 	static int count;
     };
 

@@ -215,7 +215,10 @@ QImage Page::renderToImage(double xres, double yres, int x, int y, int w, int h,
       QImage tmpimg(w == -1 ? size.width() : w, h == -1 ? size.height() : h, QImage::Format_ARGB32);
 
       QPainter painter(&tmpimg);
-      painter.setRenderHint(QPainter::Antialiasing);
+      if (m_page->parentDoc->m_doc->m_hints & Document::Antialiasing)
+          painter.setRenderHint(QPainter::Antialiasing);
+      if (m_page->parentDoc->m_doc->m_hints & Document::TextAntialiasing)
+          painter.setRenderHint(QPainter::TextAntialiasing);
       painter.save();
       painter.translate(x == -1 ? 0 : -x, y == -1 ? 0 : -y);
       if (w == -1 && h == -1)
@@ -1240,6 +1243,15 @@ double Page::duration() const
   p = m_page->parentDoc->m_doc->doc->getCatalog()->getPage(m_page->index + 1);
   if (p) return p->getDuration();
   else return -1;
+}
+
+QString Page::label() const
+{
+  GooString goo;
+  if (!m_page->parentDoc->m_doc->doc->getCatalog()->indexToLabel(m_page->index, &goo))
+    return QString();
+
+  return QString(goo.getCString());
 }
 
 

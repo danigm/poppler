@@ -382,6 +382,11 @@ namespace Poppler {
 	*/
 	double duration() const;
 	
+	/**
+	   Returns the label of the page, or a null string is the page has no label.
+	**/
+	QString label() const;
+	
     private:
 	Page(const Document *doc, int index);
 	PageData *m_page;
@@ -430,6 +435,15 @@ namespace Poppler {
 	    SplashBackend,   ///< Splash backend
 	    ArthurBackend   ///< Arthur (Qt4) backend
 	};
+
+	/**
+	   The render hints available
+	*/
+	enum RenderHint {
+	    Antialiasing = 0x00000001,      ///< Antialiasing for graphics
+	    TextAntialiasing = 0x00000002   ///< Antialiasing for text
+	};
+	Q_DECLARE_FLAGS( RenderHints, RenderHint )
 
 	/**
 	   Load the document from a file on disk
@@ -736,6 +750,17 @@ height = dummy.height();
 	  The available rendering backends.
 	 */
 	static QSet<RenderBackend> availableRenderBackends();
+
+	/**
+	 Sets the render \p hint .
+
+	 \param on whether the flag should be added or removed.
+	 */
+	void setRenderHint( RenderHint hint, bool on = true );
+	/**
+	  The currently set render hints.
+	 */
+	RenderHints renderHints() const;
 
 	~Document();
   
