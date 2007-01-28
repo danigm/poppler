@@ -1,3 +1,8 @@
+2007-01-28  Albert Astals Cid <aacid@kde.org>
+
+	* glib/poppler-document.cc: Plug memory leak in poppler-document.
+	Patch by Carlos Garcia Campos <carlosgc@gnome.org>
+
 2007-01-21  Albert Astals Cid <aacid@kde.org>
 
 	* poppler-document.cc:

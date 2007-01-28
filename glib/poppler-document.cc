@@ -217,6 +217,7 @@ poppler_document_save (PopplerDocument  *document,
   filename = g_filename_from_uri (uri, NULL, error);
   if (filename != NULL) {
     GooString *fname = new GooString (filename);
+    g_free (filename);
 
     retval = document->doc->saveAs (fname);
 
@@ -465,7 +466,7 @@ info_dict_get_date (Dict *info_dict, const gchar *key, GValue *value)
   GooString *goo_value;
   int year, mon, day, hour, min, sec;
   int scanned_items;
-  struct tm *time;
+  struct tm time;
   gchar *date_string, *ds;
   GTime result;
 
@@ -516,26 +517,23 @@ info_dict_get_date (Dict *info_dict, const gchar *key, GValue *value)
     year = century * 100 + years_since_1900;
   }
 
-  time = g_new0 (struct tm, 1);
-	
-  time->tm_year = year - 1900;
-  time->tm_mon = mon - 1;
-  time->tm_mday = day;
-  time->tm_hour = hour;
-  time->tm_min = min;
-  time->tm_sec = sec;
-  time->tm_wday = -1;
-  time->tm_yday = -1;
-  time->tm_isdst = -1; /* 0 = DST off, 1 = DST on, -1 = don't know */
+  time.tm_year = year - 1900;
+  time.tm_mon = mon - 1;
+  time.tm_mday = day;
+  time.tm_hour = hour;
+  time.tm_min = min;
+  time.tm_sec = sec;
+  time.tm_wday = -1;
+  time.tm_yday = -1;
+  time.tm_isdst = -1; /* 0 = DST off, 1 = DST on, -1 = don't know */
  
   /* compute tm_wday and tm_yday and check date */
-  if (mktime (time) == (time_t) - 1) {
+  result = mktime (&time);
+  if (result == (time_t) - 1) {
     obj.free ();
     g_free (ds);
     return;
-  } else {
-  	result = mktime (time);
-  }       
+  }
     
   obj.free ();
   g_free (ds);
