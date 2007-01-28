@@ -2,6 +2,10 @@
 
 	* glib/poppler-document.cc: Plug memory leak in poppler-document.
 	Patch by Carlos Garcia Campos <carlosgc@gnome.org>
+	* glib/poppler-page.cc: Make link mapping coordinates follow page
+	rotation. Patch by Carlos Garcia Campos <carlosgc@gnome.org>
+	* glib/poppler-action.cc: Fix link destination coordinates. Patch by
+	Carlos Garcia Campos <carlosgc@gnome.org>
 
 2007-01-21  Albert Astals Cid <aacid@kde.org>
 

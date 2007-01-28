@@ -249,7 +249,20 @@ dest_new_goto (PopplerDocument *document,
 	dest->change_left = link_dest->getChangeLeft ();
 	dest->change_top = link_dest->getChangeTop ();
 	dest->change_zoom = link_dest->getChangeZoom ();
-
+	
+	if (dest->page_num > 0) {
+		PopplerPage *page;
+		
+		page = poppler_document_get_page (document, dest->page_num - 1);
+		
+		dest->left -= page->page->getCropBox ()->x1;
+		dest->bottom -= page->page->getCropBox ()->x1;
+		dest->right -= page->page->getCropBox ()->y1;
+		dest->top -= page->page->getCropBox ()->y1;
+		
+		g_object_unref (page);
+	}
+	
 	return dest;
 }
 
