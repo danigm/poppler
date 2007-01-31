@@ -19,14 +19,23 @@ private:
     int m_currentPage;
     QImage image;
     Poppler::Document *doc;
-    bool useArthur;
+    QString backendString;
 };
 
 PDFDisplay::PDFDisplay( Poppler::Document *d, bool arthur )
 {
     doc = d;
     m_currentPage = 0;
-    useArthur = arthur;
+    if (arthur)
+    {
+        backendString = "Arthur";
+        doc->setRenderBackend(Poppler::Document::ArthurBackend);
+    }
+    else
+    {
+        backendString = "Splash";
+        doc->setRenderBackend(Poppler::Document::SplashBackend);
+    }
     display();
 }
 
@@ -35,16 +44,7 @@ void PDFDisplay::display()
     if (doc) {
         Poppler::Page *page = doc->page(m_currentPage);
         if (page) {
-            if (useArthur)
-            {
-                qDebug() << "Displaying page using Arthur backend: " << m_currentPage;
-                doc->setRenderBackend(Poppler::Document::ArthurBackend);
-            }
-            else
-            {
-                qDebug() << "Displaying page using Splash backend: " << m_currentPage;
-                doc->setRenderBackend(Poppler::Document::SplashBackend);
-            }
+            qDebug() << "Displaying page using" << backendString << "backend: " << m_currentPage;
             image = page->renderToImage();
             update();
             delete page;

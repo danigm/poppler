@@ -221,8 +221,6 @@ QImage Page::renderToImage(double xres, double yres, int x, int y, int w, int h,
           painter.setRenderHint(QPainter::TextAntialiasing);
       painter.save();
       painter.translate(x == -1 ? 0 : -x, y == -1 ? 0 : -y);
-      if (w == -1 && h == -1)
-        painter.scale((double)w/(double)size.width(), (double)h/(double)size.height());
       ArthurOutputDev arthur_output(&painter);
       arthur_output.startDoc(m_page->parentDoc->m_doc->doc->getXRef());
       m_page->parentDoc->m_doc->doc->displayPageSlice(&arthur_output,
