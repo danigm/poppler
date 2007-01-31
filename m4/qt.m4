@@ -111,6 +111,7 @@ dnl What to test
 qt4_test_include="QtCore/QCoreApplication"
 qt4_test_la_library="libQtCore.la"
 qt4_test_library="libQtCore.so"
+qt4_test_framework="QtCore.framework"
 qt4_windows_test_library="QtCore4.dll"
 
 dnl Check for Qt4 headers
@@ -143,6 +144,12 @@ for qt4_check in $qt4_libdirs ; do
         windows_qt="yes"
         break
     fi
+
+    if test -d "$qt4_check/$qt4_test_framework"; then
+        qt4_libdir="$qt4_check"
+        mac_qt="yes"
+        break
+    fi
 done
 AC_MSG_RESULT([$qt4_libdir])
 
@@ -155,9 +162,11 @@ fi
 if test "x$have_qt4" == "xyes"; then
     $1[]_CXXFLAGS="-I$qt4_incdir"
     if test x$windows_qt = xyes; then
-	$1[]_LIBS="-L$qt4_libdir -lQtCore4 -lQtGui4 -lQtXml4"
+        $1[]_LIBS="-L$qt4_libdir -lQtCore4 -lQtGui4 -lQtXml4"
+    elif test x$mac_qt = xyes; then
+        $1[]_LIBS="-L$qt4_libdir -Wl,-F$qt4_libdir -framework QtCore -framework QtGui -framework QtXml"
     else
-	$1[]_LIBS="-L$qt4_libdir -lQtCore -lQtGui -lQtXml"
+        $1[]_LIBS="-L$qt4_libdir -lQtCore -lQtGui -lQtXml"
     fi
     ifelse([$2], , :, [$2])
 else
@@ -191,6 +200,7 @@ dnl What to test
 qt4test_test_include="QtTest/QtTest"
 qt4test_test_la_library="libQtTest.la"
 qt4test_test_library="libQtTest.so"
+qt4test_test_framework="QtTest.framework"
 
 dnl Check for QtTestLib headers
 AC_MSG_CHECKING([for QtTestLib headers])
@@ -216,6 +226,12 @@ for qt4test_check in $qt4_libdirs ; do
         qt4test_libdir="$qt4test_check"
         break
     fi
+
+    if test -d "$qt4test_check/$qt4test_test_framework" ; then
+        qt4test_libdir="$qt4test_check"
+        mac_test=yes
+        break
+    fi
 done
 AC_MSG_RESULT([$qt4test_libdir])
 
@@ -227,7 +243,11 @@ fi
 
 if test "x$have_qt4testlib" == "xyes"; then
     $1[]_CXXFLAGS="-I$qt4test_incdir"
-    $1[]_LIBS="-L$qt4test_libdir -lQtTest"
+    if test x$mac_test = xyes; then
+        $1[]_LIBS="-L$qt4test_libdir -Wl,-F$qt4test_libdir -framework QtTest"
+    else
+        $1[]_LIBS="-L$qt4test_libdir -lQtTest"
+    fi
     ifelse([$2], , :, [$2])
 else
     ifelse([$3], , [AC_MSG_FAILURE(dnl
