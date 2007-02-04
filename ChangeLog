@@ -1,5 +1,11 @@
 2007-01-31  Albert Astals Cid <aacid@kde.org>
 
+	* poppler/Lexer.cc:
+	* poppler/Lexer.h: Patch to fix regression introduced by optimizations
+	in bugzilla issue 7808
+
+2007-01-31  Albert Astals Cid <aacid@kde.org>
+
 	* qt4/src/poppler-page.cc:
 	Patch by Pino Toscano <pino@kde.org> to remove a nonsense done by him.
 

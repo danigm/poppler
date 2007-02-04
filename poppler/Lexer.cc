@@ -92,7 +92,7 @@ Lexer::~Lexer() {
   }
 }
 
-int inline Lexer::getChar() {
+int Lexer::getChar(GBool comesFromLook) {
   int c;
 
   if (LOOK_VALUE_NOT_CACHED != lookCharLastValueCached) {
@@ -103,23 +103,33 @@ int inline Lexer::getChar() {
 
   c = EOF;
   while (!curStr.isNone() && (c = curStr.streamGetChar()) == EOF) {
-    curStr.streamClose();
-    curStr.free();
-    ++strPtr;
-    if (strPtr < streams->getLength()) {
-      streams->get(strPtr, &curStr);
-      curStr.streamReset();
+    if (comesFromLook == gTrue) {
+      return EOF;
+    } else {
+      curStr.streamClose();
+      curStr.free();
+      ++strPtr;
+      if (strPtr < streams->getLength()) {
+        streams->get(strPtr, &curStr);
+        curStr.streamReset();
+      }
     }
   }
   return c;
 }
 
-int inline Lexer::lookChar() {
+int Lexer::lookChar() {
+  
   if (LOOK_VALUE_NOT_CACHED != lookCharLastValueCached) {
     return lookCharLastValueCached;
   }
-  lookCharLastValueCached = getChar();
-  return lookCharLastValueCached;
+  lookCharLastValueCached = getChar(gTrue);
+  if (lookCharLastValueCached == EOF) {
+    lookCharLastValueCached = LOOK_VALUE_NOT_CACHED;
+    return EOF;
+  } else {
+    return lookCharLastValueCached;
+  }
 }
 
 Object *Lexer::getObj(Object *obj, int objNum) {

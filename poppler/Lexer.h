@@ -75,7 +75,7 @@ public:
 
 private:
 
-  int getChar();
+  int getChar(GBool comesFromLook = gFalse);
   int lookChar();
 
   Array *streams;		// array of input streams
