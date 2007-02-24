@@ -1399,3 +1399,195 @@ poppler_ps_file_free (PopplerPSFile *ps_file)
 	g_return_if_fail (ps_file != NULL);
         g_object_unref (ps_file);
 }
+
+FormWidget *
+_get_form_widget_by_id (PopplerDocument *document, unsigned id)
+{
+  Catalog *catalog = document->doc->getCatalog();
+  unsigned pageNum;
+  unsigned fieldNum;
+  FormWidget::decodeID(id, &pageNum, &fieldNum);
+  FormWidget *field = catalog->getPage(pageNum)->getPageWidgets()->getWidget(fieldNum);
+  if (field != NULL) {
+    return field;
+  } else
+    return NULL;
+}
+
+void
+poppler_document_set_form_field_button_state (PopplerDocument *document, unsigned id, gboolean state)
+{
+  FormWidget *field = _get_form_widget_by_id(document, id);
+  if (field && field->getType() == formButton) {
+    static_cast<FormWidgetButton*>(field)->setState((GBool)state);
+  } else {
+    g_warning("poppler_document_set_form_field_button_state, unknown id: %i", id);
+  } 
+}
+
+gboolean
+poppler_document_get_form_field_button_state (PopplerDocument *document, unsigned id)
+{
+  FormWidget *field = _get_form_widget_by_id(document, id);
+  if (field && field->getType() == formButton) {
+    return static_cast<FormWidgetButton*>(field)->getState();
+  } else {
+    g_warning("poppler_document_get_form_field_button_state, unknown id: %i", id);
+  } 
+  return FALSE;
+}
+
+void
+poppler_document_set_form_field_text_content (PopplerDocument *document, unsigned id, char *content, int length)
+{
+  FormWidget *field = _get_form_widget_by_id(document, id);
+  if (field && field->getType() == formText) {
+    GooString *tmp = new GooString(content, length);
+    static_cast<FormWidgetText*>(field)->setContent(tmp);
+    delete tmp;
+  } else {
+    g_warning("poppler_document_set_form_field_text_content, unknown id: %i", id);
+  } 
+}
+
+gchar *
+poppler_document_get_form_field_text_content (PopplerDocument *document, unsigned id, int* length)
+{
+  FormWidget *field = _get_form_widget_by_id(document, id);
+  if (field && field->getType() == formText) {
+    FormWidgetText *wid = static_cast<FormWidgetText*>(field);
+    if (wid->getContent()) {
+      *length = wid->getContent()->getLength();
+      return wid->getContent()->getCString();
+    } else {
+      *length = 0;
+      return NULL;
+    }
+  } else {
+    g_warning("poppler_document_get_form_field_choice_content, unknown id: %i", id);
+    *length = 0;
+    return NULL;
+  }
+}
+
+
+
+gchar *
+poppler_document_get_form_field_choice_content (PopplerDocument *document, unsigned id, int index, int *length)
+{
+  FormWidget *field = _get_form_widget_by_id(document, id);
+  if (field && field->getType() == formChoice) {
+    *length = static_cast<FormWidgetChoice*>(field)->getChoice(index)->getLength();
+    return static_cast<FormWidgetChoice*>(field)->getChoice(index)->getCString();
+  } else {
+    g_warning("poppler_document_get_form_field_choice_content, unknown id: %i", id);
+    return NULL;
+  }
+}
+
+int
+poppler_document_form_field_choice_is_selected (PopplerDocument* document, unsigned id, int index)
+{
+  FormWidget *field = _get_form_widget_by_id(document, id);
+  if (field && field->getType() == formChoice) {
+    return static_cast<FormWidgetChoice*>(field)->isSelected(index);
+  } else {
+    g_warning("poppler_document_is_form_field_choice_selected, unknown id: %i", id);
+    return -1;
+  }
+
+}
+
+int
+poppler_document_get_form_field_choice_num_choices (PopplerDocument *document, unsigned id)
+{ 
+  FormWidget *field = _get_form_widget_by_id(document, id);
+  if (field && field->getType() == formChoice) {
+    return static_cast<FormWidgetChoice*>(field)->getNumChoices();
+  } else {
+    g_warning("poppler_document_get_form_field_choice_content, unknown id: %i", id);
+    return -1;
+  }
+}
+
+void
+poppler_document_form_field_choice_select (PopplerDocument* document, unsigned id, int index)
+{
+  FormWidget *field = _get_form_widget_by_id(document, id);
+  if (field && field->getType() == formChoice) {
+    static_cast<FormWidgetChoice*>(field)->select(index);
+  } else {
+    g_warning("poppler_document_set_form_field_choice_select, unknown id: %i", id);
+  } 
+}
+
+void 
+poppler_document_form_field_choice_toggle (PopplerDocument* document, unsigned id, int index)
+{
+  FormWidget *field = _get_form_widget_by_id(document, id);
+  if (field && field->getType() == formChoice) {
+    static_cast<FormWidgetChoice*>(field)->toggle(index);
+  } else {
+    g_warning("poppler_document_form_field_choice_toggle, unknown id: %i", id);
+  }
+}
+
+void
+poppler_document_form_field_choice_deselect_all (PopplerDocument* document, unsigned id)
+{
+  FormWidget *field = _get_form_widget_by_id(document, id);
+  if (field && field->getType() == formChoice) {
+    static_cast<FormWidgetChoice*>(field)->deselectAll();
+  } else {
+    g_warning("poppler_document_form_field_choice_deselect_all, unknown id: %i", id);
+  }
+
+}
+
+void 
+poppler_document_set_form_field_choice_edit (PopplerDocument* document, 
+                                             unsigned id, 
+                                             char *content, 
+                                             int length)
+{
+  FormWidget *field = _get_form_widget_by_id(document, id);
+  if (field && field->getType() == formChoice) {
+    GooString *tmp = new GooString(content, length);
+    static_cast<FormWidgetChoice*>(field)->setEditChoice(tmp);
+    delete tmp;
+  } else {
+    g_warning("poppler_document_form_field_choice_set_edit, unknown id: %i", id);
+  }
+}
+
+gchar *
+poppler_document_get_form_field_choice_edit              (PopplerDocument* document,
+                                                          unsigned id,
+                                                          int *length)
+{
+  FormWidget *field = _get_form_widget_by_id(document, id);
+  if (field && field->getType() == formChoice) {
+    FormWidgetChoice *choice = static_cast<FormWidgetChoice*>(field);
+    if (choice->getEditChoice()) {
+      *length = choice->getEditChoice()->getLength();
+      return choice->getEditChoice()->getCString();
+    } else 
+      return NULL;
+  } else {
+    g_warning("poppler_document_get_form_field_choice_edit, unknown id: %i", id);
+    return NULL;
+  }
+
+}
+
+PopplerFormField *
+poppler_document_find_form_field_by_id (PopplerDocument *document, unsigned id)
+{
+  FormWidget *field = _get_form_widget_by_id(document, id);
+  if (field != NULL) {
+    PopplerFormField *poppler_field = _form_field_new_from_widget (field);
+    return poppler_field;
+  } else
+    return NULL;
+}
+

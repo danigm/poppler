@@ -23,6 +23,8 @@ class Catalog;
 class Annots;
 class Annot;
 class Gfx;
+class FormPageWidgets;
+class Form;
 
 //------------------------------------------------------------------------
 
@@ -104,7 +106,7 @@ class Page {
 public:
 
   // Constructor.
-  Page(XRef *xrefA, int numA, Dict *pageDict, PageAttrs *attrsA);
+  Page(XRef *xrefA, int numA, Dict *pageDict, PageAttrs *attrsA, Form *form);
 
   // Destructor.
   ~Page();
@@ -150,6 +152,9 @@ public:
 
   // Get transition.
   Object *getTrans(Object *obj) { return trans.fetch(xref, obj); }
+
+  // Get form.
+  FormPageWidgets *getPageWidgets() { return pageWidgets; }
 
   // Get duration, the maximum length of time, in seconds,
   // that the page is displayed before the presentation automatically
@@ -200,6 +205,7 @@ private:
   PageAttrs *attrs;		// page attributes
   Object annots;		// annotations array
   Object contents;		// page contents
+  FormPageWidgets *pageWidgets; 			// the form for that page
   Object thumb;			// page thumbnail
   Object trans;			// page transition
   Object actions;		// page addiction actions

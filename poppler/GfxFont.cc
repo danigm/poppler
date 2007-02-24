@@ -1582,6 +1582,33 @@ Gushort *GfxCIDFont::getCodeToGIDMap(FoFiTrueType *ff, int *mapsizep) {
   return map;
 }
 
+double GfxCIDFont::getWidth (char* s, int len) {
+  int nUsed;
+  double w, h, vx, vy;
+  int a, b, m;
+
+  CID cid = cMap->getCID(s, len, &nUsed);
+
+  w = widths.defWidth;
+  if (widths.nExceps > 0 && cid >= widths.exceps[0].first) {
+    a = 0;
+    b = widths.nExceps;
+    // invariant: widths.exceps[a].first <= cid < widths.exceps[b].first
+    while (b - a > 1) {
+      m = (a + b) / 2;
+      if (widths.exceps[m].first <= cid) {
+        a = m;
+      } else {
+        b = m;
+      }
+    }
+    if (cid <= widths.exceps[a].last) {
+      w = widths.exceps[a].width;
+    }
+  }
+  return w;
+}
+
 //------------------------------------------------------------------------
 // GfxFontDict
 //------------------------------------------------------------------------

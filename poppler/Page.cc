@@ -26,10 +26,12 @@
 #include "GfxState.h"
 #include "Annot.h"
 #include "TextOutputDev.h"
+#include "Form.h"
 #endif
 #include "Error.h"
 #include "Page.h"
 #include "UGooString.h"
+#include "Form.h"
 
 //------------------------------------------------------------------------
 // PageAttrs
@@ -188,7 +190,7 @@ GBool PageAttrs::readBox(Dict *dict, char *key, PDFRectangle *box) {
 // Page
 //------------------------------------------------------------------------
 
-Page::Page(XRef *xrefA, int numA, Dict *pageDict, PageAttrs *attrsA) {
+Page::Page(XRef *xrefA, int numA, Dict *pageDict, PageAttrs *attrsA, Form *form) {
   Object tmp;
 	
   ok = gTrue;
@@ -225,6 +227,10 @@ Page::Page(XRef *xrefA, int numA, Dict *pageDict, PageAttrs *attrsA) {
     annots.free();
     goto err2;
   }
+
+  // forms
+  pageWidgets = new FormPageWidgets(xrefA, this->getAnnots(&tmp),num,form);
+  tmp.free();
 
   // contents
   pageDict->lookupNF("Contents", &contents);
@@ -420,8 +426,9 @@ void Page::displaySlice(OutputDev *out, double hDPI, double vDPI,
         Annot *annot = annotList->getAnnot(i);
         if ((annotDisplayDecideCbk &&
              (*annotDisplayDecideCbk)(annot, annotDisplayDecideCbkData)) || 
-            !annotDisplayDecideCbk)
+            !annotDisplayDecideCbk) {
           annot->draw(gfx); 
+    }
     }
     out->dump();
   }

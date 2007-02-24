@@ -34,12 +34,16 @@ enum XRefEntryType {
 struct XRefEntry {
   Guint offset;
   int gen;
+  int num;
   XRefEntryType type;
+  Object* obj;
 };
 
 class XRef {
 public:
 
+  // Constructor, create an empty XRef, used for PDF writing
+  XRef();
   // Constructor.  Read xref table from stream.
   XRef(BaseStream *strA);
 
@@ -101,6 +105,11 @@ public:
   int getSize() { return size; }
   XRefEntry *getEntry(int i) { return &entries[i]; }
   Object *getTrailerDict() { return &trailerDict; }
+
+  // Write access
+  void setModifiedObject(Object* o, Ref r);
+  void add(int num, int gen,  Guint offs, GBool used);
+  void writeToFile(FILE* f);
 
 private:
 

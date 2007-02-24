@@ -16,6 +16,9 @@
 class XRef;
 class Gfx;
 class Catalog;
+class CharCodeToUnicode;
+class GfxFont;
+class FormWidget;
 
 //------------------------------------------------------------------------
 // Annot
@@ -24,7 +27,7 @@ class Catalog;
 class Annot {
 public:
 
-  Annot(XRef *xrefA, Dict *acroForm, Dict *dict);
+  Annot(XRef *xrefA, Dict *acroForm, Dict *dict, Ref* aref, Catalog* catalog);
   ~Annot();
   GBool isOk() { return ok; }
 
@@ -32,9 +35,15 @@ public:
 
   // Get appearance object.
   Object *getAppearance(Object *obj) { return appearance.fetch(xref, obj); }
+  GBool textField() { return isTextField; }
+
+  double getXMin() { return xMin; }
+  double getYMin() { return yMin; }
+
+  double getFontSize() { return fontSize; }
 
 private:
-
+  void writeTextString (GooString* vStr, CharCodeToUnicode* ccToUnicode, GooString* appearBuf, GfxFont* font);
   void generateAppearance(Dict *acroForm, Dict *dict);
   void readArrayNum(Object *pdfArray, int key, double *value);
 
@@ -44,7 +53,15 @@ private:
   GooString *appearBuf;
   double xMin, yMin,		// annotation rectangle
          xMax, yMax;
+  double fontSize; 
   GBool ok;
+  GBool regen, isTextField;
+  GBool isMultiline, isListbox;
+  
+  bool hasRef;
+  bool hidden;
+  Ref ref;
+  FormWidget* widget;
 };
 
 //------------------------------------------------------------------------

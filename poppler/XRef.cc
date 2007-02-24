@@ -201,6 +201,16 @@ Object *ObjectStream::getObject(int objIdx, int objNum, Object *obj) {
 // XRef
 //------------------------------------------------------------------------
 
+XRef::XRef() {
+  ok = gTrue;
+  errCode = errNone;
+  entries = NULL;
+  size = 0;
+  streamEnds = NULL;
+  streamEndsLen = 0;
+  objStr = NULL;
+}
+
 XRef::XRef(BaseStream *strA) {
   Guint pos;
   Object obj;
@@ -264,7 +274,12 @@ XRef::XRef(BaseStream *strA) {
 }
 
 XRef::~XRef() {
+  for(int i=0; i<size; i++) {
+    if (entries[i].obj)
+            delete entries[i].obj;
+  }
   gfree(entries);
+
   trailerDict.free();
   if (streamEnds) {
     gfree(streamEnds);
@@ -397,6 +412,7 @@ GBool XRef::readXRefTable(Parser *parser, Guint *pos) {
       for (i = size; i < newSize; ++i) {
 	entries[i].offset = 0xffffffff;
 	entries[i].type = xrefEntryFree;
+	entries[i].obj = NULL;
       }
       size = newSize;
     }
@@ -410,6 +426,7 @@ GBool XRef::readXRefTable(Parser *parser, Guint *pos) {
 	goto err1;
       }
       entry.gen = obj.getInt();
+      entry.obj = NULL;
       obj.free();
       parser->getObj(&obj);
       if (obj.isCmd("n")) {
@@ -507,6 +524,7 @@ GBool XRef::readXRefStream(Stream *xrefStr, Guint *pos) {
     for (i = size; i < newSize; ++i) {
       entries[i].offset = 0xffffffff;
       entries[i].type = xrefEntryFree;
+      entries[i].obj = NULL;
     }
     size = newSize;
   }
@@ -601,6 +619,7 @@ GBool XRef::readXRefStreamSection(Stream *xrefStr, int *w, int first, int n) {
     for (i = size; i < newSize; ++i) {
       entries[i].offset = 0xffffffff;
       entries[i].type = xrefEntryFree;
+      entries[i].obj = NULL;
     }
     size = newSize;
   }
@@ -741,6 +760,7 @@ GBool XRef::constructXRef() {
 		  for (i = size; i < newSize; ++i) {
 		    entries[i].offset = 0xffffffff;
 		    entries[i].type = xrefEntryFree;
+		    entries[i].obj = NULL;
 		  }
 		  size = newSize;
 		}
@@ -850,6 +870,10 @@ Object *XRef::fetch(int num, int gen, Object *obj) {
   }
 
   e = &entries[num];
+  if(e->obj) { //check for updated object
+    obj = e->obj->copy(obj);
+    return obj;
+  }
   switch (e->type) {
 
   case xrefEntryUncompressed:
@@ -967,3 +991,66 @@ Guint XRef::strToUnsigned(char *s) {
   }
   return x;
 }
+
+void XRef::add(int num, int gen, Guint offs, GBool used) {
+  size += 1;
+  entries = (XRefEntry *)greallocn(entries, size, sizeof(XRefEntry));
+  XRefEntry *e = &entries[size-1];
+
+  e->gen = gen;
+  e->num = num;
+  e->obj = NULL;
+  if (used) {
+    e->type = xrefEntryUncompressed;
+    e->offset = offs;
+  } else {
+    e->type = xrefEntryFree;
+    e->offset = 0;
+  }
+}
+
+void XRef::setModifiedObject (Object* o, Ref r) {
+  if (r.num < 0 || r.num >= size) {
+    error(-1,"XRef::setModifiedObject on unknown ref: %i, %i\n", r.num, r.gen);
+    return;
+  }
+  entries[r.num].obj = new Object();
+  o->copy(entries[r.num].obj);
+}
+
+//used to sort the entries
+int compare (const void* a, const void* b)
+{
+  return (((XRefEntry*)a)->num - ((XRefEntry*)b)->num);
+}
+
+void XRef::writeToFile(FILE* file) {
+  qsort(entries, size, sizeof(XRefEntry), compare);
+  //create free entries linked-list
+  if (entries[0].gen != 65535) {
+    error(-1, "XRef::writeToFile, entry 0 of the XRef is invalid (gen != 65535)\n");
+  }
+  int lastFreeEntry = 0; 
+  for (int i=0; i<size; i++) {
+    if (entries[i].type == xrefEntryFree) {
+      entries[lastFreeEntry].offset = entries[i].num;
+      lastFreeEntry = i;
+    }
+  }
+  //write the new xref
+  int j;
+  fprintf(file,"xref\r\n");
+  for (int i=0; i<size; i++) {
+    for(j=i; j<size; j++) { //look for consecutive entry
+      if (j!=i && entries[j].num != entries[j-1].num+1) 
+              break;
+    }
+    fprintf(file,"%i %i\r\n", entries[i].num, j-i);
+    for (int k=i; k<j; k++) {
+      if(entries[k].gen > 65535) entries[k].gen = 65535; //cap generation number to 65535 (required by PDFReference)
+      fprintf(file,"%010i %05i %c\r\n", entries[k].offset, entries[k].gen, (entries[k].type==xrefEntryFree)?'f':'n');
+    }
+    i = j-1;
+  }
+}
+

@@ -167,6 +167,9 @@ public:
   GBool isItalic() { return flags & fontItalic; }
   GBool isBold() { return flags & fontBold; }
 
+  // Return the Unicode map.
+  virtual CharCodeToUnicode *getToUnicode() = 0;
+
   // Return the font matrix.
   double *getFontMatrix() { return fontMat; }
 
@@ -315,6 +318,8 @@ public:
   int getCIDToGIDLen() { return cidToGIDLen; }
 
   Gushort *getCodeToGIDMap(FoFiTrueType *ff, int *length);
+
+  double getWidth(char* s, int len);
 
 private:
 

@@ -25,6 +25,7 @@
 #include "PageLabelInfo.h"
 #include "UGooString.h"
 #include "Catalog.h"
+#include "Form.h"
 
 // This define is used to limit the depth of recursive readPageTree calls
 // This is needed because the page tree nodes can reference their parents
@@ -49,12 +50,21 @@ Catalog::Catalog(XRef *xrefA) {
   numPages = pagesSize = 0;
   baseURI = NULL;
   pageLabelInfo = NULL;
+  form = NULL;
 
   xref->getCatalog(&catDict);
   if (!catDict.isDict()) {
     error(-1, "Catalog object is wrong type (%s)", catDict.getTypeName());
     goto err1;
   }
+  // get the AcroForm dictionary
+  catDict.dictLookup("AcroForm", &acroForm);
+
+  // load Forms
+  if (acroForm.isDict()) {
+    form = new Form(xref,&acroForm);
+  }
+
 
   // read page tree
   catDict.dictLookup("Pages", &pagesDict);
@@ -158,8 +168,9 @@ Catalog::Catalog(XRef *xrefA) {
   // get the outline dictionary
   catDict.dictLookup("Outlines", &outline);
 
-  // get the AcroForm dictionary
-  catDict.dictLookup("AcroForm", &acroForm);
+  // perform form-related loading after all widgets have been loaded
+  if (form) 
+    form->postWidgetsLoad();
 
   catDict.free();
   return;
@@ -242,7 +253,7 @@ int Catalog::readPageTree(Dict *pagesDict, PageAttrs *attrs, int start, int call
     kids.arrayGet(i, &kid);
     if (kid.isDict("Page")) {
       attrs2 = new PageAttrs(attrs1, kid.getDict());
-      page = new Page(xref, start+1, kid.getDict(), attrs2);
+      page = new Page(xref, start+1, kid.getDict(), attrs2, form);
       if (!page->isOk()) {
 	++start;
 	goto err3;

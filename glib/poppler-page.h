@@ -81,6 +81,11 @@ void                poppler_page_render_selection     (PopplerPage        *page,
 						       PopplerRectangle   *old_selection,
 						       GdkColor         *glyph_color,
 						       GdkColor         *background_color);
+GList               *poppler_page_get_form_fields     (PopplerPage *page);
+void 	             poppler_page_free_form_fields    (GList *list);
+
+void 		    poppler_page_get_crop_box 	      (PopplerPage *page,
+						       PopplerRectangle *rect);
 
 
 /* A rectangle on a page, with coordinates in PDF points. */
@@ -112,6 +117,56 @@ GType               poppler_link_mapping_get_type (void) G_GNUC_CONST;
 PopplerLinkMapping *poppler_link_mapping_new      (void);
 PopplerLinkMapping *poppler_link_mapping_copy     (PopplerLinkMapping *mapping);
 void                poppler_link_mapping_free     (PopplerLinkMapping *mapping);
+
+/* FormField */
+#define POPPLER_TYPE_FORM_FIELD                     (poppler_form_field_get_type ())
+struct _PopplerTextField
+{
+  //flags
+  char multiline:1;
+  char password:1;
+  char fileselect:1;
+  char do_not_spell_check:1;
+  char do_not_scroll:1;
+  char comb:1;
+  char rich_text:1;
+  //content
+  gchar *content;
+  int length;
+};
+
+struct _PopplerButtonField
+{
+  //content
+  gboolean state;
+};
+
+struct _PopplerChoiceField
+{
+  char combo:1;
+  char edit:1;
+  char multi_select:1;
+  char do_not_spell_check:1;
+  char commit_on_sel_change:1;
+};
+
+struct _PopplerFormField
+{
+  PopplerRectangle area;
+  PopplerFormFieldType type;
+  int id;
+  double font_size;
+  union {
+    PopplerTextField text;
+    PopplerButtonField button;
+    PopplerChoiceField choice;
+  };
+};
+
+GType               poppler_form_field_get_type (void) G_GNUC_CONST;
+PopplerFormField   *poppler_form_field_new (void);
+PopplerFormField   *poppler_form_field_copy (PopplerFormField *field);
+void                poppler_form_field_free (PopplerFormField *field);
 
 G_END_DECLS
 

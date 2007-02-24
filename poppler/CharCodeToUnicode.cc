@@ -504,6 +504,40 @@ int CharCodeToUnicode::mapToUnicode(CharCode c, Unicode *u, int size) {
   return 0;
 }
 
+int CharCodeToUnicode::mapToCharCode(Unicode* u, CharCode *c, int usize) {
+  //look for charcode in map
+  if (usize == 1) {
+    for (int i=0; i<mapLen; i++) {
+      if (map[i] == ((*u)&0xff)) {
+        *c = (char)map[i];
+        return 1;
+      }
+    }
+    *c = 'x';
+  } else {
+    int i, j;
+    //for each entry in the sMap
+    for (i=0; i<sMapLen; i++) {
+      //if the entry's unicode length isn't the same are usize, the strings 
+      // are obviously differents
+      if (sMap[i].len != usize) continue;
+      //compare the string char by char
+      for (j=0; j<sMap[i].len; j++) {
+        if (sMap[i].u[j] != u[j]) {
+          continue;
+        }
+      }
+
+      //we have the same strings
+      if (j==sMap[i].len) { 
+        *c = sMap[i].c;
+        return 1;
+      }
+    }
+  }
+  return 0;
+}
+
 //------------------------------------------------------------------------
 
 CharCodeToUnicodeCache::CharCodeToUnicodeCache(int sizeA) {

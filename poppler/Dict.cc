@@ -65,6 +65,38 @@ inline DictEntry *Dict::find(const UGooString &key) {
   return NULL;
 }
 
+void Dict::remove(const UGooString &key) {
+  int i; 
+  bool found = false;
+  DictEntry tmp;
+  if(length == 0) return;
+
+  for(i=0; i<length; i++) {
+    if (!key.cmp(entries[i].key)) {
+      found = true;
+      break;
+    }
+  }
+  if(!found) return;
+  //replace the deleted entry with the last entry
+  length -= 1;
+  tmp = entries[length];
+  if (i!=length) //don't copy the last entry if it is deleted 
+    entries[i] = tmp;
+}
+
+void Dict::set(const UGooString &key, Object *val) {
+  DictEntry *e;
+  e = find (key);
+  if (e) {
+    e->val.free();
+    e->val = *val;
+  } else {
+    add (key, val);
+  }
+}
+
+
 GBool Dict::is(char *type) {
   DictEntry *e;
 

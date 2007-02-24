@@ -21,6 +21,7 @@ struct Ref;
 class LinkDest;
 class UGooString;
 class PageLabelInfo;
+class Form;
 
 //------------------------------------------------------------------------
 // NameTree
@@ -151,6 +152,8 @@ public:
 
   Object *getAcroForm() { return &acroForm; }
 
+  Form* getForm() { return form; }
+
   enum PageMode {
     pageModeNone,
     pageModeOutlines,
@@ -178,6 +181,7 @@ private:
   XRef *xref;			// the xref table for this PDF file
   Page **pages;			// array of pages
   Ref *pageRefs;		// object ID for each page
+  Form *form;
   int numPages;			// number of pages
   int pagesSize;		// size of pages array
   Object dests;			// named destination dictionary

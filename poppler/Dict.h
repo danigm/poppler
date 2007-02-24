@@ -50,6 +50,10 @@ public:
   void addOwnVal(const char *key, Object *val) {
     addOwnKeyVal(new UGooString(key), val);
   }
+  // Update the value of an existing entry, otherwise create it
+  void set(const UGooString &key, Object *val);
+  // Remove an entry. This invalidate indexes
+  void remove(const UGooString &key);
 
   // Check if dictionary is of specified type.
   GBool is(char *type);

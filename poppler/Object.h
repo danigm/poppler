@@ -171,6 +171,7 @@ public:
   void dictAddOwnKeyVal(UGooString *key, Object *val);
   void dictAdd(const UGooString &key, Object *val);
   void dictAddOwnVal(const char *key, Object *val);
+  void dictSet(const UGooString &key, Object *val);
   GBool dictIs(char *dictType);
   Object *dictLookup(const UGooString &key, Object *obj);
   Object *dictLookupNF(const UGooString &key, Object *obj);
@@ -253,6 +254,9 @@ inline void Object::dictAddOwnVal(const char *key, Object *val)
 
 inline void Object::dictAddOwnKeyVal(UGooString *key, Object *val)
   { dict->addOwnKeyVal(key, val); }
+
+inline void Object::dictSet(const UGooString &key, Object *val)
+ 	{ dict->set(key, val); }
 
 inline GBool Object::dictIs(char *dictType)
   { return dict->is(dictType); }

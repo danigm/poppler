@@ -27,6 +27,7 @@ struct CharCodeToUnicodeString;
 //------------------------------------------------------------------------
 
 class CharCodeToUnicode {
+friend class UnicodeToCharCode;
 public:
 
   // Read the CID-to-Unicode mapping for <collection> from the file
@@ -65,6 +66,8 @@ public:
 
   // Map a CharCode to Unicode.
   int mapToUnicode(CharCode c, Unicode *u, int size);
+
+  int mapToCharCode(Unicode* u, CharCode *c, int usize);
 
   // Return the mapping's length, i.e., one more than the max char
   // code supported by the mapping.

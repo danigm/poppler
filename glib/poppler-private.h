@@ -5,6 +5,7 @@
 #include <PDFDoc.h>
 #include <PSOutputDev.h>
 #include <Link.h>
+#include <Form.h>
 #include <Gfx.h>
 #include <FontInfo.h>
 #include <TextOutputDev.h>
@@ -59,6 +60,9 @@ struct _PopplerPage
   TextOutputDev *text_dev;
   Gfx *gfx;
 };
+
+PopplerFormField *_form_field_new_from_widget (FormWidget* field);
+
 
 PopplerPage   *_poppler_page_new   (PopplerDocument *document,
 				    Page            *page,

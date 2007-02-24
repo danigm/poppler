@@ -1,3 +1,38 @@
+2007-02-25  Julien Rebetez  <julienr@svn.gnome.org>
+            reviewed by: <aacid@kde.org>
+
+	* glib/poppler-document.cc:
+	* glib/poppler-document.h:
+	* glib/poppler-page.cc:
+	* glib/poppler-page.h:
+	* glib/poppler-private.h:
+	* glib/poppler.h:
+	* poppler/Annot.cc:
+	* poppler/Annot.h:
+	* poppler/Catalog.cc:
+	* poppler/Catalog.h:
+	* poppler/CharCodeToUnicode.cc:
+	* poppler/CharCodeToUnicode.h:
+	* poppler/Dict.cc:
+	* poppler/Dict.h:
+	* poppler/Form.cc:
+	* poppler/Form.h:
+	* poppler/GfxFont.cc:
+	* poppler/GfxFont.h:
+	* poppler/Makefile.am:
+	* poppler/Object.h:
+	* poppler/Page.cc:
+	* poppler/Page.h:
+	* poppler/XRef.cc:
+	* poppler/XRef.h:
+		Beginning of Interactive Form support:
+		Add a bunch of new classes (FormWidget / FormField) to deal with form
+		fields.
+		Add support for object modification through XRef::setModifiedObject, as
+		well as a function to write the Xref to a file, which will be used
+		to implement PDF writing.
+		Add some functions to glib wrapper to expose the new form features.
+
 2007-02-18  Albert Astals Cid <aacid@kde.org>
 
 	* configure.ac: Change {datadir}/poppler to {datarootdir}/poppler so
