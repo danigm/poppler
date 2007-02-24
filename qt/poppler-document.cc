@@ -35,7 +35,7 @@ namespace Poppler {
 Document *Document::load(const QString &filePath)
 {
   if (!globalParams) {
-    globalParams = new GlobalParams("/etc/xpdfrc");
+    globalParams = new GlobalParams();
   }
 
   DocumentData *doc = new DocumentData(new GooString(QFile::encodeName(filePath)), NULL);
@@ -327,7 +327,7 @@ bool Document::print(const QString &file, QValueList<int> pageList, double hDPI,
   if (psOut->isOk()) {
     QValueList<int>::iterator it;
     for (it = pageList.begin(); it != pageList.end(); ++it )
-      data->doc.displayPage(psOut, *it, hDPI, vDPI, rotate, gFalse, globalParams->getPSCrop(), gFalse);
+      data->doc.displayPage(psOut, *it, hDPI, vDPI, rotate, gFalse, gTrue, gFalse);
     
     delete psOut;
     return true;

@@ -34,7 +34,6 @@ AC_ARG_ENABLE(fixedpoint,
 [  --enable-fixedpoint     use fixed point (instead of floating point) arithmetic],
 AC_DEFINE(USE_FIXEDPOINT, [1], [Use fixed point arithmetic]))
 
-AC_DEFINE_DIR(SYSTEM_XPDFRC, "{sysconfdir}/xpdfrc", [System wide config file])
 AC_DEFINE_DIR(POPPLER_DATADIR, "{datarootdir}/poppler", [Poppler data dir])
 
 dnl ##### Checks for header files.

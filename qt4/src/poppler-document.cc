@@ -431,7 +431,7 @@ namespace Poppler {
         {
             foreach(int page, pageList)
             {
-                m_doc->doc->displayPage(psOut, page, hDPI, vDPI, rotate, gFalse, globalParams->getPSCrop(), gFalse);
+                m_doc->doc->displayPage(psOut, page, hDPI, vDPI, rotate, gFalse, gTrue, gFalse);
             }
 
             delete psOut;

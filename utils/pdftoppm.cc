@@ -24,13 +24,11 @@ static int lastPage = 0;
 static int resolution = 150;
 static GBool mono = gFalse;
 static GBool gray = gFalse;
-static char enableT1libStr[16] = "";
 static char enableFreeTypeStr[16] = "";
 static char antialiasStr[16] = "";
 static char ownerPassword[33] = "";
 static char userPassword[33] = "";
 static GBool quiet = gFalse;
-static char cfgFileName[256] = "";
 static GBool printVersion = gFalse;
 static GBool printHelp = gFalse;
 
@@ -45,10 +43,6 @@ static ArgDesc argDesc[] = {
    "generate a monochrome PBM file"},
   {"-gray",   argFlag,     &gray,          0,
    "generate a grayscale PGM file"},
-#if HAVE_T1LIB_H
-  {"-t1lib",      argString,      enableT1libStr, sizeof(enableT1libStr),
-   "enable t1lib font rasterizer: yes, no"},
-#endif
 #if HAVE_FREETYPE_FREETYPE_H | HAVE_FREETYPE_H
   {"-freetype",   argString,      enableFreeTypeStr, sizeof(enableFreeTypeStr),
    "enable FreeType font rasterizer: yes, no"},
@@ -61,8 +55,6 @@ static ArgDesc argDesc[] = {
    "user password (for encrypted files)"},
   {"-q",      argFlag,     &quiet,         0,
    "don't print any messages or errors"},
-  {"-cfg",        argString,      cfgFileName,    sizeof(cfgFileName),
-   "configuration file to use in place of .xpdfrc"},
   {"-v",      argFlag,     &printVersion,  0,
    "print copyright and version info"},
   {"-h",      argFlag,     &printHelp,     0,
@@ -107,12 +99,7 @@ int main(int argc, char *argv[]) {
   ppmRoot = argv[2];
 
   // read config file
-  globalParams = new GlobalParams(cfgFileName);
-  if (enableT1libStr[0]) {
-    if (!globalParams->setEnableT1lib(enableT1libStr)) {
-      fprintf(stderr, "Bad '-t1lib' value on command line\n");
-    }
-  }
+  globalParams = new GlobalParams();
   if (enableFreeTypeStr[0]) {
     if (!globalParams->setEnableFreeType(enableFreeTypeStr)) {
       fprintf(stderr, "Bad '-freetype' value on command line\n");

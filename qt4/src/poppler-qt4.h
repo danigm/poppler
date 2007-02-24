@@ -450,8 +450,12 @@ namespace Poppler {
 
 	   \param filePath the name (and path, if required) of the file to load
 
+	   \return NULL on error
+
 	   \warning The application owns the pointer to Document, and this should
 	   be deleted when no longer required.
+	
+	   \warning The returning document may be locked.
 	*/
 	static Document *load(const QString & filePath,
 			      const QByteArray &ownerPassword=QByteArray(),
@@ -780,7 +784,7 @@ height = dummy.height();
     /**
        Container class for a sound file in a PDF document.
 
-       A sound can be either External (in that case should be loaded the file
+	A sound can be either External (in that case should be loaded the file
        whose url is represented by url() ), or Embedded, and the player has to
        play the data contained in data().
     */

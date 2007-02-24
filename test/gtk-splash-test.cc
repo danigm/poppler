@@ -275,7 +275,7 @@ main (int argc, char *argv [])
   
   gtk_init (&argc, &argv);
   
-  globalParams = new GlobalParams("/etc/xpdfrc");
+  globalParams = new GlobalParams();
   
   if (argc == 1)
     {

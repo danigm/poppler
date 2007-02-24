@@ -281,10 +281,8 @@ Plugin::~Plugin() {
 // parsing
 //------------------------------------------------------------------------
 
-GlobalParams::GlobalParams(char *cfgFileName) {
+GlobalParams::GlobalParams() {
   UnicodeMap *map;
-  GooString *fileName;
-  FILE *f;
   int i;
   
   FcInit();
@@ -321,18 +319,10 @@ GlobalParams::GlobalParams(char *cfgFileName) {
   cMapDirs = new GooHash(gTrue);
   toUnicodeDirs = new GooList();
   displayFonts = new GooHash();
-  psPaperWidth = -1;
-  psPaperHeight = -1;
-  psImageableLLX = psImageableLLY = 0;
-  psImageableURX = psPaperWidth;
-  psImageableURY = psPaperHeight;
-  psCrop = gTrue;
   psExpandSmaller = gFalse;
   psShrinkLarger = gTrue;
   psCenter = gTrue;
-  psDuplex = gFalse;
   psLevel = psLevel2;
-  psFile = NULL;
   psFonts = new GooHash();
   psNamedFonts16 = new GooList();
   psFonts16 = new GooList();
@@ -353,13 +343,8 @@ GlobalParams::GlobalParams(char *cfgFileName) {
   textPageBreaks = gTrue;
   textKeepTinyChars = gFalse;
   fontDirs = new GooList();
-  initialZoom = new GooString("125");
-  continuousView = gFalse;
-  enableT1lib = gTrue;
   enableFreeType = gTrue;
   antialias = gTrue;
-  urlCommand = NULL;
-  movieCommand = NULL;
   mapNumericCharNames = gTrue;
   printCommands = gFalse;
   profileCommands = gFalse;
@@ -399,214 +384,7 @@ GlobalParams::GlobalParams(char *cfgFileName) {
   map = new UnicodeMap("UCS-2", gTrue, &mapUCS2);
   residentUnicodeMaps->add(map->getEncodingName(), map);
 
-  // look for a user config file, then a system-wide config file
-  f = NULL;
-  fileName = NULL;
-  if (cfgFileName && cfgFileName[0]) {
-    fileName = new GooString(cfgFileName);
-    if (!(f = fopen(fileName->getCString(), "r"))) {
-      delete fileName;
-    }
-  }
-  if (!f) {
-    fileName = appendToPath(getHomeDir(), xpdfUserConfigFile);
-    if (!(f = fopen(fileName->getCString(), "r"))) {
-      delete fileName;
-    }
-  }
-  if (!f) {
-#if defined(WIN32) && !defined(__CYGWIN32__)
-    char buf[512];
-    i = GetModuleFileName(NULL, buf, sizeof(buf));
-    if (i <= 0 || i >= sizeof(buf)) {
-      // error or path too long for buffer - just use the current dir
-      buf[0] = '\0';
-    }
-    fileName = grabPath(buf);
-    appendToPath(fileName, xpdfSysConfigFile);
-#else
-    fileName = new GooString(xpdfSysConfigFile);
-#endif
-    if (!(f = fopen(fileName->getCString(), "r"))) {
-      delete fileName;
-    }
-  }
-  if (f) {
-    parseFile(fileName, f);
-    delete fileName;
-    fclose(f);
-  }
-
   scanEncodingDirs();
-}
-
-void GlobalParams::parseFile(GooString *fileName, FILE *f) {
-  int line;
-  GooList *tokens;
-  GooString *cmd, *incFile;
-  char *p1, *p2;
-  char buf[512];
-  FILE *f2;
-
-  line = 1;
-  while (getLine(buf, sizeof(buf) - 1, f)) {
-
-    // break the line into tokens
-    tokens = new GooList();
-    p1 = buf;
-    while (*p1) {
-      for (; *p1 && isspace(*p1); ++p1) ;
-      if (!*p1) {
-	break;
-      }
-      if (*p1 == '"' || *p1 == '\'') {
-	for (p2 = p1 + 1; *p2 && *p2 != *p1; ++p2) ;
-	++p1;
-      } else {
-	for (p2 = p1 + 1; *p2 && !isspace(*p2); ++p2) ;
-      }
-      tokens->append(new GooString(p1, p2 - p1));
-      p1 = *p2 ? p2 + 1 : p2;
-    }
-
-    if (tokens->getLength() > 0 &&
-	((GooString *)tokens->get(0))->getChar(0) != '#') {
-      cmd = (GooString *)tokens->get(0);
-      if (!cmd->cmp("include")) {
-	if (tokens->getLength() == 2) {
-	  incFile = (GooString *)tokens->get(1);
-	  if ((f2 = fopen(incFile->getCString(), "r"))) {
-	    parseFile(incFile, f2);
-	    fclose(f2);
-	  } else {
-	    error(-1, "Couldn't find included config file: '%s' (%s:%d)",
-		  incFile->getCString(), fileName->getCString(), line);
-	  }
-	} else {
-	  error(-1, "Bad 'include' config file command (%s:%d)",
-		fileName->getCString(), line);
-	}
-      } else if (!cmd->cmp("nameToUnicode")) {
-	if (tokens->getLength() != 2)
-	  error(-1, "Bad 'nameToUnicode' config file command (%s:%d)",
-		fileName->getCString(), line);
-	else
-	  parseNameToUnicode((GooString *) tokens->get(1));
-      } else if (!cmd->cmp("cidToUnicode")) {
-	parseCIDToUnicode(tokens, fileName, line);
-      } else if (!cmd->cmp("unicodeToUnicode")) {
-	parseUnicodeToUnicode(tokens, fileName, line);
-      } else if (!cmd->cmp("unicodeMap")) {
-	parseUnicodeMap(tokens, fileName, line);
-      } else if (!cmd->cmp("cMapDir")) {
-	parseCMapDir(tokens, fileName, line);
-      } else if (!cmd->cmp("toUnicodeDir")) {
-	parseToUnicodeDir(tokens, fileName, line);
-      } else if (!cmd->cmp("displayFontT1")) {
-        // deprecated
-      } else if (!cmd->cmp("displayFontTT")) {
-        // deprecated
-      } else if (!cmd->cmp("displayNamedCIDFontT1")) {
-        // deprecated
-      } else if (!cmd->cmp("displayCIDFontT1")) {
-        // deprecated
-      } else if (!cmd->cmp("displayNamedCIDFontTT")) {
-        // deprecated
-      } else if (!cmd->cmp("displayCIDFontTT")) {
-        // deprecated
-      } else if (!cmd->cmp("psFile")) {
-	parsePSFile(tokens, fileName, line);
-      } else if (!cmd->cmp("psFont")) {
-	parsePSFont(tokens, fileName, line);
-      } else if (!cmd->cmp("psNamedFont16")) {
-	parsePSFont16("psNamedFont16", psNamedFonts16,
-		      tokens, fileName, line);
-      } else if (!cmd->cmp("psFont16")) {
-	parsePSFont16("psFont16", psFonts16, tokens, fileName, line);
-      } else if (!cmd->cmp("psPaperSize")) {
-	parsePSPaperSize(tokens, fileName, line);
-      } else if (!cmd->cmp("psImageableArea")) {
-	parsePSImageableArea(tokens, fileName, line);
-      } else if (!cmd->cmp("psCrop")) {
-	parseYesNo("psCrop", &psCrop, tokens, fileName, line);
-      } else if (!cmd->cmp("psExpandSmaller")) {
-	parseYesNo("psExpandSmaller", &psExpandSmaller,
-		   tokens, fileName, line);
-      } else if (!cmd->cmp("psShrinkLarger")) {
-	parseYesNo("psShrinkLarger", &psShrinkLarger, tokens, fileName, line);
-      } else if (!cmd->cmp("psCenter")) {
-	parseYesNo("psCenter", &psCenter, tokens, fileName, line);
-      } else if (!cmd->cmp("psDuplex")) {
-	parseYesNo("psDuplex", &psDuplex, tokens, fileName, line);
-      } else if (!cmd->cmp("psLevel")) {
-	parsePSLevel(tokens, fileName, line);
-      } else if (!cmd->cmp("psEmbedType1Fonts")) {
-	parseYesNo("psEmbedType1", &psEmbedType1, tokens, fileName, line);
-      } else if (!cmd->cmp("psEmbedTrueTypeFonts")) {
-	parseYesNo("psEmbedTrueType", &psEmbedTrueType,
-		   tokens, fileName, line);
-      } else if (!cmd->cmp("psEmbedCIDPostScriptFonts")) {
-	parseYesNo("psEmbedCIDPostScript", &psEmbedCIDPostScript,
-		   tokens, fileName, line);
-      } else if (!cmd->cmp("psEmbedCIDTrueTypeFonts")) {
-	parseYesNo("psEmbedCIDTrueType", &psEmbedCIDTrueType,
-		   tokens, fileName, line);
-      } else if (!cmd->cmp("psOPI")) {
-	parseYesNo("psOPI", &psOPI, tokens, fileName, line);
-      } else if (!cmd->cmp("psASCIIHex")) {
-	parseYesNo("psASCIIHex", &psASCIIHex, tokens, fileName, line);
-      } else if (!cmd->cmp("textEncoding")) {
-	parseTextEncoding(tokens, fileName, line);
-      } else if (!cmd->cmp("textEOL")) {
-	parseTextEOL(tokens, fileName, line);
-      } else if (!cmd->cmp("textPageBreaks")) {
-	parseYesNo("textPageBreaks", &textPageBreaks,
-		   tokens, fileName, line);
-      } else if (!cmd->cmp("textKeepTinyChars")) {
-	parseYesNo("textKeepTinyChars", &textKeepTinyChars,
-		   tokens, fileName, line);
-      } else if (!cmd->cmp("fontDir")) {
-	parseFontDir(tokens, fileName, line);
-      } else if (!cmd->cmp("initialZoom")) {
-	parseInitialZoom(tokens, fileName, line);
-      } else if (!cmd->cmp("continuousView")) {
-	parseYesNo("continuousView", &continuousView, tokens, fileName, line);
-      } else if (!cmd->cmp("enableT1lib")) {
-	parseYesNo("enableT1lib", &enableT1lib, tokens, fileName, line);
-      } else if (!cmd->cmp("enableFreeType")) {
-	parseYesNo("enableFreeType", &enableFreeType, tokens, fileName, line);
-      } else if (!cmd->cmp("antialias")) {
-	parseYesNo("antialias", &antialias, tokens, fileName, line);
-      } else if (!cmd->cmp("urlCommand")) {
-	parseCommand("urlCommand", &urlCommand, tokens, fileName, line);
-      } else if (!cmd->cmp("movieCommand")) {
-	parseCommand("movieCommand", &movieCommand, tokens, fileName, line);
-      } else if (!cmd->cmp("mapNumericCharNames")) {
-	parseYesNo("mapNumericCharNames", &mapNumericCharNames,
-		   tokens, fileName, line);
-      } else if (!cmd->cmp("printCommands")) {
-	parseYesNo("printCommands", &printCommands, tokens, fileName, line);
-      } else if (!cmd->cmp("errQuiet")) {
-	parseYesNo("errQuiet", &errQuiet, tokens, fileName, line);
-      } else {
-	error(-1, "Unknown config file command '%s' (%s:%d)",
-	      cmd->getCString(), fileName->getCString(), line);
-	if (!cmd->cmp("displayFontX") ||
-	    !cmd->cmp("displayNamedCIDFontX") ||
-	    !cmd->cmp("displayCIDFontX")) {
-	  error(-1, "-- Xpdf no longer supports X fonts");
-	} else if (!cmd->cmp("t1libControl") || !cmd->cmp("freetypeControl")) {
-	  error(-1, "-- The t1libControl and freetypeControl options have been replaced");
-	  error(-1, "   by the enableT1lib, enableFreeType, and antialias options");
-	} else if (!cmd->cmp("fontpath") || !cmd->cmp("fontmap")) {
-	  error(-1, "-- the config file format has changed since Xpdf 0.9x");
-	}
-      }
-    }
-
-    deleteGooList(tokens, GooString);
-    ++line;
-  }
 }
 
 void GlobalParams::scanEncodingDirs() {
@@ -644,6 +422,7 @@ void GlobalParams::scanEncodingDirs() {
 }
 
 void GlobalParams::parseNameToUnicode(GooString *name) {
+printf("PARSING %s", name->getCString());
   char *tok1, *tok2;
   FILE *f;
   char buf[256];
@@ -681,33 +460,6 @@ void GlobalParams::addCIDToUnicode(GooString *collection,
   cidToUnicodes->add(collection->copy(), fileName->copy());
 }
 
-void GlobalParams::parseCIDToUnicode(GooList *tokens, GooString *fileName,
-				     int line) {
-  if (tokens->getLength() != 3) {
-    error(-1, "Bad 'cidToUnicode' config file command (%s:%d)",
-	  fileName->getCString(), line);
-    return;
-  }
-  addCIDToUnicode((GooString *)tokens->get(1), (GooString *)tokens->get(2));
-}
-
-void GlobalParams::parseUnicodeToUnicode(GooList *tokens, GooString *fileName,
-					 int line) {
-  GooString *font, *file, *old;
-
-  if (tokens->getLength() != 3) {
-    error(-1, "Bad 'unicodeToUnicode' config file command (%s:%d)",
-	  fileName->getCString(), line);
-    return;
-  }
-  font = (GooString *)tokens->get(1);
-  file = (GooString *)tokens->get(2);
-  if ((old = (GooString *)unicodeToUnicodes->remove(font))) {
-    delete old;
-  }
-  unicodeToUnicodes->add(font->copy(), file->copy());
-}
-
 void GlobalParams::addUnicodeMap(GooString *encodingName, GooString *fileName)
 {
   GooString *old;
@@ -718,17 +470,6 @@ void GlobalParams::addUnicodeMap(GooString *encodingName, GooString *fileName)
   unicodeMaps->add(encodingName->copy(), fileName->copy());
 }
 
-void GlobalParams::parseUnicodeMap(GooList *tokens, GooString *fileName,
-				   int line) {
-
-  if (tokens->getLength() != 3) {
-    error(-1, "Bad 'unicodeMap' config file command (%s:%d)",
-	  fileName->getCString(), line);
-    return;
-  }
-  addUnicodeMap((GooString *)tokens->get(1), (GooString *)tokens->get(2));
-}
-
 void GlobalParams::addCMapDir(GooString *collection, GooString *dir) {
   GooList *list;
 
@@ -737,223 +478,6 @@ void GlobalParams::addCMapDir(GooString *collection, GooString *dir) {
     cMapDirs->add(collection->copy(), list);
   }
   list->append(dir->copy());
-}
-
-void GlobalParams::parseCMapDir(GooList *tokens, GooString *fileName, int line) {
-  if (tokens->getLength() != 3) {
-    error(-1, "Bad 'cMapDir' config file command (%s:%d)",
-	  fileName->getCString(), line);
-    return;
-  }
-  addCMapDir((GooString *)tokens->get(1), (GooString *)tokens->get(2));
-}
-
-void GlobalParams::parseToUnicodeDir(GooList *tokens, GooString *fileName,
-				     int line) {
-  if (tokens->getLength() != 2) {
-    error(-1, "Bad 'toUnicodeDir' config file command (%s:%d)",
-	  fileName->getCString(), line);
-    return;
-  }
-  toUnicodeDirs->append(((GooString *)tokens->get(1))->copy());
-}
-
-void GlobalParams::parsePSPaperSize(GooList *tokens, GooString *fileName,
-				    int line) {
-  GooString *tok;
-
-  if (tokens->getLength() == 2) {
-    tok = (GooString *)tokens->get(1);
-    if (!setPSPaperSize(tok->getCString())) {
-      error(-1, "Bad 'psPaperSize' config file command (%s:%d)",
-	    fileName->getCString(), line);
-    }
-  } else if (tokens->getLength() == 3) {
-    tok = (GooString *)tokens->get(1);
-    psPaperWidth = atoi(tok->getCString());
-    tok = (GooString *)tokens->get(2);
-    psPaperHeight = atoi(tok->getCString());
-    psImageableLLX = psImageableLLY = 0;
-    psImageableURX = psPaperWidth;
-    psImageableURY = psPaperHeight;
-  } else {
-    error(-1, "Bad 'psPaperSize' config file command (%s:%d)",
-	  fileName->getCString(), line);
-  }
-}
-
-void GlobalParams::parsePSImageableArea(GooList *tokens, GooString *fileName,
-					int line) {
-  if (tokens->getLength() != 5) {
-    error(-1, "Bad 'psImageableArea' config file command (%s:%d)",
-	  fileName->getCString(), line);
-    return;
-  }
-  psImageableLLX = atoi(((GooString *)tokens->get(1))->getCString());
-  psImageableLLY = atoi(((GooString *)tokens->get(2))->getCString());
-  psImageableURX = atoi(((GooString *)tokens->get(3))->getCString());
-  psImageableURY = atoi(((GooString *)tokens->get(4))->getCString());
-}
-
-void GlobalParams::parsePSLevel(GooList *tokens, GooString *fileName, int line) {
-  GooString *tok;
-
-  if (tokens->getLength() != 2) {
-    error(-1, "Bad 'psLevel' config file command (%s:%d)",
-	  fileName->getCString(), line);
-    return;
-  }
-  tok = (GooString *)tokens->get(1);
-  if (!tok->cmp("level1")) {
-    psLevel = psLevel1;
-  } else if (!tok->cmp("level1sep")) {
-    psLevel = psLevel1Sep;
-  } else if (!tok->cmp("level2")) {
-    psLevel = psLevel2;
-  } else if (!tok->cmp("level2sep")) {
-    psLevel = psLevel2Sep;
-  } else if (!tok->cmp("level3")) {
-    psLevel = psLevel3;
-  } else if (!tok->cmp("level3Sep")) {
-    psLevel = psLevel3Sep;
-  } else {
-    error(-1, "Bad 'psLevel' config file command (%s:%d)",
-	  fileName->getCString(), line);
-  }
-}
-
-void GlobalParams::parsePSFile(GooList *tokens, GooString *fileName, int line) {
-  if (tokens->getLength() != 2) {
-    error(-1, "Bad 'psFile' config file command (%s:%d)",
-	  fileName->getCString(), line);
-    return;
-  }
-  if (psFile) {
-    delete psFile;
-  }
-  psFile = ((GooString *)tokens->get(1))->copy();
-}
-
-void GlobalParams::parsePSFont(GooList *tokens, GooString *fileName, int line) {
-  PSFontParam *param;
-
-  if (tokens->getLength() != 3) {
-    error(-1, "Bad 'psFont' config file command (%s:%d)",
-	  fileName->getCString(), line);
-    return;
-  }
-  param = new PSFontParam(((GooString *)tokens->get(1))->copy(), 0,
-			  ((GooString *)tokens->get(2))->copy(), NULL);
-  psFonts->add(param->pdfFontName, param);
-}
-
-void GlobalParams::parsePSFont16(char *cmdName, GooList *fontList,
-				 GooList *tokens, GooString *fileName, int line) {
-  PSFontParam *param;
-  int wMode;
-  GooString *tok;
-
-  if (tokens->getLength() != 5) {
-    error(-1, "Bad '%s' config file command (%s:%d)",
-	  cmdName, fileName->getCString(), line);
-    return;
-  }
-  tok = (GooString *)tokens->get(2);
-  if (!tok->cmp("H")) {
-    wMode = 0;
-  } else if (!tok->cmp("V")) {
-    wMode = 1;
-  } else {
-    error(-1, "Bad '%s' config file command (%s:%d)",
-	  cmdName, fileName->getCString(), line);
-    return;
-  }
-  param = new PSFontParam(((GooString *)tokens->get(1))->copy(),
-			  wMode,
-			  ((GooString *)tokens->get(3))->copy(),
-			  ((GooString *)tokens->get(4))->copy());
-  fontList->append(param);
-}
-
-void GlobalParams::parseTextEncoding(GooList *tokens, GooString *fileName,
-				     int line) {
-  if (tokens->getLength() != 2) {
-    error(-1, "Bad 'textEncoding' config file command (%s:%d)",
-	  fileName->getCString(), line);
-    return;
-  }
-  delete textEncoding;
-  textEncoding = ((GooString *)tokens->get(1))->copy();
-}
-
-void GlobalParams::parseTextEOL(GooList *tokens, GooString *fileName, int line) {
-  GooString *tok;
-
-  if (tokens->getLength() != 2) {
-    error(-1, "Bad 'textEOL' config file command (%s:%d)",
-	  fileName->getCString(), line);
-    return;
-  }
-  tok = (GooString *)tokens->get(1);
-  if (!tok->cmp("unix")) {
-    textEOL = eolUnix;
-  } else if (!tok->cmp("dos")) {
-    textEOL = eolDOS;
-  } else if (!tok->cmp("mac")) {
-    textEOL = eolMac;
-  } else {
-    error(-1, "Bad 'textEOL' config file command (%s:%d)",
-	  fileName->getCString(), line);
-  }
-}
-
-void GlobalParams::parseFontDir(GooList *tokens, GooString *fileName, int line) {
-  if (tokens->getLength() != 2) {
-    error(-1, "Bad 'fontDir' config file command (%s:%d)",
-	  fileName->getCString(), line);
-    return;
-  }
-  fontDirs->append(((GooString *)tokens->get(1))->copy());
-}
-
-void GlobalParams::parseInitialZoom(GooList *tokens,
-				    GooString *fileName, int line) {
-  if (tokens->getLength() != 2) {
-    error(-1, "Bad 'initialZoom' config file command (%s:%d)",
-	  fileName->getCString(), line);
-    return;
-  }
-  delete initialZoom;
-  initialZoom = ((GooString *)tokens->get(1))->copy();
-}
-
-void GlobalParams::parseCommand(char *cmdName, GooString **val,
-				GooList *tokens, GooString *fileName, int line) {
-  if (tokens->getLength() != 2) {
-    error(-1, "Bad '%s' config file command (%s:%d)",
-	  cmdName, fileName->getCString(), line);
-    return;
-  }
-  if (*val) {
-    delete *val;
-  }
-  *val = ((GooString *)tokens->get(1))->copy();
-}
-
-void GlobalParams::parseYesNo(char *cmdName, GBool *flag,
-			      GooList *tokens, GooString *fileName, int line) {
-  GooString *tok;
-
-  if (tokens->getLength() != 2) {
-    error(-1, "Bad '%s' config file command (%s:%d)",
-	  cmdName, fileName->getCString(), line);
-    return;
-  }
-  tok = (GooString *)tokens->get(1);
-  if (!parseYesNo2(tok->getCString(), flag)) {
-    error(-1, "Bad '%s' config file command (%s:%d)",
-	  cmdName, fileName->getCString(), line);
-  }
 }
 
 GBool GlobalParams::parseYesNo2(char *token, GBool *flag) {
@@ -984,21 +508,11 @@ GlobalParams::~GlobalParams() {
   deleteGooHash(unicodeMaps, GooString);
   deleteGooList(toUnicodeDirs, GooString);
   deleteGooHash(displayFonts, DisplayFontParam);
-  if (psFile) {
-    delete psFile;
-  }
   deleteGooHash(psFonts, PSFontParam);
   deleteGooList(psNamedFonts16, PSFontParam);
   deleteGooList(psFonts16, PSFontParam);
   delete textEncoding;
   deleteGooList(fontDirs, GooString);
-  delete initialZoom;
-  if (urlCommand) {
-    delete urlCommand;
-  }
-  if (movieCommand) {
-    delete movieCommand;
-  }
 
   cMapDirs->startIter(&iter);
   while (cMapDirs->getNext(&iter, &key, (void **)&list)) {
@@ -1344,51 +858,6 @@ fin:
   return dfp;
 }
 
-GooString *GlobalParams::getPSFile() {
-  GooString *s;
-
-  lockGlobalParams;
-  s = psFile ? psFile->copy() : (GooString *)NULL;
-  unlockGlobalParams;
-  return s;
-}
-
-int GlobalParams::getPSPaperWidth() {
-  int w;
-
-  lockGlobalParams;
-  w = psPaperWidth;
-  unlockGlobalParams;
-  return w;
-}
-
-int GlobalParams::getPSPaperHeight() {
-  int h;
-
-  lockGlobalParams;
-  h = psPaperHeight;
-  unlockGlobalParams;
-  return h;
-}
-
-void GlobalParams::getPSImageableArea(int *llx, int *lly, int *urx, int *ury) {
-  lockGlobalParams;
-  *llx = psImageableLLX;
-  *lly = psImageableLLY;
-  *urx = psImageableURX;
-  *ury = psImageableURY;
-  unlockGlobalParams;
-}
-
-GBool GlobalParams::getPSCrop() {
-  GBool f;
-
-  lockGlobalParams;
-  f = psCrop;
-  unlockGlobalParams;
-  return f;
-}
-
 GBool GlobalParams::getPSExpandSmaller() {
   GBool f;
 
@@ -1414,15 +883,6 @@ GBool GlobalParams::getPSCenter() {
   f = psCenter;
   unlockGlobalParams;
   return f;
-}
-
-GBool GlobalParams::getPSDuplex() {
-  GBool d;
-
-  lockGlobalParams;
-  d = psDuplex;
-  unlockGlobalParams;
-  return d;
 }
 
 PSLevel GlobalParams::getPSLevel() {
@@ -1588,33 +1048,6 @@ GooString *GlobalParams::findFontFile(GooString *fontName, char **exts) {
   return NULL;
 }
 
-GooString *GlobalParams::getInitialZoom() {
-  GooString *s;
-
-  lockGlobalParams;
-  s = initialZoom->copy();
-  unlockGlobalParams;
-  return s;
-}
-
-GBool GlobalParams::getContinuousView() {
-  GBool f;
-
-  lockGlobalParams;
-  f = continuousView;
-  unlockGlobalParams;
-  return f;
-}
-
-GBool GlobalParams::getEnableT1lib() {
-  GBool f;
-
-  lockGlobalParams;
-  f = enableT1lib;
-  unlockGlobalParams;
-  return f;
-}
-
 GBool GlobalParams::getEnableFreeType() {
   GBool f;
 
@@ -1745,73 +1178,6 @@ UnicodeMap *GlobalParams::getTextEncoding() {
 // functions to set parameters
 //------------------------------------------------------------------------
 
-void GlobalParams::setPSFile(char *file) {
-  lockGlobalParams;
-  if (psFile) {
-    delete psFile;
-  }
-  psFile = new GooString(file);
-  unlockGlobalParams;
-}
-
-GBool GlobalParams::setPSPaperSize(char *size) {
-  lockGlobalParams;
-  if (!strcmp(size, "match")) {
-    psPaperWidth = psPaperHeight = -1;
-  } else if (!strcmp(size, "letter")) {
-    psPaperWidth = 612;
-    psPaperHeight = 792;
-  } else if (!strcmp(size, "legal")) {
-    psPaperWidth = 612;
-    psPaperHeight = 1008;
-  } else if (!strcmp(size, "A4")) {
-    psPaperWidth = 595;
-    psPaperHeight = 842;
-  } else if (!strcmp(size, "A3")) {
-    psPaperWidth = 842;
-    psPaperHeight = 1190;
-  } else {
-    unlockGlobalParams;
-    return gFalse;
-  }
-  psImageableLLX = psImageableLLY = 0;
-  psImageableURX = psPaperWidth;
-  psImageableURY = psPaperHeight;
-  unlockGlobalParams;
-  return gTrue;
-}
-
-void GlobalParams::setPSPaperWidth(int width) {
-  lockGlobalParams;
-  psPaperWidth = width;
-  psImageableLLX = 0;
-  psImageableURX = psPaperWidth;
-  unlockGlobalParams;
-}
-
-void GlobalParams::setPSPaperHeight(int height) {
-  lockGlobalParams;
-  psPaperHeight = height;
-  psImageableLLY = 0;
-  psImageableURY = psPaperHeight;
-  unlockGlobalParams;
-}
-
-void GlobalParams::setPSImageableArea(int llx, int lly, int urx, int ury) {
-  lockGlobalParams;
-  psImageableLLX = llx;
-  psImageableLLY = lly;
-  psImageableURX = urx;
-  psImageableURY = ury;
-  unlockGlobalParams;
-}
-
-void GlobalParams::setPSCrop(GBool crop) {
-  lockGlobalParams;
-  psCrop = crop;
-  unlockGlobalParams;
-}
-
 void GlobalParams::setPSExpandSmaller(GBool expand) {
   lockGlobalParams;
   psExpandSmaller = expand;
@@ -1827,12 +1193,6 @@ void GlobalParams::setPSShrinkLarger(GBool shrink) {
 void GlobalParams::setPSCenter(GBool center) {
   lockGlobalParams;
   psCenter = center;
-  unlockGlobalParams;
-}
-
-void GlobalParams::setPSDuplex(GBool duplex) {
-  lockGlobalParams;
-  psDuplex = duplex;
   unlockGlobalParams;
 }
 
@@ -1911,28 +1271,6 @@ void GlobalParams::setTextKeepTinyChars(GBool keep) {
   lockGlobalParams;
   textKeepTinyChars = keep;
   unlockGlobalParams;
-}
-
-void GlobalParams::setInitialZoom(char *s) {
-  lockGlobalParams;
-  delete initialZoom;
-  initialZoom = new GooString(s);
-  unlockGlobalParams;
-}
-
-void GlobalParams::setContinuousView(GBool cont) {
-  lockGlobalParams;
-  continuousView = cont;
-  unlockGlobalParams;
-}
-
-GBool GlobalParams::setEnableT1lib(char *s) {
-  GBool ok;
-
-  lockGlobalParams;
-  ok = parseYesNo2(s, &enableT1lib);
-  unlockGlobalParams;
-  return ok;
 }
 
 GBool GlobalParams::setEnableFreeType(char *s) {

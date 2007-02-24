@@ -29,6 +29,28 @@
 #include "PSOutputDev.h"
 #include "Error.h"
 
+GBool setPSPaperSize(char *size, int &psPaperWidth, int &psPaperHeight) {
+  if (!strcmp(size, "match")) {
+    psPaperWidth = psPaperHeight = -1;
+  } else if (!strcmp(size, "letter")) {
+    psPaperWidth = 612;
+    psPaperHeight = 792;
+  } else if (!strcmp(size, "legal")) {
+    psPaperWidth = 612;
+    psPaperHeight = 1008;
+  } else if (!strcmp(size, "A4")) {
+    psPaperWidth = 595;
+    psPaperHeight = 842;
+  } else if (!strcmp(size, "A3")) {
+    psPaperWidth = 842;
+    psPaperHeight = 1190;
+  } else {
+    return gFalse;
+  }
+  return gTrue;
+}
+
+
 static int firstPage = 1;
 static int lastPage = 0;
 static GBool level1 = gFalse;
@@ -57,7 +79,6 @@ static GBool duplex = gFalse;
 static char ownerPassword[33] = "\001";
 static char userPassword[33] = "\001";
 static GBool quiet = gFalse;
-static char cfgFileName[256] = "";
 static GBool printVersion = gFalse;
 static GBool printHelp = gFalse;
 
@@ -116,8 +137,6 @@ static ArgDesc argDesc[] = {
    "user password (for encrypted files)"},
   {"-q",          argFlag,     &quiet,          0,
    "don't print any messages or errors"},
-  {"-cfg",        argString,      cfgFileName,    sizeof(cfgFileName),
-   "configuration file to use in place of .xpdfrc"},
   {"-v",          argFlag,     &printVersion,   0,
    "print copyright and version info"},
   {"-h",          argFlag,     &printHelp,      0,
@@ -191,23 +210,13 @@ int main(int argc, char *argv[]) {
   fileName = new GooString(argv[1]);
 
   // read config file
-  globalParams = new GlobalParams(cfgFileName);
+  globalParams = new GlobalParams();
   if (paperSize[0]) {
-    if (!globalParams->setPSPaperSize(paperSize)) {
+    if (!setPSPaperSize(paperSize, paperWidth, paperHeight)) {
       fprintf(stderr, "Invalid paper size\n");
       delete fileName;
       goto err0;
     }
-  } else {
-    if (paperWidth) {
-      globalParams->setPSPaperWidth(paperWidth);
-    }
-    if (paperHeight) {
-      globalParams->setPSPaperHeight(paperHeight);
-    }
-  }
-  if (noCrop) {
-    globalParams->setPSCrop(gFalse);
   }
   if (expand) {
     globalParams->setPSExpandSmaller(gTrue);
@@ -217,9 +226,6 @@ int main(int argc, char *argv[]) {
   }
   if (noCenter) {
     globalParams->setPSCenter(gFalse);
-  }
-  if (duplex) {
-    globalParams->setPSDuplex(duplex);
   }
   if (level1 || level1Sep || level2 || level2Sep || level3 || level3Sep) {
     globalParams->setPSLevel(level);
@@ -308,12 +314,12 @@ int main(int argc, char *argv[]) {
   // write PostScript file
   psOut = new PSOutputDev(psFileName->getCString(), doc->getXRef(),
 			  doc->getCatalog(), firstPage, lastPage, mode,
-			  globalParams->getPSPaperWidth(),
-			  globalParams->getPSPaperHeight(),
-			  globalParams->getPSDuplex());
+			  paperWidth,
+			  paperHeight,
+			  duplex);
   if (psOut->isOk()) {
     doc->displayPages(psOut, firstPage, lastPage, 72, 72,
-		      0, globalParams->getPSCrop(), gFalse, gFalse);
+		      0, !noCrop, gFalse, gFalse);
   } else {
     delete psOut;
     exitCode = 2;

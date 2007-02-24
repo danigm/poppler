@@ -142,7 +142,7 @@ int main(int argc, char *argv[]) {
   //errorInit();
 
   // read config file
-  globalParams = new GlobalParams("");
+  globalParams = new GlobalParams();
 
   if (errQuiet) {
     globalParams->setErrQuiet(errQuiet);

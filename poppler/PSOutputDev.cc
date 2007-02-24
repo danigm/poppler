@@ -1005,14 +1005,6 @@ void PSOutputDev::init(PSOutputFunc outputFuncA, void *outputStreamA,
       paperHeight = 1;
     }
   }
-  if (imgLLX == 0 && imgURX == 0 && imgLLY == 0 && imgURY == 0) {
-    globalParams->getPSImageableArea(&imgLLX, &imgLLY, &imgURX, &imgURY);
-    if (imgURX <= 0 || imgURY <= 0) {
-      imgLLX = imgLLY = 0;
-      imgURX = paperWidth;
-      imgURY = paperHeight;
-    }
-  }
   manualCtrl = manualCtrlA;
   if (mode == psModeForm) {
     lastPage = firstPage;

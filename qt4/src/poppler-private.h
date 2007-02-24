@@ -95,7 +95,7 @@ namespace Poppler {
 		delete ownerPassword;
 		delete userPassword;
 		
-		if ( count == 0 ) globalParams = new GlobalParams("/etc/xpdfrc");
+		if ( count == 0 ) globalParams = new GlobalParams();
 		count ++;
 	    }
 	

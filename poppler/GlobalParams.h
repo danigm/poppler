@@ -118,7 +118,7 @@ public:
 
   // Initialize the global parameters by attempting to read a config
   // file.
-  GlobalParams(char *cfgFileName);
+  GlobalParams();
 
   ~GlobalParams();
 
@@ -135,12 +135,6 @@ public:
   FILE *findCMapFile(GooString *collection, GooString *cMapName);
   FILE *findToUnicodeFile(GooString *name);
   DisplayFontParam *getDisplayFont(GfxFont *font);
-  GooString *getPSFile();
-  int getPSPaperWidth();
-  int getPSPaperHeight();
-  void getPSImageableArea(int *llx, int *lly, int *urx, int *ury);
-  GBool getPSDuplex();
-  GBool getPSCrop();
   GBool getPSExpandSmaller();
   GBool getPSShrinkLarger();
   GBool getPSCenter();
@@ -158,13 +152,8 @@ public:
   GBool getTextPageBreaks();
   GBool getTextKeepTinyChars();
   GooString *findFontFile(GooString *fontName, char **exts);
-  GooString *getInitialZoom();
-  GBool getContinuousView();
-  GBool getEnableT1lib();
   GBool getEnableFreeType();
   GBool getAntialias();
-  GooString *getURLCommand() { return urlCommand; }
-  GooString *getMovieCommand() { return movieCommand; }
   GBool getMapNumericCharNames();
   GBool getPrintCommands();
   GBool getProfileCommands();
@@ -180,14 +169,6 @@ public:
 #endif
 
   //----- functions to set parameters
-
-  void setPSFile(char *file);
-  GBool setPSPaperSize(char *size);
-  void setPSPaperWidth(int width);
-  void setPSPaperHeight(int height);
-  void setPSImageableArea(int llx, int lly, int urx, int ury);
-  void setPSDuplex(GBool duplex);
-  void setPSCrop(GBool crop);
   void setPSExpandSmaller(GBool expand);
   void setPSShrinkLarger(GBool shrink);
   void setPSCenter(GBool center);
@@ -202,9 +183,6 @@ public:
   GBool setTextEOL(char *s);
   void setTextPageBreaks(GBool pageBreaks);
   void setTextKeepTinyChars(GBool keep);
-  void setInitialZoom(char *s);
-  void setContinuousView(GBool cont);
-  GBool setEnableT1lib(char *s);
   GBool setEnableFreeType(char *s);
   GBool setAntialias(char *s);
   void setMapNumericCharNames(GBool map);
@@ -219,28 +197,7 @@ public:
 
 private:
 
-  void parseFile(GooString *fileName, FILE *f);
   void parseNameToUnicode(GooString *name);
-  void parseCIDToUnicode(GooList *tokens, GooString *fileName, int line);
-  void parseUnicodeToUnicode(GooList *tokens, GooString *fileName, int line);
-  void parseUnicodeMap(GooList *tokens, GooString *fileName, int line);
-  void parseCMapDir(GooList *tokens, GooString *fileName, int line);
-  void parseToUnicodeDir(GooList *tokens, GooString *fileName, int line);
-  void parsePSFile(GooList *tokens, GooString *fileName, int line);
-  void parsePSPaperSize(GooList *tokens, GooString *fileName, int line);
-  void parsePSImageableArea(GooList *tokens, GooString *fileName, int line);
-  void parsePSLevel(GooList *tokens, GooString *fileName, int line);
-  void parsePSFont(GooList *tokens, GooString *fileName, int line);
-  void parsePSFont16(char *cmdName, GooList *fontList,
-		     GooList *tokens, GooString *fileName, int line);
-  void parseTextEncoding(GooList *tokens, GooString *fileName, int line);
-  void parseTextEOL(GooList *tokens, GooString *fileName, int line);
-  void parseFontDir(GooList *tokens, GooString *fileName, int line);
-  void parseInitialZoom(GooList *tokens, GooString *fileName, int line);
-  void parseCommand(char *cmdName, GooString **val,
-		    GooList *tokens, GooString *fileName, int line);
-  void parseYesNo(char *cmdName, GBool *flag,
-		  GooList *tokens, GooString *fileName, int line);
   GBool parseYesNo2(char *token, GBool *flag);
   UnicodeMap *getUnicodeMap2(GooString *encodingName);
 
@@ -273,18 +230,9 @@ private:
   GooList *toUnicodeDirs;		// list of ToUnicode CMap dirs [GooString]
   GooHash *displayFonts;		// display font info, indexed by font name
 				//   [DisplayFontParam]
-  GooString *psFile;		// PostScript file or command (for xpdf)
-  int psPaperWidth;		// paper size, in PostScript points, for
-  int psPaperHeight;		//   PostScript output
-  int psImageableLLX,		// imageable area, in PostScript points,
-      psImageableLLY,		//   for PostScript output
-      psImageableURX,
-      psImageableURY;
-  GBool psCrop;			// crop PS output to CropBox
   GBool psExpandSmaller;	// expand smaller pages to fill paper
   GBool psShrinkLarger;		// shrink larger pages to fit paper
   GBool psCenter;		// center pages on the paper
-  GBool psDuplex;		// enable duplexing in PostScript?
   PSLevel psLevel;		// PostScript level to generate
   GooHash *psFonts;		// PostScript font info, indexed by PDF
 				//   font name [PSFontParam]
@@ -303,13 +251,8 @@ private:
   GBool textPageBreaks;		// insert end-of-page markers?
   GBool textKeepTinyChars;	// keep all characters in text output
   GooList *fontDirs;		// list of font dirs [GooString]
-  GooString *initialZoom;		// initial zoom level
-  GBool continuousView;		// continuous view mode
-  GBool enableT1lib;		// t1lib enable flag
   GBool enableFreeType;		// FreeType enable flag
   GBool antialias;		// anti-aliasing enable flag
-  GooString *urlCommand;		// command executed for URL links
-  GooString *movieCommand;	// command executed for movie annotations
   GBool mapNumericCharNames;	// map numeric char names (from font subsets)?
   GBool printCommands;		// print the drawing commands
   GBool profileCommands;	// profile the drawing commands

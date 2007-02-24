@@ -47,7 +47,6 @@ static GBool noPageBreaks = gFalse;
 static char ownerPassword[33] = "\001";
 static char userPassword[33] = "\001";
 static GBool quiet = gFalse;
-static char cfgFileName[256] = "";
 static GBool printVersion = gFalse;
 static GBool printHelp = gFalse;
 
@@ -74,8 +73,6 @@ static ArgDesc argDesc[] = {
    "user password (for encrypted files)"},
   {"-q",       argFlag,     &quiet,         0,
    "don't print any messages or errors"},
-  {"-cfg",     argString,   cfgFileName,    sizeof(cfgFileName),
-   "configuration file to use in place of .xpdfrc"},
   {"-v",       argFlag,     &printVersion,  0,
    "print copyright and version info"},
   {"-h",       argFlag,     &printHelp,     0,
@@ -117,7 +114,7 @@ int main(int argc, char *argv[]) {
   fileName = new GooString(argv[1]);
 
   // read config file
-  globalParams = new GlobalParams(cfgFileName);
+  globalParams = new GlobalParams();
   if (textEncName[0]) {
     globalParams->setTextEncoding(textEncName);
   }

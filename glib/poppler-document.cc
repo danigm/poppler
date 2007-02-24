@@ -127,7 +127,7 @@ poppler_document_new_from_file (const char  *uri,
   char *filename;
 
   if (!globalParams) {
-    globalParams = new GlobalParams("/etc/xpdfrc");
+    globalParams = new GlobalParams();
   }
 
   filename = g_filename_from_uri (uri, NULL, error);
@@ -175,7 +175,7 @@ poppler_document_new_from_data (char        *data,
   char *filename;
 
   if (!globalParams) {
-    globalParams = new GlobalParams("/etc/xpdfrc");
+    globalParams = new GlobalParams();
   }
   
   // create stream
