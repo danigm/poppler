@@ -33,7 +33,7 @@
 #include <SplashOutputDev.h>
 #endif
 
-
+class FormWidget;
 
 namespace Poppler {
 
@@ -53,6 +53,15 @@ namespace Poppler {
 	for (int i = 0; i < len; ++i)
 		u[i] = s.at(i).unicode();
 	return new UGooString(u, len);
+    }
+
+    static QString GooStringToQString(GooString* goo) {
+	if (!goo)
+		return QString();
+	const char *aux = UGooString(*goo).getCString();
+	QString res(aux);
+	delete[] aux;
+	return res;
     }
 
     class LinkDestinationData
@@ -282,6 +291,47 @@ namespace Poppler {
 		QVector<double> edge;	// "near" edge x or y coord of each char
 					//   (plus one extra entry for the last char)
 		bool hasSpaceAfter;
+    };
+
+    class FormFieldData
+    {
+	public:
+		FormFieldData(DocumentData *_doc, ::Page *p, ::FormWidget *w) :
+		doc(_doc), page(p), fm(w), flags(0), annoflags(0)
+		{
+		}
+
+		Qt::Alignment textAlignment(Object *obj) const
+		{
+			Object tmp;
+			int align = 0;
+			if (obj->dictLookup("Q", &tmp)->isInt())
+			{
+				align = tmp.getInt();
+			}
+			tmp.free();
+			Qt::Alignment qtalign;
+			switch ( align )
+			{
+				case 1:
+					qtalign = Qt::AlignHCenter;
+					break;
+				case 2:
+					qtalign = Qt::AlignRight;
+					break;
+				case 0:
+				default:
+					qtalign = Qt::AlignLeft;
+			}
+			return qtalign;
+		}
+
+		DocumentData *doc;
+		::Page *page;
+		::FormWidget *fm;
+		QRectF box;
+		int flags;
+		int annoflags;
     };
 
 }

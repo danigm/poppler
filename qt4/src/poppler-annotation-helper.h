@@ -26,15 +26,15 @@ class XPDFReader
 {
     public:
         // find named symbol and parse it
-        static void lookupName( Dict *, const char *, QString & dest );
-        static void lookupString( Dict *, const char *, QString & dest );
-        static void lookupBool( Dict *, const char *, bool & dest );
-        static void lookupInt( Dict *, const char *, int & dest );
-        static void lookupNum( Dict *, const char *, double & dest );
-        static int lookupNumArray( Dict *, const char *, double * dest, int len );
-        static void lookupColor( Dict *, const char *, QColor & color );
-        static void lookupIntRef( Dict *, const char *, int & dest );
-        static void lookupDate( Dict *, const char *, QDateTime & dest );
+        static inline void lookupName( Dict *, const char *, QString & dest );
+        static inline void lookupString( Dict *, const char *, QString & dest );
+        static inline void lookupBool( Dict *, const char *, bool & dest );
+        static inline void lookupInt( Dict *, const char *, int & dest );
+        static inline void lookupNum( Dict *, const char *, double & dest );
+        static inline int lookupNumArray( Dict *, const char *, double * dest, int len );
+        static inline void lookupColor( Dict *, const char *, QColor & color );
+        static inline void lookupIntRef( Dict *, const char *, int & dest );
+        static inline void lookupDate( Dict *, const char *, QDateTime & dest );
         // transform from user coords to normalized ones using the matrix M
         static inline void transform( double * M, double x, double y, QPointF &res );
 };

@@ -1,3 +1,17 @@
+2007-02-25  Pino Toscano <pino@kde.org>
+            reviewed by: Albert Astals Cid <aacid@kde.org>
+
+	* qt4/src/Doxyfile:
+	* qt4/src/Makefile.am:
+	* qt4/src/poppler-annotation-helper.h:
+	* qt4/src/poppler-form.cc:
+	* qt4/src/poppler-form.h:
+	* qt4/src/poppler-page.cc:
+	* qt4/src/poppler-private.h:
+	* qt4/src/poppler-qt4.h:
+		Beginning of interactive forms support, first implementation in the
+		Qt4 frontend. It supports text and choice fields in a basic way.
+
 2007-02-25  Albert Astals Cid <aacid@kde.org>
 
 	* configure.ac:

@@ -45,6 +45,8 @@ namespace Poppler {
 
     class PageData;
 
+    class FormField;
+
     class TextBoxData;
 
     /**
@@ -374,6 +376,11 @@ namespace Poppler {
 	 Returns the annotations of the page
 	*/
 	QList<Annotation*> annotations() const;
+
+	/**
+	 Returns the form fields on the page
+	*/
+	QList<FormField*> formFields() const;
 
 	/**
 	 Returns the page duration. That is the time, in seconds, that the page

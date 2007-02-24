@@ -26,6 +26,7 @@
 #include <GlobalParams.h>
 #include <PDFDoc.h>
 #include <Catalog.h>
+#include <Form.h>
 #include <ErrorCodes.h>
 #include <TextOutputDev.h>
 #if defined(HAVE_SPLASH)
@@ -37,6 +38,7 @@
 #include "poppler-private.h"
 #include "poppler-page-transition-private.h"
 #include "poppler-annotation-helper.h"
+#include "poppler-form.h"
 
 namespace Poppler {
 
@@ -1233,6 +1235,40 @@ QList<Annotation*> Page::annotations() const
     annotArray.free();
     /** 5 - finally RETURN ANNOTATIONS */
     return annotationsMap.values();
+}
+
+QList<FormField*> Page::formFields() const
+{
+  QList<FormField*> fields;
+  ::Page *p = m_page->parentDoc->m_doc->doc->getCatalog()->getPage(m_page->index + 1);
+  ::FormPageWidgets * form = p->getPageWidgets();
+  int formcount = form->getNumWidgets();
+  for (int i = 0; i < formcount; ++i)
+  {
+    ::FormWidget *fm = form->getWidget(i);
+    FormField * ff = NULL;
+    switch (fm->getType())
+    {
+      case formText:
+      {
+        ff = new FormFieldText(m_page->parentDoc->m_doc, p, static_cast<FormWidgetText*>(fm));
+      }
+      break;
+
+      case formChoice:
+      {
+        ff = new FormFieldChoice(m_page->parentDoc->m_doc, p, static_cast<FormWidgetChoice*>(fm));
+      }
+      break;
+
+      default: ;
+    }
+
+    if (ff)
+      fields.append(ff);
+  }
+
+  return fields;
 }
 
 double Page::duration() const

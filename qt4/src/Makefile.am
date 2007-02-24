@@ -12,6 +12,7 @@ poppler_include_HEADERS =			\
 	poppler-qt4.h				\
 	poppler-link.h				\
 	poppler-annotation.h			\
+	poppler-form.h			\
 	../../qt/poppler-page-transition.h
 
 lib_LTLIBRARIES = libpoppler-qt4.la
@@ -26,6 +27,7 @@ libpoppler_qt4_la_SOURCES =			\
 	poppler-annotation.cc			\
 	../../qt/poppler-page-transition.cc	\
 	poppler-sound.cc			\
+	poppler-form.cc			\
 	poppler-annotation-helper.h		\
 	poppler-private.h
 
