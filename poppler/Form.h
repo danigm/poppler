@@ -241,7 +241,7 @@ protected:
 
 class FormField {
 public:
-  FormField(XRef* xrefa, Object *aobj, Ref *aref, Form* aform, FormFieldType t=formUndef);
+  FormField(XRef* xrefa, Object *aobj, const Ref& aref, Form* aform, FormFieldType t=formUndef);
 
   virtual ~FormField();
 
@@ -269,7 +269,6 @@ public:
 
   FormFieldType type;           // field type
   Ref ref;
-  bool direct;
   bool terminal;
   Object obj;
   XRef *xref;
@@ -291,7 +290,7 @@ private:
 
 class FormFieldButton: public FormField {
 public:
-  FormFieldButton(XRef *xrefA, Object *dict, Ref *ref, Form* form);
+  FormFieldButton(XRef *xrefA, Object *dict, const Ref& ref, Form* form);
 
   FormButtonType getButtonType () { return btype; }
 
@@ -316,7 +315,7 @@ protected:
 
 class FormFieldText: public FormField {
 public:
-  FormFieldText(XRef *xrefA, Object *dict, Ref *ref, Form* form);
+  FormFieldText(XRef *xrefA, Object *dict, const Ref& ref, Form* form);
   
   GooString* getContent () { return content; }
   GooString* getContentCopy ();
@@ -347,7 +346,7 @@ protected:
 
 class FormFieldChoice: public FormField {
 public:
-  FormFieldChoice(XRef *xrefA, Object *aobj, Ref *ref, Form* form);
+  FormFieldChoice(XRef *xrefA, Object *aobj, const Ref& ref, Form* form);
 
   virtual ~FormFieldChoice();
 
@@ -410,7 +409,7 @@ protected:
 
 class FormFieldSignature: public FormField {
 public:
-  FormFieldSignature(XRef *xrefA, Object *dict, Ref *ref, Form* form);
+  FormFieldSignature(XRef *xrefA, Object *dict, const Ref& ref, Form* form);
 
   virtual ~FormFieldSignature();
 };
@@ -434,7 +433,7 @@ public:
 
   /* Creates a new Field of the type specified in obj's dict. 
      used in Form::Form and FormField::FormField */
-  void createFieldFromDict (Object* obj, FormField** ptr, XRef *xref, Ref* pref);
+  void createFieldFromDict (Object* obj, FormField** ptr, XRef *xref, const Ref& aref);
 
   void postWidgetsLoad();
   void checkForNeedAppearances ();

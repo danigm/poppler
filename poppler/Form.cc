@@ -187,7 +187,6 @@ void FormWidgetButton::loadDefaults ()
 
   //pushButtons don't have state
   if (parent->getButtonType() != formButtonPush ){
-    printf("type : %i\n", parent->getButtonType());
     //find the name of the state in the AP dictionnary (/Yes, /Off)
     //The reference say the Off state, if it existe, _must_ be stored in the AP dict under the name /Off
     //The "on" state may be stored under any other name
@@ -640,7 +639,7 @@ bool FormWidgetSignature::isReadOnly () const
 // FormField
 //========================================================================
 
-FormField::FormField(XRef* xrefA, Object *aobj, Ref *aref, Form* aform, FormFieldType ty) 
+FormField::FormField(XRef* xrefA, Object *aobj, const Ref& aref, Form* aform, FormFieldType ty) 
 {
   double t;
   xref = xrefA;
@@ -654,13 +653,7 @@ FormField::FormField(XRef* xrefA, Object *aobj, Ref *aref, Form* aform, FormFiel
   widgets = NULL;
   readOnly = false;
   form = aform;
-
-  if (!aref) {
-    direct = true;
-  } else { 
-    ref = *aref;
-    direct = false;
-  }
+  ref = aref;
 
   Object obj1;
   //childs
@@ -681,7 +674,7 @@ FormField::FormField(XRef* xrefA, Object *aobj, Ref *aref, Form* aform, FormFiel
         children = (FormField**)greallocn(children, numChildren, sizeof(FormField*));
 
         obj3.free();
-        form->createFieldFromDict (&obj2, &children[numChildren-1], xrefA, &childRef.getRef());
+        form->createFieldFromDict (&obj2, &children[numChildren-1], xrefA, childRef.getRef());
       }
       // 1 - we will handle 'collapsed' fields (field + annot in the same dict)
       // as if the annot was in the Kids array of the field
@@ -696,9 +689,6 @@ FormField::FormField(XRef* xrefA, Object *aobj, Ref *aref, Form* aform, FormFiel
   // As said in 1, if this is a 'collapsed' field, behave like if we had a
   // child annot
   if (dict->lookup("Subtype", &obj1)->isName()) {
-    if (direct) {
-      error(-1, "direct annot object\n");
-    }
     _createWidget(aobj, ref);
   }
   obj1.free();
@@ -789,7 +779,7 @@ FormWidget* FormField::findWidgetByRef (Ref aref)
 //------------------------------------------------------------------------
 // FormFieldButton
 //------------------------------------------------------------------------
-FormFieldButton::FormFieldButton(XRef *xrefA, Object *aobj, Ref *ref, Form* form) 
+FormFieldButton::FormFieldButton(XRef *xrefA, Object *aobj, const Ref& ref, Form* form) 
                                  : FormField(xrefA, aobj, ref, form, formButton)
 {
   type = formButton;
@@ -876,7 +866,7 @@ FormFieldButton::~FormFieldButton()
 //------------------------------------------------------------------------
 // FormFieldText
 //------------------------------------------------------------------------
-FormFieldText::FormFieldText(XRef *xrefA, Object *aobj, Ref *ref, Form* form) 
+FormFieldText::FormFieldText(XRef *xrefA, Object *aobj, const Ref& ref, Form* form) 
                              : FormField(xrefA, aobj, ref, form, formText)
 {
   type = formText;
@@ -928,7 +918,7 @@ FormFieldText::~FormFieldText()
 //------------------------------------------------------------------------
 // FormFieldChoice
 //------------------------------------------------------------------------
-FormFieldChoice::FormFieldChoice(XRef *xrefA, Object *aobj, Ref *ref, Form* form) 
+FormFieldChoice::FormFieldChoice(XRef *xrefA, Object *aobj, const Ref& ref, Form* form) 
                                  : FormField(xrefA, aobj, ref, form, formChoice)
 {
   numChoices = 0;
@@ -1021,7 +1011,7 @@ void FormFieldChoice::_createChoicesTab ()
 //------------------------------------------------------------------------
 // FormFieldSignature
 //------------------------------------------------------------------------
-FormFieldSignature::FormFieldSignature(XRef *xrefA, Object *dict, Ref *ref, Form* form)
+FormFieldSignature::FormFieldSignature(XRef *xrefA, Object *dict, const Ref& ref, Form* form)
                                       : FormField(xrefA, dict, ref, form, formSignature)
 {
 }
@@ -1049,18 +1039,19 @@ Form::Form(XRef *xrefA, Object* acroForm)
   rootFields = NULL;
   for(int i=0; i<array->getLength(); i++) {
     Object oref;
-    Ref* pref;
     array->get(i, &obj1);
     array->getNF(i, &oref);
-    if (!oref.isRef()) pref = NULL;
-    else pref = &oref.getRef();
+    if (!oref.isRef()) {
+      error(-1, "Direct object in rootFields");
+      continue;
+    }
 
     if (numFields >= size) {
       size += 16;
       rootFields = (FormField**)greallocn(rootFields,size,sizeof(FormField*));
     }
 
-    createFieldFromDict (&obj1, &rootFields[numFields++], xrefA, pref);
+    createFieldFromDict (&obj1, &rootFields[numFields++], xrefA, oref.getRef());
 
     //Mark readonly field
     Object obj3;
@@ -1104,7 +1095,7 @@ void Form::checkForNeedAppearances ()
 }
 
 
-void Form::createFieldFromDict (Object* obj, FormField** ptr, XRef *xrefA, Ref* pref)
+void Form::createFieldFromDict (Object* obj, FormField** ptr, XRef *xrefA, const Ref& pref)
 {
     Object obj2;
     if(obj->dictLookup("FT", &obj2)->isName("Btn")) {
@@ -1173,7 +1164,7 @@ FormPageWidgets::FormPageWidgets (XRef *xrefA, Object* annots, unsigned int page
         //create a temporary Annot to get the font size
         Object obj2;
         if (annots->arrayGet(i, &obj2)->isDict()) {
-          Annot* ann = new Annot(xref, NULL ,obj2.getDict(), NULL, NULL);
+          Annot* ann = new Annot(xref, NULL ,obj2.getDict(), NULL);
           tmp->setFontSize(ann->getFontSize());
           delete ann;
         }

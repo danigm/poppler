@@ -29,7 +29,19 @@
 // Annot
 //------------------------------------------------------------------------
 
-Annot::Annot(XRef *xrefA, Dict *acroForm, Dict *dict, Ref* aref, Catalog* catalog) {
+Annot::Annot(XRef *xrefA, Dict *acroForm, Dict *dict, const Ref& aref, Catalog* catalog)
+{
+  hasRef = true;
+  ref = aref; 
+  initialize (xrefA, acroForm, dict, catalog);
+}
+
+Annot::Annot(XRef *xrefA, Dict *acroForm, Dict *dict, Catalog* catalog) {
+  hasRef = false;
+  initialize (xrefA, acroForm, dict, catalog);
+}
+
+void Annot::initialize(XRef *xrefA, Dict *acroForm, Dict *dict, Catalog *catalog) {
   Object apObj, asObj, obj1, obj2;
   double t;
 
@@ -38,12 +50,6 @@ Annot::Annot(XRef *xrefA, Dict *acroForm, Dict *dict, Ref* aref, Catalog* catalo
   appearBuf = NULL;
   fontSize = 0;
   widget = NULL;
-
-  if (aref) {
-    hasRef = true;
-    ref = *aref;
-  } else 
-    hasRef = false;
 
   if (dict->lookup("Rect", &obj1)->isArray() &&
       obj1.arrayGetLength() == 4) {
@@ -496,13 +502,11 @@ Annots::Annots(XRef *xref, Catalog *catalog, Object *annotsObj) {
       //form widget
       Object obj2;
       Ref* pref;
-      if (annotsObj->arrayGetNF(i, &obj2)->isRef())
-        pref = &obj2.getRef();
-      else 
-        pref = NULL;
-
       if (annotsObj->arrayGet(i, &obj1)->isDict()) {
-        annot = new Annot(xref, acroForm, obj1.getDict(), pref, catalog);
+        if (annotsObj->arrayGetNF(i, &obj2)->isRef())
+          annot = new Annot(xref, acroForm, obj1.getDict(), obj2.getRef(), catalog);
+        else 
+          annot = new Annot(xref, acroForm, obj1.getDict(), catalog);
 	if (annot->isOk()) {
 	  if (nAnnots >= size) {
 	    size += 16;

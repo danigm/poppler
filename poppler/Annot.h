@@ -27,7 +27,8 @@ class FormWidget;
 class Annot {
 public:
 
-  Annot(XRef *xrefA, Dict *acroForm, Dict *dict, Ref* aref, Catalog* catalog);
+  Annot(XRef *xrefA, Dict *acroForm, Dict *dict, Catalog *catalog);
+  Annot(XRef *xrefA, Dict *acroForm, Dict *dict, const Ref& aref, Catalog *catalog);
   ~Annot();
   GBool isOk() { return ok; }
 
@@ -46,6 +47,8 @@ private:
   void writeTextString (GooString* vStr, CharCodeToUnicode* ccToUnicode, GooString* appearBuf, GfxFont* font);
   void generateAppearance(Dict *acroForm, Dict *dict);
   void readArrayNum(Object *pdfArray, int key, double *value);
+
+  void initialize (XRef *xrefA, Dict *acroForm, Dict *dict, Catalog *catalog);
 
   XRef *xref;			// the xref table for this PDF file
   Object appearance;		// a reference to the Form XObject stream
