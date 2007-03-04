@@ -3,8 +3,7 @@ INCLUDES =					\
 	-I$(top_srcdir)/poppler			\
 	-I$(top_srcdir)/qt			\
 	$(FONTCONFIG_CFLAGS)			\
-	$(POPPLER_QT4_CXXFLAGS)
-
+	$(POPPLER_QT4_CFLAGS)
 
 poppler_includedir = $(includedir)/poppler
 

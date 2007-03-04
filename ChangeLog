@@ -1,3 +1,12 @@
+2007-03-06  Brad Hards  <bradh@kde.org>
+
+	* configure.ac
+	* m4/qt.m4
+	* poppler/Makefile.am
+	* qt4/src/Makefile.am
+	* qt4/tests/Makefile.am
+	Switch to using pkg-config to find Qt4.
+
 2007-02-25  Julien Rebetez  <julienr@svn.gnome.org>
 
 	reviewed by: Albert Astals Cid <aacid@kde.org>

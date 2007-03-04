@@ -22,7 +22,7 @@ libpoppler_arthur_la_SOURCES =			\
 	ArthurOutputDev.cc
 
 arthur_includes =				\
-	$(POPPLER_QT4_CXXFLAGS)
+	$(POPPLER_QT4_CFLAGS)
 
 arthur_libs =					\
 	$(POPPLER_QT4_LIBS)

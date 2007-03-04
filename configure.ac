@@ -220,35 +220,32 @@ AM_CONDITIONAL(BUILD_POPPLER_QT, test "x$enable_poppler_qt" = "xyes")
 dnl 
 dnl Try Qt4
 dnl
-AC_ARG_ENABLE(poppler-qt4,
-	      AC_HELP_STRING([--disable-poppler-qt4],
-			     [Don't compile poppler Qt4 wrapper.]),
-	      enable_poppler_qt4=$enableval,
-	      enable_poppler_qt4="try")
 
+AC_ARG_ENABLE(poppler-qt4,
+              AC_HELP_STRING([--disable-poppler-qt4],
+	                     [Don't compile poppler Qt4 wrapper.]),
+              enable_poppler_qt4=$enableval,
+              enable_poppler_qt4="try")
 if test x$enable_poppler_qt4 = xyes; then
-  POPPLER_FIND_QT4(POPPLER_QT4)
+  PKG_CHECK_MODULES(POPPLER_QT4, 
+	            QtCore >= 4.1.0 QtGui >= 4.1.0 QtXml >= 4.1.0 QtTest >= 4.1.0)
 elif test x$enable_poppler_qt4 = xtry; then
-  POPPLER_FIND_QT4(POPPLER_QT4,
-		  [enable_poppler_qt4="yes"],
-                  [enable_poppler_qt4="no"])
+  PKG_CHECK_MODULES(POPPLER_QT4,
+		    QtCore >= 4.1.0 QtGui >= 4.1.0 QtXml >= 4.1.0 QtTest >= 4.1.0,
+                    [enable_poppler_qt4="yes"],
+                    [enable_poppler_qt4="no"])
 fi
 
 AC_SUBST(POPPLER_QT4_CXXFLAGS)
 AC_SUBST(POPPLER_QT4_LIBS)
-AM_CONDITIONAL(BUILD_POPPLER_QT4, test "x$enable_poppler_qt4" = "xyes")
 
-if test x$enable_poppler_qt4 = xyes; then
-  POPPLER_FIND_QT4TEST(POPPLER_QTTEST,
-                      [enable_poppler_qt4testlib="yes"],
-                      [enable_poppler_qt4testlib="no"])
-  AC_SUBST(POPPLER_QTTEST_CXXFLAGS)
-  AC_SUBST(POPPLER_QTTEST_LIBS)
-else
-  enable_poppler_qt4testlib="no"
+if test x$enable_splash_output != xyes; then
+  if test x$enable_poppler_qt4 = xyes; then
+    enable_poppler_qt4="no because of disabled splash"
+  fi
 fi
 
-AM_CONDITIONAL(BUILD_POPPLER_QT4TESTS, test x$enable_poppler_qt4testlib = xyes)
+AM_CONDITIONAL(BUILD_POPPLER_QT4, test "x$enable_poppler_qt4" = "xyes")
 
 AC_ARG_ENABLE(gtk-test,
               AC_HELP_STRING([--disable-gtk-test],
@@ -332,7 +329,6 @@ echo "  splash output:      $enable_splash_output"
 echo "  cairo output:       $enable_cairo_output"
 echo "  qt wrapper:         $enable_poppler_qt"
 echo "  qt4 wrapper:        $enable_poppler_qt4"
-echo "  qt4 unittests:      $enable_poppler_qt4testlib"
 echo "  glib wrapper:       $enable_poppler_glib"
 echo "  use gtk-doc:        $enable_gtk_doc"
 echo "  use libjpeg:        $enable_libjpeg"
