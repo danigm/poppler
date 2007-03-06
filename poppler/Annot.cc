@@ -113,6 +113,7 @@ void Annot::initialize(XRef *xrefA, Dict *acroForm, Dict *dict, Catalog *catalog
     widget = catalog->getForm()->findWidgetByRef(ref); 
   }
 
+  isTextField = false;
   isMultiline = isListbox = false;
   if (widget) { 
     if (widget->getType() == formText) {
@@ -207,6 +208,8 @@ void Annot::writeTextString (GooString* vStr, CharCodeToUnicode* ccToUnicode, Go
         ctmp[0] = vStr->getChar(i0-1);
         ctmp[1] = vStr->getChar(i0);
         ccToUnicode->mapToCharCode((Unicode*)ctmp, &c, 2);
+        if (c == '(' || c == ')' || c == '\\') 
+          appearBuf->append('\\');
         appearBuf->append(c);
       } else {
         c &= 0xff;

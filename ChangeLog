@@ -1,3 +1,11 @@
+2007-03-06  Julien Rebetez  <julien@fhtagn.net>
+	reviewed by: <aacid@kde.org>
+
+	* poppler/Annot.cc:
+	* poppler/Form.cc:
+	Fix uninitialized variables.
+	Properly escape parenthesis and slash in text field.
+
 2007-03-06  Brad Hards  <bradh@kde.org>
 
 	* configure.ac
@@ -8,7 +16,6 @@
 	Switch to using pkg-config to find Qt4.
 
 2007-02-25  Julien Rebetez  <julienr@svn.gnome.org>
-
 	reviewed by: Albert Astals Cid <aacid@kde.org>
 
 	* poppler/Annot.cc:

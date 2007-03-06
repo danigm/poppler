@@ -1138,6 +1138,7 @@ FormPageWidgets::FormPageWidgets (XRef *xrefA, Object* annots, unsigned int page
   Object obj1;
   numWidgets = 0;
   widgets = NULL;
+  xref = xrefA;
   if (annots->isArray() && form) {
     size = annots->arrayGetLength();
     widgets = (FormWidget**)greallocn(widgets, size, sizeof(FormWidget*));
