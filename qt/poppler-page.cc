@@ -20,13 +20,17 @@
 #include <poppler-qt.h>
 #include <qfile.h>
 #include <qimage.h>
+#include <config.h>
 #include <GlobalParams.h>
 #include <PDFDoc.h>
 #include <Catalog.h>
 #include <ErrorCodes.h>
-#include <SplashOutputDev.h>
 #include <TextOutputDev.h>
+#if defined(HAVE_SPLASH)
+#include <SplashOutputDev.h>
 #include <splash/SplashBitmap.h>
+#endif
+
 #include "poppler-private.h"
 #include "poppler-page-transition-private.h"
 
@@ -65,6 +69,7 @@ void Page::renderToPixmap(QPixmap **q, int x, int y, int w, int h, double xres, 
 
 QImage Page::renderToImage(double xres, double yres, bool doLinks) const
 {
+#if defined(HAVE_SPLASH)
   SplashOutputDev *output_dev;
   SplashBitmap *bitmap;
   SplashColorPtr color_ptr;
@@ -101,6 +106,13 @@ QImage Page::renderToImage(double xres, double yres, bool doLinks) const
   output_dev->startPage( 0, NULL );
 
   return img;
+#else
+  (void)xres;
+  (void)xres;
+  (void)doLinks;
+
+  return QImage();
+#endif
 }
 
 QString Page::getText(const Rectangle &r) const
@@ -222,6 +234,7 @@ QValueList<Link*> Page::links() const
 {
   QValueList<Link*> popplerLinks;
 
+#if defined(HAVE_SPLASH)
   Links *xpdfLinks = data->doc->data->doc.takeLinks();
   for (int i = 0; i < xpdfLinks->getNumLinks(); ++i)
   {
@@ -339,6 +352,7 @@ QValueList<Link*> Page::links() const
   }
 
   delete xpdfLinks;
+#endif
   
   return popplerLinks;
 }

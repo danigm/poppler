@@ -1,3 +1,21 @@
+2007-03-07  Carlos Garcia Campos <carlosgc@gnome.org>
+	reviewed by: Albert Astals Cid <aacid@kde.org>
+
+        * poppler/Page.cc: Consider 0x0 boxes as invalid. Fixes
+	http://bugzilla.gnome.org/show_bug.cgi?id=408682
+
+2007-03-06  Pino Toscano <pino@kde.org>
+	reviewed by: Albert Astals Cid <aacid@kde.org>
+
+       * configure.ac:
+       * qt/Makefile.am:
+       * qt/poppler-link.cc:
+       * qt/poppler-page.cc:
+       * qt/poppler-private.h:
+       * qt4/poppler-link.cc:
+       Make the Qt4 frontend compilable again with no Splash.
+       Make the Qt3 frontend compilable with no Splash.
+
 2007-03-06  Julien Rebetez  <julien@fhtagn.net>
 	reviewed by: <aacid@kde.org>
 

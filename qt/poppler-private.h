@@ -18,13 +18,18 @@
 
 #include <qdom.h>
 
+#include <config.h>
 #include <Object.h>
 #include <Outline.h>
-#include <SplashOutputDev.h>
 #include <Link.h>
 #include <PDFDoc.h>
 #include <FontInfo.h>
 #include <UGooString.h>
+#if defined(HAVE_SPLASH)
+#include <SplashOutputDev.h>
+#else
+class SplashOutputDev;
+#endif
 
 namespace Poppler {
     
@@ -63,12 +68,15 @@ class DocumentData {
 
     ~DocumentData()
     {
+#if defined(HAVE_SPLASH)
         delete m_outputDev;
+#endif
         delete m_fontInfoScanner;
     }
 
     SplashOutputDev *getOutputDev()
     {
+#if defined(HAVE_SPLASH)
         if (!m_outputDev)
         {
             SplashColor white;
@@ -78,6 +86,7 @@ class DocumentData {
             m_outputDev = new SplashOutputDev(splashModeRGB8Qt, 4, gFalse, white);
             m_outputDev->startDoc(doc.getXRef());
         }
+#endif
         return m_outputDev;
     }
 

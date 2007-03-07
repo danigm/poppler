@@ -66,12 +66,14 @@ namespace Poppler {
 		m_changeTop = ld->getChangeTop();
 		m_changeZoom = ld->getChangeZoom();
 		
-		int leftAux, topAux, rightAux, bottomAux;
+		int leftAux = 0, topAux = 0, rightAux = 0, bottomAux = 0;
 		
 		OutputDev *sod = data.doc->getOutputDev();
-		if (sod == NULL) return;
-		sod->cvtUserToDev( left, top, &leftAux, &topAux );
-		sod->cvtUserToDev( right, bottom, &rightAux, &bottomAux );
+		if (sod)
+		{
+			sod->cvtUserToDev( left, top, &leftAux, &topAux );
+			sod->cvtUserToDev( right, bottom, &rightAux, &bottomAux );
+		}
 		
 		m_left = leftAux;
 		m_top = topAux;

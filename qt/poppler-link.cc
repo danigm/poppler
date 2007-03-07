@@ -60,11 +60,13 @@ namespace Poppler {
 		m_changeTop = ld->getChangeTop();
 		m_changeZoom = ld->getChangeZoom();
 		
-		int leftAux, topAux, rightAux, bottomAux;
+		int leftAux = 0, topAux = 0, rightAux = 0, bottomAux = 0;
 		
+#if defined(HAVE_SPLASH)
 		SplashOutputDev *sod = data.doc->getOutputDev();
 		sod->cvtUserToDev( left, top, &leftAux, &topAux );
 		sod->cvtUserToDev( right, bottom, &rightAux, &bottomAux );
+#endif
 		
 		m_left = leftAux;
 		m_top = topAux;
