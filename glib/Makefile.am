@@ -35,7 +35,7 @@ stamp-poppler-enums.h: $(poppler_glib_public_headers)
 		--fprod "\n/* --- @filename@ --- */" \
 		--eprod "#define POPPLER_TYPE_@ENUMSHORT@ (@enum_name@_get_type())\n" \
 		--eprod "GType @enum_name@_get_type (void) G_GNUC_CONST;\n" \
-		$(^F) ) > xgen-$(@F) \
+		$(poppler_glib_public_headers) ) > xgen-$(@F) \
 	&& ( cmp -s xgen-$(@F) $(@F:stamp-%=%) || cp xgen-$(@F) $(@F:stamp-%=%) ) \
 	&& rm -f xgen-$(@F) \
 	&& echo timestamp > $(@F)
@@ -53,7 +53,7 @@ poppler-enums.c: $(poppler_glib_public_headers)
 		--vtail "  if (G_UNLIKELY (type == 0))\n" \
 		--vtail "    type = g_@type@_register_static (\"@EnumName@\", _@enum_name@_values);\n\n" \
 		--vtail "  return type;\n}\n\n" \
-		$(^F) ) > xgen-$(@F) \
+		$(poppler_glib_public_headers) ) > xgen-$(@F) \
 	&& ( cmp -s xgen-$(@F) $(@F) || cp xgen-$(@F) $(@F) ) \
 	&& rm -f xgen-$(@F)
 

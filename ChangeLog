@@ -1,3 +1,8 @@
+2007-03-15  Albert Astals Cid <aacid@kde.org>
+
+	* glib/Makefile.am: Make it build with BSD/Make. Patch by
+	Henry Precheur <henry@precheur.org>
+
 2007-03-07  Carlos Garcia Campos <carlosgc@gnome.org>
 	reviewed by: Albert Astals Cid <aacid@kde.org>
 
