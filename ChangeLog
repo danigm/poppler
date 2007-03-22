@@ -1,3 +1,8 @@
+2007-03-22  Albert Astals Cid <aacid@kde.org>
+
+	* poppler/Gfx.cc: Accept reals for width and height of images. Fixes
+	KDE bug 143322
+
 2007-03-15  Albert Astals Cid <aacid@kde.org>
 
 	* glib/Makefile.am: Make it build with BSD/Make. Patch by
