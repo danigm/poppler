@@ -73,12 +73,27 @@ zlib_libs = 					\
 
 endif
 
+if BUILD_ABIWORD_OUTPUT
+
+abiword_sources =				\
+	ABWOutputDev.h				\
+	ABWOutputDev.cc
+
+abiword_includes =				\
+	$(ABIWORD_CFLAGS)
+
+abiword_libs =					\
+	$(ABIWORD_LIBS)
+
+endif
+
 INCLUDES =					\
 	-I$(top_srcdir)				\
 	-I$(top_srcdir)/goo			\
 	$(splash_includes)			\
 	$(cairo_includes)			\
 	$(arthur_includes)			\
+	$(abiword_includes)			\
 	$(FREETYPE_CFLAGS)			\
 	$(FONTCONFIG_CFLAGS)
 
@@ -94,6 +109,7 @@ libpoppler_la_LIBADD =				\
 	$(cairo_libs)				\
 	$(libjpeg_libs)				\
 	$(zlib_libs)				\
+	$(abiword_libs)				\
 	$(FREETYPE_LIBS)			\
 	$(FONTCONFIG_LIBS)
 
@@ -169,6 +185,7 @@ libpoppler_la_SOURCES =		\
 	$(arthur_sources)	\
 	$(libjpeg_sources)	\
 	$(zlib_sources)		\
+	$(abiword_sources)	\
 	Annot.cc		\
 	Array.cc 		\
 	BuiltinFont.cc		\

@@ -10,12 +10,23 @@ pdftoppm_manpage = pdftoppm.1
 
 endif
 
+if BUILD_ABIWORD_OUTPUT
+
+pdftoabw_SOURCES =				\
+	pdftoabw.cc				\
+	$(common)
+
+pdftoabw_binary = pdftoabw
+
+endif
+
 INCLUDES =					\
 	-I$(top_srcdir)				\
 	-I$(top_srcdir)/utils			\
 	-I$(top_srcdir)/poppler			\
 	$(UTILS_CFLAGS)				\
-	$(FONTCONFIG_CFLAGS)
+	$(FONTCONFIG_CFLAGS)			\
+	$(ABIWORD_CFLAGS)
 
 LDADD =						\
 	$(top_builddir)/poppler/libpoppler.la	\
@@ -29,7 +40,8 @@ bin_PROGRAMS =					\
 	pdftops					\
 	pdftotext				\
 	pdftohtml				\
-	$(pdftoppm_binary)
+	$(pdftoppm_binary)			\
+	$(pdftoabw_binary)
 
 dist_man1_MANS =				\
 	pdffonts.1				\

@@ -1,3 +1,13 @@
+2007-04-03  Jeff Muizelaar  <jeff@infidigm.net>
+
+	* configure.ac:
+	* poppler/ABWOutputDev.cc:
+	* poppler/ABWOutputDev.h:
+	* poppler/Makefile.am:
+	* utils/Makefile.am:
+	* utils/pdftoabw.cc: Add AbiWord output device and pdftoabw program.
+	Patch by Jauco Noordzij. Autotools stuff by Dominic Lachowicz.
+
 2007-03-22  Albert Astals Cid <aacid@kde.org>
 
 	* poppler/Gfx.cc: Accept reals for width and height of images. Fixes
