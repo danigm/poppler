@@ -1,3 +1,8 @@
+2007-04-05  Albert Astals Cid <aacid@kde.org>
+
+	* poppler/PSOutputDev.cc: Readd code wrongly removed when doing the
+	GlobalParams cleaning
+
 2007-04-03  Jeff Muizelaar  <jeff@infidigm.net>
 
 	* configure.ac:
