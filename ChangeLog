@@ -1,3 +1,15 @@
+2007-04-06  Jeff Muizelaar  <jeff@infidigm.net>
+
+	* poppler/ABWOutputDev.cc:
+	* utils/pdftoabw.cc: Fix a number of issues with the new AbiWord code:
+		*) Allows you to save to a file other than stdout
+		*) Checks for error conditions when reading the PDF doc and
+		   writing the ABW doc
+		*) Removes dead code in pdftoabw.cc
+		*) Fixes a SEGV I encountered when converting my new home's floor plan
+		*) Returns proper error conditions should the conversion fail for any reason
+	Patch by Dominic Lachowicz
+
 2007-04-05  Albert Astals Cid <aacid@kde.org>
 
 	* poppler/PSOutputDev.cc: Readd code wrongly removed when doing the

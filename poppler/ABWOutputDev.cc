@@ -652,6 +652,9 @@ void ABWOutputDev::interpretXYTree(){
 void ABWOutputDev::ATP_recursive(xmlNodePtr N_parent){
   xmlNodePtr N_first, N_second, N_line, N_tempCol, N_tempColset;
   N_first  = N_parent->children;
+  if (!N_first)
+    return;
+
   N_second = N_first->next;
   char buf[20];
 /*

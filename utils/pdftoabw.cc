@@ -34,21 +34,12 @@
 #include <libxml/parser.h>
 #include <libxml/tree.h>
 
-
 static int firstPage = 1;
 static int lastPage = 0;
-GBool printCommands = gTrue;
-GBool prettyPrint = gFalse;
 static GBool printHelp = gFalse;
-GBool stout=gFalse;
-
+GBool stout = gFalse;
 static char ownerPassword[33] = "";
 static char userPassword[33] = "";
-
-static GooString* getInfoString(Dict *infoDict, char *key);
-static GooString* getInfoDate(Dict *infoDict, char *key);
-
-xmlDocPtr XMLdoc;
 
 static char textEncName[128] = "";
 
@@ -60,8 +51,6 @@ static ArgDesc argDesc[] = {
   {"-h",      argFlag,     &printHelp,     0,
    "print usage information"},
   {"--help",   argFlag,     &printHelp,     0,
-   "print usage information"},
-  {"--format",   argFlag,     &prettyPrint,     0,
    "print usage information"},
   {"--stdout"  ,argFlag,    &stout,         0,
    "use standard output"},
@@ -75,64 +64,92 @@ static ArgDesc argDesc[] = {
 int main(int argc, char *argv[]) {
   PDFDoc *doc = NULL;
   GooString *fileName = NULL;
-  GooString *docTitle = NULL;
-  GooString *author = NULL, *keywords = NULL, *subject = NULL, *date = NULL;
-  GooString *htmlFileName = NULL;
-  GooString *psFileName = NULL;
-  ABWOutputDev *htmlOut = NULL;
-  PSOutputDev *psOut = NULL;
+  GooString *abwFileName = NULL;
+  ABWOutputDev *abwOut = NULL;
   GBool ok;
-  char *p;
-  char extension[16] = "png";
   GooString *ownerPW, *userPW;
   Object info;
+
+  int result = 1;
   
   char * outpName;
+  xmlDocPtr XMLdoc = NULL;
 
   // parse args
   parseArgs(argDesc, &argc, argv);
   globalParams = new GlobalParams();
 
   fileName = new GooString(argv[1]);
-  /*
-  if (stout){*/
+  if (stout || (argc < 2)){
     outpName = "-";
-/*  }
+  }
   else {
-    //FIXME: add outputfilename stuff
+    outpName = argv[2];
   }
-  */
-  doc = new PDFDoc(fileName);
-  XMLdoc = xmlNewDoc(BAD_CAST "1.0");
-  htmlOut = new ABWOutputDev(XMLdoc);
-  htmlOut->setPDFDoc(doc);
-  /* check for copy permission
+
+  if (ownerPassword[0]) {
+    ownerPW = new GooString(ownerPassword);
+  } else {
+    ownerPW = NULL;
+  }
+  if (userPassword[0]) {
+    userPW = new GooString(userPassword);
+  } else {
+    userPW = NULL;
+  }
+
+  doc = new PDFDoc(fileName, ownerPW, userPW);
+
+  if (userPW) {
+    delete userPW;
+  }
+  if (ownerPW) {
+    delete ownerPW;
+  }
+
+  if (!doc || !doc->isOk())
+    {
+      fprintf (stderr, "Error opening PDF %s\n", fileName);
+      goto error;
+    }
+
+  // check for copy permission
   if (!doc->okToCopy()) {
-    error(-1, "Copying of text from this document is not allowed.");
+    fprintf(stderr, "Copying of text from this document is not allowed.\n");
     goto error;
-  }*/
-
-  // write text file
-
-  if (lastPage == 0) lastPage = doc->getNumPages();
-
-  if (htmlOut->isOk())
-  {
-    doc->displayPages(htmlOut, 1, lastPage, 72, 72, 0, gTrue, gFalse, gFalse);
-		htmlOut->createABW();
   }
-  xmlSaveFormatFileEnc(outpName, XMLdoc, "UTF-8", 1);
-  // clean up
+
+  XMLdoc = xmlNewDoc(BAD_CAST "1.0");
+  abwOut = new ABWOutputDev(XMLdoc);
+  abwOut->setPDFDoc(doc);
+
+  if (lastPage == 0 || lastPage > doc->getNumPages ()) lastPage = doc->getNumPages();
+  if (firstPage < 1) firstPage = 1;
+
+  if (abwOut->isOk())
+  {
+    doc->displayPages(abwOut, firstPage, lastPage, 72, 72, 0, gTrue, gFalse, gFalse);
+    abwOut->createABW();
+  }
+
+  if (xmlSaveFormatFileEnc(outpName, XMLdoc, "UTF-8", 1) == -1)
+    {
+      fprintf (stderr, "Error saving to %s\n", outpName);
+      goto error;
+    }
+
+  result = 0;
+
  error:
+  // clean up
   if(globalParams) delete globalParams;
-  //if(fileName) delete fileName;
   if(doc) delete doc;
   if(XMLdoc) xmlFreeDoc(XMLdoc);
-  if(htmlOut) delete htmlOut;
+  if(abwOut) delete abwOut;
   
   // check for memory leaks
   Object::memCheck(stderr);
   gMemReport(stderr);
 
-  return 0;
+  return result;
 }
