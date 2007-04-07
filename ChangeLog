@@ -1,3 +1,8 @@
+2007-04-07  Jeff Muizelaar  <jeff@infidigm.net>
+
+	* utils/pdftoabw.cc: Fixing passing the wrong type
+	to fprintf. Patch by Kouhei Sutou. Fixes #10554.
+
 2007-04-06  Jeff Muizelaar  <jeff@infidigm.net>
 
 	* poppler/ABWOutputDev.cc:

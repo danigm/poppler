@@ -109,7 +109,7 @@ int main(int argc, char *argv[]) {
 
   if (!doc || !doc->isOk())
     {
-      fprintf (stderr, "Error opening PDF %s\n", fileName);
+      fprintf (stderr, "Error opening PDF %s\n", fileName->getCString());
       goto error;
     }
 
