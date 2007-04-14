@@ -33,10 +33,10 @@ extern GBool xml;
 GooString* HtmlFont::DefaultFont=new GooString("Times"); // Arial,Helvetica,sans-serif
 
 HtmlFontColor::HtmlFontColor(GfxRGB rgb){
-  r=static_cast<int>(255*rgb.r);
-  g=static_cast<int>(255*rgb.g);
-  b=static_cast<int>(255*rgb.b);
-  if (!(Ok(r)&&Ok(b)&&Ok(g))) {printf("Error : Bad color \n");r=0;g=0;b=0;}
+  r=static_cast<int>(rgb.r/65535.0*255.0);
+  g=static_cast<int>(rgb.g/65535.0*255.0);
+  b=static_cast<int>(rgb.b/65535.0*255.0);
+  if (!(Ok(r)&&Ok(b)&&Ok(g))) {printf("Error : Bad color %d %d %d\n", r, g, b);r=0;g=0;b=0;}
 }
 
 GooString *HtmlFontColor::convtoX(unsigned int xcol) const{

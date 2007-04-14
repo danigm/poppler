@@ -300,7 +300,7 @@ int main(int argc, char *argv[]) {
   if (htmlOut->isOk())
   {
     doc->displayPages(htmlOut, firstPage, lastPage, 72, 72, 0,
-		      gTrue, gFalse, gFalse);
+		      gTrue, gFalse, gTrue);
   	if (!xml)
 	{
 		htmlOut->dumpDocOutline(doc->getCatalog());
