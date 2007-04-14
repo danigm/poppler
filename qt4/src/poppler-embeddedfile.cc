@@ -66,7 +66,6 @@ EmbeddedFile::EmbeddedFile(const EmbeddedFile &ef)
 
 EmbeddedFile::~EmbeddedFile()
 {
-	m_embeddedFile->m_streamObject.free();
 	delete m_embeddedFile;
 }
 
