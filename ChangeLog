@@ -1,3 +1,10 @@
+2007-04-15  Pino Toscano <pino@kde.org>
+	reviewed by: Albert Astals Cid <aacid@kde.org>
+
+	* qt4/src/poppler-private.h:
+	Add the information about the open/close item in the DOM tree
+	of the TOC.
+
 2007-04-15  Albert Astals Cid <aacid@kde.org>
 
 	* utils/HtmlFonts.cc: Fix rendering of text colors on complex mode.

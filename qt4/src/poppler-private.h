@@ -32,6 +32,7 @@
 #if defined(HAVE_SPLASH)
 #include <SplashOutputDev.h>
 #endif
+#include <QtCore/QVariant>
 
 class FormWidget;
 
@@ -192,7 +193,9 @@ namespace Poppler {
 					item.setAttribute( "ExternalFileName", g2->getFileName()->getCString() );
 				}
 			}
-			
+
+			item.setAttribute( "Open", QVariant( (bool)outlineItem->isOpen() ).toString() );
+
 			// 3. recursively descend over children
 			outlineItem->open();
 			GooList * children = outlineItem->getKids();
