@@ -303,7 +303,6 @@ namespace Poppler {
 	{
 	    char *aux = obj.getString()->getCString();
 	    result = Poppler::convertDate(aux);
-	    delete[] aux;
 	}
 	obj.free();
 	info.free();

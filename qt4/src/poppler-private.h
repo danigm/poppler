@@ -124,6 +124,7 @@ namespace Poppler {
 		m_backend = Document::SplashBackend;
 		m_outputDev = 0;
 		paperColor = Qt::white;
+		m_hints = 0;
 		// It might be more appropriate to delete these in PDFDoc
 		delete ownerPassword;
 		delete userPassword;

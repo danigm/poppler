@@ -1,5 +1,10 @@
 2007-04-25  Albert Astals Cid <aacid@kde.org>
 
+	* qt4/src/poppler-document.cc: remove a delete[] no longer needed
+	* qt4/src/poppler-private: initilize m_hints
+
+2007-04-25  Albert Astals Cid <aacid@kde.org>
+
 	* ChangeLog:
 	* configure.ac:
 	* fofi/FoFiTrueType.cc:
