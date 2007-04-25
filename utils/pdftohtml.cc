@@ -29,7 +29,6 @@
 #include "PSOutputDev.h"
 #include "GlobalParams.h"
 #include "Error.h"
-#include "UGooString.h"
 #include "goo/gfile.h"
 
 #ifndef GHOSTSCRIPT
@@ -300,7 +299,7 @@ int main(int argc, char *argv[]) {
   if (htmlOut->isOk())
   {
     doc->displayPages(htmlOut, firstPage, lastPage, 72, 72, 0,
-		      gTrue, gFalse, gTrue);
+		      gTrue, gFalse, gFalse);
   	if (!xml)
 	{
 		htmlOut->dumpDocOutline(doc->getCatalog());

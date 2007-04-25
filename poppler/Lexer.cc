@@ -319,11 +319,13 @@ Object *Lexer::getObj(Object *obj, int objNum) {
 	  // we are growing see if the document is not malformed and we are growing too much
 	  if (objNum != -1)
 	  {
-	    int newObjNum = xref->getNumEntry(getPos());
+	    int newObjNum = xref->getNumEntry(curStr.streamGetPos());
 	    if (newObjNum != objNum)
 	    {
 	      error(getPos(), "Unterminated string");
 	      done = gTrue;
+	      delete s;
+	      n = -2;
 	    }
 	  }
 	}
@@ -331,11 +333,15 @@ Object *Lexer::getObj(Object *obj, int objNum) {
 	++n;
       }
     } while (!done);
-    if (!s)
-      s = new GooString(tokBuf, n);
-    else
-      s->append(tokBuf, n);
-    obj->initString(s);
+    if (n >= 0) {
+      if (!s)
+        s = new GooString(tokBuf, n);
+      else
+        s->append(tokBuf, n);
+      obj->initString(s);
+    } else {
+      obj->initEOF();
+    }
     break;
 
   // name

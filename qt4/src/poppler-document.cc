@@ -28,7 +28,6 @@
 #include <PDFDoc.h>
 #include <PSOutputDev.h>
 #include <Stream.h>
-#include <UGooString.h>
 #include <Catalog.h>
 
 #include <QtCore/QDebug>
@@ -273,7 +272,7 @@ namespace Poppler {
 	Dict *infoDict = info.getDict();
 	// somehow iterate over keys in infoDict
 	for( int i=0; i < infoDict->getLength(); ++i ) {
-	    const char *aux = infoDict->getKey(i)->getCString();
+	    const char *aux = infoDict->getKey(i);
 	    keys.append( QString::fromAscii(aux) );
 	    delete[] aux;
 	}
@@ -302,7 +301,7 @@ namespace Poppler {
 
 	if ( infoDict->lookup( type.toLatin1().data(), &obj )->isString() )
 	{
-	    char *aux = UGooString(*obj.getString()).getCString();
+	    char *aux = obj.getString()->getCString();
 	    result = Poppler::convertDate(aux);
 	    delete[] aux;
 	}
@@ -409,7 +408,7 @@ namespace Poppler {
         if ( m_doc->getOutputDev() == NULL )
             return NULL;
 
-        UGooString * namedDest = QStringToUGooString( name );
+        GooString * namedDest = QStringToGooString( name );
         LinkDestinationData ldd(NULL, namedDest, m_doc);
         LinkDestination *ld = new LinkDestination(ldd);
         delete namedDest;

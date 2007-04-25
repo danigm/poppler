@@ -87,8 +87,9 @@ public:
   Object *getStructTreeRoot() { return catalog->getStructTreeRoot(); }
 
   // Display a page.
-  void displayPage(OutputDev *out, int page, double hDPI, double vDPI,
-		   int rotate, GBool useMediaBox, GBool crop, GBool doLinks,
+  void displayPage(OutputDev *out, int page,
+		   double hDPI, double vDPI, int rotate,
+		   GBool useMediaBox, GBool crop, GBool printing,
 		   GBool (*abortCheckCbk)(void *data) = NULL,
 		   void *abortCheckCbkData = NULL,
                    GBool (*annotDisplayDecideCbk)(Annot *annot, void *user_data) = NULL,
@@ -97,7 +98,7 @@ public:
   // Display a range of pages.
   void displayPages(OutputDev *out, int firstPage, int lastPage,
 		    double hDPI, double vDPI, int rotate,
-		    GBool useMediaBox, GBool crop, GBool doLinks,
+		    GBool useMediaBox, GBool crop, GBool printing,
 		    GBool (*abortCheckCbk)(void *data) = NULL,
 		    void *abortCheckCbkData = NULL,
                     GBool (*annotDisplayDecideCbk)(Annot *annot, void *user_data) = NULL,
@@ -105,8 +106,8 @@ public:
 
   // Display part of a page.
   void displayPageSlice(OutputDev *out, int page,
-			double hDPI, double vDPI,
-			int rotate, GBool useMediaBox, GBool crop, GBool doLinks,
+			double hDPI, double vDPI, int rotate, 
+			GBool useMediaBox, GBool crop, GBool printing,
 			int sliceX, int sliceY, int sliceW, int sliceH,
 			GBool (*abortCheckCbk)(void *data) = NULL,
 			void *abortCheckCbkData = NULL,
@@ -119,12 +120,16 @@ public:
 
   // Returns the links for the current page, transferring ownership to
   // the caller.
-  Links *takeLinks();
+  Links *getLinks(int page);
 
   // Find a named destination.  Returns the link destination, or
   // NULL if <name> is not a destination.
-  LinkDest *findDest(UGooString *name)
+  LinkDest *findDest(GooString *name)
     { return catalog->findDest(name); }
+
+  // Process the links for a page.
+  void processLinks(OutputDev *out, int page);
+
 
 #ifndef DISABLE_OUTLINE
   // Return the outline object.
@@ -175,7 +180,6 @@ private:
   GBool checkFooter();
   void checkHeader();
   GBool checkEncryption(GooString *ownerPassword, GooString *userPassword);
-  void getLinks(Page *page);
 
   GooString *fileName;
   FILE *file;
@@ -184,7 +188,6 @@ private:
   double pdfVersion;
   XRef *xref;
   Catalog *catalog;
-  Links *links;
 #ifndef DISABLE_OUTLINE
   Outline *outline;
 #endif

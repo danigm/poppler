@@ -27,7 +27,6 @@
 #include "GfxState.h"
 #include "GlobalParams.h"
 #include "ABWOutputDev.h"
-#include "UGooString.h"
 #include "PDFDoc.h"
 
 #include <libxml/parser.h>

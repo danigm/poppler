@@ -26,6 +26,7 @@ class Gfx;
 class GfxFont;
 class GfxState;
 class UnicodeMap;
+class Link;
 
 class TextWord;
 class TextPool;
@@ -53,11 +54,24 @@ public:
 
   GBool matches(GfxState *state);
 
+#if TEXTOUT_WORD_LIST
+  // Get the font name (which may be NULL).
+  GooString *getFontName() { return fontName; }
+
+  // Get font descriptor flags.
+  GBool isFixedWidth() { return flags & fontFixedWidth; }
+  GBool isSerif() { return flags & fontSerif; }
+  GBool isSymbolic() { return flags & fontSymbolic; }
+  GBool isItalic() { return flags & fontItalic; }
+  GBool isBold() { return flags & fontBold; }
+#endif
+
 private:
 
   GfxFont *gfxFont;
 #if TEXTOUT_WORD_LIST
   GooString *fontName;
+  int flags;
 #endif
 
   friend class TextWord;
@@ -99,6 +113,12 @@ public:
   void visitSelection(TextSelectionVisitor *visitor,
 		      PDFRectangle *selection);
 
+  // Get the TextFontInfo object associated with this word.
+  TextFontInfo *getFontInfo() { return font; }
+
+  // Get the next TextWord on the linked list.
+  TextWord *getNext() { return next; }
+
 #if TEXTOUT_WORD_LIST
   int getLength() { return len; }
   const Unicode *getChar(int idx) { return &text[idx]; }
@@ -108,11 +128,16 @@ public:
     { *r = colorR; *g = colorG; *b = colorB; }
   void getBBox(double *xMinA, double *yMinA, double *xMaxA, double *yMaxA)
     { *xMinA = xMin; *yMinA = yMin; *xMaxA = xMax; *yMaxA = yMax; }
+  void getCharBBox(int charIdx, double *xMinA, double *yMinA,
+		   double *xMaxA, double *yMaxA);
   double getFontSize() { return fontSize; }
   int getRotation() { return rot; }
   int getCharPos() { return charPos; }
   int getCharLen() { return charLen; }
+  GBool getSpaceAfter() { return spaceAfter; }
 #endif
+  GBool isUnderlined() { return underlined; }
+  Link *getLink() { return link; }
   double getEdge(int i) { return edge[i]; }
   double getBaseline () { return base; }
   GBool hasSpaceAfter  () { return spaceAfter; }
@@ -144,6 +169,9 @@ private:
          colorG,
          colorB;
 #endif
+
+  GBool underlined;
+  Link *link;
 
   friend class TextPool;
   friend class TextLine;
@@ -222,6 +250,15 @@ public:
   void visitSelection(TextSelectionVisitor *visitor,
 		      PDFRectangle *selection);
 
+  // Get the head of the linked list of TextWords.
+  TextWord *getWords() { return words; }
+
+  // Get the next TextLine on the linked list.
+  TextLine *getNext() { return next; }
+
+  // Returns true if the last char of the line is a hyphen.
+  GBool isHyphenated() { return hyphenated; }
+
 private:
 
   TextBlock *blk;		// parent block
@@ -287,6 +324,12 @@ public:
   void visitSelection(TextSelectionVisitor *visitor,
 		      PDFRectangle *selection);
 
+  // Get the head of the linked list of TextLines.
+  TextLine *getLines() { return lines; }
+
+  // Get the next TextBlock on the linked list.
+  TextBlock *getNext() { return next; }
+
 private:
 
   TextPage *page;		// the parent page
@@ -334,6 +377,12 @@ public:
   // primary axis.
   GBool blockFits(TextBlock *blk, TextBlock *prevBlk);
 
+  // Get the head of the linked list of TextBlocks.
+  TextBlock *getBlocks() { return blocks; }
+
+  // Get the next TextFlow on the linked list.
+  TextFlow *getNext() { return next; }
+
 private:
 
   TextPage *page;		// the parent page
@@ -373,7 +422,7 @@ public:
 
 private:
 
-  GooList *words;
+  GooList *words;			// [TextWord]
 };
 
 #endif // TEXTOUT_WORD_LIST
@@ -414,8 +463,14 @@ public:
   // Add a word, sorting it into the list of words.
   void addWord(TextWord *word);
 
+  // Add a (potential) underline.
+  void addUnderline(double x0, double y0, double x1, double y1);
+
+  // Add a hyperlink.
+  void addLink(int xMin, int yMin, int xMax, int yMax, Link *link);
+
   // Coalesce strings that look like parts of the same line.
-  void coalesce(GBool physLayout);
+  void coalesce(GBool physLayout, GBool doHTML);
 
   // Find a string.  If <startAtTop> is true, starts looking at the
   // top of the page; else if <startAtLast> is true, starts looking
@@ -458,6 +513,9 @@ public:
   // Dump contents of page to a file.
   void dump(void *outputStream, TextOutputFunc outputFunc,
 	    GBool physLayout);
+
+  // Get the head of the linked list of TextFlows.
+  TextFlow *getFlows() { return flows; }
 
 #if TEXTOUT_WORD_LIST
   // Build a flat word list, in content stream order (if
@@ -503,6 +561,9 @@ private:
   double lastFindXMin,		// coordinates of the last "find" result
          lastFindYMin;
   GBool haveLastFind;
+
+  GooList *underlines;		// [TextUnderline]
+  GooList *links;		// [TextLink]
 
   friend class TextLine;
   friend class TextLineFrag;
@@ -576,6 +637,14 @@ public:
 			double originX, double originY,
 			CharCode c, int nBytes, Unicode *u, int uLen);
 
+  //----- path painting
+  virtual void stroke(GfxState *state);
+  virtual void fill(GfxState *state);
+  virtual void eoFill(GfxState *state);
+
+  //----- link borders
+  virtual void processLink(Link *link, Catalog *catalog);
+
   //----- special access
 
   // Find a string.  If <startAtTop> is true, starts looking at the
@@ -623,6 +692,9 @@ public:
   // transferring ownership to the caller.
   TextPage *takeText();
 
+  // Turn extra processing for HTML conversion on or off.
+  void enableHTMLExtras(GBool doHTMLA) { doHTML = doHTMLA; }
+
 private:
 
   TextOutputFunc outputFunc;	// output function
@@ -633,6 +705,7 @@ private:
   GBool physLayout;		// maintain original physical layout when
 				//   dumping text
   GBool rawOrder;		// keep text in content stream order
+  GBool doHTML;			// extra processing for HTML conversion
   GBool ok;			// set up ok?
 };
 

@@ -2,7 +2,7 @@
 //
 // Catalog.h
 //
-// Copyright 1996-2003 Glyph & Cog, LLC
+// Copyright 1996-2007 Glyph & Cog, LLC
 //
 //========================================================================
 
@@ -19,7 +19,6 @@ class Page;
 class PageAttrs;
 struct Ref;
 class LinkDest;
-class UGooString;
 class PageLabelInfo;
 class Form;
 
@@ -32,18 +31,18 @@ public:
   NameTree();
   void init(XRef *xref, Object *tree);
   void parse(Object *tree);
-  GBool lookup(UGooString *name, Object *obj);
+  GBool lookup(GooString *name, Object *obj);
   void free();
   int numEntries() { return length; };
   // iterator accessor
   Object getValue(int i);
-  UGooString *getName(int i);
+  GooString *getName(int i);
 
 private:
   struct Entry {
     Entry(Array *array, int index);
     ~Entry();
-    UGooString *name;
+    GooString name;
     Object value;
     void free();
     static int cmp(const void *key, const void *entry);
@@ -136,7 +135,9 @@ public:
 
   // Find a named destination.  Returns the link destination, or
   // NULL if <name> is not a destination.
-  LinkDest *findDest(UGooString *name);
+  LinkDest *findDest(GooString *name);
+
+  Object *getDests() { return &dests; }
 
   // Get the number of embedded files
   int numEmbeddedFiles() { return embeddedFileNameTree.numEntries(); }
@@ -197,7 +198,8 @@ private:
   PageMode pageMode;		// page mode
   PageLayout pageLayout;	// page layout
 
-  int readPageTree(Dict *pages, PageAttrs *attrs, int start, int callDepth);
+  int readPageTree(Dict *pages, PageAttrs *attrs, int start,
+		   char *alreadyRead);
   Object *findDestInTree(Object *tree, GooString *name, Object *obj);
 };
 

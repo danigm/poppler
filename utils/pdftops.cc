@@ -68,6 +68,7 @@ static GBool noEmbedT1Fonts = gFalse;
 static GBool noEmbedTTFonts = gFalse;
 static GBool noEmbedCIDPSFonts = gFalse;
 static GBool noEmbedCIDTTFonts = gFalse;
+static GBool preload = gFalse;
 static char paperSize[15] = "";
 static int paperWidth = 0;
 static int paperHeight = 0;
@@ -115,6 +116,8 @@ static ArgDesc argDesc[] = {
    "don't embed CID PostScript fonts"},
   {"-noembcidtt", argFlag, &noEmbedCIDTTFonts,  0,
    "don't embed CID TrueType fonts"},
+  {"-preload",    argFlag,     &preload,        0,
+   "preload images and forms"},
   {"-paper",      argString,   paperSize,       sizeof(paperSize),
    "paper size (letter, legal, A4, A3, match)"},
   {"-paperw",     argInt,      &paperWidth,     0,
@@ -242,6 +245,9 @@ int main(int argc, char *argv[]) {
   if (noEmbedCIDTTFonts) {
     globalParams->setPSEmbedCIDTrueType(!noEmbedCIDTTFonts);
   }
+  if (preload) {
+    globalParams->setPSPreload(preload);
+  }
 #if OPI_SUPPORT
   if (doOPI) {
     globalParams->setPSOPI(doOPI);
@@ -319,7 +325,7 @@ int main(int argc, char *argv[]) {
 			  duplex);
   if (psOut->isOk()) {
     doc->displayPages(psOut, firstPage, lastPage, 72, 72,
-		      0, !noCrop, gFalse, gFalse);
+		      0, !noCrop, gFalse, gTrue);
   } else {
     delete psOut;
     exitCode = 2;

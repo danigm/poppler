@@ -59,7 +59,8 @@ public:
   // Set the encryption parameters.
   void setEncryption(int permFlagsA, GBool ownerPasswordOkA,
 		     Guchar *fileKeyA, int keyLengthA,
-		     int encVersionA, int encRevisionA);
+		     int encVersionA, int encRevisionA,
+		     CryptAlgorithm encAlgorithmA);
 
   // Is the file encrypted?
   GBool isEncrypted() { return encrypted; }
@@ -99,7 +100,7 @@ public:
   GBool getStreamEnd(Guint streamStart, Guint *streamEnd);
 
   // Retuns the entry that belongs to the offset
-  int getNumEntry(int offset) const;
+  int getNumEntry(Guint offset) const;
 
   // Direct access.
   int getSize() { return size; }
@@ -130,6 +131,7 @@ private:
   GBool encrypted;		// true if file is encrypted
   int encRevision;		
   int encVersion;		// encryption algorithm
+  CryptAlgorithm encAlgorithm;	// encryption algorithm
   int keyLength;		// length of key, in bytes
   int permFlags;		// permission bits
   Guchar fileKey[16];		// file decryption key

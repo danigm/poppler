@@ -75,6 +75,12 @@ SplashFontFile *SplashFTFontEngine::loadType1CFont(SplashFontFileID *idA,
   return SplashFTFontFile::loadType1Font(this, idA, src, enc);
 }
 
+SplashFontFile *SplashFTFontEngine::loadOpenTypeT1CFont(SplashFontFileID *idA,
+							SplashFontSrc *src,
+							char **enc) {
+  return SplashFTFontFile::loadType1Font(this, idA, src, enc);
+}
+
 SplashFontFile *SplashFTFontEngine::loadCIDFont(SplashFontFileID *idA,
 						SplashFontSrc *src) {
   FoFiType1C *ff;
@@ -90,17 +96,49 @@ SplashFontFile *SplashFTFontEngine::loadCIDFont(SplashFontFileID *idA,
     if (src->isFile) {
       ff = FoFiType1C::load(src->fileName->getCString());
     } else {
-      ff = new FoFiType1C(src->buf, src->bufLen, gFalse);
+      ff = FoFiType1C::make(src->buf, src->bufLen);
     }
     if (ff) {
-    cidToGIDMap = ff->getCIDToGIDMap(&nCIDs);
-    delete ff;
-  } else {
-    cidToGIDMap = NULL;
-    nCIDs = 0;
-  }
+      cidToGIDMap = ff->getCIDToGIDMap(&nCIDs);
+      delete ff;
+    } else {
+      cidToGIDMap = NULL;
+      nCIDs = 0;
+    }
   }
   ret = SplashFTFontFile::loadCIDFont(this, idA, src, cidToGIDMap, nCIDs);
+  if (!ret) {
+    gfree(cidToGIDMap);
+  }
+  return ret;
+}
+
+SplashFontFile *SplashFTFontEngine::loadOpenTypeCFFFont(SplashFontFileID *idA,
+							SplashFontSrc *src) {
+  FoFiTrueType *ff;
+  GBool isCID;
+  Gushort *cidToGIDMap;
+  int nCIDs;
+  SplashFontFile *ret;
+
+  cidToGIDMap = NULL;
+  nCIDs = 0;
+  isCID = gFalse;
+  if (!useCIDs) {
+    if (src->isFile) {
+      ff = FoFiTrueType::load(src->fileName->getCString());
+    } else {
+      ff = FoFiTrueType::make(src->buf, src->bufLen);
+    }
+    if (ff) {
+      if (ff->isOpenTypeCFF()) {
+	cidToGIDMap = ff->getCIDToGIDMap(&nCIDs);
+      }
+      delete ff;
+    }
+  }
+  ret = SplashFTFontFile::loadCIDFont(this, idA, src,
+				      cidToGIDMap, nCIDs);
   if (!ret) {
     gfree(cidToGIDMap);
   }
@@ -118,7 +156,7 @@ SplashFontFile *SplashFTFontEngine::loadTrueTypeFont(SplashFontFileID *idA,
   FILE *tmpFile;
   SplashFontFile *ret;
 
-  if (!(ff = FoFiTrueType::load(fileName, faceIndex))) {
+  if (!(ff = FoFiTrueType::load(fileName))) {
     return NULL;
   }
   tmpFileName = NULL;

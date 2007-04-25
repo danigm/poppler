@@ -38,7 +38,6 @@
 #include "Outline.h"
 #endif
 #include "PDFDoc.h"
-#include "UGooString.h"
 
 //------------------------------------------------------------------------
 
@@ -63,7 +62,6 @@ PDFDoc::PDFDoc(GooString *fileNameA, GooString *ownerPassword,
   str = NULL;
   xref = NULL;
   catalog = NULL;
-  links = NULL;
 #ifndef DISABLE_OUTLINE
   outline = NULL;
 #endif
@@ -121,7 +119,6 @@ PDFDoc::PDFDoc(wchar_t *fileNameA, int fileNameLen, GooString *ownerPassword,
   str = NULL;
   xref = NULL;
   catalog = NULL;
-  links = NULL;
 #ifndef DISABLE_OUTLINE
   outline = NULL;
 #endif
@@ -166,12 +163,15 @@ PDFDoc::PDFDoc(BaseStream *strA, GooString *ownerPassword,
   ok = gFalse;
   errCode = errNone;
   guiData = guiDataA;
-  fileName = NULL;
+  if (strA->getFileName()) {
+    fileName = strA->getFileName()->copy();
+  } else {
+    fileName = NULL;
+  }
   file = NULL;
   str = strA;
   xref = NULL;
   catalog = NULL;
-  links = NULL;
 #ifndef DISABLE_OUTLINE
   outline = NULL;
 #endif
@@ -238,9 +238,6 @@ PDFDoc::~PDFDoc() {
   }
   if (fileName) {
     delete fileName;
-  }
-  if (links) {
-    delete links;
   }
 }
 
@@ -330,7 +327,8 @@ GBool PDFDoc::checkEncryption(GooString *ownerPassword, GooString *userPassword)
 			    secHdlr->getFileKey(),
 			    secHdlr->getFileKeyLength(),
 			    secHdlr->getEncVersion(),
-			    secHdlr->getEncRevision());
+			    secHdlr->getEncRevision(),
+			    secHdlr->getEncAlgorithm());
 	ret = gTrue;
       } else {
 	// authorization failed
@@ -349,36 +347,25 @@ GBool PDFDoc::checkEncryption(GooString *ownerPassword, GooString *userPassword)
   return ret;
 }
 
-void PDFDoc::displayPage(OutputDev *out, int page, double hDPI, double vDPI,
-			 int rotate, GBool useMediaBox, GBool crop, GBool doLinks,
+void PDFDoc::displayPage(OutputDev *out, int page,
+			 double hDPI, double vDPI, int rotate,
+			 GBool useMediaBox, GBool crop, GBool printing,
 			 GBool (*abortCheckCbk)(void *data),
 			 void *abortCheckCbkData,
                          GBool (*annotDisplayDecideCbk)(Annot *annot, void *user_data),
                          void *annotDisplayDecideCbkData) {
-  Page *p;
-
   if (globalParams->getPrintCommands()) {
     printf("***** page %d *****\n", page);
   }
-  p = catalog->getPage(page);
-  if (doLinks) {
-    if (links) {
-      delete links;
-    }
-    getLinks(p);
-    p->display(out, hDPI, vDPI, rotate, useMediaBox, crop, links, catalog,
-	       abortCheckCbk, abortCheckCbkData,
-               annotDisplayDecideCbk, annotDisplayDecideCbkData);
-  } else {
-    p->display(out, hDPI, vDPI, rotate, useMediaBox, crop, NULL, catalog,
-	       abortCheckCbk, abortCheckCbkData,
-               annotDisplayDecideCbk, annotDisplayDecideCbkData);
-  }
+  catalog->getPage(page)->display(out, hDPI, vDPI,
+				  rotate, useMediaBox, crop, printing, catalog,
+				  abortCheckCbk, abortCheckCbkData,
+				  annotDisplayDecideCbk, annotDisplayDecideCbkData);
 }
 
 void PDFDoc::displayPages(OutputDev *out, int firstPage, int lastPage,
-			  double hDPI, double vDPI, int rotate, GBool useMediaBox,
-			  GBool crop, GBool doLinks,
+			  double hDPI, double vDPI, int rotate,
+			  GBool useMediaBox, GBool crop, GBool printing,
 			  GBool (*abortCheckCbk)(void *data),
 			  void *abortCheckCbkData,
                           GBool (*annotDisplayDecideCbk)(Annot *annot, void *user_data),
@@ -386,49 +373,34 @@ void PDFDoc::displayPages(OutputDev *out, int firstPage, int lastPage,
   int page;
 
   for (page = firstPage; page <= lastPage; ++page) {
-    displayPage(out, page, hDPI, vDPI, rotate, useMediaBox, crop, doLinks,
+    displayPage(out, page, hDPI, vDPI, rotate, useMediaBox, crop, printing,
 		abortCheckCbk, abortCheckCbkData,
                 annotDisplayDecideCbk, annotDisplayDecideCbkData);
   }
 }
 
 void PDFDoc::displayPageSlice(OutputDev *out, int page,
-			      double hDPI, double vDPI,
-			      int rotate, GBool useMediaBox, GBool crop, GBool doLinks,
+			      double hDPI, double vDPI, int rotate,
+			      GBool useMediaBox, GBool crop, GBool printing,
 			      int sliceX, int sliceY, int sliceW, int sliceH,
 			      GBool (*abortCheckCbk)(void *data),
 			      void *abortCheckCbkData,
                               GBool (*annotDisplayDecideCbk)(Annot *annot, void *user_data),
                               void *annotDisplayDecideCbkData) {
-  Page *p;
-
-  p = catalog->getPage(page);
-  if (doLinks)
-  {
-    if (links) {
-      delete links;
-    }
-    getLinks(p);
-    p->displaySlice(out, hDPI, vDPI, rotate, useMediaBox, crop,
-		  sliceX, sliceY, sliceW, sliceH,
-		  links, catalog,
-                  abortCheckCbk, abortCheckCbkData,
-                  annotDisplayDecideCbk, annotDisplayDecideCbkData);
-  } else {
-    p->displaySlice(out, hDPI, vDPI, rotate, useMediaBox, crop,
-                  sliceX, sliceY, sliceW, sliceH,
-	          NULL, catalog,
-	          abortCheckCbk, abortCheckCbkData,
-	          annotDisplayDecideCbk, annotDisplayDecideCbkData);
-  } 
+  catalog->getPage(page)->displaySlice(out, hDPI, vDPI,
+				       rotate, useMediaBox, crop,
+				       sliceX, sliceY, sliceW, sliceH,
+				       printing, catalog,
+				       abortCheckCbk, abortCheckCbkData,
+				       annotDisplayDecideCbk, annotDisplayDecideCbkData);
 }
 
-Links *PDFDoc::takeLinks() {
-  Links *ret;
-
-  ret = links;
-  links = NULL;
-  return ret;
+Links *PDFDoc::getLinks(int page) {
+  return catalog->getPage(page)->getLinks(catalog);
+}
+  
+void PDFDoc::processLinks(OutputDev *out, int page) {
+  catalog->getPage(page)->processLinks(out, catalog);
 }
 
 GBool PDFDoc::isLinearized() {
@@ -440,7 +412,8 @@ GBool PDFDoc::isLinearized() {
   obj1.initNull();
   parser = new Parser(xref,
 	     new Lexer(xref,
-	       str->makeSubStream(str->getStart(), gFalse, 0, &obj1)));
+	       str->makeSubStream(str->getStart(), gFalse, 0, &obj1)),
+	     gTrue);
   parser->getObj(&obj1);
   parser->getObj(&obj2);
   parser->getObj(&obj3);
@@ -476,11 +449,4 @@ GBool PDFDoc::saveAs(GooString *name) {
   str->close();
   fclose(f);
   return gTrue;
-}
-
-void PDFDoc::getLinks(Page *page) {
-  Object obj;
-
-  links = new Links(page->getAnnots(&obj), catalog->getBaseURI());
-  obj.free();
 }

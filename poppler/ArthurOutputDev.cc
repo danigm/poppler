@@ -241,6 +241,8 @@ void ArthurOutputDev::updateStrokeOpacity(GfxState *state)
 
 void ArthurOutputDev::updateFont(GfxState *state)
 {
+#warning fix this, probably update with updated code from SplashOutputdev
+/*
   GfxFont *gfxFont;
   GfxFontType fontType;
   SplashOutFontFileID *id;
@@ -403,7 +405,7 @@ void ArthurOutputDev::updateFont(GfxState *state)
 
  err2:
   delete id;
- err1:
+ err1:*/
   return;
 }
 
@@ -513,9 +515,12 @@ void ArthurOutputDev::drawChar(GfxState *state, double x, double y,
 	  qPath.quadTo(x0+fontPath->pts[i].x, y0+fontPath->pts[i].y,
 		       x0+fontPath->pts[i+1].x, y0+fontPath->pts[i+1].y);
 	  ++i;
-	} else if (fontPath->flags[i] & splashPathArcCW) {
-	  qDebug() << "Need to implement arc";
-	} else {
+	}
+#warning FIX THIS
+// 	else if (fontPath->flags[i] & splashPathArcCW) {
+// 	  qDebug() << "Need to implement arc";
+// 	}
+	else {
 	  qPath.lineTo(x0+fontPath->pts[i].x, y0+fontPath->pts[i].y);
 	}
 	if (fontPath->flags[i] & splashPathLast) {

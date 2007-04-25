@@ -332,7 +332,7 @@ poppler_page_render (PopplerPage *page,
 			   0, 0,
 			   (int) ceil (page->page->getCropWidth ()),
 			   (int) ceil (page->page->getCropHeight ()),
-			   NULL, /* links */
+			   gFalse, /* printing */
 			   page->document->doc->getCatalog ());
 
   output_dev->setCairo (NULL);
@@ -378,7 +378,7 @@ poppler_page_render_to_pixbuf (PopplerPage *page,
 			   gTrue, /* Crop */
 			   src_x, src_y,
 			   src_width, src_height,
-			   NULL, /* links */
+			   gFalse, /* printing */
 			   page->document->doc->getCatalog ());
 
   poppler_page_copy_to_pixbuf (page, pixbuf, &data);
@@ -395,7 +395,7 @@ poppler_page_get_text_output_dev (PopplerPage *page)
 				      gFalse, /* useMediaBox */
 				      gTrue, /* Crop */
 				      -1, -1, -1, -1,
-				      NULL, /* links */
+				      gFalse, /* printing */
 				      page->document->doc->getCatalog (),
 				      NULL, NULL, NULL, NULL);
 
@@ -744,7 +744,7 @@ poppler_page_find_text (PopplerPage *page,
 
   poppler_page_get_size (page, NULL, &height);
   page->page->display (output_dev, 72, 72, 0, gFalse,
-		       gTrue, NULL, doc->getCatalog());
+		       gTrue, gFalse, doc->getCatalog());
   
   matches = NULL;
   xMin = 0;

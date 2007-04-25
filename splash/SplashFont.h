@@ -35,7 +35,8 @@ class SplashPath;
 class SplashFont {
 public:
 
-  SplashFont(SplashFontFile *fontFileA, SplashCoord *matA, GBool aaA);
+  SplashFont(SplashFontFile *fontFileA, SplashCoord *matA,
+	     SplashCoord *textMatA, GBool aaA);
 
   // This must be called after the constructor, so that the subclass
   // constructor has a chance to compute the bbox.
@@ -46,10 +47,13 @@ public:
   SplashFontFile *getFontFile() { return fontFile; }
 
   // Return true if <this> matches the specified font file and matrix.
-  GBool matches(SplashFontFile *fontFileA, SplashCoord *matA) {
+  GBool matches(SplashFontFile *fontFileA, SplashCoord *matA,
+		SplashCoord *textMatA) {
     return fontFileA == fontFile &&
            matA[0] == mat[0] && matA[1] == mat[1] &&
-           matA[2] == mat[2] && matA[3] == mat[3];
+           matA[2] == mat[2] && matA[3] == mat[3] &&
+           textMatA[0] == textMat[0] && textMatA[1] == textMat[1] &&
+           textMatA[2] == textMat[2] && textMatA[3] == textMat[3];
   }
 
   // Get a glyph - this does a cache lookup first, and if not found,
@@ -81,6 +85,9 @@ protected:
 
   SplashFontFile *fontFile;
   SplashCoord mat[4];		// font transform matrix
+				//   (text space -> device space)
+  SplashCoord textMat[4];	// text transform matrix
+				//   (text space -> user space)
   GBool aa;			// anti-aliasing
   int xMin, yMin, xMax, yMax;	// glyph bounding box
   Guchar *cache;		// glyph bitmap cache

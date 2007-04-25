@@ -33,12 +33,16 @@ enum GfxFontType {
   fontUnknownType,
   fontType1,
   fontType1C,
+  fontType1COT,
   fontType3,
   fontTrueType,
+  fontTrueTypeOT,
   //----- GfxCIDFont
   fontCIDType0,
   fontCIDType0C,
-  fontCIDType2
+  fontCIDType0COT,
+  fontCIDType2,
+  fontCIDType2OT
 };
 
 //------------------------------------------------------------------------
@@ -161,6 +165,7 @@ public:
   GooString *getExtFontFile() { return extFontFile; }
 
   // Get font descriptor flags.
+  int getFlags() { return flags; }
   GBool isFixedWidth() { return flags & fontFixedWidth; }
   GBool isSerif() { return flags & fontSerif; }
   GBool isSymbolic() { return flags & fontSymbolic; }

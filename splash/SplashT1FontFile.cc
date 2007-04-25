@@ -33,6 +33,7 @@ SplashFontFile *SplashT1FontFile::loadType1Font(SplashT1FontEngine *engineA,
   int encStrSize;
   char *encPtr;
   int i;
+
   GString *fileNameA;
   SplashFontSrc *newsrc = NULL;
   SplashFontFile *ff;
@@ -52,8 +53,7 @@ SplashFontFile *SplashT1FontFile::loadType1Font(SplashT1FontEngine *engineA,
   fileNameA = src->fileName;
   // load the font file
   if ((t1libIDA = T1_AddFont(fileNameA)) < 0) {
-    if (newsrc)
-      delete newsrc;
+    delete newsrc;
     return NULL;
   }
   T1_LoadFont(t1libIDA);
@@ -105,10 +105,11 @@ SplashT1FontFile::~SplashT1FontFile() {
   T1_DeleteFont(t1libID);
 }
 
-SplashFont *SplashT1FontFile::makeFont(SplashCoord *mat) {
+SplashFont *SplashT1FontFile::makeFont(SplashCoord *mat,
+				       SplashCoord *textMat) {
   SplashFont *font;
 
-  font = new SplashT1Font(this, mat);
+  font = new SplashT1Font(this, mat, textMat);
   font->initCache();
   return font;
 }

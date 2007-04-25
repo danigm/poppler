@@ -8,13 +8,14 @@
 //
 //========================================================================
 
-#ifndef GSTRING_H
-#define GSTRING_H
+#ifndef GooString_H
+#define GooString_H
 
 #ifdef USE_GCC_PRAGMAS
 #pragma interface
 #endif
 
+#include <stdarg.h>
 #include <stdlib.h> // for NULL
 #include "gtypes.h"
 
@@ -50,6 +51,30 @@ public:
   // Convert an integer to a string.
   static GooString *fromInt(int x);
 
+  // Create a formatted string.  Similar to printf, but without the
+  // string overflow issues.  Formatting elements consist of:
+  //     {<arg>:[<width>][.<precision>]<type>}
+  // where:
+  // - <arg> is the argument number (arg 0 is the first argument
+  //   following the format string) -- NB: args must be first used in
+  //   order; they can be reused in any order
+  // - <width> is the field width -- negative to reverse the alignment;
+  //   starting with a leading zero to zero-fill (for integers)
+  // - <precision> is the number of digits to the right of the decimal
+  //   point (for floating point numbers)
+  // - <type> is one of:
+  //     d, x, o, b -- int in decimal, hex, octal, binary
+  //     ud, ux, uo, ub -- unsigned int
+  //     ld, lx, lo, lb, uld, ulx, ulo, ulb -- long, unsigned long
+  //     f, g -- double
+  //     c -- char
+  //     s -- string (char *)
+  //     t -- GooString *
+  //     w -- blank space; arg determines width
+  // To get literal curly braces, use {{ or }}.
+  static GooString *format(char *fmt, ...);
+  static GooString *formatv(char *fmt, va_list argList);
+
   // Destructor.
   ~GooString();
 
@@ -72,6 +97,10 @@ public:
   GooString *append(char c);
   GooString *append(GooString *str);
   GooString *append(const char *str, int lengthA=CALC_STRING_LEN);
+
+  // Append a formatted string.
+  GooString *appendf(char *fmt, ...);
+  GooString *appendfv(char *fmt, va_list argList);
 
   // Insert a character or string.
   GooString *insert(int i, char c);
@@ -110,6 +139,14 @@ private:
   char *s;
 
   void resize(int newLength);
+  static void formatInt(long x, char *buf, int bufSize,
+			GBool zeroFill, int width, int base,
+			char **p, int *len);
+  static void formatUInt(Gulong x, char *buf, int bufSize,
+			 GBool zeroFill, int width, int base,
+			 char **p, int *len);
+  static void formatDouble(double x, char *buf, int bufSize, int prec,
+			   GBool trim, char **p, int *len);
 };
 
 #endif

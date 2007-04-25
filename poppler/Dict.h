@@ -14,14 +14,13 @@
 #endif
 
 #include "Object.h"
-#include "UGooString.h"
 
 //------------------------------------------------------------------------
 // Dict
 //------------------------------------------------------------------------
 
 struct DictEntry {
-  UGooString *key;
+  char *key;
   Object val;
 };
 
@@ -41,31 +40,25 @@ public:
   // Get number of entries.
   int getLength() { return length; }
 
-  // Add an entry
-  void addOwnKeyVal(UGooString *key, Object *val);
-  // FIXME: should also be renamed to addOwnVal()
-  void add(const UGooString &key, Object *val) {
-    addOwnKeyVal(new UGooString(key), val);
-  }
-  void addOwnVal(const char *key, Object *val) {
-    addOwnKeyVal(new UGooString(key), val);
-  }
+  // Add an entry.  NB: does not copy key.
+  void add(char *key, Object *val);
+
   // Update the value of an existing entry, otherwise create it
-  void set(const UGooString &key, Object *val);
+  void set(char *key, Object *val);
   // Remove an entry. This invalidate indexes
-  void remove(const UGooString &key);
+  void remove(char *key);
 
   // Check if dictionary is of specified type.
   GBool is(char *type);
 
   // Look up an entry and return the value.  Returns a null object
   // if <key> is not in the dictionary.
-  Object *lookup(const UGooString &key, Object *obj);
-  Object *lookupNF(const UGooString &key, Object *obj);
+  Object *lookup(char *key, Object *obj);
+  Object *lookupNF(char *key, Object *obj);
   GBool lookupInt(const char *key, const char *alt_key, int *value);
 
   // Iterative accessors.
-  UGooString *getKey(int i);
+  char *getKey(int i);
   Object *getVal(int i, Object *obj);
   Object *getValNF(int i, Object *obj);
 
@@ -82,7 +75,7 @@ private:
   int length;			// number of entries in dictionary
   int ref;			// reference count
 
-  DictEntry *find(const UGooString &key);
+  DictEntry *find(char *key);
 };
 
 #endif

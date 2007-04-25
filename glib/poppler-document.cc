@@ -28,7 +28,6 @@
 #include <Stream.h>
 #include <FontInfo.h>
 #include <PDFDocEncoding.h>
-#include <UGooString.h>
 
 #include "poppler.h"
 #include "poppler-private.h"
@@ -388,12 +387,12 @@ poppler_document_find_dest (PopplerDocument *document,
 {
 	PopplerDest *dest = NULL;
 	LinkDest *link_dest = NULL;
-	UGooString *g_link_name;
+	GooString *g_link_name;
 
 	g_return_val_if_fail (POPPLER_IS_DOCUMENT (document), NULL);
 	g_return_val_if_fail (link_name != NULL, NULL);
 
-	g_link_name = new UGooString (link_name);
+	g_link_name = new GooString (link_name);
 
 	if (g_link_name) {
 		link_dest = document->doc->findDest (g_link_name);

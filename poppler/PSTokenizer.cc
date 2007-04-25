@@ -98,7 +98,7 @@ GBool PSTokenizer::getToken(char *buf, int size, int *length) {
   } else if (c == '<') {
     while ((c = lookChar()) != EOF) {
       consumeChar();
-      if (i < size) {
+      if (i < size && specialChars[c] != 1) {
 	buf[i++] = c;
       }
       if (c == '>') {

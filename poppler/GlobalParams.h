@@ -36,6 +36,9 @@ class CMapCache;
 struct XpdfSecurityHandler;
 class GlobalParams;
 class GfxFont;
+#ifdef WIN32
+class WinFontList;
+#endif
 
 //------------------------------------------------------------------------
 
@@ -71,7 +74,7 @@ public:
   };
 
   DisplayFontParam(GooString *nameA, DisplayFontParamKind kindA);
-  ~DisplayFontParam();
+  virtual ~DisplayFontParam();
 };
 
 //------------------------------------------------------------------------
@@ -113,6 +116,15 @@ enum EndOfLineKind {
 
 //------------------------------------------------------------------------
 
+enum ScreenType {
+  screenUnset,
+  screenDispersed,
+  screenClustered,
+  screenStochasticClustered
+};
+
+//------------------------------------------------------------------------
+
 class GlobalParams {
 public:
 
@@ -145,6 +157,7 @@ public:
   GBool getPSEmbedTrueType();
   GBool getPSEmbedCIDPostScript();
   GBool getPSEmbedCIDTrueType();
+  GBool getPSPreload();
   GBool getPSOPI();
   GBool getPSASCIIHex();
   GooString *getTextEncodingName();
@@ -154,7 +167,16 @@ public:
   GooString *findFontFile(GooString *fontName, char **exts);
   GBool getEnableFreeType();
   GBool getAntialias();
+  GBool getVectorAntialias();
+  GBool getStrokeAdjust();
+  ScreenType getScreenType();
+  int getScreenSize();
+  int getScreenDotRadius();
+  double getScreenGamma();
+  double getScreenBlackThreshold();
+  double getScreenWhiteThreshold();
   GBool getMapNumericCharNames();
+  GBool getMapUnknownCharNames();
   GBool getPrintCommands();
   GBool getProfileCommands();
   GBool getErrQuiet();
@@ -177,6 +199,7 @@ public:
   void setPSEmbedTrueType(GBool embed);
   void setPSEmbedCIDPostScript(GBool embed);
   void setPSEmbedCIDTrueType(GBool embed);
+  void setPSPreload(GBool preload);
   void setPSOPI(GBool opi);
   void setPSASCIIHex(GBool hex);
   void setTextEncoding(char *encodingName);
@@ -185,7 +208,9 @@ public:
   void setTextKeepTinyChars(GBool keep);
   GBool setEnableFreeType(char *s);
   GBool setAntialias(char *s);
+  GBool setVectorAntialias(char *s);
   void setMapNumericCharNames(GBool map);
+  void setMapUnknownCharNames(GBool map);
   void setPrintCommands(GBool printCommandsA);
   void setProfileCommands(GBool profileCommandsA);
   void setErrQuiet(GBool errQuietA);
@@ -230,6 +255,9 @@ private:
   GooList *toUnicodeDirs;		// list of ToUnicode CMap dirs [GooString]
   GooHash *displayFonts;		// display font info, indexed by font name
 				//   [DisplayFontParam]
+#ifdef WIN32
+  WinFontList *winFontList;	// system TrueType fonts
+#endif
   GBool psExpandSmaller;	// expand smaller pages to fill paper
   GBool psShrinkLarger;		// shrink larger pages to fit paper
   GBool psCenter;		// center pages on the paper
@@ -242,6 +270,8 @@ private:
   GBool psEmbedTrueType;	// embed TrueType fonts?
   GBool psEmbedCIDPostScript;	// embed CID PostScript fonts?
   GBool psEmbedCIDTrueType;	// embed CID TrueType fonts?
+  GBool psPreload;		// preload PostScript images and forms into
+				//   memory
   GBool psOPI;			// generate PostScript OPI comments?
   GBool psASCIIHex;		// use ASCIIHex instead of ASCII85?
   GooString *textEncoding;	// encoding (unicodeMap) to use for text
@@ -253,7 +283,16 @@ private:
   GooList *fontDirs;		// list of font dirs [GooString]
   GBool enableFreeType;		// FreeType enable flag
   GBool antialias;		// anti-aliasing enable flag
+  GBool vectorAntialias;	// vector anti-aliasing enable flag
+  GBool strokeAdjust;		// stroke adjustment enable flag
+  ScreenType screenType;	// halftone screen type
+  int screenSize;		// screen matrix size
+  int screenDotRadius;		// screen dot radius
+  double screenGamma;		// screen gamma correction
+  double screenBlackThreshold;	// screen black clamping threshold
+  double screenWhiteThreshold;	// screen white clamping threshold
   GBool mapNumericCharNames;	// map numeric char names (from font subsets)?
+  GBool mapUnknownCharNames;	// map unknown char names?
   GBool printCommands;		// print the drawing commands
   GBool profileCommands;	// profile the drawing commands
   GBool errQuiet;		// suppress error messages?

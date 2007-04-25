@@ -14,6 +14,11 @@
 #include "SplashTypes.h"
 
 class SplashPath;
+struct SplashXPathAdjust;
+
+//------------------------------------------------------------------------
+
+#define splashMaxCurveSplits (1 << 10)
 
 //------------------------------------------------------------------------
 // SplashXPathSeg
@@ -45,15 +50,20 @@ class SplashXPath {
 public:
 
   // Expands (converts to segments) and flattens (converts curves to
-  // lines) <path>.  If <closeSubpaths> is true, closes all open
+  // lines) <path>.  Transforms all points from user space to device
+  // space, via <matrix>.  If <closeSubpaths> is true, closes all open
   // subpaths.
-  SplashXPath(SplashPath *path, SplashCoord flatness,
-	      GBool closeSubpaths);
+  SplashXPath(SplashPath *path, SplashCoord *matrix,
+	      SplashCoord flatness, GBool closeSubpaths);
 
   // Copy an expanded path.
   SplashXPath *copy() { return new SplashXPath(this); }
 
   ~SplashXPath();
+
+  // Multiply all coordinates by splashAASize, in preparation for
+  // anti-aliased rendering.
+  void aaScale();
 
   // Sort by upper coordinate (lower y), in y-major order.
   void sort();
@@ -62,6 +72,10 @@ private:
 
   SplashXPath();
   SplashXPath(SplashXPath *xPath);
+  void transform(SplashCoord *matrix, SplashCoord xi, SplashCoord yi,
+		 SplashCoord *xo, SplashCoord *yo);
+  void strokeAdjust(SplashXPathAdjust *adjust,
+		    SplashCoord *xp, SplashCoord *yp);
   void grow(int nSegs);
   void addCurve(SplashCoord x0, SplashCoord y0,
 		SplashCoord x1, SplashCoord y1,
@@ -69,12 +83,6 @@ private:
 		SplashCoord x3, SplashCoord y3,
 		SplashCoord flatness,
 		GBool first, GBool last, GBool end0, GBool end1);
-  void addArc(SplashCoord x0, SplashCoord y0,
-	      SplashCoord x1, SplashCoord y1,
-	      SplashCoord xc, SplashCoord yc,
-	      SplashCoord r, int quad,
-	      SplashCoord flatness,
-	      GBool first, GBool last, GBool end0, GBool end1);
   void addSegment(SplashCoord x0, SplashCoord y0,
 		  SplashCoord x1, SplashCoord y1,
 		  GBool first, GBool last, GBool end0, GBool end1);

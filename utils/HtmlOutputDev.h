@@ -232,6 +232,18 @@ public:
 
   //----- initialization and control
 
+  virtual GBool checkPageSlice(Page *page, double hDPI, double vDPI,
+                               int rotate, GBool useMediaBox, GBool crop,
+                               int sliceX, int sliceY, int sliceW, int sliceH,
+                               GBool printing, Catalog * catalogA,
+                               GBool (* abortCheckCbk)(void *data) = NULL,
+                               void * abortCheckCbkData = NULL)
+  {
+   catalog = catalogA;
+   return gTrue;
+  }
+
+
   // Start a page.
   virtual void startPage(int pageNum, GfxState *state);
 
@@ -259,7 +271,6 @@ public:
 
   //new feature    
   virtual int DevType() {return 1234;}
-  virtual void drawLink(Link *link,Catalog *cat); 
 
   int getPageWidth() { return maxPageWidth; }
   int getPageHeight() { return maxPageHeight; }
@@ -272,6 +283,7 @@ private:
   // convert encoding into a HTML standard, or encoding->getCString if not
   // recognized
   static char* mapEncodingToHtml(GooString* encoding);
+  void processLink(Link *link);
   GooString* getLinkDest(Link *link,Catalog *catalog);
   void dumpMetaVars(FILE *);
   void doFrame(int firstPage);
@@ -294,6 +306,7 @@ private:
   GooString *Docname;
   GooString *docTitle;
   GooList *glMetaVars;
+  Catalog *catalog;
   friend class HtmlPage;
 };
 

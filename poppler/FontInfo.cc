@@ -12,7 +12,6 @@
 #include "Annot.h"
 #include "PDFDoc.h"
 #include "FontInfo.h"
-#include "UGooString.h"
 
 FontInfoScanner::FontInfoScanner(PDFDoc *docA) {
   doc = docA;

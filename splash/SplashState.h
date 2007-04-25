@@ -16,6 +16,7 @@
 class SplashPattern;
 class SplashScreen;
 class SplashClip;
+class SplashBitmap;
 
 //------------------------------------------------------------------------
 // line cap values
@@ -41,7 +42,10 @@ class SplashState {
 public:
 
   // Create a new state object, initialized with default settings.
-  SplashState(int width, int height);
+  SplashState(int width, int height, GBool vectorAntialias,
+	      SplashScreenParams *screenParams);
+  SplashState(int width, int height, GBool vectorAntialias,
+	      SplashScreen *screenA);
 
   // Copy a state object.
   SplashState *copy() { return new SplashState(this); }
@@ -61,10 +65,14 @@ public:
   void setLineDash(SplashCoord *lineDashA, int lineDashLengthA,
 		   SplashCoord lineDashPhaseA);
 
+  // Set the soft mask bitmap.
+  void setSoftMask(SplashBitmap *softMaskA);
+
 private:
 
   SplashState(SplashState *state);
 
+  SplashCoord matrix[6];
   SplashPattern *strokePattern;
   SplashPattern *fillPattern;
   SplashScreen *screen;
@@ -79,7 +87,11 @@ private:
   SplashCoord *lineDash;
   int lineDashLength;
   SplashCoord lineDashPhase;
+  GBool strokeAdjust;
   SplashClip *clip;
+  SplashBitmap *softMask;
+  GBool deleteSoftMask;
+  GBool inNonIsolatedGroup;
 
   SplashState *next;		// used by Splash class
 

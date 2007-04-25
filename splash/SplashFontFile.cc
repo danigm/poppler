@@ -104,4 +104,3 @@ void SplashFontSrc::setBuf(char *bufA, int bufLenA, GBool del)
   bufLen = bufLenA;
   deleteSrc = del;
 }
-

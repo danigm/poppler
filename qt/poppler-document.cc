@@ -18,7 +18,6 @@
 
 #include <poppler-qt.h>
 #include <qfile.h>
-#include <qimage.h>
 #include <GlobalParams.h>
 #include <Outline.h>
 #include <PDFDoc.h>
@@ -26,7 +25,6 @@
 #include <Catalog.h>
 #include <ErrorCodes.h>
 #include <SplashOutputDev.h>
-#include <UGooString.h>
 #include <splash/SplashBitmap.h>
 #include "poppler-private.h"
 
@@ -215,12 +213,12 @@ QDateTime Document::getDate( const QString & type ) const
 
   if ( infoDict->lookup( (char*)type.latin1(), &obj )->isString() )
   {
-    s = UGooString(*obj.getString()).getCString();
-    const char *aux = s;
+    QString s = UnicodeParsedString(obj.getString());
     if ( s[0] == 'D' && s[1] == ':' )
-      s += 2;
+      s = s.mid(2);
+
     /* FIXME process time zone on systems that support it */  
-    if ( sscanf( s, "%4d%2d%2d%2d%2d%2d", &year, &mon, &day, &hour, &min, &sec ) == 6 )
+    if ( sscanf( s.latin1(), "%4d%2d%2d%2d%2d%2d", &year, &mon, &day, &hour, &min, &sec ) == 6 )
     {
       /* Workaround for y2k bug in Distiller 3 stolen from gpdf, hoping that it won't
        *   * be used after y2.2k */
@@ -233,7 +231,6 @@ QDateTime Document::getDate( const QString & type ) const
 	else {
 	  obj.free();
 	  info.free();
-	  delete[] aux;
 	  return QDateTime();
 	}
       }
@@ -243,11 +240,9 @@ QDateTime Document::getDate( const QString & type ) const
       if ( d.isValid() && t.isValid() ) {
 	obj.free();
 	info.free();
-	delete[] aux;
 	return QDateTime( d, t );
       }
     }
-    delete[] aux;
   }
   obj.free();
   info.free();
@@ -308,7 +303,7 @@ QDomDocument *Document::toc() const
 
 LinkDestination *Document::linkDestination( const QString &name )
 {
-  UGooString * namedDest = QStringToUGooString( name );
+  GooString * namedDest = QStringToGooString( name );
   LinkDestinationData ldd(NULL, namedDest, data);
   LinkDestination *ld = new LinkDestination(ldd);
   delete namedDest;

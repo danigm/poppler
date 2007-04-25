@@ -26,6 +26,7 @@ static GBool mono = gFalse;
 static GBool gray = gFalse;
 static char enableFreeTypeStr[16] = "";
 static char antialiasStr[16] = "";
+static char vectorAntialiasStr[16] = "";
 static char ownerPassword[33] = "";
 static char userPassword[33] = "";
 static GBool quiet = gFalse;
@@ -49,6 +50,8 @@ static ArgDesc argDesc[] = {
 #endif
   {"-aa",         argString,      antialiasStr,   sizeof(antialiasStr),
    "enable font anti-aliasing: yes, no"},
+  {"-aaVector",   argString,      vectorAntialiasStr, sizeof(vectorAntialiasStr),
+   "enable vector anti-aliasing: yes, no"},
   {"-opw",    argString,   ownerPassword,  sizeof(ownerPassword),
    "owner password (for encrypted files)"},
   {"-upw",    argString,   userPassword,   sizeof(userPassword),
@@ -108,6 +111,11 @@ int main(int argc, char *argv[]) {
   if (antialiasStr[0]) {
     if (!globalParams->setAntialias(antialiasStr)) {
       fprintf(stderr, "Bad '-aa' value on command line\n");
+    }
+  }
+  if (vectorAntialiasStr[0]) {
+    if (!globalParams->setVectorAntialias(vectorAntialiasStr)) {
+      fprintf(stderr, "Bad '-aaVector' value on command line\n");
     }
   }
   if (quiet) {

@@ -31,10 +31,11 @@ class JBIG2MMRDecoder;
 class JBIG2Stream: public FilterStream {
 public:
 
-  JBIG2Stream(Stream *strA, Object *globalsStream);
+  JBIG2Stream(Stream *strA, Object *globalsStreamA);
   virtual ~JBIG2Stream();
   virtual StreamKind getKind() { return strJBIG2; }
   virtual void reset();
+  virtual void close();
   virtual int getChar();
   virtual int lookChar();
   virtual GooString *getPSFilter(int psLevel, char *indent);
@@ -107,6 +108,7 @@ private:
   GBool readULong(Guint *x);
   GBool readLong(int *x);
 
+  Object globalsStream;
   Guint pageW, pageH, curPageH;
   Guint pageDefPixel;
   JBIG2Bitmap *pageBitmap;

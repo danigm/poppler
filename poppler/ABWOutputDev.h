@@ -18,7 +18,6 @@
 #include "goo/GooList.h"
 #include "GfxFont.h"
 #include "OutputDev.h"
-#include "Link.h"
 #include "Catalog.h"
 #include "UnicodeMap.h"
 #include "PDFDoc.h"

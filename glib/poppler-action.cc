@@ -16,8 +16,6 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-#include <UGooString.h>
-
 #include "poppler.h"
 #include "poppler-private.h"
 
@@ -267,7 +265,7 @@ dest_new_goto (PopplerDocument *document,
 }
 
 static PopplerDest *
-dest_new_named (UGooString *named_dest)
+dest_new_named (GooString *named_dest)
 {
 	PopplerDest *dest;
 	gchar *name;
@@ -280,9 +278,7 @@ dest_new_named (UGooString *named_dest)
 	}
 
 	dest->type = POPPLER_DEST_NAMED;
-	name = named_dest->getCString ();
-	dest->named_dest = g_strdup (name);
-	delete[] name;
+	dest->named_dest = g_strdup (named_dest->getCString ());
 
 	return dest;
 }
@@ -293,7 +289,7 @@ build_goto_dest (PopplerDocument *document,
 		 LinkGoTo        *link)
 {
 	LinkDest *link_dest;
-	UGooString *named_dest;
+	GooString *named_dest;
 
 	/* Return if it isn't OK */
 	if (! link->isOk ()) {
@@ -318,7 +314,7 @@ build_goto_remote (PopplerAction *action,
 		   LinkGoToR     *link)
 {
 	LinkDest *link_dest;
-	UGooString *named_dest;
+	GooString *named_dest;
 	
 	/* Return if it isn't OK */
 	if (! link->isOk ()) {

@@ -20,7 +20,8 @@
 //------------------------------------------------------------------------
 
 SplashBitmap::SplashBitmap(int widthA, int heightA, int rowPad,
-			   SplashColorMode modeA, GBool topDown) {
+			   SplashColorMode modeA, GBool alphaA,
+			   GBool topDown) {
   width = widthA;
   height = heightA;
   mode = modeA;
@@ -31,24 +32,16 @@ SplashBitmap::SplashBitmap(int widthA, int heightA, int rowPad,
   case splashModeMono8:
     rowSize = width;
     break;
-  case splashModeAMono8:
-    rowSize = width * 2;
-    break;
   case splashModeRGB8:
   case splashModeBGR8:
     rowSize = width * 3;
     break;
-  case splashModeRGB8Qt:
-  case splashModeARGB8:
-  case splashModeBGRA8:
-#if SPLASH_CMYK
-  case splashModeCMYK8:
-#endif
+  case splashModeRGBX8:
     rowSize = width * 4;
     break;
 #if SPLASH_CMYK
-  case splashModeACMYK8:
-    rowSize = width * 5;
+  case splashModeCMYK8:
+    rowSize = width * 4;
     break;
 #endif
   }
@@ -59,6 +52,11 @@ SplashBitmap::SplashBitmap(int widthA, int heightA, int rowPad,
     data += (height - 1) * rowSize;
     rowSize = -rowSize;
   }
+  if (alphaA) {
+    alpha = (Guchar *)gmalloc(width * height);
+  } else {
+    alpha = NULL;
+  }
 }
 
 
@@ -68,6 +66,7 @@ SplashBitmap::~SplashBitmap() {
   } else {
     gfree(data);
   }
+  gfree(alpha);
 }
 
 SplashError SplashBitmap::writePNMFile(char *fileName) {
@@ -107,19 +106,6 @@ SplashError SplashBitmap::writePNMFile(char *fileName) {
     }
     break;
 
-  case splashModeAMono8:
-    fprintf(f, "P5\n%d %d\n255\n", width, height);
-    row = data;
-    for (y = 0; y < height; ++y) {
-      p = row;
-      for (x = 0; x < width; ++x) {
-	fputc(splashAMono8M(p), f);
-	p += 2;
-      }
-      row += rowSize;
-    }
-    break;
-
   case splashModeRGB8:
     fprintf(f, "P6\n%d %d\n255\n", width, height);
     row = data;
@@ -134,6 +120,22 @@ SplashError SplashBitmap::writePNMFile(char *fileName) {
       row += rowSize;
     }
     break;
+
+  case splashModeRGBX8:
+    fprintf(f, "P6\n%d %d\n255\n", width, height);
+    row = data;
+    for (y = 0; y < height; ++y) {
+      p = row;
+      for (x = 0; x < width; ++x) {
+	fputc(splashRGB8R(p), f);
+	fputc(splashRGB8G(p), f);
+	fputc(splashRGB8B(p), f);
+	p += 4;
+      }
+      row += rowSize;
+    }
+    break;
+
 
   case splashModeBGR8:
     fprintf(f, "P6\n%d %d\n255\n", width, height);
@@ -150,54 +152,8 @@ SplashError SplashBitmap::writePNMFile(char *fileName) {
     }
     break;
 
- case splashModeRGB8Qt:
-    fprintf(f, "P6\n%d %d\n255\n", width, height);
-    row = data;
-    for (y = 0; y < height; ++y) {
-      p = row;
-      for (x = 0; x < width; ++x) {
-	fputc(splashRGB8R(p), f);
-	fputc(splashRGB8G(p), f);
-	fputc(splashRGB8B(p), f);
-	p += 4;
-      }
-      row += rowSize;
-    }
-    break;
-
-  case splashModeARGB8:
-    fprintf(f, "P6\n%d %d\n255\n", width, height);
-    row = data;
-    for (y = 0; y < height; ++y) {
-      p = row;
-      for (x = 0; x < width; ++x) {
-	fputc(splashARGB8R(p), f);
-	fputc(splashARGB8G(p), f);
-	fputc(splashARGB8B(p), f);
-	p += 4;
-      }
-      row += rowSize;
-    }
-    break;
-
-  case splashModeBGRA8:
-    fprintf(f, "P6\n%d %d\n255\n", width, height);
-    row = data;
-    for (y = 0; y < height; ++y) {
-      p = row;
-      for (x = 0; x < width; ++x) {
-	fputc(splashBGRA8R(p), f);
-	fputc(splashBGRA8G(p), f);
-	fputc(splashBGRA8B(p), f);
-	p += 4;
-      }
-      row += rowSize;
-    }
-    break;
-
 #if SPLASH_CMYK
   case splashModeCMYK8:
-  case splashModeACMYK8:
     // PNM doesn't support CMYK
     break;
 #endif
@@ -217,49 +173,43 @@ void SplashBitmap::getPixel(int x, int y, SplashColorPtr pixel) {
   case splashModeMono1:
     p = &data[y * rowSize + (x >> 3)];
     pixel[0] = (p[0] >> (7 - (x & 7))) & 1;
+    pixel[0] = (p[0] & (0x80 >> (x & 7))) ? 0xff : 0x00;
     break;
   case splashModeMono8:
     p = &data[y * rowSize + x];
     pixel[0] = p[0];
     break;
-  case splashModeAMono8:
-    p = &data[y * rowSize + 2 * x];
-    pixel[0] = p[0];
-    pixel[1] = p[1];
-    break;
   case splashModeRGB8:
-  case splashModeBGR8:
     p = &data[y * rowSize + 3 * x];
     pixel[0] = p[0];
     pixel[1] = p[1];
     pixel[2] = p[2];
     break;
-  case splashModeRGB8Qt:
+  case splashModeRGBX8:
     p = &data[y * rowSize + 4 * x];
+    pixel[0] = p[0];
+    pixel[1] = p[1];
+    pixel[2] = p[2];
+    pixel[3] = p[3];
+    break;
+  case splashModeBGR8:
+    p = &data[y * rowSize + 3 * x];
     pixel[0] = p[2];
     pixel[1] = p[1];
     pixel[2] = p[0];
     break;
-  case splashModeARGB8:
-  case splashModeBGRA8:
 #if SPLASH_CMYK
   case splashModeCMYK8:
-#endif
     p = &data[y * rowSize + 4 * x];
     pixel[0] = p[0];
     pixel[1] = p[1];
     pixel[2] = p[2];
     pixel[3] = p[3];
     break;
-#if SPLASH_CMYK
-  case splashModeACMYK8:
-    p = &data[y * rowSize + 5 * x];
-    pixel[0] = p[0];
-    pixel[1] = p[1];
-    pixel[2] = p[2];
-    pixel[3] = p[3];
-    pixel[4] = p[4];
-    break;
 #endif
   }
+}
+
+Guchar SplashBitmap::getAlpha(int x, int y) {
+  return alpha[y * width + x];
 }

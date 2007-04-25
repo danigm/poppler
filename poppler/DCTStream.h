@@ -50,7 +50,7 @@ struct str_src_mgr {
 class DCTStream: public FilterStream {
 public:
 
-  DCTStream(Stream *strA);
+  DCTStream(Stream *strA, int colorXformA);
   virtual ~DCTStream();
   virtual StreamKind getKind() { return strDCT; }
   virtual void reset();
@@ -70,4 +70,4 @@ private:
   JSAMPARRAY row_buffer;
 };
 
-#endif
+#endif 

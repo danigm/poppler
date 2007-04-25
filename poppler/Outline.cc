@@ -18,7 +18,6 @@
 #include "Link.h"
 #include "PDFDocEncoding.h"
 #include "Outline.h"
-#include "UGooString.h"
 
 //------------------------------------------------------------------------
 

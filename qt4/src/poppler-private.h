@@ -27,7 +27,6 @@
 #include <Outline.h>
 #include <PDFDoc.h>
 #include <FontInfo.h>
-#include <UGooString.h>
 #include <OutputDev.h>
 #if defined(HAVE_SPLASH)
 #include <SplashOutputDev.h>
@@ -40,40 +39,64 @@ namespace Poppler {
 
     /* borrowed from kpdf */
     static QString unicodeToQString(Unicode* u, int len) {
-	QString ret;
-	ret.resize(len);
-	QChar* qch = (QChar*) ret.unicode();
-	for (;len;--len)
-	    *qch++ = (QChar) *u++;
-	return ret;
+        QString ret;
+        ret.resize(len);
+        QChar* qch = (QChar*) ret.unicode();
+        for (;len;--len)
+          *qch++ = (QChar) *u++;
+        return ret;
     }
 
-    static UGooString *QStringToUGooString(const QString &s) {
-	int len = s.length();
-	Unicode *u = new Unicode[s.length()];
-	for (int i = 0; i < len; ++i)
-		u[i] = s.at(i).unicode();
-	return new UGooString(u, len);
+    static GooString *QStringToGooString(const QString &s) {
+        int len = s.length();
+        char *cstring = (char *)gmallocn(s.length(), sizeof(char));
+        for (int i = 0; i < len; ++i)
+          cstring[i] = s.at(i).unicode();
+        return new GooString(cstring, len);
     }
 
-    static QString GooStringToQString(GooString* goo) {
-	if (!goo)
-		return QString();
-	const char *aux = UGooString(*goo).getCString();
-	QString res(aux);
-	delete[] aux;
-	return res;
+    static QString UnicodeParsedString(GooString *s1) {
+        GBool isUnicode;
+        int i;
+        Unicode u;
+        QString result;
+        if ( ( s1->getChar(0) & 0xff ) == 0xfe && ( s1->getChar(1) & 0xff ) == 0xff )
+        {
+            isUnicode = gTrue;
+            i = 2;
+        }
+        else
+        {
+            isUnicode = gFalse;
+            i = 0;
+        }
+        while ( i < s1->getLength() )
+        {
+            if ( isUnicode )
+            {
+                u = ( ( s1->getChar(i) & 0xff ) << 8 ) | ( s1->getChar(i+1) & 0xff );
+                i += 2;
+            }
+            else
+            {
+                u = s1->getChar(i) & 0xff;
+                ++i;
+            }
+            result += unicodeToQString( &u, 1 );
+        }
+        return result;
     }
+
 
     class LinkDestinationData
     {
         public:
-		LinkDestinationData( LinkDest *l, UGooString *nd, Poppler::DocumentData *pdfdoc ) : ld(l), namedDest(nd), doc(pdfdoc)
+		LinkDestinationData( LinkDest *l, GooString *nd, Poppler::DocumentData *pdfdoc ) : ld(l), namedDest(nd), doc(pdfdoc)
 		{
 		}
 	
 	LinkDest *ld;
-	UGooString *namedDest;
+	GooString *namedDest;
 	Poppler::DocumentData *doc;
     };
 
@@ -136,7 +159,7 @@ namespace Poppler {
 			bgColor[1] = paperColor.green();
 			bgColor[2] = paperColor.blue();
 			GBool AA = m_hints & Document::TextAntialiasing ? gTrue : gFalse;
-			SplashOutputDev * splashOutputDev = new SplashOutputDev(splashModeRGB8Qt, 4, gFalse, bgColor, gTrue, AA);
+			SplashOutputDev * splashOutputDev = new SplashOutputDev(splashModeRGBX8, 4, gFalse, bgColor, gTrue, AA);
 			splashOutputDev->startDoc(doc->getXRef());
 			m_outputDev = splashOutputDev;
 #endif
@@ -178,9 +201,12 @@ namespace Poppler {
 					// no 'destination' but an internal 'named reference'. we could
 					// get the destination for the page now, but it's VERY time consuming,
 					// so better storing the reference and provide the viewport on demand
-					UGooString *s = g->getNamedDest();
-					QString aux = unicodeToQString( s->unicode(), s->getLength() );
+					GooString *s = g->getNamedDest();
+					QChar *charArray = new QChar[s->getLength()];
+					for (int i = 0; i < s->getLength(); ++i) charArray[i] = QChar(s->getCString()[i]);
+					QString aux(charArray, s->getLength());
 					item.setAttribute( "DestinationName", aux );
+					delete[] charArray;
 				}
 				else if ( destination && destination->isOk() )
 				{

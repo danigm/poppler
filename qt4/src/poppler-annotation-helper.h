@@ -26,20 +26,20 @@ class XPDFReader
 {
     public:
         // find named symbol and parse it
-        static inline void lookupName( Dict *, const char *, QString & dest );
-        static inline void lookupString( Dict *, const char *, QString & dest );
-        static inline void lookupBool( Dict *, const char *, bool & dest );
-        static inline void lookupInt( Dict *, const char *, int & dest );
-        static inline void lookupNum( Dict *, const char *, double & dest );
-        static inline int lookupNumArray( Dict *, const char *, double * dest, int len );
-        static inline void lookupColor( Dict *, const char *, QColor & color );
-        static inline void lookupIntRef( Dict *, const char *, int & dest );
-        static inline void lookupDate( Dict *, const char *, QDateTime & dest );
+        static inline void lookupName( Dict *, char *, QString & dest );
+        static inline void lookupString( Dict *, char *, QString & dest );
+        static inline void lookupBool( Dict *, char *, bool & dest );
+        static inline void lookupInt( Dict *, char *, int & dest );
+        static inline void lookupNum( Dict *, char *, double & dest );
+        static inline int lookupNumArray( Dict *, char *, double * dest, int len );
+        static inline void lookupColor( Dict *, char *, QColor & color );
+        static inline void lookupIntRef( Dict *, char *, int & dest );
+        static inline void lookupDate( Dict *, char *, QDateTime & dest );
         // transform from user coords to normalized ones using the matrix M
         static inline void transform( double * M, double x, double y, QPointF &res );
 };
 
-void XPDFReader::lookupName( Dict * dict, const char * type, QString & dest )
+void XPDFReader::lookupName( Dict * dict, char * type, QString & dest )
 {
     Object nameObj;
     dict->lookup( type, &nameObj );
@@ -52,7 +52,7 @@ void XPDFReader::lookupName( Dict * dict, const char * type, QString & dest )
     nameObj.free();
 }
 
-void XPDFReader::lookupString( Dict * dict, const char * type, QString & dest )
+void XPDFReader::lookupString( Dict * dict, char * type, QString & dest )
 {
     Object stringObj;
     dict->lookup( type, &stringObj );
@@ -65,7 +65,7 @@ void XPDFReader::lookupString( Dict * dict, const char * type, QString & dest )
     stringObj.free();
 }
 
-void XPDFReader::lookupBool( Dict * dict, const char * type, bool & dest )
+void XPDFReader::lookupBool( Dict * dict, char * type, bool & dest )
 {
     Object boolObj;
     dict->lookup( type, &boolObj );
@@ -78,7 +78,7 @@ void XPDFReader::lookupBool( Dict * dict, const char * type, bool & dest )
     boolObj.free();
 }
 
-void XPDFReader::lookupInt( Dict * dict, const char * type, int & dest )
+void XPDFReader::lookupInt( Dict * dict, char * type, int & dest )
 {
     Object intObj;
     dict->lookup( type, &intObj );
@@ -91,7 +91,7 @@ void XPDFReader::lookupInt( Dict * dict, const char * type, int & dest )
     intObj.free();
 }
 
-void XPDFReader::lookupNum( Dict * dict, const char * type, double & dest )
+void XPDFReader::lookupNum( Dict * dict, char * type, double & dest )
 {
     Object numObj;
     dict->lookup( type, &numObj );
@@ -104,7 +104,7 @@ void XPDFReader::lookupNum( Dict * dict, const char * type, double & dest )
     numObj.free();
 }
 
-int XPDFReader::lookupNumArray( Dict * dict, const char * type, double * dest, int len )
+int XPDFReader::lookupNumArray( Dict * dict, char * type, double * dest, int len )
 {
     Object arrObj;
     dict->lookup( type, &arrObj );
@@ -129,14 +129,14 @@ int XPDFReader::lookupNumArray( Dict * dict, const char * type, double * dest, i
     return len;
 }
 
-void XPDFReader::lookupColor( Dict * dict, const char * type, QColor & dest )
+void XPDFReader::lookupColor( Dict * dict, char * type, QColor & dest )
 {
     double c[3];
     if ( XPDFReader::lookupNumArray( dict, type, c, 3 ) == 3 )
         dest = QColor( (int)(c[0]*255.0), (int)(c[1]*255.0), (int)(c[2]*255.0));
 }
 
-void XPDFReader::lookupIntRef( Dict * dict, const char * type, int & dest )
+void XPDFReader::lookupIntRef( Dict * dict, char * type, int & dest )
 {
     Object refObj;
     dict->lookupNF( type, &refObj );
@@ -149,7 +149,7 @@ void XPDFReader::lookupIntRef( Dict * dict, const char * type, int & dest )
     refObj.free();
 }
 
-void XPDFReader::lookupDate( Dict * dict, const char * type, QDateTime & dest )
+void XPDFReader::lookupDate( Dict * dict, char * type, QDateTime & dest )
 {
     Object dateObj;
     dict->lookup( type, &dateObj );
@@ -157,7 +157,7 @@ void XPDFReader::lookupDate( Dict * dict, const char * type, QDateTime & dest )
         return;
     if ( dateObj.isString() )
     {
-        const char * s = dateObj.getString()->getCString();
+        char * s = dateObj.getString()->getCString();
         if ( s[0] == 'D' && s[1] == ':' )
             s += 2;
         int year, mon, day, hour, min, sec;

@@ -76,7 +76,7 @@ QImage Page::renderToImage(double xres, double yres, bool doLinks) const
   output_dev = data->doc->data->getOutputDev();
 
   data->doc->data->doc.displayPageSlice(output_dev, data->index + 1, xres, yres,
-      0, false, false, doLinks, -1, -1, -1, -1);
+      0, false, true, false, -1, -1, -1, -1);
   bitmap = output_dev->getBitmap ();
   color_ptr = bitmap->getDataPtr ();
   int bw = output_dev->getBitmap()->getWidth();
@@ -235,7 +235,7 @@ QValueList<Link*> Page::links() const
   QValueList<Link*> popplerLinks;
 
 #if defined(HAVE_SPLASH)
-  Links *xpdfLinks = data->doc->data->doc.takeLinks();
+  Links *xpdfLinks = data->doc->data->doc.getLinks(data->index + 1);
   for (int i = 0; i < xpdfLinks->getNumLinks(); ++i)
   {
     ::Link *xpdfLink = xpdfLinks->getLink(i);

@@ -75,6 +75,7 @@ public:
   virtual int getFileKeyLength() = 0;
   virtual int getEncVersion() = 0;
   virtual int getEncRevision() = 0;
+  virtual CryptAlgorithm getEncAlgorithm() = 0;
 
 protected:
 
@@ -102,6 +103,7 @@ public:
   virtual int getFileKeyLength() { return fileKeyLength; }
   virtual int getEncVersion() { return encVersion; }
   virtual int getEncRevision() { return encRevision; }
+  virtual CryptAlgorithm getEncAlgorithm() { return encAlgorithm; }
 
 private:
 
@@ -112,6 +114,7 @@ private:
   int encVersion;
   int encRevision;
   GBool encryptMetadata;
+  CryptAlgorithm encAlgorithm;
 
   GooString *ownerKey, *userKey;
   GooString *fileID;
@@ -140,6 +143,7 @@ public:
   virtual Guchar *getFileKey() { return fileKey; }
   virtual int getFileKeyLength() { return fileKeyLength; }
   virtual int getEncVersion() { return encVersion; }
+  virtual CryptAlgorithm getEncAlgorithm() { return encAlgorithm; }
 
 private:
 
@@ -150,6 +154,7 @@ private:
   Guchar fileKey[16];
   int fileKeyLength;
   int encVersion;
+  CryptAlgorithm encAlgorithm;
   GBool ok;
 };
 #endif // ENABLE_PLUGINS

@@ -25,5 +25,5 @@ libgoo_la_SOURCES =				\
 	GooList.cc				\
 	GooTimer.cc				\
 	GooString.cc				\
-	gmem.c					\
+	gmem.cc					\
 	FixedPoint.cc

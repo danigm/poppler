@@ -15,6 +15,8 @@
 
 #include "goo/gtypes.h"
 #include "goo/GooString.h"
+#include "Object.h"
+#include "Stream.h"
 
 //------------------------------------------------------------------------
 // Decrypt
@@ -22,15 +24,6 @@
 
 class Decrypt {
 public:
-
-  // Initialize the decryptor object.
-  Decrypt(Guchar *fileKey, int keyLength, int objNum, int objGen);
-
-  // Reset decryption.
-  void reset();
-
-  // Decrypt one byte.
-  Guchar decryptByte(Guchar c);
 
   // Generate a file key.  The <fileKey> buffer must have space for at
   // least 16 bytes.  Checks <ownerPassword> and then <userPassword>
@@ -51,11 +44,50 @@ private:
 			    int permissions, GooString *fileID,
 			    GooString *userPassword, Guchar *fileKey,
 			    GBool encryptMetadata);
+};
 
-  int objKeyLength;
-  Guchar objKey[21];
+//------------------------------------------------------------------------
+// DecryptStream
+//------------------------------------------------------------------------
+
+struct DecryptRC4State {
   Guchar state[256];
   Guchar x, y;
+  int buf;
+};
+
+struct DecryptAESState {
+  Guint w[44];
+  Guchar state[16];
+  Guchar cbc[16];
+  Guchar buf[16];
+  int bufIdx;
+};
+
+class DecryptStream: public FilterStream {
+public:
+
+  DecryptStream(Stream *strA, Guchar *fileKey,
+		CryptAlgorithm algoA, int keyLength,
+		int objNum, int objGen);
+  virtual ~DecryptStream();
+  virtual StreamKind getKind() { return strWeird; }
+  virtual void reset();
+  virtual int getChar();
+  virtual int lookChar();
+  virtual GBool isBinary(GBool last);
+  virtual Stream *getUndecodedStream() { return this; }
+
+private:
+
+  CryptAlgorithm algo;
+  int objKeyLength;
+  Guchar objKey[16 + 9];
+
+  union {
+    DecryptRC4State rc4;
+    DecryptAESState aes;
+  } state;
 };
 
 #endif

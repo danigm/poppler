@@ -7,7 +7,7 @@
 #ifndef SPLASHMATH_H
 #define SPLASHMATH_H
 
-#if USE_FIXEDPONT
+#if USE_FIXEDPOINT
 #include "FixedPoint.h"
 #else
 #include <math.h>
@@ -68,7 +68,18 @@ static inline SplashCoord splashDist(SplashCoord x0, SplashCoord y0,
   dx = x1 - x0;
   dy = y1 - y0;
 #if USE_FIXEDPOINT
-  return FixedPoint::sqrt(dx * dx + dy * dy);
+  // this handles the situation where dx*dx or dy*dy is too large to
+  // fit in the 16.16 fixed point format
+  SplashCoord dxa, dya;
+  dxa = splashAbs(dx);
+  dya = splashAbs(dy);
+  if (dxa == 0 && dya == 0) {
+    return 0;
+  } else if (dxa > dya) {
+    return dxa * FixedPoint::sqrt(dya / dxa + 1);
+  } else {
+    return dya * FixedPoint::sqrt(dxa / dya + 1);
+  }
 #else
   return sqrt(dx * dx + dy * dy);
 #endif

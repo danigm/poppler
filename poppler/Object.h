@@ -23,7 +23,6 @@ class XRef;
 class Array;
 class Dict;
 class Stream;
-class UGooString;
 
 //------------------------------------------------------------------------
 // Ref
@@ -168,14 +167,12 @@ public:
 
   // Dict accessors.
   int dictGetLength();
-  void dictAddOwnKeyVal(UGooString *key, Object *val);
-  void dictAdd(const UGooString &key, Object *val);
-  void dictAddOwnVal(const char *key, Object *val);
-  void dictSet(const UGooString &key, Object *val);
+  void dictAdd(char *key, Object *val);
+  void dictSet(char *key, Object *val);
   GBool dictIs(char *dictType);
-  Object *dictLookup(const UGooString &key, Object *obj);
-  Object *dictLookupNF(const UGooString &key, Object *obj);
-  UGooString *dictGetKey(int i);
+  Object *dictLookup(char *key, Object *obj);
+  Object *dictLookupNF(char *key, Object *obj);
+  char *dictGetKey(int i);
   Object *dictGetVal(int i, Object *obj);
   Object *dictGetValNF(int i, Object *obj);
 
@@ -246,16 +243,10 @@ inline Object *Object::arrayGetNF(int i, Object *obj)
 inline int Object::dictGetLength()
   { return dict->getLength(); }
 
-inline void Object::dictAdd(const UGooString &key, Object *val)
+inline void Object::dictAdd(char *key, Object *val)
   { dict->add(key, val); }
 
-inline void Object::dictAddOwnVal(const char *key, Object *val)
-  { dict->addOwnVal(key, val); }
-
-inline void Object::dictAddOwnKeyVal(UGooString *key, Object *val)
-  { dict->addOwnKeyVal(key, val); }
-
-inline void Object::dictSet(const UGooString &key, Object *val)
+inline void Object::dictSet(char *key, Object *val)
  	{ dict->set(key, val); }
 
 inline GBool Object::dictIs(char *dictType)
@@ -264,13 +255,13 @@ inline GBool Object::dictIs(char *dictType)
 inline GBool Object::isDict(char *dictType)
   { return type == objDict && dictIs(dictType); }
 
-inline Object *Object::dictLookup(const UGooString &key, Object *obj)
+inline Object *Object::dictLookup(char *key, Object *obj)
   { return dict->lookup(key, obj); }
 
-inline Object *Object::dictLookupNF(const UGooString &key, Object *obj)
+inline Object *Object::dictLookupNF(char *key, Object *obj)
   { return dict->lookupNF(key, obj); }
 
-inline UGooString *Object::dictGetKey(int i)
+inline char *Object::dictGetKey(int i)
   { return dict->getKey(i); }
 
 inline Object *Object::dictGetVal(int i, Object *obj)

@@ -29,7 +29,6 @@
 #include "PSOutputDev.h"
 #include "GlobalParams.h"
 #include "Error.h"
-#include "UGooString.h"
 #include "goo/gfile.h"
 #include <libxml/parser.h>
 #include <libxml/tree.h>

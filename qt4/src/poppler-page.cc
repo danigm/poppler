@@ -405,7 +405,7 @@ Link *Page::action( PageAction act ) const
     Dict *dict = o.getDict();
     Object o2;
     const char *key = act == Page::Opening ? "O" : "C";
-    dict->lookup(key, &o2);
+    dict->lookup((char*)key, &o2);
     ::LinkAction *act = ::LinkAction::parseAction(&o2, m_page->parentDoc->m_doc->doc->getCatalog()->getBaseURI() );
     o2.free();
     o.free();
@@ -459,7 +459,7 @@ void Page::defaultCTM(double *CTM, double dpiX, double dpiY, int rotate, bool up
 {
   ::Page *p;
   p = m_page->parentDoc->m_doc->doc->getCatalog()->getPage(m_page->index + 1);
-  p->getDefaultCTM(CTM, dpiX, dpiY, rotate, upsideDown);
+  p->getDefaultCTM(CTM, dpiX, dpiY, rotate, gFalse, upsideDown);
 }
 
 QList<Link*> Page::links() const
@@ -469,7 +469,7 @@ QList<Link*> Page::links() const
   if (output_dev == NULL)
     return popplerLinks;
 
-  Links *xpdfLinks = m_page->parentDoc->m_doc->doc->takeLinks();
+  Links *xpdfLinks = m_page->parentDoc->m_doc->doc->getLinks(m_page->index + 1);
   for (int i = 0; i < xpdfLinks->getNumLinks(); ++i)
   {
     ::Link *xpdfLink = xpdfLinks->getLink(i);
@@ -628,7 +628,7 @@ QList<Annotation*> Page::annotations() const
 
             // -> linePoints
             double c[100];
-            int num = XPDFReader::lookupNumArray( annotDict, (subType == "Line") ? "L" : "Vertices", c, 100 );
+            int num = XPDFReader::lookupNumArray( annotDict, (char*)((subType == "Line") ? "L" : "Vertices"), c, 100 );
             if ( num < 4 || (num % 2) != 0 )
             {
                 qDebug() << "L/Vertices wrong fol Line/Poly." << endl;

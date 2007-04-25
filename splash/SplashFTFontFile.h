@@ -45,20 +45,23 @@ public:
 
   // Create a new SplashFTFont, i.e., a scaled instance of this font
   // file.
-  virtual SplashFont *makeFont(SplashCoord *mat);
+  virtual SplashFont *makeFont(SplashCoord *mat,
+			       SplashCoord *textMat);
 
 private:
 
   SplashFTFontFile(SplashFTFontEngine *engineA,
 		   SplashFontFileID *idA,
-		   SplashFontSrc *srcA,
+		   SplashFontSrc *src,
 		   FT_Face faceA,
-		   Gushort *codeToGIDA, int codeToGIDLenA);
+		   Gushort *codeToGIDA, int codeToGIDLenA,
+		   GBool trueTypeA);
 
   SplashFTFontEngine *engine;
   FT_Face face;
   Gushort *codeToGID;
   int codeToGIDLen;
+  GBool trueType;
 
   friend class SplashFTFont;
 };

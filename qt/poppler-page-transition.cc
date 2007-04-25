@@ -18,7 +18,6 @@
 
 #include "Object.h"
 #include "Error.h"
-#include "UGooString.h"
 #include "poppler-page-transition.h"
 #include "poppler-page-transition-private.h"
 

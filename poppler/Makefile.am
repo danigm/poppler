@@ -154,6 +154,7 @@ poppler_include_HEADERS =	\
 	PDFDoc.h		\
 	PDFDocEncoding.h	\
 	ProfileData.h		\
+	PreScanOutputDev.h	\
 	PSTokenizer.h		\
 	Stream-CCITT.h		\
 	Stream.h		\
@@ -171,7 +172,6 @@ poppler_include_HEADERS =	\
 	PSOutputDev.h		\
 	TextOutputDev.h		\
 	SecurityHandler.h	\
-	UGooString.h		\
 	UTF8.h			\
 	XpdfPluginAPI.h		\
 	Sound.h			\
@@ -218,6 +218,7 @@ libpoppler_la_SOURCES =		\
 	PDFDoc.cc 		\
 	PDFDocEncoding.cc	\
 	ProfileData.cc		\
+	PreScanOutputDev.cc \
 	PSTokenizer.cc		\
 	Stream.cc 		\
 	UnicodeMap.cc		\
@@ -228,7 +229,6 @@ libpoppler_la_SOURCES =		\
 	PageLabelInfo.h		\
 	PageLabelInfo.cc	\
 	SecurityHandler.cc	\
-	UGooString.cc	 	\
 	Sound.cc		\
 	XpdfPluginAPI.cc
 

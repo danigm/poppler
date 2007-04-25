@@ -52,7 +52,7 @@ static void str_term_source(j_decompress_ptr cinfo)
 {
 }
 
-DCTStream::DCTStream(Stream *strA):
+DCTStream::DCTStream(Stream *strA, int colorXformA) :
   FilterStream(strA) {
   init();
 }

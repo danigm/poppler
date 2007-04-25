@@ -84,7 +84,7 @@ SplashT1FontEngine::~SplashT1FontEngine() {
 SplashFontFile *SplashT1FontEngine::loadType1Font(SplashFontFileID *idA,
 						  SplashFontSrc *src,
 						  char **enc) {
-  return SplashT1FontFile::loadType1Font(this, idA, src, enc);
+  return SplashT1FontFile::loadType1Font(this, idA, fileName, deleteFile, enc);
 }
 
 SplashFontFile *SplashT1FontEngine::loadType1CFont(SplashFontFileID *idA,
@@ -109,7 +109,7 @@ SplashFontFile *SplashT1FontEngine::loadType1CFont(SplashFontFileID *idA,
     delete ff;
     return NULL;
   }
-  ff->convertToType1(NULL, gTrue, &fileWrite, tmpFile);
+  ff->convertToType1(NULL, NULL, gTrue, &fileWrite, tmpFile);
   delete ff;
   fclose(tmpFile);
   newsrc = new SplashFontSrc;

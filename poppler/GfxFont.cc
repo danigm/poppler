@@ -28,7 +28,6 @@
 #include <fofi/FoFiType1.h>
 #include <fofi/FoFiType1C.h>
 #include <fofi/FoFiTrueType.h>
-#include "UGooString.h"
 #include "GfxFont.h"
 
 //------------------------------------------------------------------------
@@ -264,29 +263,42 @@ void GfxFont::readFontDescriptor(XRef *xref, Dict *fontDict) {
       if (obj2.fetch(xref, &obj3)->isStream()) {
 	obj3.streamGetDict()->lookup("Subtype", &obj4);
 	if (obj4.isName("Type1")) {
-	    embFontID = obj2.getRef();
+	  embFontID = obj2.getRef();
 	  if (type != fontType1) {
 	    error(-1, "Mismatch between font type and embedded font file");
 	    type = fontType1;
 	  }
 	} else if (obj4.isName("Type1C")) {
-	    embFontID = obj2.getRef();
+	  embFontID = obj2.getRef();
 	  if (type != fontType1 && type != fontType1C) {
 	    error(-1, "Mismatch between font type and embedded font file");
 	  }
 	  type = fontType1C;
 	} else if (obj4.isName("TrueType")) {
-	    embFontID = obj2.getRef();
+	  embFontID = obj2.getRef();
 	  if (type != fontTrueType) {
 	    error(-1, "Mismatch between font type and embedded font file");
 	    type = fontTrueType;
 	  }
 	} else if (obj4.isName("CIDFontType0C")) {
-	    embFontID = obj2.getRef();
+	  embFontID = obj2.getRef();
 	  if (type != fontCIDType0) {
 	    error(-1, "Mismatch between font type and embedded font file");
 	  }
 	  type = fontCIDType0C;
+	} else if (obj4.isName("OpenType")) {
+	  embFontID = obj2.getRef();
+	  if (type == fontTrueType) {
+	    type = fontTrueTypeOT;
+	  } else if (type == fontType1) {
+	    type = fontType1COT;
+	  } else if (type == fontCIDType0) {
+	    type = fontCIDType0COT;
+	  } else if (type == fontCIDType2) {
+	    type = fontCIDType2OT;
+	  } else {
+	    error(-1, "Mismatch between font type and embedded font file");
+	  }
 	} else {
 	  error(-1, "Unknown embedded font type '%s'",
 		obj4.isName() ? obj4.getName() : "???");
@@ -804,6 +816,15 @@ Gfx8BitFont::Gfx8BitFont(XRef *xref, char *tagA, Ref idA, GooString *nameA,
 	}
       }
     }
+
+  // if the 'mapUnknownCharNames' flag is set, do a simple pass-through
+  // mapping for unknown character names
+  } else if (missing && globalParams->getMapUnknownCharNames()) {
+    for (code = 0; code < 256; ++code) {
+      if (!toUnicode[code]) {
+	toUnicode[code] = code;
+      }
+    }
   }
 
   // construct the char code -> Unicode mapping object
@@ -1026,10 +1047,10 @@ Gushort *Gfx8BitFont::getCodeToGIDMap(FoFiTrueType *ff) {
       useMacRoman = gTrue;
     }
   } else {
-    if (macRomanCmap >= 0) {
-      cmap = macRomanCmap;
-    } else if (msSymbolCmap >= 0) {
+    if (msSymbolCmap >= 0) {
       cmap = msSymbolCmap;
+    } else if (macRomanCmap >= 0) {
+      cmap = macRomanCmap;
     }
   }
 
@@ -1215,9 +1236,9 @@ GfxCIDFont::GfxCIDFont(XRef *xref, char *tagA, Ref idA, GooString *nameA,
 	  n = utu->mapToUnicode((CharCode)uBuf[0], uBuf, 8);
 	  if (n >= 1) {
 	    ctu->setMapping(c, uBuf, n);
+	  }
+	}
       }
-    }
-  }
       utu->decRefCnt();
     } else {
       ctu = utu;
@@ -1637,10 +1658,8 @@ GfxFontDict::GfxFontDict(XRef *xref, Ref *fontDictRef, Dict *fontDict) {
 	  r.gen = 999999;
 	}
       }
-      char *aux = fontDict->getKey(i)->getCString();
-      fonts[i] = GfxFont::makeFont(xref, aux,
+      fonts[i] = GfxFont::makeFont(xref, fontDict->getKey(i),
 				   r, obj2.getDict());
-      delete[] aux;
       if (fonts[i] && !fonts[i]->isOk()) {
 	delete fonts[i];
 	fonts[i] = NULL;

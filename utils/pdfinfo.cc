@@ -28,8 +28,8 @@
 #include "PDFDoc.h"
 #include "CharTypes.h"
 #include "UnicodeMap.h"
+#include "PDFDocEncoding.h"
 #include "Error.h"
-#include "UGooString.h"
 
 static void printInfoString(Dict *infoDict, char *key, char *text,
 			    UnicodeMap *uMap);
@@ -198,8 +198,8 @@ int main(int argc, char *argv[]) {
 
   // print page size
   for (pg = firstPage; pg <= lastPage; ++pg) {
-    w = doc->getPageMediaWidth(pg);
-    h = doc->getPageMediaHeight(pg);
+    w = doc->getPageCropWidth(pg);
+    h = doc->getPageCropHeight(pg);
     if (multiPage) {
       printf("Page %4d size: %g x %g pts", pg, w, h);
     } else {
@@ -327,7 +327,7 @@ static void printInfoString(Dict *infoDict, char *key, char *text,
 	    (s1->getChar(i+1) & 0xff);
 	i += 2;
       } else {
-	u = s1->getChar(i) & 0xff;
+	u = pdfDocEncoding[s1->getChar(i) & 0xff];
 	++i;
       }
       n = uMap->mapUnicode(u, buf, sizeof(buf));
@@ -341,7 +341,7 @@ static void printInfoString(Dict *infoDict, char *key, char *text,
 static void printInfoDate(Dict *infoDict, char *key, char *text) {
   Object obj;
   char *s;
-  int year, mon, day, hour, min, sec;
+  int year, mon, day, hour, min, sec, n;
   struct tm tmStruct;
   char buf[256];
 
@@ -351,8 +351,15 @@ static void printInfoDate(Dict *infoDict, char *key, char *text) {
     if (s[0] == 'D' && s[1] == ':') {
       s += 2;
     }
-    if (sscanf(s, "%4d%2d%2d%2d%2d%2d",
-	       &year, &mon, &day, &hour, &min, &sec) == 6) {
+    if ((n = sscanf(s, "%4d%2d%2d%2d%2d%2d",
+		    &year, &mon, &day, &hour, &min, &sec)) >= 1) {
+      switch (n) {
+      case 1: mon = 1;
+      case 2: day = 1;
+      case 3: hour = 0;
+      case 4: min = 0;
+      case 5: sec = 0;
+      }
       tmStruct.tm_year = year - 1900;
       tmStruct.tm_mon = mon - 1;
       tmStruct.tm_mday = day;

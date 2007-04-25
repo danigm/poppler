@@ -24,7 +24,6 @@
 #include "Dict.h"
 #include "Error.h"
 #include "ErrorCodes.h"
-#include "UGooString.h"
 #include "XRef.h"
 
 //------------------------------------------------------------------------
@@ -124,7 +123,7 @@ ObjectStream::ObjectStream(XRef *xref, int objStrNumA) {
   objStr.streamReset();
   obj1.initNull();
   str = new EmbedStream(objStr.getStream(), &obj1, gTrue, first);
-  parser = new Parser(xref, new Lexer(xref, str));
+  parser = new Parser(xref, new Lexer(xref, str), gFalse);
   for (i = 0; i < nObjects; ++i) {
     parser->getObj(&obj1);
     parser->getObj(&obj2);
@@ -165,7 +164,7 @@ ObjectStream::ObjectStream(XRef *xref, int objStrNumA) {
       str = new EmbedStream(objStr.getStream(), &obj1, gTrue,
 			    offsets[i+1] - offsets[i]);
     }
-    parser = new Parser(xref, new Lexer(xref, str));
+    parser = new Parser(xref, new Lexer(xref, str), gFalse);
     parser->getObj(&objs[i]);
     while (str->getChar() != EOF) ;
     delete parser;
@@ -331,7 +330,8 @@ GBool XRef::readXRef(Guint *pos) {
   obj.initNull();
   parser = new Parser(NULL,
 	     new Lexer(NULL,
-	       str->makeSubStream(start + *pos, gFalse, 0, &obj)));
+	       str->makeSubStream(start + *pos, gFalse, 0, &obj)),
+	     gTrue);
   parser->getObj(&obj);
 
   // parse an old-style xref table
@@ -689,7 +689,7 @@ GBool XRef::constructXRef() {
   size = 0;
   entries = NULL;
 
-  error(0, "PDF file is damaged - attempting to reconstruct xref table...");
+  error(-1, "PDF file is damaged - attempting to reconstruct xref table...");
   gotRoot = gFalse;
   streamEndsLen = streamEndsSize = 0;
 
@@ -701,12 +701,16 @@ GBool XRef::constructXRef() {
     }
     p = buf;
 
+    // skip whitespace
+    while (*p && Lexer::isSpace(*p & 0xff)) ++p;
+
     // got trailer dictionary
     if (!strncmp(p, "trailer", 7)) {
       obj.initNull();
       parser = new Parser(NULL,
 		 new Lexer(NULL,
-		   str->makeSubStream(pos + 7, gFalse, 0, &obj)));
+		   str->makeSubStream(pos + 7, gFalse, 0, &obj)),
+		 gFalse);
       parser->getObj(&newTrailerDict);
       if (newTrailerDict.isDict()) {
 	newTrailerDict.dictLookupNF("Root", &obj);
@@ -799,7 +803,8 @@ GBool XRef::constructXRef() {
 
 void XRef::setEncryption(int permFlagsA, GBool ownerPasswordOkA,
 			 Guchar *fileKeyA, int keyLengthA,
-			 int encVersionA, int encRevisionA) {
+			 int encVersionA, int encRevisionA,
+			 CryptAlgorithm encAlgorithmA) {
   int i;
 
   encrypted = gTrue;
@@ -815,6 +820,7 @@ void XRef::setEncryption(int permFlagsA, GBool ownerPasswordOkA,
   }
   encVersion = encVersionA;
   encRevision = encRevisionA;
+  encAlgorithm = encAlgorithmA;
 }
 
 GBool XRef::okToPrint(GBool ignoreOwnerPW) {
@@ -883,7 +889,8 @@ Object *XRef::fetch(int num, int gen, Object *obj) {
     obj1.initNull();
     parser = new Parser(this,
 	       new Lexer(this,
-		 str->makeSubStream(start + e->offset, gFalse, 0, &obj1)));
+		 str->makeSubStream(start + e->offset, gFalse, 0, &obj1)),
+	       gTrue);
     parser->getObj(&obj1);
     parser->getObj(&obj2);
     parser->getObj(&obj3);
@@ -896,8 +903,8 @@ Object *XRef::fetch(int num, int gen, Object *obj) {
       delete parser;
       goto err;
     }
-    parser->getObj(obj, encrypted ? fileKey : (Guchar *)NULL, keyLength,
-		   num, gen);
+    parser->getObj(obj, encrypted ? fileKey : (Guchar *)NULL,
+		   encAlgorithm, keyLength, num, gen);
     obj1.free();
     obj2.free();
     obj3.free();
@@ -959,7 +966,7 @@ GBool XRef::getStreamEnd(Guint streamStart, Guint *streamEnd) {
   return gTrue;
 }
 
-int XRef::getNumEntry(int offset) const
+int XRef::getNumEntry(Guint offset) const
 {
   if (size > 0)
   {

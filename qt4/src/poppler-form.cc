@@ -152,18 +152,14 @@ FormFieldText::TextType FormFieldText::textType() const
 QString FormFieldText::text() const
 {
   GooString *goo = static_cast<FormWidgetText*>(m_formData->fm)->getContent();
-  return GooStringToQString(goo);
+  return UnicodeParsedString(goo);
 }
 
 void FormFieldText::setText( const QString& text )
 {
   FormWidgetText* fwt = static_cast<FormWidgetText*>(m_formData->fm);
-  UGooString * ugoo = QStringToUGooString( text );
-  char *str = ugoo->getCString();
-  GooString goo(str);
-  gfree( str );
-  delete ugoo;
-  fwt->setContent( &goo );
+  GooString * goo = QStringToGooString( text );
+  fwt->setContent( goo );
 }
 
 bool FormFieldText::isPassword() const
@@ -233,7 +229,7 @@ QStringList FormFieldChoice::choices() const
   int num = fwc->getNumChoices();
   for (int i = 0; i < num; ++i)
   {
-    ret.append(GooStringToQString(fwc->getChoice(i)));
+    ret.append(UnicodeParsedString(fwc->getChoice(i)));
   }
   return ret;
 }

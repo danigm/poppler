@@ -436,7 +436,7 @@ public:
   void createFieldFromDict (Object* obj, FormField** ptr, XRef *xref, const Ref& aref);
 
   void postWidgetsLoad();
-  void checkForNeedAppearances ();
+  void checkForNeedAppearances (Object *acroForm);
 private:
   FormField** rootFields;
   int numFields;

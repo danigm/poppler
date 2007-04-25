@@ -11,9 +11,11 @@
 #endif
 
 #include <stdlib.h>
+#include <string.h>
 #include "goo/gmem.h"
 #include "SplashMath.h"
 #include "SplashXPath.h"
+#include "SplashBitmap.h"
 #include "SplashXPathScanner.h"
 
 //------------------------------------------------------------------------
@@ -95,6 +97,14 @@ SplashXPathScanner::SplashXPathScanner(SplashXPath *xPathA, GBool eoA) {
 
 SplashXPathScanner::~SplashXPathScanner() {
   gfree(inter);
+}
+
+void SplashXPathScanner::getBBoxAA(int *xMinA, int *yMinA,
+				   int *xMaxA, int *yMaxA) {
+  *xMinA = xMin / splashAASize;
+  *yMinA = yMin / splashAASize;
+  *xMaxA = xMax / splashAASize;
+  *yMaxA = yMax / splashAASize;
 }
 
 void SplashXPathScanner::getSpanBounds(int y, int *spanXMin, int *spanXMax) {
@@ -282,4 +292,137 @@ void SplashXPathScanner::computeIntersections(int y) {
   interY = y;
   interIdx = 0;
   interCount = 0;
+}
+
+void SplashXPathScanner::renderAALine(SplashBitmap *aaBuf,
+				      int *x0, int *x1, int y) {
+  int xx0, xx1, xx, xxMin, xxMax, yy;
+  Guchar mask;
+  SplashColorPtr p;
+
+  memset(aaBuf->getDataPtr(), 0, aaBuf->getRowSize() * aaBuf->getHeight());
+  xxMin = aaBuf->getWidth();
+  xxMax = -1;
+  for (yy = 0; yy < splashAASize; ++yy) {
+    computeIntersections(splashAASize * y + yy);
+    while (interIdx < interLen) {
+      xx0 = inter[interIdx].x0;
+      xx1 = inter[interIdx].x1;
+      interCount += inter[interIdx].count;
+      ++interIdx;
+      while (interIdx < interLen &&
+	     (inter[interIdx].x0 <= xx1 ||
+	      (eo ? (interCount & 1) : (interCount != 0)))) {
+	if (inter[interIdx].x1 > xx1) {
+	  xx1 = inter[interIdx].x1;
+	}
+	interCount += inter[interIdx].count;
+	++interIdx;
+      }
+      if (xx0 < 0) {
+	xx0 = 0;
+      }
+      ++xx1;
+      if (xx1 > aaBuf->getWidth()) {
+	xx1 = aaBuf->getWidth();
+      }
+      // set [xx0, xx1) to 1
+      if (xx0 < xx1) {
+	xx = xx0;
+	p = aaBuf->getDataPtr() + yy * aaBuf->getRowSize() + (xx >> 3);
+	if (xx & 7) {
+	  mask = 0xff >> (xx & 7);
+	  if ((xx & ~7) == (xx1 & ~7)) {
+	    mask &= (Guchar)(0xff00 >> (xx1 & 7));
+	  }
+	  *p++ |= mask;
+	  xx = (xx & ~7) + 8;
+	}
+	for (; xx + 7 < xx1; xx += 8) {
+	  *p++ |= 0xff;
+	}
+	if (xx < xx1) {
+	  *p |= (Guchar)(0xff00 >> (xx1 & 7));
+	}
+      }
+      if (xx0 < xxMin) {
+	xxMin = xx0;
+      }
+      if (xx1 > xxMax) {
+	xxMax = xx1;
+      }
+    }
+  }
+  *x0 = xxMin / splashAASize;
+  *x1 = (xxMax - 1) / splashAASize;
+}
+
+void SplashXPathScanner::clipAALine(SplashBitmap *aaBuf,
+				    int *x0, int *x1, int y) {
+  int xx0, xx1, xx, yy;
+  Guchar mask;
+  SplashColorPtr p;
+
+  for (yy = 0; yy < splashAASize; ++yy) {
+    xx = *x0 * splashAASize;
+    computeIntersections(splashAASize * y + yy);
+    while (interIdx < interLen && xx < (*x1 + 1) * splashAASize) {
+      xx0 = inter[interIdx].x0;
+      xx1 = inter[interIdx].x1;
+      interCount += inter[interIdx].count;
+      ++interIdx;
+      while (interIdx < interLen &&
+	     (inter[interIdx].x0 <= xx1 ||
+	      (eo ? (interCount & 1) : (interCount != 0)))) {
+	if (inter[interIdx].x1 > xx1) {
+	  xx1 = inter[interIdx].x1;
+	}
+	interCount += inter[interIdx].count;
+	++interIdx;
+      }
+      if (xx0 > aaBuf->getWidth()) {
+	xx0 = aaBuf->getWidth();
+      }
+      // set [xx, xx0) to 0
+      if (xx < xx0) {
+	p = aaBuf->getDataPtr() + yy * aaBuf->getRowSize() + (xx >> 3);
+	if (xx & 7) {
+	  mask = (Guchar)(0xff00 >> (xx & 7));
+	  if ((xx & ~7) == (xx0 & ~7)) {
+	    mask |= 0xff >> (xx0 & 7);
+	  }
+	  *p++ &= mask;
+	  xx = (xx & ~7) + 8;
+	}
+	for (; xx + 7 <= xx0; xx += 8) {
+	  *p++ = 0x00;
+	}
+	if (xx <= xx0) {
+	  *p &= 0xff >> (xx0 & 7);
+	}
+      }
+      if (xx1 >= xx) {
+	xx = xx1 + 1;
+      }
+    }
+    xx0 = (*x1 + 1) * splashAASize;
+    // set [xx, xx0) to 0
+    if (xx < xx0) {
+      p = aaBuf->getDataPtr() + yy * aaBuf->getRowSize() + (xx >> 3);
+      if (xx & 7) {
+	mask = (Guchar)(0xff00 >> (xx & 7));
+	if ((xx & ~7) == (xx0 & ~7)) {
+	  mask &= 0xff >> (xx0 & 7);
+	}
+	*p++ &= mask;
+	xx = (xx & ~7) + 8;
+      }
+      for (; xx + 7 <= xx0; xx += 8) {
+	*p++ = 0x00;
+      }
+      if (xx <= xx0) {
+	*p &= 0xff >> (xx0 & 7);
+      }
+    }
+  }
 }
