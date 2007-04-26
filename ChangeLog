@@ -1,3 +1,7 @@
+2007-04-26  Albert Astals Cid <aacid@kde.org>
+
+	* goo/Makefile.am: Remove duplicate gmem.h
+
 2007-04-25  Albert Astals Cid <aacid@kde.org>
 
 	* qt4/src/poppler-document.cc: remove a delete[] no longer needed

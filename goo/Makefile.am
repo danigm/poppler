@@ -10,7 +10,6 @@ poppler_goo_include_HEADERS =			\
 	GooMutex.h				\
 	GooString.h				\
 	GooVector.h				\
-	gmem.h					\
 	gtypes.h				\
 	gmem.h					\
 	gfile.h					\
