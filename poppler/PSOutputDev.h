@@ -53,21 +53,25 @@ public:
 
   // Open a PostScript output file, and write the prolog.
   PSOutputDev(const char *fileName, XRef *xrefA, Catalog *catalog,
+	      char *psTitle,
 	      int firstPage, int lastPage, PSOutMode modeA,
-              int paperWidthA = -1, int paperHeightA = -1,
-              GBool duplexA = gTrue,
+	      int paperWidthA = -1, int paperHeightA = -1,
+	      GBool duplexA = gTrue,
 	      int imgLLXA = 0, int imgLLYA = 0,
 	      int imgURXA = 0, int imgURYA = 0,
+	      GBool forceRasterizeA = gFalse,
 	      GBool manualCtrlA = gFalse);
 
   // Open a PSOutputDev that will write to a generic stream.
   PSOutputDev(PSOutputFunc outputFuncA, void *outputStreamA,
+	      char *psTitle,
 	      XRef *xrefA, Catalog *catalog,
 	      int firstPage, int lastPage, PSOutMode modeA,
-              int paperWidthA = -1, int paperHeightA = -1,
-              GBool duplexA = gTrue,
+	      int paperWidthA = -1, int paperHeightA = -1,
+	      GBool duplexA = gTrue,
 	      int imgLLXA = 0, int imgLLYA = 0,
 	      int imgURXA = 0, int imgURYA = 0,
+	      GBool forceRasterizeA = gFalse,
 	      GBool manualCtrlA = gFalse);
 
   // Destructor -- writes the trailer and closes the file.
@@ -109,7 +113,7 @@ public:
   // Write the document-level header.
   void writeHeader(int firstPage, int lastPage,
 		   PDFRectangle *mediaBox, PDFRectangle *cropBox,
-		   int pageRotate);
+		   int pageRotate, char *pstitle);
 
   // Write the Xpdf procset.
   void writeXpdfProcset();
@@ -246,7 +250,7 @@ public:
 private:
 
   void init(PSOutputFunc outputFuncA, void *outputStreamA,
-	    PSFileType fileTypeA, XRef *xrefA, Catalog *catalog,
+	    PSFileType fileTypeA, char *pstitle, XRef *xrefA, Catalog *catalog,
 	    int firstPage, int lastPage, PSOutMode modeA,
 	    int imgLLXA, int imgLLYA, int imgURXA, int imgURYA,
 	    GBool manualCtrlA, int paperWidthA, int paperHeightA,
@@ -385,6 +389,7 @@ private:
          t3LLX, t3LLY, t3URX, t3URY;
   GBool t3Cacheable;		// cleared if char is not cacheable
   GBool t3NeedsRestore;		// set if a 'q' operator was issued
+  GBool forceRasterize;		// forces the page to be rasterized into a image before printing
 
 #if OPI_SUPPORT
   int opi13Nest;		// nesting level of OPI 1.3 objects

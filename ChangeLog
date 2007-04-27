@@ -1,3 +1,17 @@
+2007-04-27  Albert Astals Cid <aacid@kde.org>
+
+	* glib/poppler-page.cc:
+	* poppler/PSOutputDev.cc:
+	* poppler/PSOutputDev.h:
+	* qt/poppler-document.cc:
+	* qt4/src/poppler-document.cc:
+	* qt4/src/poppler-qt4.h:
+	* utils/pdftohtml.cc:
+	* utils/pdftops.cc:
+	Add option to force rasterizing the pages when printing them
+	Add functionality to output the title field on the PS file
+	Only Qt4 frontend exposes the functionality
+
 2007-04-26  Albert Astals Cid <aacid@kde.org>
 
 	* goo/Makefile.am: Remove duplicate gmem.h

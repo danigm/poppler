@@ -317,7 +317,7 @@ bool Document::print(const QString &fileName, QValueList<int> pageList, double h
 
 bool Document::print(const QString &file, QValueList<int> pageList, double hDPI, double vDPI, int rotate, int paperWidth, int paperHeight)
 {
-  PSOutputDev *psOut = new PSOutputDev(file.latin1(), data->doc.getXRef(), data->doc.getCatalog(), 1, data->doc.getNumPages(), psModePS, paperWidth, paperHeight);
+  PSOutputDev *psOut = new PSOutputDev(file.latin1(), data->doc.getXRef(), data->doc.getCatalog(), NULL, 1, data->doc.getNumPages(), psModePS, paperWidth, paperHeight);
   
   if (psOut->isOk()) {
     QValueList<int>::iterator it;

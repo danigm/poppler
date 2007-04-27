@@ -729,7 +729,7 @@ width = dummy.width();
 height = dummy.height();
 	  \endcode
 	*/
-	bool print(const QString &fileName, const QList<int> &pageList, double hDPI, double vDPI, int rotate, int paperWidth, int paperHeight, int marginRight, int marginBottom, int marginLeft, int marginTop, bool strictMargins);
+	bool print(const QString &fileName, const QString &title, const QList<int> &pageList, double hDPI, double vDPI, int rotate, int paperWidth, int paperHeight, int marginRight, int marginBottom, int marginLeft, int marginTop, bool strictMargins, bool forceRasterize);
 	
 	/**
 	  Sets the paper color

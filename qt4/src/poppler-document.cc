@@ -414,9 +414,14 @@ namespace Poppler {
         return ld;
     }
     
-    bool Document::print(const QString &file, const QList<int> &pageList, double hDPI, double vDPI, int rotate, int paperWidth, int paperHeight, int marginRight, int marginBottom, int marginLeft, int marginTop, bool strictMargins)
+    bool Document::print(const QString &file, const QString &title, const QList<int> &pageList, double hDPI, double vDPI, int rotate, int paperWidth, int paperHeight, int marginRight, int marginBottom, int marginLeft, int marginTop, bool strictMargins, bool forceRasterize)
     {
-        PSOutputDev *psOut = new PSOutputDev(file.toLatin1().data(), m_doc->doc->getXRef(), m_doc->doc->getCatalog(), 1, m_doc->doc->getNumPages(), psModePS, paperWidth, paperHeight, gFalse, marginRight, marginBottom, paperWidth - marginLeft, paperHeight - marginTop);
+        QByteArray pstitle8Bit = title.toLocal8Bit();
+        char* pstitlechar;
+        if (!title.isEmpty()) pstitlechar = pstitle8Bit.data();
+        else pstitlechar = 0;
+
+        PSOutputDev *psOut = new PSOutputDev(file.toLatin1().data(), m_doc->doc->getXRef(), m_doc->doc->getCatalog(), pstitlechar, 1, m_doc->doc->getNumPages(), psModePS, paperWidth, paperHeight, gFalse, marginRight, marginBottom, paperWidth - marginLeft, paperHeight - marginTop, forceRasterize);
 
         if (strictMargins)
         {

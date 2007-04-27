@@ -943,9 +943,11 @@ static void outputToFile(void *stream, char *data, int len) {
 }
 
 PSOutputDev::PSOutputDev(const char *fileName, XRef *xrefA, Catalog *catalog,
+			 char *psTitle,
 			 int firstPage, int lastPage, PSOutMode modeA,
-                         int paperWidthA, int paperHeightA, GBool duplexA,
+			 int paperWidthA, int paperHeightA, GBool duplexA,
 			 int imgLLXA, int imgLLYA, int imgURXA, int imgURYA,
+			 GBool forceRasterizeA,
 			 GBool manualCtrlA) {
   FILE *f;
   PSFileType fileTypeA;
@@ -967,6 +969,8 @@ PSOutputDev::PSOutputDev(const char *fileName, XRef *xrefA, Catalog *catalog,
   customColors = NULL;
   haveTextClip = gFalse;
   t3String = NULL;
+
+  forceRasterize = forceRasterizeA;
 
   // open file or pipe
   if (!strcmp(fileName, "-")) {
@@ -997,17 +1001,19 @@ PSOutputDev::PSOutputDev(const char *fileName, XRef *xrefA, Catalog *catalog,
     }
   }
 
-  init(outputToFile, f, fileTypeA,
+  init(outputToFile, f, fileTypeA, psTitle,
        xrefA, catalog, firstPage, lastPage, modeA,
        imgLLXA, imgLLYA, imgURXA, imgURYA, manualCtrlA,
        paperWidthA, paperHeightA, duplexA);
 }
 
 PSOutputDev::PSOutputDev(PSOutputFunc outputFuncA, void *outputStreamA,
+			 char *psTitle,
 			 XRef *xrefA, Catalog *catalog,
 			 int firstPage, int lastPage, PSOutMode modeA,
-                         int paperWidthA, int paperHeightA, GBool duplexA,
+			 int paperWidthA, int paperHeightA, GBool duplexA,
 			 int imgLLXA, int imgLLYA, int imgURXA, int imgURYA,
+			 GBool forceRasterizeA,
 			 GBool manualCtrlA) {
   underlayCbk = NULL;
   underlayCbkData = NULL;
@@ -1027,18 +1033,20 @@ PSOutputDev::PSOutputDev(PSOutputFunc outputFuncA, void *outputStreamA,
   haveTextClip = gFalse;
   t3String = NULL;
 
-  init(outputFuncA, outputStreamA, psGeneric,
+  forceRasterize = forceRasterizeA;
+
+  init(outputFuncA, outputStreamA, psGeneric, psTitle,
        xrefA, catalog, firstPage, lastPage, modeA,
        imgLLXA, imgLLYA, imgURXA, imgURYA, manualCtrlA,
        paperWidthA, paperHeightA, duplexA);
 }
 
 void PSOutputDev::init(PSOutputFunc outputFuncA, void *outputStreamA,
-		       PSFileType fileTypeA, XRef *xrefA, Catalog *catalog,
+		       PSFileType fileTypeA, char *pstitle, XRef *xrefA, Catalog *catalog,
 		       int firstPage, int lastPage, PSOutMode modeA,
 		       int imgLLXA, int imgLLYA, int imgURXA, int imgURYA,
 		       GBool manualCtrlA, int paperWidthA, int paperHeightA,
-                       GBool duplexA) {
+		       GBool duplexA) {
   Page *page;
   PDFRectangle *box;
 
@@ -1132,10 +1140,11 @@ void PSOutputDev::init(PSOutputFunc outputFuncA, void *outputStreamA,
       writeHeader(firstPage, lastPage,
 		  catalog->getPage(firstPage)->getMediaBox(),
 		  catalog->getPage(firstPage)->getCropBox(),
-		  catalog->getPage(firstPage)->getRotate());
+		  catalog->getPage(firstPage)->getRotate(),
+		  pstitle);
     } else {
       box = new PDFRectangle(0, 0, 1, 1);
-      writeHeader(firstPage, lastPage, box, box, 0);
+      writeHeader(firstPage, lastPage, box, box, 0, pstitle);
       delete box;
     }
     if (mode != psModeForm) {
@@ -1231,7 +1240,7 @@ PSOutputDev::~PSOutputDev() {
 
 void PSOutputDev::writeHeader(int firstPage, int lastPage,
 			      PDFRectangle *mediaBox, PDFRectangle *cropBox,
-			      int pageRotate) {
+			      int pageRotate, char *psTitle) {
   double x1, y1, x2, y2;
   Object info, obj1;
 
@@ -1253,6 +1262,9 @@ void PSOutputDev::writeHeader(int firstPage, int lastPage,
   }
   obj1.free();
   info.free();
+  if(psTitle) {
+    writePSFmt("%%Title: {0:s}\n", psTitle);
+  }
   writePSFmt("%%LanguageLevel: {0:d}\n",
 	     (level == psLevel1 || level == psLevel1Sep) ? 1 :
 	     (level == psLevel2 || level == psLevel2Sep) ? 2 : 3);
@@ -1544,6 +1556,8 @@ void PSOutputDev::setupFonts(Dict *resDict) {
   GfxFontDict *gfxFontDict;
   GfxFont *font;
   int i;
+
+  if (forceRasterize) return;
 
   gfxFontDict = NULL;
   resDict->lookupNF("Font", &obj1);
@@ -2849,12 +2863,16 @@ GBool PSOutputDev::checkPageSlice(Page *page, double /*hDPI*/, double /*vDPI*/,
   double m0, m1, m2, m3, m4, m5;
   int c, w, h, x, y, comp, i;
 
-  scan = new PreScanOutputDev();
-  page->displaySlice(scan, 72, 72, rotateA, useMediaBox, crop,
-		     sliceX, sliceY, sliceW, sliceH,
-		     printing, catalog, abortCheckCbk, abortCheckCbkData);
-  rasterize = scan->usesTransparency();
-  delete scan;
+  if (!forceRasterize) {
+    scan = new PreScanOutputDev();
+    page->displaySlice(scan, 72, 72, rotateA, useMediaBox, crop,
+                     sliceX, sliceY, sliceW, sliceH,
+                     printing, catalog, abortCheckCbk, abortCheckCbkData);
+    rasterize = scan->usesTransparency();
+    delete scan;
+  } else {
+    rasterize = gTrue;
+  }
   if (!rasterize) {
     return gTrue;
   }
