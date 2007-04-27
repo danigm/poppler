@@ -16,174 +16,121 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-#include <iostream>
+#ifdef USE_GCC_PRAGMAS
+#pragma implementation
+#endif
 
-#include "Error.h"
-#include "Object.h"
 #include "PageTransition.h"
-#include "Private.h"
 
-namespace Poppler {
+//------------------------------------------------------------------------
+// PageTransition
+//------------------------------------------------------------------------
 
-class PageTransitionData
-{
-  public:
-    PageTransition::Type type;
-    int duration;
-    PageTransition::Alignment alignment;
-    PageTransition::Direction direction;
-    int angle;
-    double scale;
-    bool rectangular;
-};
-
-PageTransition::PageTransition(const PageTransitionParams &params)
-{
-  data = new PageTransitionData();
-  data->type = Replace;
-  data->duration = 1;
-  data->alignment = Horizontal;
-  data->direction = Inward;
-  data->angle = 0;
-  data->scale = 1.0;
-  data->rectangular = false;
-
-  // Paranoid safety checks
-  if (params.dictObj == 0) {
-    error(-1, "PageTransition::PageTransition() called with params.dictObj==0");
-    return;
-  }
-  if (params.dictObj->isDict() == false) {
-    error(-1, "PageTransition::PageTransition() called with params.dictObj->isDict()==false");
-    return;
-  }
-
-  // Obtain a pointer to the dictionary and start parsing.
-  Dict *transDict = params.dictObj->getDict();
+PageTransition::PageTransition (Object *trans) {
   Object obj;
+  Dict *dict;
 
-  if (transDict->lookup("S", &obj)->isName()) {
+  type = transitionReplace;
+  duration = 1;
+  alignment = transitionHorizontal;
+  direction = transitionInward;
+  angle = 0;
+  scale = 1.0;
+  rectangular = gFalse;
+  ok = gTrue;
+
+  if (!trans || !trans->isDict ()) {
+    ok = gFalse;
+    return;
+  }
+
+  dict = trans->getDict();
+
+  // get type
+  if (dict->lookup("S", &obj)->isName()) {
     const char *s = obj.getName();
+    
     if (strcmp("R", s) == 0)
-      data->type = Replace;
+      type = transitionReplace;
     else if (strcmp("Split", s) == 0)
-      data->type = Split;
+      type = transitionSplit;
     else if (strcmp("Blinds", s) == 0)
-      data->type = Blinds;
+      type = transitionBlinds;
     else if (strcmp("Box", s) == 0)
-      data->type = Box;
+      type = transitionBox;
     else if (strcmp("Wipe", s) == 0)
-      data->type = Wipe;
+      type = transitionWipe;
     else if (strcmp("Dissolve", s) == 0)
-      data->type = Dissolve;
+      type = transitionDissolve;
     else if (strcmp("Glitter", s) == 0)
-      data->type = Glitter;
+      type = transitionGlitter;
     else if (strcmp("Fly", s) == 0)
-      data->type = Fly;
+      type = transitionFly;
     else if (strcmp("Push", s) == 0)
-      data->type = Push;
+      type = transitionPush;
     else if (strcmp("Cover", s) == 0)
-      data->type = Cover;
+      type = transitionCover;
     else if (strcmp("Uncover", s) == 0)
-      data->type = Push;
+      type = transitionPush;
     else if (strcmp("Fade", s) == 0)
-      data->type = Cover;
-  }
-  obj.free();
-  
-  if (transDict->lookup("D", &obj)->isInt()) {
-    data->duration = obj.getInt();
+      type = transitionCover;
   }
   obj.free();
 
-  if (transDict->lookup("Dm", &obj)->isName()) {
+  // get duration
+  if (dict->lookup("D", &obj)->isInt()) {
+    duration = obj.getInt();
+  }
+  obj.free();
+
+  // get alignment
+  if (dict->lookup("Dm", &obj)->isName()) {
     const char *dm = obj.getName();
-    if ( strcmp( "H", dm ) == 0 )
-      data->alignment = Horizontal;
-    else if ( strcmp( "V", dm ) == 0 )
-      data->alignment = Vertical;
+    
+    if (strcmp("H", dm) == 0)
+      alignment = transitionHorizontal;
+    else if (strcmp("V", dm) == 0)
+      alignment = transitionVertical;
   }
   obj.free();
-  
-  if (transDict->lookup("M", &obj)->isName()) {
-    const char *m = obj.getName();
-    if ( strcmp( "I", m ) == 0 )
-      data->direction = Inward;
-    else if ( strcmp( "O", m ) == 0 )
-      data->direction = Outward;
-  }
-  obj.free();
-  
-  if (transDict->lookup("Di", &obj)->isInt()) {
-    data->angle = obj.getInt();
-  }
-  obj.free();
-  
-  if (transDict->lookup("Di", &obj)->isName()) {
-    if ( strcmp( "None", obj.getName() ) == 0 )
-      data->angle = 0;
-  }
-  obj.free();
-  
-  if (transDict->lookup("SS", &obj)->isReal()) {
-    data->scale = obj.getReal();
-  }
-  obj.free();
-  
-  if (transDict->lookup("B", &obj)->isBool()) {
-    data->rectangular = obj.getBool();
-  }
-  obj.free();
-}
 
-PageTransition::PageTransition(const PageTransition &pt)
-{
-  data = new PageTransitionData();
-  data->type = pt.data->type;
-  data->duration = pt.data->duration;
-  data->alignment = pt.data->alignment;
-  data->direction = pt.data->direction;
-  data->angle = pt.data->angle;
-  data->scale = pt.data->scale;
-  data->rectangular = pt.data->rectangular;
+  // get direction
+  if (dict->lookup("M", &obj)->isName()) {
+    const char *m = obj.getName();
+    
+    if (strcmp("I", m) == 0)
+      direction = transitionInward;
+    else if (strcmp("O", m) == 0)
+      direction = transitionOutward;
+  }
+  obj.free();
+
+  // get angle
+  if (dict->lookup("Di", &obj)->isInt()) {
+    angle = obj.getInt();
+  }
+  obj.free();
+
+  if (dict->lookup("Di", &obj)->isName()) {
+    if (strcmp("None", obj.getName()) == 0)
+      angle = 0;
+  }
+  obj.free();
+
+  // get sacle
+  if (dict->lookup("SS", &obj)->isReal()) {
+    scale = obj.getReal();
+  }
+  obj.free();
+
+  // get rectangular
+  if (dict->lookup("B", &obj)->isBool()) {
+    rectangular = obj.getBool();
+  }
+  obj.free();
 }
 
 PageTransition::~PageTransition()
 {
 }
 
-PageTransition::Type PageTransition::type() const
-{
-  return data->type;
-}
-
-int PageTransition::duration() const
-{
-  return data->duration;
-}
-
-PageTransition::Alignment PageTransition::alignment() const
-{
-  return data->alignment;
-}
-
-PageTransition::Direction PageTransition::direction() const
-{
-  return data->direction;
-}
-
-int PageTransition::angle() const
-{
-  return data->angle;
-}
-
-double PageTransition::scale() const
-{
-  return data->scale;
-}
-bool PageTransition::isRectangular() const
-{
-  return data->rectangular;
-}
-
-}

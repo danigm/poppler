@@ -42,6 +42,34 @@ typedef enum
 	POPPLER_ORIENTATION_SEASCAPE
 } PopplerOrientation;
 
+typedef enum
+{
+  POPPLER_PAGE_TRANSITION_REPLACE,
+  POPPLER_PAGE_TRANSITION_SPLIT,
+  POPPLER_PAGE_TRANSITION_BLINDS,
+  POPPLER_PAGE_TRANSITION_BOX,
+  POPPLER_PAGE_TRANSITION_WIPE,
+  POPPLER_PAGE_TRANSITION_DISSOLVE,
+  POPPLER_PAGE_TRANSITION_GLITTER,
+  POPPLER_PAGE_TRANSITION_FLY,
+  POPPLER_PAGE_TRANSITION_PUSH,
+  POPPLER_PAGE_TRANSITION_COVER,
+  POPPLER_PAGE_TRANSITION_UNCOVER,
+  POPPLER_PAGE_TRANSITION_FADE
+} PopplerPageTransitionType;
+
+typedef enum
+{
+  POPPLER_PAGE_TRANSITION_HORIZONTAL,
+  POPPLER_PAGE_TRANSITION_VERTICAL
+} PopplerPageTransitionAlignment;
+
+typedef enum
+{
+  POPPLER_PAGE_TRANSITION_INWARD,
+  POPPLER_PAGE_TRANSITION_OUTWARD
+} PopplerPageTransitionDirection;
+
 /* MUST be the same than poppler/Form.h fieldType */
 typedef enum
 {
@@ -51,21 +79,21 @@ typedef enum
 	POPPLER_FORM_FIELD_SIGNATURE,
 } PopplerFormFieldType;
 
-
-typedef struct _PopplerDocument    PopplerDocument;
-typedef struct _PopplerIndexIter   PopplerIndexIter;
-typedef struct _PopplerFontsIter   PopplerFontsIter;
-typedef struct _PopplerRectangle   PopplerRectangle;
-typedef struct _PopplerLinkMapping PopplerLinkMapping;
-typedef struct _PopplerFormField   PopplerFormField;
-typedef struct _PopplerPage        PopplerPage;
-typedef struct _PopplerFontInfo    PopplerFontInfo;
-typedef struct _PopplerPSFile      PopplerPSFile;
-typedef union  _PopplerAction      PopplerAction;
-typedef struct _PopplerDest        PopplerDest;
-typedef struct _PopplerTextField PopplerTextField;
-typedef struct _PopplerButtonField PopplerButtonField;
-typedef struct _PopplerChoiceField PopplerChoiceField;
+typedef struct _PopplerDocument       PopplerDocument;
+typedef struct _PopplerIndexIter      PopplerIndexIter;
+typedef struct _PopplerFontsIter      PopplerFontsIter;
+typedef struct _PopplerRectangle      PopplerRectangle;
+typedef struct _PopplerLinkMapping    PopplerLinkMapping;
+typedef struct _PopplerPageTransition PopplerPageTransition;
+typedef struct _PopplerFormField      PopplerFormField;
+typedef struct _PopplerPage           PopplerPage;
+typedef struct _PopplerFontInfo       PopplerFontInfo;
+typedef struct _PopplerPSFile         PopplerPSFile;
+typedef union  _PopplerAction         PopplerAction;
+typedef struct _PopplerDest           PopplerDest;
+typedef struct _PopplerTextField      PopplerTextField;
+typedef struct _PopplerButtonField    PopplerButtonField;
+typedef struct _PopplerChoiceField    PopplerChoiceField;
 
 typedef enum
 {

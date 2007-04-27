@@ -27,6 +27,7 @@
 #include <ErrorCodes.h>
 #include <UnicodeMap.h>
 #include <GfxState.h>
+#include <PageTransition.h>
 
 #include "poppler.h"
 #include "poppler-private.h"
@@ -139,6 +140,93 @@ poppler_page_get_duration (PopplerPage *page)
   g_return_val_if_fail (POPPLER_IS_PAGE (page), -1);
 
   return page->page->getDuration ();
+}
+
+/**
+ * poppler_page_get_transition:
+ * @page: a #PopplerPage
+ *
+ * Returns the transition effect of @page
+ *
+ * Return value: a #PopplerPageTransition or NULL.
+ **/
+PopplerPageTransition *
+poppler_page_get_transition (PopplerPage *page)
+{
+  PageTransition *trans;
+  PopplerPageTransition *transition;
+  Object obj;
+  
+  g_return_val_if_fail (POPPLER_IS_PAGE (page), NULL);
+
+  trans = new PageTransition (page->page->getTrans (&obj));
+  obj.free ();
+
+  if (!trans->isOk ()) {
+    delete trans;
+    return NULL;
+  }
+
+  transition = poppler_page_transition_new ();
+
+  switch (trans->getType ())
+    {
+      case transitionReplace:
+        transition->type = POPPLER_PAGE_TRANSITION_REPLACE;
+	break;
+      case transitionSplit:
+	transition->type = POPPLER_PAGE_TRANSITION_SPLIT;
+	break;
+      case transitionBlinds:
+        transition->type = POPPLER_PAGE_TRANSITION_BLINDS;
+	break;
+      case transitionBox:
+        transition->type = POPPLER_PAGE_TRANSITION_BOX;
+	break;
+      case transitionWipe:
+        transition->type = POPPLER_PAGE_TRANSITION_WIPE;
+	break;
+      case transitionDissolve:
+        transition->type = POPPLER_PAGE_TRANSITION_DISSOLVE;
+	break;
+      case transitionGlitter:
+        transition->type = POPPLER_PAGE_TRANSITION_GLITTER;
+	break;
+      case transitionFly:
+        transition->type = POPPLER_PAGE_TRANSITION_FLY;
+	break;
+      case transitionPush:
+        transition->type = POPPLER_PAGE_TRANSITION_PUSH;
+	break;
+      case transitionCover:
+        transition->type = POPPLER_PAGE_TRANSITION_COVER;
+	break;
+      case transitionUncover:
+        transition->type = POPPLER_PAGE_TRANSITION_UNCOVER;
+        break;
+      case transitionFade:
+        transition->type = POPPLER_PAGE_TRANSITION_FADE;
+	break;
+      default:
+        g_assert_not_reached ();
+    }
+
+  transition->alignment = (trans->getAlignment() == transitionHorizontal) ?
+	  POPPLER_PAGE_TRANSITION_HORIZONTAL :
+	  POPPLER_PAGE_TRANSITION_VERTICAL;
+
+  transition->direction = (trans->getDirection() == transitionInward) ?
+	  POPPLER_PAGE_TRANSITION_INWARD :
+	  POPPLER_PAGE_TRANSITION_OUTWARD;
+
+  transition->duration = trans->getDuration();
+  transition->angle = trans->getAngle();
+  transition->scale = trans->getScale();
+  transition->rectangular = trans->isRectangular();
+  
+  delete trans;
+  
+  return transition;
 }
 
 #if defined (HAVE_CAIRO)
@@ -1040,6 +1128,40 @@ poppler_link_mapping_free (PopplerLinkMapping *mapping)
 	g_free (mapping);
 }
 
+/* Page Transition */
+GType
+poppler_page_transition (void)
+{
+  static GType our_type = 0;
+  if (our_type == 0)
+    our_type = g_boxed_type_register_static("PopplerPageTransition",
+					    (GBoxedCopyFunc) poppler_page_transition_copy,
+					    (GBoxedFreeFunc) poppler_page_transition_free);
+  return our_type;
+}
+
+PopplerPageTransition *
+poppler_page_transition_new (void)
+{
+  return (PopplerPageTransition *) g_new0 (PopplerPageTransition, 1);
+}
+
+PopplerPageTransition *
+poppler_page_transition_copy (PopplerPageTransition *transition)
+{
+  PopplerPageTransition *new_transition;
+
+  new_transition = poppler_page_transition_new ();
+  *new_transition = *transition;
+  
+  return new_transition;
+}
+
+void
+poppler_page_transition_free (PopplerPageTransition *transition)
+{
+  g_free (transition);
+}
 
 /* Form Type */
 GType

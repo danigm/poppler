@@ -109,11 +109,62 @@ print_document_info (PopplerDocument *document)
   g_free (linearized);
 }
 
+static const gchar *
+transition_effect_name (PopplerPageTransitionType type)
+{
+  switch (type)
+    {
+      case POPPLER_PAGE_TRANSITION_REPLACE:
+	return "Replace";
+      case POPPLER_PAGE_TRANSITION_SPLIT:
+	return "Split";
+      case POPPLER_PAGE_TRANSITION_BLINDS:
+	return "Blinds";
+      case POPPLER_PAGE_TRANSITION_BOX:
+	return "Box";
+      case POPPLER_PAGE_TRANSITION_WIPE:
+	return "Wipe";
+      case POPPLER_PAGE_TRANSITION_DISSOLVE:
+	return "Dissolve";
+      case POPPLER_PAGE_TRANSITION_GLITTER:
+	return "Glitter";
+      case POPPLER_PAGE_TRANSITION_FLY:
+	return "Fly";
+      case POPPLER_PAGE_TRANSITION_PUSH:
+	return "Push";
+      case POPPLER_PAGE_TRANSITION_COVER:
+	return "Cover";
+      case POPPLER_PAGE_TRANSITION_UNCOVER:
+	return "Uncover";
+      case POPPLER_PAGE_TRANSITION_FADE:
+	return "Fade";
+    }
+
+  return "Unknown";
+}
+
+static void
+print_page_transition (PopplerPageTransition *transition)
+{
+  printf ("\t\tEffect: %s\n", transition_effect_name (transition->type));
+  printf ("\t\tAlignment: %s\n",
+	  transition->alignment == POPPLER_PAGE_TRANSITION_HORIZONTAL ?
+	  "Horizontal" : "Vertical");
+  printf ("\t\tDirection: %s\n",
+	  transition->direction == POPPLER_PAGE_TRANSITION_INWARD ?
+	  "Inward" : "Outward");
+  printf ("\t\tDuration: %d\n", transition->duration);
+  printf ("\t\tAngle: %d\n", transition->angle);
+  printf ("\t\tScale: %.2f\n", transition->scale);
+  printf ("\t\tRectangular: %s\n", transition->rectangular ? "Yes" : "No");
+}
+
 int main (int argc, char *argv[])
 {
   PopplerDocument *document;
   PopplerBackend backend;
   PopplerPage *page;
+  PopplerPageTransition *transition;
   GEnumValue *enum_value;
   char *label;
   GError *error;
@@ -153,6 +204,15 @@ int main (int argc, char *argv[])
     printf ("\tpage duration:\t%f second(s)\n", duration);
   else
     printf ("\tpage duration:\tno duration for page\n");
+
+  transition = poppler_page_get_transition (page);
+  if (transition) {
+    printf ("\tpage transition:\n");
+    print_page_transition (transition);
+    poppler_page_transition_free (transition);
+  } else {
+    printf ("\tpage transition:no transition effect for page\n");
+  }
 
   thumb = poppler_page_get_thumbnail (page);
   if (thumb != NULL) {

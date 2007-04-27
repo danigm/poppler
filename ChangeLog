@@ -1,3 +1,18 @@
+2007-04-28  Carlos Garcia Campos <carlosgc@gnome.org>
+	reviewed and some code by: Albert Astals Cid <aacid@kde.org>
+
+	* glib/poppler-page.cc:
+	* glib/poppler-page.h:
+	* glib/poppler.h:
+	* glib/test-poppler-glib.c:
+	* poppler/Makefile.am:
+	* poppler/PageTransition.cc:
+	* poppler/PageTransition.h:
+	* qt/poppler-page-transition.cc:
+	* qt/poppler-page-transition.h: Move Page Transition parsing from qt
+	frontends to poppler core. Expose Page transitions on the glib
+	frontend.
+
 2007-04-27  Albert Astals Cid <aacid@kde.org>
 
 	* glib/poppler-page.cc:

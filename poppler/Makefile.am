@@ -150,6 +150,7 @@ poppler_include_HEADERS =	\
 	Outline.h		\
 	OutputDev.h		\
 	Page.h			\
+	PageTransition.h	\
 	Parser.h		\
 	PDFDoc.h		\
 	PDFDocEncoding.h	\
@@ -214,6 +215,7 @@ libpoppler_la_SOURCES =		\
 	Outline.cc		\
 	OutputDev.cc 		\
 	Page.cc 		\
+	PageTransition.cc	\
 	Parser.cc 		\
 	PDFDoc.cc 		\
 	PDFDocEncoding.cc	\

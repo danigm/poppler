@@ -44,8 +44,9 @@ class PageTransition {
 
   /** \brief transition effect that shall be used
    */
+  // if changed remember to keep in sync with PageTransition.h enum
   enum Type {
-    Replace,
+    Replace = 0,
     Split,
     Blinds,
     Box,
@@ -61,15 +62,17 @@ class PageTransition {
   
   /** \brief alignment of the transition effect that shall be used
    */
+  // if changed remember to keep in sync with PageTransition.h enum
   enum Alignment {
-    Horizontal,
+    Horizontal = 0,
     Vertical
   };
   
   /** \brief direction of the transition effect that shall be used
    */
+  // if changed remember to keep in sync with PageTransition.h enum
   enum Direction {
-    Inward,
+    Inward = 0,
     Outward
   };
   

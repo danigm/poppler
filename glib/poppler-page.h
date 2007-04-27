@@ -38,54 +38,55 @@ G_BEGIN_DECLS
 #define POPPLER_IS_PAGE(obj)          (G_TYPE_CHECK_INSTANCE_TYPE ((obj), POPPLER_TYPE_PAGE))
 
 
-GType      	    poppler_page_get_type           (void) G_GNUC_CONST;
-void                poppler_page_render_to_pixbuf     (PopplerPage        *page,
-						       int                 src_x,
-						       int                 src_y,
-						       int                 src_width,
-						       int                 src_height,
-						       double              scale,
-						       int                 rotation,
-						       GdkPixbuf          *pixbuf);
+GType      	       poppler_page_get_type             (void) G_GNUC_CONST;
+void                   poppler_page_render_to_pixbuf     (PopplerPage        *page,
+							  int                 src_x,
+							  int                 src_y,
+							  int                 src_width,
+							  int                 src_height,
+							  double              scale,
+							  int                 rotation,
+							  GdkPixbuf          *pixbuf);
 
 #ifdef POPPLER_HAS_CAIRO
-void                poppler_page_render               (PopplerPage        *page,
-						       cairo_t            *cairo);
-#endif
+void                   poppler_page_render               (PopplerPage        *page,
+							  cairo_t            *cairo);
+#endif	
 
-void                poppler_page_get_size             (PopplerPage        *page,
-						       double             *width,
-						       double             *height);
-int                 poppler_page_get_index            (PopplerPage        *page);
-double              poppler_page_get_duration         (PopplerPage        *page);
-GdkPixbuf          *poppler_page_get_thumbnail        (PopplerPage        *page);
-gboolean            poppler_page_get_thumbnail_size   (PopplerPage        *page,
-						       int                *width,
-						       int                *height);
-GList     	   *poppler_page_find_text            (PopplerPage        *page,
-						       const  char        *text);
-void                poppler_page_render_to_ps         (PopplerPage        *page,
-						       PopplerPSFile      *ps_file);
-char               *poppler_page_get_text             (PopplerPage        *page,
-						       PopplerRectangle   *rect);
-GList              *poppler_page_get_link_mapping     (PopplerPage        *page);
-void                poppler_page_free_link_mapping    (GList              *list);
-GdkRegion *         poppler_page_get_selection_region (PopplerPage        *page,
-						       gdouble             scale,
-						       PopplerRectangle   *selection);
-void                poppler_page_render_selection     (PopplerPage        *page,
-						       gdouble             scale,
-						       int		   rotation,
-						       GdkPixbuf          *pixbuf,
-						       PopplerRectangle   *selection,
-						       PopplerRectangle   *old_selection,
-						       GdkColor         *glyph_color,
-						       GdkColor         *background_color);
-GList               *poppler_page_get_form_fields     (PopplerPage *page);
-void 	             poppler_page_free_form_fields    (GList *list);
+void                   poppler_page_get_size             (PopplerPage        *page,
+							  double             *width,
+							  double             *height);
+int                    poppler_page_get_index            (PopplerPage        *page);
+double                 poppler_page_get_duration         (PopplerPage        *page);
+PopplerPageTransition *poppler_page_get_transition       (PopplerPage        *page);
+GdkPixbuf             *poppler_page_get_thumbnail        (PopplerPage        *page);
+gboolean               poppler_page_get_thumbnail_size   (PopplerPage        *page,
+							  int                *width,
+							  int                *height);
+GList     	      *poppler_page_find_text            (PopplerPage        *page,
+							  const  char        *text);
+void                   poppler_page_render_to_ps         (PopplerPage        *page,
+							  PopplerPSFile      *ps_file);
+char                  *poppler_page_get_text             (PopplerPage        *page,
+							  PopplerRectangle   *rect);
+GList                 *poppler_page_get_link_mapping     (PopplerPage        *page);
+void                   poppler_page_free_link_mapping    (GList              *list);
+GdkRegion             *poppler_page_get_selection_region (PopplerPage        *page,
+							  gdouble             scale,
+							  PopplerRectangle   *selection);
+void                   poppler_page_render_selection     (PopplerPage        *page,
+							  gdouble             scale,
+							  int		      rotation,
+							  GdkPixbuf          *pixbuf,
+							  PopplerRectangle   *selection,
+							  PopplerRectangle   *old_selection,
+							  GdkColor           *glyph_color,
+							  GdkColor           *background_color);
+GList                 *poppler_page_get_form_fields      (PopplerPage        *page);
+void 	               poppler_page_free_form_fields     (GList              *list);
 
-void 		    poppler_page_get_crop_box 	      (PopplerPage *page,
-						       PopplerRectangle *rect);
+void 		      poppler_page_get_crop_box 	 (PopplerPage        *page,
+							  PopplerRectangle   *rect);
 
 
 /* A rectangle on a page, with coordinates in PDF points. */
@@ -117,6 +118,24 @@ GType               poppler_link_mapping_get_type (void) G_GNUC_CONST;
 PopplerLinkMapping *poppler_link_mapping_new      (void);
 PopplerLinkMapping *poppler_link_mapping_copy     (PopplerLinkMapping *mapping);
 void                poppler_link_mapping_free     (PopplerLinkMapping *mapping);
+
+/* Page Transition */
+#define POPPLER_TYPE_PAGE_TRANSITION                (poppler_page_transition_get_type ())
+struct _PopplerPageTransition
+{
+  PopplerPageTransitionType type;
+  PopplerPageTransitionAlignment alignment;
+  PopplerPageTransitionDirection direction;
+  gint duration;
+  gint angle;
+  gdouble scale;
+  gboolean rectangular;
+};
+
+GType                  poppler_page_transition_get_type (void) G_GNUC_CONST;
+PopplerPageTransition *poppler_page_transition_new      (void);
+PopplerPageTransition *poppler_page_transition_copy     (PopplerPageTransition *transition);
+void                   poppler_page_transition_free     (PopplerPageTransition *transition);
 
 /* FormField */
 #define POPPLER_TYPE_FORM_FIELD                     (poppler_form_field_get_type ())
