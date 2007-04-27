@@ -1,6 +1,5 @@
 #include <QtTest/QtTest>
 
-#define UNSTABLE_POPPLER_QT4
 #include <poppler-qt4.h>
 
 class TestPageLayout: public QObject

@@ -17,8 +17,6 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-#define UNSTABLE_POPPLER_QT4
-
 #include <QtCore/QString>
 #include <QtCore/QDateTime>
 

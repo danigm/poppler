@@ -1,7 +1,6 @@
 #include <QtCore/QtCore>
 #include <iostream>
 
-#define UNSTABLE_POPPLER_QT4
 #include <poppler-qt4.h>
 
 int main( int argc, char **argv )

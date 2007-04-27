@@ -20,8 +20,6 @@
 #ifndef __POPPLER_QT_H__
 #define __POPPLER_QT_H__
 
-#ifdef UNSTABLE_POPPLER_QT4
-
 #include <QtCore/QByteArray>
 #include <QtCore/QDateTime>
 #include <QtCore/QSet>
@@ -864,6 +862,5 @@ height = dummy.height();
     };
 
 }
-#endif
 
 #endif

@@ -3,7 +3,6 @@
 #include <QtGui/QtGui>
 #include <ctype.h>
 
-#define UNSTABLE_POPPLER_QT4
 #include <poppler-qt4.h>
 
 class PDFDisplay : public QWidget           // picture display widget

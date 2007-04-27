@@ -1,3 +1,7 @@
+2007-04-28  Albert Astals Cid <aacid@kde.org>
+
+	* qt4/*: Stop requyring users to declare UNSTABLE_POPPLER_QT4
+
 2007-04-28  Carlos Garcia Campos <carlosgc@gnome.org>
 	reviewed and some code by: Albert Astals Cid <aacid@kde.org>
 

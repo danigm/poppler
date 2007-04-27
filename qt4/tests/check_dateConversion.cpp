@@ -3,7 +3,6 @@
 Q_DECLARE_METATYPE(QDate)
 Q_DECLARE_METATYPE(QTime)
 
-#define UNSTABLE_POPPLER_QT4
 #include <poppler-qt4.h>
 
 class TestDateConv: public QObject

@@ -30,10 +30,9 @@ URL</a>.
 @section req How to use the Poppler Qt4 interface library in three easy steps
 
 Programmer who would like to use the Poppler Qt4 interface library
-simply need to add the following two lines to their C++ source files:
+simply need to add the following line to their C++ source files:
 
 @code
-#define UNSTABLE_POPPLER_QT4
 #include <poppler-qt4.h>
 @endcode
 
