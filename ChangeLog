@@ -13,6 +13,12 @@
 
 2007-04-28  Pino Toscano <pino@kde.org>
 
+	* qt4/src/poppler-page.cc:
+	Hopefully fix the calculation of the image size when rendering using
+	ArthurOutputDev.
+
+2007-04-28  Pino Toscano <pino@kde.org>
+
 	* qt4/src/Makefile.am:
 	* qt4/src/poppler-link-extractor-private.h:
 	* qt4/src/poppler-link-extractor.cc:
