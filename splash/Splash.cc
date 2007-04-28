@@ -84,6 +84,7 @@ SplashPipeResultColorCtrl Splash::pipeResultColorNoAlphaBlend[] = {
   splashPipeResultColorNoAlphaBlendMono,
   splashPipeResultColorNoAlphaBlendMono,
   splashPipeResultColorNoAlphaBlendRGB,
+  splashPipeResultColorNoAlphaBlendRGB,
   splashPipeResultColorNoAlphaBlendRGB
 #if SPLASH_CMYK
   ,
@@ -95,6 +96,7 @@ SplashPipeResultColorCtrl Splash::pipeResultColorAlphaNoBlend[] = {
   splashPipeResultColorAlphaNoBlendMono,
   splashPipeResultColorAlphaNoBlendMono,
   splashPipeResultColorAlphaNoBlendRGB,
+  splashPipeResultColorNoAlphaBlendRGB,
   splashPipeResultColorAlphaNoBlendRGB
 #if SPLASH_CMYK
   ,
@@ -106,6 +108,7 @@ SplashPipeResultColorCtrl Splash::pipeResultColorAlphaBlend[] = {
   splashPipeResultColorAlphaBlendMono,
   splashPipeResultColorAlphaBlendMono,
   splashPipeResultColorAlphaBlendRGB,
+  splashPipeResultColorNoAlphaBlendRGB,
   splashPipeResultColorAlphaBlendRGB
 #if SPLASH_CMYK
   ,
@@ -253,10 +256,10 @@ inline void Splash::pipeRun(SplashPipe *pipe) {
       *pipe->destColorPtr++ = pipe->cSrc[1];
       *pipe->destColorPtr++ = pipe->cSrc[2];
       break;
-    case splashModeRGBX8:
-      *pipe->destColorPtr++ = pipe->cSrc[0];
-      *pipe->destColorPtr++ = pipe->cSrc[1];
+    case splashModeXBGR8:
       *pipe->destColorPtr++ = pipe->cSrc[2];
+      *pipe->destColorPtr++ = pipe->cSrc[1];
+      *pipe->destColorPtr++ = pipe->cSrc[0];
       *pipe->destColorPtr++ = 255;
       break;
     case splashModeBGR8:
@@ -293,10 +296,10 @@ inline void Splash::pipeRun(SplashPipe *pipe) {
       cDest[1] = pipe->destColorPtr[1];
       cDest[2] = pipe->destColorPtr[2];
       break;
-    case splashModeRGBX8:
-      cDest[0] = pipe->destColorPtr[0];
+    case splashModeXBGR8:
+      cDest[0] = pipe->destColorPtr[2];
       cDest[1] = pipe->destColorPtr[1];
-      cDest[2] = pipe->destColorPtr[2];
+      cDest[2] = pipe->destColorPtr[0];
       cDest[3] = 255;
       break;
     case splashModeBGR8:
@@ -519,10 +522,10 @@ inline void Splash::pipeRun(SplashPipe *pipe) {
       *pipe->destColorPtr++ = cResult1;
       *pipe->destColorPtr++ = cResult2;
       break;
-    case splashModeRGBX8:
-      *pipe->destColorPtr++ = cResult0;
-      *pipe->destColorPtr++ = cResult1;
+    case splashModeXBGR8:
       *pipe->destColorPtr++ = cResult2;
+      *pipe->destColorPtr++ = cResult1;
+      *pipe->destColorPtr++ = cResult0;
       *pipe->destColorPtr++ = 255;
       break;
     case splashModeBGR8:
@@ -567,7 +570,7 @@ inline void Splash::pipeSetXY(SplashPipe *pipe, int x, int y) {
   case splashModeBGR8:
     pipe->destColorPtr = &bitmap->data[y * bitmap->rowSize + 3 * x];
     break;
-  case splashModeRGBX8:
+  case splashModeXBGR8:
     pipe->destColorPtr = &bitmap->data[y * bitmap->rowSize + 4 * x];
     break;
 #if SPLASH_CMYK
@@ -609,7 +612,7 @@ inline void Splash::pipeIncX(SplashPipe *pipe) {
   case splashModeBGR8:
     pipe->destColorPtr += 3;
     break;
-  case splashModeRGBX8:
+  case splashModeXBGR8:
     pipe->destColorPtr += 4;
     break;
 #if SPLASH_CMYK
@@ -1087,7 +1090,7 @@ void Splash::clear(SplashColorPtr color, Guchar alpha) {
       }
     }
     break;
-  case splashModeRGBX8:
+  case splashModeXBGR8:
     if (color[0] == color[1] && color[1] == color[2]) {
       if (bitmap->rowSize < 0) {
 	memset(bitmap->data + bitmap->rowSize * (bitmap->height - 1),
@@ -1100,9 +1103,9 @@ void Splash::clear(SplashColorPtr color, Guchar alpha) {
       for (y = 0; y < bitmap->height; ++y) {
 	p = row;
 	for (x = 0; x < bitmap->width; ++x) {
-	  *p++ = color[2];
-	  *p++ = color[1];
 	  *p++ = color[0];
+	  *p++ = color[1];
+	  *p++ = color[2];
 	  *p++ = 255;
 	}
 	row += bitmap->rowSize;
@@ -2144,8 +2147,8 @@ SplashError Splash::drawImage(SplashImageSource src, void *srcData,
     ok = srcMode == splashModeRGB8;
     nComps = 3;
     break;
-  case splashModeRGBX8:
-    ok = srcMode == splashModeRGBX8;
+  case splashModeXBGR8:
+    ok = srcMode == splashModeXBGR8;
     nComps = 4;
     break;
   case splashModeBGR8:
@@ -2486,9 +2489,8 @@ SplashError Splash::drawImage(SplashImageSource src, void *srcData,
 	}
 	break;
 
-      case splashModeRGBX8:
+      case splashModeXBGR8:
 	for (x = 0; x < scaledWidth; ++x) {
-
 	  // x scale Bresenham
 	  xStep = xp;
 	  xt += xq;
@@ -2817,7 +2819,7 @@ SplashError Splash::drawImage(SplashImageSource src, void *srcData,
 	}
 	break;
 
-      case splashModeRGBX8:
+      case splashModeXBGR8:
 	for (x = 0; x < scaledWidth; ++x) {
 
 	  // x scale Bresenham
@@ -3067,7 +3069,7 @@ void Splash::compositeBackground(SplashColorPtr color) {
       }
     }
     break;
-  case splashModeRGBX8:
+  case splashModeXBGR8:
     color0 = color[0];
     color1 = color[1];
     color2 = color[2];
@@ -3161,7 +3163,7 @@ SplashError Splash::blitTransparent(SplashBitmap *src, int xSrc, int ySrc,
       }
     }
     break;
-  case splashModeRGBX8:
+  case splashModeXBGR8:
     for (y = 0; y < h; ++y) {
       p = &bitmap->data[(yDest + y) * bitmap->rowSize + 4 * xDest];
       for (x = 0; x < w; ++x) {

@@ -163,7 +163,7 @@ namespace Poppler {
 			bgColor[1] = paperColor.green();
 			bgColor[2] = paperColor.blue();
 			GBool AA = m_hints & Document::TextAntialiasing ? gTrue : gFalse;
-			SplashOutputDev * splashOutputDev = new SplashOutputDev(splashModeRGBX8, 4, gFalse, bgColor, gTrue, AA);
+			SplashOutputDev * splashOutputDev = new SplashOutputDev(splashModeXBGR8, 4, gFalse, bgColor, gTrue, AA);
 			splashOutputDev->startDoc(doc->getXRef());
 			m_outputDev = splashOutputDev;
 #endif

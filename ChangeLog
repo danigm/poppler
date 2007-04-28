@@ -1,3 +1,13 @@
+2007-04-29  Albert Astals Cid <aacid@kde.org>
+
+	* poppler/SplashOutputDev.cc:
+	* qt/poppler-private.h:
+	* qt4/src/poppler-private.h:
+	* splash/Splash.cc:
+	* splash/SplashBitmap.cc:
+	* splash/SplashTypes.h: Rename splashModeRGBX8 to splashModeXBGR8 and
+	hopefully fix qt frontends image generation
+
 2007-04-28  Albert Astals Cid <aacid@kde.org>
 
 	* qt4/src/Makefile.am:

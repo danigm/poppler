@@ -244,7 +244,7 @@ static void splashOutBlendHue(SplashColorPtr src, SplashColorPtr dest,
   case splashModeMono8:
     blend[0] = dest[0];
     break;
-  case splashModeRGBX8:
+  case splashModeXBGR8:
     src[3] = 255;
   case splashModeRGB8:
   case splashModeBGR8:
@@ -285,7 +285,7 @@ static void splashOutBlendSaturation(SplashColorPtr src, SplashColorPtr dest,
   case splashModeMono8:
     blend[0] = dest[0];
     break;
-  case splashModeRGBX8:
+  case splashModeXBGR8:
     src[3] = 255;
   case splashModeRGB8:
   case splashModeBGR8:
@@ -325,7 +325,7 @@ static void splashOutBlendColor(SplashColorPtr src, SplashColorPtr dest,
   case splashModeMono8:
     blend[0] = dest[0];
     break;
-  case splashModeRGBX8:
+  case splashModeXBGR8:
     src[3] = 255;
   case splashModeRGB8:
   case splashModeBGR8:
@@ -366,7 +366,7 @@ static void splashOutBlendLuminosity(SplashColorPtr src, SplashColorPtr dest,
   case splashModeMono8:
     blend[0] = dest[0];
     break;
-  case splashModeRGBX8:
+  case splashModeXBGR8:
     src[3] = 255;
   case splashModeRGB8:
   case splashModeBGR8:
@@ -722,7 +722,7 @@ void SplashOutputDev::startPage(int pageNum, GfxState *state) {
   case splashModeMono8:
     color[0] = 0;
     break;
-  case splashModeRGBX8:
+  case splashModeXBGR8:
     color[3] = 255;
   case splashModeRGB8:
   case splashModeBGR8:
@@ -900,7 +900,7 @@ SplashPattern *SplashOutputDev::getColor(GfxGray gray, GfxRGB *rgb) {
     color[0] = colToByte(gray);
     pattern = new SplashSolidColor(color);
     break;
-  case splashModeRGBX8:
+  case splashModeXBGR8:
     color[3] = 255;
   case splashModeRGB8:
   case splashModeBGR8:
@@ -1720,7 +1720,6 @@ GBool SplashOutputDev::imageSrc(void *data, SplashColorPtr colorLine,
 	*q++ = imgData->lookup[*p];
       }
     break;
-  case splashModeRGBX8:
   case splashModeRGB8:
   case splashModeBGR8:
       for (x = 0, p = imgData->imgStr->getLine(), q = colorLine;
@@ -1730,9 +1729,19 @@ GBool SplashOutputDev::imageSrc(void *data, SplashColorPtr colorLine,
 	*q++ = col[0];
 	*q++ = col[1];
 	*q++ = col[2];
-	if (imgData->colorMode == splashModeRGBX8) *q++ = 255;
       }
     break;
+  case splashModeXBGR8:
+      for (x = 0, p = imgData->imgStr->getLine(), q = colorLine;
+	   x < imgData->width;
+	   ++x, ++p) {
+	col = &imgData->lookup[4 * *p];
+	*q++ = col[0];
+	*q++ = col[1];
+	*q++ = col[2];
+	*q++ = col[3];
+      }
+      break;
 #if SPLASH_CMYK
     case splashModeCMYK8:
       for (x = 0, p = imgData->imgStr->getLine(), q = colorLine;
@@ -1758,7 +1767,7 @@ GBool SplashOutputDev::imageSrc(void *data, SplashColorPtr colorLine,
 	*q++ = colToByte(gray);
       }
 	break;
-	case splashModeRGBX8:
+	case splashModeXBGR8:
     case splashModeRGB8:
     case splashModeBGR8:
       for (x = 0, p = imgData->imgStr->getLine(), q = colorLine;
@@ -1768,7 +1777,7 @@ GBool SplashOutputDev::imageSrc(void *data, SplashColorPtr colorLine,
 	*q++ = colToByte(rgb.r);
 	*q++ = colToByte(rgb.g);
 	*q++ = colToByte(rgb.b);
-	if (imgData->colorMode == splashModeRGBX8) *q++ = 255;
+	if (imgData->colorMode == splashModeXBGR8) *q++ = 255;
       }
       break;
 #if SPLASH_CMYK
@@ -1828,14 +1837,20 @@ GBool SplashOutputDev::alphaImageSrc(void *data, SplashColorPtr colorLine,
 	*q++ = imgData->lookup[*p];
 	*aq++ = alpha;
 	break;
-      case splashModeRGBX8:
       case splashModeRGB8:
       case splashModeBGR8:
 	col = &imgData->lookup[3 * *p];
 	*q++ = col[0];
 	*q++ = col[1];
 	*q++ = col[2];
-	if (imgData->colorMode == splashModeRGBX8) *q++ = 255;
+	*aq++ = alpha;
+	break;
+      case splashModeXBGR8:
+	col = &imgData->lookup[4 * *p];
+	*q++ = col[0];
+	*q++ = col[1];
+	*q++ = col[2];
+	*q++ = 255;
 	*aq++ = alpha;
 	break;
 #if SPLASH_CMYK
@@ -1857,14 +1872,14 @@ GBool SplashOutputDev::alphaImageSrc(void *data, SplashColorPtr colorLine,
 	*q++ = colToByte(gray);
 	*aq++ = alpha;
 	break;
-      case splashModeRGBX8:
+      case splashModeXBGR8:
       case splashModeRGB8:
       case splashModeBGR8:
 	imgData->colorMap->getRGB(p, &rgb);
 	*q++ = colToByte(rgb.r);
 	*q++ = colToByte(rgb.g);
 	*q++ = colToByte(rgb.b);
-	if (imgData->colorMode == splashModeRGBX8) *q++ = 255;
+	if (imgData->colorMode == splashModeXBGR8) *q++ = 255;
 	*aq++ = alpha;
 	break;
 #if SPLASH_CMYK
@@ -1936,7 +1951,6 @@ void SplashOutputDev::drawImage(GfxState *state, Object *ref, Stream *str,
 	imgData.lookup[i] = colToByte(gray);
       }
       break;
-    case splashModeRGBX8:
     case splashModeRGB8:
     case splashModeBGR8:
       imgData.lookup = (SplashColorPtr)gmalloc(3 * n);
@@ -1946,7 +1960,17 @@ void SplashOutputDev::drawImage(GfxState *state, Object *ref, Stream *str,
 	imgData.lookup[3*i] = colToByte(rgb.r);
 	imgData.lookup[3*i+1] = colToByte(rgb.g);
 	imgData.lookup[3*i+2] = colToByte(rgb.b);
-	if (colorMode == splashModeRGBX8) imgData.lookup[3*i+3] = 255;
+      }
+      break;
+    case splashModeXBGR8:
+      imgData.lookup = (SplashColorPtr)gmalloc(4 * n);
+      for (i = 0; i < n; ++i) {
+	pix = (Guchar)i;
+	colorMap->getRGB(&pix, &rgb);
+	imgData.lookup[4*i] = colToByte(rgb.r);
+	imgData.lookup[4*i+1] = colToByte(rgb.g);
+	imgData.lookup[4*i+2] = colToByte(rgb.b);
+	imgData.lookup[4*i+3] = 255;
       }
       break;
 #if SPLASH_CMYK
@@ -2027,14 +2051,20 @@ GBool SplashOutputDev::maskedImageSrc(void *data, SplashColorPtr colorLine,
 	*q++ = imgData->lookup[*p];
 	*aq++ = alpha;
 	break;
-      case splashModeRGBX8:
       case splashModeRGB8:
       case splashModeBGR8:
 	col = &imgData->lookup[3 * *p];
 	*q++ = col[0];
 	*q++ = col[1];
 	*q++ = col[2];
-	if (imgData->colorMode == splashModeRGBX8) *q++ = 255;
+	*aq++ = alpha;
+	break;
+      case splashModeXBGR8:
+	col = &imgData->lookup[4 * *p];
+	*q++ = col[0];
+	*q++ = col[1];
+	*q++ = col[2];
+	*q++ = 255;
 	*aq++ = alpha;
 	break;
 #if SPLASH_CMYK
@@ -2056,14 +2086,14 @@ GBool SplashOutputDev::maskedImageSrc(void *data, SplashColorPtr colorLine,
 	*q++ = colToByte(gray);
 	*aq++ = alpha;
 	break;
-      case splashModeRGBX8:
+      case splashModeXBGR8:
       case splashModeRGB8:
       case splashModeBGR8:
 	imgData->colorMap->getRGB(p, &rgb);
 	*q++ = colToByte(rgb.r);
 	*q++ = colToByte(rgb.g);
 	*q++ = colToByte(rgb.b);
-	if (imgData->colorMode == splashModeRGBX8) *q++ = 255;
+	if (imgData->colorMode == splashModeXBGR8) *q++ = 255;
 	*aq++ = alpha;
 	break;
 #if SPLASH_CMYK
@@ -2186,7 +2216,6 @@ void SplashOutputDev::drawMaskedImage(GfxState *state, Object *ref,
 	  imgData.lookup[i] = colToByte(gray);
 	}
 	break;
-      case splashModeRGBX8:
       case splashModeRGB8:
       case splashModeBGR8:
 	imgData.lookup = (SplashColorPtr)gmalloc(3 * n);
@@ -2196,7 +2225,17 @@ void SplashOutputDev::drawMaskedImage(GfxState *state, Object *ref,
 	  imgData.lookup[3*i] = colToByte(rgb.r);
 	  imgData.lookup[3*i+1] = colToByte(rgb.g);
 	  imgData.lookup[3*i+2] = colToByte(rgb.b);
-	  if (colorMode == splashModeRGBX8) imgData.lookup[3*i+2] = 255;
+	}
+	break;
+      case splashModeXBGR8:
+	imgData.lookup = (SplashColorPtr)gmalloc(4 * n);
+	for (i = 0; i < n; ++i) {
+	  pix = (Guchar)i;
+	  colorMap->getRGB(&pix, &rgb);
+	  imgData.lookup[4*i] = colToByte(rgb.r);
+	  imgData.lookup[4*i+1] = colToByte(rgb.g);
+	  imgData.lookup[4*i+2] = colToByte(rgb.b);
+	  imgData.lookup[4*i+3] = 255;
 	}
 	break;
 #if SPLASH_CMYK
@@ -2321,7 +2360,6 @@ void SplashOutputDev::drawSoftMaskedImage(GfxState *state, Object *ref,
       }
       break;
     case splashModeRGB8:
-    case splashModeRGBX8:
     case splashModeBGR8:
       imgData.lookup = (SplashColorPtr)gmalloc(3 * n);
       for (i = 0; i < n; ++i) {
@@ -2330,7 +2368,17 @@ void SplashOutputDev::drawSoftMaskedImage(GfxState *state, Object *ref,
 	imgData.lookup[3*i] = colToByte(rgb.r);
 	imgData.lookup[3*i+1] = colToByte(rgb.g);
 	imgData.lookup[3*i+2] = colToByte(rgb.b);
-	if (colorMode == splashModeRGBX8) imgData.lookup[3*i+2] = 255;
+      }
+      break;
+    case splashModeXBGR8:
+      imgData.lookup = (SplashColorPtr)gmalloc(4 * n);
+      for (i = 0; i < n; ++i) {
+	pix = (Guchar)i;
+	colorMap->getRGB(&pix, &rgb);
+	imgData.lookup[4*i] = colToByte(rgb.r);
+	imgData.lookup[4*i+1] = colToByte(rgb.g);
+	imgData.lookup[4*i+2] = colToByte(rgb.b);
+	imgData.lookup[4*i+3] = 255;
       }
       break;
 #if SPLASH_CMYK
@@ -2461,7 +2509,7 @@ void SplashOutputDev::beginTransparencyGroup(GfxState *state, double *bbox,
     case splashModeMono8:
       color[0] = 0;
       break;
-    case splashModeRGBX8:
+    case splashModeXBGR8:
       color[3] = 255;
     case splashModeRGB8:
     case splashModeBGR8:
@@ -2559,7 +2607,7 @@ void SplashOutputDev::setSoftMask(GfxState * /*state*/, double * /*bbox*/,
 	color[0] = colToByte(gray);
 	tSplash->compositeBackground(color);
 	break;
-      case splashModeRGBX8:
+      case splashModeXBGR8:
 	color[3] = 255;
       case splashModeRGB8:
       case splashModeBGR8:
@@ -2601,7 +2649,7 @@ void SplashOutputDev::setSoftMask(GfxState * /*state*/, double * /*bbox*/,
 	case splashModeMono8:
 	  lum = color[0] / 255.0;
 	  break;
-	case splashModeRGBX8:
+	case splashModeXBGR8:
 	case splashModeRGB8:
 	case splashModeBGR8:
 	  lum = (0.3 / 255.0) * color[0] +
