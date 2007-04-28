@@ -47,6 +47,8 @@ namespace Poppler {
 
     class TextBoxData;
 
+    class PSConverter;
+
     /**
         Describes the physical location of text on a document page
        
@@ -714,24 +716,6 @@ QString subject = m_doc->info("Subject");
 	LinkDestination *linkDestination( const QString &name );
 	
 	/**
-	  Prints the document to the PostScript file \p fileName
-	  Sizes have to be in Points (1/72 inch)
-	  \param strictMargins defines if margins have to be scrictly
-	                       followed (even if that means changing aspect ratio) or
-	                       if the margins can be adapted to keep aspect ratio
-
-	  If you are using QPrinter you can get paper size by doing:
-	  \code
-QPrinter dummy(QPrinter::PrinterResolution);
-dummy.setFullPage(true);
-dummy.setPageSize(myPageSize);
-width = dummy.width();
-height = dummy.height();
-	  \endcode
-	*/
-	bool print(const QString &fileName, const QString &title, const QList<int> &pageList, double hDPI, double vDPI, int rotate, int paperWidth, int paperHeight, int marginRight, int marginBottom, int marginLeft, int marginTop, bool strictMargins, bool forceRasterize);
-	
-	/**
 	  Sets the paper color
 
 	  \param color the new paper color
@@ -772,6 +756,11 @@ height = dummy.height();
 	  The currently set render hints.
 	 */
 	RenderHints renderHints() const;
+	
+	/**
+	  Gets a PS converter of this document. The pointer has to be freed by the calling application.
+	 */
+	PSConverter *psConverter() const;
 
 	~Document();
   
@@ -780,6 +769,100 @@ height = dummy.height();
 	
 	Document(DocumentData *dataA);
 	static Document *checkDocument(DocumentData *doc);
+    };
+    
+    /**
+       Converts a PDF to PS
+
+       Sizes have to be in Points (1/72 inch)
+
+       If you are using QPrinter you can get paper size by doing:
+       \code
+           QPrinter dummy(QPrinter::PrinterResolution);
+           dummy.setFullPage(true);
+           dummy.setPageSize(myPageSize);
+           width = dummy.width();
+           height = dummy.height();
+       \endcode
+    */
+    class PSConverterData;
+    class PSConverter
+    {
+        friend class Document;
+        public:
+            ~PSConverter();
+
+            /** Sets the output file name. Mandatory. */
+            void setOutputFileName(const QString &outputFileName);
+
+            /** Sets the list of pages to print. Mandatory. */
+            void setPageList(const QList<int> &pageList);
+
+            /**
+              Sets the title of the PS Document. Optional
+            */
+            void setTitle(const QString &title);
+
+            /**
+              Sets the horizontal DPI. Defaults to 72.0
+            */
+            void setHDPI(double hDPI);
+
+            /**
+              Sets the vertical DPI. Defaults to 72.0
+            */
+            void setVDPI(double vDPI);
+
+            /**
+              Sets the rotate. Defaults to not rotated
+            */
+            void setRotate(int rotate);
+
+            /**
+              Sets the output paper width. Has to be set.
+            */
+            void setPaperWidth(int paperWidth);
+
+            /**
+              Sets the output paper height. Has to be set.
+            */
+            void setPaperHeight(int paperHeight);
+
+            /**
+              Sets the output right margin. Defaults to 0
+            */
+            void setRightMargin(int marginRight);
+
+            /**
+              Sets the output bottom margin. Defaults to 0
+            */
+            void setBottomMargin(int marginBottom);
+
+            /**
+              Sets the output left margin. Defaults to 0
+            */
+            void setLeftMargin(int marginLeft);
+
+            /**
+              Sets the output top margin. Defaults to 0
+            */
+            void setTopMargin(int marginTop);
+
+            /** Defines if margins have to be scrictly
+                followed (even if that means changing aspect ratio) or
+                if the margins can be adapted to keep aspect ratio. Defaults to false. */
+            void setStrictMargins(bool strictMargins);
+
+            /** Defines if the page will be rasterized to an image before printing. Defaults to false */
+            void setForceRasterize(bool forceRasterize);
+
+            /** Does the conversion */
+            bool convert();
+
+        private:
+            PSConverter(DocumentData *document);
+
+            PSConverterData *m_data;
     };
 
     /**

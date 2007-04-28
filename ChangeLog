@@ -1,5 +1,15 @@
 2007-04-28  Albert Astals Cid <aacid@kde.org>
 
+	* qt4/src/Makefile.am:
+	* qt4/src/poppler-document.cc:
+	* qt4/src/poppler-ps-converter.cc:
+	* qt4/src/poppler-qt4.h: Replace Document::print function with lots of
+	arguments with a helper class with lots of functions. Will help
+	mantaining BC in case we decide to add more functionality to the
+	printing process.
+
+2007-04-28  Albert Astals Cid <aacid@kde.org>
+
 	* glib/poppler-document.h:
 	* poppler/FontInfo.h:
 	* qt/poppler-qt.h:

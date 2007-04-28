@@ -24,7 +24,6 @@
 #include <GlobalParams.h>
 #include <Outline.h>
 #include <PDFDoc.h>
-#include <PSOutputDev.h>
 #include <Stream.h>
 #include <Catalog.h>
 
@@ -412,39 +411,6 @@ namespace Poppler {
         return ld;
     }
     
-    bool Document::print(const QString &file, const QString &title, const QList<int> &pageList, double hDPI, double vDPI, int rotate, int paperWidth, int paperHeight, int marginRight, int marginBottom, int marginLeft, int marginTop, bool strictMargins, bool forceRasterize)
-    {
-        QByteArray pstitle8Bit = title.toLocal8Bit();
-        char* pstitlechar;
-        if (!title.isEmpty()) pstitlechar = pstitle8Bit.data();
-        else pstitlechar = 0;
-
-        PSOutputDev *psOut = new PSOutputDev(file.toLatin1().data(), m_doc->doc->getXRef(), m_doc->doc->getCatalog(), pstitlechar, 1, m_doc->doc->getNumPages(), psModePS, paperWidth, paperHeight, gFalse, marginRight, marginBottom, paperWidth - marginLeft, paperHeight - marginTop, forceRasterize);
-
-        if (strictMargins)
-        {
-            double xScale = ((double)paperWidth - (double)marginLeft - (double)marginRight) / (double)paperWidth;
-            double yScale = ((double)paperHeight - (double)marginBottom - (double)marginTop) / (double)paperHeight;
-            psOut->setScale(xScale, yScale);
-        }
-
-        if (psOut->isOk())
-        {
-            foreach(int page, pageList)
-            {
-                m_doc->doc->displayPage(psOut, page, hDPI, vDPI, rotate, gFalse, gTrue, gFalse);
-            }
-
-            delete psOut;
-            return true;
-        }
-        else
-        {
-            delete psOut;
-            return false;
-        }
-    }
-    
     void Document::setPaperColor(const QColor &color)
     {
         m_doc->setPaperColor(color);
@@ -497,6 +463,11 @@ namespace Poppler {
     Document::RenderHints Document::renderHints() const
     {
         return Document::RenderHints() & m_doc->m_hints;
+    }
+
+    PSConverter *Document::psConverter() const
+    {
+        return new PSConverter(m_doc);
     }
 
     QDateTime convertDate( char *dateString )

@@ -28,6 +28,7 @@ libpoppler_qt4_la_SOURCES =			\
 	../../qt/poppler-page-transition.cc	\
 	poppler-sound.cc			\
 	poppler-form.cc				\
+	poppler-ps-converter.cc			\
 	poppler-annotation-helper.h		\
 	poppler-private.h
 
