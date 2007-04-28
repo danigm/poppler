@@ -2139,6 +2139,7 @@ SplashError Splash::drawImage(SplashImageSource src, void *srcData,
   case splashModeMono8:
     ok = srcMode == splashModeMono8;
     nComps = 1;
+    break;
   case splashModeRGB8:
     ok = srcMode == splashModeRGB8;
     nComps = 3;

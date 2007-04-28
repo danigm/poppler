@@ -172,7 +172,6 @@ void SplashBitmap::getPixel(int x, int y, SplashColorPtr pixel) {
   switch (mode) {
   case splashModeMono1:
     p = &data[y * rowSize + (x >> 3)];
-    pixel[0] = (p[0] >> (7 - (x & 7))) & 1;
     pixel[0] = (p[0] & (0x80 >> (x & 7))) ? 0xff : 0x00;
     break;
   case splashModeMono8:
