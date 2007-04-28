@@ -23,9 +23,12 @@
 
 #include <QtCore/QDateTime>
 #include <QtCore/QLinkedList>
+#include <QtCore/QList>
 #include <QtCore/QPointF>
 #include <QtCore/QRectF>
+#include <QtGui/QColor>
 #include <QtGui/QFont>
+#include <QtXml/QDomDocument>
 
 namespace Poppler {
 
