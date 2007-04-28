@@ -20,6 +20,9 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
+#ifndef _POPPLER_PRIVATE_H_
+#define _POPPLER_PRIVATE_H_
+
 #include <config.h>
 #include <GfxState.h>
 #include <GlobalParams.h>
@@ -366,4 +369,4 @@ namespace Poppler {
 
 }
 
-
+#endif

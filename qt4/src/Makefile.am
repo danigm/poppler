@@ -24,9 +24,10 @@ libpoppler_qt4_la_SOURCES =			\
 	poppler-textbox.cc			\
 	poppler-link.cc				\
 	poppler-annotation.cc			\
+	poppler-link-extractor.cc		\
 	../../qt/poppler-page-transition.cc	\
 	poppler-sound.cc			\
-	poppler-form.cc			\
+	poppler-form.cc				\
 	poppler-annotation-helper.h		\
 	poppler-private.h
 

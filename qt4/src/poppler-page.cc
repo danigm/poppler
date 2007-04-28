@@ -36,19 +36,12 @@
 
 #include "poppler-private.h"
 #include "poppler-page-transition-private.h"
+#include "poppler-page-private.h"
+#include "poppler-link-extractor-private.h"
 #include "poppler-annotation-helper.h"
 #include "poppler-form.h"
 
 namespace Poppler {
-
-class PageData {
-  public:
-  Link* convertLinkActionToLink(::LinkAction * a, const QRectF &linkArea, DocumentData * doc);
-
-  const Document *parentDoc;
-  int index;
-  PageTransition *transition;
-};
 
 Link* PageData::convertLinkActionToLink(::LinkAction * a, const QRectF &linkArea, DocumentData * doc)
 {
@@ -165,7 +158,7 @@ Page::~Page()
   delete m_page;
 }
 
-QImage Page::renderToImage(double xres, double yres, int x, int y, int w, int h, bool doLinks, Rotation rotate) const
+QImage Page::renderToImage(double xres, double yres, int x, int y, int w, int h, Rotation rotate) const
 {
   int rotation = (int)rotate * 90;
   QImage img;
@@ -177,7 +170,7 @@ QImage Page::renderToImage(double xres, double yres, int x, int y, int w, int h,
       SplashOutputDev *splash_output = static_cast<SplashOutputDev *>(m_page->parentDoc->m_doc->getOutputDev());
 
       m_page->parentDoc->m_doc->doc->displayPageSlice(splash_output, m_page->index + 1, xres, yres,
-						 rotation, false, true, doLinks, x, y, w, h);
+						 rotation, false, true, false, x, y, w, h);
 
       SplashBitmap *bitmap = splash_output->getBitmap();
       int bw = bitmap->getWidth();
@@ -231,7 +224,7 @@ QImage Page::renderToImage(double xres, double yres, int x, int y, int w, int h,
 						 rotation,
 						 false,
 						 true,
-						 doLinks,
+						 false,
 						 x,
 						 y,
 						 w,
@@ -463,39 +456,10 @@ void Page::defaultCTM(double *CTM, double dpiX, double dpiY, int rotate, bool up
 
 QList<Link*> Page::links() const
 {
-  QList<Link*> popplerLinks;
-  OutputDev *output_dev = m_page->parentDoc->m_doc->getOutputDev();
-  if (output_dev == NULL)
-    return popplerLinks;
+  LinkExtractorOutputDev link_dev(m_page, m_page->parentDoc->m_doc);
+  m_page->parentDoc->m_doc->doc->processLinks(&link_dev, m_page->index + 1);
+  QList<Link*> popplerLinks = link_dev.links();
 
-  Links *xpdfLinks = m_page->parentDoc->m_doc->doc->getLinks(m_page->index + 1);
-  for (int i = 0; i < xpdfLinks->getNumLinks(); ++i)
-  {
-    ::Link *xpdfLink = xpdfLinks->getLink(i);
-    
-    double left, top, right, bottom;
-    int leftAux, topAux, rightAux, bottomAux;
-    xpdfLink->getRect( &left, &top, &right, &bottom );
-    QRectF linkArea;
-    
-    output_dev->cvtUserToDev( left, top, &leftAux, &topAux );
-    output_dev->cvtUserToDev( right, bottom, &rightAux, &bottomAux );
-    linkArea.setLeft(leftAux);
-    linkArea.setTop(topAux);
-    linkArea.setRight(rightAux);
-    linkArea.setBottom(bottomAux);
-
-    if (!xpdfLink->isOk()) continue;
-
-    Link *popplerLink = m_page->convertLinkActionToLink(xpdfLink->getAction(), linkArea, m_page->parentDoc->m_doc);
-    if (popplerLink)
-    {
-      popplerLinks.append(popplerLink);
-    }
-  }
-
-  delete xpdfLinks;
-  
   return popplerLinks;
 }
 

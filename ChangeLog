@@ -1,3 +1,16 @@
+2007-04-28  Pino Toscano <pino@kde.org>
+
+	* qt4/src/Makefile.am:
+	* qt4/src/poppler-link-extractor-private.h:
+	* qt4/src/poppler-link-extractor.cc:
+	* qt4/src/poppler-page-private.h:
+	* qt4/src/poppler-page.cc:
+	* qt4/src/poppler-private.h:
+	* qt4/src/poppler-qt4.h:
+	Getting the links of a page now is not more dependant on the current
+	output device, and can be done anytime; thus, the doLinks parameter
+	of the Page::render() can be dropped.
+
 2007-04-28  Albert Astals Cid <aacid@kde.org>
 
 	* qt4/*: Stop requyring users to declare UNSTABLE_POPPLER_QT4

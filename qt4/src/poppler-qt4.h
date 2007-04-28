@@ -266,8 +266,6 @@ namespace Poppler {
 	   \param yres vertical resolution of the graphics device, in
 	   dots per inch
 	
-	   \param doLinks calculate links
-	   
 	   \param rotate how to rotate the page
 
 	   \warning The parameter (\p x, \p y, \p w, \p h) are not
@@ -276,7 +274,7 @@ namespace Poppler {
 
 	   \returns a QImage of the page, or a null image on failure.
         */
-	QImage renderToImage(double xres=72.0, double yres=72.0, int x=-1, int y=-1, int w=-1, int h=-1, bool doLinks = false, Rotation rotate = Rotate0) const;
+	QImage renderToImage(double xres=72.0, double yres=72.0, int x=-1, int y=-1, int w=-1, int h=-1, Rotation rotate = Rotate0) const;
 
 	/**
 	   Returns the text that is inside a specified rectangle
