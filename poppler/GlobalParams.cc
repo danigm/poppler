@@ -685,7 +685,7 @@ void GlobalParams::scanEncodingDirs() {
 }
 
 void GlobalParams::parseNameToUnicode(GooString *name) {
-printf("PARSING %s", name->getCString());
+printf("PARSING %s\n", name->getCString());
   char *tok1, *tok2;
   FILE *f;
   char buf[256];
