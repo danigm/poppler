@@ -1,3 +1,11 @@
+2007-04-28  Albert Astals Cid <aacid@kde.org>
+
+	* glib/poppler-document.h:
+	* poppler/FontInfo.h:
+	* qt/poppler-qt.h:
+	* qt4/src/poppler-qt4.h: GfxFontType changed, adapt enums of the
+	frontends and helper classes.
+
 2007-04-28  Pino Toscano <pino@kde.org>
 
 	* qt4/src/poppler-annotation.h:

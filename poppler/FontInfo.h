@@ -10,11 +10,15 @@ public:
     unknown,
     Type1,
     Type1C,
+    Type1COT,
     Type3,
     TrueType,
+    TrueTypeOT,
     CIDType0,
     CIDType0C,
-    CIDTrueType
+    CIDType0COT,
+    CIDTrueType,
+    CIDTrueTypeOT
   };
     
   // Constructor.

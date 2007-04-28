@@ -97,14 +97,18 @@ namespace Poppler {
     class FontInfo {
     public:
 	enum Type {
-	    unknown = 0,
-	    Type1 = 1,
-	    Type1C = 2,
-	    Type3 = 3,
-	    TrueType = 4,
-	    CIDType0 = 5,
-	    CIDType0C = 6,
-	    CIDTrueType = 7
+		unknown,
+		Type1,
+		Type1C,
+		Type1COT,
+		Type3,
+		TrueType,
+		TrueTypeOT,
+		CIDType0,
+		CIDType0C,
+		CIDType0COT,
+		CIDTrueType,
+		CIDTrueTypeOT
 	};
 	
 	/**
