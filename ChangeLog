@@ -1,3 +1,12 @@
+2007-04-29  Jeff Muizelaar  <jeff@infidigm.net>
+
+	* poppler/UnicodeTypeTable.cc: Make some of the unicode tables const
+	which gets rid of about 20k of data.
+
+		   text	   data	    bss	    dec	    hex	filename
+	before: 1415838	 128864	      8	1544710	 179206	libpoppler.so
+	after:	1404574	 140128	      8	1544710	 179206	libpoppler.so
+
 2007-04-29  Albert Astals Cid <aacid@kde.org>
 
 	* poppler/SplashOutputDev.cc:
@@ -232,6 +241,7 @@
 	* utils/pdftotext.cc:
 	Merge xpdf 3.02 changes
 
+>>>>>>> 1.509
 2007-04-15  Pino Toscano <pino@kde.org>
 	reviewed by: Albert Astals Cid <aacid@kde.org>
 
