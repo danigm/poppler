@@ -241,7 +241,6 @@
 	* utils/pdftotext.cc:
 	Merge xpdf 3.02 changes
 
->>>>>>> 1.509
 2007-04-15  Pino Toscano <pino@kde.org>
 	reviewed by: Albert Astals Cid <aacid@kde.org>
 
