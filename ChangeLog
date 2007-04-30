@@ -1,3 +1,9 @@
+2007-05-01  Albert Astals Cid <aacid@kde.org>
+
+	* poppler/Makefile.am: Don't link cairo to all poppler, just to
+	poppler_cairo so when compiling the qt frontend and the glib frontend
+	the qt one does not end up depending on cairo
+
 2007-04-29  Jeff Muizelaar  <jeff@infidigm.net>
 
 	* poppler/UnicodeTypeTable.cc: Make some of the unicode tables const

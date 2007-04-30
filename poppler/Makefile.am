@@ -106,7 +106,6 @@ libpoppler_la_LIBADD =				\
 	$(top_builddir)/goo/libgoo.la		\
 	$(top_builddir)/fofi/libfofi.la		\
 	$(splash_libs)				\
-	$(cairo_libs)				\
 	$(libjpeg_libs)				\
 	$(zlib_libs)				\
 	$(abiword_libs)				\
