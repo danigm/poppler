@@ -207,6 +207,7 @@ Catalog::~Catalog() {
     delete baseURI;
   }
   delete pageLabelInfo;
+  delete form;
   metadata.free();
   structTreeRoot.free();
   outline.free();

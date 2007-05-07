@@ -308,6 +308,7 @@ Page::Page(XRef *xrefA, int numA, Dict *pageDict, PageAttrs *attrsA, Form *form)
 }
 
 Page::~Page() {
+  delete pageWidgets;
   delete attrs;
   annots.free();
   contents.free();

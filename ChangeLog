@@ -1,3 +1,10 @@
+2007-05-07  Albert Astals Cid <aacid@kde.org>
+
+	* Catalog.cc: Fix leak
+	* Form.cc: Fix leak, provide empty FormPageWidgets::~FormPageWidgets
+	implementation
+	* Page.cc: Fix leak
+
 2007-05-01  Albert Astals Cid <aacid@kde.org>
 
 	* poppler/Makefile.am: Don't link cairo to all poppler, just to

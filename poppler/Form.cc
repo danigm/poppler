@@ -1089,6 +1089,7 @@ void Form::checkForNeedAppearances (Object *acroForm)
   acroForm->dictSet("NeedAppearances", &obj1);
   catalog->dictSet("AcroForm", acroForm);
   xref->setModifiedObject(catalog, catRef);
+  delete catalog;
 }
 
 
@@ -1174,3 +1175,7 @@ FormPageWidgets::FormPageWidgets (XRef *xrefA, Object* annots, unsigned int page
   } 
 }
 
+FormPageWidgets::~FormPageWidgets()
+{
+  // TODO free widgets ?
+}
