@@ -166,15 +166,50 @@ void Annot::initialize(XRef *xrefA, Dict *acroForm, Dict *dict, Catalog *catalog
   obj3.free();
 
   // check if field apperances need to be regenerated
+  // Only text or choice fields needs to have appearance regenerated
+  // see section 8.6.2 "Variable Text" of PDFReference
   regen = gFalse;
-  if (acroForm) {
-    acroForm->lookup("NeedAppearances", &obj1);
-    if (obj1.isBool() && obj1.getBool()) {
-      regen = gTrue;
+  fieldLookup(dict, "FT", &obj3);
+
+  if (obj3.isName("Tx") || obj3.isName("Ch")) {
+    if (acroForm) {
+      acroForm->lookup("NeedAppearances", &obj1);
+      if (obj1.isBool() && obj1.getBool()) {
+        regen = gTrue;
+      }
+      obj1.free();
     }
-    obj1.free();
+  } else {
+    //for other type of annots, lookup for AP and copy it to the appearance stream
+    Object apObj, asObj;
+    if (dict->lookup("AP", &apObj)->isDict()) {
+      if (dict->lookup("AS", &asObj)->isName()) {
+        if (apObj.dictLookup("N", &obj1)->isDict()) {
+          if (obj1.dictLookupNF(asObj.getName(), &obj2)->isRef()) {
+            obj2.copy(&appearance);
+            ok = gTrue;
+          } else {
+            obj2.free();
+            if (obj1.dictLookupNF("Off", &obj2)->isRef()) {
+              obj2.copy(&appearance);
+              ok = gTrue;
+            }
+          }
+          obj2.free();
+        }
+        obj1.free();
+      } else {
+        if (apObj.dictLookupNF("N", &obj1)->isRef()) {
+          obj1.copy(&appearance);
+          ok = gTrue;
+        }
+        obj1.free();
+      }
+      asObj.free();
+    }
+    apObj.free();
+
   }
-  regen = gTrue;
 
   //----- parse the border style
 
@@ -306,6 +341,11 @@ void Annot::generateFieldAppearance(Dict *field, Dict *annot, Dict *acroForm) {
   GooString **text;
   GBool *selection;
   int dashLength, ff, quadding, comb, nOptions, topIdx, i, j;
+
+  //do not regenerate appearance if we don't need to
+  if (!regen) 
+    return;
+
   // must be a Widget annotation
   if (type->cmp("Widget")) {
     return;

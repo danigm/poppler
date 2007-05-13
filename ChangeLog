@@ -1,3 +1,8 @@
+2007-05-12  Jeff Muizelaar  <jeff@infidigm.net>
+
+	* poppler/Annot.cc: Only do appearance generation for text, choice or
+	other fields that contain text. Patch by Julien Rebetez.
+
 2007-05-07  Albert Astals Cid <aacid@kde.org>
 
 	* Catalog.cc: Fix leak
