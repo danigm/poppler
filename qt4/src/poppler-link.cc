@@ -29,6 +29,18 @@ namespace Poppler {
 
 	LinkDestination::LinkDestination(const LinkDestinationData &data)
 	{
+		// sane defaults
+		m_kind = destXYZ;
+		m_pageNum = 0;
+		m_left = 0;
+		m_bottom = 0;
+		m_right = 0;
+		m_top = 0;
+		m_zoom = 1;
+		m_changeLeft = true;
+		m_changeTop = true;
+		m_changeZoom = false;
+
 		bool deleteDest = false;
 		LinkDest *ld = data.ld;
 		

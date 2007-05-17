@@ -55,7 +55,9 @@ namespace Poppler {
         char *cstring = (char *)gmallocn(s.length(), sizeof(char));
         for (int i = 0; i < len; ++i)
           cstring[i] = s.at(i).unicode();
-        return new GooString(cstring, len);
+        GooString *ret = new GooString(cstring, len);
+        gfree(cstring);
+        return ret;
     }
 
     static QString UnicodeParsedString(GooString *s1) {

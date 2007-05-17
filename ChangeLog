@@ -1,3 +1,10 @@
+2007-05-17  Pino Toscano <pino@kde.org>
+
+	* qt4/src/poppler-link.cc:
+	Give some default values to LinkDestination
+	* qt4/src/poppler-private.h:
+	Fix memory leak when converting QString -> GooString
+
 2007-05-12  Jeff Muizelaar  <jeff@infidigm.net>
 
 	* poppler/Annot.cc: Only do appearance generation for text, choice or
