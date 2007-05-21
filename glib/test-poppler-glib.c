@@ -174,6 +174,7 @@ int main (int argc, char *argv[])
   char *text;
   double duration;
   PopplerRectangle area;
+  gint num_images;
 
   if (argc != 3)
     FAIL ("usage: test-poppler-glib file://FILE PAGE");
@@ -236,8 +237,12 @@ int main (int argc, char *argv[])
 
   gdk_pixbuf_save (pixbuf, "slice.png", "png", &error, NULL);
   printf ("\tslice:\t\tsaved 200x200 slice at (100, 100) as slice.png\n");
-  if (error != NULL)
+  if (error != NULL) {
     FAIL (error->message);
+    g_error_free (error);
+  }
+
+  g_object_unref (G_OBJECT (pixbuf));
 
   area.x1 = 0;
   area.y1 = 0;
@@ -266,6 +271,26 @@ int main (int argc, char *argv[])
       printf ("  (%f,%f)-(%f,%f)\n", rect->x1, rect->y1, rect->x2, rect->y2);
     }
 
+  list = poppler_page_get_image_mapping (page);
+  num_images = g_list_length (list);
+  printf ("\n");
+  if (num_images > 0)
+    printf ("\tFound %d images at positions:\n", num_images);
+  else
+    printf ("\tNo images found\n");
+  for (l = list; l != NULL; l = l->next)
+    {
+      PopplerImageMapping *mapping;
+      
+      mapping = (PopplerImageMapping *)l->data;
+      printf ("\t\t(%f, %f) - (%f, %f)\n",
+	      mapping->area.x1,
+	      mapping->area.y1,
+	      mapping->area.x2,
+	      mapping->area.y2);
+    }
+  poppler_page_free_image_mapping (list);
+  
   if (poppler_document_has_attachments (document))
     {
       int i = 0;

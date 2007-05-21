@@ -71,6 +71,8 @@ char                  *poppler_page_get_text             (PopplerPage        *pa
 							  PopplerRectangle   *rect);
 GList                 *poppler_page_get_link_mapping     (PopplerPage        *page);
 void                   poppler_page_free_link_mapping    (GList              *list);
+GList                 *poppler_page_get_image_mapping    (PopplerPage        *page);
+void                   poppler_page_free_image_mapping   (GList              *list);
 GdkRegion             *poppler_page_get_selection_region (PopplerPage        *page,
 							  gdouble             scale,
 							  PopplerRectangle   *selection);
@@ -136,6 +138,14 @@ GType                  poppler_page_transition_get_type (void) G_GNUC_CONST;
 PopplerPageTransition *poppler_page_transition_new      (void);
 PopplerPageTransition *poppler_page_transition_copy     (PopplerPageTransition *transition);
 void                   poppler_page_transition_free     (PopplerPageTransition *transition);
+
+/* Mapping between areas on the current page and images */
+#define POPPLER_TYPE_IMAGE_MAPPING             (poppler_image_mapping_get_type ())
+struct  _PopplerImageMapping
+{
+  PopplerRectangle area;
+  GdkPixbuf *image;	
+};
 
 /* FormField */
 #define POPPLER_TYPE_FORM_FIELD                     (poppler_form_field_get_type ())

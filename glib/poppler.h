@@ -36,10 +36,10 @@ typedef enum
 
 typedef enum
 {
-	POPPLER_ORIENTATION_PORTRAIT,
-	POPPLER_ORIENTATION_LANDSCAPE,
-	POPPLER_ORIENTATION_UPSIDEDOWN,
-	POPPLER_ORIENTATION_SEASCAPE
+  POPPLER_ORIENTATION_PORTRAIT,
+  POPPLER_ORIENTATION_LANDSCAPE,
+  POPPLER_ORIENTATION_UPSIDEDOWN,
+  POPPLER_ORIENTATION_SEASCAPE
 } PopplerOrientation;
 
 typedef enum
@@ -85,6 +85,7 @@ typedef struct _PopplerFontsIter      PopplerFontsIter;
 typedef struct _PopplerRectangle      PopplerRectangle;
 typedef struct _PopplerLinkMapping    PopplerLinkMapping;
 typedef struct _PopplerPageTransition PopplerPageTransition;
+typedef struct _PopplerImageMapping PopplerImageMapping;
 typedef struct _PopplerFormField      PopplerFormField;
 typedef struct _PopplerPage           PopplerPage;
 typedef struct _PopplerFontInfo       PopplerFontInfo;

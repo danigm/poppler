@@ -29,6 +29,31 @@ class CairoFont;
 //------------------------------------------------------------------------
 
 //------------------------------------------------------------------------
+// CairoImage
+//------------------------------------------------------------------------
+class CairoImage {
+public:
+  // Constructor.
+  CairoImage (cairo_surface_t *image, double x1, double y1, double x2, double y2);
+
+  // Destructor.
+  ~CairoImage ();
+
+  // Get the image cairo surface
+  cairo_surface_t *getImage () const { return image; }
+
+  // Get the image rectangle
+  void getRect (double *xa1, double *ya1, double *xa2, double *ya2)
+	  { *xa1 = x1; *ya1 = y1; *xa2 = x2; *ya2 = y2; }
+  
+private:
+  cairo_surface_t *image;  // image cairo surface
+  double x1, y1;          // upper left corner
+  double x2, y2;          // lower right corner
+};
+
+
+//------------------------------------------------------------------------
 // CairoOutputDev
 //------------------------------------------------------------------------
 
@@ -166,6 +191,103 @@ protected:
   cairo_glyph_t *glyphs;
   int glyphCount;
   cairo_path_t *textClipPath;
+};
+
+//------------------------------------------------------------------------
+// CairoImageOutputDev
+//------------------------------------------------------------------------
+
+class CairoImageOutputDev: public CairoOutputDev {
+public:
+
+  // Constructor.
+  CairoImageOutputDev();
+
+  // Destructor.
+  virtual ~CairoImageOutputDev();
+
+  //----- get info about output device
+
+  // Does this device use upside-down coordinates?
+  // (Upside-down means (0,0) is the top left corner of the page.)
+  virtual GBool upsideDown() { return gTrue; }
+
+  // Does this device use drawChar() or drawString()?
+  virtual GBool useDrawChar() { return gFalse; }
+
+  // Does this device use beginType3Char/endType3Char?  Otherwise,
+  // text in Type 3 fonts will be drawn with drawChar/drawString.
+  virtual GBool interpretType3Chars() { return gFalse; }
+
+  // Does this device need non-text content?
+  virtual GBool needNonText() { return gTrue; }
+
+    //----- link borders
+  virtual void drawLink(Link *link, Catalog *catalog) { }
+
+  //----- save/restore graphics state
+  virtual void saveState(GfxState *state) { }
+  virtual void restoreState(GfxState *state) { }
+
+  //----- update graphics state
+  virtual void updateAll(GfxState *state) { }
+  virtual void setDefaultCTM(double *ctm) { }
+  virtual void updateCTM(GfxState *state, double m11, double m12,
+				 double m21, double m22, double m31, double m32) { }
+  virtual void updateLineDash(GfxState *state) { }
+  virtual void updateFlatness(GfxState *state) { }
+  virtual void updateLineJoin(GfxState *state) { }
+  virtual void updateLineCap(GfxState *state) { }
+  virtual void updateMiterLimit(GfxState *state) { }
+  virtual void updateLineWidth(GfxState *state) { }
+  virtual void updateFillColor(GfxState *state) { }
+  virtual void updateStrokeColor(GfxState *state) { }
+  virtual void updateFillOpacity(GfxState *state) { }
+  virtual void updateStrokeOpacity(GfxState *state) { }
+
+  //----- update text state
+  virtual void updateFont(GfxState *state) { }
+
+  //----- path painting
+  virtual void stroke(GfxState *state) { }
+  virtual void fill(GfxState *state) { }
+  virtual void eoFill(GfxState *state) { }
+
+  //----- path clipping
+  virtual void clip(GfxState *state) { }
+  virtual void eoClip(GfxState *state) { }
+
+  //----- image drawing
+  virtual void drawImageMask(GfxState *state, Object *ref, Stream *str,
+			     int width, int height, GBool invert,
+			     GBool inlineImg);
+  virtual void drawImage(GfxState *state, Object *ref, Stream *str,
+			 int width, int height, GfxImageColorMap *colorMap,
+			 int *maskColors, GBool inlineImg);
+  virtual void drawSoftMaskedImage(GfxState *state, Object *ref, Stream *str,
+				   int width, int height,
+				   GfxImageColorMap *colorMap,
+				   Stream *maskStr,
+				   int maskWidth, int maskHeight,
+				   GfxImageColorMap *maskColorMap);
+  virtual void drawMaskedImage(GfxState *state, Object *ref, Stream *str,
+			       int width, int height,
+			       GfxImageColorMap *colorMap,
+			       Stream *maskStr,
+			       int maskWidth, int maskHeight,
+			       GBool maskInvert);
+
+  //----- Image list
+  // Iterate through list of images.
+  int getNumImages() const { return numImages; }
+  CairoImage *getImage(int i) const { return images[i]; }
+
+private:
+  void saveImage(CairoImage *image);
+	  
+  CairoImage **images;
+  int numImages;
+  int size;
 };
 
 #endif

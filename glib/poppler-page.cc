@@ -73,7 +73,10 @@ poppler_page_finalize (GObject *object)
     delete page->gfx;
   if (page->text_dev != NULL)
     delete page->text_dev;
-
+#if defined (HAVE_CAIRO)
+  if (page->image_dev != NULL)
+    delete page->image_dev;
+#endif
   /* page->page is owned by the document */
 }
 
@@ -282,9 +285,9 @@ poppler_page_prepare_output_dev (PopplerPage *page,
 }
 
 static void
-poppler_page_copy_to_pixbuf (PopplerPage *page,
-			     GdkPixbuf *pixbuf,
-			     OutputDevData *output_dev_data)
+copy_cairo_surface_to_pixbuf (cairo_surface_t *surface,
+			      unsigned char   *data,
+			      GdkPixbuf       *pixbuf)
 {
   int cairo_width, cairo_height, cairo_rowstride;
   unsigned char *pixbuf_data, *dst, *cairo_data;
@@ -292,10 +295,10 @@ poppler_page_copy_to_pixbuf (PopplerPage *page,
   unsigned int *src;
   int x, y;
 
-  cairo_width = cairo_image_surface_get_width (output_dev_data->surface);
-  cairo_height = cairo_image_surface_get_height (output_dev_data->surface);
+  cairo_width = cairo_image_surface_get_width (surface);
+  cairo_height = cairo_image_surface_get_height (surface);
   cairo_rowstride = cairo_width * 4;
-  cairo_data = output_dev_data->cairo_data;
+  cairo_data = data;
 
   pixbuf_data = gdk_pixbuf_get_pixels (pixbuf);
   pixbuf_rowstride = gdk_pixbuf_get_rowstride (pixbuf);
@@ -320,7 +323,17 @@ poppler_page_copy_to_pixbuf (PopplerPage *page,
 	  src++;
 	}
     }
+}	
 
+static void
+poppler_page_copy_to_pixbuf (PopplerPage *page,
+			     GdkPixbuf *pixbuf,
+			     OutputDevData *output_dev_data)
+{
+  copy_cairo_surface_to_pixbuf (output_dev_data->surface,
+				output_dev_data->cairo_data,
+				pixbuf);
+  
   page->document->output_dev->setCairo (NULL);
   cairo_surface_destroy (output_dev_data->surface);
   cairo_destroy (output_dev_data->cairo);
@@ -468,7 +481,7 @@ poppler_page_render_to_pixbuf (PopplerPage *page,
 			   src_width, src_height,
 			   gFalse, /* printing */
 			   page->document->doc->getCatalog ());
-
+  
   poppler_page_copy_to_pixbuf (page, pixbuf, &data);
 }
 
@@ -478,6 +491,8 @@ poppler_page_get_text_output_dev (PopplerPage *page)
   if (page->text_dev == NULL) {
     page->text_dev = new TextOutputDev (NULL, gTrue, gFalse, gFalse);
 
+    if (page->gfx)
+      delete page->gfx;
     page->gfx = page->page->createGfx(page->text_dev,
 				      72.0, 72.0, 0,
 				      gFalse, /* useMediaBox */
@@ -857,6 +872,136 @@ poppler_page_find_text (PopplerPage *page,
 
   return g_list_reverse (matches);
 }
+
+#if defined (HAVE_CAIRO)
+
+static CairoImageOutputDev *
+poppler_page_get_image_output_dev (PopplerPage *page)
+{
+  if (page->image_dev == NULL) {
+    page->image_dev = new CairoImageOutputDev ();
+
+    if (page->gfx)
+      delete page->gfx;
+    page->gfx = page->page->createGfx(page->image_dev,
+				      72.0, 72.0, 0,
+				      gFalse, /* useMediaBox */
+				      gTrue, /* Crop */
+				      -1, -1, -1, -1,
+				      NULL, /* links */
+				      page->document->doc->getCatalog (),
+				      NULL, NULL, NULL, NULL);
+
+    page->page->display(page->gfx);
+  }
+
+  return page->image_dev;
+}
+
+static GdkPixbuf *
+poppler_page_image_pixbuf_create (PopplerPage *page,
+				  CairoImage  *image)
+{
+  GdkPixbuf *pixbuf;
+  cairo_surface_t *surface;
+
+  surface = image->getImage ();
+  
+  pixbuf = gdk_pixbuf_new (GDK_COLORSPACE_RGB,
+			   FALSE, 8,
+			   cairo_image_surface_get_width (surface),
+			   cairo_image_surface_get_height (surface));
+  
+  copy_cairo_surface_to_pixbuf (surface,
+				cairo_image_surface_get_data (surface),
+				pixbuf);
+
+  return pixbuf;
+}
+
+/**
+ * poppler_page_get_image_mapping:
+ * @page: A #PopplerPage
+ *
+ * Returns a list of #PopplerImageMapping items that map from a
+ * location on @page to a #GdkPixbuf.  This list must be freed
+ * with poppler_page_free_image_mapping() when done.
+ *
+ * Return value: A #GList of #PopplerImageMapping
+ **/
+GList *
+poppler_page_get_image_mapping (PopplerPage *page)
+{
+  GList *map_list = NULL;
+  CairoImageOutputDev *out;
+  gint i;
+  
+  g_return_val_if_fail (POPPLER_IS_PAGE (page), NULL);
+
+  out = poppler_page_get_image_output_dev (page);
+
+  for (i = 0; i < out->getNumImages (); i++) {
+    PopplerImageMapping *mapping;
+    CairoImage *image;
+
+    image = out->getImage (i);
+
+    /* Create the mapping */
+    mapping = g_new (PopplerImageMapping, 1);
+
+    image->getRect (&(mapping->area.x1), &(mapping->area.y1),
+		    &(mapping->area.x2), &(mapping->area.y2));
+    mapping->image = poppler_page_image_pixbuf_create (page, image);
+    
+    mapping->area.x1 -= page->page->getCropBox()->x1;
+    mapping->area.x2 -= page->page->getCropBox()->x1;
+    mapping->area.y1 -= page->page->getCropBox()->y1;
+    mapping->area.y2 -= page->page->getCropBox()->y1;
+
+    map_list = g_list_prepend (map_list, mapping);
+  }
+
+  return map_list;	
+}
+
+static void
+poppler_images_mapping_free (PopplerImageMapping *mapping)
+{
+  g_object_unref (mapping->image);
+  g_free (mapping);
+}
+
+/**
+ * poppler_page_free_image_mapping:
+ * @list: A list of #PopplerImageMapping<!-- -->s
+ *
+ * Frees a list of #PopplerImageMapping<!-- -->s allocated by
+ * poppler_page_get_image_mapping().
+ **/
+void
+poppler_page_free_image_mapping (GList *list)
+{
+  if (list == NULL)
+    return;
+
+  g_list_foreach (list, (GFunc) (poppler_images_mapping_free), NULL);
+  g_list_free (list);
+}
+
+#else
+
+GList *
+poppler_page_get_image_mapping (PopplerPage *page)
+{
+  return NULL;
+}
+
+void
+poppler_page_free_image_mapping (GList *list)
+{
+}
+
+#endif /* HAVE_CAIRO */
 
 /**
  * poppler_page_render_to_ps:

@@ -59,6 +59,9 @@ struct _PopplerPage
   int index;
   TextOutputDev *text_dev;
   Gfx *gfx;
+#if defined (HAVE_CAIRO)
+  CairoImageOutputDev *image_dev;
+#endif
 };
 
 PopplerFormField *_form_field_new_from_widget (FormWidget* field);

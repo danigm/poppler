@@ -1,3 +1,14 @@
+2007-05-21   Carlos Garcia Campos <carlosgc@gnome.org>
+
+	* glib/poppler-page.cc:
+	* glib/poppler-page.h:
+	* glib/poppler-private.h:
+	* glib/poppler.h:
+	* glib/test-poppler-glib.c:
+	* poppler/CairoOutputDev.cc:
+	* poppler/CairoOutputDev.h: Extend CairoOutputdev to do
+	image caching when rendering
+
 2007-05-21  Pino Toscano <pino@kde.org>
 	reviewed by: Albert Astals Cid <aacid@kde.org>
 
