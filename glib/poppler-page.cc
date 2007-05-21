@@ -517,8 +517,9 @@ poppler_page_get_text_output_dev (PopplerPage *page)
  * @selection: start and end point of selection as a rectangle
  * 
  * Returns a region containing the area that would be rendered by
- * poppler_page_render_selection().  The returned region must be freed with
- * gdk_region_destroy().
+ * poppler_page_render_selection() or
+ * poppler_page_render_selection_to_pixbuf(). The returned
+ * region must be freed with gdk_region_destroy().
  * 
  * Return value: a newly allocated #GdkRegion
  **/
@@ -622,8 +623,75 @@ poppler_page_set_selection_alpha (PopplerPage      *page,
 
 #endif
 
+#if defined (HAVE_CAIRO)
 /**
  * poppler_page_render_selection:
+ * @page: the #PopplerPage for which to render selection
+ * @cairo: cairo context to render to
+ * @selection: start and end point of selection as a rectangle
+ * @old_selection: previous selection
+ * @glyph_color: color to use for drawing glyphs
+ * @background_color: color to use for the selection background
+ *
+ * Render the selection specified by @selection for @page to
+ * the given cairo context.  The selection will be rendered, using
+ * @glyph_color for the glyphs and @background_color for the selection
+ * background.
+ *
+ * If non-NULL, @old_selection specifies the selection that is already
+ * rendered to @cairo, in which case this function will (some day)
+ * only render the changed part of the selection.
+ **/
+void
+poppler_page_render_selection (PopplerPage      *page,
+			       cairo_t          *cairo,
+			       PopplerRectangle *selection,
+			       PopplerRectangle *old_selection,
+			       GdkColor         *glyph_color,
+			       GdkColor         *background_color)
+{
+  TextOutputDev *text_dev;
+  CairoOutputDev *output_dev;
+  PDFRectangle pdf_selection(selection->x1, selection->y1,
+			     selection->x2, selection->y2);
+
+  GfxColor gfx_background_color = {
+      {
+	  background_color->red,
+	  background_color->green,
+	  background_color->blue
+      }
+  };
+  GfxColor gfx_glyph_color = {
+      {
+	  glyph_color->red,
+	  glyph_color->green,
+	  glyph_color->blue
+      }
+  };
+
+  text_dev = poppler_page_get_text_output_dev (page);
+  output_dev = page->document->output_dev;
+  output_dev->setCairo (cairo);
+
+  text_dev->drawSelection (output_dev, 1.0, 0, &pdf_selection,
+			   &gfx_glyph_color, &gfx_background_color);
+
+  output_dev->setCairo (NULL);
+
+  /* We'll need a function to destroy page->text_dev and page->gfx
+   * when the application wants to get rid of them.
+   *
+   * Two improvements: 1) make GfxFont refcounted and let TextPage and
+   * friends hold a reference to the GfxFonts they need so we can free
+   * up Gfx early.  2) use a TextPage directly when rendering the page
+   * so we don't have to use TextOutputDev and render a second
+   * time. */
+}
+#endif
+
+/**
+ * poppler_page_render_selection_to_pixbuf:
  * @page: the #PopplerPage for which to render selection
  * @scale: scale specified as pixels per point
  * @rotation: rotate the document by the specified degree
@@ -643,14 +711,14 @@ poppler_page_set_selection_alpha (PopplerPage      *page,
  * only render the changed part of the selection.
  **/
 void
-poppler_page_render_selection (PopplerPage      *page,
-			       gdouble           scale,
-			       int		 rotation,
-			       GdkPixbuf        *pixbuf,
-			       PopplerRectangle *selection,
-			       PopplerRectangle *old_selection,
-			       GdkColor         *glyph_color,
-			       GdkColor         *background_color)
+poppler_page_render_selection_to_pixbuf (PopplerPage      *page,
+                                         gdouble           scale,
+                                         int               rotation,
+                                         GdkPixbuf        *pixbuf,
+                                         PopplerRectangle *selection,
+                                         PopplerRectangle *old_selection,
+                                         GdkColor         *glyph_color,
+                                         GdkColor         *background_color)
 {
   TextOutputDev *text_dev;
   OutputDev *output_dev;

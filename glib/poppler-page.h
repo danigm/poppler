@@ -76,7 +76,16 @@ void                   poppler_page_free_image_mapping   (GList              *li
 GdkRegion             *poppler_page_get_selection_region (PopplerPage        *page,
 							  gdouble             scale,
 							  PopplerRectangle   *selection);
+#ifdef POPPLER_HAS_CAIRO
 void                   poppler_page_render_selection     (PopplerPage        *page,
+							  cairo_t            *cairo,
+							  PopplerRectangle   *selection,
+							  PopplerRectangle   *old_selection,
+							  GdkColor         *glyph_color,
+							  GdkColor         *background_color);
+#endif
+void                poppler_page_render_selection_to_pixbuf (
+							  PopplerPage        *page,
 							  gdouble             scale,
 							  int		      rotation,
 							  GdkPixbuf          *pixbuf,
