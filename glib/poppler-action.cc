@@ -248,7 +248,7 @@ dest_new_goto (PopplerDocument *document,
 	dest->change_top = link_dest->getChangeTop ();
 	dest->change_zoom = link_dest->getChangeZoom ();
 	
-	if (dest->page_num > 0) {
+	if (document && dest->page_num > 0) {
 		PopplerPage *page;
 		
 		page = poppler_document_get_page (document, dest->page_num - 1);
