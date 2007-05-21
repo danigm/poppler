@@ -61,11 +61,14 @@ namespace Poppler {
     }
 
     static QString UnicodeParsedString(GooString *s1) {
+        if ( !s1 || s1->getLength() == 0 )
+            return QString();
+
         GBool isUnicode;
         int i;
         Unicode u;
         QString result;
-        if ( ( s1->getChar(0) & 0xff ) == 0xfe && ( s1->getChar(1) & 0xff ) == 0xff )
+        if ( ( s1->getChar(0) & 0xff ) == 0xfe && ( s1->getLength() > 1 && ( s1->getChar(1) & 0xff ) == 0xff ) )
         {
             isUnicode = gTrue;
             i = 2;

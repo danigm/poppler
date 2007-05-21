@@ -858,6 +858,9 @@ void Annot::drawText(GooString *text, GooString *da, GfxFontDict *fontDict,
   } else {
     error(-1, "Missing 'Tf' operator in field's DA string");
   }
+  if (!font) {
+    return;
+  }
 
   // get the border width
   border = borderStyle->getWidth();
@@ -1173,6 +1176,9 @@ void Annot::drawListBox(GooString **text, GBool *selection,
     fontSize = atof(tok->getCString());
   } else {
     error(-1, "Missing 'Tf' operator in field's DA string");
+  }
+  if (!font) {
+    return;
   }
 
   // get the border width

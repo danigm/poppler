@@ -458,6 +458,7 @@ void FormWidgetChoice::loadDefaults ()
   obj.getDict()->set("Opt", objOpt);
   xref->setModifiedObject(&obj, ref); 
   #endif
+  delete [] tmpCurrentChoice;
 }
 
 FormWidgetChoice::~FormWidgetChoice()

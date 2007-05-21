@@ -52,11 +52,7 @@ enum SplashColorMode {
 extern int splashColorModeNComps[];
 
 // max number of components in any SplashColor
-#if SPLASH_CMYK
-#  define splashMaxColorComps 4
-#else
-#  define splashMaxColorComps 3
-#endif
+#define splashMaxColorComps 4
 
 typedef Guchar SplashColor[splashMaxColorComps];
 typedef Guchar *SplashColorPtr;

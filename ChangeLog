@@ -1,3 +1,14 @@
+2007-05-21  Pino Toscano <pino@kde.org>
+	reviewed by: Albert Astals Cid <aacid@kde.org>
+
+	* poppler/Annot.cc: avoid crashing if the font for the drawing methods
+	can not be found
+	* poppler/Form.cc: fix memory leak
+	* qt4/src/poppler-private.h: fix the UnicodeParsedString function to
+	really work and not crash
+	* splash/SplashTypes.h: RGB8X mode makes max number of components in
+	any SplashColor always be 4
+
 2007-05-17  Pino Toscano <pino@kde.org>
 
 	* qt4/src/poppler-link.cc:
