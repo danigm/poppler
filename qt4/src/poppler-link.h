@@ -165,7 +165,9 @@ class LinkExecute : public Link
 class LinkBrowse : public Link
 {
 	public:
-		// query for URL
+		/**
+		 * The URL to open
+		 */
 		const QString & url() const;
 
 		// create a Link_Browse

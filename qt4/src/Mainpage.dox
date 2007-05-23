@@ -20,10 +20,10 @@ well and has been tested.
 
 Examples programs can be found in the qt4/test directory. The poppler
 Qt4 interface library is also used in the development version of KDE's
-document viewer kviewshell. The source files for kviewshell's PDF
+document viewer okular. The source files for okular's PDF
 plugin can be found on the subversion server of the KDE project, under
 <a
-href="http://websvn.kde.org/trunk/KDE/kdegraphics/kviewshell/plugins/pdf">this
+href="http://websvn.kde.org/trunk/KDE/kdegraphics/okular/generators/poppler">this
 URL</a>.
 
 
@@ -35,10 +35,6 @@ simply need to add the following line to their C++ source files:
 @code
 #include <poppler-qt4.h>
 @endcode
-
-The \c \#define statement is required at the moment. You indicate that you
-think you know what you are doing, and understand that the API is
-subject to change.
 
 A PDF document can then be loaded as follows:
 @code

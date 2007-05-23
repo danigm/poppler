@@ -452,8 +452,9 @@ namespace Poppler {
         else
             m_doc->m_hints &= ~(int)hint;
 
-        // the only way to set the textAA for Splash is on creation
-        if ( m_doc->m_backend == Document::SplashBackend && hint == Document::TextAntialiasing )
+        // the only way to set antialiasing for Splash is on creation
+        if ( m_doc->m_backend == Document::SplashBackend &&
+             ( hint & ( Document::Antialiasing || Document::TextAntialiasing ) ) )
         {
             delete m_doc->m_outputDev;
             m_doc->m_outputDev = NULL;

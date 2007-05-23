@@ -1,3 +1,13 @@
+2007-05-23  Pino Toscano <pino@kde.org>
+
+	* qt4/src/poppler-document.cc:
+	* qt4/src/poppler-private.h:
+	Better handle the setting of the vector antialiasing for Splash.
+	* qt4/src/Mainpage.dox:
+	* qt4/src/poppler-link.h:
+	* qt4/src/poppler-qt4.h:
+	A few of API documentation fixes and improvements.
+
 2007-05-21   Carlos Garcia Campos <carlosgc@gnome.org>
 
 	* glib/poppler-action.cc: Fix assert in bug 11023

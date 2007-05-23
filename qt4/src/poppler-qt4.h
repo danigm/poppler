@@ -274,6 +274,9 @@ namespace Poppler {
 	
 	   \param rotate how to rotate the page
 
+	   \note if the current Document renderer does not appear among the
+	   Document::availableRenderBackends(), the result is \em always a null QImage.
+
 	   \warning The parameter (\p x, \p y, \p w, \p h) are not
 	   well-tested. Unusual or meaningless parameters may lead to
 	   rather unexpected results.
@@ -369,8 +372,7 @@ namespace Poppler {
 	void defaultCTM(double *CTM, double dpiX, double dpiY, int rotate, bool upsideDown);
 	
 	/**
-	  Gets the links of the page once it has been rendered with renderToImage()
-	  if \c doLinks was true
+	  Gets the links of the page
 	*/
 	QList<Link*> links() const;
 	
@@ -702,12 +704,13 @@ QString subject = m_doc->info("Subject");
 	  Gets the TOC of the Document, it is application responsabiliy to delete
 	  it when no longer needed
 	
-	  * In the tree the tag name is the 'screen' name of the entry. A tag can have
-	  * attributes. Here follows the list of tag attributes with meaning:
-	  * - Destination: A string description of the referred destination
-	  * - DestinationName: A 'named reference' to the viewport that must be converted
-	  *      using linkDestination( *destination_name* )
-	  * - ExternalFileName: A link to a external filename
+	  In the tree the tag name is the 'screen' name of the entry. A tag can have
+	  attributes. Here follows the list of tag attributes with meaning:
+	  - Destination: A string description of the referred destination
+	  - DestinationName: A 'named reference' to the viewport that must be converted
+	       using \p linkDestination( \em destination_name )
+	  - ExternalFileName: A link to a external filename
+	  - Open: A bool value that tells whether the subbranch of the item is open or not
 	
 	  Returns NULL if the Document does not have TOC
 	*/
@@ -731,6 +734,10 @@ QString subject = m_doc->info("Subject");
 	/**
 	 Sets the backend used to render the pages.
 
+	 Please note that setting a rendering backend that does not appear
+	 among the availableRenderBackends() will always result in null
+	 QImage's.
+
 	 \param backend the new rendering backend
 	 */
 	void setRenderBackend( RenderBackend backend );
@@ -749,6 +756,8 @@ QString subject = m_doc->info("Subject");
 	/**
 	 Sets the render \p hint .
 
+	 \note some hints may not be supported by some rendering backends.
+
 	 \param on whether the flag should be added or removed.
 	 */
 	void setRenderHint( RenderHint hint, bool on = true );
@@ -758,7 +767,9 @@ QString subject = m_doc->info("Subject");
 	RenderHints renderHints() const;
 	
 	/**
-	  Gets a PS converter of this document. The pointer has to be freed by the calling application.
+	  Gets a new PS converter for this document.
+
+	  The caller gets the ownership of the returned converter.
 	 */
 	PSConverter *psConverter() const;
 
@@ -771,6 +782,7 @@ QString subject = m_doc->info("Subject");
 	static Document *checkDocument(DocumentData *doc);
     };
     
+    class PSConverterData;
     /**
        Converts a PDF to PS
 
@@ -778,14 +790,13 @@ QString subject = m_doc->info("Subject");
 
        If you are using QPrinter you can get paper size by doing:
        \code
-           QPrinter dummy(QPrinter::PrinterResolution);
-           dummy.setFullPage(true);
-           dummy.setPageSize(myPageSize);
-           width = dummy.width();
-           height = dummy.height();
+QPrinter dummy(QPrinter::PrinterResolution);
+dummy.setFullPage(true);
+dummy.setPageSize(myPageSize);
+width = dummy.width();
+height = dummy.height();
        \endcode
     */
-    class PSConverterData;
     class PSConverter
     {
         friend class Document;
@@ -848,15 +859,23 @@ QString subject = m_doc->info("Subject");
             */
             void setTopMargin(int marginTop);
 
-            /** Defines if margins have to be scrictly
-                followed (even if that means changing aspect ratio) or
-                if the margins can be adapted to keep aspect ratio. Defaults to false. */
+            /**
+              Defines if margins have to be strictly followed (even if that
+              means changing aspect ratio), or if the margins can be adapted
+              to keep aspect ratio.
+
+              Defaults to false.
+            */
             void setStrictMargins(bool strictMargins);
 
             /** Defines if the page will be rasterized to an image before printing. Defaults to false */
             void setForceRasterize(bool forceRasterize);
 
-            /** Does the conversion */
+            /**
+              Does the conversion.
+
+              \return whether the conversion succeeded
+            */
             bool convert();
 
         private:
