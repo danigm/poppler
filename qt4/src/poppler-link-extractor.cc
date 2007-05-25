@@ -30,7 +30,7 @@ LinkExtractorOutputDev::LinkExtractorOutputDev(PageData *data, DocumentData *doc
   : m_data(data), m_doc(doc)
 {
   ::Page *p = m_doc->doc->getCatalog()->getPage(m_data->index + 1);
-  GfxState gfxState(72.0, 72.0, p->getMediaBox(), p->getRotate(), gTrue);
+  GfxState gfxState(72.0, 72.0, p->getCropBox(), p->getRotate(), gTrue);
   setDefaultCTM(gfxState.getCTM());
 }
 

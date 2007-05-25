@@ -1,3 +1,8 @@
+2007-05-26  Albert Astals Cid <aacid@kde.org>
+	
+	* qt4/src/poppler-link-extractor.cc: Use correct page box to extract
+	link clickable area
+
 2007-05-25  Jeff Muizelaar  <jeff@infidigm.net>
 
 	* poppler/GfxFont.cc:
