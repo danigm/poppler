@@ -1,3 +1,11 @@
+2007-05-25  Carlos Garcia Campos <carlosgc@gnome.org>
+
+	* glib/poppler-page.cc:
+	* glib/poppler-page.h:
+	* glib/poppler.h:
+	Add selection style parameter to render_selection in order to allow
+	requesting selections of words and paragraphs. 
+
 2007-05-23  Pino Toscano <pino@kde.org>
 
 	* qt4/src/poppler-document.cc:

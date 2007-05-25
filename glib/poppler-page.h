@@ -81,8 +81,9 @@ void                   poppler_page_render_selection     (PopplerPage        *pa
 							  cairo_t            *cairo,
 							  PopplerRectangle   *selection,
 							  PopplerRectangle   *old_selection,
-							  GdkColor         *glyph_color,
-							  GdkColor         *background_color);
+							  PopplerSelectionStyle style,
+							  GdkColor           *glyph_color,
+							  GdkColor           *background_color);
 #endif
 void                poppler_page_render_selection_to_pixbuf (
 							  PopplerPage        *page,
@@ -91,6 +92,7 @@ void                poppler_page_render_selection_to_pixbuf (
 							  GdkPixbuf          *pixbuf,
 							  PopplerRectangle   *selection,
 							  PopplerRectangle   *old_selection,
+							  PopplerSelectionStyle style,
 							  GdkColor           *glyph_color,
 							  GdkColor           *background_color);
 GList                 *poppler_page_get_form_fields      (PopplerPage        *page);

@@ -643,12 +643,13 @@ poppler_page_set_selection_alpha (PopplerPage      *page,
  * only render the changed part of the selection.
  **/
 void
-poppler_page_render_selection (PopplerPage      *page,
-			       cairo_t          *cairo,
-			       PopplerRectangle *selection,
-			       PopplerRectangle *old_selection,
-			       GdkColor         *glyph_color,
-			       GdkColor         *background_color)
+poppler_page_render_selection (PopplerPage           *page,
+			       cairo_t               *cairo,
+			       PopplerRectangle      *selection,
+			       PopplerRectangle      *old_selection,
+			       PopplerSelectionStyle  style, 
+			       GdkColor              *glyph_color,
+			       GdkColor              *background_color)
 {
   TextOutputDev *text_dev;
   CairoOutputDev *output_dev;
@@ -711,14 +712,15 @@ poppler_page_render_selection (PopplerPage      *page,
  * only render the changed part of the selection.
  **/
 void
-poppler_page_render_selection_to_pixbuf (PopplerPage      *page,
-                                         gdouble           scale,
-                                         int               rotation,
-                                         GdkPixbuf        *pixbuf,
-                                         PopplerRectangle *selection,
-                                         PopplerRectangle *old_selection,
-                                         GdkColor         *glyph_color,
-                                         GdkColor         *background_color)
+poppler_page_render_selection_to_pixbuf (PopplerPage           *page,
+                                         gdouble                scale,
+                                         int                    rotation,
+                                         GdkPixbuf             *pixbuf,
+                                         PopplerRectangle      *selection,
+                                         PopplerRectangle      *old_selection,
+					 PopplerSelectionStyle  style,
+                                         GdkColor              *glyph_color,
+                                         GdkColor              *background_color)
 {
   TextOutputDev *text_dev;
   OutputDev *output_dev;

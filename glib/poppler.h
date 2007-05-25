@@ -70,6 +70,13 @@ typedef enum
   POPPLER_PAGE_TRANSITION_OUTWARD
 } PopplerPageTransitionDirection;
 
+typedef enum
+{
+  POPPLER_SELECTION_NORMAL,
+  POPPLER_SELECTION_WORD,
+  POPPLER_SELECTION_PARAGRAPH
+} PopplerSelectionStyle;
+
 /* MUST be the same than poppler/Form.h fieldType */
 typedef enum
 {
