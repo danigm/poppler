@@ -148,6 +148,7 @@ GfxFont::GfxFont(char *tagA, Ref idA, GooString *nameA) {
   stretch = StretchNotDefined;
   weight = WeightNotDefined;
   refCnt = 1;
+  dfp = NULL;
 }
 
 GfxFont::~GfxFont() {
@@ -165,6 +166,7 @@ GfxFont::~GfxFont() {
   if (extFontFile) {
     delete extFontFile;
   }
+  delete dfp;
 }
 
 void GfxFont::incRefCnt() {

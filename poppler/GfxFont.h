@@ -22,6 +22,7 @@ class Dict;
 class CMap;
 class CharCodeToUnicode;
 class FoFiTrueType;
+class DisplayFontParam;
 struct GfxFontCIDWidths;
 
 //------------------------------------------------------------------------
@@ -202,6 +203,11 @@ public:
 			  Unicode *u, int uSize, int *uLen,
 			  double *dx, double *dy, double *ox, double *oy) = 0;
 
+  /* XXX: dfp shouldn't be public, however the font finding code is currently in
+   * GlobalParams. Instead it should be inside the GfxFont class. However,
+   * getDisplayFont currently uses FCcfg so moving it is not as simple. */
+  /* XXX: related to this is the fact that all of the extFontFile stuff is dead */
+  DisplayFontParam *dfp;
 protected:
 
   void readFontDescriptor(XRef *xref, Dict *fontDict);

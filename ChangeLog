@@ -1,3 +1,11 @@
+2007-05-25  Jeff Muizelaar  <jeff@infidigm.net>
+
+	* poppler/GfxFont.cc:
+	* poppler/GfxFont.h:
+	* poppler/GlobalParams.cc:
+	Don't cache DisplayFontParams by font name, instead cache them
+	in GfxFont. Fixes #8140.
+
 2007-05-25  Carlos Garcia Campos <carlosgc@gnome.org>
 
 	* glib/poppler-page.cc:

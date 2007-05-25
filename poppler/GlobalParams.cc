@@ -1081,7 +1081,7 @@ DisplayFontParam *GlobalParams::getDisplayFont(GfxFont *font) {
   if (!fontName) return NULL;
   
   lockGlobalParams;
-  dfp = (DisplayFontParam *)displayFonts->lookup(fontName);
+  dfp = font->dfp;
   if (!dfp)
   {
     FcChar8* s;
@@ -1119,7 +1119,7 @@ DisplayFontParam *GlobalParams::getDisplayFont(GfxFont *font) {
       }
       else
         continue;
-      displayFonts->add(dfp->name,dfp);
+      font->dfp = dfp;
       break;
     }
     FcFontSetDestroy(set);
