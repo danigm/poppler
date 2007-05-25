@@ -2,6 +2,12 @@
 	
 	* qt4/src/poppler-link-extractor.cc: Use correct page box to extract
 	link clickable area
+	* qt4/src/poppler-link-extractor-private.cc:
+	* qt4/src/poppler-link-extractor-private.h:
+	* qt4/src/poppler-link.cc:
+	* qt4/src/poppler-link.h: Return link coordinates in 0..1 range
+	instead of 0..size, much more easier to do user<->dev transformations
+	* qt4/src/poppler-private.h: Fix indentation
 
 2007-05-25  Jeff Muizelaar  <jeff@infidigm.net>
 

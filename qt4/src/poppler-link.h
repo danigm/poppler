@@ -29,6 +29,11 @@ namespace Poppler {
 class LinkDestinationData;
 class SoundObject;
 
+/**
+ * \short Encapsulates data that describes a link destination.
+ *
+ * Coordinates are in 0..1 range
+ */
 class LinkDestination
 {
 	public:
@@ -112,7 +117,7 @@ class Link
 		 * The area of a Page where the link should be active.
 		 *
 		 * \note this can be a null rect, in this case the link represents
-		 * a general action
+		 * a general action. The area is given in 0..1 range
 		 */
 		QRectF linkArea() const;
 		

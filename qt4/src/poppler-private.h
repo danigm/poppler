@@ -99,13 +99,14 @@ namespace Poppler {
     class LinkDestinationData
     {
         public:
-		LinkDestinationData( LinkDest *l, GooString *nd, Poppler::DocumentData *pdfdoc ) : ld(l), namedDest(nd), doc(pdfdoc)
-		{
-		}
-	
-	LinkDest *ld;
-	GooString *namedDest;
-	Poppler::DocumentData *doc;
+            LinkDestinationData( LinkDest *l, GooString *nd, Poppler::DocumentData *pdfdoc )
+             : ld(l), namedDest(nd), doc(pdfdoc)
+            {
+            }
+
+            LinkDest *ld;
+            GooString *namedDest;
+            Poppler::DocumentData *doc;
     };
 
     class DocumentData {

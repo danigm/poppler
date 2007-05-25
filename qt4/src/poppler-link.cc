@@ -27,6 +27,14 @@
 
 namespace Poppler {
 
+	static void cvtUserToDev(::Page *page, double xu, double yu, int *xd, int *yd) {
+		double ctm[6];
+		
+		page->getDefaultCTM(ctm, 72.0, 72.0, 0, false, true);
+		*xd = (int)(ctm[0] * xu + ctm[2] * yu + ctm[4] + 0.5);
+		*yd = (int)(ctm[1] * xu + ctm[3] * yu + ctm[5] + 0.5);
+	}
+
 	LinkDestination::LinkDestination(const LinkDestinationData &data)
 	{
 		// sane defaults
@@ -78,17 +86,14 @@ namespace Poppler {
 		
 		int leftAux = 0, topAux = 0, rightAux = 0, bottomAux = 0;
 		
-		OutputDev *sod = data.doc->getOutputDev();
-		if (sod)
-		{
-			sod->cvtUserToDev( left, top, &leftAux, &topAux );
-			sod->cvtUserToDev( right, bottom, &rightAux, &bottomAux );
-		}
+		::Page *page = data.doc->doc->getCatalog()->getPage(m_pageNum);
+		cvtUserToDev( page, left, top, &leftAux, &topAux );
+		cvtUserToDev( page, right, bottom, &rightAux, &bottomAux );
 		
-		m_left = leftAux;
-		m_top = topAux;
-		m_right = rightAux;
-		m_bottom = bottomAux;
+		m_left = leftAux / (double)page->getCropWidth();
+		m_top = topAux / (double)page->getCropHeight();
+		m_right = rightAux/ (double)page->getCropWidth();
+		m_bottom = bottomAux / (double)page->getCropHeight();
 		
 		if (deleteDest) delete ld;
 	}

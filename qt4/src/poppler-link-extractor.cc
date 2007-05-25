@@ -29,8 +29,8 @@ namespace Poppler
 LinkExtractorOutputDev::LinkExtractorOutputDev(PageData *data, DocumentData *doc)
   : m_data(data), m_doc(doc)
 {
-  ::Page *p = m_doc->doc->getCatalog()->getPage(m_data->index + 1);
-  GfxState gfxState(72.0, 72.0, p->getCropBox(), p->getRotate(), gTrue);
+  m_popplerPage = m_doc->doc->getCatalog()->getPage(m_data->index + 1);
+  GfxState gfxState(72.0, 72.0, m_popplerPage->getCropBox(), m_popplerPage->getRotate(), gTrue);
   setDefaultCTM(gfxState.getCTM());
 }
 
@@ -51,10 +51,10 @@ void LinkExtractorOutputDev::processLink(::Link *link, Catalog *catalog)
 
   cvtUserToDev(left, top, &leftAux, &topAux);
   cvtUserToDev(right, bottom, &rightAux, &bottomAux);
-  linkArea.setLeft(leftAux);
-  linkArea.setTop(topAux);
-  linkArea.setRight(rightAux);
-  linkArea.setBottom(bottomAux);
+  linkArea.setLeft((double)leftAux / (double)m_popplerPage->getCropWidth());
+  linkArea.setTop((double)topAux / (double)m_popplerPage->getCropHeight());
+  linkArea.setRight((double)rightAux / (double)m_popplerPage->getCropWidth());
+  linkArea.setBottom((double)bottomAux / (double)m_popplerPage->getCropHeight());
 
   Link *popplerLink = m_data->convertLinkActionToLink(link->getAction(), linkArea, m_doc);
   if (popplerLink)
