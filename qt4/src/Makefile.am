@@ -5,7 +5,7 @@ INCLUDES =					\
 	$(FONTCONFIG_CFLAGS)			\
 	$(POPPLER_QT4_CFLAGS)
 
-poppler_includedir = $(includedir)/poppler
+poppler_includedir = $(includedir)/poppler/qt4
 
 poppler_include_HEADERS =			\
 	poppler-qt4.h				\

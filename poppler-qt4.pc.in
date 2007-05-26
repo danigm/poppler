@@ -9,4 +9,4 @@ Version: @VERSION@
 Requires: poppler = @VERSION@
 
 Libs: -L${libdir} -lpoppler-qt4
-Cflags: -I${includedir}/poppler
+Cflags: -I${includedir}/poppler/qt4

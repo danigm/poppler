@@ -1,3 +1,12 @@
+2007-05-27  Albert Astals Cid <aacid@kde.org>
+
+	* poppler-qt.pc.in:
+	* poppler-qt4.pc.in:
+	* qt/Makefile.am:
+	* qt4/src/Makefile.am: Install qt3 and qt4 headers in separate dirs.
+	That way be can reuse poppler-page-transition.h and distros don't get
+	conflicts when making separate qt3 and qt4 packages
+
 2007-05-26  Albert Astals Cid <aacid@kde.org>
 	
 	* qt4/src/poppler-link-extractor.cc: Use correct page box to extract
