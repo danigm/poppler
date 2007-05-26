@@ -1,3 +1,18 @@
+Release 0.5.9 (0.6 Release Candidate)
+
+	- Merge xpdf 3.02 changes
+	- Qt4 frontend is not marked anymore as unstable
+	- Support for Sound objects
+	- Support for Opening/Closing page actions 
+	- Support for page duration
+	- Improve PS Tokenizer performance thanks to Scott Turner
+	- Various speed ups by Krzysztof Kowalczyk
+	- Beginning of Interactive Form support by Julien Rebetez
+	- xpdfrc is no longer used for anything
+	- Add AbiWord output device and pdftoabw program by Jauco Noordzij
+	- Fix security issue MOAB-06-01-2007
+	- Lots of bugs fixed
+
 Release 0.5.4
 
 	- Automatically read in CJK encoding files if they're

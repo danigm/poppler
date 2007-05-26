@@ -6,6 +6,8 @@
 	* qt4/src/Makefile.am: Install qt3 and qt4 headers in separate dirs.
 	That way be can reuse poppler-page-transition.h and distros don't get
 	conflicts when making separate qt3 and qt4 packages
+	* configure.ac:
+	* NEWS: Bump release to 0.5.9 (0.6 Release Candidate)
 
 2007-05-26  Albert Astals Cid <aacid@kde.org>
 	
