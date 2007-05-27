@@ -958,10 +958,9 @@ poppler_page_get_image_output_dev (PopplerPage *page)
 				      gFalse, /* useMediaBox */
 				      gTrue, /* Crop */
 				      -1, -1, -1, -1,
-				      NULL, /* links */
+				      gFalse, /* printing */
 				      page->document->doc->getCatalog (),
 				      NULL, NULL, NULL, NULL);
-
     page->page->display(page->gfx);
   }
 
@@ -1337,10 +1336,53 @@ poppler_link_mapping_copy (PopplerLinkMapping *mapping)
 void
 poppler_link_mapping_free (PopplerLinkMapping *mapping)
 {
-	if (mapping)
+	if (mapping->action)
 		poppler_action_free (mapping->action);
 
 	g_free (mapping);
+}
+
+/* Poppler Image mapping type */
+GType
+poppler_image_mapping_get_type (void)
+{
+  static GType our_type = 0;
+
+  if (our_type == 0)
+    our_type = g_boxed_type_register_static ("PopplerImageMapping",
+					     (GBoxedCopyFunc) poppler_image_mapping_copy,
+					     (GBoxedFreeFunc) poppler_image_mapping_free);
+
+  return our_type;
+}
+
+PopplerImageMapping *
+poppler_image_mapping_new (void)
+{
+  return (PopplerImageMapping *) g_new0 (PopplerImageMapping, 1);
+}
+
+PopplerImageMapping *
+poppler_image_mapping_copy (PopplerImageMapping *mapping)
+{
+  PopplerImageMapping *new_mapping;
+
+  new_mapping = poppler_image_mapping_new ();
+
+  *new_mapping = *mapping;
+  if (new_mapping->image)
+    new_mapping->image = gdk_pixbuf_copy (new_mapping->image);
+
+  return new_mapping;
+}
+
+void
+poppler_image_mapping_free (PopplerImageMapping *mapping)
+{
+  if (mapping->image)
+    g_object_unref (mapping->image);
+
+  g_free (mapping);
 }
 
 /* Page Transition */

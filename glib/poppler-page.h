@@ -158,6 +158,11 @@ struct  _PopplerImageMapping
   GdkPixbuf *image;	
 };
 
+GType                  poppler_image_mapping_get_type (void) G_GNUC_CONST;
+PopplerImageMapping   *poppler_image_mapping_new      (void);
+PopplerImageMapping   *poppler_image_mapping_copy     (PopplerImageMapping *mapping);
+void                   poppler_image_mapping_free     (PopplerImageMapping *mapping);
+
 /* FormField */
 #define POPPLER_TYPE_FORM_FIELD                     (poppler_form_field_get_type ())
 struct _PopplerTextField
