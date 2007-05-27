@@ -159,6 +159,22 @@ print_page_transition (PopplerPageTransition *transition)
   printf ("\t\tRectangular: %s\n", transition->rectangular ? "Yes" : "No");
 }
 
+static const gchar *
+form_field_get_type_name (PopplerFormFieldType type)
+{
+  switch (type)
+    {
+    case POPPLER_FORM_FIELD_TEXT:
+      return "Text";
+    case POPPLER_FORM_FIELD_BUTTON:
+      return "Button";
+    case POPPLER_FORM_FIELD_CHOICE:
+      return "Choice";
+    }
+
+  return "Unknown";
+}
+
 int main (int argc, char *argv[])
 {
   PopplerDocument *document;
@@ -175,6 +191,7 @@ int main (int argc, char *argv[])
   double duration;
   PopplerRectangle area;
   gint num_images;
+  gint num_forms;
 
   if (argc != 3)
     FAIL ("usage: test-poppler-glib file://FILE PAGE");
@@ -290,6 +307,28 @@ int main (int argc, char *argv[])
 	      mapping->area.y2);
     }
   poppler_page_free_image_mapping (list);
+
+  list = poppler_page_get_form_fields (page);
+  num_forms = g_list_length (list);
+  printf ("\n");
+  if (num_forms > 0)
+    printf ("\tFound %d form fields at positions:\n", num_forms);
+  else
+    printf ("\tNo forms fields found\n");
+  for (l = list; l != NULL; l = l->next)
+    {
+      PopplerFormField *field;
+
+      field = (PopplerFormField *)l->data;
+      printf ("\t\t%s (id = %d): (%f, %f) - (%f, %f)\n",
+	      form_field_get_type_name (field->type),
+	      field->id,
+	      field->area.x1,
+	      field->area.y1,
+	      field->area.x2,
+	      field->area.y2);
+    }
+  poppler_page_free_form_fields (list);
   
   if (poppler_document_has_attachments (document))
     {

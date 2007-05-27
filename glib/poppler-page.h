@@ -209,9 +209,9 @@ struct _PopplerFormField
 };
 
 GType               poppler_form_field_get_type (void) G_GNUC_CONST;
-PopplerFormField   *poppler_form_field_new (void);
-PopplerFormField   *poppler_form_field_copy (PopplerFormField *field);
-void                poppler_form_field_free (PopplerFormField *field);
+PopplerFormField   *poppler_form_field_new      (void);
+PopplerFormField   *poppler_form_field_copy     (PopplerFormField *field);
+void                poppler_form_field_free     (PopplerFormField *field);
 
 G_END_DECLS
 

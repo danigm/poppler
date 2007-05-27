@@ -1277,26 +1277,26 @@ poppler_rectangle_get_type (void)
 PopplerRectangle *
 poppler_rectangle_new (void)
 {
-	return g_new0 (PopplerRectangle, 1);
+  return g_new0 (PopplerRectangle, 1);
 }
 
 PopplerRectangle *
 poppler_rectangle_copy (PopplerRectangle *rectangle)
 {
-	PopplerRectangle *new_rectangle;
+  PopplerRectangle *new_rectangle;
 
-	g_return_val_if_fail (rectangle != NULL, NULL);
+  g_return_val_if_fail (rectangle != NULL, NULL);
+  
+  new_rectangle = g_new0 (PopplerRectangle, 1);
+  *new_rectangle = *rectangle;
 
-	new_rectangle = g_new0 (PopplerRectangle, 1);
-	*new_rectangle = *rectangle;
-
-	return new_rectangle;
+  return new_rectangle;
 }
 
 void
 poppler_rectangle_free (PopplerRectangle *rectangle)
 {
-	g_free (rectangle);
+  g_free (rectangle);
 }
 
 /* PopplerLinkMapping type */
@@ -1316,30 +1316,30 @@ poppler_link_mapping_get_type (void)
 PopplerLinkMapping *
 poppler_link_mapping_new (void)
 {
-	return (PopplerLinkMapping *) g_new0 (PopplerLinkMapping, 1);
+  return (PopplerLinkMapping *) g_new0 (PopplerLinkMapping, 1);
 }
 
 PopplerLinkMapping *
 poppler_link_mapping_copy (PopplerLinkMapping *mapping)
 {
-	PopplerLinkMapping *new_mapping;
+  PopplerLinkMapping *new_mapping;
 
-	new_mapping = poppler_link_mapping_new ();
+  new_mapping = poppler_link_mapping_new ();
 	
-	*new_mapping = *mapping;
-	if (new_mapping->action)
-		new_mapping->action = poppler_action_copy (new_mapping->action);
+  *new_mapping = *mapping;
+  if (new_mapping->action)
+    new_mapping->action = poppler_action_copy (new_mapping->action);
 
-	return new_mapping;
+  return new_mapping;
 }
 
 void
 poppler_link_mapping_free (PopplerLinkMapping *mapping)
 {
-	if (mapping->action)
-		poppler_action_free (mapping->action);
+  if (mapping->action)
+    poppler_action_free (mapping->action);
 
-	g_free (mapping);
+  g_free (mapping);
 }
 
 /* Poppler Image mapping type */
@@ -1426,9 +1426,9 @@ poppler_form_field_get_type (void)
 {
   static GType our_type = 0;
   if (our_type == 0)
-          our_type = g_boxed_type_register_static("PopplerFormField",
-                          (GBoxedCopyFunc) poppler_form_field_copy,
-                          (GBoxedFreeFunc) poppler_form_field_free);
+    our_type = g_boxed_type_register_static("PopplerFormField",
+					    (GBoxedCopyFunc) poppler_form_field_copy,
+					    (GBoxedFreeFunc) poppler_form_field_free);
   return our_type;
 }
 
@@ -1439,102 +1439,142 @@ poppler_form_field_new (void)
 }
 
 PopplerFormField*
-poppler_form_field_copy (PopplerFormField* field)
+poppler_form_field_copy (PopplerFormField *field)
 {
-  PopplerFormField* new_field;
-  new_field = poppler_form_field_new();
-  new_field = field;
+  PopplerFormField *new_field;
+  
+  new_field = poppler_form_field_new ();
+  *new_field = *field;
+
+  if (field->type == POPPLER_FORM_FIELD_TEXT && field->text.content)
+    new_field->text.content = g_strdup (field->text.content);
+	    
   return new_field;
 }
 
 void
-poppler_form_field_free (PopplerFormField* field)
+poppler_form_field_free (PopplerFormField *field)
 {
+  if (field->type == POPPLER_FORM_FIELD_TEXT)
+    g_free (field->text.content);
+  
   g_free (field);
 }
 
 PopplerFormField *
-_form_field_new_from_widget (FormWidget* field)
+_form_field_new_from_widget (FormWidget *field)
 {
-    PopplerFormField *poppler_field = g_new(PopplerFormField, 1);
-    field->getRect (&(poppler_field->area.x1), &(poppler_field->area.y1),
+  PopplerFormField *poppler_field;
+
+  poppler_field = g_new0 (PopplerFormField, 1);
+  
+  field->getRect (&(poppler_field->area.x1), &(poppler_field->area.y1),
                   &(poppler_field->area.x2), &(poppler_field->area.y2));
 
-    poppler_field->type = (PopplerFormFieldType)field->getType();
-    poppler_field->id = field->getID();
-    poppler_field->font_size = field->getFontSize();
-    if (poppler_field->type == POPPLER_FORM_FIELD_TEXT) {
-      FormWidgetText* wid = static_cast<FormWidgetText*>(field);
-      GooString *tmp = wid->getContentCopy();
-  		poppler_field->text.content = (tmp)?tmp->getCString():NULL;
-      poppler_field->text.length = (tmp)?tmp->getLength():0;
-      poppler_field->text.multiline = wid->isMultiline();
-      poppler_field->text.password = wid->isPassword();
-      poppler_field->text.fileselect = wid->isFileSelect();
-      poppler_field->text.do_not_spell_check = wid->noSpellCheck();
-      poppler_field->text.do_not_scroll = wid->noScroll();
-      poppler_field->text.rich_text = wid->isRichText();
-    } else if (poppler_field->type == POPPLER_FORM_FIELD_BUTTON) {
-      poppler_field->button.state = (gboolean)static_cast<FormWidgetButton*>(field)->getState();
-    } else if (poppler_field->type == POPPLER_FORM_FIELD_CHOICE) {
-      FormWidgetChoice* wid = static_cast<FormWidgetChoice*>(field);
-      poppler_field->choice.combo = wid->isCombo();
-      poppler_field->choice.edit = wid->hasEdit();
-      poppler_field->choice.multi_select = wid->isMultiSelect();
-      poppler_field->choice.do_not_spell_check = wid->noSpellCheck();
+  poppler_field->type = (PopplerFormFieldType)field->getType ();
+  poppler_field->id = field->getID ();
+  poppler_field->font_size = field->getFontSize ();
+  
+  switch (poppler_field->type)
+    {
+    case POPPLER_FORM_FIELD_TEXT:
+      {
+        FormWidgetText* wid = static_cast<FormWidgetText*>(field);
+	GooString *tmp = wid->getContentCopy();
+	
+	poppler_field->text.content = (tmp) ? g_strdup (tmp->getCString ()) : NULL;
+	poppler_field->text.length = (tmp) ? tmp->getLength () : 0;
+	poppler_field->text.multiline = wid->isMultiline ();
+	poppler_field->text.password = wid->isPassword ();
+	poppler_field->text.fileselect = wid->isFileSelect ();
+	poppler_field->text.do_not_spell_check = wid->noSpellCheck ();
+	poppler_field->text.do_not_scroll = wid->noScroll ();
+	poppler_field->text.rich_text = wid->isRichText ();
+	
+	if (tmp)
+          delete tmp;
+      }
+      break;
+    case POPPLER_FORM_FIELD_BUTTON:
+      poppler_field->button.state = (gboolean)static_cast<FormWidgetButton*>(field)->getState ();
+      break;
+    case POPPLER_FORM_FIELD_CHOICE:
+      {
+        FormWidgetChoice* wid = static_cast<FormWidgetChoice*>(field);
+	
+	poppler_field->choice.combo = wid->isCombo ();
+	poppler_field->choice.edit = wid->hasEdit ();
+	poppler_field->choice.multi_select = wid->isMultiSelect ();
+	poppler_field->choice.do_not_spell_check = wid->noSpellCheck ();
+      }
+      break;
+    default:
+      g_assert_not_reached ();
     }
-    return poppler_field;
+  
+  return poppler_field;
 }
 
 /**
- * poppler_page_get_form_fields
+ * poppler_page_get_form_fields:
+ * @page: A #PopplerPage
+ *
+ * Returns a list of #PopplerFormField items that map from a
+ * location on @page to a form field.  This list must be freed
+ * with poppler_page_free_form_fields() when done.
+ *
+ * Return value: A #GList of #PopplerFormField
  **/
-
-GList*
+GList *
 poppler_page_get_form_fields (PopplerPage *page)
 {
   GList *field_list = NULL;
-	FormPageWidgets *form;
-	gint i;
-	Object obj;
-
-	g_return_val_if_fail (POPPLER_IS_PAGE (page), NULL);
-
-	form = page->page->getPageWidgets();
-
-  obj.free ();
-  if(form == NULL)
-     return NULL;
+  FormPageWidgets *forms;
+  gint i;
   
-  for(i = 0; i < form->getNumWidgets(); i++) {
+  g_return_val_if_fail (POPPLER_IS_PAGE (page), NULL);
+
+  forms = page->page->getPageWidgets ();
+  if (forms == NULL)
+    return NULL;
+  
+  for (i = 0; i < forms->getNumWidgets (); i++) {
     PopplerFormField *poppler_field;
     FormWidget *field;
-    field = form->getWidget(i);
+    
+    field = forms->getWidget (i);
     poppler_field = _form_field_new_from_widget (field);
-    field_list = g_list_prepend(field_list,poppler_field);
+    field_list = g_list_prepend (field_list, poppler_field);
   }
+  
   return field_list;
-
 }
 
+/**
+ * poppler_page_free_form_fields:
+ * @list: A list of #PopplerFormField<!-- -->s
+ *
+ * Frees a list of #PopplerFormField<!-- -->s allocated by
+ * poppler_page_get_form_fields().
+ **/
 void
 poppler_page_free_form_fields (GList *list)
 {
-	if (list == NULL)
-		return;
+  if (list == NULL)
+    return;
 
-	g_list_foreach (list, (GFunc) (poppler_form_field_free), NULL);
-	g_list_free (list);
-
+  g_list_foreach (list, (GFunc) poppler_form_field_free, NULL);
+  g_list_free (list);
 }
 
 void 
 poppler_page_get_crop_box (PopplerPage *page, PopplerRectangle *rect)
 {
-	PDFRectangle* cropBox = page->page->getCropBox();
-	rect->x1 = cropBox->x1;
-	rect->x2 = cropBox->x2;
-	rect->y1 = cropBox->y1;
-	rect->y2 = cropBox->y2;
+  PDFRectangle* cropBox = page->page->getCropBox ();
+  
+  rect->x1 = cropBox->x1;
+  rect->x2 = cropBox->x2;
+  rect->y1 = cropBox->y1;
+  rect->y2 = cropBox->y2;
 }
 
