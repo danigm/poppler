@@ -1,3 +1,7 @@
+2007-05-29  Kristian Høgsberg  <krh@redhat.com>
+
+	* poppler/gen-unicode-tables.py: Add this script to fix distcheck.
+
 2007-05-27  Carlos Garcia Campos <carlosgc@gnome.org>
 
 	* glib/test-poppler-glib.c: Add forms test
