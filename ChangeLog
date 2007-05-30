@@ -1,5 +1,11 @@
 2007-05-30  Albert Astals Cid <aacid@kde.org>
 
+	* configure.ac: Fix to check for glib-2.0 not glib that is 1.0. Patch
+	came though Pardus developers and they don't remember where they got
+	it from.
+
+2007-05-30  Albert Astals Cid <aacid@kde.org>
+
 	* utils/HtmlFonts.cc: Make pdftohtml not pollute stdout. Patch by
 	Nanning Buitenhuis <nanning@elvenkind.com>
 
