@@ -134,11 +134,10 @@ Information about a page in a document
 </para>
 
 @page: 
-@scale: 
-@rotation: 
-@pixbuf: 
+@cairo: 
 @selection: 
 @old_selection: 
+@style: 
 @glyph_color: 
 @background_color: 
 

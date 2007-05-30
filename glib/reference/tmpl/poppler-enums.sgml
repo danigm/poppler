@@ -17,3 +17,153 @@ poppler-enums
 <!-- ##### SECTION Stability_Level ##### -->
 
 
+<!-- ##### MACRO POPPLER_TYPE_ACTION_TYPE ##### -->
+<para>
+
+</para>
+
+
+
+<!-- ##### FUNCTION poppler_action_type_get_type ##### -->
+<para>
+
+</para>
+
+@Returns: 
+
+
+<!-- ##### MACRO POPPLER_TYPE_DEST_TYPE ##### -->
+<para>
+
+</para>
+
+
+
+<!-- ##### FUNCTION poppler_dest_type_get_type ##### -->
+<para>
+
+</para>
+
+@Returns: 
+
+
+<!-- ##### MACRO POPPLER_TYPE_PAGE_LAYOUT ##### -->
+<para>
+
+</para>
+
+
+
+<!-- ##### FUNCTION poppler_page_layout_get_type ##### -->
+<para>
+
+</para>
+
+@Returns: 
+
+
+<!-- ##### MACRO POPPLER_TYPE_PAGE_MODE ##### -->
+<para>
+
+</para>
+
+
+
+<!-- ##### FUNCTION poppler_page_mode_get_type ##### -->
+<para>
+
+</para>
+
+@Returns: 
+
+
+<!-- ##### MACRO POPPLER_TYPE_FONT_TYPE ##### -->
+<para>
+
+</para>
+
+
+
+<!-- ##### FUNCTION poppler_font_type_get_type ##### -->
+<para>
+
+</para>
+
+@Returns: 
+
+
+<!-- ##### MACRO POPPLER_TYPE_VIEWER_PREFERENCES ##### -->
+<para>
+
+</para>
+
+
+
+<!-- ##### FUNCTION poppler_viewer_preferences_get_type ##### -->
+<para>
+
+</para>
+
+@Returns: 
+
+
+<!-- ##### MACRO POPPLER_TYPE_PERMISSIONS ##### -->
+<para>
+
+</para>
+
+
+
+<!-- ##### FUNCTION poppler_permissions_get_type ##### -->
+<para>
+
+</para>
+
+@Returns: 
+
+
+<!-- ##### MACRO POPPLER_TYPE_ERROR ##### -->
+<para>
+
+</para>
+
+
+
+<!-- ##### FUNCTION poppler_error_get_type ##### -->
+<para>
+
+</para>
+
+@Returns: 
+
+
+<!-- ##### MACRO POPPLER_TYPE_ORIENTATION ##### -->
+<para>
+
+</para>
+
+
+
+<!-- ##### FUNCTION poppler_orientation_get_type ##### -->
+<para>
+
+</para>
+
+@Returns: 
+
+
+<!-- ##### MACRO POPPLER_TYPE_BACKEND ##### -->
+<para>
+
+</para>
+
+
+
+<!-- ##### FUNCTION poppler_backend_get_type ##### -->
+<para>
+
+</para>
+
+@Returns: 
+
+

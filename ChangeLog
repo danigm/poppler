@@ -1,3 +1,8 @@
+2007-05-30  Albert Astals Cid <aacid@kde.org>
+
+	* utils/HtmlFonts.cc: Make pdftohtml not pollute stdout. Patch by
+	Nanning Buitenhuis <nanning@elvenkind.com>
+
 2007-05-29  Kristian Høgsberg  <krh@redhat.com>
 
 	* poppler/gen-unicode-tables.py: Add this script to fix distcheck.
