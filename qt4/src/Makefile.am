@@ -30,6 +30,8 @@ libpoppler_qt4_la_SOURCES =			\
 	poppler-form.cc				\
 	poppler-ps-converter.cc			\
 	poppler-annotation-helper.h		\
+	poppler-page-private.h			\
+	poppler-link-extractor-private.h	\
 	poppler-private.h
 
 libpoppler_qt4_la_LIBADD = 			\
