@@ -1,3 +1,10 @@
+2007-06-01  Albert Astals Cid <aacid@kde.org>
+
+	* poppler/ArthurOutputDev.cc
+	* splash/SplashFTFont.cc
+	* splash/SplashMath.h: Make it compile with --enable-fixedpoint. Fixes
+	bug 11110
+
 2007-05-30  Albert Astals Cid <aacid@kde.org>
 
 	* configure.ac: Fix to check for glib-2.0 not glib that is 1.0. Patch

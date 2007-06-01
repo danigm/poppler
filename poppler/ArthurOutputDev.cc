@@ -510,10 +510,10 @@ void ArthurOutputDev::drawChar(GfxState *state, double x, double y,
       qPath.setFillRule(Qt::WindingFill);
       for (int i = 0; i < fontPath->length; ++i) {
 	if (fontPath->flags[i] & splashPathFirst) {
-	  qPath.moveTo(x0+fontPath->pts[i].x, y0+fontPath->pts[i].y);
+	  qPath.moveTo(fontPath->pts[i].x+x0, fontPath->pts[i].y+y0);
 	} else if (fontPath->flags[i] & splashPathCurve) {
-	  qPath.quadTo(x0+fontPath->pts[i].x, y0+fontPath->pts[i].y,
-		       x0+fontPath->pts[i+1].x, y0+fontPath->pts[i+1].y);
+	  qPath.quadTo(fontPath->pts[i].x+x0, fontPath->pts[i].y+y0,
+		       fontPath->pts[i+1].x+x0, fontPath->pts[i+1].y+y0);
 	  ++i;
 	}
 #warning FIX THIS
@@ -521,7 +521,7 @@ void ArthurOutputDev::drawChar(GfxState *state, double x, double y,
 // 	  qDebug() << "Need to implement arc";
 // 	}
 	else {
-	  qPath.lineTo(x0+fontPath->pts[i].x, y0+fontPath->pts[i].y);
+	  qPath.lineTo(fontPath->pts[i].x+x0, fontPath->pts[i].y+y0);
 	}
 	if (fontPath->flags[i] & splashPathLast) {
 	  qPath.closeSubpath();

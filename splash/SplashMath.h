@@ -8,7 +8,7 @@
 #define SPLASHMATH_H
 
 #if USE_FIXEDPOINT
-#include "FixedPoint.h"
+#include "goo/FixedPoint.h"
 #else
 #include <math.h>
 #endif

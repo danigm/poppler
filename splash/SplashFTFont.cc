@@ -127,10 +127,10 @@ SplashFTFont::SplashFTFont(SplashFTFontFile *fontFileA, SplashCoord *matA,
   matrix.yx = (FT_Fixed)((mat[1] / size).getRaw());
   matrix.xy = (FT_Fixed)((mat[2] / size).getRaw());
   matrix.yy = (FT_Fixed)((mat[3] / size).getRaw());
-  textMatrix.xx = (FT_Fixed)((textMat[0] / (size * textScale)).getRaw());
-  textMatrix.yx = (FT_Fixed)((textMat[1] / (size * textScale)).getRaw());
-  textMatrix.xy = (FT_Fixed)((textMat[2] / (size * textScale)).getRaw());
-  textMatrix.yy = (FT_Fixed)((textMat[3] / (size * textScale)).getRaw());
+  textMatrix.xx = (FT_Fixed)((textMat[0] / (textScale * size)).getRaw());
+  textMatrix.yx = (FT_Fixed)((textMat[1] / (textScale * size)).getRaw());
+  textMatrix.xy = (FT_Fixed)((textMat[2] / (textScale * size)).getRaw());
+  textMatrix.yy = (FT_Fixed)((textMat[3] / (textScale * size)).getRaw());
 #else
   matrix.xx = (FT_Fixed)((mat[0] / size) * 65536);
   matrix.yx = (FT_Fixed)((mat[1] / size) * 65536);
