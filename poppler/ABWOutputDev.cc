@@ -128,19 +128,19 @@ void ABWOutputDev::recursiveXYC(xmlNodePtr nodeset) {
   
   //printf("***\nbetween %f and %f there is a vertical seperation of %f\n",X1,X2,bvs);
   //printf("between %f and %f there is a horizontal seperation of %f\n",Y1,Y2,bhs);
-  
-  
-  if ((bvs == -1) and (bhs > -1)){
+
+
+  if ((bvs == -1) && (bhs > -1)){
     //printf("Make a horizontal cut!\n");
     splitNodes(Y1, HORIZONTAL, nodeset, bhs);
   }
   else {
-    if ((bvs > -1) and (bhs == -1)){
+    if ((bvs > -1) && (bhs == -1)){
       //printf("Make a vertical cut!\n");
       splitNodes(X1, VERTICAL, nodeset, bvs);
     }
     else {
-      if ((bvs > -1) and (bhs > -1)){
+      if ((bvs > -1) && (bhs > -1)){
         if (bvs >= (bhs/1.7)){
           //When people read a text they prefer vertical cuts over horizontal 
           //ones. I'm not that sure about the 1.7 value, but it seems to work.
@@ -154,7 +154,7 @@ void ABWOutputDev::recursiveXYC(xmlNodePtr nodeset) {
       }
     }
   }
-  if (not((bvs == -1) and (bhs == -1))){
+  if (!((bvs == -1) && (bhs == -1))){
       recursiveXYC(nodeset->children);
       recursiveXYC(nodeset->children->next);
   }
@@ -465,8 +465,8 @@ void ABWOutputDev::updateFont(GfxState *state) {
   //the first time this function is called there is no funt.
   //Fixme: find out if that isn'y a bug
   if (font){
-    isBold = (font->isBold() or font->getWeight() >6 or (strstr(font->getOrigName()->getCString(), "Bold")-font->getOrigName()->getCString() == (font->getOrigName()->getLength()-4)));
-    isItalic =  (font->isItalic() or (strstr(font->getOrigName()->getCString(), "Italic")-font->getOrigName()->getCString() == (font->getOrigName()->getLength()-6)));
+    isBold = (font->isBold() || font->getWeight() >6 || (strstr(font->getOrigName()->getCString(), "Bold")-font->getOrigName()->getCString() == (font->getOrigName()->getLength()-4)));
+    isItalic =  (font->isItalic() || (strstr(font->getOrigName()->getCString(), "Italic")-font->getOrigName()->getCString() == (font->getOrigName()->getLength()-6)));
     ftSize = int(state->getTransformedFontSize())-1;
     ftName = new GooString(font->getOrigName());
     fnStart = strcspn(ftName->getCString(), "+");
@@ -501,11 +501,11 @@ void ABWOutputDev::updateFont(GfxState *state) {
     for (N_cur = N_styleset->children; N_cur; N_cur = N_cur ->next){
       if (
        isBold == (xmlStrcasecmp(xmlGetProp(N_cur,BAD_CAST "bold"),BAD_CAST "bold;") == 0)
-       and
+       &&
        isItalic == (xmlStrcasecmp(xmlGetProp(N_cur,BAD_CAST "italic"),BAD_CAST "italic") == 0)
-       and
+       &&
        xmlStrcasecmp(xmlGetProp(N_cur,BAD_CAST "font"),BAD_CAST fnName) == 0
-       and
+       &&
        xmlXPathCastStringToNumber(xmlGetProp(N_cur,BAD_CAST "size")) == ftSize
       ) {
         found = true;
@@ -567,11 +567,11 @@ void ABWOutputDev::beginString(GfxState *state, GooString *s) {
     horDist = x-X2;
     //TEST:changed fabs(horDist) to horDist
     //FIXME: this if statement seems awkward to me.
-    if (horDist > (state->getTransformedFontSize()*maxWordSpacing) or (fabs(verDist) > (state->getTransformedFontSize()/maxLineSpacingDelta))) {
+    if (horDist > (state->getTransformedFontSize()*maxWordSpacing) || (fabs(verDist) > (state->getTransformedFontSize()/maxLineSpacingDelta))) {
       beginTextBlock(state,x,y);
     }
     else {
-      if ((horDist > (state->getTransformedFontSize()*minWordBreakSpace)) or (fabs(verDist) > (state->getTransformedFontSize()/maxLineSpacingDelta))) {
+      if ((horDist > (state->getTransformedFontSize()*minWordBreakSpace)) || (fabs(verDist) > (state->getTransformedFontSize()/maxLineSpacingDelta))) {
         beginWord(state,x,y);
       }
     }
@@ -650,12 +650,13 @@ void ABWOutputDev::interpretXYTree(){
 
 void ABWOutputDev::ATP_recursive(xmlNodePtr N_parent){
   xmlNodePtr N_first, N_second, N_line, N_tempCol, N_tempColset;
+  char buf[20];
+
   N_first  = N_parent->children;
   if (!N_first)
     return;
 
   N_second = N_first->next;
-  char buf[20];
 /*
   Possibilities: 
   there is one child node
@@ -822,18 +823,18 @@ void ABWOutputDev::cleanUpNode(xmlNodePtr N_parent, bool aggregateInfo){
   therefore needs to be kept.
   */
   if ((xmlLsCountNode(N_parent) == 2)
-      and
+      &&
      xmlStrcasecmp(N_parent->name,BAD_CAST "horizontal") == 0
-      and 
+      && 
      N_cur
-      and
+      &&
      N_cur->next
-      and
-     xmlStrcasecmp(N_cur->name,BAD_CAST "horizontal") == 0 and xmlStrcasecmp(N_cur->next->name,BAD_CAST "horizontal") == 0
-      and
-     xmlLsCountNode(N_cur) == 1 and xmlLsCountNode(N_cur->next) == 1
-      and
-     xmlStrcasecmp(N_cur->children->name,BAD_CAST "Textblock") == 0 and xmlStrcasecmp(N_cur->next->children->name,BAD_CAST "Textblock") == 0
+      &&
+     xmlStrcasecmp(N_cur->name,BAD_CAST "horizontal") == 0 && xmlStrcasecmp(N_cur->next->name,BAD_CAST "horizontal") == 0
+      &&
+     xmlLsCountNode(N_cur) == 1 && xmlLsCountNode(N_cur->next) == 1
+      &&
+     xmlStrcasecmp(N_cur->children->name,BAD_CAST "Textblock") == 0 && xmlStrcasecmp(N_cur->next->children->name,BAD_CAST "Textblock") == 0
      ) {
     xmlAddPrevSibling(N_cur->next,N_cur->children); 
     xmlUnlinkNode(N_cur);
@@ -843,21 +844,21 @@ void ABWOutputDev::cleanUpNode(xmlNodePtr N_parent, bool aggregateInfo){
   I found out I liked the columns better, so I have the code commented out.
   */
 /*  else if ((xmlLsCountNode(N_parent) == 2)
-             and
+             &&
             N_cur
-             and
+             &&
             N_cur->next
-             and 
+             && 
             xmlStrcasecmp(N_cur->name,BAD_CAST "vertical") == 0
-             and
+             &&
             xmlStrcasecmp(N_cur->next->name,BAD_CAST "vertical") == 0
-             and 
+             && 
             (N_cur->children) 
-             and
+             &&
             (N_cur->children->children)
-             and
+             &&
             (N_cur->children->children->children)
-             and
+             &&
             xmlStrlen(N_cur->children->children->children->content) == 1) {
     N_next = N_cur->next;
     xmlAddChild(N_parent, N_next->children);
@@ -868,7 +869,7 @@ void ABWOutputDev::cleanUpNode(xmlNodePtr N_parent, bool aggregateInfo){
     while (N_cur){
       N_next = N_cur->next;
       cleanUpNode(N_cur, aggregateInfo);
-      if (xmlLsCountNode(N_cur) == 0 and (xmlStrcasecmp(N_cur->name,BAD_CAST "cbr") != 0) and (xmlStrcasecmp(N_cur->name,BAD_CAST "s") != 0))
+      if (xmlLsCountNode(N_cur) == 0 && (xmlStrcasecmp(N_cur->name,BAD_CAST "cbr") != 0) && (xmlStrcasecmp(N_cur->name,BAD_CAST "s") != 0))
         xmlUnlinkNode(N_cur);
       //If the node is still around
       N_cur = N_next;
@@ -877,13 +878,13 @@ void ABWOutputDev::cleanUpNode(xmlNodePtr N_parent, bool aggregateInfo){
   //If a countainer element has only one child, it can be removed except for vertical
   //cuts with only one textElement;
   //the main reason for this code is to remove the crumbs after cleaning up in the loop above
-  if ((xmlLsCountNode(N_parent) == 1) and ((xmlStrcasecmp(N_parent->name,BAD_CAST "horizontal") == 0) or ((xmlStrcasecmp(N_parent->name,BAD_CAST "vertical") == 0) and (xmlStrcasecmp(N_parent->children->name,BAD_CAST "Textblock") != 0)))){
+  if ((xmlLsCountNode(N_parent) == 1) && ((xmlStrcasecmp(N_parent->name,BAD_CAST "horizontal") == 0) || ((xmlStrcasecmp(N_parent->name,BAD_CAST "vertical") == 0) && (xmlStrcasecmp(N_parent->children->name,BAD_CAST "Textblock") != 0)))){
     N_cur = N_parent->children;
     xmlAddPrevSibling(N_parent,N_cur);
     xmlUnlinkNode(N_parent);
   }
   //We cannot remove the page element so if it has only one childnode, we remove that childnode instead
-  if ((xmlStrcasecmp(N_parent->name,BAD_CAST "page") == 0) and (xmlLsCountNode(N_parent) == 1)) {
+  if ((xmlStrcasecmp(N_parent->name,BAD_CAST "page") == 0) && (xmlLsCountNode(N_parent) == 1)) {
     N_cur = N_parent->children->children;
     while (N_cur){
       N_next = N_cur->next;
@@ -896,16 +897,16 @@ void ABWOutputDev::cleanUpNode(xmlNodePtr N_parent, bool aggregateInfo){
   //Ok, so by this time the N_parent and his children are guaranteed to be clean
   //this for loop gets information from the 'word' elements and propagates it up
   //the tree. 
-  if (aggregateInfo and xmlStrcasecmp(N_parent->name,BAD_CAST "word") != 0) {
+  if (aggregateInfo && xmlStrcasecmp(N_parent->name,BAD_CAST "word") != 0) {
     for (N_cur = N_parent->children; N_cur; N_cur = N_cur->next){
       val = xmlGetProp(N_cur,BAD_CAST "style");
       stylePos = xmlXPathCastStringToNumber(val);
       //fprintf(stderr,"1: %f, %d\n",stylePos,int(stylePos));
       styles[int(stylePos)]=styles[int(stylePos)]+1;
       //fprintf(stderr,"2: styles[%d] = %d\n",int(stylePos),styles[int(stylePos)]);
-      (xmlXPathCastStringToNumber(xmlGetProp(N_cur,BAD_CAST "X1")) < tX1 or tX1 == -1)? tX1 = xmlXPathCastStringToNumber(xmlGetProp(N_cur,BAD_CAST "X1")) : tX1 = tX1;
+      (xmlXPathCastStringToNumber(xmlGetProp(N_cur,BAD_CAST "X1")) < tX1 || tX1 == -1)? tX1 = xmlXPathCastStringToNumber(xmlGetProp(N_cur,BAD_CAST "X1")) : tX1 = tX1;
       (xmlXPathCastStringToNumber(xmlGetProp(N_cur,BAD_CAST "X2")) > tX2)             ? tX2 = xmlXPathCastStringToNumber(xmlGetProp(N_cur,BAD_CAST "X2")) : tX2 = tX2;
-      (xmlXPathCastStringToNumber(xmlGetProp(N_cur,BAD_CAST "Y1")) < tY1 or tY1 == -1)? tY1 = xmlXPathCastStringToNumber(xmlGetProp(N_cur,BAD_CAST "Y1")) : tY1 = tY1;
+      (xmlXPathCastStringToNumber(xmlGetProp(N_cur,BAD_CAST "Y1")) < tY1 || tY1 == -1)? tY1 = xmlXPathCastStringToNumber(xmlGetProp(N_cur,BAD_CAST "Y1")) : tY1 = tY1;
       (xmlXPathCastStringToNumber(xmlGetProp(N_cur,BAD_CAST "Y2")) > tY2)             ? tY2 = xmlXPathCastStringToNumber(xmlGetProp(N_cur,BAD_CAST "Y2")) : tY2 = tY2;
     }
     sprintf(buf, "%f", tX1);     xmlSetProp(N_parent, BAD_CAST "X1", BAD_CAST buf);
@@ -922,7 +923,7 @@ void ABWOutputDev::cleanUpNode(xmlNodePtr N_parent, bool aggregateInfo){
       sprintf(buf, "%d", prevStyle);     xmlSetProp(N_parent, BAD_CAST "style", BAD_CAST buf);
     }
   }
-  if (N_parent->children and xmlStrcasecmp(N_parent->children->name,BAD_CAST "line") == 0 and xmlGetProp(N_parent->children,BAD_CAST "alignment") != NULL)
+  if (N_parent->children && xmlStrcasecmp(N_parent->children->name,BAD_CAST "line") == 0 && xmlGetProp(N_parent->children,BAD_CAST "alignment") != NULL)
     xmlSetProp(N_parent, BAD_CAST "alignment", xmlGetProp(N_parent->children,BAD_CAST "alignment"));
 }
 
@@ -959,7 +960,7 @@ void ABWOutputDev::generateParagraphs() {
            xmlUnlinkNode(N_line);
            xmlAddChild(N_p,N_line);
            xmlSetProp(N_line, BAD_CAST "alignment", BAD_CAST "1");
-           if (N_next and xmlStrcasecmp(N_next->name,BAD_CAST "line") == 0){
+           if (N_next && xmlStrcasecmp(N_next->name,BAD_CAST "line") == 0){
              if (xmlXPathCastStringToNumber(xmlGetProp(N_next->children->children,BAD_CAST "width")) < (xmlXPathCastStringToNumber(xmlGetProp(N_cur,BAD_CAST "width")) - xmlXPathCastStringToNumber(xmlGetProp(N_line,BAD_CAST "width")))){
                N_p = xmlNewNode(NULL, BAD_CAST "chunk");
                xmlAddPrevSibling(N_cur,N_p);
@@ -976,7 +977,7 @@ void ABWOutputDev::generateParagraphs() {
            xmlUnlinkNode(N_line);
            xmlAddChild(N_p,N_line);
            xmlSetProp(N_line, BAD_CAST "alignment", BAD_CAST "2");
-           if (N_next and xmlStrcasecmp(N_next->name,BAD_CAST "line") == 0){
+           if (N_next && xmlStrcasecmp(N_next->name,BAD_CAST "line") == 0){
              //fprintf(stderr,"width_next=%f, X2_bl=%f, X2_w=%f\n",xmlXPathCastStringToNumber(xmlGetProp(N_next->children->children,BAD_CAST "width")),xmlXPathCastStringToNumber(xmlGetProp(N_cur,BAD_CAST "width")),xmlXPathCastStringToNumber(xmlGetProp(N_line,BAD_CAST "width")));
              if (xmlXPathCastStringToNumber(xmlGetProp(N_next->children->children,BAD_CAST "width")) < (xmlXPathCastStringToNumber(xmlGetProp(N_cur,BAD_CAST "width")) - xmlXPathCastStringToNumber(xmlGetProp(N_line,BAD_CAST "width")))){
                N_p = xmlNewNode(NULL, BAD_CAST "chunk");
@@ -994,7 +995,7 @@ void ABWOutputDev::generateParagraphs() {
            xmlUnlinkNode(N_line);
            xmlAddChild(N_p,N_line);
            xmlSetProp(N_line, BAD_CAST "alignment", BAD_CAST "3");
-           if (N_next and xmlStrcasecmp(N_next->name,BAD_CAST "line") == 0){
+           if (N_next && xmlStrcasecmp(N_next->name,BAD_CAST "line") == 0){
              //fprintf(stderr,"width_next=%f, X2_bl=%f, X2_w=%f\n",xmlXPathCastStringToNumber(xmlGetProp(N_next->children->children,BAD_CAST "width")),xmlXPathCastStringToNumber(xmlGetProp(N_cur,BAD_CAST "width")),xmlXPathCastStringToNumber(xmlGetProp(N_line,BAD_CAST "width")));
              if (xmlXPathCastStringToNumber(xmlGetProp(N_next->children->children,BAD_CAST "width")) < (xmlXPathCastStringToNumber(xmlGetProp(N_cur,BAD_CAST "width")) - xmlXPathCastStringToNumber(xmlGetProp(N_line,BAD_CAST "width")))){
                N_p = xmlNewNode(NULL, BAD_CAST "chunk");
@@ -1027,7 +1028,7 @@ void ABWOutputDev::generateParagraphs() {
          break;
       }
     }
-    else if (xmlStrcasecmp(N_cur->name,BAD_CAST "colset") == 0 or xmlStrcasecmp(N_cur->name,BAD_CAST "column") == 0){
+    else if (xmlStrcasecmp(N_cur->name,BAD_CAST "colset") == 0 || xmlStrcasecmp(N_cur->name,BAD_CAST "column") == 0){
       N_parent = N_cur;
       N_cur = N_cur->children;
       lvl++;
@@ -1109,7 +1110,7 @@ void ABWOutputDev::addAlignment(xmlNodePtr N_parent) {
         leftMatch =  fabs(xmlXPathCastStringToNumber(xmlGetProp(N_line,BAD_CAST "X1"))-X1) < 2;
         rightMatch =  fabs(X2-xmlXPathCastStringToNumber(xmlGetProp(N_line,BAD_CAST "X2"))) < 2;
         centerMatch =  fabs((xmlXPathCastStringToNumber(xmlGetProp(N_line,BAD_CAST "X1"))-X1)-(X2-xmlXPathCastStringToNumber(xmlGetProp(N_line,BAD_CAST "X2")))) < 2;
-        if (leftMatch and rightMatch) {
+        if (leftMatch && rightMatch) {
           xmlNewProp(N_line, BAD_CAST "alignment", BAD_CAST "4");
           justCnt++;
         }
@@ -1129,11 +1130,11 @@ void ABWOutputDev::addAlignment(xmlNodePtr N_parent) {
       //there is almost always one justified line in a centered text
       //and most justified blocks have at least one left aligned line
       //fprintf(stderr,"1:%d ,2:%d ,3:%d ,4:%d\n",leftCnt,justCnt,cntrCnt,rightCnt);
-      if ((leftCnt-1 >= justCnt) and (leftCnt >= rightCnt) and (leftCnt >= cntrCnt))
+      if ((leftCnt-1 >= justCnt) && (leftCnt >= rightCnt) && (leftCnt >= cntrCnt))
         xmlNewProp(N_chunk, BAD_CAST "alignment", BAD_CAST "1");
-      else if ((justCnt >= leftCnt-1) and (justCnt >= rightCnt) and (justCnt >= cntrCnt))
+      else if ((justCnt >= leftCnt-1) && (justCnt >= rightCnt) && (justCnt >= cntrCnt))
         xmlNewProp(N_chunk, BAD_CAST "alignment", BAD_CAST "4");
-      else if ((cntrCnt >= justCnt-1) and (cntrCnt >= rightCnt) and (cntrCnt >= leftCnt))
+      else if ((cntrCnt >= justCnt-1) && (cntrCnt >= rightCnt) && (cntrCnt >= leftCnt))
         xmlNewProp(N_chunk, BAD_CAST "alignment", BAD_CAST "3");
       else
         xmlNewProp(N_chunk, BAD_CAST "alignment", BAD_CAST "2");

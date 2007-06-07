@@ -1,3 +1,8 @@
+2007-06-07  Jeff Muizelaar  <jeff@infidigm.net>
+
+	* poppler/ABWOutputDev.cc: Change "and", "or", "not" to "&&", "||",
+	"!" for consistency with the rest of the code. Patch by Jens Granseuer
+
 2007-06-01  Albert Astals Cid <aacid@kde.org>
 
 	* poppler/ArthurOutputDev.cc
