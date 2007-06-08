@@ -281,6 +281,7 @@ void Annot::initialize(XRef *xrefA, Dict *acroForm, Dict *dict, Catalog *catalog
         }
       }
     }
+    obj1.free();
   }
   if (dict->lookup("C", &obj1)->isArray() && obj1.arrayGetLength() == 3) {
     if (obj1.arrayGet(0, &obj2)->isNum()) {

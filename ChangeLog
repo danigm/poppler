@@ -1,3 +1,7 @@
+2007-06-09  Albert Astals Cid <aacid@kde.org>
+
+	* poppler/Annot.cc: Fix leak
+
 2007-06-07  Jeff Muizelaar  <jeff@infidigm.net>
 
 	* poppler/ABWOutputDev.cc: Change "and", "or", "not" to "&&", "||",
