@@ -4,9 +4,9 @@
 #include <ctype.h>
 #include <assert.h>
 
-#include <goo/gtypes.h>
-#include <goo/GooList.h>
-#include <goo/GooString.h>
+#include "goo/gtypes.h"
+#include "goo/GooList.h"
+#include "goo/GooString.h"
 #include <Object.h>
 
 class PageLabelInfo {

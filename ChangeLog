@@ -1,3 +1,12 @@
+2007-06-11  Albert Astals Cid <aacid@kde.org>
+
+	* poppler/CMap.h:
+	* poppler/CharCodeToUnicode.h:
+	* poppler/GlobalParams.h:
+	* poppler/PageLabelInfo.h:
+	* poppler/UnicodeMap.h: Further include cleanup. Patch by Axel Howind
+	on bug #11228
+
 2007-06-11  Pino Toscano <pino@kde.org>
 
 	* qt/poppler-qt.h

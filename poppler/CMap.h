@@ -18,7 +18,7 @@
 #include "CharTypes.h"
 
 #if MULTITHREADED
-#include <goo/GooMutex.h>
+#include "goo/GooMutex.h"
 #endif
 
 class GooString;
