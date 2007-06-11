@@ -20,16 +20,16 @@
 #ifndef __POPPLER_QT_H__
 #define __POPPLER_QT_H__
 
+#include "poppler-annotation.h"
+#include "poppler-link.h"
+#include "poppler-page-transition.h"
+
 #include <QtCore/QByteArray>
 #include <QtCore/QDateTime>
 #include <QtCore/QSet>
 #include <QtCore/QVector>
 #include <QtGui/QPixmap>
 #include <QtXml/QDomDocument>
-
-#include <poppler-annotation.h>
-#include <poppler-link.h>
-#include <poppler-page-transition.h>
 
 class EmbFile;
 class Sound;

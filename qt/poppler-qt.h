@@ -20,13 +20,13 @@
 #ifndef __POPPLER_QT_H__
 #define __POPPLER_QT_H__
 
+#include "poppler-link-qt3.h"
+#include "poppler-page-transition.h"
+
 #include <qcstring.h>
 #include <qdatetime.h>
 #include <qdom.h>
 #include <qpixmap.h>
-
-#include <poppler-link-qt3.h>
-#include <poppler-page-transition.h>
 
 namespace Poppler {
 

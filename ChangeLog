@@ -1,3 +1,8 @@
+2007-06-11  Pino Toscano <pino@kde.org>
+
+	* qt/poppler-qt.h
+	* qt4/src/poppler-qt4.h: Headers cleanup
+
 2007-06-09  Albert Astals Cid <aacid@kde.org>
 
 	* poppler/Annot.cc: Fix leak
