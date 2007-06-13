@@ -188,7 +188,7 @@ AC_ARG_ENABLE(poppler-glib,
 if test x$enable_poppler_glib = xyes; then
   PKG_CHECK_MODULES(POPPLER_GLIB, gdk-2.0 >= 2.4.0 glib-2.0 >= 2.6)
 elif test x$enable_poppler_glib = xtry; then
-  PKG_CHECK_MODULES(POPPLER_GLIB, gdk-2.0 >= 2.4.0,
+  PKG_CHECK_MODULES(POPPLER_GLIB, gdk-2.0 >= 2.4.0 glib-2.0 >= 2.6,
                     [enable_poppler_glib="yes"],
                     [enable_poppler_glib="no"])
 fi

@@ -1,3 +1,7 @@
+2007-06-13  Albert Astals Cid <aacid@kde.org>
+
+	* configure.ac: Fix detection of glib
+
 2007-06-11  Albert Astals Cid <aacid@kde.org>
 
 	* poppler/CMap.h:
