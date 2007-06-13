@@ -9,7 +9,7 @@
 #ifndef SECURITYHANDLER_H
 #define SECURITYHANDLER_H
 
-#include <config.h>
+#include "poppler-config.h"
 
 #ifdef USE_GCC_PRAGMAS
 #pragma interface

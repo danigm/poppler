@@ -9,7 +9,7 @@
 #ifndef IMAGEOUTPUTDEV_H
 #define IMAGEOUTPUTDEV_H
 
-#include <poppler-config.h>
+#include <poppler/poppler-config.h>
 
 #ifdef USE_GCC_PRAGMAS
 #pragma interface

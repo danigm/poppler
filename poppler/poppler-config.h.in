@@ -15,8 +15,18 @@
 // redefining those symbols.
 
 /* Enable multithreading support. */
-#ifndef MULTITHREADING
+#ifndef MULTITHREADED
 #undef MULTITHREADED
+#endif
+
+/* Enable exceptions. */
+#ifndef USE_EXCEPTIONS
+#undef USE_EXCEPTIONS
+#endif
+
+/* Use fixedpoint. */
+#ifndef USE_FIXEDPOINT
+#undef USE_FIXEDPOINT
 #endif
 
 /* Full path for the system-wide xpdfrc file. */

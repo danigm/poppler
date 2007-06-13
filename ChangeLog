@@ -1,5 +1,21 @@
 2007-06-13  Albert Astals Cid <aacid@kde.org>
 
+	* goo/FixedPoint.h
+	* goo/gmem.h
+	* poppler/SecurityHandler.h
+	* poppler/poppler-config.h.in
+	* utils/ImageOutputDev.h:
+	Patch by Axel Howind <Axel.Howind@htp-tel.de>
+	- include USE_EXCEPTIONS and USE_FIXEDPOINT in poppler-config.h.in
+	- fix typo (MULTITHREADED/MULTITHREADING) in poppler.config.h.in
+	- change installed headers to include poppler-config.h instead of
+	config.h
+	- use <poppler/poppler-config.h> instead of <poppler-config.h> so that
+	installed headers can be used without including .../include/poppler
+	in the include path
+
+2007-06-13  Albert Astals Cid <aacid@kde.org>
+
 	* configure.ac: Fix detection of glib
 
 2007-06-11  Albert Astals Cid <aacid@kde.org>

@@ -10,7 +10,7 @@
 #define GMEM_H
 
 #include <stdio.h>
-#include <config.h>
+#include <poppler/poppler-config.h>
 
 #if USE_EXCEPTIONS
 
