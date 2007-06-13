@@ -135,5 +135,6 @@ private:
   static const unsigned int VERTICAL = 1;
   UnicodeMap *uMap;
   PDFDoc *pdfdoc;
+  int xmlLsCountNode(xmlNodePtr node);
 };
 #endif

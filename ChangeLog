@@ -1,5 +1,11 @@
 2007-06-13  Albert Astals Cid <aacid@kde.org>
 
+	* poppler/ABWOutputDev.cc
+	* poppler/ABWOutputDev.h: Remove dependency on debugxml. Patch by
+	Jauco Noordzij <jauco.noordzij@gmail.com>. Fixes bug #11187
+
+2007-06-13  Albert Astals Cid <aacid@kde.org>
+
 	* goo/FixedPoint.h
 	* goo/gmem.h
 	* poppler/SecurityHandler.h

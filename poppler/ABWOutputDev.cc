@@ -33,7 +33,6 @@
 #include <libxml/tree.h>
 #include <libxml/xpath.h>
 #include <libxml/xpathInternals.h>
-#include <libxml/debugXML.h>
 
 
 // Inter-character space width which will cause addChar to start a new
@@ -1286,4 +1285,83 @@ void ABWOutputDev::transformPage(xmlNodePtr N_parent){
     N_Block = xmlNewChild(N_root, NULL, BAD_CAST "section", NULL);
   }
   //fprintf(stderr,"at the end\n");
+}
+
+//Count nodes, copied from debugxml.c from libxml
+// libxml copyright file below
+/*
+Except where otherwise noted in the source code (e.g. the files hash.c,
+list.c and the trio files, which are covered by a similar licence but
+with different Copyright notices) all the files are:
+
+ Copyright (C) 1998-2003 Daniel Veillard.  All Rights Reserved.
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is fur-
+nished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FIT-
+NESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+DANIEL VEILLARD BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CON-
+NECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+Except as contained in this notice, the name of Daniel Veillard shall not
+be used in advertising or otherwise to promote the sale, use or other deal-
+ings in this Software without prior written authorization from him.
+*/
+int ABWOutputDev::xmlLsCountNode(xmlNodePtr node) {
+  int ret = 0;
+  xmlNodePtr list = NULL;
+
+  if (node == NULL)
+    return(0);
+
+  switch (node->type) {
+    case XML_ELEMENT_NODE:
+      list = node->children;
+      break;
+    case XML_DOCUMENT_NODE:
+    case XML_HTML_DOCUMENT_NODE:
+#ifdef LIBXML_DOCB_ENABLED
+    case XML_DOCB_DOCUMENT_NODE:
+#endif
+      list = ((xmlDocPtr) node)->children;
+      break;
+    case XML_ATTRIBUTE_NODE:
+      list = ((xmlAttrPtr) node)->children;
+      break;
+    case XML_TEXT_NODE:
+    case XML_CDATA_SECTION_NODE:
+    case XML_PI_NODE:
+    case XML_COMMENT_NODE:
+      if (node->content != NULL) {
+        ret = xmlStrlen(node->content);
+      }
+      break;
+    case XML_ENTITY_REF_NODE:
+    case XML_DOCUMENT_TYPE_NODE:
+    case XML_ENTITY_NODE:
+    case XML_DOCUMENT_FRAG_NODE:
+    case XML_NOTATION_NODE:
+    case XML_DTD_NODE:
+    case XML_ELEMENT_DECL:
+    case XML_ATTRIBUTE_DECL:
+    case XML_ENTITY_DECL:
+    case XML_NAMESPACE_DECL:
+    case XML_XINCLUDE_START:
+    case XML_XINCLUDE_END:
+      ret = 1;
+      break;
+  }
+  for (;list != NULL;ret++) 
+    list = list->next;
+  return(ret);
 }
