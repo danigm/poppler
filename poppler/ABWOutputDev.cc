@@ -106,11 +106,7 @@ void ABWOutputDev::endPage() {
   //columns
   generateParagraphs();
   cleanUpNode(N_page, true);
-  //xmlAddChild(N_content, N_page);
-  //xmlSaveFormatFileEnc("paragraphs.xml", doc, "UTF-8", 1);
-  
   xmlAddChild(N_content, N_page);
-  //just for cleanliness
   N_page = NULL;
 }
 
@@ -125,65 +121,64 @@ void ABWOutputDev::recursiveXYC(xmlNodePtr nodeset) {
   bvs = getBiggestSeperator(nodeset, VERTICAL, &X1, &X2);
   bhs = getBiggestSeperator(nodeset, HORIZONTAL, &Y1, &Y2);
   
-  //printf("***\nbetween %f and %f there is a vertical seperation of %f\n",X1,X2,bvs);
-  //printf("between %f and %f there is a horizontal seperation of %f\n",Y1,Y2,bhs);
-
-
-  if ((bvs == -1) && (bhs > -1)){
-    //printf("Make a horizontal cut!\n");
-    splitNodes(Y1, HORIZONTAL, nodeset, bhs);
+  if (bvs == -1){
+    if (bhs == -1){//both -1
+      //FIXME: add assertions that bvs and bhs are >=-1
+      printf("No seperators\n");
+      return;
+    }
+    else { //only bhs > -1
+      splitNodes(Y1, HORIZONTAL, nodeset, bhs);
+    }
   }
   else {
-    if ((bvs > -1) && (bhs == -1)){
-      //printf("Make a vertical cut!\n");
+    if (bhs == -1){//only bvs > -1
       splitNodes(X1, VERTICAL, nodeset, bvs);
     }
-    else {
-      if ((bvs > -1) && (bhs > -1)){
-        if (bvs >= (bhs/1.7)){
-          //When people read a text they prefer vertical cuts over horizontal 
-          //ones. I'm not that sure about the 1.7 value, but it seems to work.
-          //printf("Make a vertical cut!\n");
-          splitNodes(X1, VERTICAL, nodeset, bvs);
-        }
-        else {
-        //printf("Make a horizontal cut!\n");
-          splitNodes(Y1, HORIZONTAL, nodeset, bhs);
-        }
+    else {//both > -1
+      if (bvs >= (bhs/1.7)){
+        //When people read a text they prefer vertical cuts over horizontal 
+        //ones. I'm not that sure about the 1.7 value, but it seems to work.
+        splitNodes(X1, VERTICAL, nodeset, bvs);
+      }
+      else {
+        splitNodes(Y1, HORIZONTAL, nodeset, bhs);
       }
     }
   }
-  if (!((bvs == -1) && (bhs == -1))){
-      recursiveXYC(nodeset->children);
-      recursiveXYC(nodeset->children->next);
-  }
+  recursiveXYC(nodeset->children);
+  recursiveXYC(nodeset->children->next);
 }
 
-void ABWOutputDev::splitNodes(float splitValue, unsigned int direction, xmlNodePtr N_parent, double extravalue){
+void ABWOutputDev::splitNodes(float splitValue, unsigned int direction, xmlNodePtr N_parent, double seperator){
   //This function takes a nodeset and splits it based on a cut value. It returns
   //the nodePtr with two childnodes, the both chunks.
   xmlNodePtr N_move, N_cur, N_newH, N_newL;
   char * propName;
   const char *nodeName;
   char buf[20];
-  if (direction == HORIZONTAL) {propName = "Y1"; nodeName = "horizontal";}
-  else { propName = "X1"; nodeName = "vertical";}
+  if (direction == HORIZONTAL) {
+    propName = "Y1"; 
+    nodeName = "horizontal";
+  }
+  else { 
+    propName = "X1"; 
+    nodeName = "vertical";
+  }
   N_newH = xmlNewNode(NULL, BAD_CAST nodeName);
   N_newL = xmlNewNode(NULL, BAD_CAST nodeName);
-  sprintf(buf, "%f", extravalue); xmlNewProp(N_newH, BAD_CAST "diff", BAD_CAST buf);
-  sprintf(buf, "%f", extravalue); xmlNewProp(N_newL, BAD_CAST "diff", BAD_CAST buf);
+  sprintf(buf, "%f", seperator); 
+  xmlNewProp(N_newH, BAD_CAST "diff", BAD_CAST buf);
+  sprintf(buf, "%f", seperator); 
+  xmlNewProp(N_newL, BAD_CAST "diff", BAD_CAST buf);
   N_cur = N_parent->children;
-  //only do this if there are at least two child nodes
-  if (direction == HORIZONTAL) {propName = "Y1";}
-  else { propName = "X1"; }
   while (N_cur){
     N_move = N_cur->next;
+    xmlUnlinkNode(N_cur);
     if (xmlXPathCastStringToNumber(xmlGetProp(N_cur,BAD_CAST propName)) > splitValue){
-      xmlUnlinkNode(N_cur);
       xmlAddChild(N_newH, N_cur);
     }
     else {
-      xmlUnlinkNode(N_cur);
       xmlAddChild(N_newL, N_cur);
     }
     N_cur = N_move;
@@ -192,260 +187,74 @@ void ABWOutputDev::splitNodes(float splitValue, unsigned int direction, xmlNodeP
   xmlAddChild(N_parent, N_newH);
 }
 
-/*
-This function gets the biggest whitespace in a portion of the document.
-It does so by creating an array of begin and end points of non-whitespace
-ex: 132,180,200,279,280,600
-whitespace ^       ^
-however, to get such an array working nicely required quite a bit of hackish:
-"let's predict every possible eventuality and describe appropriate actions for 
-it."
-Better ideas for managing this information are welcomed.
-*/
 float ABWOutputDev::getBiggestSeperator(xmlNodePtr N_set, unsigned int direction, float * C1, float * C2)
 {
-  char * buf;
-  float curC1, curC2, retVal;
-  xmlNodePtr N_cur;
-  unsigned int borders_size = 0;
-  unsigned int j;
-  float * borders;
-  borders = new float[borders_size];
-  
-  for (N_cur = N_set->children; N_cur; N_cur = N_cur->next){
-    if (direction == VERTICAL){
-      curC1 = xmlXPathCastStringToNumber(xmlGetProp(N_cur,BAD_CAST "X1"));
-      curC2 = xmlXPathCastStringToNumber(xmlGetProp(N_cur,BAD_CAST "X2"));
-    }
-    else {
-      curC1 = xmlXPathCastStringToNumber(xmlGetProp(N_cur,BAD_CAST "Y1"));
-      curC2 = xmlXPathCastStringToNumber(xmlGetProp(N_cur,BAD_CAST "Y2"));
-    }
-    /*printf("borders_size = %d, curC1 = %f, curC2 = %f\n",borders_size,curC1,curC2);
-    for (unsigned int i = 0; i<borders_size; i++){
-      printf("%f, ",borders[i]);
-    }
-    printf("\n");*/
-    j=0;
-    /*
-    we skip to the array range by range. At any time borders[j] is the beginning
-    of the range, borders[j+1] is the end. borders[j+2] is the beginning of the 
-    next one etc.
-    */
-    while (j < borders_size) {
-      if (curC1 < borders[j]) {
-        //printf("  110:curC1 < borders[j] (%f)\n",borders[j]);
-        if (curC2 < borders[j]) {
-          //printf("    112:curC2 < borders[j] (%f)\n",borders[j]);
-          //printf("***insert before %d\n",j);
-          float * borders_new = new float[borders_size+2]; 
-          for (unsigned int n = 0; n < borders_size; n++ ) {
-            if (n <j){
-              borders_new[n] = borders[n];
-            }
-            else {
-              borders_new[n+2] = borders[n];
-            }
-          }
-          delete [] borders;
-          borders = borders_new;
-          borders[j]   = curC1;
-          borders[j+1] = curC2;
-          borders_size = borders_size+2;
-          break;
-        }
-        else {
-          //printf("  130:curC1 >= borders[j] (%f)\n",borders[j]);
-          if (curC2 <= borders[j+1]){
-            //printf("***replace %f with %f\n",borders[j], curC1);
-            //printf("    132:curC2 <= borders[j+1] (%f)\n",borders[j+1]);
-            borders[j] = curC1;
-            break;
-          }
-          else {
-            if (curC2 >= borders[j+2]){
-              //printf("***replace larger ones.\n");
-              //printf("        155:curC2 >= borders[j+2](%f)\n",borders[j+2]);
-              //At this point we have a range whose right coordinate is higher
-              //then the left coordinate of the following range. ie. the new one
-              //overlaps. This code removes all the elements it overlaps, and
-              //inserts the new end-marker
-              unsigned int c = 0;
-              //first, look for how much array elements need to be removed
-              //starting fro the right-hand coordinate of the current range.
-              for (unsigned int n = j+2; n < borders_size; n++) {
-                if (curC2 < borders[n]){
-                  break;
-                }
-                c++;
-              }
-              //printf("end: c = %d\n",c);
-              //Remove the intermediate ones. insert the curC2
-              unsigned int newSize;
-              if (c %2 ==0){
-                newSize = borders_size-c;
-              }
-              else {
-                newSize = borders_size-c-1;
-              }
-              float * borders_new = new float[newSize];
-              for (unsigned int n = 0; n < borders_size; n++ ) {
-                if (n <= j){
-                  //printf("*copying: old: n = %d, new: n = %d, value = %f\n",n,n,borders[n]);
-                  borders_new[n] = borders[n];
-                }
-                else {
-                  if (c %2 ==0){
-                    if (n == j+c+1){
-                     //printf("*new value: new: n = %d, value = %f\n",n-c),curC2);
-                     borders_new[n-c] = curC2;
-                    }
-                    else {
-                      if (n>j+c+1) {
-                        //printf("*copy after: old: n = %d, new: n = %d, value = %f\n",n,n-c,borders[n]);
-                        borders_new[n-c] = borders[n];
-                      }
-                    }
-                  }
-                  else {
-                    if (n>j+c+1) {
-                    //printf("*copy after: old: n = %d, new: n = %d, value = %f\n",n,n-c,borders[n]);
-                      borders_new[n-c-1] = borders[n];
-                    }
-                  }
-                }
-              }
-              delete [] borders;
-              borders = borders_new;
-              borders_size = newSize;
-              break;
-            }
-            else {
-              //printf("    137:curC2 > borders[j+1] (%f)\n",borders[j+1]);
-              //printf("***replace %f with %f and %f with %f\n",borders[j], curC1, borders[j+1], curC2);
-              borders[j] = curC1;
-              borders[j+1] = curC2;
-              break;
-            }
-          }
-        }
-      }
-      else {
-        //printf("  145:curC1 >= borders[j] (%f)\n",borders[j]);
-        if (curC1 <= borders[j+1]) {
-          //printf("    147:curC1 < borders[j+1] (%f)\n",borders[j]);
-          if (curC2 <= borders[j+1]) {
-            //printf("***ignore.\n");
-            //printf("      149:curC2 <= borders[j+1] (%f)\n",borders[j+1]);
-            break;
-          }
-          else {
-            //printf("      153:curC2 > borders[j+1] (%f)\n",borders[j+1]);
-            if (curC2 >= borders[j+2]){
-              //printf("***replace larger ones.\n");
-              //printf("        155:curC2 >= borders[j+2](%f)\n",borders[j+2]);
-              //At this point we have a range whose right coordinate is higher
-              //then the left coordinate of the following range. ie. the new one
-              //overlaps. This code removes all the elements it overlaps, and
-              //inserts the new end-marker
-              unsigned int c = 0;
-              //first, look for how much array elements need to be removed
-              //starting fro the right-hand coordinate of the current range.
-              for (unsigned int n = j+2; n < borders_size; n++) {
-                if (curC2 < borders[n]){
-                  break;
-                }
-                c++;
-              }
-              //printf("end: c = %d\n",c);
-              //Remove the intermediate ones. insert the curC2
-              unsigned int newSize;
-              if (c %2 ==0){
-                newSize = borders_size-c;
-              }
-              else {
-                newSize = borders_size-c-1;
-              }
-              float * borders_new = new float[newSize];
-              for (unsigned int n = 0; n < borders_size; n++ ) {
-                if (n <= j){
-                  //printf("*copying: old: n = %d, new: n = %d, value = %f\n",n,n,borders[n]);
-                  borders_new[n] = borders[n];
-                }
-                else {
-                  if (c %2 ==0){
-                    if (n == j+c+1){
-                     //printf("*new value: new: n = %d, value = %f\n",n-c),curC2);
-                     borders_new[n-c] = curC2;
-                    }
-                    else {
-                      if (n>j+c+1) {
-                        //printf("*copy after: old: n = %d, new: n = %d, value = %f\n",n,n-c,borders[n]);
-                        borders_new[n-c] = borders[n];
-                      }
-                    }
-                  }
-                  else {
-                    if (n>j+c+1) {
-                    //printf("*copy after: old: n = %d, new: n = %d, value = %f\n",n,n-c,borders[n]);
-                      borders_new[n-c-1] = borders[n];
-                    }
-                  }
-                }
-              }
-              delete [] borders;
-              borders = borders_new;
-              borders_size = newSize;
-              break;
-            }
-            else {
-              //printf("***replace %f with %f\n", borders[j+1], curC2);
-              borders[j+1] = curC2;
-              break;
-            }
-          }
-        }
-        else {
-          //printf("    159:curC1 >= borders[j+1] (%f)\n",borders[j]);
-          j += 2;
-        }
-      }
-    }
-    if (j >= borders_size){
-      //printf("    165:appending curC1 and curC2 to borders\n");
-      float * borders_new = new float[borders_size+2]; 
-      for (unsigned int n = 0; n < borders_size; n++ ) {
-        borders_new[n] = borders[n];
-      }
-      delete [] borders;
-      borders = borders_new;
-      borders[borders_size]   = curC1;
-      borders[borders_size+1] = curC2;
-      borders_size = borders_size+2;
+  int i = 0;
+  int nodeCount = xmlLsCountNode(N_set);
+  float store;
+  int min;
+  float gap, endV;
+  float * stt;
+  float * end;
+  if (nodeCount == 0){
+    //Add assertion that this shouldn't happen
+    fprintf(stderr,"No child nodes");
+    return -1;
+  }
+  stt = new float[nodeCount];
+  end = new float[nodeCount];
+  //store all variables in two arrays (one for start, one for end coordinates)
+  if (direction == VERTICAL) {
+    for (xmlNodePtr N_cur = N_set->children; N_cur != NULL; N_cur = N_cur->next){
+      stt[i] = xmlXPathCastStringToNumber(xmlGetProp(N_cur,BAD_CAST "X1"));
+      end[i] = xmlXPathCastStringToNumber(xmlGetProp(N_cur,BAD_CAST "X2"));
+      i++;
     }
   }
-  retVal = -1;
-  //printf("%f, ",borders[0]);
-  for (unsigned int i = 2; i<borders_size; i+=2){
-    //printf("%f, %f, ",borders[i-1],borders[i]);
-    if (((borders[i]-borders[i-1]) - retVal) > 0.5){
-      retVal = borders[i]-borders[i-1];
-      *C1 = borders[i-1];
-      *C2 = borders[i];
+  else {
+    for (xmlNodePtr N_cur = N_set->children; N_cur != NULL; N_cur = N_cur->next){
+      stt[i] = xmlXPathCastStringToNumber(xmlGetProp(N_cur,BAD_CAST "Y1"));
+      end[i] = xmlXPathCastStringToNumber(xmlGetProp(N_cur,BAD_CAST "Y2"));
+      i++;
     }
-    //printf("between %f and %f there is a seperation of %f\n",borders[i-1],borders[i],borders[i]-borders[i-1]);
   }
-  //printf("\n");
-  delete [] borders;
-  //Arbitrary cut-of values
-/*  if (
-      (direction == HORIZONTAL and retVal < C_maxHCutValue) or 
-      (direction == VERTICAL and retVal < C_maxVCutValue)
-     ) 
-  {
-    retVal = -1;
-  }*/
-  return retVal;
+  //Sort them
+  for (i = 0; i < nodeCount - 1; i++){
+    min = i;
+    for (int j = i + 1; j < nodeCount; j++)
+      if (stt[j] < stt[i])
+        min = j;
+    store = stt[i];
+    stt[i] = stt[min];
+    stt[min] = store;
+    store = end[i];
+    end[i] = end[min];
+    end[min] = store;
+  }
+  //find the largest gap
+  gap = -1;
+  endV = end[0];
+  *C1 = 0;
+  *C2 = 0;
+  for (int inspect = 1; inspect < nodeCount; inspect++){
+    //no gap
+    if (((stt[inspect] - endV) - gap) < 0.5){ //FIXME:This is copied almost directly from the previous function, needs checking out
+      //partial overlap instead of complete one
+      if (end[inspect] > endV)
+        endV = end[inspect];
+    }
+    //gap
+    else{
+      //gap is larger than any previous gap
+      if (gap < (stt[inspect] - endV)){
+        gap = stt[inspect] - endV;
+        *C1 = endV;
+        *C2 = stt[inspect];
+      }
+      endV = end[inspect];
+    }
+  }
+  return gap;
 }
 
 void ABWOutputDev::updateFont(GfxState *state) {
@@ -737,7 +546,10 @@ void ABWOutputDev::ATP_recursive(xmlNodePtr N_parent){
       //setting the block and line to it
       N_column = N_tempCol;
       if (xmlStrcasecmp(N_parent->name,BAD_CAST "vertical") != 0){
-        N_colset = N_tempColset;
+        if (N_tempColset != NULL)
+          N_colset = N_tempColset;
+        else
+          fprintf(stderr,"N_templColset should not! be empty (line 823)");//FIXME: add assert
       }
     }
     else {

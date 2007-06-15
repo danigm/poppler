@@ -1,3 +1,11 @@
+2007-06-15  Albert Astals Cid <aacid@kde.org>
+
+	* poppler/ABWOutputDev.cc: Replaces the getBiggestSeperator function
+	at the ABWoutputdev with one that is easier to read/debug
+	and less likely to contain bugs. Some cosmetic fixes at the
+	functions recursiveXYC and splitnodes. Patch by
+	Jauco Noordzij <jauco.noordzij@gmail.com>. More info at bug #11273
+
 2007-06-13  Albert Astals Cid <aacid@kde.org>
 
 	* poppler/ABWOutputDev.cc
