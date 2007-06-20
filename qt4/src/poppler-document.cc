@@ -471,6 +471,19 @@ namespace Poppler {
         return new PSConverter(m_doc);
     }
 
+    QString Document::metadata() const
+    {
+        QString result;
+        Catalog *catalog = m_doc->doc->getCatalog();
+        if (catalog && catalog->isOk())
+        {
+            GooString *s = catalog->readMetadata();
+            if (s) result = UnicodeParsedString(s);
+            delete s;
+        }
+        return result;
+    }
+
     QDateTime convertDate( char *dateString )
     {
         int year;

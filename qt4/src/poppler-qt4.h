@@ -772,6 +772,11 @@ QString subject = m_doc->info("Subject");
 	  The caller gets the ownership of the returned converter.
 	 */
 	PSConverter *psConverter() const;
+	
+	/**
+	  Gets the metadata stream contents
+	*/
+	QString metadata() const;
 
 	~Document();
   

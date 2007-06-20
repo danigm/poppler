@@ -3,6 +3,11 @@
 	* glib/poppler-document.cc: Allow access to a document's metadata stream
 	through the glib binding. Patch by Jason Kivlighn
 	<jkivlighn@gmail.com> Approved by Carlos
+	
+	* qt4/src/poppler-qt4.h:
+	* qt4/src/poppler-document.cc: Allow access to a document's metadata contents
+	from the qt4 binding. Based on patch by Jason Kivlighn
+	* qt4/tests/test-poppler-qt4.cpp: Print metadata if it exists
 
 2007-06-15  Albert Astals Cid <aacid@kde.org>
 
