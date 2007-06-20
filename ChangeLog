@@ -1,3 +1,9 @@
+2007-06-20  Albert Astals Cid <aacid@kde.org>
+
+	* glib/poppler-document.cc: Allow access to a document's metadata stream
+	through the glib binding. Patch by Jason Kivlighn
+	<jkivlighn@gmail.com> Approved by Carlos
+
 2007-06-15  Albert Astals Cid <aacid@kde.org>
 
 	* poppler/ABWOutputDev.cc: Replaces the getBiggestSeperator function

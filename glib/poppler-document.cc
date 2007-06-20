@@ -50,6 +50,7 @@ enum {
 	PROP_PAGE_MODE,
 	PROP_VIEWER_PREFERENCES,
 	PROP_PERMISSIONS,
+	PROP_METADATA
 };
 
 typedef struct _PopplerDocumentClass PopplerDocumentClass;
@@ -691,6 +692,17 @@ poppler_document_get_property (GObject    *object,
 	flag |= POPPLER_PERMISSIONS_OK_TO_ADD_NOTES;
       g_value_set_flags (value, flag);
       break;
+    case PROP_METADATA:
+      catalog = document->doc->getCatalog ();
+      if (catalog && catalog->isOk ())
+	{
+	  GooString *s = catalog->readMetadata ();
+	  if ( s != NULL ) {
+	  	g_value_set_string (value, s->getCString());
+	  	delete s;
+	  }
+	}
+      break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
     }
@@ -833,6 +845,15 @@ poppler_document_class_init (PopplerDocumentClass *klass)
 			       POPPLER_TYPE_PERMISSIONS,
 			       POPPLER_PERMISSIONS_FULL,
 			       G_PARAM_READABLE));
+
+  g_object_class_install_property
+	  (G_OBJECT_CLASS (klass),
+	   PROP_METADATA,
+	   g_param_spec_string ("metadata",
+				"XML Metadata",
+				"Embedded XML metadata",
+				NULL,
+				G_PARAM_READABLE));
 }
 
 static void
