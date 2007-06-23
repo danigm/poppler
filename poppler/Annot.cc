@@ -208,8 +208,8 @@ void Annot::initialize(XRef *xrefA, Dict *acroForm, Dict *dict, Catalog *catalog
       asObj.free();
     }
     apObj.free();
-
   }
+  obj3.free();
 
   //----- parse the border style
 

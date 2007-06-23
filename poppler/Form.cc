@@ -120,7 +120,7 @@ FormWidget::FormWidget(FormWidget *dest)
 
 FormWidget::~FormWidget()
 {
-
+  obj.free ();
 }
 
 int FormWidget::encodeID (unsigned pageNum, unsigned fieldNum)
@@ -275,6 +275,7 @@ void FormWidgetText::loadDefaults ()
         GooString* str1 = new GooString(tmp_str, tmp_length);
         parent->setContentCopy(str1);
         delete str1;
+	delete []tmp_str;
       }
     }
   }
@@ -717,6 +718,10 @@ FormField::~FormField()
   if(children)
     gfree(children);
   obj.free();
+  
+  for (int i = 0; i < numChildren; ++i)
+    delete widgets[i];
+  gfree (widgets);
 }
 
 void FormField::loadChildrenDefaults ()
@@ -911,7 +916,7 @@ void FormFieldText::setContentCopy (GooString* new_content)
 
 FormFieldText::~FormFieldText()
 {
-
+  delete content;
 }
 
 
@@ -1073,7 +1078,7 @@ Form::~Form() {
   int i;
   for(i = 0; i< numFields; ++i)
           delete rootFields[i];
-  delete [] rootFields;
+  gfree (rootFields);
 }
 
 void Form::checkForNeedAppearances (Object *acroForm)
@@ -1178,5 +1183,5 @@ FormPageWidgets::FormPageWidgets (XRef *xrefA, Object* annots, unsigned int page
 
 FormPageWidgets::~FormPageWidgets()
 {
-  // TODO free widgets ?
+  gfree (widgets);
 }

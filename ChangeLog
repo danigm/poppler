@@ -1,3 +1,8 @@
+2007-06-23  Carlos Garcia Campos  <carlosgc@gnome.org>
+
+	* poppler/Annot.cc:
+	* poppler/Form.cc: Fix memory leaks. 
+
 2007-06-20  Albert Astals Cid <aacid@kde.org>
 
 	* glib/poppler-document.cc: Allow access to a document's metadata stream
