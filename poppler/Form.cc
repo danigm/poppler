@@ -1032,9 +1032,11 @@ FormFieldSignature::~FormFieldSignature()
 
 Form::Form(XRef *xrefA, Object* acroForm)
 {
+  Array *array = NULL;
   Object obj1;
   xref = xrefA;
-  Array *array = acroForm->dictLookup("Fields",&obj1)->getArray();
+  acroForm->dictLookup("Fields",&obj1);
+  if (obj1.isArray()) array = obj1.getArray();
   obj1.free();
   if(!array) {
     error(-1, "Can't get Fields array\n");
@@ -1042,36 +1044,38 @@ Form::Form(XRef *xrefA, Object* acroForm)
   size = 0;
   numFields = 0;
   rootFields = NULL;
-  for(int i=0; i<array->getLength(); i++) {
-    Object oref;
-    array->get(i, &obj1);
-    array->getNF(i, &oref);
-    if (!oref.isRef()) {
-      error(-1, "Direct object in rootFields");
-      continue;
+  if (array) {
+    for(int i=0; i<array->getLength(); i++) {
+      Object oref;
+      array->get(i, &obj1);
+      array->getNF(i, &oref);
+      if (!oref.isRef()) {
+        error(-1, "Direct object in rootFields");
+        continue;
+      }
+
+      if (numFields >= size) {
+        size += 16;
+        rootFields = (FormField**)greallocn(rootFields,size,sizeof(FormField*));
+      }
+
+      createFieldFromDict (&obj1, &rootFields[numFields++], xrefA, oref.getRef());
+
+      //Mark readonly field
+      Object obj3;
+      if (obj1.dictLookup("Ff", &obj3)->isInt()) {
+        int flags = obj3.getInt();
+        if (flags & 0x1)
+          rootFields[numFields-1]->setReadOnly(true);
+      }
+      obj3.free();
+
+      obj1.free();
+      oref.free();
     }
-
-    if (numFields >= size) {
-      size += 16;
-      rootFields = (FormField**)greallocn(rootFields,size,sizeof(FormField*));
-    }
-
-    createFieldFromDict (&obj1, &rootFields[numFields++], xrefA, oref.getRef());
-
-    //Mark readonly field
-    Object obj3;
-    if (obj1.dictLookup("Ff", &obj3)->isInt()) {
-      int flags = obj3.getInt();
-      if (flags & 0x1)
-        rootFields[numFields-1]->setReadOnly(true);
-    }
-    obj3.free();
-
-    obj1.free();
-    oref.free();
   }
 
-  checkForNeedAppearances(acroForm); 
+  checkForNeedAppearances(acroForm);
 }
 
 Form::~Form() {
