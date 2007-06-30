@@ -64,8 +64,12 @@ struct _PopplerPage
 #endif
 };
 
-PopplerFormField *_form_field_new_from_widget (FormWidget* field);
-
+struct _PopplerFormField
+{
+  GObject parent_instance;
+  PopplerDocument *document;
+  FormWidget *widget;
+};
 
 PopplerPage   *_poppler_page_new   (PopplerDocument *document,
 				    Page            *page,
@@ -75,7 +79,8 @@ PopplerAction *_poppler_action_new (PopplerDocument *document,
 				    const gchar     *title);
 PopplerDest   *_poppler_dest_new_goto (PopplerDocument *document,
 				       LinkDest        *link_dest);
-
+PopplerFormField *_poppler_form_field_new (PopplerDocument *document,
+					   FormWidget      *field);
 PopplerAttachment *_poppler_attachment_new (PopplerDocument *document,
 					    EmbFile         *file);
 

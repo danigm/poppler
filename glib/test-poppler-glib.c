@@ -159,20 +159,86 @@ print_page_transition (PopplerPageTransition *transition)
   printf ("\t\tRectangular: %s\n", transition->rectangular ? "Yes" : "No");
 }
 
-static const gchar *
-form_field_get_type_name (PopplerFormFieldType type)
+static void
+form_field_text_print (PopplerFormField *field)
 {
-  switch (type)
+  PopplerFormTextType type;
+  gchar *text;
+
+  type = poppler_form_field_text_get_text_type (field);
+  printf ("\t\tType:\t\tText\n");
+  printf ("\t\tMultiline:\t%s\n",
+	  type == POPPLER_FORM_TEXT_MULTILINE ? "Yes" : "No");
+  printf ("\t\tPassword:\t%s\n",
+	  type == POPPLER_FORM_TEXT_PASSWORD ? "Yes" : "No");
+  printf ("\t\tFileSelect:\t%s\n",
+	  type == POPPLER_FORM_TEXT_FILESELCT ? "Yes" : "No");
+  printf ("\t\tDoSpellCheck:\t%s\n",
+	  poppler_form_field_text_do_spell_check (field) ? "Yes" : "No");
+  printf ("\t\tDoScroll:\t%s\n",
+	  poppler_form_field_text_do_scroll (field) ? "Yes" : "No");
+  printf ("\t\tIsRichText:\t%s\n",
+	  poppler_form_field_text_is_rich_text (field) ? "Yes" : "No");
+  text = poppler_form_field_text_get_text (field);
+  printf ("\t\tContent:\t%s\n", text ? text : "");
+  g_free (text);
+}
+
+static void
+form_field_button_print (PopplerFormField *field)
+{
+  printf ("\t\tType:\tButton\n");
+  printf ("\t\tState:\t%s\n",
+	  poppler_form_field_button_get_state (field) ? "Active" : "Inactive");
+}
+
+static void
+form_field_choice_print (PopplerFormField *field)
+{
+  gint i, n_items;
+  
+  printf ("\t\tType:\t\tChoice\n");
+  printf ("\t\tSubType:\t%s\n",
+	  poppler_form_field_choice_get_type (field) == POPPLER_FORM_CHOICE_COMBO ?
+	  "Combo" : "List");
+  printf ("\t\tEditable:\t%s\n",
+	  poppler_form_field_choice_is_editable (field) ? "Yes" : "No");
+  printf ("\t\tCan select multiple: %s\n",
+	  poppler_form_field_choice_can_select_multiple (field) ? "Yes" : "No");
+  printf ("\t\tDoSpellCheck:\t%s\n",
+	  poppler_form_field_choice_do_spell_check (field) ? "Yes" : "No");
+  
+  n_items = poppler_form_field_choice_get_n_items (field);
+  for (i = 0; i < n_items; i++)
+    {
+      gchar *item;
+
+      item = poppler_form_field_choice_get_item (field, i);
+      printf ("\t\t\tItem %d: %s %s\n", i, item ? item : "",
+	      poppler_form_field_choice_is_item_selected (field, i) ?
+	      "(selected)" : "");
+      g_free (item);
+    }
+}
+
+static void
+form_field_print (PopplerFormField *field)
+{
+  switch (poppler_form_field_get_field_type (field))
     {
     case POPPLER_FORM_FIELD_TEXT:
-      return "Text";
+      form_field_text_print (field);
+      break;
     case POPPLER_FORM_FIELD_BUTTON:
-      return "Button";
+      form_field_button_print (field);
+      break;
     case POPPLER_FORM_FIELD_CHOICE:
-      return "Choice";
+      form_field_choice_print (field);
+      break;
+    default:
+      printf ("\t\tUnknown form field\n");
     }
-
-  return "Unknown";
+  printf ("\n");
 }
 
 int main (int argc, char *argv[])
@@ -181,6 +247,7 @@ int main (int argc, char *argv[])
   PopplerBackend backend;
   PopplerPage *page;
   PopplerPageTransition *transition;
+  PopplerFormField *field;
   GEnumValue *enum_value;
   char *label;
   GError *error;
@@ -192,6 +259,7 @@ int main (int argc, char *argv[])
   PopplerRectangle area;
   gint num_images;
   gint num_forms;
+  gint form_id;
 
   if (argc != 3)
     FAIL ("usage: test-poppler-glib file://FILE PAGE");
@@ -308,7 +376,7 @@ int main (int argc, char *argv[])
     }
   poppler_page_free_image_mapping (list);
 
-  list = poppler_page_get_form_fields (page);
+  list = poppler_page_get_form_field_mapping (page);
   num_forms = g_list_length (list);
   printf ("\n");
   if (num_forms > 0)
@@ -317,18 +385,29 @@ int main (int argc, char *argv[])
     printf ("\tNo forms fields found\n");
   for (l = list; l != NULL; l = l->next)
     {
-      PopplerFormField *field;
+      PopplerFormFieldMapping *mapping;
 
-      field = (PopplerFormField *)l->data;
-      printf ("\t\t%s (id = %d): (%f, %f) - (%f, %f)\n",
-	      form_field_get_type_name (field->type),
-	      field->id,
-	      field->area.x1,
-	      field->area.y1,
-	      field->area.x2,
-	      field->area.y2);
+      mapping = (PopplerFormFieldMapping *)l->data;
+
+      form_id = poppler_form_field_get_id (mapping->field);
+      
+      printf ("\t\tId: %d: (%f, %f) - (%f, %f)\n",
+	      form_id,
+	      mapping->area.x1,
+	      mapping->area.y1,
+	      mapping->area.x2,
+	      mapping->area.y2);
+      form_field_print (mapping->field);
     }
-  poppler_page_free_form_fields (list);
+  poppler_page_free_form_field_mapping (list);
+
+  if (num_forms > 0)
+    {
+      field = poppler_document_get_form_field (document, form_id);
+      printf ("\tForm field for id %d\n", form_id);
+      form_field_print (field);
+      g_object_unref (field);
+    }
   
   if (poppler_document_has_attachments (document))
     {

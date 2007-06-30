@@ -1259,6 +1259,69 @@ poppler_page_free_link_mapping (GList *list)
   g_list_free (list);
 }
 
+/**
+ * poppler_page_get_form_field_mapping:
+ * @page: A #PopplerPage
+ *
+ * Returns a list of #PopplerFormFieldMapping items that map from a
+ * location on @page to a form field.  This list must be freed
+ * with poppler_page_free_form_field_mapping() when done.
+ *
+ * Return value: A #GList of #PopplerFormFieldMapping
+ **/
+GList *
+poppler_page_get_form_field_mapping (PopplerPage *page)
+{
+  GList *map_list = NULL;
+  FormPageWidgets *forms;
+  gint i;
+  
+  g_return_val_if_fail (POPPLER_IS_PAGE (page), NULL);
+
+  forms = page->page->getPageWidgets ();
+  if (forms == NULL)
+    return NULL;
+  
+  for (i = 0; i < forms->getNumWidgets (); i++) {
+    PopplerFormFieldMapping *mapping;
+    FormWidget *field;
+
+    mapping = poppler_form_field_mapping_new ();
+    
+    field = forms->getWidget (i);
+
+    mapping->field = _poppler_form_field_new (page->document, field);
+    field->getRect (&(mapping->area.x1), &(mapping->area.y1),
+		    &(mapping->area.x2), &(mapping->area.y2));
+
+    mapping->area.x1 -= page->page->getCropBox()->x1;
+    mapping->area.x2 -= page->page->getCropBox()->x1;
+    mapping->area.y1 -= page->page->getCropBox()->y1;
+    mapping->area.y2 -= page->page->getCropBox()->y1;
+    
+    map_list = g_list_prepend (map_list, mapping);
+  }
+  
+  return map_list;
+}
+
+/**
+ * poppler_page_free_form_field_mapping:
+ * @list: A list of #PopplerFormFieldMapping<!-- -->s
+ *
+ * Frees a list of #PopplerFormFieldMapping<!-- -->s allocated by
+ * poppler_page_get_form_field_mapping().
+ **/
+void
+poppler_page_free_form_field_mapping (GList *list)
+{
+  if (list == NULL)
+    return;
+
+  g_list_foreach (list, (GFunc) poppler_form_field_mapping_free, NULL);
+  g_list_free (list);
+}
+
 /* PopplerRectangle type */
 
 GType
@@ -1420,151 +1483,48 @@ poppler_page_transition_free (PopplerPageTransition *transition)
   g_free (transition);
 }
 
-/* Form Type */
+/* Form Field Mapping Type */
 GType
-poppler_form_field_get_type (void)
+poppler_form_field_mapping_get_type (void)
 {
   static GType our_type = 0;
   if (our_type == 0)
-    our_type = g_boxed_type_register_static("PopplerFormField",
-					    (GBoxedCopyFunc) poppler_form_field_copy,
-					    (GBoxedFreeFunc) poppler_form_field_free);
+    our_type = g_boxed_type_register_static("PopplerFormFieldMapping",
+					    (GBoxedCopyFunc) poppler_form_field_mapping_copy,
+					    (GBoxedFreeFunc) poppler_form_field_mapping_free);
   return our_type;
 }
 
-PopplerFormField*
-poppler_form_field_new (void)
+PopplerFormFieldMapping *
+poppler_form_field_mapping_new (void)
 {
-  return (PopplerFormField *) g_new0 (PopplerFormField, 1);
+  return (PopplerFormFieldMapping *) g_new0 (PopplerFormFieldMapping, 1);
 }
 
-PopplerFormField*
-poppler_form_field_copy (PopplerFormField *field)
+PopplerFormFieldMapping *
+poppler_form_field_mapping_copy (PopplerFormFieldMapping *mapping)
 {
-  PopplerFormField *new_field;
+  PopplerFormFieldMapping *new_mapping;
   
-  new_field = poppler_form_field_new ();
-  *new_field = *field;
+  new_mapping = poppler_form_field_mapping_new ();
+  *new_mapping = *mapping;
 
-  if (field->type == POPPLER_FORM_FIELD_TEXT && field->text.content)
-    new_field->text.content = g_strdup (field->text.content);
+  if (mapping->field)
+	  new_mapping->field = (PopplerFormField *)g_object_ref (mapping->field);
 	    
-  return new_field;
+  return new_mapping;
 }
 
 void
-poppler_form_field_free (PopplerFormField *field)
+poppler_form_field_mapping_free (PopplerFormFieldMapping *mapping)
 {
-  if (field->type == POPPLER_FORM_FIELD_TEXT)
-    g_free (field->text.content);
-  
-  g_free (field);
-}
-
-PopplerFormField *
-_form_field_new_from_widget (FormWidget *field)
-{
-  PopplerFormField *poppler_field;
-
-  poppler_field = g_new0 (PopplerFormField, 1);
-  
-  field->getRect (&(poppler_field->area.x1), &(poppler_field->area.y1),
-                  &(poppler_field->area.x2), &(poppler_field->area.y2));
-
-  poppler_field->type = (PopplerFormFieldType)field->getType ();
-  poppler_field->id = field->getID ();
-  poppler_field->font_size = field->getFontSize ();
-  
-  switch (poppler_field->type)
-    {
-    case POPPLER_FORM_FIELD_TEXT:
-      {
-        FormWidgetText* wid = static_cast<FormWidgetText*>(field);
-	GooString *tmp = wid->getContentCopy();
-	
-	poppler_field->text.content = (tmp) ? g_strdup (tmp->getCString ()) : NULL;
-	poppler_field->text.length = (tmp) ? tmp->getLength () : 0;
-	poppler_field->text.multiline = wid->isMultiline ();
-	poppler_field->text.password = wid->isPassword ();
-	poppler_field->text.fileselect = wid->isFileSelect ();
-	poppler_field->text.do_not_spell_check = wid->noSpellCheck ();
-	poppler_field->text.do_not_scroll = wid->noScroll ();
-	poppler_field->text.rich_text = wid->isRichText ();
-	
-	if (tmp)
-          delete tmp;
-      }
-      break;
-    case POPPLER_FORM_FIELD_BUTTON:
-      poppler_field->button.state = (gboolean)static_cast<FormWidgetButton*>(field)->getState ();
-      break;
-    case POPPLER_FORM_FIELD_CHOICE:
-      {
-        FormWidgetChoice* wid = static_cast<FormWidgetChoice*>(field);
-	
-	poppler_field->choice.combo = wid->isCombo ();
-	poppler_field->choice.edit = wid->hasEdit ();
-	poppler_field->choice.multi_select = wid->isMultiSelect ();
-	poppler_field->choice.do_not_spell_check = wid->noSpellCheck ();
-      }
-      break;
-    default:
-      g_assert_not_reached ();
-    }
-  
-  return poppler_field;
-}
-
-/**
- * poppler_page_get_form_fields:
- * @page: A #PopplerPage
- *
- * Returns a list of #PopplerFormField items that map from a
- * location on @page to a form field.  This list must be freed
- * with poppler_page_free_form_fields() when done.
- *
- * Return value: A #GList of #PopplerFormField
- **/
-GList *
-poppler_page_get_form_fields (PopplerPage *page)
-{
-  GList *field_list = NULL;
-  FormPageWidgets *forms;
-  gint i;
-  
-  g_return_val_if_fail (POPPLER_IS_PAGE (page), NULL);
-
-  forms = page->page->getPageWidgets ();
-  if (forms == NULL)
-    return NULL;
-  
-  for (i = 0; i < forms->getNumWidgets (); i++) {
-    PopplerFormField *poppler_field;
-    FormWidget *field;
-    
-    field = forms->getWidget (i);
-    poppler_field = _form_field_new_from_widget (field);
-    field_list = g_list_prepend (field_list, poppler_field);
-  }
-  
-  return field_list;
-}
-
-/**
- * poppler_page_free_form_fields:
- * @list: A list of #PopplerFormField<!-- -->s
- *
- * Frees a list of #PopplerFormField<!-- -->s allocated by
- * poppler_page_get_form_fields().
- **/
-void
-poppler_page_free_form_fields (GList *list)
-{
-  if (list == NULL)
+  if (!mapping)
     return;
 
-  g_list_foreach (list, (GFunc) poppler_form_field_free, NULL);
-  g_list_free (list);
+  if (mapping->field)
+    g_object_unref (mapping->field);
+  
+  g_free (mapping);
 }
 
 void 

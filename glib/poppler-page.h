@@ -73,6 +73,8 @@ GList                 *poppler_page_get_link_mapping     (PopplerPage        *pa
 void                   poppler_page_free_link_mapping    (GList              *list);
 GList                 *poppler_page_get_image_mapping    (PopplerPage        *page);
 void                   poppler_page_free_image_mapping   (GList              *list);
+GList              *poppler_page_get_form_field_mapping  (PopplerPage        *page);
+void                poppler_page_free_form_field_mapping (GList              *list);
 GdkRegion             *poppler_page_get_selection_region (PopplerPage        *page,
 							  gdouble             scale,
 							  PopplerRectangle   *selection);
@@ -163,55 +165,18 @@ PopplerImageMapping   *poppler_image_mapping_new      (void);
 PopplerImageMapping   *poppler_image_mapping_copy     (PopplerImageMapping *mapping);
 void                   poppler_image_mapping_free     (PopplerImageMapping *mapping);
 
-/* FormField */
-#define POPPLER_TYPE_FORM_FIELD                     (poppler_form_field_get_type ())
-struct _PopplerTextField
-{
-  //flags
-  char multiline:1;
-  char password:1;
-  char fileselect:1;
-  char do_not_spell_check:1;
-  char do_not_scroll:1;
-  char comb:1;
-  char rich_text:1;
-  //content
-  gchar *content;
-  int length;
-};
-
-struct _PopplerButtonField
-{
-  //content
-  gboolean state;
-};
-
-struct _PopplerChoiceField
-{
-  char combo:1;
-  char edit:1;
-  char multi_select:1;
-  char do_not_spell_check:1;
-  char commit_on_sel_change:1;
-};
-
-struct _PopplerFormField
+/* Mapping between areas on the current page and form fields */
+#define POPPLER_TYPE_FORM_FIELD_MAPPING               (poppler_form_field_mapping_get_type ())
+struct  _PopplerFormFieldMapping
 {
   PopplerRectangle area;
-  PopplerFormFieldType type;
-  int id;
-  double font_size;
-  union {
-    PopplerTextField text;
-    PopplerButtonField button;
-    PopplerChoiceField choice;
-  };
+  PopplerFormField *field;
 };
 
-GType               poppler_form_field_get_type (void) G_GNUC_CONST;
-PopplerFormField   *poppler_form_field_new      (void);
-PopplerFormField   *poppler_form_field_copy     (PopplerFormField *field);
-void                poppler_form_field_free     (PopplerFormField *field);
+GType                    poppler_form_field_mapping_get_type (void) G_GNUC_CONST;
+PopplerFormFieldMapping *poppler_form_field_mapping_new      (void);
+PopplerFormFieldMapping *poppler_form_field_mapping_copy     (PopplerFormFieldMapping *mapping);
+void                     poppler_form_field_mapping_free     (PopplerFormFieldMapping *mapping);
 
 G_END_DECLS
 

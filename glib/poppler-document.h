@@ -117,59 +117,8 @@ PopplerDest     *poppler_document_find_dest         (PopplerDocument  *document,
 						     const gchar      *link_name);
 
 /* Form */
-void 		poppler_document_set_form_field_text_content     (PopplerDocument *document, 
-							                                            unsigned id, 
-                                        							    char *content,
-                                                          int length);
-
-PopplerFormField *poppler_document_find_form_field_by_id (PopplerDocument *document,
-                                          							  unsigned 		   id);
-
-void poppler_document_set_form_field_button_state        (PopplerDocument *document, 
-                                                          unsigned id, 
-                                                          gboolean state);
-
-gboolean poppler_document_get_form_field_button_state    (PopplerDocument *document, 
-                                                          unsigned id);
-
-gchar *
-poppler_document_get_form_field_text_content             (PopplerDocument *document, 
-                                                          unsigned id, 
-                                                          int *length);
-int
-poppler_document_get_form_field_choice_num_choices       (PopplerDocument *document, 
-                                                          unsigned id);
-gchar *
-poppler_document_get_form_field_choice_content           (PopplerDocument *document,
-                                                          unsigned id, 
-                                                          int index, 
-                                                          int *length);
-int
-poppler_document_form_field_choice_is_selected           (PopplerDocument* document, 
-                                                          unsigned id, 
-                                                          int index);
-void
-poppler_document_form_field_choice_select                (PopplerDocument* document, 
-                                                          unsigned id, 
-                                                          int index);
-void 
-poppler_document_form_field_choice_toggle                (PopplerDocument* document, 
-                                                          unsigned id, 
-                                                          int index);
-void
-poppler_document_form_field_choice_deselect_all          (PopplerDocument* document, 
-                                                          unsigned id);
-void 
-poppler_document_set_form_field_choice_edit              (PopplerDocument* document, 
-                                                          unsigned id, 
-                                                          char *content, 
-                                                          int length);
-
-gchar *
-poppler_document_get_form_field_choice_edit              (PopplerDocument* document,
-                                                          unsigned id,
-                                                          int *length);
-
+PopplerFormField *poppler_document_get_form_field   (PopplerDocument  *document,
+						     gint              id);
 
 /* Interface for getting the Index of a poppler_document */
 #define POPPLER_TYPE_INDEX_ITER                 (poppler_index_iter_get_type ())

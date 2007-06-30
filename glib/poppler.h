@@ -77,31 +77,20 @@ typedef enum
   POPPLER_SELECTION_PARAGRAPH
 } PopplerSelectionStyle;
 
-/* MUST be the same than poppler/Form.h fieldType */
-typedef enum
-{
-	POPPLER_FORM_FIELD_BUTTON,
-	POPPLER_FORM_FIELD_TEXT,
-	POPPLER_FORM_FIELD_CHOICE,
-	POPPLER_FORM_FIELD_SIGNATURE,
-} PopplerFormFieldType;
-
-typedef struct _PopplerDocument       PopplerDocument;
-typedef struct _PopplerIndexIter      PopplerIndexIter;
-typedef struct _PopplerFontsIter      PopplerFontsIter;
-typedef struct _PopplerRectangle      PopplerRectangle;
-typedef struct _PopplerLinkMapping    PopplerLinkMapping;
-typedef struct _PopplerPageTransition PopplerPageTransition;
-typedef struct _PopplerImageMapping PopplerImageMapping;
-typedef struct _PopplerFormField      PopplerFormField;
-typedef struct _PopplerPage           PopplerPage;
-typedef struct _PopplerFontInfo       PopplerFontInfo;
-typedef struct _PopplerPSFile         PopplerPSFile;
-typedef union  _PopplerAction         PopplerAction;
-typedef struct _PopplerDest           PopplerDest;
-typedef struct _PopplerTextField      PopplerTextField;
-typedef struct _PopplerButtonField    PopplerButtonField;
-typedef struct _PopplerChoiceField    PopplerChoiceField;
+typedef struct _PopplerDocument         PopplerDocument;
+typedef struct _PopplerIndexIter        PopplerIndexIter;
+typedef struct _PopplerFontsIter        PopplerFontsIter;
+typedef struct _PopplerRectangle        PopplerRectangle;
+typedef struct _PopplerLinkMapping      PopplerLinkMapping;
+typedef struct _PopplerPageTransition   PopplerPageTransition;
+typedef struct _PopplerImageMapping     PopplerImageMapping;
+typedef struct _PopplerFormFieldMapping PopplerFormFieldMapping;
+typedef struct _PopplerPage             PopplerPage;
+typedef struct _PopplerFontInfo         PopplerFontInfo;
+typedef struct _PopplerPSFile           PopplerPSFile;
+typedef union  _PopplerAction           PopplerAction;
+typedef struct _PopplerDest             PopplerDest;
+typedef struct _PopplerFormField        PopplerFormField;
 
 typedef enum
 {
@@ -119,6 +108,7 @@ G_END_DECLS
 #include "poppler-document.h"
 #include "poppler-page.h"
 #include "poppler-action.h"
+#include "poppler-form-field.h"
 #include "poppler-enums.h"
 #include "poppler-attachment.h"
 
