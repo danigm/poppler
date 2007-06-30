@@ -1450,7 +1450,7 @@ poppler_image_mapping_free (PopplerImageMapping *mapping)
 
 /* Page Transition */
 GType
-poppler_page_transition (void)
+poppler_page_transition_get_type (void)
 {
   static GType our_type = 0;
   if (our_type == 0)
