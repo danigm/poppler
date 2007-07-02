@@ -224,6 +224,11 @@ form_field_choice_print (PopplerFormField *field)
 static void
 form_field_print (PopplerFormField *field)
 {
+  printf ("\t\tFont Size:\t%.2f\n",
+	  poppler_form_field_get_font_size (field));
+  printf ("\t\tReadOnly:\t%s\n",
+	  poppler_form_field_is_read_only (field) ? "Yes" : "No");
+  
   switch (poppler_form_field_get_field_type (field))
     {
     case POPPLER_FORM_FIELD_TEXT:
@@ -435,7 +440,6 @@ int main (int argc, char *argv[])
     g_print ("no attachment\n");
 
   g_object_unref (G_OBJECT (page));
-
   g_object_unref (G_OBJECT (document));
 
   return 0;

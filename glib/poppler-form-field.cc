@@ -111,6 +111,14 @@ poppler_form_field_get_font_size (PopplerFormField *field)
   return field->widget->getFontSize ();
 }
 
+gboolean
+poppler_form_field_is_read_only (PopplerFormField *field)
+{
+  g_return_val_if_fail (POPPLER_IS_FORM_FIELD (field), FALSE);
+
+  return field->widget->isReadOnly ();
+}
+
 /* Button Field */
 gboolean
 poppler_form_field_button_get_state (PopplerFormField *field)

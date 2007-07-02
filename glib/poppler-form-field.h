@@ -57,6 +57,7 @@ GType                 poppler_form_field_get_type                (void) G_GNUC_C
 PopplerFormFieldType  poppler_form_field_get_field_type          (PopplerFormField *field);
 gint                  poppler_form_field_get_id                  (PopplerFormField *field);
 gdouble               poppler_form_field_get_font_size           (PopplerFormField *field);
+gboolean              poppler_form_field_is_read_only            (PopplerFormField *field);
 
 /* Button Field */
 gboolean              poppler_form_field_button_get_state        (PopplerFormField *field);
