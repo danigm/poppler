@@ -152,7 +152,7 @@ poppler_form_field_text_get_text_type (PopplerFormField *field)
   else if (text_field->isPassword ())
     return POPPLER_FORM_TEXT_PASSWORD;
   else if (text_field->isFileSelect ())
-    return POPPLER_FORM_TEXT_FILESELCT;
+    return POPPLER_FORM_TEXT_FILE_SELECT;
 
   return POPPLER_FORM_TEXT_NORMAL;
 }

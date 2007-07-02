@@ -4,6 +4,15 @@
 	* glib/poppler-form-field.h:
 	* glib/test-poppler-glib.c:
 
+	Use FILE_SELECT instead of FILESELECT and fix a typo. Patch by
+	Kouhei Sutou
+	
+2007-07-02  Carlos Garcia Campos  <carlosgc@gnome.org>
+
+	* glib/poppler-form-field.cc:
+	* glib/poppler-form-field.h:
+	* glib/test-poppler-glib.c:
+
 	Add poppler_form_field_is_read_only to glib bindings. Patch by
 	Kouhei Sutou
 	
