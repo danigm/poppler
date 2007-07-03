@@ -78,6 +78,7 @@ PopplerFormChoiceType poppler_form_field_choice_get_choice_type  (PopplerFormFie
 gboolean              poppler_form_field_choice_is_editable      (PopplerFormField *field);
 gboolean           poppler_form_field_choice_can_select_multiple (PopplerFormField *field);
 gboolean              poppler_form_field_choice_do_spell_check   (PopplerFormField *field);
+gboolean              poppler_form_field_choice_commit_on_change (PopplerFormField *field);
 gint                  poppler_form_field_choice_get_n_items      (PopplerFormField *field);
 gchar                *poppler_form_field_choice_get_item         (PopplerFormField *field,
 								  gint              index);

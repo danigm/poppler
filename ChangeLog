@@ -2,6 +2,13 @@
 
 	* glib/poppler-form-field.cc:
 	* glib/poppler-form-field.h:
+	* glib/test-poppler-glib.c: Add choice_commit_on_change function
+	to glib bindings.
+	
+2007-07-03  Carlos Garcia Campos  <carlosgc@gnome.org>
+
+	* glib/poppler-form-field.cc:
+	* glib/poppler-form-field.h:
 	* glib/test-poppler-glib.c: Fix a typo. 
 	
 2007-07-03  Albert Astals Cid <aacid@kde.org>

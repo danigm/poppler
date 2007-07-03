@@ -207,6 +207,8 @@ form_field_choice_print (PopplerFormField *field)
 	  poppler_form_field_choice_can_select_multiple (field) ? "Yes" : "No");
   printf ("\t\tDoSpellCheck:\t%s\n",
 	  poppler_form_field_choice_do_spell_check (field) ? "Yes" : "No");
+  printf ("\t\tCommit on change: %s\n",
+	  poppler_form_field_choice_commit_on_change (field) ? "Yes" : "No");
   
   n_items = poppler_form_field_choice_get_n_items (field);
   for (i = 0; i < n_items; i++)

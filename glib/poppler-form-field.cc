@@ -244,6 +244,14 @@ poppler_form_field_choice_do_spell_check (PopplerFormField *field)
   return !static_cast<FormWidgetChoice*>(field->widget)->noSpellCheck ();
 }
 
+gboolean
+poppler_form_field_choice_commit_on_change (PopplerFormField *field)
+{
+  g_return_val_if_fail (field->widget->getType () == formChoice, FALSE);
+
+  return static_cast<FormWidgetChoice*>(field->widget)->commitOnSelChange ();
+}
+
 gint
 poppler_form_field_choice_get_n_items (PopplerFormField *field)
 {
