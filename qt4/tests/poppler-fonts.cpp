@@ -33,28 +33,40 @@ int main( int argc, char **argv )
 	}
 	switch( font.type() ) {
 	case Poppler::FontInfo::unknown:
-	    std::cout << "unknown      ";
+	    std::cout << "unknown           ";
 	    break;
 	case Poppler::FontInfo::Type1:
-	    std::cout << "Type 1       ";
+	    std::cout << "Type 1            ";
 	    break;
 	case Poppler::FontInfo::Type1C:
-	    std::cout << "Type 1C      ";
+	    std::cout << "Type 1C           ";
 	    break;
 	case Poppler::FontInfo::Type3:
-	    std::cout << "Type 3       ";
+	    std::cout << "Type 3            ";
 	    break;
 	case Poppler::FontInfo::TrueType:
-	    std::cout << "TrueType     ";
+	    std::cout << "TrueType          ";
 	    break;
 	case Poppler::FontInfo::CIDType0:
-	    std::cout << "CID Type 0   ";
+	    std::cout << "CID Type 0        ";
 	    break;
 	case Poppler::FontInfo::CIDType0C:
-	    std::cout << "CID Type 0C  ";
+	    std::cout << "CID Type 0C       ";
 	    break;
 	case Poppler::FontInfo::CIDTrueType:
-	    std::cout << "CID TrueType ";
+	    std::cout << "CID TrueType      ";
+	    break;
+	case Poppler::FontInfo::Type1COT:
+	    std::cout << "Type 1C (OT)      ";
+	    break;
+	case Poppler::FontInfo::TrueTypeOT:
+	    std::cout << "TrueType (OT)     ";
+	    break;
+	case Poppler::FontInfo::CIDType0COT:
+	    std::cout << "CID Type 0C (OT)  ";
+	    break;
+	case Poppler::FontInfo::CIDTrueTypeOT:
+	    std::cout << "CID TrueType (OT) ";
 	    break;
 	}
 

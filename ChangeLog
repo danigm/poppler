@@ -4,6 +4,8 @@
 	returns a reference to its own data so does not have to be deleted
 	* qt4/tests/poppler-attachments.cpp: Delete the doc, just for sake of
 	correctness
+	* qt4/tests/poppler-fonts.cpp: For the sake of completeness, add all
+	the enums
 
 2007-07-03  Carlos Garcia Campos  <carlosgc@gnome.org>
 
