@@ -1,3 +1,10 @@
+2007-07-03  Albert Astals Cid <aacid@kde.org>
+
+	* poppler/Catalog.cc: Fix crash, embeddedFileNameTree.getName(i)
+	returns a reference to its own data so does not have to be deleted
+	* qt4/tests/poppler-attachments.cpp: Delete the doc, just for sake of
+	correctness
+
 2007-07-03  Carlos Garcia Campos  <carlosgc@gnome.org>
 
 	* glib/poppler-form-field.cc:

@@ -385,7 +385,6 @@ EmbFile *Catalog::embeddedFile(int i)
     GooString *fileName = new GooString();
     char *descString = embeddedFileNameTree.getName(i)->getCString();
     GooString *desc = new GooString(descString);
-    delete[] descString;
     GooString *createDate = new GooString();
     GooString *modDate = new GooString();
     GooString *checksum = new GooString();

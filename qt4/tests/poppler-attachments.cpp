@@ -32,5 +32,6 @@ int main( int argc, char **argv )
     } else {
 	std::cout << "There are no embedded document at the top level" << std::endl;
     }
+    delete doc;
   
 }
