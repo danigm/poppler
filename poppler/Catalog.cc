@@ -388,7 +388,9 @@ EmbFile *Catalog::embeddedFile(int i)
     delete[] descString;
     GooString *createDate = new GooString();
     GooString *modDate = new GooString();
+    GooString *checksum = new GooString();
     Stream *efStream = NULL;
+    int size = -1;
     if (obj.isRef()) {
 	if (obj.fetch(xref, &efDict)->isDict()) {
 	    // efDict matches Table 3.40 in the PDF1.6 spec
@@ -441,14 +443,25 @@ EmbFile *Catalog::embeddedFile(int i)
 		if (paramDict.isDict()) {
 		    paramDict.dictLookup("ModDate", &paramObj);
 		    if (paramObj.isString()) {
-			delete modDate;
+		        delete modDate;
 		        modDate = new GooString(paramObj.getString());
 		    }
 		    paramObj.free();
 		    paramDict.dictLookup("CreationDate", &paramObj);
 		    if (paramObj.isString()) {
-			delete createDate;
+		        delete createDate;
 		        createDate = new GooString(paramObj.getString());
+		    }
+		    paramObj.free();
+		    paramDict.dictLookup("Size", &paramObj);
+		    if (paramObj.isInt()) {
+		        size = paramObj.getInt();
+		    }
+		    paramObj.free();
+		    paramDict.dictLookup("CheckSum", &paramObj);
+		    if (paramObj.isString()) {
+		        delete checksum;
+		        checksum = new GooString(paramObj.getString());
 		    }
 		    paramObj.free();
 		}
@@ -458,7 +471,7 @@ EmbFile *Catalog::embeddedFile(int i)
 	    obj2.free();
 	}
     }
-    EmbFile *embeddedFile = new EmbFile(fileName, desc, createDate, modDate, strObj);
+    EmbFile *embeddedFile = new EmbFile(fileName, desc, size, createDate, modDate, checksum, strObj);
     strObj.free();
     return embeddedFile;
 }

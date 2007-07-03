@@ -1,3 +1,12 @@
+2007-07-03  Albert Astals Cid <aacid@kde.org>
+
+	* poppler/Catalog.cc:
+	* poppler/Catalog.h: Add size and checksum properties to the embeded
+	files
+	* qt4/src/poppler-embeddedfile.cc:
+	* qt4/src/poppler-qt4.h: Add size and checksum properties to the qt4
+	frontend
+
 2007-07-02  Carlos Garcia Campos  <carlosgc@gnome.org>
 
 	* glib/poppler-form-field.cc:

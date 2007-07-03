@@ -202,6 +202,13 @@ namespace Poppler {
 	QString description() const;
 
 	/**
+	   The size of the file.
+	
+	   This will return < 0 if there is no size element
+	*/
+	int size() const;
+
+	/**
 	   The modification date for the embedded file, if known.
 	*/
 	QDateTime modDate() const;
@@ -210,6 +217,13 @@ namespace Poppler {
 	   The creation date for the embedded file, if known.
 	*/
 	QDateTime createDate() const;
+	
+	/**
+		The checksum of the file.
+		
+		This will return an empty QString if there is no checksum element
+	*/
+	QByteArray checksum() const;
 
 	/**
 	   The data as a byte array

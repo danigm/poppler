@@ -61,12 +61,16 @@ private:
 class EmbFile {
 public:
   EmbFile(GooString *name, GooString *description, 
+	  int size,
 	  GooString *createDate,
-	  GooString *modDate, Object objStr) :
+	  GooString *modDate, GooString *checksum,
+	  Object objStr) :
     m_name(name),
     m_description(description),
+    m_size(size),
     m_createDate(createDate),
-    m_modDate(modDate)
+    m_modDate(modDate),
+    m_checksum(checksum)
   {
     objStr.copy(&m_objStr);
   }
@@ -77,20 +81,25 @@ public:
     delete m_description;
     delete m_modDate;
     delete m_createDate;
+    delete m_checksum;
     m_objStr.free();
   }
 
   GooString *name() { return m_name; }
   GooString *description() { return m_description; }
+  int size() { return m_size; }
   GooString *modDate() { return m_modDate; }
   GooString *createDate() { return m_createDate; }
+  GooString *checksum() { return m_checksum; }
   Object &streamObject() { return m_objStr; }
 
 private:
   GooString *m_name;
   GooString *m_description;
+  int m_size;
   GooString *m_createDate;
   GooString *m_modDate;
+  GooString *m_checksum;
   Object m_objStr;
 };
 

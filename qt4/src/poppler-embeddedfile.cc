@@ -35,8 +35,10 @@ class EmbeddedFileData
 public:
 	QString m_label;
 	QString m_description;
+	int m_size;
 	QDateTime m_modDate;
 	QDateTime m_createDate;
+	QByteArray m_checksum;
 	Object m_streamObject;
 };
 
@@ -45,8 +47,10 @@ EmbeddedFile::EmbeddedFile(EmbFile *embfile)
 	m_embeddedFile = new EmbeddedFileData();
 	m_embeddedFile->m_label = QString(embfile->name()->getCString());
 	m_embeddedFile->m_description = UnicodeParsedString(embfile->description());
+	m_embeddedFile->m_size = embfile->size();
 	m_embeddedFile->m_modDate = convertDate(embfile->modDate()->getCString());
 	m_embeddedFile->m_createDate = convertDate(embfile->createDate()->getCString());
+	m_embeddedFile->m_checksum = QByteArray::fromRawData(embfile->checksum()->getCString(), embfile->checksum()->getLength());
 	embfile->streamObject().copy(&m_embeddedFile->m_streamObject);
 }
 
@@ -55,8 +59,10 @@ EmbeddedFile::EmbeddedFile(const EmbeddedFile &ef)
 	m_embeddedFile = new EmbeddedFileData();
 	m_embeddedFile->m_label = ef.m_embeddedFile->m_label;
 	m_embeddedFile->m_description = ef.m_embeddedFile->m_description;
+	m_embeddedFile->m_size = ef.m_embeddedFile->m_size;
 	m_embeddedFile->m_modDate = ef.m_embeddedFile->m_modDate;
 	m_embeddedFile->m_createDate = ef.m_embeddedFile->m_createDate;
+	m_embeddedFile->m_checksum = ef.m_embeddedFile->m_checksum;
 	ef.m_embeddedFile->m_streamObject.copy(&m_embeddedFile->m_streamObject);
 }
 
@@ -75,6 +81,11 @@ QString EmbeddedFile::description() const
 	return m_embeddedFile->m_description;
 }
 
+int EmbeddedFile::size() const
+{
+	return m_embeddedFile->m_size;
+}
+
 QDateTime EmbeddedFile::modDate() const
 {
 	return m_embeddedFile->m_modDate;
@@ -83,6 +94,11 @@ QDateTime EmbeddedFile::modDate() const
 QDateTime EmbeddedFile::createDate() const
 {
 	return m_embeddedFile->m_createDate;
+}
+
+QByteArray EmbeddedFile::checksum() const
+{
+	return m_embeddedFile->m_checksum;
 }
 
 QByteArray EmbeddedFile::data()
