@@ -74,7 +74,7 @@ gboolean              poppler_form_field_text_do_scroll          (PopplerFormFie
 gboolean              poppler_form_field_text_is_rich_text       (PopplerFormField *field);
 
 /* Choice Field */
-PopplerFormChoiceType poppler_form_field_choice_get_type         (PopplerFormField *field);
+PopplerFormChoiceType poppler_form_field_choice_get_choice_type  (PopplerFormField *field);
 gboolean              poppler_form_field_choice_is_editable      (PopplerFormField *field);
 gboolean           poppler_form_field_choice_can_select_multiple (PopplerFormField *field);
 gboolean              poppler_form_field_choice_do_spell_check   (PopplerFormField *field);

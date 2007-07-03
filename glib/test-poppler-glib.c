@@ -199,7 +199,7 @@ form_field_choice_print (PopplerFormField *field)
   
   printf ("\t\tType:\t\tChoice\n");
   printf ("\t\tSubType:\t%s\n",
-	  poppler_form_field_choice_get_type (field) == POPPLER_FORM_CHOICE_COMBO ?
+	  poppler_form_field_choice_get_choice_type (field) == POPPLER_FORM_CHOICE_COMBO ?
 	  "Combo" : "List");
   printf ("\t\tEditable:\t%s\n",
 	  poppler_form_field_choice_is_editable (field) ? "Yes" : "No");

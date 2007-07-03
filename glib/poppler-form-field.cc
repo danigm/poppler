@@ -210,7 +210,7 @@ poppler_form_field_text_is_rich_text (PopplerFormField *field)
 
 /* Choice Field */
 PopplerFormChoiceType
-poppler_form_field_choice_get_type (PopplerFormField *field)
+poppler_form_field_choice_get_choice_type (PopplerFormField *field)
 {
   g_return_val_if_fail (field->widget->getType () == formChoice, POPPLER_FORM_CHOICE_COMBO);
 
