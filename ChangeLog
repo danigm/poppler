@@ -1,5 +1,10 @@
 2007-07-04  Carlos Garcia Campos  <carlosgc@gnome.org>
 
+	* glib/poppler-form-field.cc: Convert strings from UTF8 to UTF16BE
+	before setting them.
+	
+2007-07-04  Carlos Garcia Campos  <carlosgc@gnome.org>
+
 	* glib/poppler-attachment.cc:
 	* glib/poppler-attachment.h: Add size, creation and modification
 	date and checksum properties to attachments. Fix memory leaks.

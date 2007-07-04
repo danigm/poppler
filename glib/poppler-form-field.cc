@@ -175,13 +175,20 @@ void
 poppler_form_field_text_set_text (PopplerFormField *field,
 				  const gchar      *text)
 {
-  GooString *tmp;
+  GooString *goo_tmp;
+  gchar *tmp;
+  gsize length;
 	
   g_return_if_fail (field->widget->getType () == formText);
 
-  tmp = new GooString (text, g_utf8_strlen (text, -1));
-  static_cast<FormWidgetText*>(field->widget)->setContent (tmp);
-  delete tmp;
+  tmp = g_convert (text, -1, "UTF16BE", "UTF8", NULL, &length, NULL);
+  if (tmp)
+    {
+      goo_tmp = new GooString (tmp, length);
+      g_free (tmp);
+      static_cast<FormWidgetText*>(field->widget)->setContent (goo_tmp);
+      delete goo_tmp;
+    }
 }
 
 gboolean
@@ -311,13 +318,20 @@ void
 poppler_form_field_choice_set_text (PopplerFormField *field,
 				    const gchar      *text)
 {
-  GooString *tmp;
-  
+  GooString *goo_tmp;
+  gchar *tmp;
+  gsize length;
+
   g_return_if_fail (field->widget->getType () == formChoice);
-  
-  tmp = new GooString (text, g_utf8_strlen (text, -1));
-  static_cast<FormWidgetChoice*>(field->widget)->setEditChoice (tmp);
-  delete tmp;
+
+  tmp = g_convert (text, -1, "UTF16BE", "UTF8", NULL, &length, NULL);
+  if (tmp)
+    {
+      goo_tmp = new GooString (tmp, length);
+      g_free (tmp);
+      static_cast<FormWidgetChoice*>(field->widget)->setEditChoice (goo_tmp);
+      delete goo_tmp;
+    }
 }
 
 gchar *
