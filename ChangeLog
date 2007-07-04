@@ -1,3 +1,10 @@
+2007-07-04  Albert Astals Cid <aacid@kde.org>
+
+	* qt4/src/poppler-form.cc: QStringToGooString ->
+	QStringToUnicodeGooString has FormWidgetText::setContent wants to have
+	the unicode formated string
+	* qt4/src/poppler-private.h: create QStringToUnicodeGooString
+
 2007-07-04  Carlos Garcia Campos  <carlosgc@gnome.org>
 
 	* glib/poppler-form-field.cc: Convert strings from UTF8 to UTF16BE

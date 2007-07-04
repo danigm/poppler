@@ -157,7 +157,7 @@ QString FormFieldText::text() const
 void FormFieldText::setText( const QString& text )
 {
   FormWidgetText* fwt = static_cast<FormWidgetText*>(m_formData->fm);
-  GooString * goo = QStringToGooString( text );
+  GooString * goo = QStringToUnicodeGooString( text );
   fwt->setContent( goo );
 }
 
