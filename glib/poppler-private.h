@@ -11,8 +11,6 @@
 #include <TextOutputDev.h>
 #include <Catalog.h>
 
-#include "poppler-attachment.h"
-
 #if defined (HAVE_CAIRO)
 #include <CairoOutputDev.h>
 #elif defined (HAVE_SPLASH)
@@ -71,6 +69,7 @@ struct _PopplerFormField
   FormWidget *widget;
 };
 
+
 PopplerPage   *_poppler_page_new   (PopplerDocument *document,
 				    Page            *page,
 				    int              index);
@@ -85,5 +84,6 @@ PopplerAttachment *_poppler_attachment_new (PopplerDocument *document,
 					    EmbFile         *file);
 
 char *_poppler_goo_string_to_utf8(GooString *s);
-
+gboolean _poppler_convert_pdf_date_to_gtime (GooString *date,
+					     GTime     *gdate);
 #endif

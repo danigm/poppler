@@ -19,7 +19,7 @@
 #ifndef __POPPLER_ATTACHMENT_H__
 #define __POPPLER_ATTACHMENT_H__
 
-#include <time.h>
+#include <glib.h>
 #include <glib-object.h>
 
 #include "poppler.h"
@@ -37,15 +37,17 @@ typedef gboolean (*PopplerAttachmentSaveFunc) (const gchar  *buf,
 					       gpointer      data,
 					       GError      **error);
 
-typedef struct _PopplerAttachment
+struct _PopplerAttachment
 {
   GObject parent;
 
-  const char *name;
-  const char *description;
-  time_t mtime;
-  time_t ctime;
-} PopplerAttachment;
+  gchar *name;
+  gchar *description;
+  gsize size;
+  GTime mdate;
+  GTime cdate;
+  GString *checksum;
+};
 
 typedef struct _PopplerAttachmentClass
 {

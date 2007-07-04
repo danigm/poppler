@@ -6,6 +6,22 @@
 #define FAIL(msg) \
 	do { fprintf (stderr, "FAIL: %s\n", msg); exit (-1); } while (0)
 
+static gchar *
+poppler_format_date (GTime utime)
+{
+	time_t time = (time_t) utime;
+	struct tm t;
+	char s[256];
+	const char *fmt_hack = "%c";
+	size_t len;
+
+	if (time == 0 || !localtime_r (&time, &t)) return NULL;
+
+	len = strftime (s, sizeof (s), fmt_hack, &t);
+	if (len == 0 || s[0] == '\0') return NULL;
+
+	return g_locale_to_utf8 (s, -1, NULL, NULL, NULL);
+}
 
 static void
 print_index (PopplerIndexIter *iter)
@@ -31,6 +47,7 @@ print_document_info (PopplerDocument *document)
 {
   gchar *title, *format, *author, *subject, *keywords, *creator, *producer, *linearized;
   GTime creation_date, mod_date;
+  gchar *strdate;
   PopplerPageLayout layout;
   PopplerPageMode mode;
   PopplerViewerPreferences view_prefs;
@@ -72,8 +89,18 @@ print_document_info (PopplerDocument *document)
   enum_value = g_enum_get_value ((GEnumClass *) g_type_class_peek (POPPLER_TYPE_PAGE_LAYOUT), layout);
   g_print ("\tpage layout:\t%s\n", enum_value->value_name);
 
-  g_print ("\tcreation date:\t%d\n", creation_date);
-  g_print ("\tmodified date:\t%d\n", mod_date);
+  strdate = poppler_format_date (creation_date);
+  if (strdate)
+    {
+      g_print ("\tcreation date:\t%s\n", strdate);
+      g_free (strdate);
+    }
+  strdate = poppler_format_date (mod_date);
+  if (strdate)
+    {
+      g_print ("\tmodified date:\t%s\n", strdate);
+      g_free (strdate);
+    }
 
   g_print ("\tfonts:\n");
   font_info = poppler_font_info_new (document);
@@ -426,20 +453,35 @@ int main (int argc, char *argv[])
       for (l = list; l; l = l->next)
 	{
 	  PopplerAttachment *attachment;
-	  char *name;
+	  char *filename, *strdate;
 
-	  name = g_strdup_printf ("/tmp/attach%d", i);
+	  filename = g_strdup_printf ("/tmp/attach%d", i);
 	  attachment = l->data;
 	  g_print ("\tname: %s\n", attachment->name);
-	  g_print ("\tdescription: %s\n\n", attachment->description);
-	  poppler_attachment_save (attachment, name, NULL);
+	  g_print ("\tdescription: %s\n", attachment->description);
+	  g_print ("\tsize: %d\n", attachment->size);
+	  strdate = poppler_format_date (attachment->cdate);
+	  if (strdate)
+	    {
+	      g_print ("\tcreation date: %s\n", strdate);
+	      g_free (strdate);
+	    }
+	  strdate = poppler_format_date (attachment->mdate);
+	  if (strdate)
+	    {
+	      g_print ("\tmodification date: %s\n", strdate);
+	      g_free (strdate);
+	    }
+	  poppler_attachment_save (attachment, filename, NULL);
+	  g_free (filename);
+	  g_print ("\n");
 	  i++;
 	}
       g_list_foreach (list, (GFunc) g_object_unref, NULL);
       g_list_free (list);
     }
   else
-    g_print ("no attachment\n");
+    g_print ("\tNo attachments found\n");
 
   g_object_unref (G_OBJECT (page));
   g_object_unref (G_OBJECT (document));

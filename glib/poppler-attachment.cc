@@ -22,7 +22,6 @@
 
 #include "poppler.h"
 #include "poppler-private.h"
-#include "poppler-attachment.h"
 
 /* FIXME: We need to add gettext support sometime */
 #define _(x) (x)
@@ -42,7 +41,6 @@ G_DEFINE_TYPE (PopplerAttachment, poppler_attachment, G_TYPE_OBJECT);
 static void
 poppler_attachment_init (PopplerAttachment *attachment)
 {
-
 }
 
 static void
@@ -58,7 +56,22 @@ poppler_attachment_finalize (GObject *obj)
   PopplerAttachment *attachment;
 
   attachment = (PopplerAttachment *) obj;
+
+  if (attachment->name)
+    g_free (attachment->name);
+  attachment->name = NULL;
+
+  if (attachment->description)
+    g_free (attachment->description);
+  attachment->description = NULL;
+  
+  if (attachment->checksum)
+    g_string_free (attachment->checksum, TRUE);
+  attachment->checksum = NULL;
+  
   POPPLER_ATTACHMENT_GET_PRIVATE (attachment)->obj_stream.free();
+
+  G_OBJECT_CLASS (poppler_attachment_parent_class)->finalize (obj);
 }
 
 /* Public functions */
@@ -79,6 +92,14 @@ _poppler_attachment_new (PopplerDocument *document,
   if (emb_file->description ())
     attachment->description = g_strdup (emb_file->description ()->getCString ());
 
+  attachment->size = emb_file->size ();
+  
+  _poppler_convert_pdf_date_to_gtime (emb_file->createDate (), &attachment->cdate);
+  _poppler_convert_pdf_date_to_gtime (emb_file->modDate (), &attachment->mdate);
+
+  attachment->checksum = g_string_new_len (emb_file->checksum ()->getCString (),
+					   emb_file->checksum ()->getLength ());
+  
   emb_file->streamObject().copy(&POPPLER_ATTACHMENT_GET_PRIVATE (attachment)->obj_stream);
 
   return attachment;

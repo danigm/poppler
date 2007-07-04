@@ -1,3 +1,15 @@
+2007-07-04  Carlos Garcia Campos  <carlosgc@gnome.org>
+
+	* glib/poppler-attachment.cc:
+	* glib/poppler-attachment.h: Add size, creation and modification
+	date and checksum properties to attachments. Fix memory leaks.
+	* glib/test-poppler-glib.c:
+	* glib/poppler.h:
+	* glib/poppler-private.h:
+	* glib/poppler-document.cc: Add a function to convert a pdf date
+	into a GTime that is used by attachments and document
+	properties. Fix memory leak in attachments.
+	
 2007-07-03  Albert Astals Cid <aacid@kde.org>
 
 	* poppler/Catalog.cc: Fix crash, embeddedFileNameTree.getName(i)

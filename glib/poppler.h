@@ -91,6 +91,7 @@ typedef struct _PopplerPSFile           PopplerPSFile;
 typedef union  _PopplerAction           PopplerAction;
 typedef struct _PopplerDest             PopplerDest;
 typedef struct _PopplerFormField        PopplerFormField;
+typedef struct _PopplerAttachment       PopplerAttachment;
 
 typedef enum
 {

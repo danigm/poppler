@@ -31,7 +31,6 @@
 
 #include "poppler.h"
 #include "poppler-private.h"
-#include "poppler-attachment.h"
 #include "poppler-enums.h"
 
 enum {
@@ -365,6 +364,7 @@ poppler_document_get_attachments (PopplerDocument *document)
 
       emb_file = catalog->embeddedFile (i);
       attachment = _poppler_attachment_new (document, emb_file);
+      delete emb_file;
 
       retval = g_list_prepend (retval, attachment);
     }
@@ -463,11 +463,6 @@ static void
 info_dict_get_date (Dict *info_dict, const gchar *key, GValue *value) 
 {
   Object obj;
-  GooString *goo_value;
-  int year, mon, day, hour, min, sec;
-  int scanned_items;
-  struct tm time;
-  gchar *date_string, *ds;
   GTime result;
 
   if (!info_dict->lookup ((gchar *)key, &obj)->isString ()) {
@@ -475,70 +470,10 @@ info_dict_get_date (Dict *info_dict, const gchar *key, GValue *value)
     return;
   }
 
-  goo_value = obj.getString (); 
+  if (_poppler_convert_pdf_date_to_gtime (obj.getString (), &result))
+    g_value_set_int (value, result);
 
-  if (goo_value->hasUnicodeMarker()) {
-    date_string = g_convert (goo_value->getCString () + 2,
-			goo_value->getLength () - 2,
-			"UTF-8", "UTF-16BE", NULL, NULL, NULL);		
-  } else {
-    date_string = g_strndup (goo_value->getCString (), goo_value->getLength ());
-  }
-  ds = date_string;
-  
-  /* See PDF Reference 1.3, Section 3.8.2 for PDF Date representation */
-
-  if (date_string [0] == 'D' && date_string [1] == ':')
-		date_string += 2;
-	
-  /* FIXME only year is mandatory; parse optional timezone offset */
-  scanned_items = sscanf (date_string, "%4d%2d%2d%2d%2d%2d",
-		&year, &mon, &day, &hour, &min, &sec);
-
-  if (scanned_items != 6) {
-    obj.free ();
-    g_free (ds);
-    return;
-  }
-  
-  /* Workaround for y2k bug in Distiller 3, hoping that it won't
-   * be used after y2.2k */
-  if (year < 1930 && strlen (date_string) > 14) {
-    int century, years_since_1900;
-    scanned_items = sscanf (date_string, "%2d%3d%2d%2d%2d%2d%2d",
-		&century, &years_since_1900, &mon, &day, &hour, &min, &sec);
-						
-    if (scanned_items != 7) {
-      obj.free ();
-      g_free (ds);
-      return;
-    }
-    
-    year = century * 100 + years_since_1900;
-  }
-
-  time.tm_year = year - 1900;
-  time.tm_mon = mon - 1;
-  time.tm_mday = day;
-  time.tm_hour = hour;
-  time.tm_min = min;
-  time.tm_sec = sec;
-  time.tm_wday = -1;
-  time.tm_yday = -1;
-  time.tm_isdst = -1; /* 0 = DST off, 1 = DST on, -1 = don't know */
- 
-  /* compute tm_wday and tm_yday and check date */
-  result = mktime (&time);
-  if (result == (time_t) - 1) {
-    obj.free ();
-    g_free (ds);
-    return;
-  }
-    
   obj.free ();
-  g_free (ds);
-  
-  g_value_set_int (value, result);
 }
 
 static PopplerPageLayout
@@ -1441,4 +1376,75 @@ poppler_document_get_form_field (PopplerDocument *document,
     return _poppler_form_field_new (document, field);
 
   return NULL;
+}
+
+gboolean
+_poppler_convert_pdf_date_to_gtime (GooString *date,
+				    GTime     *gdate) 
+{
+  int year, mon, day, hour, min, sec;
+  int scanned_items;
+  struct tm time;
+  gchar *date_string, *ds;
+  GTime result;
+
+  if (date->hasUnicodeMarker()) {
+    date_string = g_convert (date->getCString () + 2,
+			     date->getLength () - 2,
+			     "UTF-8", "UTF-16BE", NULL, NULL, NULL);		
+  } else {
+    date_string = g_strndup (date->getCString (), date->getLength ());
+  }
+  ds = date_string;
+  
+  /* See PDF Reference 1.3, Section 3.8.2 for PDF Date representation */
+
+  if (date_string [0] == 'D' && date_string [1] == ':')
+    date_string += 2;
+	
+  /* FIXME only year is mandatory; parse optional timezone offset */
+  scanned_items = sscanf (date_string, "%4d%2d%2d%2d%2d%2d",
+			  &year, &mon, &day, &hour, &min, &sec);
+  
+  if (scanned_items != 6) {
+    g_free (ds);
+    return FALSE;
+  }
+  
+  /* Workaround for y2k bug in Distiller 3, hoping that it won't
+   * be used after y2.2k */
+  if (year < 1930 && strlen (date_string) > 14) {
+    int century, years_since_1900;
+    scanned_items = sscanf (date_string, "%2d%3d%2d%2d%2d%2d%2d",
+			    &century, &years_since_1900, &mon, &day, &hour, &min, &sec);
+						
+    if (scanned_items != 7) {
+      g_free (ds);
+      return FALSE;
+    }
+    
+    year = century * 100 + years_since_1900;
+  }
+
+  time.tm_year = year - 1900;
+  time.tm_mon = mon - 1;
+  time.tm_mday = day;
+  time.tm_hour = hour;
+  time.tm_min = min;
+  time.tm_sec = sec;
+  time.tm_wday = -1;
+  time.tm_yday = -1;
+  time.tm_isdst = -1; /* 0 = DST off, 1 = DST on, -1 = don't know */
+ 
+  /* compute tm_wday and tm_yday and check date */
+  result = mktime (&time);
+  if (result == (time_t) - 1) {
+    g_free (ds);
+    return FALSE;
+  }
+    
+  g_free (ds);
+  *gdate = result;
+
+  return TRUE;
 }
