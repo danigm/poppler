@@ -44,8 +44,8 @@ struct _PopplerAttachment
   gchar *name;
   gchar *description;
   gsize size;
-  GTime mdate;
-  GTime cdate;
+  GTime mtime;
+  GTime ctime;
   GString *checksum;
 };
 

@@ -460,13 +460,13 @@ int main (int argc, char *argv[])
 	  g_print ("\tname: %s\n", attachment->name);
 	  g_print ("\tdescription: %s\n", attachment->description);
 	  g_print ("\tsize: %d\n", attachment->size);
-	  strdate = poppler_format_date (attachment->cdate);
+	  strdate = poppler_format_date (attachment->ctime);
 	  if (strdate)
 	    {
 	      g_print ("\tcreation date: %s\n", strdate);
 	      g_free (strdate);
 	    }
-	  strdate = poppler_format_date (attachment->mdate);
+	  strdate = poppler_format_date (attachment->mtime);
 	  if (strdate)
 	    {
 	      g_print ("\tmodification date: %s\n", strdate);
