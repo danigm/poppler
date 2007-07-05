@@ -1,5 +1,10 @@
 2007-07-05  Carlos Garcia Campos  <carlosgc@gnome.org>
 
+	* glib/poppler-form-field.cc: Allow to set NULL in form fields
+	that can contain text.
+	
+2007-07-05  Carlos Garcia Campos  <carlosgc@gnome.org>
+
 	* glib/poppler-attachment.cc:
 	* glib/poppler-attachment.h:
 	* glib/test-poppler-glib.c: Rename cdate and mdate again to ctime

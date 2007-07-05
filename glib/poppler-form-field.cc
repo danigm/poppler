@@ -177,18 +177,15 @@ poppler_form_field_text_set_text (PopplerFormField *field,
 {
   GooString *goo_tmp;
   gchar *tmp;
-  gsize length;
+  gsize length = 0;
 	
   g_return_if_fail (field->widget->getType () == formText);
 
-  tmp = g_convert (text, -1, "UTF16BE", "UTF8", NULL, &length, NULL);
-  if (tmp)
-    {
-      goo_tmp = new GooString (tmp, length);
-      g_free (tmp);
-      static_cast<FormWidgetText*>(field->widget)->setContent (goo_tmp);
-      delete goo_tmp;
-    }
+  tmp = text ? g_convert (text, -1, "UTF16BE", "UTF8", NULL, &length, NULL) : NULL;
+  goo_tmp = new GooString (tmp, length);
+  g_free (tmp);
+  static_cast<FormWidgetText*>(field->widget)->setContent (goo_tmp);
+  delete goo_tmp;
 }
 
 gboolean
@@ -320,18 +317,15 @@ poppler_form_field_choice_set_text (PopplerFormField *field,
 {
   GooString *goo_tmp;
   gchar *tmp;
-  gsize length;
+  gsize length = 0;
 
   g_return_if_fail (field->widget->getType () == formChoice);
 
-  tmp = g_convert (text, -1, "UTF16BE", "UTF8", NULL, &length, NULL);
-  if (tmp)
-    {
-      goo_tmp = new GooString (tmp, length);
-      g_free (tmp);
-      static_cast<FormWidgetChoice*>(field->widget)->setEditChoice (goo_tmp);
-      delete goo_tmp;
-    }
+  tmp = text ? g_convert (text, -1, "UTF16BE", "UTF8", NULL, &length, NULL) : NULL;
+  goo_tmp = new GooString (tmp, length);
+  g_free (tmp);
+  static_cast<FormWidgetChoice*>(field->widget)->setEditChoice (goo_tmp);
+  delete goo_tmp;
 }
 
 gchar *
