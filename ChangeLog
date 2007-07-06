@@ -3,6 +3,10 @@
 	* goo/GooString.cc:
 	* poppler/ABWOutputDev.cc: Build on Sun Force compiler, patch by
 	Darren Kenny <darren.kenny@sun.com>
+	* poppler/Form.cc: Fix a bug with FormField's destructor which was not
+	checking if the FormField is terminal to determine wether it needs to
+	delete children or widgets. Patch by  
+	Julien Rebetez <julien@fhtagn.net>
 
 2007-07-05  Carlos Garcia Campos  <carlosgc@gnome.org>
 

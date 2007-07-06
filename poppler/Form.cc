@@ -715,13 +715,18 @@ FormField::FormField(XRef* xrefA, Object *aobj, const Ref& aref, Form* aform, Fo
 
 FormField::~FormField()
 {
-  if(children)
-    gfree(children);
+  if (!terminal) {
+    if(children) {
+      for (int i=0; i<numChildren; i++)
+        delete children[i];
+      gfree(children);
+    }
+  } else {
+    for (int i = 0; i < numChildren; ++i)
+      delete widgets[i];
+    gfree (widgets);
+  }
   obj.free();
-  
-  for (int i = 0; i < numChildren; ++i)
-    delete widgets[i];
-  gfree (widgets);
 }
 
 void FormField::loadChildrenDefaults ()
