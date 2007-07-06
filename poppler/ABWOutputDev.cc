@@ -625,7 +625,7 @@ void ABWOutputDev::cleanUpNode(xmlNodePtr N_parent, bool aggregateInfo){
   xmlChar *val;
   int styleLength = xmlLsCountNode(N_styleset)+1;
   float stylePos;
-  int styles[styleLength];
+  int *styles = new int[styleLength];
   for (int i=1; i< styleLength; i++) { styles[i] = 0;}
   /*
   ignore two horizontal nodes with textBlocks right underneath them. They 
@@ -736,6 +736,8 @@ void ABWOutputDev::cleanUpNode(xmlNodePtr N_parent, bool aggregateInfo){
   }
   if (N_parent->children && xmlStrcasecmp(N_parent->children->name,BAD_CAST "line") == 0 && xmlGetProp(N_parent->children,BAD_CAST "alignment") != NULL)
     xmlSetProp(N_parent, BAD_CAST "alignment", xmlGetProp(N_parent->children,BAD_CAST "alignment"));
+
+   delete styles;
 }
 
 void ABWOutputDev::generateParagraphs() {

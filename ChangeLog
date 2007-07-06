@@ -1,3 +1,9 @@
+2007-07-06  Albert Astals Cid <aacid@kde.org>
+
+	* goo/GooString.cc:
+	* poppler/ABWOutputDev.cc: Build on Sun Force compiler, patch by
+	Darren Kenny <darren.kenny@sun.com>
+
 2007-07-05  Carlos Garcia Campos  <carlosgc@gnome.org>
 
 	* glib/poppler-form-field.cc: Allow to set NULL in form fields
