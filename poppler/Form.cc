@@ -153,6 +153,9 @@ FormWidgetButton::~FormWidgetButton ()
 
 void FormWidgetButton::setState (GBool astate, GBool calledByParent)
 {
+  //pushButtons don't have state
+  if (parent->getButtonType() == formButtonPush)
+    return;
   //the state modification may be denied by the parent. e.g we don't want to let the user put all combo boxes to false
   if (!calledByParent) { //avoid infinite recursion
     if (!parent->setState(childNum, astate)) {
