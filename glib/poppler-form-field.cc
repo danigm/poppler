@@ -120,6 +120,24 @@ poppler_form_field_is_read_only (PopplerFormField *field)
 }
 
 /* Button Field */
+PopplerFormButtonType
+poppler_form_field_button_get_button_type (PopplerFormField *field)
+{
+  g_return_val_if_fail (field->widget->getType () == formButton, POPPLER_FORM_BUTTON_PUSH);
+
+  switch (static_cast<FormWidgetButton*>(field->widget)->getButtonType ())
+    {
+      case formButtonPush:
+        return POPPLER_FORM_BUTTON_PUSH;
+      case formButtonCheck:
+        return POPPLER_FORM_BUTTON_CHECK;
+      case formButtonRadio:
+        return POPPLER_FORM_BUTTON_RADIO;
+      default:
+        g_assert_not_reached ();
+    }
+}
+
 gboolean
 poppler_form_field_button_get_state (PopplerFormField *field)
 {

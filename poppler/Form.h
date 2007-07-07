@@ -123,6 +123,8 @@ public:
   FormWidgetButton(XRef *xrefA, Object *dict, unsigned num, Ref ref, FormFieldButton *p);
   ~FormWidgetButton ();
 
+  FormButtonType getButtonType() const;
+  
   void setState (GBool state, GBool calledByParent=gFalse);
   GBool getState ();
 

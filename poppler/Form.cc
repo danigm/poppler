@@ -151,6 +151,11 @@ FormWidgetButton::~FormWidgetButton ()
     gfree(siblingsID);
 }
 
+FormButtonType FormWidgetButton::getButtonType () const
+{
+  return parent->getButtonType ();
+}
+
 void FormWidgetButton::setState (GBool astate, GBool calledByParent)
 {
   //pushButtons don't have state

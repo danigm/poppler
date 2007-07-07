@@ -214,9 +214,29 @@ form_field_text_print (PopplerFormField *field)
 static void
 form_field_button_print (PopplerFormField *field)
 {
-  printf ("\t\tType:\tButton\n");
-  printf ("\t\tState:\t%s\n",
-	  poppler_form_field_button_get_state (field) ? "Active" : "Inactive");
+  PopplerFormButtonType button_type;
+  const gchar *button_type_str;
+
+  button_type = poppler_form_field_button_get_button_type (field);
+
+  switch (button_type)
+    {
+      case POPPLER_FORM_BUTTON_PUSH:
+        button_type_str = "Push";
+	break;
+      case POPPLER_FORM_BUTTON_CHECK:
+        button_type_str = "Check box";
+	break;
+      case POPPLER_FORM_BUTTON_RADIO:
+        button_type_str = "Radio Button";
+	break;
+    }
+  
+  printf ("\t\tType:\t\tButton\n");
+  printf ("\t\tButton type:\t%s\n", button_type_str);
+  if (button_type != POPPLER_FORM_BUTTON_PUSH)
+    printf ("\t\tState:\t\t%s\n",
+	    poppler_form_field_button_get_state (field) ? "Active" : "Inactive");
 }
 
 static void

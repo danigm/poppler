@@ -1,5 +1,14 @@
 2007-07-07  Carlos Garcia Campos  <carlosgc@gnome.org>
 
+	* poppler/Form.cc:
+	* poppler/Form.h:
+	* glib/poppler-form-field.cc:
+	* glib/poppler-form-field.h:
+	* glib/test-poppler-glib.c: Add a method to get the type of a Form
+	Field Button.
+	
+2007-07-07  Carlos Garcia Campos  <carlosgc@gnome.org>
+
 	* poppler/Form.cc: Fix a crash when setting state on buttons that
 	don't have state.
 	

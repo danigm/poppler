@@ -40,6 +40,13 @@ typedef enum
 
 typedef enum
 {
+  POPPLER_FORM_BUTTON_PUSH,
+  POPPLER_FORM_BUTTON_CHECK,
+  POPPLER_FORM_BUTTON_RADIO
+} PopplerFormButtonType;
+
+typedef enum
+{
   POPPLER_FORM_TEXT_NORMAL,
   POPPLER_FORM_TEXT_MULTILINE,
   POPPLER_FORM_TEXT_PASSWORD,
@@ -60,6 +67,7 @@ gdouble               poppler_form_field_get_font_size           (PopplerFormFie
 gboolean              poppler_form_field_is_read_only            (PopplerFormField *field);
 
 /* Button Field */
+PopplerFormButtonType poppler_form_field_button_get_button_type  (PopplerFormField *field);
 gboolean              poppler_form_field_button_get_state        (PopplerFormField *field);
 void                  poppler_form_field_button_set_state        (PopplerFormField *field,
 								  gboolean          state);
