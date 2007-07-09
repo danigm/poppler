@@ -578,7 +578,7 @@ void Annot::generateFieldAppearance(Dict *field, Dict *annot, Dict *acroForm) {
         obj2.free();
       }
       drawText(obj1.getString(), da, fontDict,
-          ff & fieldFlagMultiline, comb, quadding, gTrue, gFalse);
+          ff & fieldFlagMultiline, comb, quadding, gTrue, gFalse, ff & fieldFlagPassword);
     }
     obj1.free();
   } else if (ftObj.isName("Ch")) {
@@ -748,7 +748,7 @@ void Annot::setColor(Array *a, GBool fill, int adjust) {
 }
 
 void Annot::writeTextString (GooString *text, GooString *appearBuf, int *i, int j,
-                             CharCodeToUnicode *ccToUnicode)
+                             CharCodeToUnicode *ccToUnicode, GBool password)
 {
   CharCode c;
   int charSize;
@@ -766,24 +766,29 @@ void Annot::writeTextString (GooString *text, GooString *appearBuf, int *i, int 
     charSize = 1;
 
   for (; (*i) < j; (*i)+=charSize) {
-    c = text->getChar(*i);
-    if (ccToUnicode && text->hasUnicodeMarker()) {
-      char ctmp[2];
-      ctmp[0] = text->getChar((*i)-1);
-      ctmp[1] = text->getChar((*i));
-      ccToUnicode->mapToCharCode((Unicode*)ctmp, &c, 2);
-      if (c == '(' || c == ')' || c == '\\')
-        appearBuf->append('\\');
-      appearBuf->append(c);
-    } else {
-      c &= 0xff;
-      if (c == '(' || c == ')' || c == '\\') {
-        appearBuf->append('\\');
+    // Render '*' instead of characters for password
+    if (password)
+      appearBuf->append('*');
+    else {
+      c = text->getChar(*i);
+      if (ccToUnicode && text->hasUnicodeMarker()) {
+        char ctmp[2];
+        ctmp[0] = text->getChar((*i)-1);
+        ctmp[1] = text->getChar((*i));
+        ccToUnicode->mapToCharCode((Unicode*)ctmp, &c, 2);
+        if (c == '(' || c == ')' || c == '\\')
+          appearBuf->append('\\');
         appearBuf->append(c);
-      } else if (c < 0x20 || c >= 0x80) {
-        appearBuf->appendf("\\{0:03o}", c);
       } else {
-        appearBuf->append(c);
+        c &= 0xff;
+        if (c == '(' || c == ')' || c == '\\') {
+          appearBuf->append('\\');
+          appearBuf->append(c);
+        } else if (c < 0x20 || c >= 0x80) {
+          appearBuf->appendf("\\{0:03o}", c);
+        } else {
+          appearBuf->append(c);
+        }
       }
     }
   }
@@ -792,7 +797,8 @@ void Annot::writeTextString (GooString *text, GooString *appearBuf, int *i, int 
 // Draw the variable text or caption for a field.
 void Annot::drawText(GooString *text, GooString *da, GfxFontDict *fontDict,
     GBool multiline, int comb, int quadding,
-    GBool txField, GBool forceZapfDingbats) {
+    GBool txField, GBool forceZapfDingbats,
+    GBool password) {
   GooList *daToks;
   GooString *tok;
   GfxFont *font;
@@ -955,7 +961,7 @@ void Annot::drawText(GooString *text, GooString *da, GfxFontDict *fontDict,
       // draw the line
       appearBuf->appendf("{0:.2f} {1:.2f} Td\n", x - xPrev, -fontSize);
       appearBuf->append('(');
-      writeTextString (text, appearBuf, &i, j, font->getToUnicode());
+      writeTextString (text, appearBuf, &i, j, font->getToUnicode(), password);
       appearBuf->append(") Tj\n");
 
       // next line
@@ -1032,7 +1038,7 @@ void Annot::drawText(GooString *text, GooString *da, GfxFontDict *fontDict,
         appearBuf->append('(');
         //~ it would be better to call it only once for the whole string instead of once for
         //each character => but we need to handle centering in writeTextString
-        writeTextString (text, appearBuf, &i, i+1, font->getToUnicode());
+        writeTextString (text, appearBuf, &i, i+1, font->getToUnicode(), password);
         appearBuf->append(") Tj\n");
       }
 
@@ -1104,7 +1110,7 @@ void Annot::drawText(GooString *text, GooString *da, GfxFontDict *fontDict,
       // write the text string
       appearBuf->append('(');
       i=0;
-      writeTextString (text, appearBuf, &i, text->getLength(), font->getToUnicode());
+      writeTextString (text, appearBuf, &i, text->getLength(), font->getToUnicode(), password);
       appearBuf->append(") Tj\n");
     }
   }
@@ -1289,7 +1295,7 @@ void Annot::drawListBox(GooString **text, GBool *selection,
     // write the text string
     appearBuf->append('(');
     j = 0;
-    writeTextString (text[i], appearBuf, &j, text[i]->getLength(), font->getToUnicode());
+    writeTextString (text[i], appearBuf, &j, text[i]->getLength(), font->getToUnicode(), false);
     appearBuf->append(") Tj\n");
 
     // cleanup

@@ -92,7 +92,8 @@ private:
   void setColor(Array *a, GBool fill, int adjust);
   void drawText(GooString *text, GooString *da, GfxFontDict *fontDict,
 		GBool multiline, int comb, int quadding,
-		GBool txField, GBool forceZapfDingbats);
+		GBool txField, GBool forceZapfDingbats,
+    GBool password=false);
   void drawListBox(GooString **text, GBool *selection,
 		   int nOptions, int topIdx,
 		   GooString *da, GfxFontDict *fontDict, GBool quadding);
@@ -105,7 +106,7 @@ private:
   Object *fieldLookup(Dict *field, char *key, Object *obj);
   void readArrayNum(Object *pdfArray, int key, double *value);
   // write vStr[i:j[ in appearBuf
-  void writeTextString (GooString *text, GooString *appearBuf, int *i, int j, CharCodeToUnicode *ccToUnicode); 
+  void writeTextString (GooString *text, GooString *appearBuf, int *i, int j, CharCodeToUnicode *ccToUnicode, GBool password); 
 
   void initialize (XRef *xrefA, Dict *acroForm, Dict *dict, Catalog *catalog);
 

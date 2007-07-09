@@ -1,3 +1,9 @@
+2007-07-09  Carlos Garcia Campos  <carlosgc@gnome.org>
+
+	* poppler/Annot.cc:
+	* poppler/Annot.h: Render '*' instead of the actual content in
+	password form fields. Patch by Julien Rebetez <julien@fhtagn.net>
+	
 2007-07-07  Carlos Garcia Campos  <carlosgc@gnome.org>
 
 	* poppler/Form.cc:
