@@ -1051,6 +1051,7 @@ void PSOutputDev::init(PSOutputFunc outputFuncA, void *outputStreamA,
   PDFRectangle *box;
 
   // initialize
+  displayText = gTrue;
   ok = gTrue;
   outputFunc = outputFuncA;
   outputStream = outputStreamA;
@@ -4106,6 +4107,10 @@ void PSOutputDev::drawString(GfxState *state, GooString *s) {
   Unicode u[8];
   char buf[8];
   int len, nChars, uLen, n, m, i, j;
+
+  // for pdftohtml, output PS without text
+  if( displayText == gFalse )
+    return;
 
   // check for invisible text -- this is used by Acrobat Capture
   if (state->getRender() == 3) {

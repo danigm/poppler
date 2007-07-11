@@ -315,10 +315,9 @@ int main(int argc, char *argv[]) {
     psFileName = new GooString(htmlFileName->getCString());
     psFileName->append(".ps");
 
-    // XXX
-    // globalParams->setPSNoText(gTrue);
     psOut = new PSOutputDev(psFileName->getCString(), doc->getXRef(),
 			    doc->getCatalog(), NULL, firstPage, lastPage, psModePS, w, h);
+    psOut->setDisplayText(gFalse);
     doc->displayPages(psOut, firstPage, lastPage, 72, 72, 0,
 		      gTrue, gFalse, gFalse);
     delete psOut;

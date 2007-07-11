@@ -246,6 +246,7 @@ public:
   void setOverlayCbk(void (*cbk)(PSOutputDev *psOut, void *data),
 		     void *data)
     { overlayCbk = cbk; overlayCbkData = data; }
+  void setDisplayText(GBool display) { displayText = display; }
 
 private:
 
@@ -390,6 +391,7 @@ private:
   GBool t3Cacheable;		// cleared if char is not cacheable
   GBool t3NeedsRestore;		// set if a 'q' operator was issued
   GBool forceRasterize;		// forces the page to be rasterized into a image before printing
+  GBool displayText;		// displayText
 
 #if OPI_SUPPORT
   int opi13Nest;		// nesting level of OPI 1.3 objects
