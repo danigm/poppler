@@ -1,3 +1,9 @@
+2007-07-11  Carlos Garcia Campos  <carlosgc@gnome.org>
+
+	* poppler/Form.cc:	
+	* poppler/XRef.cc:
+	* poppler/XRef.h: Fix memory leak.
+	
 2007-07-11  Albert Astals Cid <aacid@kde.org>
 
 	* goo/GooVector.h: Rename guard from _VECTOR_H to GOO_VECTOR_H

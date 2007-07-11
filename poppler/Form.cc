@@ -170,13 +170,12 @@ void FormWidgetButton::setState (GBool astate, GBool calledByParent)
   state = astate;
   //update appearance
   char *offStr = "Off";
-  Object *obj1 = new Object();
-  obj1->initName(state?onStr:offStr);
-  obj.getDict()->set("V", obj1);
-  obj1 = new Object();
-  obj1->initName(state?onStr:offStr);
+  Object obj1;
+  obj1.initName(state?onStr:offStr);
+  obj.getDict()->set("V", &obj1);
+  obj1.initName(state?onStr:offStr);
   //modify the Appearance State entry as well
-  obj.getDict()->set("AS", obj1);
+  obj.getDict()->set("AS", &obj1);
 
   //notify the xref about the update
   xref->setModifiedObject(&obj, ref);
@@ -364,12 +363,11 @@ void FormWidgetText::setContent(GooString* new_content)
     
     GooString *cont = new GooString(new_content);
     parent->setContentCopy(cont);
-    Object *obj1 = new Object();
-    obj1->initString(cont);
-    obj.getDict()->set("V", obj1);
+    Object obj1;
+    obj1.initString(cont);
+    obj.getDict()->set("V", &obj1);
     //notify the xref about the update
     xref->setModifiedObject(&obj, ref);
-
   }
 }
 
@@ -481,33 +479,33 @@ FormWidgetChoice::~FormWidgetChoice()
 
 void FormWidgetChoice::_updateV ()
 {
-  Object *obj1 = new Object();
+  Object obj1;
   //this is an editable combo-box with user-entered text
   if (hasEdit() && parent->getEditChoice()) { 
-    obj1->initString(new GooString(parent->getEditChoice()));
+    obj1.initString(new GooString(parent->getEditChoice()));
   } else {
     int numSelected = parent->getNumSelected();
     if (numSelected == 0) {
-      obj1->initString(new GooString(""));
+      obj1.initString(new GooString(""));
     } else if (numSelected == 1) {
       for(int i=0; i<parent->getNumChoices(); i++) {
         if (parent->isSelected(i)) {
-          obj1->initString(new GooString(parent->getExportVal(i)));
+          obj1.initString(new GooString(parent->getExportVal(i)));
           break;
         }
       }
     } else {
-      obj1->initArray(xref);
+      obj1.initArray(xref);
       for(int i=0; i<parent->getNumChoices(); i++) {
         if (parent->isSelected(i)) {
-          Object* obj2 = new Object();
-          obj2->initString(new GooString(parent->getExportVal(i)));
-          obj1->arrayAdd(obj2);
+          Object obj2;
+          obj2.initString(new GooString(parent->getExportVal(i)));
+          obj1.arrayAdd(&obj2);
         }
       }
     }
   }
-  obj.getDict()->set("V", obj1);
+  obj.getDict()->set("V", &obj1);
   //notify the xref about the update
   xref->setModifiedObject(&obj, ref);
 }
@@ -865,17 +863,17 @@ GBool FormFieldButton::setState (int num, GBool s)
       if (active_child >= 0) {
         FormWidgetButton* actChild = static_cast<FormWidgetButton*>(widgets[active_child]);
         if (actChild->getOnStr()) {
-          Object *obj1 = new Object();
-          obj1->initName(actChild->getOnStr());
-          obj.getDict()->set("V", obj1);
+          Object obj1;
+          obj1.initName(actChild->getOnStr());
+          obj.getDict()->set("V", &obj1);
           xref->setModifiedObject(&obj, ref);
         }
       }
     } else {
       active_child = -1;
-      Object *obj1 = new Object();
-      obj1->initName("Off");
-      obj.getDict()->set("V", obj1);
+      Object obj1;
+      obj1.initName("Off");
+      obj.getDict()->set("V", &obj1);
       xref->setModifiedObject(&obj, ref);
     }
   }
@@ -983,6 +981,7 @@ FormFieldChoice::~FormFieldChoice()
     delete choices[i].optionName;
   }
   delete [] choices;
+  delete editedChoice;
 }
 
 void FormFieldChoice::deselectAll ()

@@ -36,7 +36,7 @@ struct XRefEntry {
   int gen;
   int num;
   XRefEntryType type;
-  Object* obj;
+  Object obj;
 };
 
 class XRef {

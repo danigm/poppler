@@ -274,8 +274,7 @@ XRef::XRef(BaseStream *strA) {
 
 XRef::~XRef() {
   for(int i=0; i<size; i++) {
-    if (entries[i].obj)
-            delete entries[i].obj;
+      entries[i].obj.free ();
   }
   gfree(entries);
 
@@ -412,7 +411,7 @@ GBool XRef::readXRefTable(Parser *parser, Guint *pos) {
       for (i = size; i < newSize; ++i) {
 	entries[i].offset = 0xffffffff;
 	entries[i].type = xrefEntryFree;
-	entries[i].obj = NULL;
+	entries[i].obj.initNull ();
       }
       size = newSize;
     }
@@ -426,7 +425,7 @@ GBool XRef::readXRefTable(Parser *parser, Guint *pos) {
 	goto err1;
       }
       entry.gen = obj.getInt();
-      entry.obj = NULL;
+      entry.obj.initNull ();
       obj.free();
       parser->getObj(&obj);
       if (obj.isCmd("n")) {
@@ -524,7 +523,7 @@ GBool XRef::readXRefStream(Stream *xrefStr, Guint *pos) {
     for (i = size; i < newSize; ++i) {
       entries[i].offset = 0xffffffff;
       entries[i].type = xrefEntryFree;
-      entries[i].obj = NULL;
+      entries[i].obj.initNull ();
     }
     size = newSize;
   }
@@ -619,7 +618,7 @@ GBool XRef::readXRefStreamSection(Stream *xrefStr, int *w, int first, int n) {
     for (i = size; i < newSize; ++i) {
       entries[i].offset = 0xffffffff;
       entries[i].type = xrefEntryFree;
-      entries[i].obj = NULL;
+      entries[i].obj.initNull ();
     }
     size = newSize;
   }
@@ -764,7 +763,7 @@ GBool XRef::constructXRef() {
 		  for (i = size; i < newSize; ++i) {
 		    entries[i].offset = 0xffffffff;
 		    entries[i].type = xrefEntryFree;
-		    entries[i].obj = NULL;
+		    entries[i].obj.initNull ();
 		  }
 		  size = newSize;
 		}
@@ -876,8 +875,8 @@ Object *XRef::fetch(int num, int gen, Object *obj) {
   }
 
   e = &entries[num];
-  if(e->obj) { //check for updated object
-    obj = e->obj->copy(obj);
+  if(!e->obj.isNull ()) { //check for updated object
+    obj = e->obj.copy(obj);
     return obj;
   }
   switch (e->type) {
@@ -1006,7 +1005,7 @@ void XRef::add(int num, int gen, Guint offs, GBool used) {
 
   e->gen = gen;
   e->num = num;
-  e->obj = NULL;
+  e->obj.initNull ();
   if (used) {
     e->type = xrefEntryUncompressed;
     e->offset = offs;
@@ -1021,8 +1020,7 @@ void XRef::setModifiedObject (Object* o, Ref r) {
     error(-1,"XRef::setModifiedObject on unknown ref: %i, %i\n", r.num, r.gen);
     return;
   }
-  entries[r.num].obj = new Object();
-  o->copy(entries[r.num].obj);
+  o->copy(&entries[r.num].obj);
 }
 
 //used to sort the entries
