@@ -77,6 +77,7 @@ PopplerFormTextType   poppler_form_field_text_get_text_type      (PopplerFormFie
 gchar                *poppler_form_field_text_get_text           (PopplerFormField *field);
 void                  poppler_form_field_text_set_text           (PopplerFormField *field,
 								  const gchar      *text);
+gint                  poppler_form_field_text_get_max_len        (PopplerFormField *field);
 gboolean              poppler_form_field_text_do_spell_check     (PopplerFormField *field);
 gboolean              poppler_form_field_text_do_scroll          (PopplerFormField *field);
 gboolean              poppler_form_field_text_is_rich_text       (PopplerFormField *field);

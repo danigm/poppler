@@ -206,6 +206,7 @@ form_field_text_print (PopplerFormField *field)
 	  poppler_form_field_text_do_scroll (field) ? "Yes" : "No");
   printf ("\t\tIsRichText:\t%s\n",
 	  poppler_form_field_text_is_rich_text (field) ? "Yes" : "No");
+  printf ("\t\tMaxLen:\t\t%d\n", poppler_form_field_text_get_max_len (field));
   text = poppler_form_field_text_get_text (field);
   printf ("\t\tContent:\t%s\n", text ? text : "");
   g_free (text);

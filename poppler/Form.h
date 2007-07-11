@@ -175,6 +175,7 @@ public:
   bool isComb () const; 
   bool isRichText () const;
   bool isReadOnly () const;
+  int getMaxLen () const;
 protected:
   FormFieldText *parent;
 };
@@ -331,6 +332,8 @@ public:
   bool noScroll () const { return doNotScroll; }
   bool isComb () const { return comb; }
   bool isRichText () const { return richText; }
+
+  int getMaxLen () const { return maxLen; }
 protected:
   GooString* content;
   bool multiline;
@@ -340,6 +343,7 @@ protected:
   bool doNotScroll;
   bool comb;
   bool richText;
+  int maxLen;
 };
 
 //------------------------------------------------------------------------

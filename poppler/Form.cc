@@ -341,6 +341,11 @@ bool FormWidgetText::isReadOnly () const
   return parent->isReadOnly();
 }
 
+int FormWidgetText::getMaxLen () const
+{
+  return parent->getMaxLen ();
+}
+
 void FormWidgetText::setContent(GooString* new_content)
 {
   if (isReadOnly()) {
@@ -892,6 +897,7 @@ FormFieldText::FormFieldText(XRef *xrefA, Object *aobj, const Ref& ref, Form* fo
   Object obj1;
   content = NULL;
   multiline = password = fileSelect = doNotSpellCheck = doNotScroll = comb = richText = false;
+  maxLen = 0;
 
   if (dict->lookup("Ff", &obj1)->isInt()) {
     int flags = obj1.getInt();
@@ -909,6 +915,11 @@ FormFieldText::FormFieldText(XRef *xrefA, Object *aobj, const Ref& ref, Form* fo
       comb = true;
     if (flags & 0x2000000)// 26 -> RichText
       richText = true;
+  }
+  obj1.free();
+
+  if (dict->lookup("MaxLen", &obj1)->isInt()) {
+    maxLen = obj1.getInt();
   }
   obj1.free();
 }

@@ -206,6 +206,14 @@ poppler_form_field_text_set_text (PopplerFormField *field,
   delete goo_tmp;
 }
 
+gint
+poppler_form_field_text_get_max_len (PopplerFormField *field)
+{
+  g_return_val_if_fail (field->widget->getType () == formText, 0);
+
+  return static_cast<FormWidgetText*>(field->widget)->getMaxLen ();
+}
+
 gboolean
 poppler_form_field_text_do_spell_check (PopplerFormField *field)
 {
