@@ -443,7 +443,7 @@ GBool openTempFile(GooString **name, FILE **f, char *mode, char *ext) {
 #if defined(WIN32)
   //---------- Win32 ----------
   char *tempDir;
-  GString *s, *s2;
+  GooString *s, *s2;
   char buf[32];
   FILE *f2;
   int t, i;
@@ -452,10 +452,10 @@ GBool openTempFile(GooString **name, FILE **f, char *mode, char *ext) {
   // a better way to generate temp file names with extensions on
   // Windows
   if ((tempDir = getenv("TEMP"))) {
-    s = new GString(tempDir);
+    s = new GooString(tempDir);
     s->append('\\');
   } else {
-    s = new GString();
+    s = new GooString();
   }
   s->append("x");
   t = (int)time(NULL);

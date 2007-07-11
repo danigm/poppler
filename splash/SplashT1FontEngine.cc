@@ -84,7 +84,7 @@ SplashT1FontEngine::~SplashT1FontEngine() {
 SplashFontFile *SplashT1FontEngine::loadType1Font(SplashFontFileID *idA,
 						  SplashFontSrc *src,
 						  char **enc) {
-  return SplashT1FontFile::loadType1Font(this, idA, fileName, deleteFile, enc);
+  return SplashT1FontFile::loadType1Font(this, idA, src, enc);
 }
 
 SplashFontFile *SplashT1FontEngine::loadType1CFont(SplashFontFileID *idA,
@@ -98,12 +98,12 @@ SplashFontFile *SplashT1FontEngine::loadType1CFont(SplashFontFileID *idA,
   SplashFontSrc *newsrc;
   
   if (src->isFile)
-    ff = FoFiType1C::load(src->fileName);
+    ff = FoFiType1C::load(src->fileName->getCString());
   else
-    ff = new FoFiType1C(src->buf, src->bufLen, gFalse);
+    ff = FoFiType1C::make(src->buf, src->bufLen);
   if (! ff)
     return NULL;
-  }
+
   tmpFileName = NULL;
   if (!openTempFile(&tmpFileName, &tmpFile, "wb", NULL)) {
     delete ff;

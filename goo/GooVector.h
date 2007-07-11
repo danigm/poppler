@@ -1,5 +1,5 @@
-#ifndef _VECTOR_H
-#define _VECTOR_H
+#ifndef GOO_VECTOR_H
+#define GOO_VECTOR_H
 #include "goo/gtypes.h"
 
 

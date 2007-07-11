@@ -1,3 +1,14 @@
+2007-07-11  Albert Astals Cid <aacid@kde.org>
+
+	* goo/GooVector.h: Rename guard from _VECTOR_H to GOO_VECTOR_H
+	* goo/gfile.cc: GString -> GooString in Windows code
+	* poppler/GlobalParams.cc: GString -> GooString in Windows code
+	* splash/SplashT1FontEngine.cc
+	* splash/SplashT1FontEngine.h
+	* splash/SplashT1FontFile.cc
+	* splash/SplashT1FontFile.h: T1 code is not supported, but at least
+	make it compile :-D
+
 2007-07-11  Carlos Garcia Campos  <carlosgc@gnome.org>
 
 	* poppler/Form.cc:

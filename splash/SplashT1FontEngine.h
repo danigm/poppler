@@ -17,6 +17,7 @@
 
 class SplashFontFile;
 class SplashFontFileID;
+class SplashFontSrc;
 
 //------------------------------------------------------------------------
 // SplashT1FontEngine
@@ -30,10 +31,8 @@ public:
   ~SplashT1FontEngine();
 
   // Load fonts.
-  SplashFontFile *loadType1Font(SplashFontFileID *idA, char *fileName,
-				GBool deleteFile, char **enc);
-  SplashFontFile *loadType1CFont(SplashFontFileID *idA, char *fileName,
-				 GBool deleteFile, char **enc);
+  SplashFontFile *loadType1Font(SplashFontFileID *idA, SplashFontSrc *src, char **enc);
+  SplashFontFile *loadType1CFont(SplashFontFileID *idA, SplashFontSrc *src, char **enc);
 
 private:
 

@@ -130,18 +130,18 @@ public:
 
   GBool bold, italic;
 
-  static WinFontInfo *make(GString *nameA, GBool boldA, GBool italicA,
+  static WinFontInfo *make(GooString *nameA, GBool boldA, GBool italicA,
 			   HKEY regKey, char *winFontDir);
-  WinFontInfo(GString *nameA, GBool boldA, GBool italicA,
-	      GString *fileNameA);
+  WinFontInfo(GooString *nameA, GBool boldA, GBool italicA,
+	      GooString *fileNameA);
   virtual ~WinFontInfo();
   GBool equals(WinFontInfo *fi);
 };
 
-WinFontInfo *WinFontInfo::make(GString *nameA, GBool boldA, GBool italicA,
+WinFontInfo *WinFontInfo::make(GooString *nameA, GBool boldA, GBool italicA,
 			       HKEY regKey, char *winFontDir) {
-  GString *regName;
-  GString *fileNameA;
+  GooString *regName;
+  GooString *fileNameA;
   char buf[MAX_PATH];
   DWORD n;
   char c;
@@ -160,7 +160,7 @@ WinFontInfo *WinFontInfo::make(GString *nameA, GBool boldA, GBool italicA,
   n = sizeof(buf);
   if (RegQueryValueEx(regKey, regName->getCString(), NULL, NULL,
 		      (LPBYTE)buf, &n) == ERROR_SUCCESS) {
-    fileNameA = new GString(winFontDir);
+    fileNameA = new GooString(winFontDir);
     fileNameA->append('\\')->append(buf);
   }
   delete regName;
@@ -183,8 +183,8 @@ WinFontInfo *WinFontInfo::make(GString *nameA, GBool boldA, GBool italicA,
   return new WinFontInfo(nameA, boldA, italicA, fileNameA);
 }
 
-WinFontInfo::WinFontInfo(GString *nameA, GBool boldA, GBool italicA,
-			 GString *fileNameA):
+WinFontInfo::WinFontInfo(GooString *nameA, GBool boldA, GBool italicA,
+			 GooString *fileNameA):
   DisplayFontParam(nameA, displayFontTT)
 {
   bold = boldA;
@@ -208,7 +208,7 @@ public:
 
   WinFontList(char *winFontDirA);
   ~WinFontList();
-  WinFontInfo *find(GString *font);
+  WinFontInfo *find(GooString *font);
 
 private:
 
@@ -265,8 +265,8 @@ void WinFontList::add(WinFontInfo *fi) {
   fonts->append(fi);
 }
 
-WinFontInfo *WinFontList::find(GString *font) {
-  GString *name;
+WinFontInfo *WinFontList::find(GooString *font) {
+  GooString *name;
   GBool bold, italic;
   WinFontInfo *fi;
   char c;
@@ -352,7 +352,7 @@ int CALLBACK WinFontList::enumFunc2(CONST LOGFONT *font,
   WinFontInfo *fi;
 
   if (type & TRUETYPE_FONTTYPE) {
-    if ((fi = WinFontInfo::make(new GString(font->lfFaceName),
+    if ((fi = WinFontInfo::make(new GooString(font->lfFaceName),
 				font->lfWeight >= 600,
 				font->lfItalic ? gTrue : gFalse,
 				fl->regKey, fl->winFontDir))) {

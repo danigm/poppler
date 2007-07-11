@@ -148,7 +148,7 @@ SplashFontFile *SplashFontEngine::loadType1CFont(SplashFontFileID *idA,
   fontFile = NULL;
 #if HAVE_T1LIB_H
   if (!fontFile && t1Engine) {
-    fontFile = t1Engine->loadType1CFont(idA, sec, enc);
+    fontFile = t1Engine->loadType1CFont(idA, src, enc);
   }
 #endif
 #if HAVE_FREETYPE_FREETYPE_H || HAVE_FREETYPE_H
