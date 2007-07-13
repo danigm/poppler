@@ -56,6 +56,10 @@ public:
   // Return the GID corresponding to <c> according to the <i>th cmap.
   Gushort mapCodeToGID(int i, int c);
 
+  // map gid to vertical glyph gid if exist.
+  //   if not exist return original gid
+  Guint mapToVertGID(Guint orgGID);
+
   // Returns the GID corresponding to <name> according to the post
   // table.  Returns 0 if there is no mapping for <name> or if the
   // font does not have a post table.
@@ -135,6 +139,7 @@ public:
   void writeTTF(FoFiOutputFunc outputFunc, void *outputStream,
 		char *name = NULL, Gushort *codeToGID = NULL);
 
+  int setupGSUB(const char *tagName);
 private:
 
   FoFiTrueType(char *fileA, int lenA, GBool freeFileDataA, int faceIndexA);
@@ -155,6 +160,11 @@ private:
   void parse();
   void readPostTable();
   int seekTable(char *tag);
+  Guint charToTag(const char *tagName);
+  Guint doMapToVertGID(Guint orgGID);
+  Guint scanLookupList(Guint listIndex, Guint orgGID);
+  Guint scanLookupSubTable(Guint subTable, Guint orgGID);
+  int checkGIDInCoverage(Guint coverage, Guint orgGID);
 
   TrueTypeTable *tables;
   int nTables;
@@ -168,6 +178,8 @@ private:
 
   GBool parsedOk;
   int faceIndex;
+  Guint gsubFeatureTable;
+  Guint gsubLookupList;
 };
 
 #endif

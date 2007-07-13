@@ -115,6 +115,8 @@ struct TrueTypeLoca {
 #define nameTag 0x6e616d65
 #define os2Tag  0x4f532f32
 #define postTag 0x706f7374
+#define vrt2Tag 0x76727432
+#define vertTag 0x76657274
 
 static int cmpTrueTypeLocaOffset(const void *p1, const void *p2) {
   TrueTypeLoca *loca1 = (TrueTypeLoca *)p1;
@@ -282,6 +284,8 @@ FoFiTrueType::FoFiTrueType(char *fileA, int lenA, GBool freeFileDataA, int faceI
   nameToGID = NULL;
   parsedOk = gFalse;
   faceIndex = faceIndexA;
+  gsubFeatureTable = 0;
+  gsubLookupList = 0;
 
   parse();
 }
@@ -2038,3 +2042,304 @@ int FoFiTrueType::seekTable(char *tag) {
   }
   return -1;
 }
+
+Guint FoFiTrueType::charToTag(const char *tagName)
+{
+  int n = strlen(tagName);
+  Guint tag = 0;
+  int i;
+
+  if (n > 4) n = 4;
+  for (i = 0;i < n;i++) {
+    tag <<= 8;
+    tag |= tagName[i] & 0xff;
+  }
+  for (;i < 4;i++) {
+    tag <<= 8;
+    tag |= ' ';
+  }
+  return tag;
+}
+
+/*
+  setup GSUB table data
+  Only supporting vertical text substitution.
+*/
+int FoFiTrueType::setupGSUB(const char *tagName)
+{
+  Guint gsubTable;
+  unsigned int i;
+  Guint scriptList, featureList;
+  Guint scriptCount;
+  Guint tag;
+  Guint scriptTable = 0;
+  Guint langSys;
+  Guint featureCount;
+  Guint featureIndex;
+  Guint ftable = 0;
+  Guint llist;
+  Guint scriptTag;
+  int x;
+  Guint pos;
+
+  if (tagName == 0) {
+    gsubFeatureTable = 0;
+    return 0;
+  }
+  scriptTag = charToTag(tagName);
+  /* read GSUB Header */
+  if ((x = seekTable("GSUB")) < 0) {
+    return 0; /* GSUB table not found */
+  }
+  gsubTable = tables[x].offset;
+  pos = gsubTable+4;
+  scriptList = getU16BE(pos,&parsedOk);
+  pos += 2;
+  featureList = getU16BE(pos,&parsedOk);
+  pos += 2;
+  llist = getU16BE(pos,&parsedOk);
+
+  gsubLookupList = llist+gsubTable; /* change to offset from top of file */
+  /* read script list table */
+  pos = gsubTable+scriptList;
+  scriptCount = getU16BE(pos,&parsedOk);
+  pos += 2;
+  /* find  script */
+  for (i = 0;i < scriptCount;i++) {
+    tag = getU32BE(pos,&parsedOk);
+    pos += 4;
+    scriptTable = getU16BE(pos,&parsedOk);
+    pos += 2;
+    if (tag == scriptTag) {
+      /* found */
+      break;
+    }
+  }
+  if (i >= scriptCount) {
+    /* not found */
+    return 0;
+  }
+
+  /* read script table */
+  /* use default language system */
+  pos = gsubTable+scriptList+scriptTable;
+  langSys = getU16BE(pos,&parsedOk);/* default language system */
+
+  /* read LangSys table */
+  if (langSys == 0) {
+    /* no ldefault LangSys */
+    return 0;
+  }
+
+  pos = gsubTable+scriptList+scriptTable+langSys+2;
+  featureIndex = getU16BE(pos,&parsedOk); /* ReqFeatureIndex */
+  pos += 2;
+
+  if (featureIndex != 0xffff) {
+    Guint tpos;
+    /* read feature record */
+    tpos = gsubTable+featureList;
+    featureCount = getU16BE(tpos,&parsedOk);
+    tpos = gsubTable+featureList+2+featureIndex*(4+2);
+    tag = getU32BE(tpos,&parsedOk);
+    tpos += 4;
+    if (tag == vrt2Tag) {
+      /* vrt2 is preferred, overwrite vert */
+      ftable = getU16BE(tpos,&parsedOk);
+      /* convert to offset from file top */
+      gsubFeatureTable = ftable+gsubTable+featureList;
+      return 0;
+    } else if (tag == vertTag) {
+      ftable = getU16BE(tpos,&parsedOk);
+    }
+  }
+  featureCount = getU16BE(pos,&parsedOk);
+  pos += 2;
+  /* find 'vrt2' or 'vert' feature */
+  for (i = 0;i < featureCount;i++) {
+    Guint oldPos;
+
+    featureIndex = getU16BE(pos,&parsedOk);
+    pos += 2;
+    oldPos = pos; /* save position */
+    /* read feature record */
+    pos = gsubTable+featureList+2+featureIndex*(4+2);
+    tag = getU32BE(pos,&parsedOk);
+    pos += 4;
+    if (tag == vrt2Tag) {
+      /* vrt2 is preferred, overwrite vert */
+      ftable = getU16BE(pos,&parsedOk);
+      break;
+    } else if (ftable == 0 && tag == vertTag) {
+      ftable = getU16BE(pos,&parsedOk);
+    }
+    pos = oldPos; /* restore old position */
+  }
+  if (ftable == 0) {
+    /* vert nor vrt2 are not found */
+    return 0;
+  }
+  /* convert to offset from file top */
+  gsubFeatureTable = ftable+gsubTable+featureList;
+  return 0;
+}
+
+Guint FoFiTrueType::doMapToVertGID(Guint orgGID)
+{
+  Guint lookupCount;
+  Guint lookupListIndex;
+  Guint i;
+  Guint gid = 0;
+  Guint pos;
+
+  pos = gsubFeatureTable+2;
+  lookupCount = getU16BE(pos,&parsedOk);
+  pos += 2;
+  for (i = 0;i < lookupCount;i++) {
+    lookupListIndex = getU16BE(pos,&parsedOk);
+    pos += 2;
+    if ((gid = scanLookupList(lookupListIndex,orgGID)) != 0) {
+      break;
+    }
+  }
+  return gid;
+}
+
+Guint FoFiTrueType::mapToVertGID(Guint orgGID)
+{
+  Guint mapped;
+
+  if (gsubFeatureTable == 0) return orgGID;
+  if ((mapped = doMapToVertGID(orgGID)) != 0) {
+    return mapped;
+  }
+  return orgGID;
+}
+
+Guint FoFiTrueType::scanLookupList(Guint listIndex, Guint orgGID)
+{
+  Guint lookupTable;
+  Guint subTableCount;
+  Guint subTable;
+  Guint i;
+  Guint gid = 0;
+  Guint pos;
+
+  if (gsubLookupList == 0) return 0; /* no lookup list */
+  pos = gsubLookupList+2+listIndex*2;
+  lookupTable = getU16BE(pos,&parsedOk);
+  /* read lookup table */
+  pos = gsubLookupList+lookupTable+4;
+  subTableCount = getU16BE(pos,&parsedOk);
+  pos += 2;;
+  for (i = 0;i < subTableCount;i++) {
+    subTable = getU16BE(pos,&parsedOk);
+    pos += 2;
+    if ((gid = scanLookupSubTable(gsubLookupList+lookupTable+subTable,orgGID))
+         != 0) break;
+  }
+  return gid;
+}
+
+Guint FoFiTrueType::scanLookupSubTable(Guint subTable, Guint orgGID)
+{
+  Guint format;
+  Guint coverage;
+  int delta;
+  int glyphCount;
+  Guint substitute;
+  Guint gid = 0;
+  int coverageIndex;
+  int pos;
+
+  pos = subTable;
+  format = getU16BE(pos,&parsedOk);
+  pos += 2;
+  coverage = getU16BE(pos,&parsedOk);
+  pos += 2;
+  if ((coverageIndex =
+     checkGIDInCoverage(subTable+coverage,orgGID)) >= 0) {
+    switch (format) {
+    case 1:
+      /* format 1 */
+      delta = getS16BE(pos,&parsedOk);
+      pos += 2;
+      gid = orgGID+delta;
+      break;
+    case 2:
+      /* format 2 */
+      glyphCount = getS16BE(pos,&parsedOk);
+      pos += 2;
+      if (glyphCount > coverageIndex) {
+	pos += coverageIndex*2;
+	substitute = getU16BE(pos,&parsedOk);
+        gid = substitute;
+      }
+      break;
+    default:
+      /* unknown format */
+      break;
+    }
+  }
+  return gid;
+}
+
+int FoFiTrueType::checkGIDInCoverage(Guint coverage, Guint orgGID)
+{
+  int index = -1;
+  Guint format;
+  Guint count;
+  Guint i;
+  Guint pos;
+
+  pos = coverage;
+  format = getU16BE(pos,&parsedOk);
+  pos += 2;
+  switch (format) {
+  case 1:
+    count = getU16BE(pos,&parsedOk);
+    pos += 2;
+    for (i = 0;i < count;i++) {
+      Guint gid;
+
+      gid = getU16BE(pos,&parsedOk);
+      pos += 2;
+      if (gid == orgGID) {
+        /* found */
+        index = i;
+        break;
+      } else if (gid > orgGID) {
+        /* not found */
+        break;
+      }
+    }
+    break;
+  case 2:
+    count = getU16BE(pos,&parsedOk);
+    pos += 2;
+    for (i = 0;i < count;i++) {
+      Guint startGID, endGID;
+      Guint startIndex;
+
+      startGID = getU16BE(pos,&parsedOk);
+      pos += 2;
+      endGID = getU16BE(pos,&parsedOk);
+      pos += 2;
+      startIndex = getU16BE(pos,&parsedOk);
+      pos += 2;
+      if (startGID <= orgGID && orgGID <= endGID) {
+        /* found */
+        index = startIndex+orgGID-startGID;
+        break;
+      } else if (orgGID <= endGID) {
+        /* not found */
+        break;
+      }
+    }
+    break;
+  default:
+    break;
+  }
+  return index;
+}
+

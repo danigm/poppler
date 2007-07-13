@@ -1,3 +1,16 @@
+2007-07-14  Albert Astals Cid <aacid@kde.org>
+
+	* fofi/FoFiTrueType.cc
+	* fofi/FoFiTrueType.h
+	* poppler/CairoFontEngine.cc
+	* poppler/CharCodeToUnicode.cc
+	* poppler/CharCodeToUnicode.h
+	* poppler/GfxFont.cc
+	* poppler/GfxFont.h
+	* poppler/SplashOutputDev.cc: Patch by  
+	Koji Otani <sho@bbr.jp> to fix several problems with Japanese fonts.
+	Fixes bug 11413
+
 2007-07-13  Pino Toscano <pino@kde.org>
 	reviewed by: Albert Astals Cid <aacid@kde.org>
 

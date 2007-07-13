@@ -1557,16 +1557,101 @@ GooString *GfxCIDFont::getCollection() {
   return cMap ? cMap->getCollection() : (GooString *)NULL;
 }
 
+Gushort GfxCIDFont::mapCodeToGID(FoFiTrueType *ff, int cmapi,
+  Unicode unicode, GBool wmode) {
+  Gushort gid = ff->mapCodeToGID(cmapi,unicode);
+  if (wmode) {
+    Gushort vgid = ff->mapToVertGID(gid);
+    if (vgid != 0) gid = vgid;
+  }
+  return gid;
+}
+
 Gushort *GfxCIDFont::getCodeToGIDMap(FoFiTrueType *ff, int *mapsizep) {
-  Gushort *map;
-  int cmapPlatform, cmapEncoding;
-  int unicodeCmap, macRomanCmap, msSymbolCmap, cmap;
-  GBool useMacRoman, useUnicode;
-  char *charName;
+  /* space characters */
+  static unsigned long spaces[] = { 
+    0x2000,0x2001,0x2002,0x2003,0x2004,0x2005,0x2006,0x2007,
+    0x2008,0x2009,0x200A,0x00A0,0x200B,0x2060,0x3000,0xFEFF,
+    0
+  };
+  static char *adobe_cns1_cmaps[] = {
+    "UniCNS-UCS2-V",
+    "UniCNS-UCS2-H",
+    0
+  };
+  static char *adobe_gb1_cmaps[] = {
+    "UniGB-UCS2-V",
+    "UniGB-UCS2-H",
+    0
+  };
+  static char *adobe_japan1_cmaps[] = {
+    "UniJIS-UCS2-V",
+    "UniJIS-UCS2-H",
+    0
+  };
+  static char *adobe_japan2_cmaps[] = {
+    "UniHojo-UCS2-V",
+    "UniHojo-UCS2-H",
+    0
+  };
+  static char *adobe_korea1_cmaps[] = {
+    "UniKS-UCS2-V",
+    "UniKS-UCS2-H",
+    0
+  };
+  static struct CMapListEntry {
+    char *collection;
+    char *scriptTag;
+    char *toUnicodeMap;
+    char **CMaps;
+  } CMapList[] = {
+    {
+      "Adobe-CNS1",
+      "kana",
+      "Adobe-CNS1-UCS2",
+      adobe_cns1_cmaps,
+    },
+    {
+      "Adobe-GB1",
+      "kana",
+      "Adobe-GB1-UCS2",
+      adobe_gb1_cmaps,
+    },
+    {
+      "Adobe-Japan1",
+      "kana",
+      "Adobe-Japan1-UCS2",
+      adobe_japan1_cmaps,
+    },
+    {
+      "Adobe-Japan2",
+      "kana",
+      "Adobe-Japan2-UCS2",
+      adobe_japan2_cmaps,
+    },
+    {
+      "Adobe-Korea1",
+      "kana",
+      "Adobe-Korea1-UCS2",
+      adobe_korea1_cmaps,
+    },
+    0
+  };
+  Unicode *humap = 0;
+  Unicode *vumap = 0;
+  Gushort *codeToGID = 0;
+  unsigned long n;
+  int i;
+  unsigned long code;
+  Unicode uBuf[8];
+  int wmode;
+  char **cmapName;
+  CMap *cMap;
+  int nUsed;
   Unicode u;
-  int code, i;
-  int mapsize;
-  int cidlen;
+  CMapListEntry *lp;
+  int cmap;
+  int cmapPlatform, cmapEncoding;
 
   *mapsizep = 0;
   if (!ctu) return NULL;
@@ -1582,27 +1667,122 @@ Gushort *GfxCIDFont::getCodeToGIDMap(FoFiTrueType *ff, int *mapsizep) {
   if (cmap < 0)
     return NULL;
 
-  cidlen = 0;
-  mapsize = 64;
-  map = (Gushort *)gmalloc(mapsize * sizeof(Gushort));
-
-  while (cidlen < ctu->getLength()) {
-    int n;
-    if ((n = ctu->mapToUnicode((CharCode)cidlen, &u, 1)) == 0) {
-      cidlen++;
-      continue;
+  wmode = getWMode();
+  for (lp = CMapList;lp->collection != 0;lp++) {
+    if (strcmp(lp->collection,getCollection()->getCString()) == 0) {
+      break;
     }
-    if (cidlen >= mapsize) {
-      while (cidlen >= mapsize)
-	mapsize *= 2;
-      map = (Gushort *)grealloc(map, mapsize * sizeof(Gushort));
-    }
-    map[cidlen] = ff->mapCodeToGID(cmap, u);
-    cidlen++;
   }
+  n = ctu->getLength();
+  humap = new Unicode[n];
+  if (lp->collection != 0) {
+    CharCodeToUnicode *tctu;
+    GooString tname(lp->toUnicodeMap);
 
-  *mapsizep = cidlen;
-  return map;
+    if ((tctu = CharCodeToUnicode::parseCMapFromFile(&tname,16)) != 0) {
+      CharCode cid;
+      for (cid = 0;cid < n ;cid++) {
+	int len;
+	Unicode ucodes[4];
+
+	len = tctu->mapToUnicode(cid,ucodes,4);
+	if (len == 1) {
+	  humap[cid] = ucodes[0];
+	} else {
+	  /* if not single character, ignore it */
+	  humap[cid] = 0;
+	}
+      }
+      delete tctu;
+    }
+    vumap = new Unicode[n];
+    memset(vumap,0,sizeof(Unicode)*n);
+    for (cmapName = lp->CMaps;*cmapName != 0;cmapName++) {
+      GooString cname(*cmapName);
+
+      if ((cMap = globalParams->getCMap(getCollection(),&cname))
+	   != 0) {
+	for (u = 0;u <= 65535;u++) {
+	  CID cid;
+	  char code[2];
+
+	  code[0] = (u >> 8) & 0xff;
+	  code[1] = u & 0xff;
+	  cid = cMap->getCID(code,2,&nUsed);
+	  if (cid != 0) {
+	    if (cMap->getWMode()) {
+	      if (cid < n && vumap[cid] == 0) {
+		vumap[cid] = u;
+	      }
+	    } else {
+	      if (cid < n && humap[cid] == 0) {
+		humap[cid] = u;
+	      }
+	    }
+	  }
+	}
+	cMap->decRefCnt();
+      }
+    }
+    ff->setupGSUB(lp->scriptTag);
+  } else {
+    error(-1,"Unknown character collection %s\n",
+      getCollection()->getCString());
+    if ((ctu = getToUnicode()) != 0) {
+      CharCode cid;
+      for (cid = 0;cid <= n ;cid++) {
+	int len;
+	Unicode ucode;
+
+	len = ctu->mapToUnicode(cid,&ucode,1);
+	humap[cid] = ucode;
+      }
+      ctu->decRefCnt();
+    }
+  }
+  // map CID -> Unicode -> GID
+  codeToGID = (Gushort *)gmallocn(n, sizeof(Gushort));
+  for (code = 0; code < n; ++code) {
+    Unicode unicode;
+    unsigned long gid;
+
+    unicode = 0;
+    gid = 0;
+    if (vumap != 0) unicode = vumap[code];
+    if (unicode != 0) {
+      gid = mapCodeToGID(ff,cmap,unicode,gTrue);
+      if (gid == 0 && humap != 0) {
+	if (humap != 0) unicode = humap[code];
+	if (unicode != 0) gid = mapCodeToGID(ff,cmap,unicode,gTrue);
+      }
+    }
+    if (gid == 0) {
+      if (humap != 0) unicode = humap[code];
+      if (unicode != 0) gid = mapCodeToGID(ff,cmap,unicode,wmode);
+    }
+    if (gid == 0) {
+      /* special handling space characters */
+      unsigned long *p;
+
+      if (humap != 0) unicode = humap[code];
+      if (unicode != 0) {
+	/* check if code is space character , so map code to 0x0020 */
+	for (p = spaces;*p != 0;p++) {
+	  if (*p == unicode) {
+	    unicode = 0x20;
+	    gid = mapCodeToGID(ff,cmap,unicode,wmode);
+	    break;
+	  }
+	}
+      }
+    }
+    codeToGID[code] = gid;
+  }
+  *mapsizep = n;
+  if (humap != 0) delete[] humap;
+  if (vumap != 0) delete[] vumap;
+end_0:
+  return codeToGID;
 }
 
 double GfxCIDFont::getWidth (char* s, int len) {

@@ -48,6 +48,7 @@ public:
 
   // Parse a ToUnicode CMap for an 8- or 16-bit font.
   static CharCodeToUnicode *parseCMap(GooString *buf, int nBits);
+  static CharCodeToUnicode *parseCMapFromFile(GooString *fileName, int nBits);
 
   // Parse a ToUnicode CMap for an 8- or 16-bit font, merging it into
   // <this>.

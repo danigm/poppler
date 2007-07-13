@@ -1107,49 +1107,22 @@ void SplashOutputDev::doUpdateFont(GfxState *state) {
     case fontCIDType2OT:
       codeToGID = NULL;
       n = 0;
-      if (dfp) {
-	// create a CID-to-GID mapping, via Unicode
-	if ((ctu = ((GfxCIDFont *)gfxFont)->getToUnicode())) {
-	  if (fileName)
-		ff = FoFiTrueType::load(fileName->getCString());
-	  else
-		ff = FoFiTrueType::make(tmpBuf, tmpBufLen);
-	  if (ff) {
-	    // look for a Unicode cmap
-	    for (cmap = 0; cmap < ff->getNumCmaps(); ++cmap) {
-	      if ((ff->getCmapPlatform(cmap) == 3 &&
-		   ff->getCmapEncoding(cmap) == 1) ||
-		  ff->getCmapPlatform(cmap) == 0) {
-		break;
-	      }
-	    }
-	    if (cmap < ff->getNumCmaps()) {
-	      // map CID -> Unicode -> GID
-	      n = ctu->getLength();
-	      codeToGID = (Gushort *)gmallocn(n, sizeof(Gushort));
-	      for (code = 0; code < n; ++code) {
-		if (ctu->mapToUnicode(code, uBuf, 8) > 0) {
-		  codeToGID[code] = ff->mapCodeToGID(cmap, uBuf[0]);
-		} else {
-		  codeToGID[code] = 0;
-		}
-	      }
-	    }
-	    delete ff;
-	  }
-	  ctu->decRefCnt();
-	} else {
-	  error(-1, "Couldn't find a mapping to Unicode for font '%s'",
-		gfxFont->getName() ? gfxFont->getName()->getCString()
-		                   : "(unnamed)");
-	}
-      } else {
-	if (((GfxCIDFont *)gfxFont)->getCIDToGID()) {
-	  n = ((GfxCIDFont *)gfxFont)->getCIDToGIDLen();
+      if (((GfxCIDFont *)gfxFont)->getCIDToGID()) {
+	n = ((GfxCIDFont *)gfxFont)->getCIDToGIDLen();
+	if (n) {
 	  codeToGID = (Gushort *)gmallocn(n, sizeof(Gushort));
 	  memcpy(codeToGID, ((GfxCIDFont *)gfxFont)->getCIDToGID(),
-		 n * sizeof(Gushort));
+		  n * sizeof(Gushort));
 	}
+      } else {
+	if (fileName)
+	  ff = FoFiTrueType::load(fileName->getCString());
+	else
+	  ff = FoFiTrueType::make(tmpBuf, tmpBufLen);
+	if (! ff)
+	  goto err2;
+	codeToGID = ((GfxCIDFont *)gfxFont)->getCodeToGIDMap(ff, &n);
+	delete ff;
       }
       if (!(fontFile = fontEngine->loadTrueTypeFont(
 			   id,

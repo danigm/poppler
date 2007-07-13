@@ -197,6 +197,22 @@ CharCodeToUnicode *CharCodeToUnicode::parseCMap(GooString *buf, int nBits) {
   return ctu;
 }
 
+CharCodeToUnicode *CharCodeToUnicode::parseCMapFromFile(GooString *fileName,
+  int nBits) {
+  CharCodeToUnicode *ctu;
+  FILE *f;
+
+  ctu = new CharCodeToUnicode(NULL);
+  if ((f = globalParams->findToUnicodeFile(fileName))) {
+    ctu->parseCMap1(&getCharFromFile, f, nBits);
+    fclose(f);
+  } else {
+    error(-1, "Couldn't find ToUnicode CMap file for '%s'",
+	  fileName->getCString());
+  }
+  return ctu;
+}
+
 void CharCodeToUnicode::mergeCMap(GooString *buf, int nBits) {
   char *p;
 

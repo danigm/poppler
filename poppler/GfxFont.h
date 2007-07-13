@@ -333,6 +333,8 @@ public:
   double getWidth(char* s, int len);
 
 private:
+  Gushort mapCodeToGID(FoFiTrueType *ff, int cmapi,
+    Unicode unicode, GBool wmode);
 
   CMap *cMap;			// char code --> CID
   CharCodeToUnicode *ctu;	// CID --> Unicode
