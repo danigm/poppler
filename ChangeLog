@@ -1,3 +1,7 @@
+2007-07-13  Albert Astals Cid <aacid@kde.org>
+
+	* poppler/GlobalParams.cc: Remove dead unused code from Win32 ifdef
+
 2007-07-11  Albert Astals Cid <aacid@kde.org>
 
 	* poppler/PSOutputDev.cc

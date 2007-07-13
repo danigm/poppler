@@ -810,12 +810,6 @@ GlobalParams::~GlobalParams() {
 void GlobalParams::setBaseDir(char *dir) {
   delete baseDir;
   baseDir = new GooString(dir);
-
-#ifdef WIN32
-  if (winFontDir[0]) {
-    winFontList = new WinFontList(winFontDir);
-  }
-#endif
 }
 
 //------------------------------------------------------------------------
