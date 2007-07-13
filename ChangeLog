@@ -1,3 +1,9 @@
+2007-07-13  Pino Toscano <pino@kde.org>
+	reviewed by: Albert Astals Cid <aacid@kde.org>
+
+	* poppler/FontInfo.cc: Fix the FontInfoScanner::scan method to
+	actually scan the number of requested pages
+
 2007-07-13  Albert Astals Cid <aacid@kde.org>
 
 	* poppler/GlobalParams.cc: Remove dead unused code from Win32 ifdef
