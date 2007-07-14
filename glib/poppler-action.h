@@ -33,7 +33,7 @@ typedef enum
 	POPPLER_ACTION_LAUNCH,		/* launch app (or open document) */
 	POPPLER_ACTION_URI,		/* URI */
 	POPPLER_ACTION_NAMED,		/* named action*/
-	POPPLER_ACTION_MOVIE,		/* movie action */
+	POPPLER_ACTION_MOVIE		/* movie action */
 } PopplerActionType;
 
 typedef enum
