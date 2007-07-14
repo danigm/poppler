@@ -1,3 +1,8 @@
+2007-07-14  Albert Astals Cid <aacid@kde.org>
+
+	* utils/pdftops.cc: init width/height to -1 so it is calculated if not
+	specified
+
 2007-07-14  Pino Toscano  <pino@kde.org>
 
 	* glib/poppler-action.h:
