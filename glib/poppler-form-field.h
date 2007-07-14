@@ -49,7 +49,6 @@ typedef enum
 {
   POPPLER_FORM_TEXT_NORMAL,
   POPPLER_FORM_TEXT_MULTILINE,
-  POPPLER_FORM_TEXT_PASSWORD,
   POPPLER_FORM_TEXT_FILE_SELECT
 } PopplerFormTextType;
 
@@ -81,6 +80,7 @@ gint                  poppler_form_field_text_get_max_len        (PopplerFormFie
 gboolean              poppler_form_field_text_do_spell_check     (PopplerFormField *field);
 gboolean              poppler_form_field_text_do_scroll          (PopplerFormField *field);
 gboolean              poppler_form_field_text_is_rich_text       (PopplerFormField *field);
+gboolean              poppler_form_field_text_is_password        (PopplerFormField *field);
 
 /* Choice Field */
 PopplerFormChoiceType poppler_form_field_choice_get_choice_type  (PopplerFormField *field);

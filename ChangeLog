@@ -1,3 +1,11 @@
+2007-07-14  Carlos Garcia Campos  <carlosgc@gnome.org>
+
+	* glib/poppler-form-field.cc:
+	* glib/poppler-form-field.h:
+	* glib/test-poppler-glib.c: Make is_password a property instead of
+	a text form field type, since a text field could be multiline and
+	password at the same time.
+	
 2007-07-14  Albert Astals Cid <aacid@kde.org>
 
 	* fofi/FoFiTrueType.cc

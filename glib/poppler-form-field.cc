@@ -167,8 +167,6 @@ poppler_form_field_text_get_text_type (PopplerFormField *field)
   
   if (text_field->isMultiline ())
     return POPPLER_FORM_TEXT_MULTILINE;
-  else if (text_field->isPassword ())
-    return POPPLER_FORM_TEXT_PASSWORD;
   else if (text_field->isFileSelect ())
     return POPPLER_FORM_TEXT_FILE_SELECT;
 
@@ -236,6 +234,14 @@ poppler_form_field_text_is_rich_text (PopplerFormField *field)
   g_return_val_if_fail (field->widget->getType () == formText, FALSE);
 
   return static_cast<FormWidgetText*>(field->widget)->isRichText ();
+}
+
+gboolean
+poppler_form_field_text_is_password (PopplerFormField *field)
+{
+  g_return_val_if_fail (field->widget->getType () == formText, FALSE);
+
+  return static_cast<FormWidgetText*>(field->widget)->isPassword ();
 }
 
 /* Choice Field */

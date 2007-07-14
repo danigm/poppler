@@ -196,8 +196,6 @@ form_field_text_print (PopplerFormField *field)
   printf ("\t\tType:\t\tText\n");
   printf ("\t\tMultiline:\t%s\n",
 	  type == POPPLER_FORM_TEXT_MULTILINE ? "Yes" : "No");
-  printf ("\t\tPassword:\t%s\n",
-	  type == POPPLER_FORM_TEXT_PASSWORD ? "Yes" : "No");
   printf ("\t\tFileSelect:\t%s\n",
 	  type == POPPLER_FORM_TEXT_FILE_SELECT ? "Yes" : "No");
   printf ("\t\tDoSpellCheck:\t%s\n",
@@ -206,6 +204,8 @@ form_field_text_print (PopplerFormField *field)
 	  poppler_form_field_text_do_scroll (field) ? "Yes" : "No");
   printf ("\t\tIsRichText:\t%s\n",
 	  poppler_form_field_text_is_rich_text (field) ? "Yes" : "No");
+  printf ("\t\tPassword:\t%s\n",
+	  poppler_form_field_text_is_password (field) ? "Yes" : "No");
   printf ("\t\tMaxLen:\t\t%d\n", poppler_form_field_text_get_max_len (field));
   text = poppler_form_field_text_get_text (field);
   printf ("\t\tContent:\t%s\n", text ? text : "");
