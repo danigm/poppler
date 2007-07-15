@@ -1835,7 +1835,6 @@ GBool CCITTFaxStream::isBinary(GBool last) {
   return str->isBinary(gTrue);
 }
 
-#warning LIBJPEG DCTSTream is broken, fix it
 #ifndef ENABLE_LIBJPEG
 
 //------------------------------------------------------------------------

@@ -1,3 +1,13 @@
+2007-07-15  Albert Astals Cid <aacid@kde.org>
+
+	* poppler/DCTStream.cc
+	* poppler/DCTStream.h: Implement less evil error handling. On a
+	error_exit level error we don't want to actually exit the program. See
+	http://bugs.kde.org/show_bug.cgi?id=147878 for a pdf with this
+	problem. libjpeg was printing "Bogus Huffman table definition" and
+	exiting the program.
+	* poppler/Stream.cc: Remove bogus #warning
+
 2007-07-14  Albert Astals Cid <aacid@kde.org>
 
 	* utils/pdftops.cc: init width/height to -1 so it is calculated if not

@@ -44,6 +44,7 @@ struct str_src_mgr {
     JOCTET buffer;
     Stream *str;
     int index;
+    bool abort;
 };
 
 
