@@ -581,7 +581,7 @@ void HtmlPage::dumpAsXML(FILE* f,int page){
     delete fontCSStyle;
   }
   
-  GooString *str, *str1;
+  GooString *str, *str1 = NULL;
   for(HtmlString *tmp=yxStrings;tmp;tmp=tmp->yxNext){
     if (tmp->htext){
       str=new GooString(tmp->htext);
@@ -615,7 +615,7 @@ void HtmlPage::dumpComplex(FILE *file, int page){
       tmp->append('-')->append(pgNum)->append(".html");
       delete pgNum;
   
-      if (!(pageFile = fopen(getFileNameFromPath(tmp->getCString(),tmp->getLength()), "w"))) {
+      if (!(pageFile = fopen(tmp->getCString(), "w"))) {
 	  error(-1, "Couldn't open html file '%s'", tmp->getCString());
 	  delete tmp;
 	  return;
@@ -665,7 +665,7 @@ void HtmlPage::dumpComplex(FILE *file, int page){
   
   delete tmp;
   
-  GooString *str, *str1;
+  GooString *str, *str1 = NULL;
   for(HtmlString *tmp1=yxStrings;tmp1;tmp1=tmp1->yxNext){
     if (tmp1->htext){
       str=new GooString(tmp1->htext);
@@ -817,7 +817,7 @@ void HtmlOutputDev::doFrame(int firstPage){
   char* htmlEncoding;
   fName->append(".html");
 
-  if (!(fContentsFrame = fopen(getFileNameFromPath(fName->getCString(),fName->getLength()), "w"))){
+  if (!(fContentsFrame = fopen(fName->getCString(), "w"))){
     delete fName;
     error(-1, "Couldn't open html file '%s'", fName->getCString());
     return;
@@ -891,7 +891,7 @@ HtmlOutputDev::HtmlOutputDev(char *fileName, char *title,
 
      doFrame(firstPage);
    
-     if (!(fContentsFrame = fopen(getFileNameFromPath(left->getCString(),left->getLength()), "w")))
+     if (!(fContentsFrame = fopen(left->getCString(), "w")))
 	 {
         error(-1, "Couldn't open html file '%s'", left->getCString());
 		delete left;
@@ -914,7 +914,7 @@ HtmlOutputDev::HtmlOutputDev(char *fileName, char *title,
        GooString* right=new GooString(fileName);
        right->append("s.html");
 
-       if (!(page=fopen(getFileNameFromPath(right->getCString(),right->getLength()),"w"))){
+       if (!(page=fopen(right->getCString(),"w"))){
         error(-1, "Couldn't open html file '%s'", right->getCString());
         delete right;
 		return;
@@ -931,7 +931,7 @@ HtmlOutputDev::HtmlOutputDev(char *fileName, char *title,
       GooString* right=new GooString(fileName);
       if (!xml) right->append(".html");
       if (xml) right->append(".xml");
-      if (!(page=fopen(getFileNameFromPath(right->getCString(),right->getLength()),"w"))){
+      if (!(page=fopen(right->getCString(),"w"))){
 	delete right;
 	error(-1, "Couldn't open html file '%s'", right->getCString());
 	return;
@@ -1147,7 +1147,7 @@ void HtmlOutputDev::drawImageMask(GfxState *state, Object *ref, Stream *str,
     // open the image file
     fName->append(pgNum)->append("_")->append(imgnum)->append(".jpg");
     ++imgNum;
-    if (!(f1 = fopen(getFileNameFromPath(fName->getCString(),fName->getLength()), "wb"))) {
+    if (!(f1 = fopen(fName->getCString(), "wb"))) {
       error(-1, "Couldn't open image file '%s'", fName->getCString());
       return;
     }
@@ -1247,7 +1247,7 @@ void HtmlOutputDev::drawImage(GfxState *state, Object *ref, Stream *str,
     fName->append(pgNum)->append("_")->append(imgnum)->append(".jpg");
     ++imgNum;
     
-    if (!(f1 = fopen(getFileNameFromPath(fName->getCString(),fName->getLength()), "wb"))) {
+    if (!(f1 = fopen(fName->getCString(), "wb"))) {
       error(-1, "Couldn't open image file '%s'", fName->getCString());
       return;
     }
@@ -1446,7 +1446,7 @@ GBool HtmlOutputDev::dumpDocOutline(Catalog* catalog)
 		{
 			GooString *str = basename(Docname);
 			str->append("-outline.html");
-			output = fopen(getFileNameFromPath(str->getCString(),str->getLength()), "w");
+			output = fopen(str->getCString(), "w");
 			if (output == NULL)
 				return gFalse;
 			delete str;
@@ -1557,21 +1557,4 @@ GBool HtmlOutputDev::newOutlineLevel(FILE *output, Object *node, Catalog* catalo
   curr.free();
 
   return atLeastOne;
-}
-
-char* getFileNameFromPath(char* c, int strlen) {
-  int last_slash_index = 0;
-  int i = 0;
-  char* res;
-  
-  for (i=0;i<strlen;i++) {
-    if (*(c+i)=='/') {
-      /* printf("/ detected\n"); */
-      last_slash_index = i;      
-    }
-  }
-  res = (char *)malloc(sizeof(char)*strlen-last_slash_index+1);
-  strcpy(res,c+last_slash_index+(last_slash_index?1:0));
-  /* printf("Fil: %s\n",res); */
-  return res;
 }

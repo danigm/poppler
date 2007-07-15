@@ -1,5 +1,11 @@
 2007-07-15  Albert Astals Cid <aacid@kde.org>
 
+	* utils/HtmlOutputDev.cc:
+	* utils/HtmlOutputDev.h: Create the html files in the correct place,
+	not in the invocation dir. Fixes bug #11610
+
+2007-07-15  Albert Astals Cid <aacid@kde.org>
+
 	* poppler/DCTStream.cc
 	* poppler/DCTStream.h: Implement less evil error handling. On a
 	error_exit level error we don't want to actually exit the program. See

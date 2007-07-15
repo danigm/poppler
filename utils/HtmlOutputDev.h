@@ -277,8 +277,6 @@ public:
 
   GBool dumpDocOutline(Catalog* catalog);
 
-  /*  char* getFileNameFromPath(char* c, int strlen); */
-
 private:
   // convert encoding into a HTML standard, or encoding->getCString if not
   // recognized
@@ -309,7 +307,5 @@ private:
   Catalog *catalog;
   friend class HtmlPage;
 };
-
-char* getFileNameFromPath(char* c, int strlen);
 
 #endif
