@@ -149,28 +149,26 @@ void Annot::initialize(XRef *xrefA, Dict *acroForm, Dict *dict, Catalog *catalog
     ok = gFalse;
   }
   obj1.free();
+  
   //----- get the flags
   if (dict->lookup("F", &obj1)->isInt()) {
     flags = obj1.getInt();
   } else {
     flags = 0;
   }
+  obj1.free ();
 
   //check for hidden annot
-  hidden = false;
-  if (dict->lookup("F", &obj3)->isInt()) {
-    int flags = obj3.getInt();
-    if (flags & 0x2) 
-      hidden = true;
-  }
-  obj3.free();
+  if (flags & 0x2)
+    hidden = true;
+  else
+    hidden = false;
 
   // check if field apperances need to be regenerated
   // Only text or choice fields needs to have appearance regenerated
   // see section 8.6.2 "Variable Text" of PDFReference
   regen = gFalse;
   fieldLookup(dict, "FT", &obj3);
-
   if (obj3.isName("Tx") || obj3.isName("Ch")) {
     if (acroForm) {
       acroForm->lookup("NeedAppearances", &obj1);
@@ -200,12 +198,15 @@ void Annot::initialize(XRef *xrefA, Dict *acroForm, Dict *dict, Catalog *catalog
         obj1.free();
       } else {
         if (apObj.dictLookupNF("N", &obj1)->isRef()) {
-          obj1.copy(&appearance);
-          ok = gTrue;
+	  obj1.copy(&appearance);
+	  ok = gTrue;
         }
         obj1.free();
       }
       asObj.free();
+    } else {
+      // If field doesn't have an AP we'll have to generate it
+      regen = gTrue;
     }
     apObj.free();
   }
@@ -344,7 +345,7 @@ void Annot::generateFieldAppearance(Dict *field, Dict *annot, Dict *acroForm) {
   int dashLength, ff, quadding, comb, nOptions, topIdx, i, j;
 
   //do not regenerate appearance if we don't need to
-  if (!regen) 
+  if (!regen)
     return;
 
   // must be a Widget annotation
@@ -753,9 +754,9 @@ void Annot::writeTextString (GooString *text, GooString *appearBuf, int *i, int 
   CharCode c;
   int charSize;
 
-  if (text->hasUnicodeMarker()) {
+  if (*i == 0 && text->hasUnicodeMarker()) {
     //we need to have an even number of chars
-    if ((j-*i)%2 != 0) {
+    if (text->getLength () % 2 != 0) {
       error(-1, "Annot::writeTextString, bad unicode string");
       return;
     }

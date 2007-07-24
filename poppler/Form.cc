@@ -234,12 +234,20 @@ void FormWidgetButton::loadDefaults ()
   }
 
   if (dict->lookup("V", &obj1)->isName()) {
-    char *s = obj1.getName();
-    if(strcmp(s, "Off")) {
-      //state = gTrue;
+    if (strcmp (obj1.getName(), "Off") != 0) {
       setState(gTrue);
     }
-  } else if (obj1.isArray()) { //handle the case where we have multiple choices
+  } else if (dict->lookup("Parent", &obj1) && obj1.isDict ()) {
+    Object obj2;
+    
+    // I don't have 'V' inherit it from my parent if I have one
+    if (obj1.getDict ()->lookup ("V", &obj2)->isName ()) {
+      if (strcmp (obj2.getName(), "Off")) {
+        setState(gTrue);
+      }
+    }
+    obj2.free ();
+    } else if (obj1.isArray()) { //handle the case where we have multiple choices
     error(-1, "FormWidgetButton:: multiple choice isn't supported yet\n");
   }
 }
@@ -679,7 +687,16 @@ FormField::FormField(XRef* xrefA, Object *aobj, const Ref& aref, Form* aform, Fo
       array->get(i, &obj2);
       array->getNF(i, &childRef);
       //field child
-      if(obj2.dictLookup("FT", &obj3)->isName()) {
+      if (dict->lookup ("FT", &obj3)->isName()) {
+        // If I'm not a generic container field and my children
+        // are widgets, create widgets for them
+        Object obj4;
+
+	if (obj2.dictLookup("Subtype",&obj4)->isName()) {
+	  _createWidget(&obj2, childRef.getRef());
+	}
+        obj4.free();
+      } else if(obj2.dictLookup("FT", &obj3)->isName()) {
         if(terminal) error(-1, "Field can't have both Widget AND Field as kids\n");
 
         numChildren++;
@@ -691,7 +708,7 @@ FormField::FormField(XRef* xrefA, Object *aobj, const Ref& aref, Form* aform, Fo
       // 1 - we will handle 'collapsed' fields (field + annot in the same dict)
       // as if the annot was in the Kids array of the field
       else if (obj2.dictLookup("Subtype",&obj3)->isName()) {
-        _createWidget(&obj2, childRef.getRef());       
+        _createWidget(&obj2, childRef.getRef());
       }
       obj2.free();
       obj3.free();
@@ -716,13 +733,7 @@ FormField::FormField(XRef* xrefA, Object *aobj, const Ref& aref, Form* aform, Fo
     }
   }
   obj1.free();
-
 }
-
-/*FormField::FormField(FormField *dest)
-{
-  type = dest->type;
-}*/
 
 FormField::~FormField()
 {
@@ -807,11 +818,24 @@ FormFieldButton::FormFieldButton(XRef *xrefA, Object *aobj, const Ref& ref, Form
   Dict* dict = obj.getDict();
   active_child = -1;
   noAllOff = false;
+  int flags = 0;
 
   Object obj1;
   btype = formButtonCheck; 
   if (dict->lookup("Ff", &obj1)->isInt()) {
-    int flags = obj1.getInt();
+    flags = obj1.getInt();
+  } else if (dict->lookup("Parent", &obj1) && obj1.isDict ()) {
+    // No flags, inherit them from my parent if I have one
+    Object obj2;
+    
+    if (obj1.getDict()->lookup("Ff", &obj2)->isInt()) {
+      flags = obj2.getInt();
+    }
+    obj2.free();
+  }
+  obj1.free();
+
+  if (flags > 0) {
     if (flags & 0x10000) { // 17 -> push button
       btype = formButtonPush;
     } else if (flags & 0x8000) { // 16 -> radio button
@@ -824,18 +848,23 @@ FormFieldButton::FormFieldButton(XRef *xrefA, Object *aobj, const Ref& ref, Form
       error(-1, "FormFieldButton:: radiosInUnison flag unimplemented, please report a bug with a testcase\n");
     } 
   }
-  obj1.free();
 }
 
 void FormFieldButton::fillChildrenSiblingsID()
 {
-  for(int i=0; i<numChildren; i++) {
-    FormWidgetButton *btn = static_cast<FormWidgetButton*>(widgets[i]);
-    btn->setNumSiblingsID(numChildren-1);
-    for(int j=0, counter=0; j<numChildren; j++) {
-      if (i == j) continue;
-      btn->setSiblingsID(counter, widgets[j]->getID());
-      counter++;
+  if (!terminal) {
+    for(int i=0; i<numChildren; i++) {
+      children[i]->fillChildrenSiblingsID();
+    }
+  } else {
+    for(int i=0; i<numChildren; i++) {
+      FormWidgetButton *btn = static_cast<FormWidgetButton*>(widgets[i]);
+      btn->setNumSiblingsID(numChildren-1);
+      for(int j=0, counter=0; j<numChildren; j++) {
+        if (i == j) continue;
+        btn->setSiblingsID(counter, widgets[j]->getID());
+        counter++;
+      }
     }
   }
 }
@@ -846,8 +875,10 @@ GBool FormFieldButton::setState (int num, GBool s)
     error(-1, "FormFieldButton::setState called on a readOnly field\n");
     return gFalse;
   }
-  
-  if(btype == formButtonRadio) {
+
+  // A check button could behave as a radio button
+  // when it's in a set of more than 1 buttons
+  if (btype == formButtonRadio || btype == formButtonCheck) {
     if (!s && noAllOff)
       return gFalse; //don't allow to set all radio to off
 
