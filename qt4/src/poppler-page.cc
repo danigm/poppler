@@ -360,8 +360,8 @@ QList<TextBox*> Page::textList(Rotation rotate) const
   
   for (int i = 0; i < word_list->getLength(); i++) {
     TextWord *word = word_list->get(i);
-    TextBox* text_box = wordBoxMap[word];
-    text_box->m_data->nextWord = wordBoxMap[word->nextWord()];
+    TextBox* text_box = wordBoxMap.value(word);
+    text_box->m_data->nextWord = wordBoxMap.value(word->nextWord());
   }
   
   delete word_list;
