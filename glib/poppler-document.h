@@ -133,11 +133,15 @@ PopplerAction    *poppler_index_iter_get_action (PopplerIndexIter  *iter);
 gboolean          poppler_index_iter_next       (PopplerIndexIter  *iter);
 
 /* Interface for getting the Fonts of a poppler_document */
+#define POPPLER_TYPE_FONT_INFO             (poppler_font_info_get_type ())
+#define POPPLER_FONT_INFO(obj)             (G_TYPE_CHECK_INSTANCE_CAST ((obj), POPPLER_TYPE_FONT_INFO, PopplerFontInfo))
+#define POPPLER_IS_FONT_INFO(obj)          (G_TYPE_CHECK_INSTANCE_TYPE ((obj), POPPLER_TYPE_FONT_INFO))
+GType             poppler_font_info_get_type       (void) G_GNUC_CONST;
 PopplerFontInfo  *poppler_font_info_new            (PopplerDocument   *document);
 gboolean          poppler_font_info_scan           (PopplerFontInfo   *font_info,
 						    int                n_pages,
 						    PopplerFontsIter **iter);
-void		  poppler_font_info_free	   (PopplerFontInfo   *font_info);
+void             poppler_font_info_free            (PopplerFontInfo   *font_info);
 
 #define POPPLER_TYPE_FONTS_ITER                    (poppler_fonts_iter_get_type ())
 GType             poppler_fonts_iter_get_type      (void) G_GNUC_CONST;

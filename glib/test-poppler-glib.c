@@ -112,7 +112,7 @@ print_document_info (PopplerDocument *document)
       poppler_fonts_iter_free (fonts_iter);
     }
   }
-  poppler_font_info_free (font_info);
+  g_object_unref (font_info);
 
   index_iter = poppler_index_iter_new (document);
   if (index_iter)

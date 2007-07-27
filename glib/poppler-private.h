@@ -45,6 +45,7 @@ struct _PopplerPSFile
 
 struct _PopplerFontInfo
 {
+  GObject parent_instance;
   PopplerDocument *document;
   FontInfoScanner *scanner;
 };

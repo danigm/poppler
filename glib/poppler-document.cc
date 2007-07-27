@@ -1188,6 +1188,42 @@ poppler_fonts_iter_new (GooList *items)
 	return iter;
 }
 
+
+typedef struct _PopplerFontInfoClass PopplerFontInfoClass;
+struct _PopplerFontInfoClass
+{
+        GObjectClass parent_class;
+};
+
+G_DEFINE_TYPE (PopplerFontInfo, poppler_font_info, G_TYPE_OBJECT);
+
+static void poppler_font_info_finalize (GObject *object);
+
+
+static void
+poppler_font_info_class_init (PopplerFontInfoClass *klass)
+{
+        GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
+
+        gobject_class->finalize = poppler_font_info_finalize;
+}
+
+static void
+poppler_font_info_init (PopplerFontInfo *font_info)
+{
+        font_info->document = NULL;
+        font_info->scanner = NULL;
+}
+
+static void
+poppler_font_info_finalize (GObject *object)
+{
+        PopplerFontInfo *font_info = POPPLER_FONT_INFO (object);
+
+        delete font_info->scanner;
+        g_object_unref (font_info->document);
+}
+
 PopplerFontInfo *
 poppler_font_info_new (PopplerDocument *document)
 {
@@ -1195,7 +1231,8 @@ poppler_font_info_new (PopplerDocument *document)
 
 	g_return_val_if_fail (POPPLER_IS_DOCUMENT (document), NULL);
 
-	font_info = g_new0 (PopplerFontInfo, 1);
+	font_info = (PopplerFontInfo *) g_object_new (POPPLER_TYPE_FONT_INFO,
+						      NULL);
 	font_info->document = (PopplerDocument *) g_object_ref (document);
 	font_info->scanner = new FontInfoScanner(document->doc);
 
@@ -1225,14 +1262,13 @@ poppler_font_info_scan (PopplerFontInfo   *font_info,
 	return (items != NULL);
 }
 
+/* For backward compatibility */
 void
 poppler_font_info_free (PopplerFontInfo *font_info)
 {
 	g_return_if_fail (font_info != NULL);
 
-	delete font_info->scanner;
-	g_object_unref (font_info->document);
-	g_free (font_info);
+	g_object_unref (font_info);
 }
 
 
