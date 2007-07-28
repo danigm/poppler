@@ -233,21 +233,11 @@ void FormWidgetButton::loadDefaults ()
     }
   }
 
-  if (dict->lookup("V", &obj1)->isName()) {
+  if (Form::fieldLookup(dict, "V", &obj1)->isName()) {
     if (strcmp (obj1.getName(), "Off") != 0) {
       setState(gTrue);
     }
-  } else if (dict->lookup("Parent", &obj1) && obj1.isDict ()) {
-    Object obj2;
-    
-    // I don't have 'V' inherit it from my parent if I have one
-    if (obj1.getDict ()->lookup ("V", &obj2)->isName ()) {
-      if (strcmp (obj2.getName(), "Off")) {
-        setState(gTrue);
-      }
-    }
-    obj2.free ();
-    } else if (obj1.isArray()) { //handle the case where we have multiple choices
+  } else if (obj1.isArray()) { //handle the case where we have multiple choices
     error(-1, "FormWidgetButton:: multiple choice isn't supported yet\n");
   }
 }
@@ -276,7 +266,7 @@ void FormWidgetText::loadDefaults ()
   Dict *dict = obj.getDict();
   Object obj1;
 
-  if (dict->lookup("V", &obj1)->isString()) {
+  if (Form::fieldLookup(dict, "V", &obj1)->isString()) {
     if (obj1.getString()->hasUnicodeMarker()) {
       if (obj1.getString()->getLength() <= 2) {
       } else {
@@ -426,7 +416,7 @@ void FormWidgetChoice::loadDefaults ()
   memset(tmpCurrentChoice, 0, sizeof(bool)*parent->getNumChoices());
 
   //find default choice
-  if (dict->lookup("V", &obj1)->isString()) {  
+  if (Form::fieldLookup(dict, "V", &obj1)->isString()) {
     for(int i=0; i<parent->getNumChoices(); i++) {
       if (parent->getChoice(i)->cmp(obj1.getString()) == 0) {
         tmpCurrentChoice[i] = true;
@@ -723,7 +713,7 @@ FormField::FormField(XRef* xrefA, Object *aobj, const Ref& aref, Form* aform, Fo
   obj1.free();
  
   //flags
-  if (dict->lookup("Ff", &obj1)->isInt()) {
+  if (Form::fieldLookup(dict, "Ff", &obj1)->isInt()) {
     int flags = obj1.getInt();
     if (flags & 0x2) { // 2 -> Required
       //TODO
@@ -818,24 +808,12 @@ FormFieldButton::FormFieldButton(XRef *xrefA, Object *aobj, const Ref& ref, Form
   Dict* dict = obj.getDict();
   active_child = -1;
   noAllOff = false;
-  int flags = 0;
 
   Object obj1;
   btype = formButtonCheck; 
-  if (dict->lookup("Ff", &obj1)->isInt()) {
-    flags = obj1.getInt();
-  } else if (dict->lookup("Parent", &obj1) && obj1.isDict ()) {
-    // No flags, inherit them from my parent if I have one
-    Object obj2;
+  if (Form::fieldLookup(dict, "Ff", &obj1)->isInt()) {
+    int flags = obj1.getInt();
     
-    if (obj1.getDict()->lookup("Ff", &obj2)->isInt()) {
-      flags = obj2.getInt();
-    }
-    obj2.free();
-  }
-  obj1.free();
-
-  if (flags > 0) {
     if (flags & 0x10000) { // 17 -> push button
       btype = formButtonPush;
     } else if (flags & 0x8000) { // 16 -> radio button
@@ -928,7 +906,7 @@ FormFieldText::FormFieldText(XRef *xrefA, Object *aobj, const Ref& ref, Form* fo
   multiline = password = fileSelect = doNotSpellCheck = doNotScroll = comb = richText = false;
   maxLen = 0;
 
-  if (dict->lookup("Ff", &obj1)->isInt()) {
+  if (Form::fieldLookup(dict, "Ff", &obj1)->isInt()) {
     int flags = obj1.getInt();
     if (flags & 0x1000) // 13 -> Multiline
       multiline = true;
@@ -947,7 +925,7 @@ FormFieldText::FormFieldText(XRef *xrefA, Object *aobj, const Ref& ref, Form* fo
   }
   obj1.free();
 
-  if (dict->lookup("MaxLen", &obj1)->isInt()) {
+  if (Form::fieldLookup(dict, "MaxLen", &obj1)->isInt()) {
     maxLen = obj1.getInt();
   }
   obj1.free();
@@ -988,7 +966,7 @@ FormFieldChoice::FormFieldChoice(XRef *xrefA, Object *aobj, const Ref& ref, Form
 
   combo = edit = multiselect = doNotSpellCheck = doCommitOnSelChange = false;
 
-  if (dict->lookup("Ff", &obj1)->isInt()) {
+  if (Form::fieldLookup(dict, "Ff", &obj1)->isInt()) {
     int flags = obj1.getInt();
     if (flags & 0x20000) // 18 -> Combo
       combo = true; 
@@ -1117,7 +1095,7 @@ Form::Form(XRef *xrefA, Object* acroForm)
 
       //Mark readonly field
       Object obj3;
-      if (obj1.dictLookup("Ff", &obj3)->isInt()) {
+      if (Form::fieldLookup(obj1.getDict (), "Ff", &obj3)->isInt()) {
         int flags = obj3.getInt();
         if (flags & 0x1)
           rootFields[numFields-1]->setReadOnly(true);
@@ -1137,6 +1115,25 @@ Form::~Form() {
   for(i = 0; i< numFields; ++i)
           delete rootFields[i];
   gfree (rootFields);
+}
+
+// Look up an inheritable field dictionary entry.
+Object *Form::fieldLookup(Dict *field, char *key, Object *obj) {
+  Dict *dict;
+  Object parent;
+
+  dict = field;
+  if (!dict->lookup(key, obj)->isNull()) {
+    return obj;
+  }
+  obj->free();
+  if (dict->lookup("Parent", &parent)->isDict()) {
+    fieldLookup(parent.getDict(), key, obj);
+  } else {
+    obj->initNull();
+  }
+  parent.free();
+  return obj;
 }
 
 void Form::checkForNeedAppearances (Object *acroForm)
@@ -1160,7 +1157,8 @@ void Form::checkForNeedAppearances (Object *acroForm)
 void Form::createFieldFromDict (Object* obj, FormField** ptr, XRef *xrefA, const Ref& pref)
 {
     Object obj2;
-    if(obj->dictLookup("FT", &obj2)->isName("Btn")) {
+
+    if (Form::fieldLookup(obj->getDict (), "FT", &obj2)->isName("Btn")) {
       (*ptr) = new FormFieldButton(xrefA, obj, pref, this);
     } else if (obj2.isName("Tx")) {
       (*ptr) = new FormFieldText(xrefA, obj, pref, this);

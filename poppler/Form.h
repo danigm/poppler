@@ -432,6 +432,8 @@ public:
 
   ~Form();
 
+  static Object *fieldLookup(Dict *field, char *key, Object *obj);
+  
   int getNumFields() const { return numFields; }
   FormField* getRootField(int i) const { return rootFields[i]; }
 

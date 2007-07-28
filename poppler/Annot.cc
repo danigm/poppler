@@ -168,7 +168,7 @@ void Annot::initialize(XRef *xrefA, Dict *acroForm, Dict *dict, Catalog *catalog
   // Only text or choice fields needs to have appearance regenerated
   // see section 8.6.2 "Variable Text" of PDFReference
   regen = gFalse;
-  fieldLookup(dict, "FT", &obj3);
+  Form::fieldLookup(dict, "FT", &obj3);
   if (obj3.isName("Tx") || obj3.isName("Ch")) {
     if (acroForm) {
       acroForm->lookup("NeedAppearances", &obj1);
@@ -371,10 +371,10 @@ void Annot::generateFieldAppearance(Dict *field, Dict *annot, Dict *acroForm) {
   }
 
   // get the field type
-  fieldLookup(field, "FT", &ftObj);
+  Form::fieldLookup(field, "FT", &ftObj);
 
   // get the field flags (Ff) value
-  if (fieldLookup(field, "Ff", &obj1)->isInt()) {
+  if (Form::fieldLookup(field, "Ff", &obj1)->isInt()) {
     ff = obj1.getInt();
   } else {
     ff = 0;
@@ -492,7 +492,7 @@ void Annot::generateFieldAppearance(Dict *field, Dict *annot, Dict *acroForm) {
   obj1.free();
 
   // get the default appearance string
-  if (fieldLookup(field, "DA", &obj1)->isNull()) {
+  if (Form::fieldLookup(field, "DA", &obj1)->isNull()) {
     obj1.free();
     acroForm->lookup("DA", &obj1);
   }
@@ -517,7 +517,7 @@ void Annot::generateFieldAppearance(Dict *field, Dict *annot, Dict *acroForm) {
     // radio button
     if (ff & fieldFlagRadio) {
       //~ Acrobat doesn't draw a caption if there is no AP dict (?)
-      if (fieldLookup(field, "V", &obj1)->isName()) {
+      if (Form::fieldLookup(field, "V", &obj1)->isName()) {
         if (annot->lookup("AS", &obj2)->isName(obj1.getName())) {
           if (caption) {
             drawText(caption, da, fontDict, gFalse, 0, fieldQuadCenter,
@@ -550,7 +550,7 @@ void Annot::generateFieldAppearance(Dict *field, Dict *annot, Dict *acroForm) {
       // According to the PDF spec the off state must be named "Off",
       // and the on state can be named anything, but Acrobat apparently
       // looks for "Yes" and treats anything else as off.
-      if (fieldLookup(field, "V", &obj1)->isName("Yes")) {
+      if (Form::fieldLookup(field, "V", &obj1)->isName("Yes")) {
         if (!caption) {
           caption = new GooString("3"); // ZapfDingbats checkmark
         }
@@ -564,8 +564,8 @@ void Annot::generateFieldAppearance(Dict *field, Dict *annot, Dict *acroForm) {
     }
   } else if (ftObj.isName("Tx")) {
     //~ value strings can be Unicode
-    if (fieldLookup(field, "V", &obj1)->isString()) {
-      if (fieldLookup(field, "Q", &obj2)->isInt()) {
+    if (Form::fieldLookup(field, "V", &obj1)->isString()) {
+      if (Form::fieldLookup(field, "Q", &obj2)->isInt()) {
         quadding = obj2.getInt();
       } else {
         quadding = fieldQuadLeft;
@@ -573,7 +573,7 @@ void Annot::generateFieldAppearance(Dict *field, Dict *annot, Dict *acroForm) {
       obj2.free();
       comb = 0;
       if (ff & fieldFlagComb) {
-        if (fieldLookup(field, "MaxLen", &obj2)->isInt()) {
+        if (Form::fieldLookup(field, "MaxLen", &obj2)->isInt()) {
           comb = obj2.getInt();
         }
         obj2.free();
@@ -584,7 +584,7 @@ void Annot::generateFieldAppearance(Dict *field, Dict *annot, Dict *acroForm) {
     obj1.free();
   } else if (ftObj.isName("Ch")) {
     //~ value/option strings can be Unicode
-    if (fieldLookup(field, "Q", &obj1)->isInt()) {
+    if (Form::fieldLookup(field, "Q", &obj1)->isInt()) {
       quadding = obj1.getInt();
     } else {
       quadding = fieldQuadLeft;
@@ -592,7 +592,7 @@ void Annot::generateFieldAppearance(Dict *field, Dict *annot, Dict *acroForm) {
     obj1.free();
     // combo box
     if (ff & fieldFlagCombo) {
-      if (fieldLookup(field, "V", &obj1)->isString()) {
+      if (Form::fieldLookup(field, "V", &obj1)->isString()) {
         drawText(obj1.getString(), da, fontDict,
             gFalse, 0, quadding, gTrue, gFalse);
         //~ Acrobat draws a popup icon on the right side
@@ -623,7 +623,7 @@ void Annot::generateFieldAppearance(Dict *field, Dict *annot, Dict *acroForm) {
         // get the selected option(s)
         selection = (GBool *)gmallocn(nOptions, sizeof(GBool));
         //~ need to use the I field in addition to the V field
-        fieldLookup(field, "V", &obj2);
+	Form::fieldLookup(field, "V", &obj2);
         for (i = 0; i < nOptions; ++i) {
           selection[i] = gFalse;
           if (obj2.isString()) {
@@ -1450,25 +1450,6 @@ void Annot::drawCircleBottomRight(double cx, double cy, double r) {
       cx + r2,
       cy + r2);
   appearBuf->append("S\n");
-}
-
-// Look up an inheritable field dictionary entry.
-Object *Annot::fieldLookup(Dict *field, char *key, Object *obj) {
-  Dict *dict;
-  Object parent;
-
-  dict = field;
-  if (!dict->lookup(key, obj)->isNull()) {
-    return obj;
-  }
-  obj->free();
-  if (dict->lookup("Parent", &parent)->isDict()) {
-    fieldLookup(parent.getDict(), key, obj);
-  } else {
-    obj->initNull();
-  }
-  parent.free();
-  return obj;
 }
 
 void Annot::draw(Gfx *gfx, GBool printing) {

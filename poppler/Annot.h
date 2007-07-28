@@ -103,7 +103,6 @@ private:
   void drawCircle(double cx, double cy, double r, GBool fill);
   void drawCircleTopLeft(double cx, double cy, double r);
   void drawCircleBottomRight(double cx, double cy, double r);
-  Object *fieldLookup(Dict *field, char *key, Object *obj);
   void readArrayNum(Object *pdfArray, int key, double *value);
   // write vStr[i:j[ in appearBuf
   void writeTextString (GooString *text, GooString *appearBuf, int *i, int j, CharCodeToUnicode *ccToUnicode, GBool password); 
