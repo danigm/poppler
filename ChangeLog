@@ -1,3 +1,8 @@
+2007-07-28  Carlos Garcia Campos  <carlosgc@gnome.org>
+
+	* glib/poppler-page.h: Remove unneeded declarations. Fixes bug
+	#11744. Patch by Kouhei	Sutou <kou@cozmixng.org>.
+	
 2007-07-27  Carlos Garcia Campos  <carlosgc@gnome.org>
 
 	* glib/poppler-document.cc:
