@@ -41,6 +41,12 @@
 #define LOG(x)
 #endif
 
+static inline void printMatrix(cairo_matrix_t *matrix){
+	printf("%f %f, %f %f (%f %f)\n", matrix->xx, matrix->yx,
+			matrix->xy, matrix->yy,
+			matrix->x0, matrix->y0);
+}
+
 //------------------------------------------------------------------------
 // CairoImage
 //------------------------------------------------------------------------
@@ -94,10 +100,14 @@ void CairoOutputDev::setCairo(cairo_t *cairo)
 {
   if (this->cairo != NULL)
     cairo_destroy (this->cairo);
-  if (cairo != NULL)
+  if (cairo != NULL) {
     this->cairo = cairo_reference (cairo);
-  else
+	/* save the initial matrix so that we can use it for type3 fonts. */
+	//XXX: is this sufficient? could we miss changes to the matrix somehow?
+	cairo_get_matrix(cairo, &orig_matrix);
+  } else {
     this->cairo = NULL;
+  }
 }
 
 void CairoOutputDev::startDoc(XRef *xrefA) {
@@ -467,6 +477,7 @@ void CairoOutputDev::endString(GfxState *state)
   glyphs = NULL;
 }
 
+
 GBool CairoOutputDev::beginType3Char(GfxState *state, double x, double y,
 				      double dx, double dy,
 				      CharCode code, Unicode *u, int uLen) {
@@ -482,7 +493,10 @@ GBool CairoOutputDev::beginType3Char(GfxState *state, double x, double y,
   matrix.yy = ctm[3];
   matrix.x0 = ctm[4];
   matrix.y0 = ctm[5];
-  cairo_set_matrix(cairo, &matrix);
+  /* Restore the original matrix and then transform to matrix needed for the
+   * type3 font. This is ugly but seems to work. Perhaps there is a better way to do it?*/
+  cairo_set_matrix(cairo, &orig_matrix);
+  cairo_transform(cairo, &matrix);
   return gFalse;
 }
 

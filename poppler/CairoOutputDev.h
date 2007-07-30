@@ -186,6 +186,7 @@ protected:
   FT_Library ft_lib;
   CairoFontEngine *fontEngine;
   cairo_t *cairo;
+  cairo_matrix_t orig_matrix;
   GBool needFontUpdate;                // set when the font needs to be updated
   cairo_surface_t *surface;
   cairo_glyph_t *glyphs;
