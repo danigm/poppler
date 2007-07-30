@@ -1,5 +1,11 @@
 2007-07-30  Jeff Muizelaar  <jeff@infidigm.net>
 
+	* poppler/CairoOutputDev.cc:
+	* poppler/CairoOutputDev.h: Prescale image masks before giving them
+	to cairo to improve the quality of the scaled image. Improves #5589.
+
+2007-07-30  Jeff Muizelaar  <jeff@infidigm.net>
+
 	* configure.ac: Update require cairo version to 1.4
 
 2007-07-30  Jeff Muizelaar  <jeff@infidigm.net>

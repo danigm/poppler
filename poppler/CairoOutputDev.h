@@ -140,6 +140,13 @@ public:
   virtual void drawImageMask(GfxState *state, Object *ref, Stream *str,
 			     int width, int height, GBool invert,
 			     GBool inlineImg);
+  void drawImageMaskPrescaled(GfxState *state, Object *ref, Stream *str,
+			     int width, int height, GBool invert,
+			     GBool inlineImg);
+  void drawImageMaskRegular(GfxState *state, Object *ref, Stream *str,
+			     int width, int height, GBool invert,
+			     GBool inlineImg);
+
   virtual void drawImage(GfxState *state, Object *ref, Stream *str,
 			 int width, int height, GfxImageColorMap *colorMap,
 			 int *maskColors, GBool inlineImg);
@@ -204,13 +211,14 @@ protected:
   int glyphCount;
   cairo_path_t *textClipPath;
 
+  GBool prescaleImages;
+
   cairo_pattern_t *group;
   cairo_pattern_t *mask;
   struct ColorSpaceStack {
     GfxColorSpace *cs;
     struct ColorSpaceStack *next;
   } * groupColorSpaceStack;
-
 };
 
 //------------------------------------------------------------------------
