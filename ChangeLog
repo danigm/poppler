@@ -1,3 +1,7 @@
+2007-07-29  Jeff Muizelaar  <jeff@infidigm.net>
+
+	* glib/test-poppler-glib.c: include <time.h> to fix compilation.
+
 2007-07-28  Carlos Garcia Campos  <carlosgc@gnome.org>
 
 	* poppler/Annot.cc:
