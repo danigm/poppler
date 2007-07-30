@@ -1,5 +1,9 @@
 2007-07-30  Jeff Muizelaar  <jeff@infidigm.net>
 
+	* configure.ac: Update require cairo version to 1.4
+
+2007-07-30  Jeff Muizelaar  <jeff@infidigm.net>
+
 	* poppler/CairoOutputDev.cc:
 	* poppler/CairoOutputDev.h: Add transparency group support.
 	Fixes #7856.
