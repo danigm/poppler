@@ -158,10 +158,21 @@ public:
 				GBool maskInvert);
 
 
+  //----- transparency groups and soft masks
+  virtual void beginTransparencyGroup(GfxState * /*state*/, double * /*bbox*/,
+                                      GfxColorSpace * /*blendingColorSpace*/,
+                                      GBool /*isolated*/, GBool /*knockout*/,
+                                      GBool /*forSoftMask*/);
+  virtual void endTransparencyGroup(GfxState * /*state*/);
+  virtual void paintTransparencyGroup(GfxState * /*state*/, double * /*bbox*/);
+  virtual void setSoftMask(GfxState * /*state*/, double * /*bbox*/, GBool /*alpha*/,
+                           Function * /*transferFunc*/, GfxColor * /*backdropColor*/);
+  virtual void clearSoftMask(GfxState * /*state*/);
+
   //----- Type 3 font operators
   virtual void type3D0(GfxState *state, double wx, double wy);
   virtual void type3D1(GfxState *state, double wx, double wy,
-		       double llx, double lly, double urx, double ury);
+      double llx, double lly, double urx, double ury);
 
   //----- special access
 
@@ -192,6 +203,14 @@ protected:
   cairo_glyph_t *glyphs;
   int glyphCount;
   cairo_path_t *textClipPath;
+
+  cairo_pattern_t *group;
+  cairo_pattern_t *mask;
+  struct ColorSpaceStack {
+    GfxColorSpace *cs;
+    struct ColorSpaceStack *next;
+  } * groupColorSpaceStack;
+
 };
 
 //------------------------------------------------------------------------

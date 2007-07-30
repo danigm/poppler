@@ -82,6 +82,10 @@ CairoOutputDev::CairoOutputDev() {
   textClipPath = NULL;
   cairo = NULL;
   currentFont = NULL;
+
+  groupColorSpaceStack = NULL;
+  group = NULL;
+  mask = NULL;
 }
 
 CairoOutputDev::~CairoOutputDev() {
@@ -522,6 +526,135 @@ void CairoOutputDev::endTextObject(GfxState *state) {
 
 }
 
+void CairoOutputDev::beginTransparencyGroup(GfxState * /*state*/, double * /*bbox*/,
+                                      GfxColorSpace * blendingColorSpace,
+                                      GBool /*isolated*/, GBool /*knockout*/,
+				      GBool forSoftMask) {
+  /* push color space */
+  ColorSpaceStack* css = new ColorSpaceStack;
+  css->cs = blendingColorSpace;
+  css->next = groupColorSpaceStack;
+  groupColorSpaceStack = css;
+
+  if (0 && forSoftMask)
+    cairo_push_group_with_content (cairo, CAIRO_CONTENT_ALPHA);
+  else
+    cairo_push_group (cairo);
+}
+void CairoOutputDev::endTransparencyGroup(GfxState * /*state*/) {
+  if (group)
+    cairo_pattern_destroy(group);
+  group = cairo_pop_group (cairo);
+}
+void CairoOutputDev::paintTransparencyGroup(GfxState * /*state*/, double * /*bbox*/) {
+  cairo_set_source (cairo, group);
+
+  if (!mask) {
+    cairo_paint_with_alpha (cairo, fill_opacity);
+  } else {
+    cairo_mask(cairo, mask);
+
+    cairo_pattern_destroy(mask);
+    mask = NULL;
+  }
+
+  /* pop color space */
+  ColorSpaceStack *css = groupColorSpaceStack;
+  groupColorSpaceStack = css->next;
+  delete css;
+}
+
+typedef unsigned int uint32_t;
+
+static uint32_t luminocity(uint32_t x)
+{
+  int a = (x >> 24) & 0xff;
+  int r = (x >> 16) & 0xff;
+  int g = (x >>  8) & 0xff;
+  int b = (x >>  0) & 0xff;
+  int y = 0.3 * r + 0.59 * g + 0.11 * b;
+  return y << 24;
+}
+
+
+void CairoOutputDev::setSoftMask(GfxState * state, double * bbox, GBool alpha,
+                                 Function * transferFunc, GfxColor * backdropColor) {
+  if (alpha == false) {
+    /* We need to mask according to the luminocity of the group.
+     * So we paint the group to an image surface convert it to a luminocity map
+     * and then use that as the mask. */
+
+    double x1, y1, x2, y2;
+    cairo_clip_extents(cairo, &x1, &y1, &x2, &y2);
+    int width = ceil(x2) - floor(x1);
+    int height = ceil(y2) - floor(y1);
+
+    cairo_surface_t *source = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, width, height);
+    cairo_t *maskCtx = cairo_create(source);
+
+    //XXX: hopefully this uses the correct color space */
+    GfxRGB backdropColorRGB;
+    groupColorSpaceStack->cs->getRGB(backdropColor, &backdropColorRGB);
+    /* paint the backdrop */
+    cairo_set_source_rgb(maskCtx, backdropColorRGB.r / 65535.0,
+			 backdropColorRGB.g / 65535.0,
+			 backdropColorRGB.b / 65535.0);
+
+
+    cairo_matrix_t mat;
+    cairo_get_matrix(cairo, &mat);
+    cairo_set_matrix(maskCtx, &mat);
+
+    /* make the device offset of the new mask match that of the group */
+    double x_offset, y_offset;
+    cairo_surface_t *pats;
+    cairo_pattern_get_surface(group, &pats);
+    cairo_surface_get_device_offset(pats, &x_offset, &y_offset);
+    cairo_surface_set_device_offset(source, x_offset, y_offset);
+
+    /* paint the group */
+    cairo_set_source(maskCtx, group);
+    cairo_paint(maskCtx);
+
+    /* convert to a luminocity map */
+    uint32_t *source_data = (uint32_t*)cairo_image_surface_get_data(source);
+    /* get stride in units of 32 bits */
+    int stride = cairo_image_surface_get_stride(source)/4;
+    for (int y=0; y<height; y++) {
+      for (int x=0; x<width; x++) {
+	source_data[y*stride + x] = luminocity(source_data[y*stride + x]);
+
+#if 0
+	here is how splash deals with the transferfunction we should deal with this
+	  at some point
+	if (transferFunc) {
+	  transferFunc->transform(&lum, &lum2);
+	} else {
+	  lum2 = lum;
+	}
+	p[x] = (int)(lum2 * 255.0 + 0.5);
+#endif
+
+      }
+    }
+
+    /* setup the new mask pattern */
+    mask = cairo_pattern_create_for_surface(source);
+    cairo_matrix_t patMatrix;
+    cairo_pattern_get_matrix(group, &patMatrix);
+    cairo_pattern_set_matrix(mask, &patMatrix);
+
+    cairo_surface_destroy(source);
+    cairo_surface_destroy(pats);
+  } else {
+    cairo_pattern_reference(group);
+    mask = group;
+  }
+}
+
+void CairoOutputDev::clearSoftMask(GfxState * /*state*/) {
+  //XXX: should we be doing anything here?
+}
 
 void CairoOutputDev::drawImageMask(GfxState *state, Object *ref, Stream *str,
 				    int width, int height, GBool invert,
