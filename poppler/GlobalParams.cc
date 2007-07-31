@@ -220,7 +220,7 @@ private:
 				CONST TEXTMETRIC *metrics,
 				DWORD type, LPARAM data);
 
-  GList *fonts;			// [WinFontInfo]
+  GooList *fonts;			// [WinFontInfo]
   HDC dc;			// (only used during enumeration)
   HKEY regKey;			// (only used during enumeration)
   char *winFontDir;		// (only used during enumeration)
@@ -230,7 +230,7 @@ WinFontList::WinFontList(char *winFontDirA) {
   OSVERSIONINFO version;
   char *path;
 
-  fonts = new GList();
+  fonts = new GooList();
   dc = GetDC(NULL);
   winFontDir = winFontDirA;
   version.dwOSVersionInfoSize = sizeof(version);
@@ -250,7 +250,7 @@ WinFontList::WinFontList(char *winFontDirA) {
 }
 
 WinFontList::~WinFontList() {
-  deleteGList(fonts, WinFontInfo);
+  deleteGooList(fonts, WinFontInfo);
 }
 
 void WinFontList::add(WinFontInfo *fi) {
@@ -1718,7 +1718,7 @@ XpdfSecurityHandler *GlobalParams::getSecurityHandler(char *name) {
   if (!loadPlugin("security", name)) {
     return NULL;
   }
-  deleteGList(keyBindings, KeyBinding);
+  deleteGooList(keyBindings, KeyBinding);
 
   lockGlobalParams;
   for (i = 0; i < securityHandlers->getLength(); ++i) {

@@ -1,5 +1,9 @@
 2007-07-31  Jeff Muizelaar  <jeff@infidigm.net>
 
+	* poppler/GlobalParams.cc: s/GList/GooList/ some Windows code.
+
+2007-07-31  Jeff Muizelaar  <jeff@infidigm.net>
+
 	* glib/poppler-document.cc:
 	* glib/poppler-document.h: Add poppler_fonts_iter_get_file_name.
 
