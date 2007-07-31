@@ -149,6 +149,7 @@ PopplerFontsIter *poppler_fonts_iter_copy          (PopplerFontsIter  *iter);
 void              poppler_fonts_iter_free          (PopplerFontsIter  *iter);
 const char       *poppler_fonts_iter_get_name      (PopplerFontsIter  *iter);
 const char       *poppler_fonts_iter_get_full_name (PopplerFontsIter  *iter);
+const char       *poppler_fonts_iter_get_file_name (PopplerFontsIter  *iter);
 PopplerFontType   poppler_fonts_iter_get_font_type (PopplerFontsIter  *iter);
 gboolean	  poppler_fonts_iter_is_embedded   (PopplerFontsIter  *iter);
 gboolean	  poppler_fonts_iter_is_subset     (PopplerFontsIter  *iter);

@@ -1102,6 +1102,22 @@ poppler_fonts_iter_get_name (PopplerFontsIter *iter)
 	return name;
 }
 
+const char *
+poppler_fonts_iter_get_file_name (PopplerFontsIter *iter)
+{
+	GooString *file;
+	FontInfo *info;
+
+	info = (FontInfo *)iter->items->get (iter->index);
+
+	file = info->getFile();
+	if (file != NULL) {
+		return file->getCString();
+	} else {
+		return NULL;
+	}
+}
+
 PopplerFontType
 poppler_fonts_iter_get_font_type (PopplerFontsIter *iter)
 {
