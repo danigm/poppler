@@ -1,3 +1,8 @@
+2007-07-31  Jeff Muizelaar  <jeff@infidigm.net>
+
+	* poppler/CairoOutputDev.h: Add comment about CairoImageOutputDevice's
+	implementation.
+
 2007-07-31  Carlos Garcia Campos  <carlosgc@gnome.org>
 
 	* poppler/Form.cc:

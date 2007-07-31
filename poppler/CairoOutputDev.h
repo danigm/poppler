@@ -225,6 +225,7 @@ protected:
 // CairoImageOutputDev
 //------------------------------------------------------------------------
 
+//XXX: this should ideally not inherit from CairoOutputDev but use it instead perhaps
 class CairoImageOutputDev: public CairoOutputDev {
 public:
 
