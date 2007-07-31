@@ -128,7 +128,7 @@ public:
   void setState (GBool state, GBool calledByParent=gFalse);
   GBool getState ();
 
-  char* getOnStr () { return onStr; }
+  char* getOnStr () { return onStr->getCString(); }
 
   void loadDefaults();
 
@@ -145,7 +145,7 @@ protected:
   unsigned* siblingsID; // IDs of dependent buttons (each button of a radio field has all the others buttons
                         // of the same field in this array)
   int numSiblingsID;
-  char *onStr;
+  GooString *onStr;
   FormFieldButton *parent;
   GBool state;
 };

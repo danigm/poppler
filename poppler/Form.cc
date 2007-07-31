@@ -149,6 +149,7 @@ FormWidgetButton::~FormWidgetButton ()
 {
   if (siblingsID)
     gfree(siblingsID);
+  delete onStr;
 }
 
 FormButtonType FormWidgetButton::getButtonType () const
@@ -171,9 +172,9 @@ void FormWidgetButton::setState (GBool astate, GBool calledByParent)
   //update appearance
   char *offStr = "Off";
   Object obj1;
-  obj1.initName(state?onStr:offStr);
+  obj1.initName(state?getOnStr():offStr);
   obj.getDict()->set("V", &obj1);
-  obj1.initName(state?onStr:offStr);
+  obj1.initName(state?getOnStr():offStr);
   //modify the Appearance State entry as well
   obj.getDict()->set("AS", &obj1);
 
@@ -210,7 +211,7 @@ void FormWidgetButton::loadDefaults ()
             tmpDict2->getVal(j, &obj3);
             char *key = tmpDict2->getKey(j);
             if(strcmp(key, "Off")) { //if we don't have Off, we have the name of the "on" state
-              onStr = strdup(key);
+	      onStr = new GooString (key);
             }
             obj3.free();
           }
@@ -220,7 +221,7 @@ void FormWidgetButton::loadDefaults ()
           Object obj3;
           tmpDict2->lookup("Length", &obj3);
           int c;
-          onStr = "D"; 
+          onStr = new GooString ("D"); 
         }
         obj2.free();
       }
