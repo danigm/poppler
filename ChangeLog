@@ -1,3 +1,13 @@
+2007-07-31  Jeff Muizelaar  <jeff@infidigm.net>
+
+	* poppler/GfxFont.cc: Fix the case where the Encoding is "Identity"
+	and ToUnicode exists. GfxCIDFont::getCodeToGIDMap makes CIDTOGID map
+	from ToUnicde map, but when encoding is Identity, it should not use
+	ToUnicode map to get GID. If encoding is Identity, No CIDTOGID map is
+	needed.
+	Patch by Koji Otani.
+	Fixes #11413.
+
 2007-07-30  Jeff Muizelaar  <jeff@infidigm.net>
 
 	* poppler/CairoOutputDev.cc:

@@ -1655,6 +1655,7 @@ Gushort *GfxCIDFont::getCodeToGIDMap(FoFiTrueType *ff, int *mapsizep) {
 
   *mapsizep = 0;
   if (!ctu) return NULL;
+  if (getCollection()->cmp("Adobe-Identity") == 0) return NULL;
 
   /* we use only unicode cmap */
   cmap = -1;
