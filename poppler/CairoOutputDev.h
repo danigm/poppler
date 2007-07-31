@@ -305,6 +305,17 @@ public:
 			       int maskWidth, int maskHeight,
 			       GBool maskInvert);
 
+  //----- transparency groups and soft masks
+  virtual void beginTransparencyGroup(GfxState * /*state*/, double * /*bbox*/,
+				      GfxColorSpace * /*blendingColorSpace*/,
+				      GBool /*isolated*/, GBool /*knockout*/,
+				      GBool /*forSoftMask*/) {}
+  virtual void endTransparencyGroup(GfxState * /*state*/) {}
+  virtual void paintTransparencyGroup(GfxState * /*state*/, double * /*bbox*/) {}
+  virtual void setSoftMask(GfxState * /*state*/, double * /*bbox*/, GBool /*alpha*/,
+			   Function * /*transferFunc*/, GfxColor * /*backdropColor*/) {}
+  virtual void clearSoftMask(GfxState * /*state*/) {}
+
   //----- Image list
   // Iterate through list of images.
   int getNumImages() const { return numImages; }
