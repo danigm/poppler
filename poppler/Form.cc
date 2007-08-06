@@ -54,6 +54,7 @@ FormWidget::FormWidget(XRef *xrefA, Object *aobj, unsigned num, Ref aref)
   double t;
   ID = 0;
   fontSize = 0.0;
+  modified = gFalse;
   childNum = num;
   xref = xrefA;
   aobj->copy(&obj);
@@ -367,6 +368,7 @@ void FormWidgetText::setContent(GooString* new_content)
     obj.getDict()->set("V", &obj1);
     //notify the xref about the update
     xref->setModifiedObject(&obj, ref);
+    modified = gTrue;
   }
 }
 
@@ -507,6 +509,7 @@ void FormWidgetChoice::_updateV ()
   obj.getDict()->set("V", &obj1);
   //notify the xref about the update
   xref->setModifiedObject(&obj, ref);
+  modified = gTrue;
 }
 
 bool FormWidgetChoice::_checkRange (int i)
@@ -1107,14 +1110,12 @@ Form::Form(XRef *xrefA, Object* acroForm)
       oref.free();
     }
   }
-
-  checkForNeedAppearances(acroForm);
 }
 
 Form::~Form() {
   int i;
   for(i = 0; i< numFields; ++i)
-          delete rootFields[i];
+    delete rootFields[i];
   gfree (rootFields);
 }
 
@@ -1136,24 +1137,6 @@ Object *Form::fieldLookup(Dict *field, char *key, Object *obj) {
   parent.free();
   return obj;
 }
-
-void Form::checkForNeedAppearances (Object *acroForm)
-{
-  //NeedAppearances needs to be set to 'true' in the AcroForm entry of the Catalog to enable dynamic appearance generation
-  Object* catalog = new Object();
-  Ref catRef;
-  catRef.gen = xref->getRootGen();
-  catRef.num = xref->getRootNum();
-  catalog = xref->getCatalog(catalog);
-  catalog->dictLookup("AcroForm", acroForm);
-  Object obj1;
-  obj1.initBool(true);
-  acroForm->dictSet("NeedAppearances", &obj1);
-  catalog->dictSet("AcroForm", acroForm);
-  xref->setModifiedObject(catalog, catRef);
-  delete catalog;
-}
-
 
 void Form::createFieldFromDict (Object* obj, FormField** ptr, XRef *xrefA, const Ref& pref)
 {

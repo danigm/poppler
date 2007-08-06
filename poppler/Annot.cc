@@ -111,11 +111,18 @@ void Annot::initialize(XRef *xrefA, Dict *acroForm, Dict *dict, Catalog *catalog
   appearBuf = NULL;
   fontSize = 0;
   type = NULL;
-  //widget = NULL;
+  widget = NULL;
   borderStyle = NULL;
 
+  //----- get the FormWidget
+  if (hasRef) {
+    Form *form = catalog->getForm ();
+    
+    if (form)
+      widget = form->findWidgetByRef (ref);
+  }
+  
   //----- parse the type
-
   if (dict->lookup("Subtype", &obj1)->isName()) {
     type = new GooString(obj1.getName());
   }
@@ -177,39 +184,39 @@ void Annot::initialize(XRef *xrefA, Dict *acroForm, Dict *dict, Catalog *catalog
       }
       obj1.free();
     }
-  } else {
-    //for other type of annots, lookup for AP and copy it to the appearance stream
-    Object apObj, asObj;
-    if (dict->lookup("AP", &apObj)->isDict()) {
-      if (dict->lookup("AS", &asObj)->isName()) {
-        if (apObj.dictLookup("N", &obj1)->isDict()) {
-          if (obj1.dictLookupNF(asObj.getName(), &obj2)->isRef()) {
-            obj2.copy(&appearance);
-            ok = gTrue;
-          } else {
-            obj2.free();
-            if (obj1.dictLookupNF("Off", &obj2)->isRef()) {
-              obj2.copy(&appearance);
-              ok = gTrue;
-            }
-          }
-          obj2.free();
-        }
-        obj1.free();
-      } else {
-        if (apObj.dictLookupNF("N", &obj1)->isRef()) {
-	  obj1.copy(&appearance);
-	  ok = gTrue;
-        }
-        obj1.free();
-      }
-      asObj.free();
-    } else {
-      // If field doesn't have an AP we'll have to generate it
-      regen = gTrue;
-    }
-    apObj.free();
   }
+
+  if (dict->lookup("AP", &apObj)->isDict()) {
+    if (dict->lookup("AS", &asObj)->isName()) {
+      if (apObj.dictLookup("N", &obj1)->isDict()) {
+        if (obj1.dictLookupNF(asObj.getName(), &obj2)->isRef()) {
+	  obj2.copy(&appearance);
+	  ok = gTrue;
+	} else {
+	  obj2.free();
+	  if (obj1.dictLookupNF("Off", &obj2)->isRef()) {
+	    obj2.copy(&appearance);
+	    ok = gTrue;
+	  } else
+	    regen = gTrue;
+	} 
+	obj2.free();
+      }
+      obj1.free();
+    } else {
+      if (apObj.dictLookupNF("N", &obj1)->isRef()) {
+        obj1.copy(&appearance);
+	ok = gTrue;
+      } else
+        regen = gTrue;
+      obj1.free();
+    }
+    asObj.free();
+  } else {
+    // If field doesn't have an AP we'll have to generate it
+    regen = gTrue;
+  }
+  apObj.free();
   obj3.free();
 
   //----- parse the border style
@@ -343,15 +350,26 @@ void Annot::generateFieldAppearance(Dict *field, Dict *annot, Dict *acroForm) {
   GooString **text;
   GBool *selection;
   int dashLength, ff, quadding, comb, nOptions, topIdx, i, j;
-
-  //do not regenerate appearance if we don't need to
-  if (!regen)
-    return;
+  GBool modified;
 
   // must be a Widget annotation
   if (type->cmp("Widget")) {
     return;
   }
+
+  // do not regenerate appearence if widget has not changed
+  if (widget && widget->isModified ()) {
+    modified = gTrue;
+  } else {
+    modified = gFalse;
+  }
+
+  // only regenerate when it doesn't have an AP or
+  // it already has an AP but widget has been modified
+  if (!regen && !modified) {
+    return;
+  }
+
   appearBuf = new GooString ();
   // get the appearance characteristics (MK) dictionary
   if (annot->lookup("MK", &mkObj)->isDict()) {

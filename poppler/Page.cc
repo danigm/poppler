@@ -415,13 +415,9 @@ void Page::displaySlice(OutputDev *out, double hDPI, double vDPI,
   acroForm = catalog->getAcroForm()->isDict() ?
                catalog->getAcroForm()->getDict() : NULL;
   if (acroForm) {
-    if (acroForm->lookup("NeedAppearances", &obj)) {
-      if (obj.isBool() && obj.getBool()) {
-      	annotList->generateAppearances(acroForm);
-      }
-    }
-    obj.free();
+    annotList->generateAppearances(acroForm);
   }
+  
   if (annotList->getNumAnnots() > 0) {
     if (globalParams->getPrintCommands()) {
       printf("***** Annotations\n");

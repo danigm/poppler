@@ -1,3 +1,12 @@
+2007-08-06  Carlos Garcia Campos  <carlosgc@gnome.org>
+
+	* poppler/Annot.cc:
+	* poppler/Annot.h:
+	* poppler/Form.cc:
+	* poppler/Form.h:
+	* poppler/Page.cc: Do not always regenerate appearance stream for
+	every form widget, but only when it's actually needed.
+	
 2007-07-31  Jeff Muizelaar  <jeff@infidigm.net>
 
 	* poppler/GlobalParams.cc: s/GList/GooList/ some Windows code.

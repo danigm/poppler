@@ -19,6 +19,7 @@ class Catalog;
 class CharCodeToUnicode;
 class GfxFont;
 class GfxFontDict;
+class FormWidget;
 
 //------------------------------------------------------------------------
 // AnnotBorderStyle
@@ -87,8 +88,6 @@ public:
   double getFontSize() { return fontSize; }
 
 private:
-//  void writeTextString (GooString* vStr, CharCodeToUnicode* ccToUnicode, GooString* appearBuf, GfxFont* font);
-//  void generateAppearance(Dict *acroForm, Dict *dict);
   void setColor(Array *a, GBool fill, int adjust);
   void drawText(GooString *text, GooString *da, GfxFontDict *fontDict,
 		GBool multiline, int comb, int quadding,
@@ -110,8 +109,9 @@ private:
   void initialize (XRef *xrefA, Dict *acroForm, Dict *dict, Catalog *catalog);
 
   XRef *xref;			// the xref table for this PDF file
-  Ref ref; // object ref identifying this annotation
-  GooString *type; // annotation type
+  Ref ref;                      // object ref identifying this annotation
+  FormWidget *widget;           // FormWidget object for this annotation
+  GooString *type;              // annotation type
   Object appearance;		// a reference to the Form XObject stream
 				//   for the normal appearance
   GooString *appearBuf;

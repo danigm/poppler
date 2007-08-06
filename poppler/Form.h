@@ -79,6 +79,8 @@ public:
   void setFontSize(double f) { fontSize = f; }
   double getFontSize () { return fontSize; }
 
+  GBool isModified () { return modified; }
+
   virtual bool isReadOnly() const = 0;
 
   // return the unique ID corresponding to pageNum/fieldNum
@@ -95,6 +97,7 @@ protected:
   Object obj;
   Ref ref;
   XRef *xref;
+  GBool modified;
   //index of this field in the parent's child list
   unsigned childNum;
 
@@ -444,7 +447,6 @@ public:
   void createFieldFromDict (Object* obj, FormField** ptr, XRef *xref, const Ref& aref);
 
   void postWidgetsLoad();
-  void checkForNeedAppearances (Object *acroForm);
 private:
   FormField** rootFields;
   int numFields;
