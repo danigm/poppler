@@ -685,7 +685,9 @@ void CairoOutputDev::drawImageMask(GfxState *state, Object *ref, Stream *str,
     return;
   }
 
-  if (prescaleImages) {
+  cairo_matrix_t matrix;
+  cairo_get_matrix (cairo, &matrix);
+  if (prescaleImages && matrix.xy == 0.0 && matrix.yx == 0.0) {
     drawImageMaskPrescaled(state, ref, str, width, height, invert, inlineImg);
   } else {
     drawImageMaskRegular(state, ref, str, width, height, invert, inlineImg);
@@ -811,6 +813,9 @@ void CairoOutputDev::drawImageMaskPrescaled(GfxState *state, Object *ref, Stream
     ty2 = splashFloor(matrix.y0 + yScale + 0.01);
   }
   scaledHeight = abs(ty2 - ty);
+  if (scaledHeight == 0) {
+    scaledHeight = 1;
+  }
 #if 0
   printf("xscale: %g, yscale: %g\n", xScale, yScale);
   printf("width: %d, height: %d\n", width, height);
