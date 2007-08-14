@@ -22,6 +22,19 @@ AC_DEFINE([OPI_SUPPORT], [1], [Generate OPI comments in PS output.])
 AC_DEFINE([MULTITHREADED], [1], [Enable multithreading support.])
 AC_DEFINE([TEXTOUT_WORD_LIST], [1], [Enable word list support.])
 
+dnl Check for OS specific flags
+win32_libs=""
+create_shared_lib=""
+case "$host_os" in
+  mingw|mingw32)
+    win32_libs="-lgdi32"
+    create_shared_lib="-no-undefined"
+  ;;
+esac
+
+AC_SUBST(win32_libs)
+AC_SUBST(create_shared_lib)
+
 dnl Install xpdf headers
 AC_ARG_ENABLE(xpdf-headers,
 	      AC_HELP_STRING([--enable-xpdf-headers],

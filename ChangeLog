@@ -1,3 +1,9 @@
+2007-08-15  Albert Astals Cid <aacid@kde.org>
+
+	* configure.ac:
+	* pòppler/Makefile.am: Patch by Vincent Torri <vtorri@univ-evry.fr> to
+	fix linking under MinGW
+
 2007-08-07  Jeff Muizelaar  <jeff@infidigm.net>
 
 	* poppler/CairoOutputDev.cc: Don't use the prescaleMethod

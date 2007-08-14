@@ -110,9 +110,10 @@ libpoppler_la_LIBADD =				\
 	$(zlib_libs)				\
 	$(abiword_libs)				\
 	$(FREETYPE_LIBS)			\
-	$(FONTCONFIG_LIBS)
+	$(FONTCONFIG_LIBS)			\
+	$(win32_libs)
 
-libpoppler_la_LDFLAGS = -version-info 1:0:0
+libpoppler_la_LDFLAGS = -version-info 1:0:0 @create_shared_lib@
 
 if ENABLE_XPDF_HEADERS
 
