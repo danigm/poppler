@@ -1,3 +1,21 @@
+Release 0.5.91 (0.6 Release Candidate 2)
+
+	- Various memory leaks fixed
+	- Compile with --enable-fixedpoint. Bug #11110
+	- Header cleanup
+	- Remove dependency on debugxml. Bug #11187
+	- Allow access to document metadata in glib and qt4 frontends
+	- Several glib API frontend improvements
+	- Fix crash on accessing embedded files
+	- Build on Sun Force compiler
+	- Render '*' instead of the actual content in password form fields
+	- Fix pdftohtml complex output. Bug #9746 and #11610
+	- Windows build fixes
+	- Improve Japanese font support. Bug #11413
+	- Do not exit the program on files that confuse libjpeg
+	- Update required cairo version to 1.4
+	- Fix CVE-2007-3387
+
 Release 0.5.9 (0.6 Release Candidate)
 
 	- Merge xpdf 3.02 changes

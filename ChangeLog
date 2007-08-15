@@ -4,6 +4,7 @@
 	* pòppler/Makefile.am: Patch by Vincent Torri <vtorri@univ-evry.fr> to
 	fix linking under MinGW
 	* poppler/Stream.cc: Fix CVE-2007-3387 by merging xpdf-3.02pl1.patch
+	* configure.ac: bump version to 0.5.91
 
 2007-08-07  Jeff Muizelaar  <jeff@infidigm.net>
 
