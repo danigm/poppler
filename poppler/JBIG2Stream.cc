@@ -1516,11 +1516,17 @@ GBool JBIG2Stream::readSymbolDictSeg(Guint segNum, Guint length,
   codeTables = new GooList();
   numInputSyms = 0;
   for (i = 0; i < nRefSegs; ++i) {
-    seg = findSegment(refSegs[i]);
-    if (seg->getType() == jbig2SegSymbolDict) {
-      numInputSyms += ((JBIG2SymbolDict *)seg)->getSize();
-    } else if (seg->getType() == jbig2SegCodeTable) {
-      codeTables->append(seg);
+    // This is need by bug 12014, returning gFalse makes it not crash
+    // but we end up with a empty page while acroread is able to render
+    // part of it
+    if ((seg = findSegment(refSegs[i]))) {
+      if (seg->getType() == jbig2SegSymbolDict) {
+        numInputSyms += ((JBIG2SymbolDict *)seg)->getSize();
+      } else if (seg->getType() == jbig2SegCodeTable) {
+        codeTables->append(seg);
+      }
+    } else {
+      return gFalse;
     }
   }
 

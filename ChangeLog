@@ -1,3 +1,7 @@
+2007-08-16  Albert Astals Cid <aacid@kde.org>
+
+	* poppler/JBIG2Stream.cc: Quick fix for bug #12014
+
 2007-08-15  Albert Astals Cid <aacid@kde.org>
 
 	* configure.ac:
