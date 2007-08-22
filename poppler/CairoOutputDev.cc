@@ -788,6 +788,7 @@ void CairoOutputDev::drawImageMaskPrescaled(GfxState *state, Object *ref, Stream
 #if 0
   printf("[%f %f], [%f %f], %f %f\n", matrix.xx, matrix.xy, matrix.yx, matrix.yy, matrix.x0, matrix.y0);
 #endif
+  /* this whole computation should be factored out */
   double xScale = matrix.xx;
   double yScale = matrix.yy;
   int tx, tx2, ty, ty2; /* the integer co-oridinates of the resulting image */
@@ -834,8 +835,9 @@ void CairoOutputDev::drawImageMaskPrescaled(GfxState *state, Object *ref, Stream
 
   /* compute the two pieces of padding */
   if (total_pad > 0) {
-    float tail_error = (matrix.y0 - ty);
-    float head_error = (ty2 - (matrix.y0 + yScale));
+    //XXX: i'm not positive fabs() is correct
+    float tail_error = fabs(matrix.y0 - ty);
+    float head_error = fabs(ty2 - (matrix.y0 + yScale));
     float tail_fraction = tail_error/(tail_error + head_error);
     tail_pad = splashRound(total_pad*tail_fraction);
     head_pad = total_pad - tail_pad;

@@ -1,3 +1,8 @@
+2007-08-22  Jeff Muizelaar  <jeff@infidigm.net>
+
+	* poppler/CairoOutputDev.cc: Fix the computation of the padding in the
+	image scaling code.
+
 2007-08-19  Jeff Muizelaar  <jeff@infidigm.net>
 
 	* poppler/CairoOutputDev.cc: Avoid allocating the glyph array if
