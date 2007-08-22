@@ -1,5 +1,9 @@
 2007-08-22  Jeff Muizelaar  <jeff@infidigm.net>
 
+	* poppler/GlobalParams.cc: Fix debug spew. Patch from Matthias Clasen.
+
+2007-08-22  Jeff Muizelaar  <jeff@infidigm.net>
+
 	* poppler/CairoOutputDev.cc: Fix the computation of the padding in the
 	image scaling code.
 
