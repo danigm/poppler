@@ -69,14 +69,25 @@ SplashBitmap::~SplashBitmap() {
   gfree(alpha);
 }
 
+
 SplashError SplashBitmap::writePNMFile(char *fileName) {
   FILE *f;
-  SplashColorPtr row, p;
-  int x, y;
+  SplashError e;
 
   if (!(f = fopen(fileName, "wb"))) {
     return splashErrOpenFile;
   }
+
+  e = this->writePNMFile(f);
+  
+  fclose(f);
+  return e;
+}
+
+
+SplashError SplashBitmap::writePNMFile(FILE *f) {
+  SplashColorPtr row, p;
+  int x, y;
 
   switch (mode) {
 
@@ -158,10 +169,9 @@ SplashError SplashBitmap::writePNMFile(char *fileName) {
     break;
 #endif
   }
-
-  fclose(f);
   return splashOk;
 }
+
 
 void SplashBitmap::getPixel(int x, int y, SplashColorPtr pixel) {
   SplashColorPtr p;

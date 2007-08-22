@@ -1,3 +1,15 @@
+2007-08-22  Albert Astals Cid <aacid@kde.org>
+
+	* splash/SplashBitmap.cc:
+	* splash/SplashBitmap.h:
+	* utils/pdftoppm.cc: Add the following features to pdftoppm
+	  - if omitting input filename or using - for input filename
+	    reads pdf from stdin
+	  - if omitting output filename, prints output to stdout
+	  - create image of a cropped rectangle of the pdf
+	  - scale pdf to fit in a square of wanted size
+	Patch by Ilmari Heikkinen <ilmari.heikkinen@gmail.com>
+
 2007-08-22  Jeff Muizelaar  <jeff@infidigm.net>
 
 	* poppler/GlobalParams.cc: Fix debug spew. Patch from Matthias Clasen.

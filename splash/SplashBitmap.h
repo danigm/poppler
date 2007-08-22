@@ -12,6 +12,7 @@
 #endif
 
 #include "SplashTypes.h"
+#include <stdio.h>
 
 //------------------------------------------------------------------------
 // SplashBitmap
@@ -39,6 +40,7 @@ public:
   Guchar *getAlphaPtr() { return alpha; }
 
   SplashError writePNMFile(char *fileName);
+  SplashError writePNMFile(FILE *f);
 
   void getPixel(int x, int y, SplashColorPtr pixel);
   Guchar getAlpha(int x, int y);
