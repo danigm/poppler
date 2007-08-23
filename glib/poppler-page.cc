@@ -431,7 +431,7 @@ poppler_page_render (PopplerPage *page,
 			   gFalse, /* useMediaBox */
 			   gTrue, /* Crop */
 			   -1, -1,
-			   -1, -1
+			   -1, -1,
 			   gFalse, /* printing */
 			   page->document->doc->getCatalog ());
 

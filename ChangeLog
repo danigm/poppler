@@ -1,3 +1,7 @@
+2007-08-23  Carlos Garcia Campos  <carlosgc@gnome.org>
+
+	* glib/poppler-page.cc: Add missing comma.
+	
 2007-08-23  Jeff Muizelaar  <jeff@infidigm.net>
 
 	* glib/poppler-page.cc: pass in -1 to displaySlice so that it sets up
