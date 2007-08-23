@@ -430,9 +430,8 @@ poppler_page_render (PopplerPage *page,
 			   72.0, 72.0, 0,
 			   gFalse, /* useMediaBox */
 			   gTrue, /* Crop */
-			   0, 0,
-			   (int) ceil (page->page->getCropWidth ()),
-			   (int) ceil (page->page->getCropHeight ()),
+			   -1, -1,
+			   -1, -1
 			   gFalse, /* printing */
 			   page->document->doc->getCatalog ());
 

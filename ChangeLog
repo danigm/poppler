@@ -1,3 +1,10 @@
+2007-08-23  Jeff Muizelaar  <jeff@infidigm.net>
+
+	* glib/poppler-page.cc: pass in -1 to displaySlice so that it sets up
+	the slice size for us. This fixes the case of the wrong values being
+	used when the pdf was rotated on its side.
+	Fixes #11913.
+
 2007-08-22  Albert Astals Cid <aacid@kde.org>
 
 	* splash/SplashBitmap.cc:
