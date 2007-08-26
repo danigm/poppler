@@ -89,6 +89,11 @@ namespace Poppler {
 	delete m_doc;
     }
 
+    Page *Document::page(int index) const
+    {
+	return new Page(this, index);
+    }
+
     bool Document::isLocked() const
     {
 	return m_doc->locked;
@@ -178,7 +183,7 @@ namespace Poppler {
 	return ourList;
     }
 
-    const QList<EmbeddedFile*> &Document::embeddedFiles() const
+    QList<EmbeddedFile*> Document::embeddedFiles() const
     {
 	return m_doc->m_embeddedFiles;
     }

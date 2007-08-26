@@ -29,20 +29,20 @@
 
 namespace Poppler {
 
-FormField::FormField(DocumentData *doc, ::Page *p, ::FormWidget *w)
-  : m_formData(new FormFieldData(doc, p, w))
+FormField::FormField(FormFieldData &dd)
+  : m_formData(&dd)
 {
   // reading the coords
   double left, top, right, bottom;
-  w->getRect(&left, &bottom, &right, &top);
+  m_formData->fm->getRect(&left, &bottom, &right, &top);
   // build a normalized transform matrix for this page at 100% scale
-  GfxState gfxState( 72.0, 72.0, p->getMediaBox(), p->getRotate(), gTrue );
+  GfxState gfxState( 72.0, 72.0, m_formData->page->getMediaBox(), m_formData->page->getRotate(), gTrue );
   double * gfxCTM = gfxState.getCTM();
   double MTX[6];
   for ( int i = 0; i < 6; i+=2 )
   {
-    MTX[i] = gfxCTM[i] / p->getCropWidth();
-    MTX[i+1] = gfxCTM[i+1] / p->getCropHeight();
+    MTX[i] = gfxCTM[i] / m_formData->page->getCropWidth();
+    MTX[i+1] = gfxCTM[i+1] / m_formData->page->getCropHeight();
   }
   QPointF topLeft;
   XPDFReader::transform( MTX, qMin( left, right ), qMax( top, bottom ), topLeft );
@@ -125,7 +125,7 @@ bool FormField::isVisible() const
 
 
 FormFieldText::FormFieldText(DocumentData *doc, ::Page *p, ::FormWidgetText *w)
-  : FormField(doc, p, w)
+  : FormField(*new FormFieldData(doc, p, w))
 {
 }
 
@@ -200,7 +200,7 @@ bool FormFieldText::canBeSpellChecked() const
 
 
 FormFieldChoice::FormFieldChoice(DocumentData *doc, ::Page *p, ::FormWidgetChoice *w)
-  : FormField(doc, p, w)
+  : FormField(*new FormFieldData(doc, p, w))
 {
 }
 

@@ -54,18 +54,6 @@ EmbeddedFile::EmbeddedFile(EmbFile *embfile)
 	embfile->streamObject().copy(&m_embeddedFile->m_streamObject);
 }
 
-EmbeddedFile::EmbeddedFile(const EmbeddedFile &ef)
-{
-	m_embeddedFile = new EmbeddedFileData();
-	m_embeddedFile->m_label = ef.m_embeddedFile->m_label;
-	m_embeddedFile->m_description = ef.m_embeddedFile->m_description;
-	m_embeddedFile->m_size = ef.m_embeddedFile->m_size;
-	m_embeddedFile->m_modDate = ef.m_embeddedFile->m_modDate;
-	m_embeddedFile->m_createDate = ef.m_embeddedFile->m_createDate;
-	m_embeddedFile->m_checksum = ef.m_embeddedFile->m_checksum;
-	ef.m_embeddedFile->m_streamObject.copy(&m_embeddedFile->m_streamObject);
-}
-
 EmbeddedFile::~EmbeddedFile()
 {
 	delete m_embeddedFile;

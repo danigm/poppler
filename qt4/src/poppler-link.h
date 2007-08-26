@@ -23,10 +23,19 @@
 
 #include <QtCore/QString>
 #include <QtCore/QRectF>
+#include <QtCore/QSharedDataPointer>
 
 namespace Poppler {
 
+class LinkPrivate;
+class LinkGotoPrivate;
+class LinkExecutePrivate;
+class LinkBrowsePrivate;
+class LinkActionPrivate;
+class LinkSoundPrivate;
+class LinkMoviePrivate;
 class LinkDestinationData;
+class LinkDestinationPrivate;
 class SoundObject;
 
 /**
@@ -51,6 +60,8 @@ class LinkDestination
 
 		LinkDestination(const LinkDestinationData &data);
 		LinkDestination(const QString &description);
+		LinkDestination(const LinkDestination &other);
+		~LinkDestination();
 
 		// Accessors.
 		Kind kind() const;
@@ -66,14 +77,10 @@ class LinkDestination
 
 		QString toString() const;
 
+		LinkDestination& operator=(const LinkDestination &other);
+
 	private:
-		Kind m_kind; // destination type
-		int m_pageNum; // page number
-		double m_left, m_bottom; // position
-		double m_right, m_top;
-		double m_zoom; // zoom factor
-		bool m_changeLeft, m_changeTop; // for destXYZ links, which position
-		bool m_changeZoom; //   components to change
+		QSharedDataPointer< LinkDestinationPrivate > d;
 };
 
 /**
@@ -121,8 +128,13 @@ class Link
 		 */
 		QRectF linkArea() const;
 		
+	protected:
+		Link( LinkPrivate &dd );
+		Q_DECLARE_PRIVATE( Link )
+		LinkPrivate *d_ptr;
+		
 	private:
-		QRectF m_linkArea;
+		Q_DISABLE_COPY( Link )
 };
 
 
@@ -131,6 +143,7 @@ class LinkGoto : public Link
 {
 	public:
 		LinkGoto( const QRectF &linkArea, QString extFileName, const LinkDestination & destination );
+		~LinkGoto();
 
 		/**
 		 * Whether the destination is in an external document
@@ -138,13 +151,13 @@ class LinkGoto : public Link
 		 */
 		bool isExternal() const;
 		// query for goto parameters
-		const QString & fileName() const;
-		const LinkDestination & destination() const;
+		QString fileName() const;
+		LinkDestination destination() const;
 		LinkType linkType() const;
 
 	private:
-		QString m_extFileName;
-		LinkDestination m_destination;
+		Q_DECLARE_PRIVATE( LinkGoto )
+		Q_DISABLE_COPY( LinkGoto )
 };
 
 /** Execute: filename and parameters to execute **/
@@ -154,16 +167,17 @@ class LinkExecute : public Link
 		/**
 		 * The file name to be executed
 		 */
-		const QString & fileName() const;
-		const QString & parameters() const;
+		QString fileName() const;
+		QString parameters() const;
 
 		// create a Link_Execute
 		LinkExecute( const QRectF &linkArea, const QString & file, const QString & params );
+		~LinkExecute();
 		LinkType linkType() const;
 
 	private:
-		QString m_fileName;
-		QString m_parameters;
+		Q_DECLARE_PRIVATE( LinkExecute )
+		Q_DISABLE_COPY( LinkExecute )
 };
 
 /** Browse: an URL to open, ranging from 'http://' to 'mailto:', etc. **/
@@ -173,14 +187,16 @@ class LinkBrowse : public Link
 		/**
 		 * The URL to open
 		 */
-		const QString & url() const;
+		QString url() const;
 
 		// create a Link_Browse
 		LinkBrowse( const QRectF &linkArea, const QString &url );
+		~LinkBrowse();
 		LinkType linkType() const;
 
 	private:
-		QString m_url;
+		Q_DECLARE_PRIVATE( LinkBrowse )
+		Q_DISABLE_COPY( LinkBrowse )
 };	
 
 /** Action: contains an action to perform on document / viewer **/
@@ -213,7 +229,8 @@ class LinkAction : public Link
 		LinkType linkType() const;
 
 	private:
-		ActionType m_type;
+		Q_DECLARE_PRIVATE( LinkAction )
+		Q_DISABLE_COPY( LinkAction )
 };
 
 /** Sound: a sound to be played **/
@@ -247,11 +264,8 @@ class LinkSound : public Link
 		SoundObject *sound() const;
 
 	private:
-		double m_volume;
-		bool m_sync;
-		bool m_repeat;
-		bool m_mix;
-		SoundObject *m_sound;
+		Q_DECLARE_PRIVATE( LinkSound )
+		Q_DISABLE_COPY( LinkSound )
 };
 
 /** Movie: Not yet defined -> think renaming to 'Media' link **/
@@ -260,7 +274,12 @@ class LinkMovie : public Link
 {
 	public:
 		LinkMovie( const QRectF &linkArea );
+		~LinkMovie();
 		LinkType linkType() const;
+
+	private:
+		Q_DECLARE_PRIVATE( LinkMovie )
+		Q_DISABLE_COPY( LinkMovie )
 };
 
 }

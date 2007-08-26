@@ -33,12 +33,12 @@ TextBox::~TextBox()
 	delete m_data;
 }
 
-const QString &TextBox::text() const
+QString TextBox::text() const
 {
 	return m_data->text;
 }
 
-const QRectF &TextBox::boundingBox() const
+QRectF TextBox::boundingBox() const
 {
 	return m_data->bBox;
 };

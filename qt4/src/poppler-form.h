@@ -89,16 +89,12 @@ namespace Poppler {
 	bool isVisible() const;
 
     protected:
-	/**
-	  \internal
-	*/
-	FormField(DocumentData *doc, ::Page *p, ::FormWidget *w);
+	FormField(FormFieldData &dd);
 
 	FormFieldData *m_formData;
 
     private:
-	FormField(const FormField&);
-	FormField& operator=(const FormField&);
+	Q_DISABLE_COPY(FormField)
     };
 
     /**
@@ -168,6 +164,9 @@ namespace Poppler {
 	  can be spell-checked.
 	 */
 	bool canBeSpellChecked() const;
+
+    private:
+	Q_DISABLE_COPY(FormFieldText)
     };
 
     /**
@@ -240,6 +239,9 @@ namespace Poppler {
           Returns false if the field is not an editable text field.
 	 */
 	bool canBeSpellChecked() const;
+
+    private:
+	Q_DISABLE_COPY(FormFieldChoice)
     };
 
 }

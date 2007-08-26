@@ -27,6 +27,141 @@
 
 namespace Poppler {
 
+class LinkDestinationPrivate : public QSharedData
+{
+	public:
+		LinkDestinationPrivate();
+
+		LinkDestination::Kind kind; // destination type
+		int pageNum; // page number
+		double left, bottom; // position
+		double right, top;
+		double zoom; // zoom factor
+		bool changeLeft, changeTop; // for destXYZ links, which position
+		bool changeZoom; //   components to change
+};
+
+	LinkDestinationPrivate::LinkDestinationPrivate()
+	{
+		// sane defaults
+		kind = LinkDestination::destXYZ;
+		pageNum = 0;
+		left = 0;
+		bottom = 0;
+		right = 0;
+		top = 0;
+		zoom = 1;
+		changeLeft = true;
+		changeTop = true;
+		changeZoom = false;
+	}
+
+class LinkPrivate
+{
+	public:
+		LinkPrivate( const QRectF &area );
+		virtual ~LinkPrivate();
+
+		QRectF linkArea;
+};
+
+	LinkPrivate::LinkPrivate( const QRectF &area )
+		: linkArea( area )
+	{
+	}
+
+	LinkPrivate::~LinkPrivate()
+	{
+	}
+
+class LinkGotoPrivate : public LinkPrivate
+{
+	public:
+		LinkGotoPrivate( const QRectF &area, const LinkDestination &dest );
+
+		QString extFileName;
+		LinkDestination destination;
+};
+
+	LinkGotoPrivate::LinkGotoPrivate( const QRectF &area, const LinkDestination &dest )
+		: LinkPrivate( area ), destination( dest )
+	{
+	}
+
+class LinkExecutePrivate : public LinkPrivate
+{
+	public:
+		LinkExecutePrivate( const QRectF &area );
+
+		QString fileName;
+		QString parameters;
+};
+
+	LinkExecutePrivate::LinkExecutePrivate( const QRectF &area )
+		: LinkPrivate( area )
+	{
+	}
+
+class LinkBrowsePrivate : public LinkPrivate
+{
+	public:
+		LinkBrowsePrivate( const QRectF &area );
+
+		QString url;
+};
+
+	LinkBrowsePrivate::LinkBrowsePrivate( const QRectF &area )
+		: LinkPrivate( area )
+	{
+	}
+
+class LinkActionPrivate : public LinkPrivate
+{
+	public:
+		LinkActionPrivate( const QRectF &area );
+
+		LinkAction::ActionType type;
+};
+
+	LinkActionPrivate::LinkActionPrivate( const QRectF &area )
+		: LinkPrivate( area )
+	{
+	}
+
+class LinkSoundPrivate : public LinkPrivate
+{
+	public:
+		LinkSoundPrivate( const QRectF &area );
+		~LinkSoundPrivate();
+
+		double volume;
+		bool sync;
+		bool repeat;
+		bool mix;
+		SoundObject *sound;
+};
+
+	LinkSoundPrivate::LinkSoundPrivate( const QRectF &area )
+		: LinkPrivate( area ), sound( 0 )
+	{
+	}
+
+	LinkSoundPrivate::~LinkSoundPrivate()
+	{
+		delete sound;
+	}
+
+class LinkMoviePrivate : public LinkPrivate
+{
+	public:
+		LinkMoviePrivate( const QRectF &area );
+};
+
+	LinkMoviePrivate::LinkMoviePrivate( const QRectF &area )
+		: LinkPrivate( area )
+	{
+	}
+
 	static void cvtUserToDev(::Page *page, double xu, double yu, int *xd, int *yd) {
 		double ctm[6];
 		
@@ -36,19 +171,8 @@ namespace Poppler {
 	}
 
 	LinkDestination::LinkDestination(const LinkDestinationData &data)
+		: d( new LinkDestinationPrivate )
 	{
-		// sane defaults
-		m_kind = destXYZ;
-		m_pageNum = 0;
-		m_left = 0;
-		m_bottom = 0;
-		m_right = 0;
-		m_top = 0;
-		m_zoom = 1;
-		m_changeLeft = true;
-		m_changeTop = true;
-		m_changeZoom = false;
-
 		bool deleteDest = false;
 		LinkDest *ld = data.ld;
 		
@@ -60,133 +184,159 @@ namespace Poppler {
 		
 		if (!ld) return;
 		
-		if (ld->getKind() == ::destXYZ) m_kind = destXYZ;
-		else if (ld->getKind() == ::destFit) m_kind = destFit;
-		else if (ld->getKind() == ::destFitH) m_kind = destFitH;
-		else if (ld->getKind() == ::destFitV) m_kind = destFitV;
-		else if (ld->getKind() == ::destFitR) m_kind = destFitR;
-		else if (ld->getKind() == ::destFitB) m_kind = destFitB;
-		else if (ld->getKind() == ::destFitBH) m_kind = destFitBH;
-		else if (ld->getKind() == ::destFitBV) m_kind = destFitBV;
+		if (ld->getKind() == ::destXYZ) d->kind = destXYZ;
+		else if (ld->getKind() == ::destFit) d->kind = destFit;
+		else if (ld->getKind() == ::destFitH) d->kind = destFitH;
+		else if (ld->getKind() == ::destFitV) d->kind = destFitV;
+		else if (ld->getKind() == ::destFitR) d->kind = destFitR;
+		else if (ld->getKind() == ::destFitB) d->kind = destFitB;
+		else if (ld->getKind() == ::destFitBH) d->kind = destFitBH;
+		else if (ld->getKind() == ::destFitBV) d->kind = destFitBV;
 
-		if ( !ld->isPageRef() ) m_pageNum = ld->getPageNum();
+		if ( !ld->isPageRef() ) d->pageNum = ld->getPageNum();
 		else
 		{
 			Ref ref = ld->getPageRef();
-			m_pageNum = data.doc->doc->findPage( ref.num, ref.gen );
+			d->pageNum = data.doc->doc->findPage( ref.num, ref.gen );
 		}
 		double left = ld->getLeft();
 		double bottom = ld->getBottom();
 		double right = ld->getRight();
 		double top = ld->getTop();
-		m_zoom = ld->getZoom();
-		m_changeLeft = ld->getChangeLeft();
-		m_changeTop = ld->getChangeTop();
-		m_changeZoom = ld->getChangeZoom();
+		d->zoom = ld->getZoom();
+		d->changeLeft = ld->getChangeLeft();
+		d->changeTop = ld->getChangeTop();
+		d->changeZoom = ld->getChangeZoom();
 		
 		int leftAux = 0, topAux = 0, rightAux = 0, bottomAux = 0;
 		
-		::Page *page = data.doc->doc->getCatalog()->getPage(m_pageNum);
+		::Page *page = data.doc->doc->getCatalog()->getPage( d->pageNum );
 		cvtUserToDev( page, left, top, &leftAux, &topAux );
 		cvtUserToDev( page, right, bottom, &rightAux, &bottomAux );
 		
-		m_left = leftAux / (double)page->getCropWidth();
-		m_top = topAux / (double)page->getCropHeight();
-		m_right = rightAux/ (double)page->getCropWidth();
-		m_bottom = bottomAux / (double)page->getCropHeight();
+		d->left = leftAux / (double)page->getCropWidth();
+		d->top = topAux / (double)page->getCropHeight();
+		d->right = rightAux/ (double)page->getCropWidth();
+		d->bottom = bottomAux / (double)page->getCropHeight();
 		
 		if (deleteDest) delete ld;
 	}
 	
 	LinkDestination::LinkDestination(const QString &description)
+		: d( new LinkDestinationPrivate )
 	{
 		QStringList tokens = description.split( ';' );
-		m_kind = static_cast<Kind>(tokens.at(0).toInt());
-		m_pageNum = tokens.at(1).toInt();
-		m_left = tokens.at(2).toDouble();
-		m_bottom = tokens.at(3).toDouble();
-		m_top = tokens.at(4).toDouble();
-		m_zoom = tokens.at(5).toDouble();
-		m_changeLeft = static_cast<bool>(tokens.at(6).toInt());
-		m_changeTop = static_cast<bool>(tokens.at(7).toInt());
-		m_changeZoom = static_cast<bool>(tokens.at(8).toInt());
+		d->kind = static_cast<Kind>(tokens.at(0).toInt());
+		d->pageNum = tokens.at(1).toInt();
+		d->left = tokens.at(2).toDouble();
+		d->bottom = tokens.at(3).toDouble();
+		d->top = tokens.at(4).toDouble();
+		d->zoom = tokens.at(5).toDouble();
+		d->changeLeft = static_cast<bool>(tokens.at(6).toInt());
+		d->changeTop = static_cast<bool>(tokens.at(7).toInt());
+		d->changeZoom = static_cast<bool>(tokens.at(8).toInt());
+	}
+	
+	LinkDestination::LinkDestination(const LinkDestination &other)
+		: d( other.d )
+	{
+	}
+	
+	LinkDestination::~LinkDestination()
+	{
 	}
 	
 	LinkDestination::Kind LinkDestination::kind() const
 	{
-		return m_kind;
+		return d->kind;
 	}
 	
 	int LinkDestination::pageNumber() const
 	{
-		return m_pageNum;
+		return d->pageNum;
 	}
 	
 	double LinkDestination::left() const
 	{
-		return m_left;
+		return d->left;
 	}
 	
 	double LinkDestination::bottom() const
 	{
-		return m_bottom;
+		return d->bottom;
 	}
 	
 	double LinkDestination::right() const
 	{
-		return m_right;
+		return d->right;
 	}
 	
 	double LinkDestination::top() const
 	{
-		return m_top;
+		return d->top;
 	}
 	
 	double LinkDestination::zoom() const
 	{
-		return m_zoom;
+		return d->zoom;
 	}
 	
 	bool LinkDestination::isChangeLeft() const
 	{
-		return m_changeLeft;
+		return d->changeLeft;
 	}
 	
 	bool LinkDestination::isChangeTop() const
 	{
-		return m_changeTop;
+		return d->changeTop;
 	}
 	
 	bool LinkDestination::isChangeZoom() const
 	{
-		return m_changeZoom;
+		return d->changeZoom;
 	}
 	
 	QString LinkDestination::toString() const
 	{
-		QString s = QString::number( (qint8)m_kind );
-		s += ";" + QString::number( m_pageNum );
-		s += ";" + QString::number( m_left );
-		s += ";" + QString::number( m_bottom );
-		s += ";" + QString::number( m_right );
-		s += ";" + QString::number( m_top );
-		s += ";" + QString::number( m_zoom );
-		s += ";" + QString::number( (qint8)m_changeLeft );
-		s += ";" + QString::number( (qint8)m_changeTop );
-		s += ";" + QString::number( (qint8)m_changeZoom );
+		QString s = QString::number( (qint8)d->kind );
+		s += ";" + QString::number( d->pageNum );
+		s += ";" + QString::number( d->left );
+		s += ";" + QString::number( d->bottom );
+		s += ";" + QString::number( d->right );
+		s += ";" + QString::number( d->top );
+		s += ";" + QString::number( d->zoom );
+		s += ";" + QString::number( (qint8)d->changeLeft );
+		s += ";" + QString::number( (qint8)d->changeTop );
+		s += ";" + QString::number( (qint8)d->changeZoom );
 		return s;
+	}
+	
+	LinkDestination& LinkDestination::operator=(const LinkDestination &other)
+	{
+		if ( this == &other )
+			return *this;
+		
+		d = other.d;
+		return *this;
 	}
 	
 	
 	// Link
 	Link::~Link()
 	{
+		delete d_ptr;
 	}
 	
-	Link::Link(const QRectF &linkArea) : m_linkArea(linkArea)
+	Link::Link(const QRectF &linkArea)
+		: d_ptr( new LinkPrivate( linkArea ) )
 	{
 	}
 	
+	Link::Link( LinkPrivate &dd )
+		: d_ptr( &dd )
+	{
+	}
+
 	Link::LinkType Link::linkType() const
 	{
 		return None;
@@ -194,27 +344,38 @@ namespace Poppler {
 	
 	QRectF Link::linkArea() const
 	{
-		return m_linkArea;
+		Q_D( const Link );
+		return d->linkArea;
 	}
 	
 	// LinkGoto
-	LinkGoto::LinkGoto( const QRectF &linkArea, QString extFileName, const LinkDestination & destination ) : Link(linkArea), m_extFileName(extFileName), m_destination(destination)
+	LinkGoto::LinkGoto( const QRectF &linkArea, QString extFileName, const LinkDestination & destination )
+		: Link( *new LinkGotoPrivate( linkArea, destination ) )
+	{
+		Q_D( LinkGoto );
+		d->extFileName = extFileName;
+	}
+	
+	LinkGoto::~LinkGoto()
 	{
 	}
 	
 	bool LinkGoto::isExternal() const
 	{
-		return !m_extFileName.isEmpty();
+		Q_D( const LinkGoto );
+		return !d->extFileName.isEmpty();
 	}
 	
-	const QString &LinkGoto::fileName() const
+	QString LinkGoto::fileName() const
 	{
-		return m_extFileName;
+		Q_D( const LinkGoto );
+		return d->extFileName;
 	}
 	
-	const LinkDestination &LinkGoto::destination() const
+	LinkDestination LinkGoto::destination() const
 	{
-		return m_destination;
+		Q_D( const LinkGoto );
+		return d->destination;
 	}
 	
 	Link::LinkType LinkGoto::linkType() const
@@ -223,17 +384,27 @@ namespace Poppler {
 	}
 	
 	// LinkExecute
-	LinkExecute::LinkExecute( const QRectF &linkArea, const QString & file, const QString & params ) : Link(linkArea), m_fileName(file), m_parameters(params)
+	LinkExecute::LinkExecute( const QRectF &linkArea, const QString & file, const QString & params )
+		: Link( *new LinkExecutePrivate( linkArea ) )
+	{
+		Q_D( LinkExecute );
+		d->fileName = file;
+		d->parameters = params;
+	}
+	
+	LinkExecute::~LinkExecute()
 	{
 	}
 	
-	const QString & LinkExecute::fileName() const
+	QString LinkExecute::fileName() const
 	{
-		return m_fileName;
+		Q_D( const LinkExecute );
+		return d->fileName;
 	}
-	const QString & LinkExecute::parameters() const
+	QString LinkExecute::parameters() const
 	{
-		return m_parameters;
+		Q_D( const LinkExecute );
+		return d->parameters;
 	}
 
 	Link::LinkType LinkExecute::linkType() const
@@ -242,13 +413,21 @@ namespace Poppler {
 	}
 
 	// LinkBrowse
-	LinkBrowse::LinkBrowse( const QRectF &linkArea, const QString &url ) : Link(linkArea), m_url(url)
+	LinkBrowse::LinkBrowse( const QRectF &linkArea, const QString &url )
+		: Link( *new LinkBrowsePrivate( linkArea ) )
+	{
+		Q_D( LinkBrowse );
+		d->url = url;
+	}
+	
+	LinkBrowse::~LinkBrowse()
 	{
 	}
 	
-	const QString & LinkBrowse::url() const
+	QString LinkBrowse::url() const
 	{
-		return m_url;
+		Q_D( const LinkBrowse );
+		return d->url;
 	}
 	
 	Link::LinkType LinkBrowse::linkType() const
@@ -257,13 +436,17 @@ namespace Poppler {
 	}
 
 	// LinkAction
-	LinkAction::LinkAction( const QRectF &linkArea, ActionType actionType ) : Link(linkArea), m_type(actionType)
+	LinkAction::LinkAction( const QRectF &linkArea, ActionType actionType )
+		: Link( *new LinkBrowsePrivate( linkArea ) )
 	{
+		Q_D( LinkAction );
+		d->type = actionType;
 	}
 		
 	LinkAction::ActionType LinkAction::actionType() const
 	{
-		return m_type;
+		Q_D( const LinkAction );
+		return d->type;
 	}
 
 	Link::LinkType LinkAction::linkType() const
@@ -272,13 +455,19 @@ namespace Poppler {
 	}
 
 	// LinkSound
-	LinkSound::LinkSound( const QRectF &linkArea, double volume, bool sync, bool repeat, bool mix, SoundObject *sound ) : Link(linkArea), m_volume(volume), m_sync(sync), m_repeat(repeat), m_mix(mix), m_sound(sound)
+	LinkSound::LinkSound( const QRectF &linkArea, double volume, bool sync, bool repeat, bool mix, SoundObject *sound )
+		: Link( *new LinkSoundPrivate( linkArea ) )
 	{
+		Q_D( LinkSound );
+		d->volume = volume;
+		d->sync = sync;
+		d->repeat = repeat;
+		d->mix = mix;
+		d->sound = sound;
 	}
 	
 	LinkSound::~LinkSound()
 	{
-		delete m_sound;
 	}
 	
 	Link::LinkType LinkSound::linkType() const
@@ -288,31 +477,41 @@ namespace Poppler {
 
 	double LinkSound::volume() const
 	{
-		return m_volume;
+		Q_D( const LinkSound );
+		return d->volume;
 	}
 
 	bool LinkSound::synchronous() const
 	{
-		return m_sync;
+		Q_D( const LinkSound );
+		return d->sync;
 	}
 
 	bool LinkSound::repeat() const
 	{
-		return m_repeat;
+		Q_D( const LinkSound );
+		return d->repeat;
 	}
 
 	bool LinkSound::mix() const
 	{
-		return m_mix;
+		Q_D( const LinkSound );
+		return d->mix;
 	}
 
 	SoundObject *LinkSound::sound() const
 	{
-		return m_sound;
+		Q_D( const LinkSound );
+		return d->sound;
 	}
 
 	// LinkMovie
-	LinkMovie::LinkMovie( const QRectF &linkArea ) : Link(linkArea)
+	LinkMovie::LinkMovie( const QRectF &linkArea )
+		: Link( *new LinkSoundPrivate( linkArea ) )
+	{
+	}
+	
+	LinkMovie::~LinkMovie()
 	{
 	}
 	

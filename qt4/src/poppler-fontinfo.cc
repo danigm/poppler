@@ -37,12 +37,12 @@ FontInfo::~FontInfo()
 	delete m_data;
 }
 
-const QString &FontInfo::name() const
+QString FontInfo::name() const
 {
 	return m_data->fontName;
 }
 
-const QString &FontInfo::file() const
+QString FontInfo::file() const
 {
 	return m_data->fontFile;
 }
@@ -62,7 +62,7 @@ FontInfo::Type FontInfo::type() const
 	return m_data->type;
 }
 
-const QString FontInfo::typeName() const
+QString FontInfo::typeName() const
 {
 	switch (type()) {
 	case unknown:
@@ -84,6 +84,12 @@ const QString FontInfo::typeName() const
 	default:
 		return QObject::tr("Bug: unexpected font type. Notify poppler mailing list!");
 	}
+}
+
+FontInfo& FontInfo::operator=( const FontInfo &fi )
+{
+	*m_data = *fi.m_data;
+	return *this;
 }
 
 }

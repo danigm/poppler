@@ -72,13 +72,13 @@ namespace Poppler {
       /**
 	  Returns the text of this text box
       */      
-      const QString &text() const;
+      QString text() const;
 
       /**
 	  Returns the position of the text, in point, i.e., 1/72 of
 	 an inch
       */
-      const QRectF &boundingBox() const;
+      QRectF boundingBox() const;
 
       TextBox *nextWord() const;
 
@@ -87,6 +87,8 @@ namespace Poppler {
       bool hasSpaceAfter() const;
 
     private:
+        Q_DISABLE_COPY(TextBox)
+
 	TextBoxData *m_data;
     };
 
@@ -125,13 +127,13 @@ namespace Poppler {
 	/**
 	   The name of the font. Can be QString::null if the font has no name
 	*/
-	const QString &name() const;
+	QString name() const;
 
 	/**
 	   The path of the font file used to represent this font on this system,
 	   or a null string is the font is embedded
 	*/
-	const QString &file() const;
+	QString file() const;
 
 	/**
 	   Whether the font is embedded in the file, or not
@@ -165,7 +167,9 @@ namespace Poppler {
 
 	   \sa type for a enumeration version
 	*/
-	const QString typeName() const;
+	QString typeName() const;
+
+	FontInfo& operator=( const FontInfo &fi );
 
     private:
 	FontInfoData *m_data;
@@ -184,8 +188,6 @@ namespace Poppler {
 	   Create a new embedded file container
 	*/
 	EmbeddedFile(EmbFile *embfile);
-	
-	EmbeddedFile(const EmbeddedFile &ef);
 	
 	~EmbeddedFile();
 
@@ -236,6 +238,8 @@ namespace Poppler {
 	//QDataStream dataStream() const;
 
     private:
+	Q_DISABLE_COPY(EmbeddedFile)
+
 	EmbeddedFileData *m_embeddedFile;
     };
 
@@ -413,6 +417,8 @@ namespace Poppler {
 	QString label() const;
 	
     private:
+	Q_DISABLE_COPY(Page)
+
 	Page(const Document *doc, int index);
 	PageData *m_page;
     };
@@ -508,7 +514,7 @@ namespace Poppler {
 
 	   \param index the page number index
 	*/
-	Page *page(int index) const{ return new Page(this, index); }
+	Page *page(int index) const;
 
 	/**
 	   \overload
@@ -707,7 +713,7 @@ QString subject = m_doc->info("Subject");
 	   \note there are two types of embedded document - this call
 	   only accesses documents that are embedded at the document level.
 	*/
-	const QList<EmbeddedFile*> &embeddedFiles() const;
+	QList<EmbeddedFile*> embeddedFiles() const;
 
 	/**
 	   Whether there are any documents embedded in this PDF document.
@@ -795,6 +801,8 @@ QString subject = m_doc->info("Subject");
 	~Document();
   
     private:
+	Q_DISABLE_COPY(Document)
+
 	DocumentData *m_doc;
 	
 	Document(DocumentData *dataA);
@@ -898,6 +906,8 @@ height = dummy.height();
             bool convert();
 
         private:
+            Q_DISABLE_COPY(PSConverter)
+
             PSConverter(DocumentData *document);
 
             PSConverterData *m_data;
@@ -941,8 +951,6 @@ height = dummy.height();
 	*/
 	SoundObject(Sound *popplersound);
 	
-	SoundObject(const SoundObject &s);
-	
 	~SoundObject();
 
 	/**
@@ -981,6 +989,8 @@ height = dummy.height();
 	SoundEncoding soundEncoding() const;
 
     private:
+	Q_DISABLE_COPY(SoundObject)
+
 	SoundData *m_soundData;
     };
 

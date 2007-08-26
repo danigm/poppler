@@ -59,13 +59,6 @@ SoundObject::SoundObject(Sound *popplersound)
 	m_soundData->m_soundObj = popplersound->copy();
 }
 
-SoundObject::SoundObject(const SoundObject &s)
-{
-	m_soundData = new SoundData();
-	m_soundData->m_type = s.m_soundData->m_type;
-	m_soundData->m_soundObj = s.m_soundData->m_soundObj->copy();
-}
-
 SoundObject::~SoundObject()
 {
 	delete m_soundData;
