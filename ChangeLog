@@ -1,3 +1,7 @@
+2007-08-26  Albert Astals Cid <aacid@kde.org>
+	* utils/ImageOutputDev.cc: Fix bug 12121 pdfimages produces inverted
+	image for black & white image
+
 2007-08-26  Pino Toscano <pino@kde.org>
 
 	* qt4/src/poppler-document.cc:

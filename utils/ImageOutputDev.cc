@@ -152,7 +152,7 @@ void ImageOutputDev::drawImage(GfxState *state, Object *ref, Stream *str,
     // copy the stream
     size = height * ((width + 7) / 8);
     for (i = 0; i < size; ++i) {
-      fputc(str->getChar() ^ 0xff, f);
+      fputc(str->getChar(), f);
     }
 
     str->close();
