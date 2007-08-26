@@ -33,6 +33,14 @@
 namespace Poppler {
 
 class Annotation;
+class AnnotationPrivate;
+class TextAnnotationPrivate;
+class LineAnnotationPrivate;
+class GeomAnnotationPrivate;
+class HighlightAnnotationPrivate;
+class StampAnnotationPrivate;
+class InkAnnotationPrivate;
+class LinkAnnotationPrivate;
 class Link;
 
 /**
@@ -63,21 +71,18 @@ class AnnotationUtils
          */
         static QDomElement findChildElement( const QDomNode & parentNode,
             const QString & name );
-
-        //static inline QRect annotationGeometry( const Annotation * ann,
-        //    int pageWidth, int pageHeight, int scaledWidth, int scaledHeight ) const;
 };
 
 
 /**
- * \short Annotation struct holds properties shared by all annotations.
+ * \short Annotation class holding properties shared by all annotations.
  *
  * An Annotation is an object (text note, highlight, sound, popup window, ..)
  * contained by a Page in the document.
- *
  */
-struct Annotation
+class Annotation
 {
+  public:
     // enum definitions
     // WARNING!!! oKular uses that very same values so if you change them notify the author!
     enum SubType { AText = 1, ALine = 2, AGeom = 3, AHighlight = 4, AStamp = 5,
@@ -89,17 +94,27 @@ struct Annotation
     enum RevScope { Reply = 1, Group = 2, Delete = 4 };
     enum RevType { None = 1,  Marked = 2, Unmarked = 4,  Accepted = 8, Rejected = 16, Cancelled = 32, Completed = 64 };
 
+    QString author() const;
+    void setAuthor( const QString &author );
 
-    /* properties: contents related */
-    QString         author;                 // ''
-    QString         contents;               // ''
-    QString         uniqueName;             // '#NUMBER#'
-    QDateTime       modifyDate;             // before or equal to currentDateTime()
-    QDateTime       creationDate;           // before or equal to modifyDate
+    QString contents() const;
+    void setContents( const QString &contents );
 
-    /* properties: look/interaction related */
-    int             flags;                  // 0
-    QRectF          boundary;               // valid or isNull()
+    QString uniqueName() const;
+    void setUniqueName( const QString &uniqueName );
+
+    QDateTime modificationDate() const;
+    void setModificationDate( const QDateTime &date );
+
+    QDateTime creationDate() const;
+    void setCreationDate( const QDateTime &date );
+
+    int flags() const;
+    void setFlags( int flags );
+
+    QRectF boundary() const;
+    void setBoundary( const QRectF &boundary );
+
     struct Style
     {
         // appearance properties
@@ -147,94 +162,152 @@ struct Annotation
         // default initializer
         Revision();
     };
-    QLinkedList< Revision > revisions;       // empty by default
+
+    QLinkedList< Revision >& revisions();
+    const QLinkedList< Revision >& revisions() const;
 
     // methods: query annotation's type for runtime type identification
-    virtual SubType subType() const { return A_BASE; }
-    //QRect geometry( int scaledWidth, int scaledHeight, KPDFPage * page );
+    virtual SubType subType() const = 0;
 
     // methods: storage/retrieval from xml nodes
-    Annotation( const QDomNode & node );
     virtual void store( QDomNode & parentNode, QDomDocument & document ) const;
 
-    // methods: default constructor / virtual destructor
-    Annotation();
+    // destructor
     virtual ~Annotation();
+
+  protected:
+    Annotation( AnnotationPrivate &dd );
+    Annotation( AnnotationPrivate &dd, const QDomNode &description );
+    Q_DECLARE_PRIVATE( Annotation )
+    AnnotationPrivate *d_ptr;
+
+  private:
+    Q_DISABLE_COPY( Annotation )
 };
 
-
-// a helper used to shorten the code presented below
-#define AN_COMMONDECL( className, rttiType )\
-    className();\
-    className( const class QDomNode & node );\
-    void store( QDomNode & parentNode, QDomDocument & document ) const;\
-    SubType subType() const { return rttiType; }
-
-struct TextAnnotation : public Annotation
+class TextAnnotation : public Annotation
 {
-    // common stuff for Annotation derived classes
-    AN_COMMONDECL( TextAnnotation, AText );
+  public:
+    TextAnnotation();
+    TextAnnotation( const QDomNode &node );
+    virtual ~TextAnnotation();
+    virtual void store( QDomNode &parentNode, QDomDocument &document ) const;
+    virtual SubType subType() const;
 
     // local enums
     enum TextType { Linked, InPlace };
     enum InplaceIntent { Unknown, Callout, TypeWriter };
 
-    // data fields
-    TextType        textType;               // Linked
-    QString         textIcon;               // 'Note'
-    QFont           textFont;               // app def font
-    int             inplaceAlign;           // 0:left, 1:center, 2:right
-    QString         inplaceText;            // '' overrides contents
-    QPointF         inplaceCallout[3];      //
-    InplaceIntent   inplaceIntent;          // Unknown
+    TextType textType() const;
+    void setTextType( TextType type );
+
+    QString textIcon() const;
+    void setTextIcon( const QString &icon );
+
+    QFont textFont() const;
+    void setTextFont( const QFont &font );
+
+    int inplaceAlign() const;
+    void setInplaceAlign( int align );
+
+    QString inplaceText() const;
+    void setInplaceText( const QString &text );
+
+    QPointF calloutPoint( int id ) const;
+    void setCalloutPoint( int id, const QPointF &point );
+
+    InplaceIntent inplaceIntent() const;
+    void setInplaceIntent( InplaceIntent intent );
+
+  private:
+    Q_DECLARE_PRIVATE( TextAnnotation )
+    Q_DISABLE_COPY( TextAnnotation )
 };
 
-struct LineAnnotation : public Annotation
+class LineAnnotation : public Annotation
 {
-    // common stuff for Annotation derived classes
-    AN_COMMONDECL( LineAnnotation, ALine )
+  public:
+    LineAnnotation();
+    LineAnnotation( const QDomNode &node );
+    virtual ~LineAnnotation();
+    virtual void store( QDomNode &parentNode, QDomDocument &document ) const;
+    virtual SubType subType() const;
 
     // local enums
     enum TermStyle { Square, Circle, Diamond, OpenArrow, ClosedArrow, None,
                      Butt, ROpenArrow, RClosedArrow, Slash };
     enum LineIntent { Unknown, Arrow, Dimension, PolygonCloud };
 
-    // data fields (note uses border for rendering style)
-    QLinkedList<QPointF> linePoints;
-    TermStyle       lineStartStyle;         // None
-    TermStyle       lineEndStyle;           // None
-    bool            lineClosed;             // false (if true draw close shape)
-    QColor          lineInnerColor;         //
-    double          lineLeadingFwdPt;       // 0.0
-    double          lineLeadingBackPt;      // 0.0
-    bool            lineShowCaption;        // false
-    LineIntent      lineIntent;             // Unknown
+    QLinkedList<QPointF> linePoints() const;
+    void setLinePoints( const QLinkedList<QPointF> &points );
+
+    TermStyle lineStartStyle() const;
+    void setLineStartStyle( TermStyle style );
+
+    TermStyle lineEndStyle() const;
+    void setLineEndStyle( TermStyle style );
+
+    bool isLineClosed() const;
+    void setLineClosed( bool closed );
+
+    QColor lineInnerColor() const;
+    void setLineInnerColor( const QColor &color );
+
+    double lineLeadingForwardPoint() const;
+    void setLineLeadingForwardPoint( double point );
+
+    double lineLeadingBackPoint() const;
+    void setLineLeadingBackPoint( double point );
+
+    bool lineShowCaption() const;
+    void setLineShowCaption( bool show );
+
+    LineIntent lineIntent() const;
+    void setLineIntent( LineIntent intent );
+
+  private:
+    Q_DECLARE_PRIVATE( LineAnnotation )
+    Q_DISABLE_COPY( LineAnnotation )
 };
 
-struct GeomAnnotation : public Annotation
+class GeomAnnotation : public Annotation
 {
-    // common stuff for Annotation derived classes
-    AN_COMMONDECL( GeomAnnotation, AGeom )
+  public:
+    GeomAnnotation();
+    GeomAnnotation( const QDomNode &node );
+    virtual ~GeomAnnotation();
+    virtual void store( QDomNode &parentNode, QDomDocument &document ) const;
+    virtual SubType subType() const;
 
     // common enums
     enum GeomType { InscribedSquare, InscribedCircle };
 
-    // data fields (note uses border for rendering style)
-    GeomType        geomType;               // InscribedSquare
-    QColor          geomInnerColor;         //
-    int             geomWidthPt;            // 18
+    GeomType geomType() const;
+    void setGeomType( GeomType style );
+
+    QColor geomInnerColor() const;
+    void setGeomInnerColor( const QColor &color );
+
+    int geomPointWidth() const;
+    void setGeomPointWidth( int width );
+
+  private:
+    Q_DECLARE_PRIVATE( GeomAnnotation )
+    Q_DISABLE_COPY( GeomAnnotation )
 };
 
-struct HighlightAnnotation : public Annotation
+class HighlightAnnotation : public Annotation
 {
-    // common stuff for Annotation derived classes
-    AN_COMMONDECL( HighlightAnnotation, AHighlight )
+  public:
+    HighlightAnnotation();
+    HighlightAnnotation( const QDomNode &node );
+    virtual ~HighlightAnnotation();
+    virtual void store( QDomNode &parentNode, QDomDocument &document ) const;
+    virtual SubType subType() const;
 
     // local enums
     enum HighlightType { Highlight, Squiggly, Underline, StrikeOut };
 
-    // data fields
-    HighlightType   highlightType;          // Highlight
     struct Quad
     {
         QPointF         points[4];          // 8 valid coords
@@ -242,40 +315,76 @@ struct HighlightAnnotation : public Annotation
         bool            capEnd;             // false (vtx 2-3) [K]
         double          feather;            // 0.1 (in range 0..1) [K]
     };
-    QList< Quad >  highlightQuads;     // not empty
+
+    HighlightType highlightType() const;
+    void setHighlightType( HighlightType type );
+
+    QList< Quad > highlightQuads() const;
+    void setHighlightQuads( const QList< Quad > &quads );
+
+  private:
+    Q_DECLARE_PRIVATE( HighlightAnnotation )
+    Q_DISABLE_COPY( HighlightAnnotation )
 };
 
-struct StampAnnotation : public Annotation
+class StampAnnotation : public Annotation
 {
-    // common stuff for Annotation derived classes
-    AN_COMMONDECL( StampAnnotation, AStamp )
+  public:
+    StampAnnotation();
+    StampAnnotation( const QDomNode &node );
+    virtual ~StampAnnotation();
+    virtual void store( QDomNode &parentNode, QDomDocument &document ) const;
+    virtual SubType subType() const;
 
-    // data fields
-    QString         stampIconName;          // 'Draft'
+    QString stampIconName() const;
+    void setStampIconName( const QString &name );
+
+  private:
+    Q_DECLARE_PRIVATE( StampAnnotation )
+    Q_DISABLE_COPY( StampAnnotation )
 };
 
-struct InkAnnotation : public Annotation
+class InkAnnotation : public Annotation
 {
-    // common stuff for Annotation derived classes
-    AN_COMMONDECL( InkAnnotation, AInk )
+  public:
+    InkAnnotation();
+    InkAnnotation( const QDomNode &node );
+    virtual ~InkAnnotation();
+    virtual void store( QDomNode &parentNode, QDomDocument &document ) const;
+    virtual SubType subType() const;
 
-    // data fields
-    QList< QLinkedList<QPointF> > inkPaths;
+    QList< QLinkedList<QPointF> > inkPaths() const;
+    void setInkPaths( const QList< QLinkedList<QPointF> > &paths );
+
+  private:
+    Q_DECLARE_PRIVATE( InkAnnotation )
+    Q_DISABLE_COPY( InkAnnotation )
 };
 
-struct LinkAnnotation : public Annotation
+class LinkAnnotation : public Annotation
 {
-    // common stuff for Annotation derived classes
-    AN_COMMONDECL( LinkAnnotation, ALink );
+  public:
+    LinkAnnotation();
+    LinkAnnotation( const QDomNode &node );
     virtual ~LinkAnnotation();
+    virtual void store( QDomNode &parentNode, QDomDocument &document ) const;
+    virtual SubType subType() const;
 
     // local enums
     enum HighlightMode { None, Invert, Outline, Push };
 
-    // data fields
-    Link *          linkDestination;        //
-    HighlightMode   linkHLMode;             // Invert
-    QPointF         linkRegion[4];          //
+    Link* linkDestionation() const;
+    void setLinkDestination( Link *link );
+
+    HighlightMode linkHighlightMode() const;
+    void setLinkHighlightMode( HighlightMode mode );
+
+    QPointF linkRegionPoint( int id ) const;
+    void setLinkRegionPoint( int id, const QPointF &point );
+
+  private:
+    Q_DECLARE_PRIVATE( LinkAnnotation )
+    Q_DISABLE_COPY( LinkAnnotation )
 };
 
 }

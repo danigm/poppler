@@ -16,6 +16,10 @@
 	Make LinkDestination an implicitely shared class, with all the private
 	members into the private class; move all the private members of the
 	Link* classes into a common shared private.
+	* qt4/src/poppler-annotation.cc:
+	* qt4/src/poppler-annotation.h:
+	Move all the private members of the *Annotation classes into a common
+	shared private.
 
 2007-08-26  Carlos Garcia Campos  <carlosgc@gnome.org>
 
