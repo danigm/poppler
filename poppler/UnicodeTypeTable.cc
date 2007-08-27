@@ -1016,7 +1016,7 @@ static int decomp_compat(Unicode u, Unicode *buf) {
    : (compose_data[compose_table[Page]][Char]))
 
 #define COMPOSE_INDEX(u) \
-     ((((u) / 256) > (COMPOSE_TABLE_LAST)) ? 0 : CI((u) / 256, (u) % 255))
+     ((((u) / 256) > (COMPOSE_TABLE_LAST)) ? 0 : CI((u) / 256, (u) % 256))
 
 // If @add combines with @base, write the combination to @out and return 
 // gTrue. Otherwise return gFalse.

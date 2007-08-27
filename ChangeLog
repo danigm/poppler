@@ -1,3 +1,8 @@
+2007-08-27  Albert Astals Cid <aacid@kde.org>
+
+	* poppler/UnicodeTypeTable.cc: Fix error on the NFKC text matching
+	routine. Fixes bug #11775. Patch by Ed Catmur <ed@catmur.co.uk>
+
 2007-08-27  Pino Toscano <pino@kde.org>
 
 	* qt4/src/Doxyfile:
