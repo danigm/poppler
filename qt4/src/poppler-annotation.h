@@ -176,15 +176,23 @@ class Annotation
     virtual ~Annotation();
 
   protected:
+    /// \cond PRIVATE
     Annotation( AnnotationPrivate &dd );
     Annotation( AnnotationPrivate &dd, const QDomNode &description );
     Q_DECLARE_PRIVATE( Annotation )
     AnnotationPrivate *d_ptr;
+    /// \endcond
 
   private:
     Q_DISABLE_COPY( Annotation )
 };
 
+/**
+ * \short Annotation containing text.
+ *
+ * A text annotation is an object showing some text directly on the page, or
+ * linked to the contents using an icon shown on a page.
+ */
 class TextAnnotation : public Annotation
 {
   public:
@@ -224,6 +232,11 @@ class TextAnnotation : public Annotation
     Q_DISABLE_COPY( TextAnnotation )
 };
 
+/**
+ * \short Polygon/polyline annotation.
+ *
+ * This annotation represents a polygon (or polyline) to be drawn on a page.
+ */
 class LineAnnotation : public Annotation
 {
   public:
@@ -270,6 +283,12 @@ class LineAnnotation : public Annotation
     Q_DISABLE_COPY( LineAnnotation )
 };
 
+/**
+ * \short Geometric annotation.
+ *
+ * The geometric annotation represents a geometric figure, like a rectangle or
+ * an ellipse.
+ */
 class GeomAnnotation : public Annotation
 {
   public:
@@ -296,6 +315,11 @@ class GeomAnnotation : public Annotation
     Q_DISABLE_COPY( GeomAnnotation )
 };
 
+/**
+ * \short Text highlight annotation.
+ *
+ * The higlight annotation represents some areas of text being "highlighted".
+ */
 class HighlightAnnotation : public Annotation
 {
   public:
@@ -327,6 +351,11 @@ class HighlightAnnotation : public Annotation
     Q_DISABLE_COPY( HighlightAnnotation )
 };
 
+/**
+ * \short Stamp annotation.
+ *
+ * A simple annotation drawing a stamp on a page.
+ */
 class StampAnnotation : public Annotation
 {
   public:
@@ -344,6 +373,11 @@ class StampAnnotation : public Annotation
     Q_DISABLE_COPY( StampAnnotation )
 };
 
+/**
+ * \short Ink Annotation.
+ *
+ * Annotation representing an ink path on a page.
+ */
 class InkAnnotation : public Annotation
 {
   public:

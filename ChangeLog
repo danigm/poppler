@@ -1,5 +1,15 @@
 2007-08-27  Pino Toscano <pino@kde.org>
 
+	* qt4/src/Doxyfile:
+	* qt4/src/Mainpage.dox:
+	* qt4/src/poppler-annotation.h:
+	* qt4/src/poppler-form.h:
+	* qt4/src/poppler-link.h:
+	* qt4/src/poppler-qt4.h:
+	A few API documentation fixes and improvements.
+
+2007-08-27  Pino Toscano <pino@kde.org>
+
 	* qt4/src/poppler-link.cc:
 	* qt4/src/poppler-link.h:
 	Initialise correctly, and missing empty destructor.

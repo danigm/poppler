@@ -35,7 +35,7 @@ class EmbFile;
 class Sound;
 
 /**
-   The Poppler Qt bindings
+   The %Poppler Qt4 binding.
 */
 namespace Poppler {
 
@@ -67,11 +67,14 @@ namespace Poppler {
 	 1/72 of an inch.
       */
       TextBox(const QString& text, const QRectF &bBox);
+      /**
+	Destructor.
+      */
       ~TextBox();
 
       /**
 	  Returns the text of this text box
-      */      
+      */
       QString text() const;
 
       /**
@@ -116,12 +119,18 @@ namespace Poppler {
 	};
 	
 	/**
-	   Create a new font information container
+	   Create a new font information container.
 	*/
 	FontInfo( const FontInfoData &fid );
 	
+	/**
+	   Copy constructor.
+	*/
 	FontInfo( const FontInfo &fi );
 	
+	/**
+	   Destructor.
+	*/
 	~FontInfo();
 
 	/**
@@ -182,13 +191,13 @@ namespace Poppler {
     */
     class EmbeddedFile {
     public:
-	/**
-	   \internal
-
-	   Create a new embedded file container
-	*/
+	/// \cond PRIVATE
 	EmbeddedFile(EmbFile *embfile);
+	/// \endcond
 	
+	/**
+	   Destructor.
+	*/
 	~EmbeddedFile();
 
 	/**
@@ -250,6 +259,9 @@ namespace Poppler {
     class Page {
 	friend class Document;
     public:
+	/**
+	   Destructor.
+	*/
 	~Page();
 
 	enum Rotation { Rotate0 = 0, Rotate90 = 1, Rotate180 = 2, Rotate270 = 3 };
@@ -754,9 +766,8 @@ QString subject = m_doc->info("Subject");
 	/**
 	 Sets the backend used to render the pages.
 
-	 Please note that setting a rendering backend that does not appear
-	 among the availableRenderBackends() will always result in null
-	 QImage's.
+	 \note setting a rendering backend that does not appear in the
+	 availableRenderBackends() will always result in null QImage's.
 
 	 \param backend the new rendering backend
 	 */
@@ -798,6 +809,9 @@ QString subject = m_doc->info("Subject");
 	*/
 	QString metadata() const;
 
+	/**
+	   Destructor.
+	*/
 	~Document();
   
     private:
@@ -828,6 +842,9 @@ height = dummy.height();
     {
         friend class Document;
         public:
+            /**
+              Destructor.
+            */
             ~PSConverter();
 
             /** Sets the output file name. Mandatory. */
@@ -946,10 +963,9 @@ height = dummy.height();
 	    ALaw          ///< A-law-encoded samples
 	};
 
-	/**
-	  \internal
-	*/
+	/// \cond PRIVATE
 	SoundObject(Sound *popplersound);
+	/// \endcond
 	
 	~SoundObject();
 

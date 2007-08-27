@@ -43,9 +43,9 @@ namespace Poppler {
 	   The different types of form field.
 	*/
 	enum FormType {
-	    FormButton,    ///< A button field. See \ref FormFieldButton::ButtonType
-	    FormText,      ///< A text field. See \ref FormFieldText::TextType
-	    FormChoice,    ///< A single choice field. See \ref FormFieldChoice::ChoiceType
+	    FormButton,    ///< A button field. See \ref Poppler::FormFieldButton::ButtonType "ButtonType"
+	    FormText,      ///< A text field. See \ref Poppler::FormFieldText::TextType "TextType"
+	    FormChoice,    ///< A single choice field. See \ref Poppler::FormFieldChoice::ChoiceType "ChoiceType"
 	    FormSignature  ///< A signature field.
 	};
 
@@ -89,9 +89,11 @@ namespace Poppler {
 	bool isVisible() const;
 
     protected:
+	/// \cond PRIVATE
 	FormField(FormFieldData &dd);
 
 	FormFieldData *m_formData;
+	/// \endcond
 
     private:
 	Q_DISABLE_COPY(FormField)
@@ -112,10 +114,9 @@ namespace Poppler {
 	    FileSelect     ///< An input field to select the path of a file on disk.
 	};
 
-	/**
-	  \internal
-	*/
+	/// \cond PRIVATE
 	FormFieldText(DocumentData *doc, ::Page *p, ::FormWidgetText *w);
+	/// \endcond
 	virtual ~FormFieldText();
 
 	virtual FormType type() const;
@@ -183,10 +184,9 @@ namespace Poppler {
 	    ListBox       ///< A multiline text field.
 	};
 
-	/**
-	  \internal
-	*/
+	/// \cond PRIVATE
 	FormFieldChoice(DocumentData *doc, ::Page *p, ::FormWidgetChoice *w);
+	/// \endcond
 	virtual ~FormFieldChoice();
 
 	virtual FormType type() const;

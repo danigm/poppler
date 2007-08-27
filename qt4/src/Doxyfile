@@ -23,7 +23,7 @@ PROJECT_NAME           = "Poppler Qt4"
 # This could be handy for archiving the generated documentation or 
 # if some version control system is used.
 
-PROJECT_NUMBER         = 0.5.80
+PROJECT_NUMBER         = 0.6
 
 # The OUTPUT_DIRECTORY tag is used to specify the (relative or absolute) 
 # base path where the generated documentation will be put. 
@@ -53,22 +53,12 @@ CREATE_SUBDIRS         = NO
 
 OUTPUT_LANGUAGE        = English
 
-# This tag can be used to specify the encoding used in the generated output. 
-# The encoding is not always determined by the language that is chosen, 
-# but also whether or not the output is meant for Windows or non-Windows users. 
-# In case there is a difference, setting the USE_WINDOWS_ENCODING tag to YES 
-# forces the Windows encoding (this is the default for the Windows binary), 
-# whereas setting the tag to NO uses a Unix-style encoding (the default for 
-# all platforms other than Windows).
-
-USE_WINDOWS_ENCODING   = NO
-
 # If the BRIEF_MEMBER_DESC tag is set to YES (the default) Doxygen will 
 # include brief member descriptions after the members that are listed in 
 # the file and class documentation (similar to JavaDoc). 
 # Set to NO to disable this.
 
-BRIEF_MEMBER_DESC      = YES
+BRIEF_MEMBER_DESC      = NO
 
 # If the REPEAT_BRIEF tag is set to YES (the default) Doxygen will prepend 
 # the brief description of a member or function before the detailed description. 
@@ -229,7 +219,7 @@ EXTRACT_STATIC         = NO
 # defined locally in source files will be included in the documentation. 
 # If set to NO only classes defined in header files are included.
 
-EXTRACT_LOCAL_CLASSES  = YES
+EXTRACT_LOCAL_CLASSES  = NO
 
 # This flag is only useful for Objective-C code. When set to YES local 
 # methods, which are defined in the implementation section but not in 
@@ -258,7 +248,7 @@ HIDE_UNDOC_CLASSES     = NO
 # If set to NO (the default) these declarations will be included in the 
 # documentation.
 
-HIDE_FRIEND_COMPOUNDS  = NO
+HIDE_FRIEND_COMPOUNDS  = YES
 
 # If the HIDE_IN_BODY_DOCS tag is set to YES, Doxygen will hide any 
 # documentation blocks found inside the body of a function. 
@@ -297,7 +287,7 @@ SHOW_INCLUDE_FILES     = YES
 # If the INLINE_INFO tag is set to YES (the default) then a tag [inline] 
 # is inserted in the documentation for inline members.
 
-INLINE_INFO            = YES
+INLINE_INFO            = NO
 
 # If the SORT_MEMBER_DOCS tag is set to YES (the default) then doxygen 
 # will sort the (detailed) documentation of file and class members 
@@ -311,7 +301,7 @@ SORT_MEMBER_DOCS       = YES
 # by member name. If set to NO (the default) the members will appear in 
 # declaration order.
 
-SORT_BRIEF_DOCS        = NO
+SORT_BRIEF_DOCS        = YES
 
 # If the SORT_BY_SCOPE_NAME tag is set to YES, the class list will be 
 # sorted by fully-qualified names, including namespaces. If set to 
@@ -321,7 +311,7 @@ SORT_BRIEF_DOCS        = NO
 # Note: This option applies only to the class list, not to the 
 # alphabetical list.
 
-SORT_BY_SCOPE_NAME     = NO
+SORT_BY_SCOPE_NAME     = YES
 
 # The GENERATE_TODOLIST tag can be used to enable (YES) or 
 # disable (NO) the todo list. This list is created by putting \todo 
@@ -372,7 +362,7 @@ SHOW_USED_FILES        = YES
 # then setting the SHOW_DIRECTORIES tag to YES will show the directory hierarchy 
 # in the documentation.
 
-SHOW_DIRECTORIES       = YES
+SHOW_DIRECTORIES       = NO
 
 # The FILE_VERSION_FILTER tag can be used to specify a program or script that 
 # doxygen should invoke to get the current version for each file (typically from the 

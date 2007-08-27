@@ -60,10 +60,19 @@ class LinkDestination
 
 		LinkDestination(const LinkDestinationData &data);
 		LinkDestination(const QString &description);
+		/**
+		 * Copy constructor.
+		 */
 		LinkDestination(const LinkDestination &other);
+		/**
+		 * Destructor.
+		 */
 		~LinkDestination();
 
 		// Accessors.
+		/**
+		 * The kind of destination.
+		 */
 		Kind kind() const;
 		int pageNumber() const;
 		double left() const;
@@ -75,6 +84,9 @@ class LinkDestination
 		bool isChangeTop() const;
 		bool isChangeZoom() const;
 
+		/**
+		 * Return a string repesentation of this destination.
+		 */
 		QString toString() const;
 
 		LinkDestination& operator=(const LinkDestination &other);
@@ -117,7 +129,9 @@ class Link
 		 */
 		virtual LinkType linkType() const;
 
-		// virtual destructor
+		/**
+		 * Destructor.
+		 */
 		virtual ~Link();
 		
 		/**
@@ -129,9 +143,11 @@ class Link
 		QRectF linkArea() const;
 		
 	protected:
+		/// \cond PRIVATE
 		Link( LinkPrivate &dd );
 		Q_DECLARE_PRIVATE( Link )
 		LinkPrivate *d_ptr;
+		/// \endcond
 		
 	private:
 		Q_DISABLE_COPY( Link )
@@ -142,7 +158,17 @@ class Link
 class LinkGoto : public Link
 {
 	public:
+		/**
+		 * Create a new Goto link.
+		 *
+		 * \param linkArea the active area of the link
+		 * \param extFileName if not empty, the file name to be open
+		 * \param destination the destination to be reached
+		 */
 		LinkGoto( const QRectF &linkArea, QString extFileName, const LinkDestination & destination );
+		/**
+		 * Destructor.
+		 */
 		~LinkGoto();
 
 		/**
@@ -170,8 +196,17 @@ class LinkExecute : public Link
 		QString fileName() const;
 		QString parameters() const;
 
-		// create a Link_Execute
+		/**
+		 * Create a new Execute link.
+		 *
+		 * \param linkArea the active area of the link
+		 * \param file the file name to be open, or the program to be execute
+		 * \param params the parameters for the program to execute
+		 */
 		LinkExecute( const QRectF &linkArea, const QString & file, const QString & params );
+		/**
+		 * Destructor.
+		 */
 		~LinkExecute();
 		LinkType linkType() const;
 
@@ -189,8 +224,16 @@ class LinkBrowse : public Link
 		 */
 		QString url() const;
 
-		// create a Link_Browse
+		/**
+		 * Create a new browse link.
+		 *
+		 * \param linkArea the active area of the link
+		 * \param url the URL to be open
+		 */
 		LinkBrowse( const QRectF &linkArea, const QString &url );
+		/**
+		 * Destructor.
+		 */
 		~LinkBrowse();
 		LinkType linkType() const;
 
@@ -224,8 +267,17 @@ class LinkAction : public Link
 		 */
 		ActionType actionType() const;
 
-		// create a Link_Action
+		/**
+		 * Create a new Action link, that executes a specified action
+		 * on the document.
+		 *
+		 * \param linkArea the active area of the link
+		 * \param actionType which action should be executed
+		 */
 		LinkAction( const QRectF &linkArea, ActionType actionType );
+		/**
+		 * Destructor.
+		 */
 		~LinkAction();
 		LinkType linkType() const;
 
@@ -240,6 +292,9 @@ class LinkSound : public Link
 	public:
 		// create a Link_Sound
 		LinkSound( const QRectF &linkArea, double volume, bool sync, bool repeat, bool mix, SoundObject *sound );
+		/**
+		 * Destructor.
+		 */
 		virtual ~LinkSound();
 
 		LinkType linkType() const;
