@@ -1,4 +1,13 @@
+2007-08-27  Pino Toscano <pino@kde.org>
+
+	* qt4/src/poppler-link.cc:
+	* qt4/src/poppler-link.h:
+	Initialise correctly, and missing empty destructor.
+	* qt4/src/poppler-annotation.cc:
+	Don't leak the private class.
+
 2007-08-26  Albert Astals Cid <aacid@kde.org>
+
 	* utils/ImageOutputDev.cc: Fix bug 12121 pdfimages produces inverted
 	image for black & white image
 

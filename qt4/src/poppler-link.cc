@@ -437,12 +437,16 @@ class LinkMoviePrivate : public LinkPrivate
 
 	// LinkAction
 	LinkAction::LinkAction( const QRectF &linkArea, ActionType actionType )
-		: Link( *new LinkBrowsePrivate( linkArea ) )
+		: Link( *new LinkActionPrivate( linkArea ) )
 	{
 		Q_D( LinkAction );
 		d->type = actionType;
 	}
 		
+	LinkAction::~LinkAction()
+	{
+	}
+	
 	LinkAction::ActionType LinkAction::actionType() const
 	{
 		Q_D( const LinkAction );
@@ -507,7 +511,7 @@ class LinkMoviePrivate : public LinkPrivate
 
 	// LinkMovie
 	LinkMovie::LinkMovie( const QRectF &linkArea )
-		: Link( *new LinkSoundPrivate( linkArea ) )
+		: Link( *new LinkMoviePrivate( linkArea ) )
 	{
 	}
 	

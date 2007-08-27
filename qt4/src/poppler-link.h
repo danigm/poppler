@@ -226,6 +226,7 @@ class LinkAction : public Link
 
 		// create a Link_Action
 		LinkAction( const QRectF &linkArea, ActionType actionType );
+		~LinkAction();
 		LinkType linkType() const;
 
 	private:

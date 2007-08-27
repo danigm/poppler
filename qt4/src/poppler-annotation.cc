@@ -124,11 +124,11 @@ Annotation::~Annotation()
 {
     Q_D( Annotation );
     // delete all children revisions
-    if ( d->revisions.isEmpty() )
-        return;
     QLinkedList< Annotation::Revision >::iterator it = d->revisions.begin(), end = d->revisions.end();
     for ( ; it != end; ++it )
         delete (*it).annotation;
+
+    delete d_ptr;
 }
 
 Annotation::Annotation( AnnotationPrivate &dd, const QDomNode &annNode )
