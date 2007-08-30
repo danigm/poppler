@@ -251,8 +251,6 @@ public:
 
   virtual ~FormField();
 
-  FormField *copy() { return new FormField(this); }
-
   // Accessors.
   FormFieldType getType() { return type; }
   Object* getObj() { return &obj; }
@@ -286,7 +284,6 @@ public:
 
 private:
   FormField() {}
-  FormField(FormField *dest);
 };
 
 
