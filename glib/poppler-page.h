@@ -68,6 +68,7 @@ GList     	      *poppler_page_find_text            (PopplerPage        *page,
 void                   poppler_page_render_to_ps         (PopplerPage        *page,
 							  PopplerPSFile      *ps_file);
 char                  *poppler_page_get_text             (PopplerPage        *page,
+							  PopplerSelectionStyle style,
 							  PopplerRectangle   *rect);
 GList                 *poppler_page_get_link_mapping     (PopplerPage        *page);
 void                   poppler_page_free_link_mapping    (GList              *list);
@@ -77,6 +78,7 @@ GList              *poppler_page_get_form_field_mapping  (PopplerPage        *pa
 void                poppler_page_free_form_field_mapping (GList              *list);
 GdkRegion             *poppler_page_get_selection_region (PopplerPage        *page,
 							  gdouble             scale,
+							  PopplerSelectionStyle style,
 							  PopplerRectangle   *selection);
 #ifdef POPPLER_HAS_CAIRO
 void                   poppler_page_render_selection     (PopplerPage        *page,

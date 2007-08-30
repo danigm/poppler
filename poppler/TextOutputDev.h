@@ -42,6 +42,12 @@ class TextSelectionVisitor;
 
 typedef void (*TextOutputFunc)(void *stream, char *text, int len);
 
+enum SelectionStyle {
+  selectionStyleGlyph,
+  selectionStyleWord,
+  selectionStyleLine
+};
+
 //------------------------------------------------------------------------
 // TextFontInfo
 //------------------------------------------------------------------------
@@ -111,7 +117,8 @@ public:
   static int cmpYX(const void *p1, const void *p2);
 
   void visitSelection(TextSelectionVisitor *visitor,
-		      PDFRectangle *selection);
+		      PDFRectangle *selection,
+		      SelectionStyle style);
 
   // Get the TextFontInfo object associated with this word.
   TextFontInfo *getFontInfo() { return font; }
@@ -248,7 +255,8 @@ public:
   void coalesce(UnicodeMap *uMap);
 
   void visitSelection(TextSelectionVisitor *visitor,
-		      PDFRectangle *selection);
+		      PDFRectangle *selection,
+		      SelectionStyle style);
 
   // Get the head of the linked list of TextWords.
   TextWord *getWords() { return words; }
@@ -322,7 +330,8 @@ public:
   GBool isBelow(TextBlock *blk);
 
   void visitSelection(TextSelectionVisitor *visitor,
-		      PDFRectangle *selection);
+		      PDFRectangle *selection,
+		      SelectionStyle style);
 
   // Get the head of the linked list of TextLines.
   TextLine *getLines() { return lines; }
@@ -491,17 +500,22 @@ public:
 		     double xMax, double yMax);
 
   void visitSelection(TextSelectionVisitor *visitor,
-		      PDFRectangle *selection);
+		      PDFRectangle *selection,
+		      SelectionStyle style);
 
   void drawSelection(OutputDev *out,
 		     double scale,
 		     int rotation,
 		     PDFRectangle *selection,
+		     SelectionStyle style,
 		     GfxColor *glyph_color, GfxColor *box_color);
 
-  GooList *getSelectionRegion(PDFRectangle *selection, double scale);
+  GooList *getSelectionRegion(PDFRectangle *selection,
+			      SelectionStyle style,
+			      double scale);
 
-  GooString *getSelectionText(PDFRectangle *selection);
+  GooString *getSelectionText(PDFRectangle *selection,
+			      SelectionStyle style);
 
   // Find a string by character position and length.  If found, sets
   // the text bounding rectangle and returns true; otherwise returns
@@ -674,11 +688,15 @@ public:
 
   void drawSelection(OutputDev *out, double scale, int rotation,
 		     PDFRectangle *selection,
+		     SelectionStyle style,
 		     GfxColor *glyph_color, GfxColor *box_color);
 
-  GooList *getSelectionRegion(PDFRectangle *selection, double scale);
+  GooList *getSelectionRegion(PDFRectangle *selection,
+			      SelectionStyle style,
+			      double scale);
 
-  GooString *getSelectionText(PDFRectangle *selection);
+  GooString *getSelectionText(PDFRectangle *selection,
+			      SelectionStyle style);
 
 #if TEXTOUT_WORD_LIST
   // Build a flat word list, in content stream order (if

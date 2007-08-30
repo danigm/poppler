@@ -390,7 +390,7 @@ int main (int argc, char *argv[])
   area.x2 = width;
   area.y2 = height;
 
-  text = poppler_page_get_text (page, &area);
+  text = poppler_page_get_text (page, POPPLER_SELECTION_GLYPH, &area);
   if (text)
     {
       FILE *file = fopen ("dump.txt", "w");

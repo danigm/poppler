@@ -3720,7 +3720,8 @@ void TextSelectionPainter::visitWord (TextWord *word, int begin, int end,
 }
 
 void TextWord::visitSelection(TextSelectionVisitor *visitor,
-			      PDFRectangle *selection)
+			      PDFRectangle *selection,
+			      SelectionStyle style)
 {
   int i, begin, end;
   double mid;
@@ -3744,30 +3745,48 @@ void TextWord::visitSelection(TextSelectionVisitor *visitor,
 }
 
 void TextLine::visitSelection(TextSelectionVisitor *visitor,
-			      PDFRectangle *selection) {
-  TextWord *p, *begin, *end;
+			      PDFRectangle *selection,
+			      SelectionStyle style) {
+  TextWord *p, *begin, *end, *current;
   int i, edge_begin, edge_end;
+  PDFRectangle child_selection;
 
   begin = NULL;
   end = NULL;
+  current = NULL;
   for (p = words; p != NULL; p = p->next) {
     if ((selection->x1 < p->xMax && selection->y1 < p->yMax) ||
 	(selection->x2 < p->xMax && selection->y2 < p->yMax))
-      if (begin == NULL)
+      if (begin == NULL) 
 	begin = p;
     if ((selection->x1 > p->xMin && selection->y1 > p->yMin ||
-	selection->x2 > p->xMin && selection->y2 > p->yMin) && (begin != NULL))
+	 selection->x2 > p->xMin && selection->y2 > p->yMin) && (begin != NULL)) {
       end = p->next;
+      current = p;
+    }
+  }
+
+  if (!current)
+    current = begin;
+  
+  child_selection = *selection;
+  if (style == selectionStyleWord) {
+    child_selection.x1 = begin->xMin;
+    if (end && end->xMax != -1) {
+      child_selection.x2 = current->xMax;
+    } else {
+      child_selection.x2 = xMax;
+    }
   }
 
   edge_begin = len;
   edge_end = 0;
   for (i = 0; i < len; i++) {
     double mid = (edge[i] + edge[i + 1]) /  2;
-    if (selection->x1 < mid || selection->x2 < mid)
+    if (child_selection.x1 < mid || child_selection.x2 < mid)
       if (i < edge_begin)
 	edge_begin = i;
-    if (mid < selection->x2 || mid < selection->x1)
+    if (mid < child_selection.x2 || mid < child_selection.x1)
       edge_end = i + 1;
   }
 
@@ -3775,14 +3794,16 @@ void TextLine::visitSelection(TextSelectionVisitor *visitor,
   if (edge_end <= edge_begin)
     return;
 
-  visitor->visitLine (this, begin, end, edge_begin, edge_end, selection);
+  visitor->visitLine (this, begin, end, edge_begin, edge_end,
+		      &child_selection);
 
   for (p = begin; p != end; p = p->next)
-    p->visitSelection (visitor, selection);
+    p->visitSelection (visitor, &child_selection, style);
 }
 
 void TextBlock::visitSelection(TextSelectionVisitor *visitor,
-			       PDFRectangle *selection) {
+			       PDFRectangle *selection,
+			       SelectionStyle style) {
   TextLine *p, *begin, *end;
   PDFRectangle child_selection;
   double start_x, start_y, stop_x, stop_y;
@@ -3835,14 +3856,14 @@ void TextBlock::visitSelection(TextSelectionVisitor *visitor,
   visitor->visitBlock (this, begin, end, selection);
 
   for (p = begin; p != end; p = p->next) {
-    if (p == begin) {
+    if (p == begin && style != selectionStyleLine) {
       child_selection.x1 = start_x;
       child_selection.y1 = start_y;
     } else {
       child_selection.x1 = 0;
       child_selection.y1 = 0;
     }
-    if (p->next == end) {
+    if (p->next == end && style != selectionStyleLine) {
       child_selection.x2 = stop_x;
       child_selection.y2 = stop_y;
     } else {
@@ -3850,12 +3871,13 @@ void TextBlock::visitSelection(TextSelectionVisitor *visitor,
       child_selection.y2 = page->pageHeight;
     }
 
-    p->visitSelection(visitor, &child_selection);
+    p->visitSelection(visitor, &child_selection, style);
   }
 }
 
 void TextPage::visitSelection(TextSelectionVisitor *visitor,
-			      PDFRectangle *selection)
+			      PDFRectangle *selection,
+			      SelectionStyle style)
 {
   int i, begin, end;
   PDFRectangle child_selection;
@@ -3923,7 +3945,7 @@ void TextPage::visitSelection(TextSelectionVisitor *visitor,
       child_selection.y2 = pageHeight;
     }
 
-    blocks[i]->visitSelection(visitor, &child_selection);
+    blocks[i]->visitSelection(visitor, &child_selection, style);
   }
 }
 
@@ -3931,29 +3953,32 @@ void TextPage::drawSelection(OutputDev *out,
 			     double scale,
 			     int rotation,
 			     PDFRectangle *selection,
+			     SelectionStyle style,
 			     GfxColor *glyph_color, GfxColor *box_color)
 {
   TextSelectionPainter painter(this, scale, rotation, 
 			       out, box_color, glyph_color);
 
-  visitSelection(&painter, selection);
+  visitSelection(&painter, selection, style);
 }
 
 GooList *TextPage::getSelectionRegion(PDFRectangle *selection,
+				      SelectionStyle style,
 				      double scale) {
   TextSelectionSizer sizer(this, scale);
   GooList *region;
 
-  visitSelection(&sizer, selection);
+  visitSelection(&sizer, selection, style);
 
   return sizer.getRegion();
 }
 
-GooString *TextPage::getSelectionText(PDFRectangle *selection)
+GooString *TextPage::getSelectionText(PDFRectangle *selection,
+				      SelectionStyle style)
 {
   TextSelectionDumper dumper(this);
 
-  visitSelection(&dumper, selection);
+  visitSelection(&dumper, selection, style);
 
   return dumper.getText();
 }
@@ -4679,18 +4704,21 @@ void TextOutputDev::drawSelection(OutputDev *out,
 				  double scale,
 				  int rotation,
 				  PDFRectangle *selection,
+				  SelectionStyle style,
 				  GfxColor *glyph_color, GfxColor *box_color) {
-  text->drawSelection(out, scale, rotation, selection, glyph_color, box_color);
+  text->drawSelection(out, scale, rotation, selection, style, glyph_color, box_color);
 }
 
 GooList *TextOutputDev::getSelectionRegion(PDFRectangle *selection,
+					   SelectionStyle style,
 					   double scale) {
-  return text->getSelectionRegion(selection, scale);
+  return text->getSelectionRegion(selection, style, scale);
 }
 
-GooString *TextOutputDev::getSelectionText(PDFRectangle *selection)
+GooString *TextOutputDev::getSelectionText(PDFRectangle *selection,
+					   SelectionStyle style)
 {
-  return text->getSelectionText(selection);
+  return text->getSelectionText(selection, style);
 }
 
 GBool TextOutputDev::findCharRange(int pos, int length,

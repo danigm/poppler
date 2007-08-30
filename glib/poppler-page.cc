@@ -523,12 +523,14 @@ poppler_page_get_text_output_dev (PopplerPage *page)
  * Return value: a newly allocated #GdkRegion
  **/
 GdkRegion *
-poppler_page_get_selection_region (PopplerPage      *page,
-				   gdouble           scale,
-				   PopplerRectangle *selection)
+poppler_page_get_selection_region (PopplerPage           *page,
+				   gdouble                scale,
+				   PopplerSelectionStyle  style,
+				   PopplerRectangle      *selection)
 {
   TextOutputDev *text_dev;
   PDFRectangle poppler_selection;
+  SelectionStyle selection_style = selectionStyleGlyph;
   GooList *list;
   GdkRectangle rect;
   GdkRegion *region;
@@ -539,8 +541,22 @@ poppler_page_get_selection_region (PopplerPage      *page,
   poppler_selection.x2 = selection->x2;
   poppler_selection.y2 = selection->y2;
 
+  switch (style)
+    {
+      case POPPLER_SELECTION_GLYPH:
+        selection_style = selectionStyleGlyph;
+	break;
+      case POPPLER_SELECTION_WORD:
+        selection_style = selectionStyleWord;
+	break;
+      case POPPLER_SELECTION_LINE:
+        selection_style = selectionStyleLine;
+	break;
+    }
+	      
   text_dev = poppler_page_get_text_output_dev (page);
-  list = text_dev->getSelectionRegion(&poppler_selection, scale);
+  list = text_dev->getSelectionRegion(&poppler_selection, 
+				      selection_style, scale);
 
   region = gdk_region_new();
 
@@ -652,6 +668,7 @@ poppler_page_render_selection (PopplerPage           *page,
 {
   TextOutputDev *text_dev;
   CairoOutputDev *output_dev;
+  SelectionStyle selection_style = selectionStyleGlyph;
   PDFRectangle pdf_selection(selection->x1, selection->y1,
 			     selection->x2, selection->y2);
 
@@ -670,11 +687,25 @@ poppler_page_render_selection (PopplerPage           *page,
       }
   };
 
+  switch (style)
+    {
+      case POPPLER_SELECTION_GLYPH:
+        selection_style = selectionStyleGlyph;
+	break;
+      case POPPLER_SELECTION_WORD:
+        selection_style = selectionStyleWord;
+	break;
+      case POPPLER_SELECTION_LINE:
+        selection_style = selectionStyleLine;
+	break;
+    }
+
   text_dev = poppler_page_get_text_output_dev (page);
   output_dev = page->document->output_dev;
   output_dev->setCairo (cairo);
 
-  text_dev->drawSelection (output_dev, 1.0, 0, &pdf_selection,
+  text_dev->drawSelection (output_dev, 1.0, 0,
+			   &pdf_selection, selection_style,
 			   &gfx_glyph_color, &gfx_background_color);
 
   output_dev->setCairo (NULL);
@@ -724,6 +755,7 @@ poppler_page_render_selection_to_pixbuf (PopplerPage           *page,
   TextOutputDev *text_dev;
   OutputDev *output_dev;
   OutputDevData data;
+  SelectionStyle selection_style = selectionStyleGlyph;
   PDFRectangle pdf_selection(selection->x1, selection->y1,
 			     selection->x2, selection->y2);
 
@@ -742,12 +774,26 @@ poppler_page_render_selection_to_pixbuf (PopplerPage           *page,
       }
   };
 
+  switch (style)
+    {
+      case POPPLER_SELECTION_GLYPH:
+        selection_style = selectionStyleGlyph;
+	break;
+      case POPPLER_SELECTION_WORD:
+        selection_style = selectionStyleWord;
+	break;
+      case POPPLER_SELECTION_LINE:
+        selection_style = selectionStyleLine;
+	break;
+    }
+
   text_dev = poppler_page_get_text_output_dev (page);
   output_dev = page->document->output_dev;
 
   poppler_page_prepare_output_dev (page, scale, rotation, TRUE, &data);
 
-  text_dev->drawSelection (output_dev, scale, rotation, &pdf_selection,
+  text_dev->drawSelection (output_dev, scale, rotation,
+			   &pdf_selection, selection_style,
 			   &gfx_glyph_color, &gfx_background_color);
 
   poppler_page_copy_to_pixbuf (page, pixbuf, &data);
@@ -855,14 +901,16 @@ poppler_page_get_thumbnail_size (PopplerPage *page,
  *               as a string
  **/
 char *
-poppler_page_get_text (PopplerPage      *page,
-		       PopplerRectangle *selection)
+poppler_page_get_text (PopplerPage          *page,
+		       PopplerSelectionStyle style,
+		       PopplerRectangle     *selection)
 {
   TextOutputDev *text_dev;
   PDFDoc *doc;
   GooString *sel_text;
   double height, y1, y2;
   char *result;
+  SelectionStyle selection_style = selectionStyleGlyph;
   PDFRectangle pdf_selection;
 
   g_return_val_if_fail (POPPLER_IS_PAGE (page), FALSE);
@@ -875,8 +923,21 @@ poppler_page_get_text (PopplerPage      *page,
   pdf_selection.y1 = height - selection->y2;
   pdf_selection.x2 = selection->x2;
   pdf_selection.y2 = height - selection->y1;
-  
-  sel_text = text_dev->getSelectionText (&pdf_selection);
+
+  switch (style)
+    {
+      case POPPLER_SELECTION_GLYPH:
+        selection_style = selectionStyleGlyph;
+	break;
+      case POPPLER_SELECTION_WORD:
+        selection_style = selectionStyleWord;
+	break;
+      case POPPLER_SELECTION_LINE:
+        selection_style = selectionStyleLine;
+	break;
+    }
+
+  sel_text = text_dev->getSelectionText (&pdf_selection, selection_style);
   result = g_strdup (sel_text->getCString ());
   delete sel_text;
 

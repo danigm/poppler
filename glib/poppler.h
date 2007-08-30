@@ -72,9 +72,9 @@ typedef enum
 
 typedef enum
 {
-  POPPLER_SELECTION_NORMAL,
+  POPPLER_SELECTION_GLYPH,
   POPPLER_SELECTION_WORD,
-  POPPLER_SELECTION_PARAGRAPH
+  POPPLER_SELECTION_LINE
 } PopplerSelectionStyle;
 
 typedef struct _PopplerDocument         PopplerDocument;
