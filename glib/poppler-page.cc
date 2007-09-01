@@ -426,6 +426,8 @@ poppler_page_render (PopplerPage *page,
   output_dev = page->document->output_dev;
   output_dev->setCairo (cairo);
 
+  /* NOTE: instead of passing -1 we should/could use cairo_clip_extents()
+   * to get a bounding box */
   page->page->displaySlice(output_dev,
 			   72.0, 72.0, 0,
 			   gFalse, /* useMediaBox */

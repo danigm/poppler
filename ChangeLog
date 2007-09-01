@@ -1,3 +1,7 @@
+2007-09-01  Jeff Muizelaar  <jeff@infidigm.net>
+
+	* glib/poppler-page.cc: Add note about clipping
+
 2007-08-30  Albert Astals Cid <aacid@kde.org>
 
 	* poppler/Form.h: Remove unused methods. Fixes 12013
