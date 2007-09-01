@@ -2,7 +2,9 @@ INCLUDES = 					\
 	-I$(top_srcdir)/glib			\
 	$(GTK_TEST_CFLAGS)
 
+if BUILD_GTK_TEST
 noinst_PROGRAMS = poppler-glib-demo
+endif
 
 poppler_glib_demo_SOURCES = 			\
 	main.c					\

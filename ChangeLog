@@ -1,5 +1,10 @@
 2007-09-01  Jeff Muizelaar  <jeff@infidigm.net>
 
+	* glib/demo/Makefile.am: Only build the demo app if the cflags will be
+	appropriately set.
+
+2007-09-01  Jeff Muizelaar  <jeff@infidigm.net>
+
 	* glib/poppler-page.cc: Add note about clipping
 
 2007-08-30  Albert Astals Cid <aacid@kde.org>
