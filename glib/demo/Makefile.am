@@ -25,4 +25,5 @@ poppler_glib_demo_SOURCES = 			\
 
 LDADD =						\
 	$(top_builddir)/glib/libpoppler-glib.la	\
+	$(top_builddir)/poppler/libpoppler.la	\
 	$(GTK_TEST_LIBS)

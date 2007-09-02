@@ -3068,30 +3068,35 @@ GBool TextPage::findText(Unicode *s, int len,
 
 	// found it
 	if (k == len) {
+	  // where s2 matches a subsequence of a compatibility equivalence
+	  // decomposition, highlight the entire glyph, since we don't know
+	  // the internal layout of subglyph components
+	  int normStart = line->normalized_idx[j];
+	  int normAfterEnd = line->normalized_idx[j + len - 1] + 1;
 	  switch (line->rot) {
 	  case 0:
-	    xMin1 = line->edge[line->normalized_idx[j]];
-	    xMax1 = line->edge[line->normalized_idx[j + len]];
+	    xMin1 = line->edge[normStart];
+	    xMax1 = line->edge[normAfterEnd];
 	    yMin1 = line->yMin;
 	    yMax1 = line->yMax;
 	    break;
 	  case 1:
 	    xMin1 = line->xMin;
 	    xMax1 = line->xMax;
-	    yMin1 = line->edge[line->normalized_idx[j]];
-	    yMax1 = line->edge[line->normalized_idx[j + len]];
+	    yMin1 = line->edge[normStart];
+	    yMax1 = line->edge[normAfterEnd];
 	    break;
 	  case 2:
-	    xMin1 = line->edge[line->normalized_idx[j + len]];
-	    xMax1 = line->edge[line->normalized_idx[j]];
+	    xMin1 = line->edge[normAfterEnd];
+	    xMax1 = line->edge[normStart];
 	    yMin1 = line->yMin;
 	    yMax1 = line->yMax;
 	    break;
 	  case 3:
 	    xMin1 = line->xMin;
 	    xMax1 = line->xMax;
-	    yMin1 = line->edge[line->normalized_idx[j + len]];
-	    yMax1 = line->edge[line->normalized_idx[j]];
+	    yMin1 = line->edge[normAfterEnd];
+	    yMax1 = line->edge[normStart];
 	    break;
 	  }
 	  if (backward) {

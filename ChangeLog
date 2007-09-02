@@ -1,6 +1,9 @@
 2007-09-02  Albert Astals Cid <aacid@kde.org>
 
 	* poppler/PDFDoc.cc: Don't enforce %%EOF at the end of file
+	* glib/demo/Makefile.am: Add $(top_builddir)/poppler/libpoppler.la
+	* poppler/TextOutputDev.cc: Patch from Ed Catmur <ed@catmur.co.uk> to
+	improve matching of half strings of decomposed characters/ligatures.
 
 2007-09-01  Jeff Muizelaar  <jeff@infidigm.net>
 
