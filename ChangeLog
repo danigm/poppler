@@ -4,6 +4,9 @@
 	* glib/demo/Makefile.am: Add $(top_builddir)/poppler/libpoppler.la
 	* poppler/TextOutputDev.cc: Patch from Ed Catmur <ed@catmur.co.uk> to
 	improve matching of half strings of decomposed characters/ligatures.
+	* poppler/GfxState.cc: Pad zeroes instead of aborting when rendering
+	1-bit images and the stream is "too short" to mimic Acroread and
+	ghostscript behaviour. Patch by <darren.kenny@sun.com>. Fixes #12208
 
 2007-09-01  Jeff Muizelaar  <jeff@infidigm.net>
 

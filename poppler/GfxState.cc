@@ -1118,8 +1118,8 @@ GfxColorSpace *GfxIndexedColorSpace::parse(Array *arr) {
     for (i = 0; i <= indexHighA; ++i) {
       for (j = 0; j < n; ++j) {
 	if ((x = obj1.streamGetChar()) == EOF) {
-	  error(-1, "Bad Indexed color space (lookup table stream too short)");
-	  goto err3;
+	  error(-1, "Bad Indexed color space (lookup table stream too short) padding with zeroes");
+	  x = 0;
 	}
 	cs->lookup[i*n + j] = (Guchar)x;
       }
