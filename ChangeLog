@@ -1,5 +1,12 @@
 2007-09-01  Jeff Muizelaar  <jeff@infidigm.net>
 
+	* poppler/CairoOutputDev.cc:
+	* poppler/Error.cc:
+	* poppler/Error.h: Report any cairo errors when destroying the cairo
+	context.
+
+2007-09-01  Jeff Muizelaar  <jeff@infidigm.net>
+
 	* glib/demo/Makefile.am: Only build the demo app if the cflags will be
 	appropriately set.
 

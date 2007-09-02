@@ -47,3 +47,10 @@ void CDECL error(int pos, char *msg, ...) {
   (*errorFunction)(pos, msg, args);
   va_end(args);
 }
+
+void warning(char *msg, ...) {
+  va_list args;
+  va_start(args, msg);
+  vprintf(msg, args);
+  va_end(args);
+}
