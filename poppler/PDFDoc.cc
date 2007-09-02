@@ -182,7 +182,8 @@ GBool PDFDoc::setup(GooString *ownerPassword, GooString *userPassword) {
   str->reset();
 
   // check footer
-  if (!checkFooter()) return gFalse;
+  // Adobe does not seem to enforce %%EOF, so we do the same
+//  if (!checkFooter()) return gFalse;
   
   // check header
   checkHeader();

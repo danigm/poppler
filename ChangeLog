@@ -1,3 +1,7 @@
+2007-09-02  Albert Astals Cid <aacid@kde.org>
+
+	* poppler/PDFDoc.cc: Don't enforce %%EOF at the end of file
+
 2007-09-01  Jeff Muizelaar  <jeff@infidigm.net>
 
 	* poppler/CairoOutputDev.cc:
