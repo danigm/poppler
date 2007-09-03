@@ -1,3 +1,9 @@
+2007-09-03  Albert Astals Cid <aacid@kde.org>
+
+	* poppler/JBIG2Stream.cc:
+	* poppler/Stream.cc: Patch by Derek B. Noonburg <derekn@foolabs.com>
+	to fix some errors in CCITTFaxStream and JBIG2Stream.cc
+
 2007-09-03  Carlos Garcia Campos  <carlosgc@gnome.org>
 
 	* gtk-doc.make:

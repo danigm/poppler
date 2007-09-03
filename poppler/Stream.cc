@@ -1719,7 +1719,7 @@ short CCITTFaxStream::getBlackCode() {
     code = lookBits(13);
     if ((code >> 7) == 0) {
       p = &blackTab1[code];
-    } else if ((code >> 9) == 0) {
+    } else if ((code >> 9) == 0 && (code >> 7) != 0) {
       p = &blackTab2[(code >> 1) - 64];
     } else {
       p = &blackTab3[code >> 7];
