@@ -86,6 +86,11 @@ poppler
 
 </para>
 
+<!-- ##### ARG PopplerDocument:metadata ##### -->
+<para>
+
+</para>
+
 <!-- ##### ARG PopplerDocument:mod-date ##### -->
 <para>
 
@@ -148,6 +153,49 @@ poppler
 @x2: 
 @y2: 
 
+<!-- ##### ENUM PopplerSelectionStyle ##### -->
+<para>
+
+</para>
+
+@POPPLER_SELECTION_GLYPH: 
+@POPPLER_SELECTION_WORD: 
+@POPPLER_SELECTION_LINE: 
+
+<!-- ##### ENUM PopplerPageTransitionType ##### -->
+<para>
+
+</para>
+
+@POPPLER_PAGE_TRANSITION_REPLACE: 
+@POPPLER_PAGE_TRANSITION_SPLIT: 
+@POPPLER_PAGE_TRANSITION_BLINDS: 
+@POPPLER_PAGE_TRANSITION_BOX: 
+@POPPLER_PAGE_TRANSITION_WIPE: 
+@POPPLER_PAGE_TRANSITION_DISSOLVE: 
+@POPPLER_PAGE_TRANSITION_GLITTER: 
+@POPPLER_PAGE_TRANSITION_FLY: 
+@POPPLER_PAGE_TRANSITION_PUSH: 
+@POPPLER_PAGE_TRANSITION_COVER: 
+@POPPLER_PAGE_TRANSITION_UNCOVER: 
+@POPPLER_PAGE_TRANSITION_FADE: 
+
+<!-- ##### ENUM PopplerPageTransitionAlignment ##### -->
+<para>
+
+</para>
+
+@POPPLER_PAGE_TRANSITION_HORIZONTAL: 
+@POPPLER_PAGE_TRANSITION_VERTICAL: 
+
+<!-- ##### ENUM PopplerPageTransitionDirection ##### -->
+<para>
+
+</para>
+
+@POPPLER_PAGE_TRANSITION_INWARD: 
+@POPPLER_PAGE_TRANSITION_OUTWARD: 
+
 <!-- ##### STRUCT PopplerLinkMapping ##### -->
 <para>
 
@@ -172,6 +220,7 @@ poppler
 
 </para>
 
+@parent_instance: 
 @document: 
 @scanner: 
 

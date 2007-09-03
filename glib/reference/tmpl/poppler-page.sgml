@@ -17,6 +17,15 @@ Information about a page in a document
 <!-- ##### SECTION Stability_Level ##### -->
 
 
+<!-- ##### FUNCTION poppler_page_render ##### -->
+<para>
+
+</para>
+
+@page: 
+@cairo: 
+
+
 <!-- ##### FUNCTION poppler_page_render_to_pixbuf ##### -->
 <para>
 
@@ -71,6 +80,15 @@ Information about a page in a document
 @Returns: 
 
 
+<!-- ##### FUNCTION poppler_page_render_to_ps ##### -->
+<para>
+
+</para>
+
+@page: 
+@ps_file: 
+
+
 <!-- ##### FUNCTION poppler_page_find_text ##### -->
 <para>
 
@@ -81,22 +99,32 @@ Information about a page in a document
 @Returns: 
 
 
-<!-- ##### FUNCTION poppler_page_render_to_ps ##### -->
-<para>
-
-</para>
-
-@page: 
-@ps_file: 
-
-
 <!-- ##### FUNCTION poppler_page_get_text ##### -->
 <para>
 
 </para>
 
 @page: 
+@style: 
 @rect: 
+@Returns: 
+
+
+<!-- ##### FUNCTION poppler_page_get_duration ##### -->
+<para>
+
+</para>
+
+@page: 
+@Returns: 
+
+
+<!-- ##### FUNCTION poppler_page_get_transition ##### -->
+<para>
+
+</para>
+
+@page: 
 @Returns: 
 
 
@@ -117,6 +145,40 @@ Information about a page in a document
 @list: 
 
 
+<!-- ##### FUNCTION poppler_page_get_image_mapping ##### -->
+<para>
+
+</para>
+
+@page: 
+@Returns: 
+
+
+<!-- ##### FUNCTION poppler_page_free_image_mapping ##### -->
+<para>
+
+</para>
+
+@list: 
+
+
+<!-- ##### FUNCTION poppler_page_get_form_field_mapping ##### -->
+<para>
+
+</para>
+
+@page: 
+@Returns: 
+
+
+<!-- ##### FUNCTION poppler_page_free_form_field_mapping ##### -->
+<para>
+
+</para>
+
+@list: 
+
+
 <!-- ##### FUNCTION poppler_page_get_selection_region ##### -->
 <para>
 
@@ -124,6 +186,7 @@ Information about a page in a document
 
 @page: 
 @scale: 
+@style: 
 @selection: 
 @Returns: 
 
@@ -135,6 +198,22 @@ Information about a page in a document
 
 @page: 
 @cairo: 
+@selection: 
+@old_selection: 
+@style: 
+@glyph_color: 
+@background_color: 
+
+
+<!-- ##### FUNCTION poppler_page_render_selection_to_pixbuf ##### -->
+<para>
+
+</para>
+
+@page: 
+@scale: 
+@rotation: 
+@pixbuf: 
 @selection: 
 @old_selection: 
 @style: 
@@ -192,6 +271,59 @@ Information about a page in a document
 @rectangle: 
 
 
+<!-- ##### MACRO POPPLER_TYPE_PAGE_TRANSITION ##### -->
+<para>
+
+</para>
+
+
+
+<!-- ##### STRUCT PopplerPageTransition ##### -->
+<para>
+
+</para>
+
+@type: 
+@alignment: 
+@direction: 
+@duration: 
+@angle: 
+@scale: 
+@rectangular: 
+
+<!-- ##### FUNCTION poppler_page_transition_get_type ##### -->
+<para>
+
+</para>
+
+@Returns: 
+
+
+<!-- ##### FUNCTION poppler_page_transition_new ##### -->
+<para>
+
+</para>
+
+@Returns: 
+
+
+<!-- ##### FUNCTION poppler_page_transition_copy ##### -->
+<para>
+
+</para>
+
+@transition: 
+@Returns: 
+
+
+<!-- ##### FUNCTION poppler_page_transition_free ##### -->
+<para>
+
+</para>
+
+@transition: 
+
+
 <!-- ##### MACRO POPPLER_TYPE_LINK_MAPPING ##### -->
 <para>
 
@@ -233,6 +365,102 @@ Information about a page in a document
 
 
 <!-- ##### FUNCTION poppler_link_mapping_free ##### -->
+<para>
+
+</para>
+
+@mapping: 
+
+
+<!-- ##### MACRO POPPLER_TYPE_IMAGE_MAPPING ##### -->
+<para>
+
+</para>
+
+
+
+<!-- ##### STRUCT PopplerImageMapping ##### -->
+<para>
+
+</para>
+
+@area: 
+@image: 
+
+<!-- ##### FUNCTION poppler_image_mapping_get_type ##### -->
+<para>
+
+</para>
+
+@Returns: 
+
+
+<!-- ##### FUNCTION poppler_image_mapping_new ##### -->
+<para>
+
+</para>
+
+@Returns: 
+
+
+<!-- ##### FUNCTION poppler_image_mapping_copy ##### -->
+<para>
+
+</para>
+
+@mapping: 
+@Returns: 
+
+
+<!-- ##### FUNCTION poppler_image_mapping_free ##### -->
+<para>
+
+</para>
+
+@mapping: 
+
+
+<!-- ##### MACRO POPPLER_TYPE_FORM_FIELD_MAPPING ##### -->
+<para>
+
+</para>
+
+
+
+<!-- ##### STRUCT PopplerFormFieldMapping ##### -->
+<para>
+
+</para>
+
+@area: 
+@field: 
+
+<!-- ##### FUNCTION poppler_form_field_mapping_get_type ##### -->
+<para>
+
+</para>
+
+@Returns: 
+
+
+<!-- ##### FUNCTION poppler_form_field_mapping_new ##### -->
+<para>
+
+</para>
+
+@Returns: 
+
+
+<!-- ##### FUNCTION poppler_form_field_mapping_copy ##### -->
+<para>
+
+</para>
+
+@mapping: 
+@Returns: 
+
+
+<!-- ##### FUNCTION poppler_form_field_mapping_free ##### -->
 <para>
 
 </para>

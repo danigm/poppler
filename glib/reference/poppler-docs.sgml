@@ -12,6 +12,8 @@
     <xi:include href="xml/poppler-document.xml"/>
     <xi:include href="xml/poppler-page.xml"/>
     <xi:include href="xml/poppler-action.xml"/>
+    <xi:include href="xml/poppler-attachment.xml"/>
+    <xi:include href="xml/poppler-form-field.xml"/>
     <xi:include href="xml/poppler-enums.xml"/>
   </chapter>
 </book>

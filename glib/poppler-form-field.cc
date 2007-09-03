@@ -75,6 +75,14 @@ _poppler_form_field_new (PopplerDocument *document,
 }
 
 /* Public methods */
+/**
+ * poppler_form_field_get_field_type:
+ * @field: a #PopplerFormField
+ *
+ * Gets the type of @field
+ *
+ * Return value: #PopplerFormFieldType of @field
+ **/ 
 PopplerFormFieldType
 poppler_form_field_get_field_type (PopplerFormField *field)
 {
@@ -95,6 +103,14 @@ poppler_form_field_get_field_type (PopplerFormField *field)
   return POPPLER_FORM_FIELD_UNKNOWN;
 }
 
+/**
+ * poppler_form_field_get_id:
+ * @field: a #PopplerFormField
+ *
+ * Gets the id of @field
+ *
+ * Return value: the id of @field
+ **/
 gint
 poppler_form_field_get_id (PopplerFormField *field)
 {
@@ -103,6 +119,14 @@ poppler_form_field_get_id (PopplerFormField *field)
   return field->widget->getID ();
 }
 
+/**
+ * poppler_form_field_get_font_size
+ * @field: a #PopplerFormField
+ *
+ * Gets the font size of @field
+ *
+ * Return value: the font size of @field
+ **/
 gdouble
 poppler_form_field_get_font_size (PopplerFormField *field)
 {
@@ -111,6 +135,14 @@ poppler_form_field_get_font_size (PopplerFormField *field)
   return field->widget->getFontSize ();
 }
 
+/**
+ * poppler_form_field_is_read_only
+ * @field: a #PopplerFormField
+ *
+ * Checks whether @field is read only
+ *
+ * Return value: %TRUE if @field is read only
+ **/
 gboolean
 poppler_form_field_is_read_only (PopplerFormField *field)
 {
@@ -120,6 +152,14 @@ poppler_form_field_is_read_only (PopplerFormField *field)
 }
 
 /* Button Field */
+/**
+ * poppler_form_field_button_get_button_type
+ * @field: a #PopplerFormField
+ *
+ * Gets the button type of @field
+ *
+ * Return value: #PopplerFormButtonType of @field
+ **/
 PopplerFormButtonType
 poppler_form_field_button_get_button_type (PopplerFormField *field)
 {
@@ -138,6 +178,15 @@ poppler_form_field_button_get_button_type (PopplerFormField *field)
     }
 }
 
+/**
+ * poppler_form_field_button_get_state
+ * @field: a #PopplerFormField
+ *
+ * Queries a #PopplerFormField and returns its current state. Returns %TRUE if
+ * @field is pressed in and %FALSE if it is raised.
+ *
+ * Return value: current state of @field
+ **/
 gboolean
 poppler_form_field_button_get_state (PopplerFormField *field)
 {
@@ -146,6 +195,14 @@ poppler_form_field_button_get_state (PopplerFormField *field)
   return static_cast<FormWidgetButton*>(field->widget)->getState ();
 }
 
+/**
+ * poppler_form_field_button_set_state
+ * @field: a #PopplerFormField
+ * @state: %TRUE or %FALSE
+ *
+ * Sets the status of @field. Set to %TRUE if you want the #PopplerFormField
+ * to be 'pressed in', and %FALSE to raise it. 
+ **/
 void
 poppler_form_field_button_set_state (PopplerFormField *field,
 				     gboolean          state)
@@ -156,6 +213,14 @@ poppler_form_field_button_set_state (PopplerFormField *field,
 }
 
 /* Text Field */
+/**
+ * poppler_form_field_text_get_text_type:
+ * @field: a #PopplerFormField
+ *
+ * Gets the text type of @field.
+ *
+ * Return value: #PopplerFormTextType of @field
+ **/
 PopplerFormTextType
 poppler_form_field_text_get_text_type (PopplerFormField *field)
 {
@@ -173,6 +238,14 @@ poppler_form_field_text_get_text_type (PopplerFormField *field)
   return POPPLER_FORM_TEXT_NORMAL;
 }
 
+/**
+ * poppler_form_field_text_get_text:
+ * @field: a #PopplerFormField
+ *
+ * Retrieves the contents of @field.
+ *
+ * Return value: a new allocated string. It must be freed with g_free() when done.
+ **/
 gchar *
 poppler_form_field_text_get_text (PopplerFormField *field)
 {
@@ -187,6 +260,13 @@ poppler_form_field_text_get_text (PopplerFormField *field)
   return tmp ? _poppler_goo_string_to_utf8 (tmp) : NULL;
 }
 
+/**
+ * poppler_form_field_text_set_text:
+ * @field: a #PopplerFormField
+ * @text: the new text
+ *
+ * Sets the text in @field to the given value, replacing the current contents.
+ **/
 void
 poppler_form_field_text_set_text (PopplerFormField *field,
 				  const gchar      *text)
@@ -204,6 +284,14 @@ poppler_form_field_text_set_text (PopplerFormField *field,
   delete goo_tmp;
 }
 
+/**
+ * poppler_form_field_text_get_max_len:
+ * @field: a #PopplerFormField
+ *
+ * Retrieves the maximum allowed length of the text in @field
+ *
+ * Return value: the maximum allowed number of characters in @field, or -1 if there is no maximum.
+ **/
 gint
 poppler_form_field_text_get_max_len (PopplerFormField *field)
 {
@@ -212,6 +300,14 @@ poppler_form_field_text_get_max_len (PopplerFormField *field)
   return static_cast<FormWidgetText*>(field->widget)->getMaxLen ();
 }
 
+/**
+ * poppler_form_field_text_do_spell_check:
+ * @field: a #PopplerFormField
+ *
+ * Checks whether spell checking should be done for the contents of @field
+ *
+ * Return value: %TRUE if spell checking should be done for @field
+ **/
 gboolean
 poppler_form_field_text_do_spell_check (PopplerFormField *field)
 {
@@ -228,6 +324,14 @@ poppler_form_field_text_do_scroll (PopplerFormField *field)
   return !static_cast<FormWidgetText*>(field->widget)->noScroll ();
 }
 
+/**
+ * poppler_form_field_text_is_rich_text:
+ * @field: a #PopplerFormField
+ *
+ * Checks whether the contents of @field are rich text
+ *
+ * Return value: %TRUE if the contents of @field are rich text
+ **/
 gboolean
 poppler_form_field_text_is_rich_text (PopplerFormField *field)
 {
@@ -236,6 +340,14 @@ poppler_form_field_text_is_rich_text (PopplerFormField *field)
   return static_cast<FormWidgetText*>(field->widget)->isRichText ();
 }
 
+/**
+ * poppler_form_field_text_is_password:
+ * @field: a #PopplerFormField
+ *
+ * Checks whether content of @field is a password and it must be hidden
+ *
+ * Return value: %TRUE if the content of @field is a password
+ **/
 gboolean
 poppler_form_field_text_is_password (PopplerFormField *field)
 {
@@ -245,6 +357,14 @@ poppler_form_field_text_is_password (PopplerFormField *field)
 }
 
 /* Choice Field */
+/**
+ * poppler_form_field_choice_get_choice_type:
+ * @field: a #PopplerFormField
+ *
+ * Gets the choice type of @field
+ *
+ * Return value: #PopplerFormChoiceType of @field
+ **/
 PopplerFormChoiceType
 poppler_form_field_choice_get_choice_type (PopplerFormField *field)
 {
@@ -256,6 +376,14 @@ poppler_form_field_choice_get_choice_type (PopplerFormField *field)
     return POPPLER_FORM_CHOICE_LIST;
 }
 
+/**
+ * poppler_form_field_choice_is_editable:
+ * @field: a #PopplerFormField
+ *
+ * Checks whether @field is editable
+ *
+ * Return value: %TRUE if @field is editable
+ **/ 
 gboolean
 poppler_form_field_choice_is_editable (PopplerFormField *field)
 {
@@ -264,6 +392,14 @@ poppler_form_field_choice_is_editable (PopplerFormField *field)
   return static_cast<FormWidgetChoice*>(field->widget)->hasEdit ();
 }
 
+/**
+ * poppler_form_field_choice_can_select_multiple:
+ * @field: a #PopplerFormField
+ *
+ * Checks whether @field allows multiple choices to be selected
+ *
+ * Return value: %TRUE if @field allows multiple choices to be selected
+ **/
 gboolean
 poppler_form_field_choice_can_select_multiple (PopplerFormField *field)
 {
@@ -272,6 +408,14 @@ poppler_form_field_choice_can_select_multiple (PopplerFormField *field)
   return static_cast<FormWidgetChoice*>(field->widget)->isMultiSelect ();
 }
 
+/**
+ * poppler_form_field_choice_do_spell_check:
+ * @field: a #PopplerFormField
+ *
+ * Checks whether spell checking should be done for the contents of @field
+ *
+ * Return value: %TRUE if spell checking should be done for @field
+ **/
 gboolean
 poppler_form_field_choice_do_spell_check (PopplerFormField *field)
 {
@@ -288,6 +432,14 @@ poppler_form_field_choice_commit_on_change (PopplerFormField *field)
   return static_cast<FormWidgetChoice*>(field->widget)->commitOnSelChange ();
 }
 
+/**
+ * poppler_form_field_choice_get_n_items:
+ * @field: a #PopplerFormField
+ *
+ * Returns the number of items on @field
+ *
+ * Return value: the number of items on @field
+ **/
 gint
 poppler_form_field_choice_get_n_items (PopplerFormField *field)
 {
@@ -296,6 +448,15 @@ poppler_form_field_choice_get_n_items (PopplerFormField *field)
   return static_cast<FormWidgetChoice*>(field->widget)->getNumChoices ();
 }
 
+/**
+ * poppler_form_field_choice_get_item:
+ * @field: a #PopplerFormField
+ * @index: the index of the item
+ *
+ * Returns the contents of the item on @field at the given index
+ *
+ * Return value: a new allocated string. It must be freed with g_free() when done.
+ **/
 gchar *
 poppler_form_field_choice_get_item (PopplerFormField *field,
 				    gint              index)
@@ -308,6 +469,15 @@ poppler_form_field_choice_get_item (PopplerFormField *field,
   return tmp ? _poppler_goo_string_to_utf8 (tmp) : NULL;
 }
 
+/**
+ * poppler_form_field_choice_is_item_selected:
+ * @field: a #PopplerFormField
+ * @index: the index of the item
+ *
+ * Checks whether the item at the given index on @field is currently selected 
+ *
+ * Return value: %TRUE if item at @index is currently selected
+ **/
 gboolean
 poppler_form_field_choice_is_item_selected (PopplerFormField *field,
 					    gint              index)
@@ -317,6 +487,13 @@ poppler_form_field_choice_is_item_selected (PopplerFormField *field,
   return static_cast<FormWidgetChoice*>(field->widget)->isSelected (index);
 }
 
+/**
+ * poppler_form_field_choice_select_item:
+ * @field: a #PopplerFormField
+ * @index: the index of the item
+ *
+ * Selects the item at the given index on @field
+ **/
 void
 poppler_form_field_choice_select_item (PopplerFormField *field,
 				       gint              index)
@@ -326,6 +503,12 @@ poppler_form_field_choice_select_item (PopplerFormField *field,
   static_cast<FormWidgetChoice*>(field->widget)->select (index);
 }
 
+/**
+ * poppler_form_field_choice_unselect_all:
+ * @field: a #PopplerFormField
+ *
+ * Unselects all the items on @field
+ **/
 void
 poppler_form_field_choice_unselect_all (PopplerFormField *field)
 {
@@ -334,6 +517,13 @@ poppler_form_field_choice_unselect_all (PopplerFormField *field)
   static_cast<FormWidgetChoice*>(field->widget)->deselectAll ();
 }
 
+/**
+ * poppler_form_field_choice_toggle_item:
+ * @field: a #PopplerFormField
+ * @index: the index of the item
+ *
+ * Changes the state of the item at the given index
+ **/
 void
 poppler_form_field_choice_toggle_item (PopplerFormField *field,
 				       gint              index)
@@ -343,6 +533,13 @@ poppler_form_field_choice_toggle_item (PopplerFormField *field,
   static_cast<FormWidgetChoice*>(field->widget)->toggle (index);
 }
 
+/**
+ * poppler_form_field_choice_toggle_item:
+ * @field: a #PopplerFormField
+ * @text: the new text
+ *
+ * Sets the text in @field to the given value, replacing the current contents
+ **/
 void
 poppler_form_field_choice_set_text (PopplerFormField *field,
 				    const gchar      *text)
@@ -360,6 +557,14 @@ poppler_form_field_choice_set_text (PopplerFormField *field,
   delete goo_tmp;
 }
 
+/**
+ * poppler_form_field_choice_get_text:
+ * @field: a #PopplerFormField
+ *
+ * Retrieves the contents of @field.
+ *
+ * Return value: a new allocated string. It must be freed with g_free() when done.
+ **/
 gchar *
 poppler_form_field_choice_get_text (PopplerFormField *field)
 {

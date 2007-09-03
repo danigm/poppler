@@ -155,6 +155,15 @@ poppler-action
 @Returns: 
 
 
+<!-- ##### FUNCTION poppler_action_copy ##### -->
+<para>
+
+</para>
+
+@action: 
+@Returns: 
+
+
 <!-- ##### FUNCTION poppler_action_free ##### -->
 <para>
 
@@ -163,12 +172,35 @@ poppler-action
 @action: 
 
 
-<!-- ##### FUNCTION poppler_action_copy ##### -->
+<!-- ##### MACRO POPPLER_TYPE_DEST ##### -->
 <para>
 
 </para>
 
-@action: 
+
+
+<!-- ##### FUNCTION poppler_dest_get_type ##### -->
+<para>
+
+</para>
+
 @Returns: 
+
+
+<!-- ##### FUNCTION poppler_dest_copy ##### -->
+<para>
+
+</para>
+
+@dest: 
+@Returns: 
+
+
+<!-- ##### FUNCTION poppler_dest_free ##### -->
+<para>
+
+</para>
+
+@dest: 
 
 

@@ -443,7 +443,7 @@ poppler_page_render (PopplerPage *page,
 #endif
 
 /**
- * poppler_page_render:
+ * poppler_page_render_to_pixbuf:
  * @page: the page to render from
  * @src_x: x coordinate of upper left corner  
  * @src_y: y coordinate of upper left corner  
@@ -515,6 +515,7 @@ poppler_page_get_text_output_dev (PopplerPage *page)
  * poppler_page_get_selection_region:
  * @page: a #PopplerPage
  * @scale: scale specified as pixels per point
+ * @style: a #PopplerSelectionStyle
  * @selection: start and end point of selection as a rectangle
  * 
  * Returns a region containing the area that would be rendered by
@@ -647,6 +648,7 @@ poppler_page_set_selection_alpha (PopplerPage      *page,
  * @cairo: cairo context to render to
  * @selection: start and end point of selection as a rectangle
  * @old_selection: previous selection
+ * @style: a #PopplerSelectionStyle
  * @glyph_color: color to use for drawing glyphs
  * @background_color: color to use for the selection background
  *
@@ -731,6 +733,7 @@ poppler_page_render_selection (PopplerPage           *page,
  * @pixbuf: pixbuf to render to
  * @selection: start and end point of selection as a rectangle
  * @old_selection: previous selection
+ * @style: a #PopplerSelectionStyle
  * @glyph_color: color to use for drawing glyphs
  * @background_color: color to use for the selection background
  * 
@@ -895,11 +898,12 @@ poppler_page_get_thumbnail_size (PopplerPage *page,
 /**
  * poppler_page_get_text:
  * @page: a #PopplerPage
- * @rect: the rectangle including the text
+ * @style: a #PopplerSelectionStyle
+ * @selection: the #PopplerRectangle including the text
  * 
- * Retrieves the contents of the specified rectangle as text 
+ * Retrieves the contents of the specified @selection as text.
  * 
- * Return value: a pointer to the contents of the rectangle
+ * Return value: a pointer to the contents of the @selection
  *               as a string
  **/
 char *

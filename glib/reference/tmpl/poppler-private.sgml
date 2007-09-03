@@ -53,6 +53,11 @@ poppler-private
 
 </para>
 
+<!-- ##### ARG PopplerDocument:metadata ##### -->
+<para>
+
+</para>
+
 <!-- ##### ARG PopplerDocument:mod-date ##### -->
 <para>
 
@@ -113,6 +118,7 @@ poppler-private
 
 </para>
 
+@parent_instance: 
 @document: 
 @scanner: 
 

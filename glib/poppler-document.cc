@@ -1407,6 +1407,16 @@ poppler_ps_file_free (PopplerPSFile *ps_file)
         g_object_unref (ps_file);
 }
 
+/**
+ * poppler_document_get_form_field:
+ * @document: a #PopplerDocument
+ * @id: an id of a #PopplerFormField
+ *
+ * Returns the #PopplerFormField for the given @id. It must be freed with
+ * g_object_unref()
+ *
+ * Return value: a new #PopplerFormField or NULL if not found
+ **/
 PopplerFormField *
 poppler_document_get_form_field (PopplerDocument *document,
 				 gint             id)

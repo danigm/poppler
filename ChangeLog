@@ -1,3 +1,22 @@
+2007-09-03  Carlos Garcia Campos  <carlosgc@gnome.org>
+
+	* gtk-doc.make:
+	* glib/poppler-document.cc:
+	* glib/poppler-form-field.cc:
+	* glib/poppler-page.cc:
+	* glib/reference/poppler-docs.sgml:
+	* glib/reference/poppler-sections.txt:
+	* glib/reference/poppler.types:
+	* glib/reference/tmpl/poppler-action.sgml:
+	* glib/reference/tmpl/poppler-attachment.sgml:
+	* glib/reference/tmpl/poppler-document.sgml:
+	* glib/reference/tmpl/poppler-enums.sgml:
+	* glib/reference/tmpl/poppler-form-field.sgml:
+	* glib/reference/tmpl/poppler-page.sgml:
+	* glib/reference/tmpl/poppler-private.sgml:
+	* glib/reference/tmpl/poppler.sgml: Update glib bindings API
+	documentation.
+	
 2007-09-02  Albert Astals Cid <aacid@kde.org>
 
 	* poppler/PDFDoc.cc: Don't enforce %%EOF at the end of file

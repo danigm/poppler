@@ -2,3 +2,5 @@
 
 poppler_document_get_type
 poppler_page_get_type
+poppler_attachment_get_type
+poppler_form_field_get_type

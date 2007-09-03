@@ -96,6 +96,18 @@ The #PopplerDocument is an object used to refer to a main document.
 @Returns: 
 
 
+<!-- ##### FUNCTION poppler_document_new_from_data ##### -->
+<para>
+
+</para>
+
+@data: 
+@length: 
+@password: 
+@error: 
+@Returns: 
+
+
 <!-- ##### FUNCTION poppler_document_save ##### -->
 <para>
 
@@ -133,6 +145,44 @@ The #PopplerDocument is an object used to refer to a main document.
 
 @document: 
 @label: 
+@Returns: 
+
+
+<!-- ##### FUNCTION poppler_document_find_dest ##### -->
+<para>
+
+</para>
+
+@document: 
+@link_name: 
+@Returns: 
+
+
+<!-- ##### FUNCTION poppler_document_has_attachments ##### -->
+<para>
+
+</para>
+
+@document: 
+@Returns: 
+
+
+<!-- ##### FUNCTION poppler_document_get_attachments ##### -->
+<para>
+
+</para>
+
+@document: 
+@Returns: 
+
+
+<!-- ##### FUNCTION poppler_document_get_form_field ##### -->
+<para>
+
+</para>
+
+@document: 
+@id: 
 @Returns: 
 
 
