@@ -29,7 +29,7 @@ libpoppler_qt_la_LIBADD = 			\
 	$(FREETYPE_LIBS)			\
 	$(FONTCONFIG_LIBS)
 
-libpoppler_qt_la_LDFLAGS = -version-info 1:0:0
+libpoppler_qt_la_LDFLAGS = -version-info 2:0:0
 
 if BUILD_SPLASH_OUTPUT
 

@@ -113,7 +113,7 @@ libpoppler_la_LIBADD =				\
 	$(FONTCONFIG_LIBS)			\
 	$(win32_libs)
 
-libpoppler_la_LDFLAGS = -version-info 1:0:0 @create_shared_lib@
+libpoppler_la_LDFLAGS = -version-info 2:0:0 @create_shared_lib@
 
 if ENABLE_XPDF_HEADERS
 

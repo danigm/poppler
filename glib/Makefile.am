@@ -90,7 +90,7 @@ libpoppler_glib_la_LIBADD =				\
 	$(FONTCONFIG_LIBS)				\
 	$(cairo_libs)
 
-libpoppler_glib_la_LDFLAGS = -version-info 1:0:0
+libpoppler_glib_la_LDFLAGS = -version-info 2:0:0
 
 noinst_PROGRAMS = test-poppler-glib
 

@@ -1,5 +1,13 @@
 2007-09-03  Albert Astals Cid <aacid@kde.org>
 
+	* configure.ac: Bump version to 0.6
+	* glib/Makefile.am
+	* poppler/Makefile.am
+	* qt/Makefile.am
+	* qt4/src/Makefile.am: Bump sonames
+
+2007-09-03  Albert Astals Cid <aacid@kde.org>
+
 	* poppler/JBIG2Stream.cc:
 	* poppler/Stream.cc: Patch by Derek B. Noonburg <derekn@foolabs.com>
 	to fix some errors in CCITTFaxStream and JBIG2Stream.cc
