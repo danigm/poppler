@@ -1,3 +1,16 @@
+Release 0.6
+
+	- CairoOutputDev fixes
+	- Allow pdftoppm to read/write from stdin/stdout
+	- API work on Qt4 frontend
+	- Fix pdfimages produces inverted image for black & white image
+	- Fix error on the NFKC text matching routine
+	- Add support for word and line selections
+	- Do not enforce %%EOF at the end of file
+	- Pad zeroes instead of aborting when rendering 1-bit images
+	  and the stream is too short
+	- Update glib bindings documentation
+
 Release 0.5.91 (0.6 Release Candidate 2)
 
 	- Various memory leaks fixed
