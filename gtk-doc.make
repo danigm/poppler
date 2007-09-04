@@ -111,7 +111,7 @@ clean-local:
 	rm -rf .libs
 
 maintainer-clean-local: clean
-	cd $(srcdir) && rm -rf xml html $(DOC_MODULE)-decl-list.txt $(DOC_MODULE)-decl.txt $(DOC_MODULE)-undocumented.txt $(DOC_MODULE)-undeclared.txt
+	cd $(srcdir) && rm -rf xml html $(DOC_MODULE)-decl-list.txt $(DOC_MODULE)-decl.txt
 
 install-data-local:
 	installfiles=`echo $(srcdir)/html/*`; \

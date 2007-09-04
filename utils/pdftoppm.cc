@@ -219,7 +219,7 @@ int main(int argc, char *argv[]) {
 				  gFalse, paperColor);
   splashOut->startDoc(doc->getXRef());
   if (sz != 0) w = h = sz;
-  pg_num_len = (int)ceil(log(doc->getNumPages()) / log(10));
+  pg_num_len = (int)ceil(log((double)doc->getNumPages()) / log((double)10));
   for (pg = firstPage; pg <= lastPage; ++pg) {
     pg_w = doc->getPageMediaWidth(pg);
     pg_h = doc->getPageMediaHeight(pg);

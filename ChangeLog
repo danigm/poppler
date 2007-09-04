@@ -1,3 +1,8 @@
+2007-09-05  Albert Astals Cid <aacid@kde.org>
+
+	* utils/pdftoppm.cc: Fix build on Sun Studio compiler.
+	Patch by Brian Cameron <brian.cameron@sun.com>
+
 2007-09-03  Albert Astals Cid <aacid@kde.org>
 
 	* configure.ac: Bump version to 0.6
