@@ -157,9 +157,9 @@ bool PSConverter::convert()
 	                                     m_data->paperWidth,
 	                                     m_data->paperHeight,
 	                                     gFalse,
-	                                     m_data->marginRight,
+	                                     m_data->marginLeft,
 	                                     m_data->marginBottom,
-	                                     m_data->paperWidth - m_data->marginLeft,
+	                                     m_data->paperWidth - m_data->marginRight,
 	                                     m_data->paperHeight - m_data->marginTop,
 	                                     m_data->forceRasterize);
 	

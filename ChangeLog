@@ -1,6 +1,7 @@
 2007-09-05  Albert Astals Cid <aacid@kde.org>
 
 	* poppler/PSOutputDev.cc: Fix printing of second parameter
+	* qt4/src/poppler-ps-converter.cc: Fix Right<->Left interchange
 
 2007-09-05  Carlos Garcia Campos  <carlosgc@gnome.org>
 
