@@ -1,3 +1,8 @@
+2007-09-05  Carlos Garcia Campos  <carlosgc@gnome.org>
+
+	* glib/poppler-page.cc:
+	* glib/demo/render.c: Fix build with --disable-cairo-output.
+	
 2007-09-05  Albert Astals Cid <aacid@kde.org>
 
 	* utils/pdftoppm.cc: Fix build on Sun Studio compiler.

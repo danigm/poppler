@@ -581,10 +581,11 @@ poppler_page_get_selection_region (PopplerPage           *page,
 #if defined (HAVE_CAIRO)
 
 static void
-poppler_page_set_selection_alpha (PopplerPage      *page,
-				  double            scale,
-				  GdkPixbuf        *pixbuf,
-				  PopplerRectangle *selection)
+poppler_page_set_selection_alpha (PopplerPage           *page,
+				  double                 scale,
+				  GdkPixbuf             *pixbuf,
+				  PopplerSelectionStyle  style,
+				  PopplerRectangle      *selection)
 {
   /* Cairo doesn't need this, since cairo generates an alpha channel. */ 
 }
@@ -592,10 +593,11 @@ poppler_page_set_selection_alpha (PopplerPage      *page,
 #elif defined (HAVE_SPLASH)
 
 static void
-poppler_page_set_selection_alpha (PopplerPage      *page,
-				  double            scale,
-				  GdkPixbuf        *pixbuf,
-				  PopplerRectangle *selection)
+poppler_page_set_selection_alpha (PopplerPage           *page,
+				  double                 scale,
+				  GdkPixbuf             *pixbuf,
+				  PopplerSelectionStyle  style,
+				  PopplerRectangle      *selection)
 {
   GdkRegion *region;
   gint n_rectangles, i, x, y, width, height;
@@ -620,7 +622,7 @@ poppler_page_set_selection_alpha (PopplerPage      *page,
       }
   }
 
-  region = poppler_page_get_selection_region (page, scale, selection);
+  region = poppler_page_get_selection_region (page, scale, style, selection);
 
   gdk_region_get_rectangles (region, &rectangles, &n_rectangles);
   for (i = 0; i < n_rectangles; i++) {
@@ -803,7 +805,7 @@ poppler_page_render_selection_to_pixbuf (PopplerPage           *page,
 
   poppler_page_copy_to_pixbuf (page, pixbuf, &data);
 
-  poppler_page_set_selection_alpha (page, scale, pixbuf, selection);
+  poppler_page_set_selection_alpha (page, scale, pixbuf, style, selection);
 
   /* We'll need a function to destroy page->text_dev and page->gfx
    * when the application wants to get rid of them.
