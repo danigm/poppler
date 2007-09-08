@@ -21,6 +21,13 @@
 
 #include "PSOutputDev.h"
 
+#include <QtCore/QFile>
+
+static void outputToQIODevice(void *stream, char *data, int len)
+{
+	static_cast<QIODevice*>(stream)->write(data, len);
+}
+
 namespace Poppler {
 
 class PSConverterData
@@ -28,6 +35,8 @@ class PSConverterData
 	public:
 		DocumentData *document;
 		QString outputFileName;
+		QIODevice *iodev;
+		bool ownIodev;
 		QList<int> pageList;
 		QString title;
 		double hDPI;
@@ -47,6 +56,8 @@ PSConverter::PSConverter(DocumentData *document)
 {
 	m_data = new PSConverterData();
 	m_data->document = document;
+	m_data->iodev = 0;
+	m_data->ownIodev = true;
 	m_data->hDPI = 72;
 	m_data->vDPI = 72;
 	m_data->rotate = 0;
@@ -68,6 +79,12 @@ PSConverter::~PSConverter()
 void PSConverter::setOutputFileName(const QString &outputFileName)
 {
 	m_data->outputFileName = outputFileName;
+}
+
+void PSConverter::setOutputDevice(QIODevice *device)
+{
+	m_data->iodev = device;
+	m_data->ownIodev = false;
 }
 
 void PSConverter::setPageList(const QList<int> &pageList)
@@ -137,7 +154,22 @@ void PSConverter::setForceRasterize(bool forceRasterize)
 
 bool PSConverter::convert()
 {
-	Q_ASSERT(!m_data->outputFileName.isEmpty());
+	if (!m_data->iodev)
+	{
+		Q_ASSERT(!m_data->outputFileName.isEmpty());
+		QFile *f = new QFile(m_data->outputFileName);
+		m_data->iodev = f;
+		m_data->ownIodev = true;
+	}
+	Q_ASSERT(m_data->iodev);
+	if (!m_data->iodev->isOpen())
+	{
+		if (!m_data->iodev->open(QIODevice::ReadWrite))
+		{
+			return false;
+		}
+	}
+
 	Q_ASSERT(!m_data->pageList.isEmpty());
 	Q_ASSERT(m_data->paperWidth != -1);
 	Q_ASSERT(m_data->paperHeight != -1);
@@ -147,10 +179,10 @@ bool PSConverter::convert()
 	if (!m_data->title.isEmpty()) pstitlechar = pstitle8Bit.data();
 	else pstitlechar = 0;
 	
-	PSOutputDev *psOut = new PSOutputDev(m_data->outputFileName.toLatin1().data(),
+	PSOutputDev *psOut = new PSOutputDev(outputToQIODevice, m_data->iodev,
+	                                     pstitlechar,
 	                                     m_data->document->doc->getXRef(),
 	                                     m_data->document->doc->getCatalog(),
-	                                     pstitlechar,
 	                                     1,
 	                                     m_data->document->doc->getNumPages(),
 	                                     psModePS,
@@ -176,13 +208,24 @@ bool PSConverter::convert()
 		{
 			m_data->document->doc->displayPage(psOut, page, m_data->hDPI, m_data->vDPI, m_data->rotate, gFalse, gTrue, gFalse);
 		}
-		
 		delete psOut;
+		if (m_data->ownIodev)
+		{
+			m_data->iodev->close();
+			delete m_data->iodev;
+			m_data->iodev = 0;
+		}
 		return true;
 	}
 	else
 	{
 		delete psOut;
+		if (m_data->ownIodev)
+		{
+			m_data->iodev->close();
+			delete m_data->iodev;
+			m_data->iodev = 0;
+		}
 		return false;
 	}
 }

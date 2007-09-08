@@ -1,3 +1,10 @@
+2007-09-07  Pino Toscano <pino@kde.org>
+
+	* qt4/src/poppler-qt4.h:
+	* qt4/src/poppler-ps-converter.cc:
+	Add PSConverter::setOutputDevice() to set a QIODevice where
+	writing the resulting PS.
+
 2007-09-05  Albert Astals Cid <aacid@kde.org>
 
 	* poppler/PSOutputDev.cc: Fix printing of second parameter

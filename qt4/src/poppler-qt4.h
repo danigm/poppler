@@ -847,8 +847,11 @@ height = dummy.height();
             */
             ~PSConverter();
 
-            /** Sets the output file name. Mandatory. */
+            /** Sets the output file name. You must set this or the output device. */
             void setOutputFileName(const QString &outputFileName);
+
+            /** Sets the output device. You must set this or the output file name. */
+            void setOutputDevice(QIODevice *device);
 
             /** Sets the list of pages to print. Mandatory. */
             void setPageList(const QList<int> &pageList);
