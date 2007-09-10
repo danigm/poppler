@@ -1,3 +1,8 @@
+2007-09-10  Albert Astals Cid <aacid@kde.org>
+
+	* autogen.sh: Support automake-1.10.
+	Patch by Krzysztof Kowalczyk <kkowalczyk@gmail.com>
+
 2007-09-07  Pino Toscano <pino@kde.org>
 
 	* qt4/src/poppler-qt4.h:
