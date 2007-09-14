@@ -23,7 +23,6 @@
 #ifdef WIN32
 #  include <shlobj.h>
 #endif
-#include <fontconfig/fontconfig.h>
 #include "goo/gmem.h"
 #include "goo/GooString.h"
 #include "goo/GooList.h"
@@ -533,9 +532,11 @@ Plugin::~Plugin() {
 GlobalParams::GlobalParams() {
   UnicodeMap *map;
   int i;
-  
+
+#ifndef _MSC_VER  
   FcInit();
   FCcfg = FcConfigGetCurrent();
+#endif
 
 #if MULTITHREADED
   gInitMutex(&mutex);
@@ -924,6 +925,7 @@ GBool findModifier(const char *name, const char *modifier, const char **start)
   }
 }
 
+#ifndef _MSC_VER
 static FcPattern *buildFcPattern(GfxFont *font)
 {
   int weight = FC_WEIGHT_NORMAL,
@@ -1065,7 +1067,12 @@ static FcPattern *buildFcPattern(GfxFont *font)
     delete[] family;
   return p;
 }
+#endif
 
+/* if you can't or don't want to use Fontconfig, you need to implement
+   this function for your platform. For Windows, it's in GlobalParamsWin.cc
+*/
+#ifndef _MSC_VER
 DisplayFontParam *GlobalParams::getDisplayFont(GfxFont *font) {
   DisplayFontParam *dfp;
   FcPattern *p=0;
@@ -1124,6 +1131,7 @@ fin:
   unlockGlobalParams;
   return dfp;
 }
+#endif
 
 GBool GlobalParams::getPSExpandSmaller() {
   GBool f;

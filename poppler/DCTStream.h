@@ -22,7 +22,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stddef.h>
-#ifndef WIN32
+#ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
 #include <string.h>

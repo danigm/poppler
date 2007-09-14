@@ -30,12 +30,14 @@ static void CDECL defaultErrorFunction(int pos, char *msg, va_list args)
   fflush(stderr);
 }
 
+#ifndef _MSC_VER
 static void CDECL (*errorFunction)(int , char *, va_list args) = defaultErrorFunction;
 
 void setErrorFunction(void CDECL (* f)(int , char *, va_list args))
 {
     errorFunction = f;
 }
+#endif
 
 void CDECL error(int pos, char *msg, ...) {
   va_list args;
@@ -44,7 +46,11 @@ void CDECL error(int pos, char *msg, ...) {
     return;
   }
   va_start(args, msg);
+#ifdef _MSC_VER
+  defaultErrorFunction(pos, msg, args);
+#else
   (*errorFunction)(pos, msg, args);
+#endif
   va_end(args);
 }
 

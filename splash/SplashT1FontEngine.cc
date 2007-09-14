@@ -14,7 +14,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>
-#ifndef WIN32
+#ifdef HAVE_UNISTD_H
 #  include <unistd.h>
 #endif
 #include <t1lib.h>

@@ -23,7 +23,8 @@ class SplashFontFileID;
 // SplashFontFile
 //------------------------------------------------------------------------
 
-struct SplashFontSrc {
+class SplashFontSrc {
+public:
   SplashFontSrc();
   ~SplashFontSrc();
 

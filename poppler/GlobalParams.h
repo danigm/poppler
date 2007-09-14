@@ -13,9 +13,12 @@
 #pragma interface
 #endif
 
+#include <assert.h>
 #include "poppler-config.h"
 #include <stdio.h>
+#ifndef _MSC_VER
 #include <fontconfig/fontconfig.h>
+#endif
 #include "goo/gtypes.h"
 #include "CharTypes.h"
 
@@ -74,6 +77,14 @@ public:
   };
 
   DisplayFontParam(GooString *nameA, DisplayFontParamKind kindA);
+  void setFileName(GooString *fileNameA) {
+    if (displayFontT1 == kind)
+        t1.fileName = fileNameA;
+    else {
+        assert(displayFontTT == kind);
+        tt.fileName = fileNameA;
+    }
+  }  
   virtual ~DisplayFontParam();
 };
 
@@ -135,6 +146,10 @@ public:
   ~GlobalParams();
 
   void setBaseDir(char *dir);
+
+#ifdef _MSC_VER
+  void setupBaseFonts(char *dir);
+#endif
 
   //----- accessors
 
@@ -302,7 +317,9 @@ private:
   UnicodeMapCache *unicodeMapCache;
   CMapCache *cMapCache;
   
+#ifndef _MSC_VER
   FcConfig *FCcfg;
+#endif
 
 #ifdef ENABLE_PLUGINS
   GList *plugins;		// list of plugins [Plugin]
