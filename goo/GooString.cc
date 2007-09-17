@@ -91,22 +91,26 @@ void inline GooString::resize(int newLength) {
 
   if (!s || (roundedSize(length) != roundedSize(newLength))) {
     // requires re-allocating data for string
-    if (newLength < STR_STATIC_SIZE)
-        s1 = sStatic;
-    else
-        s1 = new char[roundedSize(newLength)];
-
-    // we had to re-allocate the memory, so copy the content of previous
-    // buffer into a new buffer
-    if (s) {
+    if (newLength < STR_STATIC_SIZE) {
+      s1 = sStatic;
+    } else {
+      // allocate a rounded amount
+      if (s == sStatic)
+	s1 = (char*)gmalloc(roundedSize(newLength));
+      else
+	s1 = (char*)grealloc(s, roundedSize(newLength));
+    }
+    if (s == sStatic || s1 == sStatic) {
+      // copy the minimum, we only need to if are moving to or
+      // from sStatic.
+      // assert(s != s1) the roundedSize condition ensures this
       if (newLength < length) {
-        memcpy(s1, s, newLength);
+	memcpy(s1, s, newLength);
       } else {
-        memcpy(s1, s, length);
+	memcpy(s1, s, length);
       }
     }
-    if (s != sStatic)
-      delete[] s;
+
   }
 
   s = s1;
@@ -214,7 +218,7 @@ GooString *GooString::formatv(char *fmt, va_list argList) {
 
 GooString::~GooString() {
   if (s != sStatic)
-    delete[] s;
+    free(s);
 }
 
 GooString *GooString::clear() {
