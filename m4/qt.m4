@@ -52,7 +52,7 @@ if test "x$qt_libdir" != "xno" ; then
     fi
 fi
 
-if test "x$have_qt" == "xyes"; then
+if test "x$have_qt" = "xyes"; then
     AC_LANG_PUSH([C++])
     pthread_needed=no
 
