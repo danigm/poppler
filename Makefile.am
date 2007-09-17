@@ -46,3 +46,7 @@ pkgconfig_DATA =				\
 	$(glib_pc_file)				\
 	$(qt_pc_file)                           \
 	$(qt4_pc_file)
+
+MAINTAINERCLEANFILES =
+DISTCLEANFILES =
+include ChangeLog.mk
