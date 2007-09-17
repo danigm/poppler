@@ -47,6 +47,7 @@ pkgconfig_DATA =				\
 	$(qt_pc_file)                           \
 	$(qt4_pc_file)
 
-MAINTAINERCLEANFILES =
-DISTCLEANFILES =
-include ChangeLog.mk
+dist-hook: ChangeLog
+
+ChangeLog : .git/HEAD
+	git log --stat > ChangeLog
