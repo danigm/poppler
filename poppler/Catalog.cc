@@ -560,7 +560,6 @@ int NameTree::Entry::cmp(const void *voidKey, const void *voidEntry)
 GBool NameTree::lookup(GooString *name, Object *obj)
 {
   Entry **entry;
-  char *cname;
 
   entry = (Entry **) bsearch(name, entries,
 			     length, sizeof(Entry *), Entry::cmp);

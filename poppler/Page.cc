@@ -298,7 +298,6 @@ Page::Page(XRef *xrefA, int numA, Dict *pageDict, PageAttrs *attrsA, Form *form)
   
   return;
 
- err3:
   trans.initNull();
  err2:
   annots.initNull();
@@ -357,6 +356,7 @@ Gfx *Page::createGfx(OutputDev *out, double hDPI, double vDPI,
   makeBox(hDPI, vDPI, rotate, useMediaBox, out->upsideDown(),
 	  sliceX, sliceY, sliceW, sliceH, &box, &crop);
   cropBox = getCropBox();
+  mediaBox = getMediaBox();
 
   if (globalParams->getPrintCommands()) {
     printf("***** MediaBox = ll:%g,%g ur:%g,%g\n",

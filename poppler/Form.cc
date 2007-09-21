@@ -140,8 +140,6 @@ FormWidgetButton::FormWidgetButton (XRef *xrefA, Object *aobj, unsigned num, Ref
   parent = p;
   type = formButton;
   onStr = NULL;
-  Dict *dict = obj.getDict();
-  Object obj1;
   state = gFalse;
   siblingsID = NULL;
 }
@@ -221,7 +219,6 @@ void FormWidgetButton::loadDefaults ()
           Dict *tmpDict2 = str->getDict();
           Object obj3;
           tmpDict2->lookup("Length", &obj3);
-          int c;
           onStr = new GooString ("D"); 
         }
         obj2.free();
@@ -260,7 +257,6 @@ FormWidgetText::FormWidgetText (XRef *xrefA, Object *aobj, unsigned num, Ref ref
 {
   parent = p;
   type = formText;
-  Dict *dict = aobj->getDict();
 }
 
 void FormWidgetText::loadDefaults ()
@@ -655,7 +651,6 @@ bool FormWidgetSignature::isReadOnly () const
 
 FormField::FormField(XRef* xrefA, Object *aobj, const Ref& aref, Form* aform, FormFieldType ty) 
 {
-  double t;
   xref = xrefA;
   aobj->copy(&obj);
   Dict* dict = obj.getDict();

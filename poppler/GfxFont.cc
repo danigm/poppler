@@ -1635,7 +1635,7 @@ Gushort *GfxCIDFont::getCodeToGIDMap(FoFiTrueType *ff, int *mapsizep) {
       "Adobe-Korea1-UCS2",
       adobe_korea1_cmaps,
     },
-    0
+    {0, 0, 0, 0}
   };
   Unicode *humap = 0;
   Unicode *vumap = 0;
@@ -1643,7 +1643,6 @@ Gushort *GfxCIDFont::getCodeToGIDMap(FoFiTrueType *ff, int *mapsizep) {
   unsigned long n;
   int i;
   unsigned long code;
-  Unicode uBuf[8];
   int wmode;
   char **cmapName;
   CMap *cMap;
@@ -1782,13 +1781,12 @@ Gushort *GfxCIDFont::getCodeToGIDMap(FoFiTrueType *ff, int *mapsizep) {
   *mapsizep = n;
   if (humap != 0) delete[] humap;
   if (vumap != 0) delete[] vumap;
-end_0:
   return codeToGID;
 }
 
 double GfxCIDFont::getWidth (char* s, int len) {
   int nUsed;
-  double w, h, vx, vy;
+  double w;
   int a, b, m;
 
   CID cid = cMap->getCID(s, len, &nUsed);
