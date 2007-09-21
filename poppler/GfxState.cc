@@ -1179,7 +1179,6 @@ void GfxIndexedColorSpace::getRGB(GfxColor *color, GfxRGB *rgb) {
 }
 
 void GfxIndexedColorSpace::getRGBLine(Guchar *in, unsigned int *out, int length) {
-  GfxColor color2;
   Guchar *line;
   int i, j, n;
 
@@ -3543,11 +3542,8 @@ void GfxImageColorMap::getRGB(Guchar *x, GfxRGB *rgb) {
 }
 
 void GfxImageColorMap::getGrayLine(Guchar *in, Guchar *out, int length) {
-  GfxColor color;
-  double *p;
   int i, j;
-  Guchar *inp, *outp, *tmp_line;
-  GfxColorSpace *base;
+  Guchar *inp, *tmp_line;
 
   switch (colorSpace->getMode()) {
   case csIndexed:
@@ -3576,11 +3572,8 @@ void GfxImageColorMap::getGrayLine(Guchar *in, Guchar *out, int length) {
 }
 
 void GfxImageColorMap::getRGBLine(Guchar *in, unsigned int *out, int length) {
-  GfxColor color;
-  double *p;
   int i, j;
-  Guchar *inp, *outp, *tmp_line;
-  GfxColorSpace *base;
+  Guchar *inp, *tmp_line;
 
   switch (colorSpace->getMode()) {
   case csIndexed:

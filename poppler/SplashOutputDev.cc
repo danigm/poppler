@@ -948,18 +948,15 @@ void SplashOutputDev::doUpdateFont(GfxState *state) {
   FoFiTrueType *ff;
   Ref embRef;
   Object refObj, strObj;
-  GooString *fileName, *substName;
+  GooString *fileName;
   char *tmpBuf;
   int tmpBufLen;
   Gushort *codeToGID;
   DisplayFontParam *dfp;
-  CharCodeToUnicode *ctu;
   double *textMat;
-  double m11, m12, m21, m22, w1, w2, fontSize;
+  double m11, m12, m21, m22, fontSize;
   SplashCoord mat[4];
-  char *name;
-  Unicode uBuf[8];
-  int c, substIdx, n, code, cmap;
+  int substIdx, n;
   int faceIndex = 0;
 
   needFontUpdate = gFalse;

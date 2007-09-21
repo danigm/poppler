@@ -3578,7 +3578,6 @@ void TextSelectionSizer::visitLine (TextLine *line,
 {
   PDFRectangle *rect;
   double x1, y1, x2, y2, margin;
-  int i;
 
   margin = (line->yMax - line->yMin) / 8;
   x1 = line->edge[edge_begin];
@@ -3661,7 +3660,6 @@ void TextSelectionPainter::visitLine (TextLine *line,
 				      PDFRectangle *selection)
 {
   double x1, y1, x2, y2, margin;
-  int i;
   Matrix ctm, ictm;
 
   state->setFillColor(box_color);
@@ -3971,7 +3969,6 @@ GooList *TextPage::getSelectionRegion(PDFRectangle *selection,
 				      SelectionStyle style,
 				      double scale) {
   TextSelectionSizer sizer(this, scale);
-  GooList *region;
 
   visitSelection(&sizer, selection, style);
 
