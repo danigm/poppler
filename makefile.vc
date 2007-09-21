@@ -54,7 +54,7 @@ CFLAGS = $(CFLAGS) /Zi
 # /FAscu - generate assembly listings
 CFLAGS = $(CFLAGS) /FAscu
 
-CFLAGS = $(CFLAGS) /Imsvc /I. /Igoo /Ipoppler /Isplash /Ifofi /Itest
+CFLAGS = $(CFLAGS) /Imsvc /Imsvc/poppler /I. /Igoo /Ipoppler /Isplash /Ifofi /Itest
 
 CFLAGS = $(CFLAGS) /I$(ZLIB_DIR) /I$(JPEG_DIR) /I$(FREETYPE_DIR)\include
 
