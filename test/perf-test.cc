@@ -48,10 +48,6 @@
 #include "SecurityHandler.h"
 #include "Link.h"
 
-#ifndef _MSC_VER
-typedef BOOL int;
-#endif
-
 #ifdef _MSC_VER
 #define strdup _strdup
 #endif
@@ -108,7 +104,7 @@ public:
     virtual int pageRotation(int pageNo);
     virtual SizeD pageSize(int pageNo);
     virtual SplashBitmap *renderBitmap(int pageNo, double zoomReal, int rotation,
-                         BOOL (*abortCheckCbkA)(void *data),
+                         GBool (*abortCheckCbkA)(void *data),
                          void *abortCheckCbkDataA);
 
     PDFDoc* pdfDoc() { return _pdfDoc; }
@@ -146,12 +142,12 @@ static StrList *gArgsListRoot = NULL;
 #define TEXT_ARG            "-text"
 
 /* Should we record timings? True if -timings command-line argument was given. */
-static BOOL gfTimings = FALSE;
+static bool gfTimings = false;
 
 /* If true, we use render each page at resolution 'gResolutionX'/'gResolutionY'.
    If false, we render each page at its native resolution.
    True if -resolution NxM command-line argument was given. */
-static BOOL gfForceResolution = FALSE;
+static bool gfForceResolution = false;
 static int  gResolutionX = 0;
 static int  gResolutionY = 0;
 /* If NULL, we output the log info to stdout. If not NULL, should be a name
@@ -168,10 +164,10 @@ static FILE *   gErrFile = NULL;
 /* If True and a directory is given as a command-line argument, we'll process
    pdf files in sub-directories as well.
    Controlled by -recursive command-line argument */
-static BOOL gfRecursive = FALSE;
+static bool gfRecursive = false;
 
 /* If true, preview rendered image. To make sure that they're being rendered correctly. */
-static BOOL gfPreview = FALSE;
+static bool gfPreview = false;
 
 /* 1 second (1000 milliseconds) */
 #define SLOW_PREVIEW_TIME 1000
@@ -180,10 +176,10 @@ static BOOL gfPreview = FALSE;
    SLOW_PREVIEW_TIME. This is so that a human has enough time to see if the
    PDF renders ok. In release mode on fast processor pages take only ~100-200 ms
    to render and they go away too quickly to be inspected by a human. */
-static int gfSlowPreview = FALSE;
+static bool gfSlowPreview = false;
 
 /* If true, we only dump the text, not render */
-static int gfTextOnly = FALSE;
+static bool gfTextOnly = false;
 
 #define PAGE_NO_NOT_GIVEN -1
 
@@ -192,7 +188,7 @@ static int gfTextOnly = FALSE;
 static int  gPageNo = PAGE_NO_NOT_GIVEN;
 /* If true, will only load the file, not render any pages. Mostly for
    profiling load time */
-static BOOL gfLoadOnly = FALSE;
+static bool gfLoadOnly = false;
 
 #define PDF_FILE_DPI 72
 
@@ -275,43 +271,43 @@ char *str_dup(const char *str)
     return str_cat4(str, NULL, NULL, NULL);
 }
 
-int str_eq(const char *str1, const char *str2)
+bool str_eq(const char *str1, const char *str2)
 {
     if (!str1 && !str2)
-        return TRUE;
+        return true;
     if (!str1 || !str2)
-        return FALSE;
+        return false;
     if (0 == strcmp(str1, str2))
-        return TRUE;
-    return FALSE;
+        return true;
+    return false;
 }
 
-int str_ieq(const char *str1, const char *str2)
+bool str_ieq(const char *str1, const char *str2)
 {
     if (!str1 && !str2)
-        return TRUE;
+        return true;
     if (!str1 || !str2)
-        return FALSE;
+        return false;
     if (0 == _stricmp(str1, str2))
-        return TRUE;
-    return FALSE;
+        return true;
+    return false;
 }
 
-int str_endswith(const char *txt, const char *end)
+bool str_endswith(const char *txt, const char *end)
 {
     size_t end_len;
     size_t txt_len;
 
     if (!txt || !end)
-        return FALSE;
+        return false;
 
     txt_len = strlen(txt);
     end_len = strlen(end);
     if (end_len > txt_len)
-        return FALSE;
+        return false;
     if (str_eq(txt+txt_len-end_len, end))
-        return TRUE;
-    return FALSE;
+        return true;
+    return false;
 }
 
 /* TODO: probably should move to some other file and change name to
@@ -527,7 +523,7 @@ SplashOutputDev * PdfEnginePoppler::outputDevice() {
 
 SplashBitmap *PdfEnginePoppler::renderBitmap(
                            int pageNo, double zoomReal, int rotation,
-                           BOOL (*abortCheckCbkA)(void *data),
+                           GBool (*abortCheckCbkA)(void *data),
                            void *abortCheckCbkDataA)
 {
     assert(outputDevice());
@@ -757,15 +753,15 @@ int StrList_InsertAndOwn(StrList **root, char *txt)
     StrList *   el;
     assert(root && txt);
     if (!root || !txt)
-        return FALSE;
+        return false;
 
     el = (StrList*)malloc(sizeof(StrList));
     if (!el)
-        return FALSE;
+        return false;
     el->str = txt;
     el->next = *root;
     *root = el;
-    return TRUE;
+    return true;
 }
 
 int StrList_Insert(StrList **root, char *txt)
@@ -774,16 +770,16 @@ int StrList_Insert(StrList **root, char *txt)
 
     assert(root && txt);
     if (!root || !txt)
-        return FALSE;
+        return false;
     txtDup = str_dup(txt);
     if (!txtDup)
-        return FALSE;
+        return false;
 
     if (!StrList_InsertAndOwn(root, txtDup)) {
         free((void*)txtDup);
-        return FALSE;
+        return false;
     }
-    return TRUE;
+    return true;
 }
 
 StrList* StrList_RemoveHead(StrList **root)
@@ -911,11 +907,11 @@ static void PrintUsageAndExit(int argc, char **argv)
     exit(0);
 }
 
-static int ShowPreview(void)
+static bool ShowPreview(void)
 {
     if (gfPreview || gfSlowPreview)
-        return TRUE;
-    return FALSE;
+        return true;
+    return false;
 }
 
 static void RenderPdfAsText(const char *fileName)
@@ -993,7 +989,7 @@ static void RenderPdf(const char *fileName)
     PdfEnginePoppler * engineSplash = NULL;
 
     // TODO: fails if file already exists and has read-only attribute
-    CopyFile(fileName, POPPLER_TMP_NAME, FALSE);
+    CopyFile(fileName, POPPLER_TMP_NAME, false);
     fileNameSplash = POPPLER_TMP_NAME;
 
     LogInfo("started: %s\n", fileName);
@@ -1049,7 +1045,7 @@ static void RenderFile(const char *fileName)
     RenderPdf(fileName);
 }
 
-static int ParseInteger(const char *start, const char *end, int *intOut)
+static bool ParseInteger(const char *start, const char *end, int *intOut)
 {
     char            numBuf[16];
     int             digitsCount;
@@ -1058,7 +1054,7 @@ static int ParseInteger(const char *start, const char *end, int *intOut)
     assert(start && end && intOut);
     assert(end >= start);
     if (!start || !end || !intOut || (start > end))
-        return FALSE;
+        return false;
 
     digitsCount = 0;
     tmp = start;
@@ -1066,24 +1062,24 @@ static int ParseInteger(const char *start, const char *end, int *intOut)
         if (isspace(*tmp)) {
             /* do nothing, we allow whitespace */
         } else if (!isdigit(*tmp))
-            return FALSE;
+            return false;
         numBuf[digitsCount] = *tmp;
         ++digitsCount;
         if (digitsCount == dimof(numBuf)-3) /* -3 to be safe */
-            return FALSE;
+            return false;
         ++tmp;
     }
     if (0 == digitsCount)
-        return FALSE;
+        return false;
     numBuf[digitsCount] = 0;
     *intOut = atoi(numBuf);
-    return TRUE;
+    return true;
 }
 
 /* Given 'resolutionString' in format NxM (e.g. "100x200"), parse the string and put N
    into 'resolutionXOut' and M into 'resolutionYOut'.
-   Return FALSE if there was an error (e.g. string is not in the right format */
-static int ParseResolutionString(const char *resolutionString, int *resolutionXOut, int *resolutionYOut)
+   Return false if there was an error (e.g. string is not in the right format */
+static bool ParseResolutionString(const char *resolutionString, int *resolutionXOut, int *resolutionYOut)
 {
     const char *    posOfX;
 
@@ -1091,21 +1087,21 @@ static int ParseResolutionString(const char *resolutionString, int *resolutionXO
     assert(resolutionXOut);
     assert(resolutionYOut);
     if (!resolutionString || !resolutionXOut || !resolutionYOut)
-        return FALSE;
+        return false;
     *resolutionXOut = 0;
     *resolutionYOut = 0;
     posOfX = strchr(resolutionString, 'X');
     if (!posOfX)
         posOfX = strchr(resolutionString, 'x');
     if (!posOfX)
-        return FALSE;
+        return false;
     if (posOfX == resolutionString)
-        return FALSE;
+        return false;
     if (!ParseInteger(resolutionString, posOfX-1, resolutionXOut))
-        return FALSE;
+        return false;
     if (!ParseInteger(posOfX+1, resolutionString+strlen(resolutionString)-1, resolutionYOut))
-        return FALSE;
-    return TRUE;
+        return false;
+    return true;
 }
 
 #ifdef DEBUG
@@ -1120,21 +1116,21 @@ static void u_ParseResolutionString(void)
         int             resX;
         int             resY;
     } testData[] = {
-        { "", FALSE, 0, 0 },
-        { "abc", FALSE, 0, 0},
-        { "34", FALSE, 0, 0},
-        { "0x0", TRUE, 0, 0},
-        { "0x1", TRUE, 0, 1},
-        { "0xab", FALSE, 0, 0},
-        { "1x0", TRUE, 1, 0},
-        { "100x200", TRUE, 100, 200},
-        { "58x58", TRUE, 58, 58},
-        { "  58x58", TRUE, 58, 58},
-        { "58x  58", TRUE, 58, 58},
-        { "58x58  ", TRUE, 58, 58},
-        { "     58  x  58  ", TRUE, 58, 58},
-        { "34x1234a", FALSE, 0, 0},
-        { NULL, FALSE, 0, 0}
+        { "", false, 0, 0 },
+        { "abc", false, 0, 0},
+        { "34", false, 0, 0},
+        { "0x0", true, 0, 0},
+        { "0x1", true, 0, 1},
+        { "0xab", false, 0, 0},
+        { "1x0", true, 1, 0},
+        { "100x200", true, 100, 200},
+        { "58x58", true, 58, 58},
+        { "  58x58", true, 58, 58},
+        { "58x  58", true, 58, 58},
+        { "58x58  ", true, 58, 58},
+        { "     58  x  58  ", true, 58, 58},
+        { "34x1234a", false, 0, 0},
+        { NULL, false, 0, 0}
     };
     for (i=0; NULL != testData[i].str; i++) {
         str = testData[i].str;
@@ -1167,16 +1163,16 @@ static void ParseCommandLine(int argc, char **argv)
         assert(arg);
         if ('-' == arg[0]) {
             if (str_ieq(arg, TIMINGS_ARG)) {
-                gfTimings = TRUE;
+                gfTimings = true;
             } else if (str_ieq(arg, RESOLUTION_ARG)) {
                 ++i;
                 if (i == argc)
                     PrintUsageAndExit(argc, argv); /* expect a file name after that */
                 if (!ParseResolutionString(argv[i], &gResolutionX, &gResolutionY))
                     PrintUsageAndExit(argc, argv);
-                gfForceResolution = TRUE;
+                gfForceResolution = true;
             } else if (str_ieq(arg, RECURSIVE_ARG)) {
-                gfRecursive = TRUE;
+                gfRecursive = true;
             } else if (str_ieq(arg, OUT_ARG)) {
                 /* expect a file name after that */
                 ++i;
@@ -1184,13 +1180,13 @@ static void ParseCommandLine(int argc, char **argv)
                     PrintUsageAndExit(argc, argv);
                 gOutFileName = str_dup(argv[i]);
             } else if (str_ieq(arg, PREVIEW_ARG)) {
-                gfPreview = TRUE;
+                gfPreview = true;
             } else if (str_ieq(arg, TEXT_ARG)) {
-                gfTextOnly = TRUE;
+                gfTextOnly = true;
             } else if (str_ieq(arg, SLOW_PREVIEW_ARG)) {
-                gfSlowPreview = TRUE;
+                gfSlowPreview = true;
             } else if (str_ieq(arg, LOAD_ONLY_ARG)) {
-                gfLoadOnly = TRUE;
+                gfLoadOnly = true;
             } else if (str_ieq(arg, PAGE_ARG)) {
                 /* expect an integer after that */
                 ++i;
@@ -1254,54 +1250,54 @@ Exit:
 #include <sys/types.h>
 #include <sys/stat.h>
 
-int IsDirectoryName(char *path)
+bool IsDirectoryName(char *path)
 {
     struct _stat    buf;
     int             result;
 
     result = _stat(path, &buf );
     if (0 != result)
-        return FALSE;
+        return false;
 
     if (buf.st_mode & _S_IFDIR)
-        return TRUE;
+        return true;
 
-    return FALSE;
+    return false;
 }
 
-int IsFileName(char *path)
+bool IsFileName(char *path)
 {
     struct _stat    buf;
     int             result;
 
     result = _stat(path, &buf );
     if (0 != result)
-        return FALSE;
+        return false;
 
     if (buf.st_mode & _S_IFREG)
-        return TRUE;
+        return true;
 
-    return FALSE;
+    return false;
 }
 #else
-int IsDirectoryName(char *path)
+bool IsDirectoryName(char *path)
 {
     /* TODO: implement me */
-    return FALSE;
+    return false;
 }
 
-int IsFileName(char *path)
+bool IsFileName(char *path)
 {
     /* TODO: implement me */
-    return TRUE;
+    return true;
 }
 #endif
 
-int IsPdfFileName(char *path)
+bool IsPdfFileName(char *path)
 {
     if (str_endswith(path, ".pdf"))
-        return TRUE;
-    return FALSE;
+        return true;
+    return false;
 }
 
 static void RenderDirectory(char *path)
