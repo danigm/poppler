@@ -589,7 +589,6 @@ typedef unsigned int uint32_t;
 
 static uint32_t luminocity(uint32_t x)
 {
-  int a = (x >> 24) & 0xff;
   int r = (x >> 16) & 0xff;
   int g = (x >>  8) & 0xff;
   int b = (x >>  0) & 0xff;
@@ -776,10 +775,8 @@ void CairoOutputDev::drawImageMaskPrescaled(GfxState *state, Object *ref, Stream
 				    int width, int height, GBool invert,
 				    GBool inlineImg) {
   unsigned char *buffer;
-  unsigned char *dest;
   cairo_surface_t *image;
   cairo_pattern_t *pattern;
-  int x, y;
   ImageStream *imgStr;
   Guchar *pix;
   cairo_matrix_t matrix;
@@ -873,7 +870,6 @@ void CairoOutputDev::drawImageMaskPrescaled(GfxState *state, Object *ref, Stream
   }
 
   int yp = height / scaledHeight;
-  int origYp = origHeight / scaledHeight;
   int yq = height % scaledHeight;
   int xp = width / scaledWidth;
   int xq = width % scaledWidth;
@@ -932,7 +928,6 @@ void CairoOutputDev::drawImageMaskPrescaled(GfxState *state, Object *ref, Stream
     int xt = 0;
     int xSrc = 0;
     int x1 = k1;
-    int y1 = y + x1;
     int n = yStep > 0 ? yStep : 1;
     int origN = n;
 
@@ -1073,8 +1068,6 @@ void CairoOutputDev::drawMaskedImage(GfxState *state, Object *ref,
   cairo_surface_t *image;
   cairo_pattern_t *pattern;
   ImageStream *imgStr;
-  GfxRGB rgb;
-  int alpha, i;
   cairo_matrix_t matrix;
   int is_identity_transform;
 
@@ -1154,7 +1147,7 @@ void CairoOutputDev::drawSoftMaskedImage(GfxState *state, Object *ref, Stream *s
   cairo_surface_t *maskImage;
   cairo_pattern_t *maskPattern;
   Guchar *pix;
-  int x, y;
+  int y;
   for (y = 0; y < maskHeight; y++) {
     maskDest = (unsigned char *) (maskBuffer + y * row_stride);
     pix = maskImgStr->getLine();
@@ -1172,8 +1165,6 @@ void CairoOutputDev::drawSoftMaskedImage(GfxState *state, Object *ref, Stream *s
   cairo_surface_t *image;
   cairo_pattern_t *pattern;
   ImageStream *imgStr;
-  GfxRGB rgb;
-  int alpha, i;
   cairo_matrix_t matrix;
   cairo_matrix_t maskMatrix;
   int is_identity_transform;
@@ -1247,8 +1238,7 @@ void CairoOutputDev::drawImage(GfxState *state, Object *ref, Stream *str,
   int x, y;
   ImageStream *imgStr;
   Guchar *pix;
-  GfxRGB rgb;
-  int alpha, i;
+  int i;
   cairo_matrix_t matrix;
   int is_identity_transform;
   

@@ -41,17 +41,15 @@ static void cairo_font_face_destroy (void *data)
 CairoFont *CairoFont::create(GfxFont *gfxFont, XRef *xref, FT_Library lib, GBool useCIDs) {
   Ref embRef;
   Object refObj, strObj;
-  GooString *tmpFileName, *fileName, *substName,*tmpFileName2;
+  GooString *tmpFileName, *fileName,*tmpFileName2;
   DisplayFontParam *dfp;
   FILE *tmpFile;
-  int c, i, n, code, cmap;
+  int c, i, n;
   GfxFontType fontType;
   char **enc;
   char *name;
   FoFiTrueType *ff;
   FoFiType1C *ff1c;
-  CharCodeToUnicode *ctu;
-  Unicode uBuf[8];
   Ref ref;
   static cairo_user_data_key_t cairo_font_face_key;
   cairo_font_face_t *cairo_font_face;
