@@ -60,7 +60,7 @@ CFLAGS = $(CFLAGS) /I$(ZLIB_DIR) /I$(JPEG_DIR) /I$(FREETYPE_DIR)\include
 
 LIBS = $(LIBS) kernel32.lib advapi32.lib user32.lib gdi32.lib
 
-LDFLAGS = $(LDFLAGS) /nologo /DEBUG
+LDFLAGS = $(LDFLAGS) /nologo /DEBUG /NODEFAULTLIB:libcmt
 
 #CFLAGS = $(CFLAGS) /D "USE_FIXEDPOINT"
 

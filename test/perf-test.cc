@@ -64,22 +64,6 @@ extern void PreviewBitmapInit(void);
 extern void PreviewBitmapDestroy(void);
 extern void PreviewBitmapSplash(SplashBitmap *bmpSplash);
 
-class SizeD {
-public:
-    SizeD(double dx, double dy) { m_dx = dx; m_dy = dy; }
-    SizeD(int dx, int dy) { m_dx = (double)dx; m_dy = (double)dy; }
-    SizeD() { m_dx = 0; m_dy = 0; }
-    int dxI() { return (int)m_dx; }
-    int dyI() { return (int)m_dy; }
-    double dx() { return m_dx; }
-    double dy() { return m_dy; }
-    void setDx(double dx) { m_dx = dx; }
-    void setDy(double dy) { m_dy = dy; }
-private:
-    double m_dx;
-    double m_dy;
-};
-
 class PdfEnginePoppler {
 public:
     PdfEnginePoppler();
@@ -92,26 +76,15 @@ public:
         _fileName = (char*)strdup(fileName);
     }
 
-    bool validPageNo(int pageNo) const {
-        if ((pageNo >= 1) && (pageNo <= pageCount()))
-            return true;
-        return false;
-    }
-
     int pageCount(void) const { return _pageCount; }
 
-    virtual bool load(const char *fileName);
-    virtual int pageRotation(int pageNo);
-    virtual SizeD pageSize(int pageNo);
-    virtual SplashBitmap *renderBitmap(int pageNo, double zoomReal, int rotation,
-                         GBool (*abortCheckCbkA)(void *data),
-                         void *abortCheckCbkDataA);
+    bool load(const char *fileName);
+    SplashBitmap *renderBitmap(int pageNo, double zoomReal, int rotation);
 
-    PDFDoc* pdfDoc() { return _pdfDoc; }
     SplashOutputDev *   outputDevice();
 private:
-    char *_fileName;
-    int _pageCount;
+    char *              _fileName;
+    int                 _pageCount;
 
     PDFDoc *            _pdfDoc;
     SplashOutputDev *   _outputDev;
@@ -498,19 +471,6 @@ bool PdfEnginePoppler::load(const char *fileName)
     return true;
 }
 
-int PdfEnginePoppler::pageRotation(int pageNo)
-{
-    assert(validPageNo(pageNo));
-    return pdfDoc()->getPageRotate(pageNo);
-}
-
-SizeD PdfEnginePoppler::pageSize(int pageNo)
-{
-    double dx = pdfDoc()->getPageCropWidth(pageNo);
-    double dy = pdfDoc()->getPageCropHeight(pageNo);
-    return SizeD(dx, dy);
-}
-
 SplashOutputDev * PdfEnginePoppler::outputDevice() {
     if (!_outputDev) {
         GBool bitmapTopDown = gTrue;
@@ -521,10 +481,7 @@ SplashOutputDev * PdfEnginePoppler::outputDevice() {
     return _outputDev;
 }
 
-SplashBitmap *PdfEnginePoppler::renderBitmap(
-                           int pageNo, double zoomReal, int rotation,
-                           GBool (*abortCheckCbkA)(void *data),
-                           void *abortCheckCbkDataA)
+SplashBitmap *PdfEnginePoppler::renderBitmap(int pageNo, double zoomReal, int rotation)
 {
     assert(outputDevice());
     if (!outputDevice()) return NULL;
@@ -534,8 +491,8 @@ SplashBitmap *PdfEnginePoppler::renderBitmap(
     GBool  useMediaBox = gFalse;
     GBool  crop        = gTrue;
     GBool  doLinks     = gTrue;
-    _pdfDoc->displayPage(_outputDev, pageNo, hDPI, vDPI, rotation, useMediaBox, crop, doLinks,
-        abortCheckCbkA, abortCheckCbkDataA);
+    _pdfDoc->displayPage(_outputDev, pageNo, hDPI, vDPI, rotation, useMediaBox, 
+        crop, doLinks, NULL, NULL);
 
     SplashBitmap* bmp = _outputDev->takeBitmap();
     return bmp;
@@ -1015,7 +972,7 @@ static void RenderPdf(const char *fileName)
         SplashBitmap *bmpSplash = NULL;
 
         MsTimer msTimer;
-        bmpSplash = engineSplash->renderBitmap(curPage, 100.0, 0, NULL, NULL);
+        bmpSplash = engineSplash->renderBitmap(curPage, 100.0, 0);
         msTimer.stop();
         double timeInMs = msTimer.timeInMs();
         if (gfTimings)
@@ -1398,6 +1355,7 @@ int main(int argc, char **argv)
     PreviewBitmapDestroy();
     StrList_Destroy(&gArgsListRoot);
     delete globalParams;
+    free(gOutFileName);
     return 0;
 }
 
