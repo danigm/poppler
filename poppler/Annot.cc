@@ -822,7 +822,7 @@ void Annot::drawText(GooString *text, GooString *da, GfxFontDict *fontDict,
   GooString *tok;
   GfxFont *font;
   double fontSize, fontSize2, border, x, xPrev, y, w, w2, wMax;
-  int tfPos, tmPos, i, j, k, c;
+  int tfPos, tmPos, i, j, k;
 
   //~ if there is no MK entry, this should use the existing content stream,
   //~ and only replace the marked content portion of it
@@ -1152,7 +1152,7 @@ void Annot::drawListBox(GooString **text, GBool *selection,
   GooString *tok;
   GfxFont *font;
   double fontSize, fontSize2, border, x, y, w, wMax;
-  int tfPos, tmPos, i, j, c;
+  int tfPos, tmPos, i, j;
 
   //~ if there is no MK entry, this should use the existing content stream,
   //~ and only replace the marked content portion of it
@@ -1513,7 +1513,6 @@ Annots::Annots(XRef *xref, Catalog *catalog, Object *annotsObj) {
       //this way, it'll be possible for the annot to retrieve the corresponding
       //form widget
       Object obj2;
-      Ref* pref;
       if (annotsObj->arrayGet(i, &obj1)->isDict()) {
         if (annotsObj->arrayGetNF(i, &obj2)->isRef())
           annot = new Annot(xref, acroForm, obj1.getDict(), obj2.getRef(), catalog);
