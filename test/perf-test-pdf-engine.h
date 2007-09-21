@@ -37,55 +37,16 @@ private:
     double m_dy;
 };
 
-/* Abstract class representing cached bitmap. Allows different implementations
-   on different platforms. */
-class RenderedBitmap {
+class PdfEnginePoppler {
 public:
-    virtual ~RenderedBitmap() {};
-    virtual int dx() = 0;
-    virtual int dy() = 0;
-    virtual int rowSize() = 0;
-    virtual unsigned char *data() = 0;
-
-#ifdef WIN32
-    // TODO: this is for WINDOWS only
-    virtual HBITMAP createDIBitmap(HDC) = 0;
-    virtual void stretchDIBits(HDC, int, int, int, int) = 0;
-#endif
-};
-
-class RenderedBitmapSplash : public RenderedBitmap {
-public:
-    RenderedBitmapSplash(SplashBitmap *);
-    virtual ~RenderedBitmapSplash();
-
-    virtual int dx();
-    virtual int dy();
-    virtual int rowSize();
-    virtual unsigned char *data();
-
-#ifdef WIN32
-    virtual HBITMAP createDIBitmap(HDC);
-    virtual void stretchDIBits(HDC, int, int, int, int);
-#endif
-protected:
-    SplashBitmap *_bitmap;
-};
-
-class PdfEngine {
-public:
-    PdfEngine() : 
-        _fileName(0)
-        , _pageCount(INVALID_PAGE_NO) 
-    { }
-
-    virtual ~PdfEngine() { free((void*)_fileName); }
+    PdfEnginePoppler();
+    ~PdfEnginePoppler();
 
     const char *fileName(void) const { return _fileName; };
 
     void setFileName(const char *fileName) {
         assert(!_fileName);
-        _fileName = (const char*)strdup(fileName);
+        _fileName = (char*)strdup(fileName);
     }
 
     bool validPageNo(int pageNo) const {
@@ -96,32 +57,18 @@ public:
 
     int pageCount(void) const { return _pageCount; }
 
-    virtual bool load(const char *fileName) = 0;
-    virtual int pageRotation(int pageNo) = 0;
-    virtual SizeD pageSize(int pageNo) = 0;
-    virtual RenderedBitmap *renderBitmap(int pageNo, double zoomReal, int rotation,
-                         BOOL (*abortCheckCbkA)(void *data),
-                         void *abortCheckCbkDataA) = 0;
-
-protected:
-    const char *_fileName;
-    int _pageCount;
-};
-
-class PdfEnginePoppler : public PdfEngine {
-public:
-    PdfEnginePoppler();
-    virtual ~PdfEnginePoppler();
     virtual bool load(const char *fileName);
     virtual int pageRotation(int pageNo);
     virtual SizeD pageSize(int pageNo);
-    virtual RenderedBitmap *renderBitmap(int pageNo, double zoomReal, int rotation,
+    virtual SplashBitmap *renderBitmap(int pageNo, double zoomReal, int rotation,
                          BOOL (*abortCheckCbkA)(void *data),
                          void *abortCheckCbkDataA);
 
     PDFDoc* pdfDoc() { return _pdfDoc; }
     SplashOutputDev *   outputDevice();
 private:
+    char *_fileName;
+    int _pageCount;
 
     PDFDoc *            _pdfDoc;
     SplashOutputDev *   _outputDev;

@@ -3,6 +3,8 @@
 
 /* This is a preview support for perf-test for Windows */
 
+#include <windows.h>
+
 #include "perf-test-pdf-engine.h"
 
 #include <assert.h>
@@ -13,7 +15,7 @@
 static HWND             gHwndSplash;
 static HBRUSH           gBrushBg;
 
-static RenderedBitmap *gBmpSplash;
+static SplashBitmap *gBmpSplash;
 
 int rect_dx(RECT *r)
 {
@@ -27,6 +29,60 @@ int rect_dy(RECT *r)
     int dy = r->bottom - r->top;
     assert(dy >= 0);
     return dy;
+}
+
+static HBITMAP createDIBitmapCommon(SplashBitmap *bmp, HDC hdc)
+{
+    int bmpDx = bmp->getWidth();
+    int bmpDy = bmp->getHeight();
+    int bmpRowSize = bmp->getRowSize();
+
+    BITMAPINFOHEADER bmih;
+    bmih.biSize = sizeof(bmih);
+    bmih.biHeight = -bmpDy;
+    bmih.biWidth = bmpDx;
+    bmih.biPlanes = 1;
+    bmih.biBitCount = 24;
+    bmih.biCompression = BI_RGB;
+    bmih.biSizeImage = bmpDy * bmpRowSize;;
+    bmih.biXPelsPerMeter = bmih.biYPelsPerMeter = 0;
+    bmih.biClrUsed = bmih.biClrImportant = 0;
+
+    unsigned char* bmpData = bmp->getDataPtr();
+    HBITMAP hbmp = ::CreateDIBitmap(hdc, &bmih, CBM_INIT, bmpData, (BITMAPINFO *)&bmih , DIB_RGB_COLORS);
+    return hbmp;
+}
+
+static void stretchDIBitsCommon(SplashBitmap *bmp, HDC hdc, int leftMargin, int topMargin, int pageDx, int pageDy)
+{
+    int bmpDx = bmp->getWidth();
+    int bmpDy = bmp->getHeight();
+    int bmpRowSize = bmp->getRowSize();
+
+    BITMAPINFOHEADER bmih;
+    bmih.biSize = sizeof(bmih);
+    bmih.biHeight = -bmpDy;
+    bmih.biWidth = bmpDx;
+    bmih.biPlanes = 1;
+    // we could create this dibsection in monochrome
+    // if the printer is monochrome, to reduce memory consumption
+    // but splash is currently setup to return a full colour bitmap
+    bmih.biBitCount = 24;
+    bmih.biCompression = BI_RGB;
+    bmih.biSizeImage = bmpDy * bmpRowSize;;
+    bmih.biXPelsPerMeter = bmih.biYPelsPerMeter = 0;
+    bmih.biClrUsed = bmih.biClrImportant = 0;
+    SplashColorPtr bmpData = bmp->getDataPtr();
+
+    ::StretchDIBits(hdc,
+        // destination rectangle
+        -leftMargin, -topMargin, pageDx, pageDy,
+        // source rectangle
+        0, 0, bmpDx, bmpDy,
+        bmpData,
+        (BITMAPINFO *)&bmih ,
+        DIB_RGB_COLORS,
+        SRCCOPY);
 }
 
 /* Set the client area size of the window 'hwnd' to 'dx'/'dy'. */
@@ -46,14 +102,14 @@ static void resizeClientArea(HWND hwnd, int x, int dx, int dy, int *dx_out)
         *dx_out = win_dx;
 }
 
-static void resizeClientAreaToRenderedBitmap(HWND hwnd, RenderedBitmap *bmp, int x, int *dxOut)
+static void resizeClientAreaToRenderedBitmap(HWND hwnd, SplashBitmap *bmp, int x, int *dxOut)
 {
-    int dx = bmp->dx();
-    int dy = bmp->dy();
+    int dx = bmp->getWidth();
+    int dy = bmp->getHeight();
     resizeClientArea(hwnd, x, dx, dy, dxOut);
 }
 
-static void drawBitmap(HWND hwnd, RenderedBitmap *bmp)
+static void drawBitmap(HWND hwnd, SplashBitmap *bmp)
 {
     PAINTSTRUCT     ps;
 
@@ -61,15 +117,15 @@ static void drawBitmap(HWND hwnd, RenderedBitmap *bmp)
     SetBkMode(hdc, TRANSPARENT);
     FillRect(hdc, &ps.rcPaint, gBrushBg);
 
-    HBITMAP hbmp = bmp->createDIBitmap(hdc);
+    HBITMAP hbmp = createDIBitmapCommon(bmp, hdc);
     if (hbmp) {
         HDC bmpDC = CreateCompatibleDC(hdc);
         if (bmpDC) {
             SelectObject(bmpDC, hbmp);
             int xSrc = 0, ySrc = 0;
             int xDest = 0, yDest = 0;
-            int bmpDx = bmp->dx();
-            int bmpDy = bmp->dy();
+            int bmpDx = bmp->getWidth();
+            int bmpDy = bmp->getHeight();
             BitBlt(hdc, xDest, yDest, bmpDx, bmpDy, bmpDC, xSrc, ySrc, SRCCOPY);
             DeleteDC(bmpDC);
             bmpDC = NULL;
@@ -82,9 +138,11 @@ static void drawBitmap(HWND hwnd, RenderedBitmap *bmp)
 
 static void onPaint(HWND hwnd)
 {
-    if (hwnd == gHwndSplash)
-        if (gBmpSplash)
+    if (hwnd == gHwndSplash) {
+        if (gBmpSplash) {
             drawBitmap(hwnd, gBmpSplash);
+        }
+    }
 }
 
 static LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
@@ -209,7 +267,7 @@ static void UpdateWindows(void)
     pumpMessages();
 }
 
-void PreviewBitmapSplash(RenderedBitmap *bmpSplash)
+void PreviewBitmapSplash(SplashBitmap *bmpSplash)
 {
     if (!initWinIfNecessary())
         return;

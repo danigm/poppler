@@ -6,9 +6,8 @@ Using this perf-test still works for performance testing, you just don't
 get any visual feedback during testing.
 */
 
-#include "perf-test-pdf-engine.h"
 
-void PreviewBitmapSplash(RenderedBitmap *bmpSplash)
+void PreviewBitmapSplash(SplashBitmap *bmpSplash)
 {
 }
 

@@ -48,7 +48,7 @@ typedef BOOL int;
 */
 extern void PreviewBitmapInit(void);
 extern void PreviewBitmapDestroy(void);
-extern void PreviewBitmapSplash(RenderedBitmap *bmpSplash);
+extern void PreviewBitmapSplash(SplashBitmap *bmpSplash);
 
 typedef struct StrList {
     struct StrList *next;
@@ -401,103 +401,9 @@ void SplashColorsInit(void)
     splashColorSet(SPLASH_COL_WHITE_PTR, 0xff, 0xff, 0xff, 0);
 }
 
-RenderedBitmapSplash::RenderedBitmapSplash(SplashBitmap *bitmap)
-{
-    _bitmap = bitmap;
-}
-
-RenderedBitmapSplash::~RenderedBitmapSplash() {
-    delete _bitmap;
-}
-
-int RenderedBitmapSplash::dx()
-{ 
-    return _bitmap->getWidth();
-}
-
-int RenderedBitmapSplash::dy()
-{ 
-    return _bitmap->getHeight();
-}
-
-int RenderedBitmapSplash::rowSize() 
-{ 
-    return _bitmap->getRowSize(); 
-}
-    
-unsigned char *RenderedBitmapSplash::data()
-{
-    return _bitmap->getDataPtr();
-}
-
-#ifdef WIN32
-static HBITMAP createDIBitmapCommon(RenderedBitmap *bmp, HDC hdc)
-{
-    int bmpDx = bmp->dx();
-    int bmpDy = bmp->dy();
-    int bmpRowSize = bmp->rowSize();
-
-    BITMAPINFOHEADER bmih;
-    bmih.biSize = sizeof(bmih);
-    bmih.biHeight = -bmpDy;
-    bmih.biWidth = bmpDx;
-    bmih.biPlanes = 1;
-    bmih.biBitCount = 24;
-    bmih.biCompression = BI_RGB;
-    bmih.biSizeImage = bmpDy * bmpRowSize;;
-    bmih.biXPelsPerMeter = bmih.biYPelsPerMeter = 0;
-    bmih.biClrUsed = bmih.biClrImportant = 0;
-
-    unsigned char* bmpData = bmp->data();
-    HBITMAP hbmp = ::CreateDIBitmap(hdc, &bmih, CBM_INIT, bmpData, (BITMAPINFO *)&bmih , DIB_RGB_COLORS);
-    return hbmp;
-}
-
-static void stretchDIBitsCommon(RenderedBitmap *bmp, HDC hdc, int leftMargin, int topMargin, int pageDx, int pageDy)
-{
-    int bmpDx = bmp->dx();
-    int bmpDy = bmp->dy();
-    int bmpRowSize = bmp->rowSize();
-
-    BITMAPINFOHEADER bmih;
-    bmih.biSize = sizeof(bmih);
-    bmih.biHeight = -bmpDy;
-    bmih.biWidth = bmpDx;
-    bmih.biPlanes = 1;
-    // we could create this dibsection in monochrome
-    // if the printer is monochrome, to reduce memory consumption
-    // but splash is currently setup to return a full colour bitmap
-    bmih.biBitCount = 24;
-    bmih.biCompression = BI_RGB;
-    bmih.biSizeImage = bmpDy * bmpRowSize;;
-    bmih.biXPelsPerMeter = bmih.biYPelsPerMeter = 0;
-    bmih.biClrUsed = bmih.biClrImportant = 0;
-    SplashColorPtr bmpData = bmp->data();
-
-    ::StretchDIBits(hdc,
-        // destination rectangle
-        -leftMargin, -topMargin, pageDx, pageDy,
-        // source rectangle
-        0, 0, bmpDx, bmpDy,
-        bmpData,
-        (BITMAPINFO *)&bmih ,
-        DIB_RGB_COLORS,
-        SRCCOPY);
-}
-
-HBITMAP RenderedBitmapSplash::createDIBitmap(HDC hdc)
-{
-    return createDIBitmapCommon(this, hdc);
-}
-
-void RenderedBitmapSplash::stretchDIBits(HDC hdc, int leftMargin, int topMargin, int pageDx, int pageDy)
-{
-    stretchDIBitsCommon(this, hdc, leftMargin, topMargin, pageDx, pageDy);
-}
-#endif
-
 PdfEnginePoppler::PdfEnginePoppler() : 
-    PdfEngine()
+   _fileName(0)
+   , _pageCount(INVALID_PAGE_NO) 
    , _pdfDoc(NULL)
    , _outputDev(NULL)
 {
@@ -505,6 +411,7 @@ PdfEnginePoppler::PdfEnginePoppler() :
 
 PdfEnginePoppler::~PdfEnginePoppler()
 {
+    free(_fileName);
     delete _outputDev;
     delete _pdfDoc;
 }
@@ -547,7 +454,7 @@ SplashOutputDev * PdfEnginePoppler::outputDevice() {
     return _outputDev;
 }
 
-RenderedBitmap *PdfEnginePoppler::renderBitmap(
+SplashBitmap *PdfEnginePoppler::renderBitmap(
                            int pageNo, double zoomReal, int rotation,
                            BOOL (*abortCheckCbkA)(void *data),
                            void *abortCheckCbkDataA)
@@ -564,10 +471,7 @@ RenderedBitmap *PdfEnginePoppler::renderBitmap(
         abortCheckCbkA, abortCheckCbkDataA);
 
     SplashBitmap* bmp = _outputDev->takeBitmap();
-    if (bmp)
-        return new RenderedBitmapSplash(bmp);
-
-    return NULL;
+    return bmp;
 }
 
 struct FindFileState {
@@ -1015,7 +919,7 @@ Exit:
 static void RenderPdf(const char *fileName)
 {
     const char *fileNameSplash = NULL;
-    PdfEngine * engineSplash = NULL;
+    PdfEnginePoppler * engineSplash = NULL;
 
     // TODO: fails if file already exists and has read-only attribute
     CopyFile(fileName, POPPLER_TMP_NAME, FALSE);
@@ -1041,7 +945,7 @@ static void RenderPdf(const char *fileName)
         if ((gPageNo != PAGE_NO_NOT_GIVEN) && (gPageNo != curPage))
             continue;
 
-        RenderedBitmap *bmpSplash = NULL;
+        SplashBitmap *bmpSplash = NULL;
 
         MsTimer msTimer;
         bmpSplash = engineSplash->renderBitmap(curPage, 100.0, 0, NULL, NULL);
@@ -1051,7 +955,7 @@ static void RenderPdf(const char *fileName)
             if (!bmpSplash)
                 LogInfo("page splash %d: failed to render\n", curPage);
             else
-                LogInfo("page splash %d (%dx%d): %.2f ms\n", curPage, bmpSplash->dx(), bmpSplash->dy(), timeInMs);
+                LogInfo("page splash %d (%dx%d): %.2f ms\n", curPage, bmpSplash->getWidth(), bmpSplash->getHeight(), timeInMs);
 
         if (ShowPreview()) {
             PreviewBitmapSplash(bmpSplash);
