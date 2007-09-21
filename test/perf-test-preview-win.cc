@@ -4,10 +4,9 @@
 /* This is a preview support for perf-test for Windows */
 
 #include <windows.h>
-
-#include "perf-test-pdf-engine.h"
-
 #include <assert.h>
+
+#include "SplashBitmap.h"
 
 #define WIN_CLASS_NAME  "PDFTEST_PDF_WIN"
 #define COL_WINDOW_BG RGB(0xff, 0xff, 0xff)
