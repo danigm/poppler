@@ -2043,7 +2043,7 @@ void FoFiType1C::readTopDict() {
 // (if any) out of the FD.
 void FoFiType1C::readFD(int offset, int length, Type1CPrivateDict *pDict) {
   int pos, pSize, pOffset;
-  double fontMatrix[6];
+  double fontMatrix[6] = {0};
   GBool hasFontMatrix;
 
   hasFontMatrix = gFalse;
@@ -2057,21 +2057,21 @@ void FoFiType1C::readFD(int offset, int length, Type1CPrivateDict *pDict) {
     }
     if (!ops[nOps - 1].isNum) {
       if (ops[nOps - 1].op == 0x0012) {
-	if (nOps < 3) {
-	  parsedOk = gFalse;
-	  return;
-	}
-	pSize = (int)ops[0].num;
-	pOffset = (int)ops[1].num;
-	break;
+        if (nOps < 3) {
+          parsedOk = gFalse;
+          return;
+        }
+        pSize = (int)ops[0].num;
+        pOffset = (int)ops[1].num;
+        break;
       } else if (ops[nOps - 1].op == 0x0c07) {
-	fontMatrix[0] = ops[0].num;
-	fontMatrix[1] = ops[1].num;
-	fontMatrix[2] = ops[2].num;
-	fontMatrix[3] = ops[3].num;
-	fontMatrix[4] = ops[4].num;
-	fontMatrix[5] = ops[5].num;
-	hasFontMatrix = gTrue;
+        fontMatrix[0] = ops[0].num;
+        fontMatrix[1] = ops[1].num;
+        fontMatrix[2] = ops[2].num;
+        fontMatrix[3] = ops[3].num;
+        fontMatrix[4] = ops[4].num;
+        fontMatrix[5] = ops[5].num;
+        hasFontMatrix = gTrue;
       }
       nOps = 0;
     }
