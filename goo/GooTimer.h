@@ -1,12 +1,10 @@
 //========================================================================
 //
-// GooList.h
+// GooTimer.h
 //
 // Copyright 2001-2003 Glyph & Cog, LLC
 //
 //========================================================================
-
-#ifdef HAVE_GETTIMEOFDAY
 
 #ifndef GOOTIMER_H
 #define GOOTIMER_H
@@ -16,7 +14,13 @@
 #endif
 
 #include "gtypes.h"
+#ifdef HAVE_GETTIMEOFDAY
 #include <sys/time.h>
+#endif
+
+#ifdef _MSC_VER
+#include <windows.h>
+#endif
 
 //------------------------------------------------------------------------
 // GooList
@@ -28,17 +32,19 @@ public:
   // Create a new timer.
   GooTimer();
 
-  void stop ();
+  void start();
+  void stop();
   double getElapsed();
 
-
 private:
-
-	struct timeval start;
-	struct timeval end;
-	GBool active;
-};
-
+#ifdef HAVE_GETTIMEOFDAY
+  struct timeval start_time;
+  struct timeval end_time;
+#elif defined(_MSC_VER)
+  LARGE_INTEGER start_time;
+  LARGE_INTEGER end_time;
 #endif
+  GBool active;
+};
 
 #endif

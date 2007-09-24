@@ -582,16 +582,11 @@ void Gfx::go(GBool topLevel) {
 	printf("\n");
 	fflush(stdout);
       }
-#ifdef HAVE_GETTIMEOFDAY
-      GooTimer *timer = NULL;
-      if (profileCommands) 
-	timer = new GooTimer ();
-#endif
+      GooTimer timer;
 
       // Run the operation
       execOp(&obj, args, numArgs);
 
-#ifdef HAVE_GETTIMEOFDAY
       // Update the profile information
       if (profileCommands) {
 	GooHash *hash;
@@ -608,11 +603,9 @@ void Gfx::go(GBool topLevel) {
 	    hash->add (cmd_g, data_p);
 	  }
 	  
-	  data_p->addElement (timer->getElapsed ());
+	  data_p->addElement(timer.getElapsed ());
 	}
-        delete timer;
       }
-#endif
       obj.free();
       for (i = 0; i < numArgs; ++i)
 	args[i].free();
