@@ -1442,6 +1442,7 @@ LinkAnnotation::LinkAnnotation( const QDomNode & node )
                 {
                     Poppler::LinkAction::ActionType act;
                     QString actString = qe.attribute( "action" );
+                    bool found = true;
                     if ( actString == "PageFirst" )
                         act = Poppler::LinkAction::PageFirst;
                     else if ( actString == "PagePrev" )
@@ -1466,8 +1467,13 @@ LinkAnnotation::LinkAnnotation( const QDomNode & node )
                         act = Poppler::LinkAction::GoToPage;
                     else if ( actString == "Close" )
                         act = Poppler::LinkAction::Close;
-                    Poppler::LinkAction * action = new Poppler::LinkAction( QRect(), act );
-                    d->linkDestination = action;
+                    else
+                        found = false;
+                    if (found)
+                    {
+                        Poppler::LinkAction * action = new Poppler::LinkAction( QRect(), act );
+                        d->linkDestination = action;
+                    }
                 }
                 else if ( type == "Movie" )
                 {
@@ -1590,8 +1596,12 @@ void LinkAnnotation::store( QDomNode & node, QDomDocument & document ) const
             }
             case Poppler::Link::Movie:
             {
-                Poppler::LinkMovie * movie = static_cast< Poppler::LinkMovie * >( d->linkDestination );
                 hyperlinkElement.setAttribute( "type", "Movie" );
+                break;
+            }
+            case Poppler::Link::Sound:
+            {
+                // FIXME: implement me
                 break;
             }
             case Poppler::Link::None:

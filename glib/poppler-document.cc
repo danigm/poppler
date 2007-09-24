@@ -122,7 +122,6 @@ poppler_document_new_from_file (const char  *uri,
   PDFDoc *newDoc;
   GooString *filename_g;
   GooString *password_g;
-  int err;
   char *filename;
 
   if (!globalParams) {
@@ -141,8 +140,7 @@ poppler_document_new_from_file (const char  *uri,
     password_g = new GooString (password);
 
   newDoc = new PDFDoc(filename_g, password_g, password_g);
-  if (password_g)
-    delete password_g;
+  delete password_g;
 
   return _poppler_document_new_from_pdfdoc (newDoc, error);
 }
@@ -170,8 +168,6 @@ poppler_document_new_from_data (char        *data,
   PDFDoc *newDoc;
   MemStream *str;
   GooString *password_g;
-  int err;
-  char *filename;
 
   if (!globalParams) {
     globalParams = new GlobalParams();
@@ -186,8 +182,7 @@ poppler_document_new_from_data (char        *data,
     password_g = new GooString (password);
 
   newDoc = new PDFDoc(str, password_g, password_g);
-  if (password_g)
-    delete password_g;
+  delete password_g;
 
   return _poppler_document_new_from_pdfdoc (newDoc, error);
 }

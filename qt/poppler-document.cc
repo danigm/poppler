@@ -206,7 +206,6 @@ QDateTime Document::getDate( const QString & type ) const
   }
 
   Object obj;
-  char *s;
   int year, mon, day, hour, min, sec;
   Dict *infoDict = info.getDict();
   QString result;

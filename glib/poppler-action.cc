@@ -268,7 +268,6 @@ static PopplerDest *
 dest_new_named (GooString *named_dest)
 {
 	PopplerDest *dest;
-	gchar *name;
 
 	dest = g_new0 (PopplerDest, 1);
 

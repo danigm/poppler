@@ -914,9 +914,8 @@ poppler_page_get_text (PopplerPage          *page,
 		       PopplerRectangle     *selection)
 {
   TextOutputDev *text_dev;
-  PDFDoc *doc;
   GooString *sel_text;
-  double height, y1, y2;
+  double height;
   char *result;
   SelectionStyle selection_style = selectionStyleGlyph;
   PDFRectangle pdf_selection;
