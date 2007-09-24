@@ -755,10 +755,6 @@ GBool GlobalParams::parseYesNo2(char *token, GBool *flag) {
 }
 
 GlobalParams::~GlobalParams() {
-  GooHashIter *iter;
-  GooString *key;
-  GooList *list;
-
   freeBuiltinFontTables();
 
   delete macRomanReverseMap;
@@ -772,9 +768,7 @@ GlobalParams::~GlobalParams() {
   deleteGooList(toUnicodeDirs, GooString);
   deleteGooHash(displayFonts, DisplayFontParam);
 #ifdef WIN32
-  if (winFontList) {
-    delete winFontList;
-  }
+  delete winFontList;
 #endif
   deleteGooHash(psFonts, PSFontParam);
   deleteGooList(psNamedFonts16, PSFontParam);
@@ -782,8 +776,12 @@ GlobalParams::~GlobalParams() {
   delete textEncoding;
   deleteGooList(fontDirs, GooString);
 
+  GooHashIter *iter;
+  GooString *key;
   cMapDirs->startIter(&iter);
-  while (cMapDirs->getNext(&iter, &key, (void **)&list)) {
+  void *val;
+  while (cMapDirs->getNext(&iter, &key, &val)) {
+    GooList* list = (GooList*)val;
     deleteGooList(list, GooString);
   }
   delete cMapDirs;
@@ -1481,28 +1479,26 @@ CharCodeToUnicode *GlobalParams::getCIDToUnicode(GooString *collection) {
 }
 
 CharCodeToUnicode *GlobalParams::getUnicodeToUnicode(GooString *fontName) {
-  CharCodeToUnicode *ctu;
-  GooHashIter *iter;
-  GooString *fontPattern, *fileName;
-
   lockGlobalParams;
-  fileName = NULL;
+  GooHashIter *iter;
   unicodeToUnicodes->startIter(&iter);
-  while (unicodeToUnicodes->getNext(&iter, &fontPattern, (void **)&fileName)) {
+  GooString *fileName = NULL;
+  GooString *fontPattern;
+  void *val;
+  while (!fileName && unicodeToUnicodes->getNext(&iter, &fontPattern, &val)) {
     if (strstr(fontName->getCString(), fontPattern->getCString())) {
       unicodeToUnicodes->killIter(&iter);
-      break;
+      fileName = (GooString*)val;
     }
-    fileName = NULL;
   }
+  CharCodeToUnicode *ctu = NULL;
   if (fileName) {
-    if (!(ctu = unicodeToUnicodeCache->getCharCodeToUnicode(fileName))) {
-      if ((ctu = CharCodeToUnicode::parseUnicodeToUnicode(fileName))) {
-	unicodeToUnicodeCache->add(ctu);
-      }
+    ctu = unicodeToUnicodeCache->getCharCodeToUnicode(fileName);
+    if (!ctu) {
+      ctu = CharCodeToUnicode::parseUnicodeToUnicode(fileName);
+      if (ctu)
+         unicodeToUnicodeCache->add(ctu);
     }
-  } else {
-    ctu = NULL;
   }
   unlockGlobalParams;
   return ctu;
