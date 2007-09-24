@@ -1084,8 +1084,6 @@ void HtmlOutputDev::drawImageMask(GfxState *state, Object *ref, Stream *str,
 			      int width, int height, GBool invert,
 			      GBool inlineImg) {
 
-  int i, j;
-  
   if (ignore||complexMode) {
     OutputDev::drawImageMask(state, ref, str, width, height, invert, inlineImg);
     return;
@@ -1098,14 +1096,6 @@ void HtmlOutputDev::drawImageMask(GfxState *state, Object *ref, Stream *str,
   int w0, h0, w1, h1;		// size of image
   double xt, yt, wt, ht;
   GBool rotate, xFlip, yFlip;
-  GBool dither;
-  int x, y;
-  int ix, iy;
-  int px1, px2, qx, dx;
-  int py1, py2, qy, dy;
-  Gulong pixel;
-  int nComps, nVals, nBits;
-  double r1, g1, b1;
  
   // get image position and size
   state->transform(0, 0, &xt, &yt);
@@ -1175,8 +1165,6 @@ void HtmlOutputDev::drawImage(GfxState *state, Object *ref, Stream *str,
 			  int width, int height, GfxImageColorMap *colorMap,
 			  int *maskColors, GBool inlineImg) {
 
-  int i, j;
-   
   if (ignore||complexMode) {
     OutputDev::drawImage(state, ref, str, width, height, colorMap, 
 			 maskColors, inlineImg);
@@ -1184,23 +1172,12 @@ void HtmlOutputDev::drawImage(GfxState *state, Object *ref, Stream *str,
   }
 
   FILE *f1;
-  ImageStream *imgStr;
-  Guchar pixBuf[4];
-  GfxColor color;
   int c;
   
   int x0, y0;			// top left corner of image
   int w0, h0, w1, h1;		// size of image
   double xt, yt, wt, ht;
   GBool rotate, xFlip, yFlip;
-  GBool dither;
-  int x, y;
-  int ix, iy;
-  int px1, px2, qx, dx;
-  int py1, py2, qy, dy;
-  Gulong pixel;
-  int nComps, nVals, nBits;
-  double r1, g1, b1;
  
   // get image position and size
   state->transform(0, 0, &xt, &yt);
