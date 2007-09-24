@@ -82,7 +82,7 @@ GOO_OBJS=$(O)\FixedPoint.obj $(O)\GooHash.obj $(O)\GooList.obj $(O)\GooString.ob
 
 POPPLER_OBJS=$(O)\Annot.obj $(O)\Array.obj $(O)\BuiltinFont.obj $(O)\BuiltinFontTables.obj \
 	$(O)\CMap.obj $(O)\Catalog.obj $(O)\CharCodeToUnicode.obj $(O)\DCTStream.obj \
-	$(O)\Decrypt.obj $(O)\Dict.obj \
+	$(O)\Decrypt.obj $(O)\Dict.obj $(O)\Error.obj \
 	$(O)\FontEncodingTables.obj $(O)\FontInfo.obj $(O)\Form.obj $(O)\Function.obj \
 	$(O)\Gfx.obj $(O)\GfxFont.obj $(O)\GfxState.obj $(O)\GlobalParams.obj \
 	$(O)\GlobalParamsWin.obj \
@@ -95,7 +95,6 @@ POPPLER_OBJS=$(O)\Annot.obj $(O)\Array.obj $(O)\BuiltinFont.obj $(O)\BuiltinFont
 	$(O)\Stream.obj $(O)\TextOutputDev.obj $(O)\UnicodeMap.obj \
 	$(O)\UnicodeTypeTable.obj $(O)\XRef.obj
 
-#$(O)\Error.obj \
 # $(O)\FlateStream.obj 
 
 SPLASH_OBJS=$(O)\Splash.obj $(O)\SplashBitmap.obj $(O)\SplashClip.obj \

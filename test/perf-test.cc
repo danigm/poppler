@@ -36,6 +36,7 @@
 #include <dirent.h>
 #endif
 
+#include "Error.h"
 #include "ErrorCodes.h"
 #include "GooString.h"
 #include "GooList.h"
@@ -787,8 +788,7 @@ void OutputDebugString(const char *txt)
 #define _vsnprintf vsnprintf
 #endif
 
-void CDECL error(int pos, char *msg, ...) {
-    va_list args;
+void my_error(int pos, char *msg, va_list args) {
     char        buf[4096], *p = buf;
 
     // NB: this can be called before the globalParams object is created
@@ -805,7 +805,6 @@ void CDECL error(int pos, char *msg, ...) {
     }
 
     p = buf;
-    va_start(args, msg);
     p += _vsnprintf(p, sizeof(buf) - 1, msg, args);
     while ( p > buf  &&  isspace(p[-1]) )
             *--p = '\0';
@@ -813,7 +812,6 @@ void CDECL error(int pos, char *msg, ...) {
     *p++ = '\n';
     *p   = '\0';
     OutputDebugString(buf);
-    va_end(args);
 
     if (pos >= 0) {
         p += _snprintf(p, sizeof(buf)-1, "Error (%d): ", pos);
@@ -826,7 +824,7 @@ void CDECL error(int pos, char *msg, ...) {
         if (gErrFile)
             fprintf(gErrFile, "Error: ");
     }
-
+#if 0
     p = buf;
     va_start(args, msg);
     p += _vsnprintf(p, sizeof(buf) - 3, msg, args);
@@ -839,6 +837,7 @@ void CDECL error(int pos, char *msg, ...) {
     if (gErrFile)
         fprintf(gErrFile, buf);
     va_end(args);
+#endif
 }
 
 void LogInfo(char *fmt, ...)
@@ -1314,6 +1313,7 @@ int main(int argc, char **argv)
 {
     //runAllUnitTests();
 
+    setErrorFunction(my_error);
     ParseCommandLine(argc, argv);
     if (0 == StrList_Len(&gArgsListRoot))
         PrintUsageAndExit(argc, argv);
