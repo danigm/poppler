@@ -50,31 +50,6 @@ namespace Poppler {
         return ret;
     }
 
-    static GooString *QStringToGooString(const QString &s) {
-        int len = s.length();
-        char *cstring = (char *)gmallocn(s.length(), sizeof(char));
-        for (int i = 0; i < len; ++i)
-          cstring[i] = s.at(i).unicode();
-        GooString *ret = new GooString(cstring, len);
-        gfree(cstring);
-        return ret;
-    }
-
-    static GooString *QStringToUnicodeGooString(const QString &s) {
-        int len = s.length() * 2 + 2;
-        char *cstring = (char *)gmallocn(len, sizeof(char));
-        cstring[0] = 0xfe;
-        cstring[1] = 0xff;
-        for (int i = 0; i < s.length(); ++i)
-        {
-          cstring[2+i*2] = s.at(i).row();
-          cstring[3+i*2] = s.at(i).cell();
-        }
-        GooString *ret = new GooString(cstring, len);
-        gfree(cstring);
-        return ret;
-    }
-
     static QString UnicodeParsedString(GooString *s1) {
         if ( !s1 || s1->getLength() == 0 )
             return QString();

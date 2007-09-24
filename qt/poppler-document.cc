@@ -30,6 +30,14 @@
 
 namespace Poppler {
 
+static GooString *QStringToGooString(const QString &s) {
+    int len = s.length();
+    char *cstring = (char *)gmallocn(s.length(), sizeof(char));
+    for (int i = 0; i < len; ++i)
+      cstring[i] = s.at(i).unicode();
+    return new GooString(cstring, len);
+}
+
 Document *Document::load(const QString &filePath)
 {
   if (!globalParams) {

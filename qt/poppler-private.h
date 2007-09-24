@@ -42,14 +42,6 @@ static QString unicodeToQString(Unicode* u, int len) {
     return ret;
 }
 
-static GooString *QStringToGooString(const QString &s) {
-    int len = s.length();
-    char *cstring = (char *)gmallocn(s.length(), sizeof(char));
-    for (int i = 0; i < len; ++i)
-      cstring[i] = s.at(i).unicode();
-    return new GooString(cstring, len);
-}
-
 static QString UnicodeParsedString(GooString *s1) {
     GBool isUnicode;
     int i;
