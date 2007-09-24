@@ -500,7 +500,7 @@ int CharCodeToUnicode::mapToUnicode(CharCode c, Unicode *u, int size) {
 int CharCodeToUnicode::mapToCharCode(Unicode* u, CharCode *c, int usize) {
   //look for charcode in map
   if (usize == 1) {
-    for (int i=0; i<mapLen; i++) {
+    for (CharCode i=0; i<mapLen; i++) {
       if (map[i] == ((*u)&0xff)) {
         *c = (char)map[i];
         return 1;

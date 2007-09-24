@@ -564,9 +564,6 @@ void Gfx::go(GBool topLevel) {
   Object args[maxArgs];
   int numArgs, i;
   int lastAbortCheck;
-#ifdef HAVE_GETTIMEOFDAY
-  GooTimer *timer;
-#endif
 
   // scan a sequence of objects
   updateLevel = lastAbortCheck = 0;
@@ -586,6 +583,7 @@ void Gfx::go(GBool topLevel) {
 	fflush(stdout);
       }
 #ifdef HAVE_GETTIMEOFDAY
+      GooTimer *timer = NULL;
       if (profileCommands) 
 	timer = new GooTimer ();
 #endif
@@ -612,7 +610,7 @@ void Gfx::go(GBool topLevel) {
 	  
 	  data_p->addElement (timer->getElapsed ());
 	}
-	delete (timer);
+        delete timer;
       }
 #endif
       obj.free();
