@@ -131,7 +131,7 @@ int main(int argc, char *argv[]) {
   SplashOutputDev *splashOut;
   GBool ok;
   int exitCode;
-  int pg, pg_num_len, pg_x_len, pg_y_len;
+  int pg, pg_num_len;
   double pg_w, pg_h, tmp;
 
   exitCode = 99;
