@@ -59,6 +59,7 @@ static GooString* basename(GooString* str){
   return new GooString(str);
 }
 
+#if 0
 static GooString* Dirname(GooString* str){
   
   char *p=str->getCString();
@@ -68,6 +69,7 @@ static GooString* Dirname(GooString* str){
       return new GooString(p,i+1);
   return new GooString();
 } 
+#endif
 
 //------------------------------------------------------------------------
 // HtmlString
@@ -994,10 +996,9 @@ HtmlOutputDev::~HtmlOutputDev() {
       delete pages;
 }
 
-
-
 void HtmlOutputDev::startPage(int pageNum, GfxState *state) {
-  /*if (mode&&!xml){
+#if 0
+  if (mode&&!xml){
     if (write){
       write=gFalse;
       GooString* fname=Dirname(Docname);
@@ -1012,7 +1013,8 @@ void HtmlOutputDev::startPage(int pageNum, GfxState *state) {
     // else 
       fprintf(tin,"ROTATE=%d neg %d neg translate\n",state->getX1(),state->getY1());  
     }
-  }*/
+  }
+#endif
 
   this->pageNum = pageNum;
   GooString *str=basename(Docname);

@@ -339,6 +339,9 @@ QValueList<Link*> Page::links() const
           m_refGen = r->gen;
           copyString( m_uri, m->getTitle()->getCString() );
 */      break;
+        case actionSound:
+        /* TODO: write me */
+        break;
 
         case actionUnknown:
         break;

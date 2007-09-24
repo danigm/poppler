@@ -592,7 +592,7 @@ static uint32_t luminocity(uint32_t x)
   int r = (x >> 16) & 0xff;
   int g = (x >>  8) & 0xff;
   int b = (x >>  0) & 0xff;
-  int y = 0.3 * r + 0.59 * g + 0.11 * b;
+  int y = (int) (0.3 * r + 0.59 * g + 0.11 * b);
   return y << 24;
 }
 
@@ -606,8 +606,8 @@ void CairoOutputDev::setSoftMask(GfxState * state, double * bbox, GBool alpha,
 
     double x1, y1, x2, y2;
     cairo_clip_extents(cairo, &x1, &y1, &x2, &y2);
-    int width = ceil(x2) - floor(x1);
-    int height = ceil(y2) - floor(y1);
+    int width = (int)(ceil(x2) - floor(x1));
+    int height = (int)(ceil(y2) - floor(y1));
 
     cairo_surface_t *source = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, width, height);
     cairo_t *maskCtx = cairo_create(source);
