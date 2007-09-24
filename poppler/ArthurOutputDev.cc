@@ -78,20 +78,16 @@ ArthurOutputDev::~ArthurOutputDev()
 }
 
 void ArthurOutputDev::startDoc(XRef *xrefA) {
-  int i;
-
   xref = xrefA;
-  if (m_fontEngine) {
-    delete m_fontEngine;
-  }
+  delete m_fontEngine;
   m_fontEngine = new SplashFontEngine(
 #if HAVE_T1LIB_H
-				    globalParams->getEnableT1lib(),
+  globalParams->getEnableT1lib(),
 #endif
 #if HAVE_FREETYPE_FREETYPE_H || HAVE_FREETYPE_H
-				    globalParams->getEnableFreeType(),
+  globalParams->getEnableFreeType(),
 #endif
-				    globalParams->getAntialias());
+  globalParams->getAntialias());
 }
 
 void ArthurOutputDev::startPage(int pageNum, GfxState *state)
@@ -497,7 +493,6 @@ void ArthurOutputDev::drawChar(GfxState *state, double x, double y,
   // fill
   if (!(render & 1)) {
     int x0, y0, xFrac, yFrac;
-    SplashGlyphBitmap glyph;
 
     x0 = static_cast<int>(floor(x1));
     xFrac = splashFloor((x1 - x0) * splashFontFraction);
@@ -681,8 +676,7 @@ void ArthurOutputDev::drawImage(GfxState *state, Object *ref, Stream *str,
   int x, y;
   ImageStream *imgStr;
   Guchar *pix;
-  GfxRGB rgb;
-  int alpha, i;
+  int i;
   double *ctm;
   QMatrix matrix;
   int is_identity_transform;
