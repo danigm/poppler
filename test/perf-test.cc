@@ -40,6 +40,7 @@
 #include "ErrorCodes.h"
 #include "GooString.h"
 #include "GooList.h"
+#include "GooTimer.h"
 #include "GlobalParams.h"
 #include "SplashBitmap.h"
 #include "Object.h" /* must be included before SplashOutputDev.h because of sloppiness in SplashOutputDev.h */
@@ -313,89 +314,6 @@ void sleep_milliseconds(int milliseconds)
     return;
 #endif
 }
-
-/* milli-second timer */
-typedef struct ms_timer {
-#ifdef _WIN32
-    LARGE_INTEGER   start;
-    LARGE_INTEGER   end;
-#else
-    struct timeval  start;
-    struct timeval  end;
-#endif
-} ms_timer;
-
-#ifdef _WIN32
-void ms_timer_start(ms_timer *timer)
-{
-    assert(timer);
-    if (!timer)
-        return;
-    QueryPerformanceCounter(&timer->start);
-}
-void ms_timer_stop(ms_timer *timer)
-{
-    assert(timer);
-    if (!timer)
-        return;
-    QueryPerformanceCounter(&timer->end);
-}
-
-double ms_timer_time_in_ms(ms_timer *timer)
-{
-    LARGE_INTEGER   freq;
-    double          time_in_secs;
-    QueryPerformanceFrequency(&freq);
-    time_in_secs = (double)(timer->end.QuadPart-timer->start.QuadPart)/(double)freq.QuadPart;
-    return time_in_secs * 1000.0;
-}
-#else
-void ms_timer_start(ms_timer *timer)
-{
-    assert(timer);
-    if (!timer)
-        return;
-    gettimeofday(&timer->start, NULL);
-}
-
-void ms_timer_stop(ms_timer *timer)
-{
-    assert(timer);
-    if (!timer)
-        return;
-    gettimeofday(&timer->end, NULL);
-}
-
-double ms_timer_time_in_ms(ms_timer *timer)
-{
-    double timeInMs;
-    time_t seconds;
-    int    usecs;
-
-    assert(timer);
-    if (!timer)
-        return 0.0;
-    /* TODO: this logic needs to be verified */
-    seconds = timer->end.tv_sec - timer->start.tv_sec;
-    usecs = timer->end.tv_usec - timer->start.tv_usec;
-    if (usecs < 0) {
-        --seconds;
-        usecs += 1000000;
-    }
-    timeInMs = (double)seconds*(double)1000.0 + (double)usecs/(double)1000.0;
-    return timeInMs;
-}
-#endif
-
-class MsTimer {
-public:
-    MsTimer() { ms_timer_start(&timer); }
-    void start(void) { ms_timer_start(&timer); }
-    void stop(void) { ms_timer_stop(&timer); }
-    double timeInMs(void) { return ms_timer_time_in_ms(&timer); }
-private:
-    ms_timer timer;
-};
 
 static SplashColorMode gSplashColorMode = splashModeBGR8;
 
@@ -888,7 +806,7 @@ static void RenderPdfAsText(const char *fileName)
         return;
     }
 
-    MsTimer msTimer;
+    GooTimer msTimer;
     /* note: don't delete fileNameStr since PDFDoc takes ownership and deletes them itself */
     fileNameStr = new GooString(fileName);
     if (!fileNameStr)
@@ -901,7 +819,7 @@ static void RenderPdfAsText(const char *fileName)
     }
 
     msTimer.stop();
-    double timeInMs = msTimer.timeInMs();
+    double timeInMs = msTimer.getElapsed();
     LogInfo("load: %.2f ms\n", timeInMs);
 
     int pageCount = pdfDoc->getNumPages();
@@ -919,7 +837,7 @@ static void RenderPdfAsText(const char *fileName)
         pdfDoc->displayPage(textOut, curPage, 72, 72, rotate, useMediaBox, crop, doLinks);
         txt = textOut->getText(0.0, 0.0, 10000.0, 10000.0);
         msTimer.stop();
-        timeInMs = msTimer.timeInMs();
+        timeInMs = msTimer.getElapsed();
         if (gfTimings)
             LogInfo("page %d: %.2f ms\n", curPage, timeInMs);
         printf("%s\n", txt->getCString());
@@ -952,13 +870,13 @@ static void RenderPdf(const char *fileName)
 
     engineSplash = new PdfEnginePoppler();
 
-    MsTimer msTimer;
+    GooTimer msTimer;
     if (!engineSplash->load(fileNameSplash)) {
         LogInfo("failed to load splash\n");
         goto Error;
     }
     msTimer.stop();
-    double timeInMs = msTimer.timeInMs();
+    double timeInMs = msTimer.getElapsed();
     LogInfo("load splash: %.2f ms\n", timeInMs);
     int pageCount = engineSplash->pageCount();
 
@@ -970,10 +888,10 @@ static void RenderPdf(const char *fileName)
 
         SplashBitmap *bmpSplash = NULL;
 
-        MsTimer msTimer;
+        GooTimer msTimer;
         bmpSplash = engineSplash->renderBitmap(curPage, 100.0, 0);
         msTimer.stop();
-        double timeInMs = msTimer.timeInMs();
+        double timeInMs = msTimer.getElapsed();
         if (gfTimings)
             if (!bmpSplash)
                 LogInfo("page splash %d: failed to render\n", curPage);
