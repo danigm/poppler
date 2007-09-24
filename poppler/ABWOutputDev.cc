@@ -116,7 +116,6 @@ void ABWOutputDev::recursiveXYC(xmlNodePtr nodeset) {
   splits the page using splitNodes on that whitespace. It calls itself again
   with both the halves*/
   float bhs, bvs, X1, X2, Y1, Y2;
-  xmlNodePtr N_cur;
 
   bvs = getBiggestSeperator(nodeset, VERTICAL, &X1, &X2);
   bhs = getBiggestSeperator(nodeset, HORIZONTAL, &Y1, &Y2);
@@ -259,17 +258,15 @@ float ABWOutputDev::getBiggestSeperator(xmlNodePtr N_set, unsigned int direction
 
 void ABWOutputDev::updateFont(GfxState *state) {
   char buf[160];
-  double x,y;
   xmlNodePtr N_cur;
   GfxFont *font;
   bool found = false;
-  xmlChar val[8];
   bool isBold, isItalic, S_isBold, S_isItalic;
   isBold = isItalic = S_isBold =  S_isItalic = false;
   font = state->getFont();
   GooString *ftName;
   char *fnEnd, *fnName;
-  int fnLength, fnStart, ftSize;
+  int fnStart, ftSize;
   //the first time this function is called there is no funt.
   //Fixme: find out if that isn'y a bug
   if (font){
@@ -431,14 +428,12 @@ void ABWOutputDev::endWord(){
 }
 
 void ABWOutputDev::beginTextBlock(GfxState *state, double x, double y){
-  char buf[20];
   endTextBlock();
   N_Block = xmlNewChild(N_page, NULL, BAD_CAST "Textblock", NULL);
   beginWord(state,x,y);
 }
 
 void ABWOutputDev::endTextBlock(){
-  char buf[20];
   if (N_Block) {
     endWord();
     N_Block = NULL;  
@@ -458,7 +453,6 @@ void ABWOutputDev::interpretXYTree(){
 
 void ABWOutputDev::ATP_recursive(xmlNodePtr N_parent){
   xmlNodePtr N_first, N_second, N_line, N_tempCol, N_tempColset;
-  char buf[20];
 
   N_first  = N_parent->children;
   if (!N_first)
@@ -592,7 +586,7 @@ void ABWOutputDev::ATP_recursive(xmlNodePtr N_parent){
     }
     break;
   default:
-    double tX1=0, tX2=0, tY1=0, tY2=0;
+    //double tX1=0, tX2=0, tY1=0, tY2=0;
     //fprintf(stderr,"case default\n");
     N_line = xmlNewChild(N_Block, NULL, BAD_CAST "line", NULL);
     while (N_first){
