@@ -2579,8 +2579,8 @@ JBIG2Bitmap *JBIG2Stream::readGenericBitmap(GBool mmr, int w, int h,
   JBIG2Bitmap *bitmap;
   GBool ltp;
   Guint ltpCX, cx, cx0, cx1, cx2;
-  JBIG2BitmapPtr cxPtr0, cxPtr1;
-  JBIG2BitmapPtr atPtr0, atPtr1, atPtr2, atPtr3;
+  JBIG2BitmapPtr cxPtr0 = {0}, cxPtr1 = {0};
+  JBIG2BitmapPtr atPtr0 = {0}, atPtr1 = {0}, atPtr2 = {0}, atPtr3 = {0};
   int *refLine, *codingLine;
   int code1, code2, code3;
   int x, y, a0, pix, i, refI, codingI;
@@ -3025,8 +3025,16 @@ JBIG2Bitmap *JBIG2Stream::readGenericRefinementRegion(int w, int h,
   JBIG2Bitmap *bitmap;
   GBool ltp;
   Guint ltpCX, cx, cx0, cx2, cx3, cx4, tpgrCX0, tpgrCX1, tpgrCX2;
-  JBIG2BitmapPtr cxPtr0, cxPtr1, cxPtr2, cxPtr3, cxPtr4, cxPtr5, cxPtr6;
-  JBIG2BitmapPtr tpgrCXPtr0, tpgrCXPtr1, tpgrCXPtr2;
+  JBIG2BitmapPtr cxPtr0 = {0};
+  JBIG2BitmapPtr cxPtr1 = {0};
+  JBIG2BitmapPtr cxPtr2 = {0};
+  JBIG2BitmapPtr cxPtr3 = {0};
+  JBIG2BitmapPtr cxPtr4 = {0};
+  JBIG2BitmapPtr cxPtr5 = {0};
+  JBIG2BitmapPtr cxPtr6 = {0};
+  JBIG2BitmapPtr tpgrCXPtr0 = {0};
+  JBIG2BitmapPtr tpgrCXPtr1 = {0};
+  JBIG2BitmapPtr tpgrCXPtr2 = {0};
   int x, y, pix;
 
   bitmap = new JBIG2Bitmap(0, w, h);
