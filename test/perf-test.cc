@@ -713,6 +713,7 @@ void OutputDebugString(const char *txt)
 #endif
 
 void my_error(int pos, char *msg, va_list args) {
+#if 0
     char        buf[4096], *p = buf;
 
     // NB: this can be called before the globalParams object is created
@@ -748,6 +749,7 @@ void my_error(int pos, char *msg, va_list args) {
         if (gErrFile)
             fprintf(gErrFile, "Error: ");
     }
+#endif
 #if 0
     p = buf;
     va_start(args, msg);
