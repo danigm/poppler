@@ -903,6 +903,7 @@ static void RenderPdf(const char *fileName)
             if (gfSlowPreview)
                 sleep_milliseconds(SLOW_PREVIEW_TIME);
         }
+        delete bmpSplash;
     }
 Error:
     delete engineSplash;

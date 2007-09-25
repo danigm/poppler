@@ -60,7 +60,7 @@ CFLAGS = $(CFLAGS) /I$(ZLIB_DIR) /I$(JPEG_DIR) /I$(FREETYPE_DIR)\include
 
 LIBS = $(LIBS) kernel32.lib advapi32.lib user32.lib gdi32.lib
 
-LDFLAGS = $(LDFLAGS) /nologo /DEBUG /NODEFAULTLIB:libcmt
+LDFLAGS = $(LDFLAGS) /nologo /DEBUG
 
 #CFLAGS = $(CFLAGS) /D "USE_FIXEDPOINT"
 
@@ -70,8 +70,10 @@ LDFLAGS = $(LDFLAGS) /nologo /DEBUG /NODEFAULTLIB:libcmt
 # /ltcg - link-time code generation. Generates smaller and faster code. Requires /GL when compiling.
 LDFLAGS = $(LDFLAGS) /opt:ref /opt:icf /opt:nowin98 /ltcg
 LIBS = $(LIBS) $(ZLIB_DIR)\zlib_s.lib $(JPEG_DIR)\jpeg_s.lib $(FREETYPE_DIR)\freetype231mt.lib
+LDFLAGS = $(LDFLAGS) /NODEFAULTLIB:libcmt
 !else
-LIBS = $(LIBS) $(ZLIB_DIR)\zlib_sd.lib $(JPEG_DIR)\jpeg_sd.lib $(FREETYPE_DIR)\freetype231mt_d.lib
+LIBS = $(LIBS) $(ZLIB_DIR)\zlib_ds.lib $(JPEG_DIR)\jpeg_ds.lib $(FREETYPE_DIR)\freetype231mt_d.lib
+LDFLAGS = $(LDFLAGS) /NODEFAULTLIB:libcmtd
 !endif
 
 FOFI_OBJS=$(O)\FoFiBase.obj $(O)\FoFiEncodings.obj $(O)\FoFiTrueType.obj \
