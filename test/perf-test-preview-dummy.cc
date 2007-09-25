@@ -6,6 +6,7 @@ Using this perf-test still works for performance testing, you just don't
 get any visual feedback during testing.
 */
 
+#include "splash/SplashBitmap.h"
 
 void PreviewBitmapSplash(SplashBitmap *bmpSplash)
 {

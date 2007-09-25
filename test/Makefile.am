@@ -26,6 +26,12 @@ endif
 
 endif
 
+if BUILD_SPLASH_OUTPUT
+
+perf_test =				\
+	perf-test
+
+endif
 
 INCLUDES =					\
 	-I$(top_srcdir)				\
@@ -36,7 +42,7 @@ INCLUDES =					\
 	$(GTK_TEST_CFLAGS)			\
 	$(FONTCONFIG_CFLAGS)
 
-noinst_PROGRAMS = $(gtk_splash_test) $(gtk_cairo_test) $(pdf_inspector)
+noinst_PROGRAMS = $(gtk_splash_test) $(gtk_cairo_test) $(pdf_inspector) $(perf_test)
 
 gtk_splash_test_SOURCES =			\
        gtk-splash-test.cc
@@ -64,6 +70,14 @@ pdf_inspector_LDADD =					\
 	$(CAIRO_LIBS)					\
 	$(FREETYPE_LIBS)				\
 	$(GTK_TEST_LIBS)
+
+perf_test_SOURCES =			\
+       perf-test.cc                     \
+       perf-test-preview-dummy.cc
+
+perf_test_LDADD =				\
+	$(top_builddir)/poppler/libpoppler.la	\
+	$(FREETYPE_LIBS)
 
 EXTRA_DIST =					\
 	pdf-operators.c

@@ -5,6 +5,7 @@
   very simplistic performance measuring.
 
   TODO:
+   * make it work with cairo output as well
    * print more info about document like e.g. enumarate images,
      streams, compression, encryption, password-protection. Each should have
      a command-line arguments to turn it on/off
@@ -44,20 +45,20 @@
 
 #include "Error.h"
 #include "ErrorCodes.h"
-#include "GooString.h"
-#include "GooList.h"
-#include "GooTimer.h"
+#include "goo/GooString.h"
+#include "goo/GooList.h"
+#include "goo/GooTimer.h"
 #include "GlobalParams.h"
-#include "SplashBitmap.h"
+#include "splash/SplashBitmap.h"
 #include "Object.h" /* must be included before SplashOutputDev.h because of sloppiness in SplashOutputDev.h */
 #include "SplashOutputDev.h"
 #include "TextOutputDev.h"
 #include "PDFDoc.h"
-#include "SecurityHandler.h"
 #include "Link.h"
 
 #ifdef _MSC_VER
 #define strdup _strdup
+#define strcasecmp _stricmp
 #endif
 
 #define dimof(X)    (sizeof(X)/sizeof((X)[0]))
@@ -269,7 +270,7 @@ bool str_ieq(const char *str1, const char *str2)
         return true;
     if (!str1 || !str2)
         return false;
-    if (0 == _stricmp(str1, str2))
+    if (0 == strcasecmp(str1, str2))
         return true;
     return false;
 }
@@ -320,6 +321,32 @@ void sleep_milliseconds(int milliseconds)
     return;
 #endif
 }
+
+#ifndef _MSC_VER
+void strcpy_s(char* dst, size_t dst_size, const char* src)
+{
+    size_t src_size = strlen(src) + 1;
+    if (src_size <= dst_size)
+        memcpy(dst, src, src_size);
+    else {
+        if (dst_size > 0) {
+            memcpy(dst, src, dst_size);
+            dst[dst_size-1] = 0;
+        }
+    }
+}
+
+void strcat_s(char *dst, size_t dst_size, const char* src)
+{
+    size_t dst_len = strlen(dst);
+    if (dst_len >= dst_size) {
+        if (dst_size > 0)
+            dst[dst_size-1] = 0;
+        return;
+    }
+    strcpy_s(dst+dst_len, dst_size - dst_len, src);
+}
+#endif
 
 static SplashColorMode gSplashColorMode = splashModeBGR8;
 
@@ -801,6 +828,8 @@ static void RenderPdfAsText(const char *fileName)
     GooString *         fileNameStr = NULL;
     PDFDoc *            pdfDoc = NULL;
     GooString *         txt = NULL;
+    int                 pageCount;
+    double              timeInMs;
 
     assert(fileName);
     if (!fileName)
@@ -827,10 +856,10 @@ static void RenderPdfAsText(const char *fileName)
     }
 
     msTimer.stop();
-    double timeInMs = msTimer.getElapsed();
+    timeInMs = msTimer.getElapsed();
     LogInfo("load: %.2f ms\n", timeInMs);
 
-    int pageCount = pdfDoc->getNumPages();
+    pageCount = pdfDoc->getNumPages();
     LogInfo("page count: %d\n", pageCount);
 
     for (int curPage = 1; curPage <= pageCount; curPage++) {
@@ -867,8 +896,10 @@ Exit:
 
 static void RenderPdf(const char *fileName)
 {
-    const char *fileNameSplash = NULL;
-    PdfEnginePoppler * engineSplash = NULL;
+    const char *        fileNameSplash = NULL;
+    PdfEnginePoppler *  engineSplash = NULL;
+    int                 pageCount;
+    double              timeInMs;
 
 #ifdef COPY_FILE
     // TODO: fails if file already exists and has read-only attribute
@@ -887,9 +918,9 @@ static void RenderPdf(const char *fileName)
         goto Error;
     }
     msTimer.stop();
-    double timeInMs = msTimer.getElapsed();
+    timeInMs = msTimer.getElapsed();
     LogInfo("load splash: %.2f ms\n", timeInMs);
-    int pageCount = engineSplash->pageCount();
+    pageCount = engineSplash->pageCount();
 
     LogInfo("page count: %d\n", pageCount);
     if (gfLoadOnly)
@@ -990,53 +1021,6 @@ static bool ParseResolutionString(const char *resolutionString, int *resolutionX
     if (!ParseInteger(posOfX+1, resolutionString+strlen(resolutionString)-1, resolutionYOut))
         return false;
     return true;
-}
-
-#ifdef DEBUG
-static void u_ParseResolutionString(void)
-{
-    int i;
-    int result, resX, resY;
-    const char *str;
-    struct TestData {
-        const char *    str;
-        int             result;
-        int             resX;
-        int             resY;
-    } testData[] = {
-        { "", false, 0, 0 },
-        { "abc", false, 0, 0},
-        { "34", false, 0, 0},
-        { "0x0", true, 0, 0},
-        { "0x1", true, 0, 1},
-        { "0xab", false, 0, 0},
-        { "1x0", true, 1, 0},
-        { "100x200", true, 100, 200},
-        { "58x58", true, 58, 58},
-        { "  58x58", true, 58, 58},
-        { "58x  58", true, 58, 58},
-        { "58x58  ", true, 58, 58},
-        { "     58  x  58  ", true, 58, 58},
-        { "34x1234a", false, 0, 0},
-        { NULL, false, 0, 0}
-    };
-    for (i=0; NULL != testData[i].str; i++) {
-        str = testData[i].str;
-        result = ParseResolutionString(str, &resX, &resY);
-        assert(result == testData[i].result);
-        if (result) {
-            assert(resX == testData[i].resX);
-            assert(resY == testData[i].resY);
-        }
-    }
-}
-#endif
-
-static void runAllUnitTests(void)
-{
-#ifdef DEBUG
-    u_ParseResolutionString();
-#endif
 }
 
 static void ParseCommandLine(int argc, char **argv)
@@ -1243,8 +1227,6 @@ static void RenderCmdLineArg(char *cmdLineArg)
 
 int main(int argc, char **argv)
 {
-    //runAllUnitTests();
-
     setErrorFunction(my_error);
     ParseCommandLine(argc, argv);
     if (0 == StrList_Len(&gArgsListRoot))
