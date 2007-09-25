@@ -239,16 +239,10 @@ void PreviewBitmapInit(void)
     /* no need to do anything */
 }
 
-static void deleteRenderedBitmaps()
-{
-    delete gBmpSplash;
-}
-
 void PreviewBitmapDestroy(void)
 {
     PostQuitMessage(0);
     pumpMessages();
-    deleteRenderedBitmaps();
     DeleteObject(gBrushBg);
 }
 
@@ -271,7 +265,6 @@ void PreviewBitmapSplash(SplashBitmap *bmpSplash)
     if (!initWinIfNecessary())
         return;
 
-    deleteRenderedBitmaps();
     gBmpSplash = bmpSplash;
     UpdateWindows();
 }
