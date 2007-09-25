@@ -881,6 +881,8 @@ static void RenderPdf(const char *fileName)
     int pageCount = engineSplash->pageCount();
 
     LogInfo("page count: %d\n", pageCount);
+    if (gfLoadOnly)
+        goto Error;
 
     for (int curPage = 1; curPage <= pageCount; curPage++) {
         if ((gPageNo != PAGE_NO_NOT_GIVEN) && (gPageNo != curPage))
