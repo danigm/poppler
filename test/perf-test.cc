@@ -22,6 +22,12 @@
 #include <windows.h>
 #endif
 
+// Define COPY_FILE if you want the file to be copied to a local disk first
+// before it's tested. This is desired if a file is on a slow drive.
+// Currently copying only works on Windows.
+// Not enabled by default.
+//#define COPY_FILE 1
+
 #include <assert.h>
 #include <config.h>
 #include <stdio.h>
@@ -862,10 +868,13 @@ static void RenderPdf(const char *fileName)
     const char *fileNameSplash = NULL;
     PdfEnginePoppler * engineSplash = NULL;
 
+#ifdef COPY_FILE
     // TODO: fails if file already exists and has read-only attribute
     CopyFile(fileName, POPPLER_TMP_NAME, false);
     fileNameSplash = POPPLER_TMP_NAME;
-
+#else
+    fileNameSplash = fileName;
+#endif
     LogInfo("started: %s\n", fileName);
 
     engineSplash = new PdfEnginePoppler();
