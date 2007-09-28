@@ -10,6 +10,8 @@ poppler_glib_demo_SOURCES = 			\
 	main.c					\
 	fonts.h					\
 	fonts.c					\
+	forms.h					\
+	forms.c					\
 	info.h					\
 	info.c					\
 	links.h					\

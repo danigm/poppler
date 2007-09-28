@@ -175,7 +175,6 @@ pgd_action_view_set_action (GtkWidget     *action_view,
 {
 	GtkWidget  *alignment;
 	GtkWidget  *table;
-	GEnumValue *enum_value;
 	gint        row = 0;
 
 	alignment = gtk_bin_get_child (GTK_BIN (action_view));

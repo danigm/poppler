@@ -26,6 +26,7 @@
 #include "page.h"
 #include "outline.h"
 #include "links.h"
+#include "forms.h"
 
 enum {
 	PGD_TITLE_COLUMN,
@@ -45,7 +46,8 @@ static const PopplerGlibDemo demo_list[] = {
 	{ "Render",    pgd_render_create_widget },
 	{ "Page Info", pgd_page_create_widget },
 	{ "Outline",   pgd_outline_create_widget },
-	{ "Links",     pgd_links_create_widget }
+	{ "Links",     pgd_links_create_widget },
+	{ "Forms",     pgd_forms_create_widget }
 };
 
 static void
@@ -65,7 +67,7 @@ pgd_demo_changed (GtkTreeSelection *selection,
 	}
 }
 
-GtkWidget *
+static GtkWidget *
 pgd_demo_list_create (void)
 {
 	GtkWidget       *treeview;
@@ -101,7 +103,7 @@ pgd_demo_list_create (void)
 	return treeview;
 }
 
-GtkWidget *
+static GtkWidget *
 pdg_demo_notebook_create (PopplerDocument *document)
 {
 	GtkWidget *notebook;
