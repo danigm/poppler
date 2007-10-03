@@ -232,6 +232,8 @@ form_field_button_print (PopplerFormField *field)
       case POPPLER_FORM_BUTTON_RADIO:
         button_type_str = "Radio Button";
 	break;
+      default:
+        g_assert_not_reached ();
     }
   
   printf ("\t\tType:\t\tButton\n");
