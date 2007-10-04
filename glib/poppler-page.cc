@@ -408,16 +408,10 @@ poppler_page_copy_to_pixbuf(PopplerPage *page,
 
 #if defined (HAVE_CAIRO)
 
-/**
- * poppler_page_render:
- * @page: the page to render from
- * @cairo: cairo context to render to
- *
- * Render the page to the given cairo context.
- **/
-void
-poppler_page_render (PopplerPage *page,
-		     cairo_t *cairo)
+static void
+_poppler_page_render (PopplerPage *page,
+		      cairo_t *cairo,
+		      GBool printing)
 {
   CairoOutputDev *output_dev;
 
@@ -434,13 +428,74 @@ poppler_page_render (PopplerPage *page,
 			   gTrue, /* Crop */
 			   -1, -1,
 			   -1, -1,
-			   gFalse, /* printing */
+			   printing,
 			   page->document->doc->getCatalog ());
 
-  output_dev->setCairo (NULL);
+  output_dev->setCairo (NULL);	
+}
+
+/**
+ * poppler_page_render:
+ * @page: the page to render from
+ * @cairo: cairo context to render to
+ *
+ * Render the page to the given cairo context. This function
+ * is for rendering a page that will be displayed. If you want
+ * to render a page that will be printed use
+ * poppler_page_render_for_printing() instead
+ **/
+void
+poppler_page_render (PopplerPage *page,
+		     cairo_t *cairo)
+{
+  g_return_if_fail (POPPLER_IS_PAGE (page));
+
+  _poppler_page_render (page, cairo, gFalse);
+}
+
+/**
+ * poppler_page_render_for_printing:
+ * @page: the page to render from
+ * @cairo: cairo context to render to
+ *
+ * Render the page to the given cairo context for printing.
+ **/
+void
+poppler_page_render_for_printing (PopplerPage *page,
+				  cairo_t *cairo)
+{
+  g_return_if_fail (POPPLER_IS_PAGE (page));
+  
+  _poppler_page_render (page, cairo, gTrue);	
 }
 
 #endif
+
+static void
+_poppler_page_render_to_pixbuf (PopplerPage *page,
+				int src_x, int src_y,
+				int src_width, int src_height,
+				double scale,
+				int rotation,
+				GBool printing,
+				GdkPixbuf *pixbuf)
+{
+  OutputDevData data;
+  
+  poppler_page_prepare_output_dev (page, scale, rotation, FALSE, &data);
+
+  page->page->displaySlice(page->document->output_dev,
+			   72.0 * scale, 72.0 * scale,
+			   rotation,
+			   gFalse, /* useMediaBox */
+			   gTrue, /* Crop */
+			   src_x, src_y,
+			   src_width, src_height,
+			   printing,
+			   page->document->doc->getCatalog ());
+  
+  poppler_page_copy_to_pixbuf (page, pixbuf, &data);
+}
 
 /**
  * poppler_page_render_to_pixbuf:
@@ -456,6 +511,9 @@ poppler_page_render (PopplerPage *page,
  * First scale the document to match the specified pixels per point,
  * then render the rectangle given by the upper left corner at
  * (src_x, src_y) and src_width and src_height.
+ * This function is for rendering a page that will be displayed.
+ * If you want to render a page that will be printed use
+ * poppler_page_render_to_pixbuf_for_printing() instead
  **/
 void
 poppler_page_render_to_pixbuf (PopplerPage *page,
@@ -465,25 +523,50 @@ poppler_page_render_to_pixbuf (PopplerPage *page,
 			       int rotation,
 			       GdkPixbuf *pixbuf)
 {
-  OutputDevData data;
-
   g_return_if_fail (POPPLER_IS_PAGE (page));
   g_return_if_fail (scale > 0.0);
   g_return_if_fail (pixbuf != NULL);
 
-  poppler_page_prepare_output_dev (page, scale, rotation, FALSE, &data);
+  _poppler_page_render_to_pixbuf (page, src_x, src_y,
+				  src_width, src_height,
+				  scale, rotation,
+				  gFalse,
+				  pixbuf);
+}
 
-  page->page->displaySlice(page->document->output_dev,
-			   72.0 * scale, 72.0 * scale,
-			   rotation,
-			   gFalse, /* useMediaBox */
-			   gTrue, /* Crop */
-			   src_x, src_y,
-			   src_width, src_height,
-			   gFalse, /* printing */
-			   page->document->doc->getCatalog ());
-  
-  poppler_page_copy_to_pixbuf (page, pixbuf, &data);
+/**
+ * poppler_page_render_to_pixbuf_for_printing:
+ * @page: the page to render from
+ * @src_x: x coordinate of upper left corner  
+ * @src_y: y coordinate of upper left corner  
+ * @src_width: width of rectangle to render  
+ * @src_height: height of rectangle to render
+ * @scale: scale specified as pixels per point
+ * @rotation: rotate the document by the specified degree
+ * @pixbuf: pixbuf to render into
+ *
+ * First scale the document to match the specified pixels per point,
+ * then render the rectangle given by the upper left corner at
+ * (src_x, src_y) and src_width and src_height.
+ * This function is for rendering a page that will be printed.
+ **/
+void
+poppler_page_render_to_pixbuf_for_printing (PopplerPage *page,
+					    int src_x, int src_y,
+					    int src_width, int src_height,
+					    double scale,
+					    int rotation,
+					    GdkPixbuf *pixbuf)
+{
+  g_return_if_fail (POPPLER_IS_PAGE (page));
+  g_return_if_fail (scale > 0.0);
+  g_return_if_fail (pixbuf != NULL);
+
+  _poppler_page_render_to_pixbuf (page, src_x, src_y,
+				  src_width, src_height,
+				  scale, rotation,
+				  gTrue,
+				  pixbuf);
 }
 
 static TextOutputDev *

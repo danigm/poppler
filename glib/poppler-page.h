@@ -47,9 +47,19 @@ void                   poppler_page_render_to_pixbuf     (PopplerPage        *pa
 							  double              scale,
 							  int                 rotation,
 							  GdkPixbuf          *pixbuf);
+void          poppler_page_render_to_pixbuf_for_printing (PopplerPage        *page,
+							  int                 src_x,
+							  int                 src_y,
+							  int                 src_width,
+							  int                 src_height,
+							  double              scale,
+							  int                 rotation,
+							  GdkPixbuf          *pixbuf);
 
 #ifdef POPPLER_HAS_CAIRO
 void                   poppler_page_render               (PopplerPage        *page,
+							  cairo_t            *cairo);
+void                   poppler_page_render_for_printing  (PopplerPage        *page,
 							  cairo_t            *cairo);
 #endif	
 
