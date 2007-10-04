@@ -1221,6 +1221,25 @@ GfxCIDFont::GfxCIDFont(XRef *xref, char *tagA, Ref idA, GooString *nameA,
 
       // look for a user-supplied .cidToUnicode file
       if (!(ctu = globalParams->getCIDToUnicode(collection))) {
+	// I'm not completely sure that this is the best thing to do
+	// but it seems to produce better results when the .cidToUnicode
+	// files from the poppler-data package are missing. At least
+	// we know that assuming the Identity mapping is definitely wrong.
+	//   -- jrmuizel
+	static const char * knownCollections [] = {
+	  "Adobe-CNS1",
+	  "Adobe-GB1",
+	  "Adobe-Japan1",
+	  "Adobe-Japan2",
+	  "Adobe-Korea1",
+	};
+	for (size_t i = 0; i < sizeof(knownCollections)/sizeof(knownCollections[0]); i++) {
+	  if (collection->cmp(knownCollections[i])) {
+	    error(-1, "Missing language pack for '%s' mapping", collection->getCString());
+	    delete collection;
+	    goto err2;
+	  }
+	}
 	error(-1, "Unknown character collection '%s'",
 	      collection->getCString());
 	// fall-through, assuming the Identity mapping -- this appears
