@@ -96,6 +96,8 @@ poppler_form_field_get_field_type (PopplerFormField *field)
       return POPPLER_FORM_FIELD_TEXT;
     case formChoice:
       return POPPLER_FORM_FIELD_CHOICE;
+    case formSignature:
+      return POPPLER_FORM_FIELD_SIGNATURE;
     default:
       g_warning ("Unsupported Form Field Type");
   }
