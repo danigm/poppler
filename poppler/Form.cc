@@ -1082,7 +1082,16 @@ Form::Form(XRef *xrefA, Object* acroForm)
       array->getNF(i, &oref);
       if (!oref.isRef()) {
         error(-1, "Direct object in rootFields");
+	obj1.free();
+	oref.free();
         continue;
+      }
+
+      if (!obj1.isDict()) {
+        error(-1, "Reference in Fields array to an invalid or non existant object");
+	obj1.free();
+	oref.free();
+	continue;
       }
 
       if (numFields >= size) {
