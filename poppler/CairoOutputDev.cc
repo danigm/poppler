@@ -1046,10 +1046,10 @@ void CairoOutputDev::drawMaskedImage(GfxState *state, Object *ref,
   
   invert_bit = maskInvert ? 1 : 0;
 
-  for (y = 0; y < height; y++) {
+  for (y = 0; y < maskHeight; y++) {
     pix = maskImgStr->getLine();
     maskDest = maskBuffer + y * row_stride;
-    for (x = 0; x < width; x++) {
+    for (x = 0; x < maskWidth; x++) {
       if (pix[x] ^ invert_bit)
 	*maskDest++ = 0;
       else
