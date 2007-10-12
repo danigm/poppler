@@ -56,6 +56,7 @@ EmbeddedFile::EmbeddedFile(EmbFile *embfile)
 
 EmbeddedFile::~EmbeddedFile()
 {
+	m_embeddedFile->m_streamObject.free();
 	delete m_embeddedFile;
 }
 

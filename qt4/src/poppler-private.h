@@ -134,8 +134,8 @@ namespace Poppler {
 	
 	~DocumentData()
 	{
-		delete doc;
 		qDeleteAll(m_embeddedFiles);
+		delete doc;
 		delete m_outputDev;
 		delete m_fontInfoScanner;
 		
