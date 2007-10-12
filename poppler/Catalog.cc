@@ -383,8 +383,7 @@ EmbFile *Catalog::embeddedFile(int i)
     Object obj, obj2;
     obj = embeddedFileNameTree.getValue(i);
     GooString *fileName = new GooString();
-    char *descString = embeddedFileNameTree.getName(i)->getCString();
-    GooString *desc = new GooString(descString);
+    GooString *desc = new GooString(embeddedFileNameTree.getName(i));
     GooString *createDate = new GooString();
     GooString *modDate = new GooString();
     GooString *checksum = new GooString();
