@@ -82,7 +82,7 @@ public:
   //----- initialization and control
 
   // Start a page.
-  virtual void startPage(int pageNum, GfxState *state) { }
+  virtual void startPage(int pageNum, GfxState *state);
 
   // End a page.
   virtual void endPage() { }
