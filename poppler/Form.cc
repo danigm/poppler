@@ -685,7 +685,7 @@ FormField::FormField(XRef* xrefA, Object *aobj, const Ref& aref, Form* aform, Fo
 	  _createWidget(&obj2, childRef.getRef());
 	}
         obj4.free();
-      } else if(obj2.dictLookup("FT", &obj3)->isName()) {
+      } else if(obj2.dictLookup("FT", &obj3)->isName() || obj2.dictLookup("Kids", &obj3)->isArray()) {
         if(terminal) error(-1, "Field can't have both Widget AND Field as kids\n");
 
         numChildren++;
