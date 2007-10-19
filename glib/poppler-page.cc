@@ -406,6 +406,21 @@ poppler_page_copy_to_pixbuf(PopplerPage *page,
 
 #endif
 
+static GBool
+poppler_print_annot_cb (Annot *annot, void *user_data)
+{
+  GooString *annot_type;
+
+  annot_type = annot->getType ();
+  if (!annot_type)
+    return gFalse;
+  
+  if (annot_type->cmp ("Widget") == 0)
+    return gTrue;
+
+  return gFalse;
+}
+
 #if defined (HAVE_CAIRO)
 
 static void
@@ -429,7 +444,9 @@ _poppler_page_render (PopplerPage *page,
 			   -1, -1,
 			   -1, -1,
 			   printing,
-			   page->document->doc->getCatalog ());
+			   page->document->doc->getCatalog (),
+			   NULL, NULL,
+			   printing ? poppler_print_annot_cb : NULL, NULL);
 
   output_dev->setCairo (NULL);	
 }
@@ -469,7 +486,7 @@ poppler_page_render_for_printing (PopplerPage *page,
   _poppler_page_render (page, cairo, gTrue);	
 }
 
-#endif
+#endif /* HAVE_CAIRO */
 
 static void
 _poppler_page_render_to_pixbuf (PopplerPage *page,
@@ -492,7 +509,9 @@ _poppler_page_render_to_pixbuf (PopplerPage *page,
 			   src_x, src_y,
 			   src_width, src_height,
 			   printing,
-			   page->document->doc->getCatalog ());
+			   page->document->doc->getCatalog (),
+			   NULL, NULL,
+			   printing ? poppler_print_annot_cb : NULL, NULL);
   
   poppler_page_copy_to_pixbuf (page, pixbuf, &data);
 }

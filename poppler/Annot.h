@@ -87,6 +87,8 @@ public:
 
   double getFontSize() { return fontSize; }
 
+  GooString *getType() { return type; }
+
 private:
   void setColor(Array *a, GBool fill, int adjust);
   void drawText(GooString *text, GooString *da, GfxFontDict *fontDict,
