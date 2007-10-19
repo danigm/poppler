@@ -536,7 +536,8 @@ void Annot::generateFieldAppearance(Dict *field, Dict *annot, Dict *acroForm) {
     if (ff & fieldFlagRadio) {
       //~ Acrobat doesn't draw a caption if there is no AP dict (?)
       if (Form::fieldLookup(field, "V", &obj1)->isName()) {
-        if (annot->lookup("AS", &obj2)->isName(obj1.getName())) {
+        if (annot->lookup("AS", &obj2)->isName(obj1.getName()) &&
+	    strcmp (obj1.getName(), "Off") != 0) {
           if (caption) {
             drawText(caption, da, fontDict, gFalse, 0, fieldQuadCenter,
                 gFalse, gTrue);
