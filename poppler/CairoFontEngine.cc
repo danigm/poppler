@@ -77,6 +77,12 @@ CairoFont *CairoFont::create(GfxFont *gfxFont, XRef *xref, FT_Library lib, GBool
     refObj.initRef(embRef.num, embRef.gen);
     refObj.fetch(xref, &strObj);
     refObj.free();
+    if (!strObj.isStream()) {
+      error(-1, "Embedded font object is wrong type");
+      strObj.free();
+      fclose(tmpFile);
+      goto err2;
+    }
     strObj.streamReset();
     while ((c = strObj.streamGetChar()) != EOF) {
       fputc(c, tmpFile);
