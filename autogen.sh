@@ -2,6 +2,7 @@
 
 # Package name
 PKG_NAME=${PKG_NAME:-Poppler}
+srcdir=$(dirname $0)
 
 # Default version requirements
 REQUIRED_GTK_DOC_VERSION=${REQUIRED_GTK_DOC_VERSION:-1.0}
@@ -113,11 +114,11 @@ fi
 version_check automake AUTOMAKE "$automake_progs" $REQUIRED_AUTOMAKE_VERSION \
 "http://ftp.gnu.org/pub/gnu/automake/automake-$REQUIRED_AUTOMAKE_VERSION.tar.gz" || DIE=1
 
-autoreconf -v -i
+(cd $srcdir && autoreconf -v -i )
 
 if $want_gtk_doc; then
     printbold "Running $GTKDOCIZE..."
-    $GTKDOCIZE --copy || exit 1
+    (cd $srcdir && $GTKDOCIZE --copy) || exit 1
 fi
 
-./configure $@
+$srcdir/configure $@

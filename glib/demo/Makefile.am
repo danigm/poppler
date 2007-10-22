@@ -1,5 +1,6 @@
 INCLUDES = 					\
 	-I$(top_srcdir)/glib			\
+	-I$(top_builddir)/glib			\
 	$(GTK_TEST_CFLAGS)
 
 if BUILD_GTK_TEST
