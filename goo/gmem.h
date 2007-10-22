@@ -49,8 +49,11 @@ extern void *grealloc(void *p, size_t size) GMEM_EXCEP;
  * and size.  The result is similar to allocating nObjs * objSize
  * bytes, but there is an additional error check that the total size
  * doesn't overflow an int.
+ * The gmallocn_checkoverflow variant returns NULL instead of exiting
+ * the application if a overflow is detected
  */
 extern void *gmallocn(int nObjs, int objSize) GMEM_EXCEP;
+extern void *gmallocn_checkoverflow(int nObjs, int objSize) GMEM_EXCEP;
 extern void *greallocn(void *p, int nObjs, int objSize) GMEM_EXCEP;
 
 /*
