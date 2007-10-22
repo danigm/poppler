@@ -115,7 +115,8 @@ void DCTStream::reset() {
       if (c == -1)
       {
         error(-1, "Could not find start of jpeg data");
-        exit(1);
+        src.abort = true;
+        return;
       }
       if (c != 0xFF) c = 0;
     }
