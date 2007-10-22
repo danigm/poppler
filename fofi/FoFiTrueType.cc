@@ -912,10 +912,12 @@ void FoFiTrueType::writeTTF(FoFiOutputFunc outputFunc,
   badCmapLen = gFalse;
   cmapLen = 0; // make gcc happy
   if (!missingCmap) {
-    cmapLen = cmaps[0].offset + cmaps[0].len;
-    for (i = 1; i < nCmaps; ++i) {
-      if (cmaps[i].offset + cmaps[i].len > cmapLen) {
-	cmapLen = cmaps[i].offset + cmaps[i].len;
+    if (nCmaps > 0) {
+      cmapLen = cmaps[0].offset + cmaps[0].len;
+      for (i = 1; i < nCmaps; ++i) {
+        if (cmaps[i].offset + cmaps[i].len > cmapLen) {
+	  cmapLen = cmaps[i].offset + cmaps[i].len;
+        }
       }
     }
     cmapLen -= tables[cmapIdx].offset;
