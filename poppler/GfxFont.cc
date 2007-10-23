@@ -1861,6 +1861,10 @@ GfxFontDict::GfxFontDict(XRef *xref, Ref *fontDictRef, Dict *fontDict) {
       fonts[i] = GfxFont::makeFont(xref, fontDict->getKey(i),
 				   r, obj2.getDict());
       if (fonts[i] && !fonts[i]->isOk()) {
+	// XXX: it may be meaningful to distinguish between
+	// NULL and !isOk() so that when we do lookups
+	// we can tell the difference between a missing font
+	// and a font that is just !isOk()
 	delete fonts[i];
 	fonts[i] = NULL;
       }
