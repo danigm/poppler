@@ -224,6 +224,13 @@ public:
   GBool setEnableFreeType(char *s);
   GBool setAntialias(char *s);
   GBool setVectorAntialias(char *s);
+  void setStrokeAdjust(GBool strokeAdjust);
+  void setScreenType(ScreenType st);
+  void setScreenSize(int size);
+  void setScreenDotRadius(int radius);
+  void setScreenGamma(double gamma);
+  void setScreenBlackThreshold(double blackThreshold);
+  void setScreenWhiteThreshold(double whiteThreshold);
   void setMapNumericCharNames(GBool map);
   void setMapUnknownCharNames(GBool map);
   void setPrintCommands(GBool printCommandsA);

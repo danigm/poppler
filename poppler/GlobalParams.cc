@@ -1665,6 +1665,55 @@ GBool GlobalParams::setVectorAntialias(char *s) {
   return ok;
 }
 
+void GlobalParams::setStrokeAdjust(GBool adjust)
+{
+  lockGlobalParams;
+  strokeAdjust = adjust;
+  unlockGlobalParams;
+}
+
+void GlobalParams::setScreenType(ScreenType st)
+{
+  lockGlobalParams;
+  screenType = st;
+  unlockGlobalParams;
+}
+
+void GlobalParams::setScreenSize(int size)
+{
+  lockGlobalParams;
+  screenSize = size;
+  unlockGlobalParams;
+}
+
+void GlobalParams::setScreenDotRadius(int radius)
+{
+  lockGlobalParams;
+  screenDotRadius = radius;
+  unlockGlobalParams;
+}
+
+void GlobalParams::setScreenGamma(double gamma)
+{
+  lockGlobalParams;
+  screenGamma = gamma;
+  unlockGlobalParams;
+}
+
+void GlobalParams::setScreenBlackThreshold(double blackThreshold)
+{
+  lockGlobalParams;
+  screenBlackThreshold = blackThreshold;
+  unlockGlobalParams;
+}
+
+void GlobalParams::setScreenWhiteThreshold(double whiteThreshold)
+{
+  lockGlobalParams;
+  screenWhiteThreshold = whiteThreshold;
+  unlockGlobalParams;
+}
+
 void GlobalParams::setMapNumericCharNames(GBool map) {
   lockGlobalParams;
   mapNumericCharNames = map;
