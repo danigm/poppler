@@ -95,7 +95,7 @@ libpoppler_glib_la_LDFLAGS = -version-info 2:0:0
 noinst_PROGRAMS = test-poppler-glib
 
 test_poppler_glib_SOURCES =			\
-       test-poppler-glib.c
+       test-poppler-glib.cc
 
 test_poppler_glib_LDADD =			\
 	$(top_builddir)/poppler/libpoppler.la	\

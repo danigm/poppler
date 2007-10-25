@@ -16,6 +16,7 @@ AC_PROG_CC_STDC
 AC_PROG_CXX
 AC_PROG_INSTALL
 AC_CHECK_FUNC(gettimeofday, AC_DEFINE(HAVE_GETTIMEOFDAY, 1, [Defines if gettimeofday is available on your system]))
+AC_CHECK_FUNC(localtime_r, AC_DEFINE(HAVE_LOCALTIME_R, 1, [Defines if localtime_r is available on your system]))
 
 dnl Enable these unconditionally.
 AC_DEFINE([OPI_SUPPORT], [1], [Generate OPI comments in PS output.])
