@@ -242,10 +242,19 @@ void Annot::initialize(XRef *xrefA, Dict *acroForm, Dict *dict, Catalog *catalog
         borderType = annotBorderUnderlined;
       }
     }
-    obj2.free();
-    if (obj1.dictLookup("W", &obj2)->isNum()) {
-      borderWidth = obj2.getNum();
+    if (obj1.dictLookup("W", &obj3)->isNum()) {
+      borderWidth = obj3.getNum();
     }
+    // acroread 8 seems to need both W and S entries for
+    // any border to be drawn, even though the spec
+    // doesn't claim anything of that sort. We follow
+    // that behaviour by veryifying both entries exist
+    // otherwise we set the borderWidth to 0
+    // --jrmuizel
+    if (!obj2.isName() || !obj3.isNum()) {
+      borderWidth = 0;
+    }
+    obj3.free();
     obj2.free();
     if (obj1.dictLookup("D", &obj2)->isArray()) {
       borderDashLength = obj2.arrayGetLength();
