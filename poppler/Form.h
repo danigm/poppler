@@ -17,7 +17,6 @@
 #include "goo/GooVector.h"
 
 class GooString;
-class UGooString;
 class Array;
 class Dict;
 class Annot;
