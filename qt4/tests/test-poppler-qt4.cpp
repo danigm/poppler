@@ -105,7 +105,7 @@ int main( int argc, char **argv )
 	exit(1);
     }
   
-    Poppler::Document *doc = Poppler::Document::load(argv[1]);
+    Poppler::Document *doc = Poppler::Document::load(QFile::decodeName(argv[1]));
     if (!doc)
     {
 	qWarning() << "doc not loaded";
@@ -136,8 +136,19 @@ int main( int argc, char **argv )
 	fontNameList += font.name();
     qDebug() << "          Fonts: " << fontNameList.join( ", " );
 
+    if ( doc->hasEmbeddedFiles() ) {
+        qDebug() << "Embedded files:";
+        foreach( Poppler::EmbeddedFile *file, doc->embeddedFiles() ) {
+	    qDebug() << "   " << file->name();
+	}
+	qDebug();
+    } else {
+        qDebug() << "No embedded files";
+    }
+
+
     Poppler::Page *page = doc->page(0);
-    qDebug() << "    Page 1 size: " << page->pageSize().width()/72 << "inches x " << page->pageSize().height()/72 << "inches";
+    qDebug() << "Page 1 size: " << page->pageSize().width()/72 << "inches x " << page->pageSize().height()/72 << "inches";
     delete page;
 
     if (argc == 2 || (argc == 3 && strcmp(argv[2], "-arthur") == 0))

@@ -18,7 +18,8 @@ SUFFIXES: .moc
 	moc -i $< -o $@
 
 noinst_PROGRAMS = test-poppler-qt4 stress-poppler-qt4 \
-	poppler-fonts test-password-qt4 poppler-attachments
+	poppler-fonts test-password-qt4 stress-poppler-dir \
+	poppler-attachments
 
 
 test_poppler_qt4_SOURCES =			\
@@ -49,6 +50,11 @@ stress_poppler_qt4_SOURCES =			\
 
 stress_poppler_qt4_LDADD = $(LDADDS)
 
+stress_poppler_dir_SOURCES =			\
+       stress-poppler-dir.cpp
+
+stress_poppler_dir_LDADD = $(LDADDS)
+
 if BUILD_POPPLER_QT4
 TESTS = \
 	check_attachments	\
@@ -57,6 +63,7 @@ TESTS = \
 	check_metadata         	\
 	check_permissions      	\
 	check_pagemode    	\
+	check_password    	\
 	check_pagelayout
 
 check_PROGRAMS = $(TESTS)
@@ -88,6 +95,10 @@ check_permissions_LDADD = $(LDADDS)
 check_pagelayout_SOURCES = check_pagelayout.cpp
 check_pagelayout.$(OBJEXT): check_pagelayout.moc
 check_pagelayout_LDADD = $(LDADDS)
+
+check_password_SOURCES = check_password.cpp
+check_password.$(OBJEXT): check_password.moc
+check_password_LDADD = $(LDADDS)
 
 endif
 
