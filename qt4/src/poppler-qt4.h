@@ -178,6 +178,9 @@ namespace Poppler {
 	*/
 	QString typeName() const;
 
+	/**
+	   Standard assignment operator
+	*/
 	FontInfo& operator=( const FontInfo &fi );
 
     private:
@@ -264,7 +267,14 @@ namespace Poppler {
 	*/
 	~Page();
 
-	enum Rotation { Rotate0 = 0, Rotate90 = 1, Rotate180 = 2, Rotate270 = 3 };
+	/**
+	   The type of rotation to apply for an operation
+	*/
+	enum Rotation { Rotate0 = 0,   ///< Do not rotate
+			Rotate90 = 1,  ///< Rotate 90 degrees clockwise
+			Rotate180 = 2, ///< Rotate 180 degrees
+			Rotate270 = 3  ///< Rotate 270 degrees clockwise (90 degrees counterclockwise)
+	};
 
 	/**
 	   The kinds of page actions
@@ -324,9 +334,20 @@ namespace Poppler {
 	**/
 	QString text(const QRectF &rect) const;
 	
-	
-	enum SearchDirection { FromTop, NextResult, PreviousResult };
-	enum SearchMode { CaseSensitive, CaseInsensitive };
+	/**
+	   The starting point for a search
+	*/
+	enum SearchDirection { FromTop,        ///< Start sorting at the top of the document
+			       NextResult,     ///< Find the next result, moving "down the page"
+			       PreviousResult  ///< Find the previous result, moving "up the page"
+	};
+
+	/**
+	   The type of search to perform
+	*/
+	enum SearchMode { CaseSensitive,   ///< Case differences cause no match in searching
+			  CaseInsensitive  ///< Case differences are ignored in matching
+	};
 	
 	/**
 	   Returns true if the specified text was found.
@@ -336,6 +357,7 @@ namespace Poppler {
 	               indicates where to continue searching for
 	   \param direction in which direction do the search
 	   \param caseSensitive be case sensitive?
+	   \param rotate the rotation to apply for the search order
 	**/
 	bool search(const QString &text, QRectF &rect, SearchDirection direction, SearchMode caseSensitive, Rotation rotate = Rotate0) const;
 	
@@ -492,13 +514,22 @@ namespace Poppler {
 	   Load the document from a file on disk
 
 	   \param filePath the name (and path, if required) of the file to load
+	   \param ownerPassword the owner password to use in loading the file.
+	   \param userPassword the user ("open") password to use in loading the file
 
 	   \return NULL on error
+
+	   \note Passwords must be Latin1 encoded. If you have a password that is
+	   a UTF8 string, you need to use QString::toLatin1() (or similar) to convert
+	   the password first. If you have a UTF8 character array, consider
+	   converting it to a QString first (QString::fromUtf8(), or similar) before
+	   converting to Latin1 encoding.
 
 	   \warning The application owns the pointer to Document, and this should
 	   be deleted when no longer required.
 	
-	   \warning The returning document may be locked.
+	   \warning The returning document may be locked if a password is required
+	   to open the file, and one is not provided (as the userPassword).
 	*/
 	static Document *load(const QString & filePath,
 			      const QByteArray &ownerPassword=QByteArray(),
@@ -510,6 +541,14 @@ namespace Poppler {
 	   \param fileContents the file contents. They are copied so there is no need 
 	                       to keep the byte array around for the full life time of 
 	                       the document.
+	   \param ownerPassword the owner password to use in loading the file.
+	   \param userPassword the user ("open") password to use in loading the file
+
+	   \note Passwords must be Latin1 encoded. If you have a password that is
+	   a UTF8 string, you need to use QString::toLatin1() (or similar) to convert
+	   the password first. If you have a UTF8 character array, consider
+	   converting it to a QString first (QString::fromUtf8(), or similar) before
+	   converting to Latin1 encoding.
 
 	   \warning The application owns the pointer to Document, and this should
 	   be deleted when no longer required.
@@ -563,6 +602,15 @@ namespace Poppler {
 
 	/**
 	   Provide the passwords required to unlock the document
+
+	   \param ownerPassword the owner password to use in loading the file.
+	   \param userPassword the user ("open") password to use in loading the file
+
+	   \note Passwords must be Latin1 encoded. If you have a password that is
+	   a UTF8 string, you need to use QString::toLatin1() (or similar) to convert
+	   the password first. If you have a UTF8 character array, consider
+	   converting it to a QString first (QString::fromUtf8(), or similar) before
+	   converting to Latin1 encoding.
 	*/
 	bool unlock(const QByteArray &ownerPassword, const QByteArray &userPassword);
 
@@ -973,17 +1021,17 @@ height = dummy.height();
 	~SoundObject();
 
 	/**
-	   Is the sound embedded (\ref Embedded ) or external (\ref External )?
+	   Is the sound embedded (SoundObject::Embedded) or external (SoundObject::External)?
 	*/
 	SoundType soundType() const;
 
 	/**
-	   The URL of the sound file to be played, in case of \ref External
+	   The URL of the sound file to be played, in case of SoundObject::External
 	*/
 	QString url() const;
 
 	/**
-	   The data of the sound, in case of \ref Embedded
+	   The data of the sound, in case of SoundObject::Embedded
 	*/
 	QByteArray data() const;
 
