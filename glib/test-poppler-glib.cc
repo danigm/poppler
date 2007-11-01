@@ -415,7 +415,7 @@ int main (int argc, char *argv[])
   printf ("\tFound text \"Bitwise\" at positions:\n");
   for (l = list; l != NULL; l = l->next)
     {
-      PopplerRectangle *rect = l->data;
+      PopplerRectangle *rect = (PopplerRectangle *)l->data;
 
       printf ("  (%f,%f)-(%f,%f)\n", rect->x1, rect->y1, rect->x2, rect->y2);
     }
@@ -486,7 +486,7 @@ int main (int argc, char *argv[])
 	  char *filename, *strdate;
 
 	  filename = g_strdup_printf ("/tmp/attach%d", i);
-	  attachment = l->data;
+	  attachment = (PopplerAttachment *)l->data;
 	  g_print ("\tname: %s\n", attachment->name);
 	  g_print ("\tdescription: %s\n", attachment->description);
 	  g_print ("\tsize: %d\n", attachment->size);
