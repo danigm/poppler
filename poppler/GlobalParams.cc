@@ -655,9 +655,11 @@ void GlobalParams::scanEncodingDirs() {
   GDir *dir;
   GDirEntry *entry;
 
-  dir = new GDir(POPPLER_DATADIR "/nameToUnicode", gFalse);
+  dir = new GDir(POPPLER_DATADIR "/nameToUnicode", gTrue);
   while (entry = dir->getNextEntry(), entry != NULL) {
-    parseNameToUnicode(entry->getFullPath());
+    if (!entry->isDir()) {
+      parseNameToUnicode(entry->getFullPath());
+    }
     delete entry;
   }
   delete dir;
