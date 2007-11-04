@@ -2375,14 +2375,6 @@ void JBIG2Stream::readHalftoneRegionSeg(Guint segNum, GBool imm,
     error(getPos(), "Bad grid size in JBIG2 halftone segment");
     return;
   }
-  if (w == 0 || h == 0 || w >= INT_MAX / h) {
-    error(getPos(), "Bad bitmap size in JBIG2 halftone segment");
-    return;
-  }
-  if (gridH == 0 || gridW >= INT_MAX / gridH) {
-    error(getPos(), "Bad grid size in JBIG2 halftone segment");
-    return;
-  }
 
   // get pattern dictionary
   if (nRefSegs != 1) {
