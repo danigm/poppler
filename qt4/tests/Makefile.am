@@ -64,7 +64,8 @@ TESTS = \
 	check_permissions      	\
 	check_pagemode    	\
 	check_password    	\
-	check_pagelayout
+	check_pagelayout	\
+	check_search
 
 check_PROGRAMS = $(TESTS)
 
@@ -99,6 +100,10 @@ check_pagelayout_LDADD = $(LDADDS)
 check_password_SOURCES = check_password.cpp
 check_password.$(OBJEXT): check_password.moc
 check_password_LDADD = $(LDADDS)
+
+check_search_SOURCES = check_search.cpp
+check_search.$(OBJEXT): check_search.moc
+check_search_LDADD = $(LDADDS)
 
 endif
 
