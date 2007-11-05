@@ -111,6 +111,12 @@ int main( int argc, char **argv )
 	qWarning() << "doc not loaded";
 	exit(1);
     }
+
+    if (doc->isLocked())
+    {
+	qWarning() << "document locked (needs password)";
+	exit(0);
+    }
   
     // output some meta-data
     qDebug() << "    PDF Version: " << doc->pdfVersion();
