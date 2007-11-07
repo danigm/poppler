@@ -6,6 +6,7 @@
 Makefile
 Makefile.in
 stress-poppler-qt4
+stress-poppler-dir
 test-poppler-qt4
 test-password-qt4
 poppler-attachments
@@ -17,4 +18,6 @@ check_metadata
 check_permissions
 check_pagelayout
 check_pagemode
+check_password
+check_search
 

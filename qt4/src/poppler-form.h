@@ -202,16 +202,16 @@ namespace Poppler {
 	QStringList choices() const;
 
 	/**
-	  Whether this \ref ComboBox is editable, ie the user can type in a
-	  custom value.
+	  Whether this FormFieldChoice::ComboBox is editable, i.e. the user
+	  can type in a custom value.
 
 	  Always false for the other types of choices.
 	 */
 	bool isEditable() const;
 
 	/**
-	  Whether more than one choice of this \ref ListBox can be selected at
-	  the same time.
+	  Whether more than one choice of this FormFieldChoice::ListBox
+	  can be selected at the same time.
 
 	  Always false for the other types of choices.
 	 */
