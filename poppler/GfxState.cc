@@ -1531,8 +1531,8 @@ void GfxPatternColorSpace::getCMYK(GfxColor *color, GfxCMYK *cmyk) {
   cmyk->k = 1;
 }
 
-void GfxPatternColorSpace::getDefaultColor(GfxColor * /*color*/) {
-  // not used
+void GfxPatternColorSpace::getDefaultColor(GfxColor *color) {
+  color->c[0]=0;
 }
 
 //------------------------------------------------------------------------
