@@ -62,6 +62,8 @@ CairoFont *CairoFont::create(GfxFont *gfxFont, XRef *xref, FT_Library lib, GBool
   codeToGID = NULL;
   codeToGIDLen = 0;
   cairo_font_face = NULL;
+
+  GBool substitute = gFalse;
   
   ref = *gfxFont->getID();
   fontType = gfxFont->getType();
@@ -114,6 +116,7 @@ CairoFont *CairoFont::create(GfxFont *gfxFont, XRef *xref, FT_Library lib, GBool
       fontType = gfxFont->isCIDFont() ? fontCIDType2 : fontTrueType;
       break;
     }
+    substitute = gTrue;
   }
 
   switch (fontType) {
@@ -226,7 +229,7 @@ CairoFont *CairoFont::create(GfxFont *gfxFont, XRef *xref, FT_Library lib, GBool
     goto err2; /* this doesn't do anything, but it looks like we're
 		* handling the error */
   } {
-  CairoFont *ret = new CairoFont(ref, cairo_font_face, face, codeToGID, codeToGIDLen);
+  CairoFont *ret = new CairoFont(ref, cairo_font_face, face, codeToGID, codeToGIDLen, substitute);
   cairo_font_face_set_user_data (cairo_font_face, 
 				 &cairo_font_face_key,
 				 ret,
@@ -241,9 +244,9 @@ CairoFont *CairoFont::create(GfxFont *gfxFont, XRef *xref, FT_Library lib, GBool
 }
 
 CairoFont::CairoFont(Ref ref, cairo_font_face_t *cairo_font_face, FT_Face face,
-    Gushort *codeToGID, int codeToGIDLen) : ref(ref), cairo_font_face(cairo_font_face),
+    Gushort *codeToGID, int codeToGIDLen, GBool substitute) : ref(ref), cairo_font_face(cairo_font_face),
 					    face(face), codeToGID(codeToGID),
-					    codeToGIDLen(codeToGIDLen) { }
+					    codeToGIDLen(codeToGIDLen), substitute(substitute) { }
 
 CairoFont::~CairoFont() {
   FT_Done_Face (face);
@@ -271,6 +274,53 @@ CairoFont::getGlyph(CharCode code,
     gid = (FT_UInt)code;
   }
   return gid;
+}
+
+double
+CairoFont::getSubstitutionCorrection(GfxFont *gfxFont)
+{
+  double w1, w2,w3;
+  CharCode code;
+  char *name;
+
+  // for substituted fonts: adjust the font matrix -- compare the
+  // width of 'm' in the original font and the substituted font
+  if (isSubstitute() && !gfxFont->isCIDFont()) {
+    for (code = 0; code < 256; ++code) {
+      if ((name = ((Gfx8BitFont *)gfxFont)->getCharName(code)) &&
+	  name[0] == 'm' && name[1] == '\0') {
+	break;
+      }
+    }
+    if (code < 256) {
+      w1 = ((Gfx8BitFont *)gfxFont)->getWidth(code);
+      {
+	cairo_matrix_t m;
+	cairo_matrix_init_identity(&m);
+	cairo_font_options_t *options = cairo_font_options_create();
+	cairo_font_options_set_hint_style(options, CAIRO_HINT_STYLE_NONE);
+	cairo_font_options_set_hint_metrics(options, CAIRO_HINT_METRICS_OFF);
+	cairo_scaled_font_t *scaled_font = cairo_scaled_font_create(cairo_font_face, &m, &m, options);
+
+	cairo_text_extents_t extents;
+	cairo_scaled_font_text_extents(scaled_font, "m", &extents);
+
+	cairo_scaled_font_destroy(scaled_font);
+	cairo_font_options_destroy(options);
+	w3 = extents.width;
+	w2 = extents.x_advance;
+      }
+      if (!gfxFont->isSymbolic()) {
+	// if real font is substantially narrower than substituted
+	// font, reduce the font size accordingly
+	if (w1 > 0.01 && w1 < 0.9 * w2) {
+	  w1 /= w2;
+	  return w1;
+	}
+      }
+    }
+  }
+  return 1.0;
 }
 
 //------------------------------------------------------------------------

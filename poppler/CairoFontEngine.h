@@ -24,15 +24,20 @@ public:
   GBool matches(Ref &other);
   cairo_font_face_t *getFontFace(void);
   unsigned long getGlyph(CharCode code, Unicode *u, int uLen);
+  double getSubstitutionCorrection(GfxFont *gfxFont);
+
+  GBool isSubstitute() { return substitute; }
 private:
   CairoFont(Ref ref, cairo_font_face_t *cairo_font_face, FT_Face face,
-      Gushort *codeToGID, int codeToGIDLen);
+      Gushort *codeToGID, int codeToGIDLen, GBool substitute);
   Ref ref;
   cairo_font_face_t *cairo_font_face;
   FT_Face face;
 
   Gushort *codeToGID;
   int codeToGIDLen;
+
+  GBool substitute;
 };
 
 //------------------------------------------------------------------------
