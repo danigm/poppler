@@ -127,6 +127,8 @@ public:
   virtual void updateMiterLimit(GfxState * /*state*/) {}
   virtual void updateLineWidth(GfxState * /*state*/) {}
   virtual void updateStrokeAdjust(GfxState * /*state*/) {}
+  virtual void updateAlphaIsShape(GfxState * /*state*/) {}
+  virtual void updateTextKnockout(GfxState * /*state*/) {}
   virtual void updateFillColorSpace(GfxState * /*state*/) {}
   virtual void updateStrokeColorSpace(GfxState * /*state*/) {}
   virtual void updateFillColor(GfxState * /*state*/) {}

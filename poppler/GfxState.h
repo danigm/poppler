@@ -1091,6 +1091,8 @@ public:
   int getLineCap() { return lineCap; }
   double getMiterLimit() { return miterLimit; }
   GBool getStrokeAdjust() { return strokeAdjust; }
+  GBool getAlphaIsShape() { return alphaIsShape; }
+  GBool getTextKnockout() { return textKnockout; }
   GfxFont *getFont() { return font; }
   double getFontSize() { return fontSize; }
   double *getTextMat() { return textMat; }
@@ -1158,6 +1160,8 @@ public:
   void setLineCap(int lineCap1) { lineCap = lineCap1; }
   void setMiterLimit(double limit) { miterLimit = limit; }
   void setStrokeAdjust(GBool sa) { strokeAdjust = sa; }
+  void setAlphaIsShape(GBool ais) { alphaIsShape = ais; }
+  void setTextKnockout(GBool tk) { textKnockout = tk; }
   void setFont(GfxFont *fontA, double fontSizeA);
   void setTextMat(double a, double b, double c,
 		  double d, double e, double f)
@@ -1240,6 +1244,8 @@ private:
   int lineCap;			// line cap style
   double miterLimit;		// line miter limit
   GBool strokeAdjust;		// stroke adjustment
+  GBool alphaIsShape;		// alpha is shape
+  GBool textKnockout;		// text knockout
 
   GfxFont *font;		// font
   double fontSize;		// font size

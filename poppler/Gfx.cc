@@ -929,6 +929,20 @@ void Gfx::opSetExtGState(Object args[], int numArgs) {
   }
   obj2.free();
 
+  // alpha is shape
+  if (obj1.dictLookup("AIS", &obj2)->isBool()) {
+    state->setAlphaIsShape(obj2.getBool());
+    out->updateAlphaIsShape(state);
+  }
+  obj2.free();
+
+  // text knockout
+  if (obj1.dictLookup("TK", &obj2)->isBool()) {
+    state->setTextKnockout(obj2.getBool());
+    out->updateTextKnockout(state);
+  }
+  obj2.free();
+
   // soft mask
   if (!obj1.dictLookup("SMask", &obj2)->isNull()) {
     if (obj2.isName("None")) {
