@@ -171,6 +171,7 @@ public:
                                       GBool /*isolated*/, GBool /*knockout*/,
                                       GBool /*forSoftMask*/);
   virtual void endTransparencyGroup(GfxState * /*state*/);
+  void popTransparencyGroup();
   virtual void paintTransparencyGroup(GfxState * /*state*/, double * /*bbox*/);
   virtual void setSoftMask(GfxState * /*state*/, double * /*bbox*/, GBool /*alpha*/,
                            Function * /*transferFunc*/, GfxColor * /*backdropColor*/);
@@ -191,7 +192,7 @@ public:
   void setCairo (cairo_t *cr);
 
 protected:
-  void doPath(GfxState *state, GfxPath *path);
+  void doPath(cairo_t *cairo, GfxState *state, GfxPath *path);
   
   GfxRGB fill_color, stroke_color;
   cairo_pattern_t *fill_pattern, *stroke_pattern;
@@ -214,8 +215,13 @@ protected:
   GBool prescaleImages;
 
   cairo_pattern_t *group;
+  cairo_pattern_t *shape;
   cairo_pattern_t *mask;
+  cairo_surface_t *cairo_shape_surface;
+  cairo_t *cairo_shape;
+  int knockoutCount;
   struct ColorSpaceStack {
+    GBool knockout;
     GfxColorSpace *cs;
     struct ColorSpaceStack *next;
   } * groupColorSpaceStack;
