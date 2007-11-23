@@ -225,7 +225,7 @@ QDateTime Document::getDate( const QString & type ) const
       s = s.mid(2);
 
     /* FIXME process time zone on systems that support it */  
-    if ( sscanf( s.latin1(), "%4d%2d%2d%2d%2d%2d", &year, &mon, &day, &hour, &min, &sec ) == 6 )
+    if ( !s.isEmpty() && sscanf( s.latin1(), "%4d%2d%2d%2d%2d%2d", &year, &mon, &day, &hour, &min, &sec ) == 6 )
     {
       /* Workaround for y2k bug in Distiller 3 stolen from gpdf, hoping that it won't
        *   * be used after y2.2k */
