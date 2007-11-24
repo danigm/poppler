@@ -136,8 +136,20 @@ poppler_document_new_from_file (const char  *uri,
   g_free (filename);
 
   password_g = NULL;
-  if (password != NULL)
-    password_g = new GooString (password);
+  if (password != NULL) {
+    if (g_utf8_validate (password, -1, NULL)) {
+      gchar *password_latin;
+      
+      password_latin = g_convert (password, -1,
+				  "ISO-8859-1",
+				  "UTF-8",
+				  NULL, NULL, NULL);
+      password_g = new GooString (password_latin);
+      g_free (password_latin);
+    } else {
+      password_g = new GooString (password);
+    }
+  }
 
   newDoc = new PDFDoc(filename_g, password_g, password_g);
   delete password_g;
