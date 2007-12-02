@@ -311,6 +311,7 @@ private:
   void writePSString(GooString *s);
   void writePSName(char *s);
   GooString *filterPSName(GooString *name);
+  GooString *filterPSLabel(GooString *label, GBool *needParens=0);
   void writePSTextLine(GooString *s);
 
   PSLevel level;		// PostScript level (1, 2, separation)
@@ -333,6 +334,7 @@ private:
   void *overlayCbkData;
 
   XRef *xref;			// the xref table for this PDF file
+  Catalog *m_catalog;           // the catalog for this PDF file
 
   Ref *fontIDs;			// list of object IDs of all used fonts
   int fontIDLen;		// number of entries in fontIDs array
