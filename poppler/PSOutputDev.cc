@@ -6381,7 +6381,7 @@ GooString* PSOutputDev::filterPSLabel(GooString *label, GBool *needParens) {
       label2->append("\\)");
     } else if (c == '(') {
       label2->append("\\(");
-    } else if (c < 0x20 || c > 0x7e || (j == 0 && c == '(')) {
+    } else if (c < 0x20 || c > 0x7e) {
       label2->append(GooString::format("\\{0:03o}", c));
       j += 4;
     } else {
