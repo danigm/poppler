@@ -4023,7 +4023,7 @@ void Gfx::opBeginMarkedContent(Object args[], int numArgs) {
   if (printCommands) {
     printf("  marked content: %s ", args[0].getName());
     if (numArgs == 2)
-      args[2].print(stdout);
+      args[1].print(stdout);
     printf("\n");
     fflush(stdout);
   }
@@ -4043,7 +4043,7 @@ void Gfx::opMarkPoint(Object args[], int numArgs) {
   if (printCommands) {
     printf("  mark point: %s ", args[0].getName());
     if (numArgs == 2)
-      args[2].print(stdout);
+      args[1].print(stdout);
     printf("\n");
     fflush(stdout);
   }

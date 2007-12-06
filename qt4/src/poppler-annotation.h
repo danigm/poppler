@@ -206,10 +206,35 @@ class TextAnnotation : public Annotation
     enum TextType { Linked, InPlace };
     enum InplaceIntent { Unknown, Callout, TypeWriter };
 
+    /**
+       The type of text annotation represented by this object
+    */
     TextType textType() const;
+
+    /**
+       Set the type of text annotation represented by this object
+    */
     void setTextType( TextType type );
 
+    /**
+       The name of the icon for this text annotation.
+
+       Standard names for text annotation icons are:
+       - Comment
+       - Help
+       - Insert
+       - Key
+       - NewParagraph
+       - Note (this is the default icon to use)
+       - Paragraph
+    */
     QString textIcon() const;
+
+    /**
+       Set the name of the icon to use for this text annotation.
+
+       \sa textIcon for the list of standard names
+    */
     void setTextIcon( const QString &icon );
 
     QFont textFont() const;
@@ -329,9 +354,20 @@ class HighlightAnnotation : public Annotation
     virtual void store( QDomNode &parentNode, QDomDocument &document ) const;
     virtual SubType subType() const;
 
-    // local enums
-    enum HighlightType { Highlight, Squiggly, Underline, StrikeOut };
+    /**
+       The type of highlight
+    */
+    enum HighlightType { Highlight, ///< highlighter pen style annotation
+			 Squiggly,  ///< jagged or squiggly underline
+			 Underline, ///< straight line underline
+			 StrikeOut  ///< straight line through-line
+    };
 
+    /**
+       Structure corresponding to a QuadPoints array. This matches a
+       quadrilateral that describes the area around a word (or set of
+       words) that are to be highlighted.
+    */
     struct Quad
     {
         QPointF         points[4];          // 8 valid coords
@@ -340,10 +376,26 @@ class HighlightAnnotation : public Annotation
         double          feather;            // 0.1 (in range 0..1) [K]
     };
 
+    /**
+       The type (style) of highlighting to use for this area
+       or these areas.
+    */
     HighlightType highlightType() const;
+
+    /**
+       Set the type of highlighting to use for the given area
+       or areas.
+    */
     void setHighlightType( HighlightType type );
 
+    /**
+       The list of areas to highlight.
+    */
     QList< Quad > highlightQuads() const;
+
+    /**
+       Set the areas to highlight.
+    */
     void setHighlightQuads( const QList< Quad > &quads );
 
   private:
@@ -365,7 +417,32 @@ class StampAnnotation : public Annotation
     virtual void store( QDomNode &parentNode, QDomDocument &document ) const;
     virtual SubType subType() const;
 
+    /**
+       The name of the icon for this stamp annotation.
+
+       Standard names for stamp annotation icons are:
+       - Approved
+       - Asls
+       - Confidential
+       - Departmental
+       - Draft (this is the default icon type)
+       - Experimental
+       - Expired
+       - Final
+       - ForComment
+       - ForPublicRelease
+       - NotApproved
+       - NotForPublicRelease
+       - Sold
+       - TopSecret
+    */
     QString stampIconName() const;
+
+    /**
+       Set the icon type for this stamp annotation.
+
+       \sa stampIconName for the list of standard icon names
+    */
     void setStampIconName( const QString &name );
 
   private:

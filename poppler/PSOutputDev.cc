@@ -1056,6 +1056,7 @@ void PSOutputDev::init(PSOutputFunc outputFuncA, void *outputStreamA,
   outputFunc = outputFuncA;
   outputStream = outputStreamA;
   fileType = fileTypeA;
+  m_catalog = catalog;
   xref = xrefA;
   level = globalParams->getPSLevel();
   mode = modeA;
@@ -3068,7 +3069,20 @@ void PSOutputDev::startPage(int pageNum, GfxState *state) {
 
 
   if (mode == psModePS) {
-    writePSFmt("%%Page: {0:d} {1:d}\n", pageNum, seqPage);
+    GooString pageLabel;
+    const GBool gotLabel = m_catalog->indexToLabel(pageNum -1, &pageLabel);
+    if (gotLabel) {
+      // See bug13338 for why we try to avoid parentheses...
+      GBool needParens;
+      GooString *filteredString = filterPSLabel(&pageLabel, &needParens);
+      if (needParens) {
+	writePSFmt("%%Page: ({0:t}) {1:d}\n", filteredString, seqPage);
+      } else {
+	writePSFmt("%%Page: {0:t} {1:d}\n", filteredString, seqPage);
+      }
+    } else {
+      writePSFmt("%%Page: {0:d} {1:d}\n", pageNum, seqPage);
+    }
     writePS("%%BeginPageSetup\n");
   }
 
@@ -6314,6 +6328,71 @@ GooString *PSOutputDev::filterPSName(GooString *name) {
     }
   }
   return name2;
+}
+
+// Convert GooString to GooString, with appropriate escaping
+// of things that can't appear in a label
+// This is heavily based on the writePSTextLine() method
+GooString* PSOutputDev::filterPSLabel(GooString *label, GBool *needParens) {
+  int i, step;
+  GBool isNumeric;
+
+  // - DSC comments must be printable ASCII; control chars and
+  //   backslashes have to be escaped (we do cheap UCS2-to-ASCII
+  //   conversion by simply ignoring the high byte)
+  // - parentheses are escaped. this isn't strictly necessary for matched
+  //   parentheses, but shouldn't be a problem
+  // - lines are limited to 255 chars (we limit to 200 here to allow
+  //   for the keyword, which was emitted by the caller)
+
+  GooString *label2 = new GooString();
+  int labelLength = label->getLength();
+
+  if (labelLength == 0) {
+    isNumeric = false;
+  } else {
+    // this gets changed later if we find a non-numeric character
+    isNumeric = true;
+  }
+
+  if ( (labelLength >= 2) &&
+       ( (label->getChar(0) & 0xff) == 0xfe) &&
+       ( (label->getChar(1) & 0xff) == 0xff) ) {
+    // UCS2 mode
+    i = 3;
+    step = 2;
+    if ( (label->getChar(labelLength-1) == 0) ) {
+      // prune the trailing null (0x000 for UCS2)
+      labelLength -= 2;
+    }
+  } else {
+    i = 0;
+    step = 1;
+  }
+  for (int j = 0; i < labelLength && j < 200; i += step) {
+    char c = label->getChar(i);
+    if ( (c < '0') || (c > '9') ) {
+      isNumeric = false;
+    }
+    if (c == '\\') {
+      label2->append("\\\\");
+      j += 2;
+    } else if (c == ')') {
+      label2->append("\\)");
+    } else if (c == '(') {
+      label2->append("\\(");
+    } else if (c < 0x20 || c > 0x7e) {
+      label2->append(GooString::format("\\{0:03o}", c));
+      j += 4;
+    } else {
+      label2->append(c);
+      ++j;
+    }
+  }
+  if (needParens) {
+    *needParens = !(isNumeric);
+  }
+  return label2;
 }
 
 // Write a DSC-compliant <textline>.
