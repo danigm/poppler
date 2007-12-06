@@ -267,7 +267,7 @@ elif test x$enable_gtk_test = xtry; then
                     [enable_gtk_test="yes"],
                     [enable_gtk_test="no"])
 fi
-AM_CONDITIONAL(BUILD_GTK_TEST, test x$enable_gtk_test = xyes)
+AM_CONDITIONAL(BUILD_GTK_TEST, test x$enable_gtk_test = xyes -a x$enable_poppler_glib = xyes)
 
 AC_ARG_ENABLE(abiword-output,
               AC_HELP_STRING([--disable-abiword-output],
