@@ -4036,7 +4036,7 @@ void Gfx::opBeginMarkedContent(Object args[], int numArgs) {
 }
 
 void Gfx::opEndMarkedContent(Object args[], int numArgs) {
-  out->endMarkedContent();
+  out->endMarkedContent(state);
 }
 
 void Gfx::opMarkPoint(Object args[], int numArgs) {

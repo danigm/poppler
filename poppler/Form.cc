@@ -27,7 +27,7 @@
 #include "Catalog.h"
 
 //return a newly allocated char* containing an UTF16BE string of size length
-static char* pdfDocEncodingToUTF16 (GooString* orig, int* length)
+char* pdfDocEncodingToUTF16 (GooString* orig, int* length)
 {
   //double size, a unicode char takes 2 char, add 2 for the unicode marker
   *length = 2+2*orig->getLength();

@@ -651,6 +651,10 @@ public:
 			double originX, double originY,
 			CharCode c, int nBytes, Unicode *u, int uLen);
 
+  //----- grouping operators
+  virtual void beginMarkedContent(char *name, Dict *properties);
+  virtual void endMarkedContent(GfxState *state);
+
   //----- path painting
   virtual void stroke(GfxState *state);
   virtual void fill(GfxState *state);
@@ -725,6 +729,13 @@ private:
   GBool rawOrder;		// keep text in content stream order
   GBool doHTML;			// extra processing for HTML conversion
   GBool ok;			// set up ok?
+
+  int actualTextBMCLevel;       // > 0 when inside ActualText span. Incremented
+                                // for each nested BMC inside the span.
+  GooString *actualText;        // replacement text for the span
+  GBool newActualTextSpan;      // true at start of span. used to init the extent
+  double actualText_x, actualText_y; // extent of the text inside the span
+  double actualText_dx, actualText_dy;
 };
 
 #endif

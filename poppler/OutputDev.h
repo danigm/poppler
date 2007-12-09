@@ -210,7 +210,7 @@ public:
 
   //----- grouping operators
 
-  virtual void endMarkedContent();
+  virtual void endMarkedContent(GfxState *state);
   virtual void beginMarkedContent(char *name);
   virtual void beginMarkedContent(char *name, Dict *properties);
   virtual void markPoint(char *name);

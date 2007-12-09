@@ -32,6 +32,7 @@
 #include "Link.h"
 #include "TextOutputDev.h"
 #include "Page.h"
+#include "PDFDocEncoding.h"
 
 #ifdef MACOS
 // needed for setting type/creator of MacOS files
@@ -4484,6 +4485,7 @@ TextOutputDev::TextOutputDev(char *fileName, GBool physLayoutA,
 
   // set up text object
   text = new TextPage(rawOrderA);
+  actualTextBMCLevel = 0;
 }
 
 TextOutputDev::TextOutputDev(TextOutputFunc func, void *stream,
@@ -4496,6 +4498,7 @@ TextOutputDev::TextOutputDev(TextOutputFunc func, void *stream,
   doHTML = gFalse;
   text = new TextPage(rawOrderA);
   ok = gTrue;
+  actualTextBMCLevel = 0;
 }
 
 TextOutputDev::~TextOutputDev() {
@@ -4536,7 +4539,100 @@ void TextOutputDev::drawChar(GfxState *state, double x, double y,
 			     double dx, double dy,
 			     double originX, double originY,
 			     CharCode c, int nBytes, Unicode *u, int uLen) {
-  text->addChar(state, x, y, dx, dy, c, nBytes, u, uLen);
+  if (actualTextBMCLevel == 0) {
+    text->addChar(state, x, y, dx, dy, c, nBytes, u, uLen);
+  } else {
+    // Inside ActualText span.
+    if (newActualTextSpan) {
+      actualText_x = x;
+      actualText_y = y;
+      actualText_dx = dx;
+      actualText_dy = dy;
+      newActualTextSpan = gFalse;
+    } else {
+      if (x < actualText_x)
+	actualText_x = x;
+      if (y < actualText_y)
+	actualText_y = y;
+      if (x + dx > actualText_x + actualText_dx)
+	actualText_dx = x + dx - actualText_x;
+      if (y + dy > actualText_y + actualText_dy)
+	actualText_dy = y + dy - actualText_y;
+    }
+  }
+}
+
+void TextOutputDev::beginMarkedContent(char *name, Dict *properties)
+{
+  Object obj;
+
+  if (actualTextBMCLevel > 0) {
+    // Already inside a ActualText span.
+    actualTextBMCLevel++;
+    return;
+  }
+
+  if (properties->lookup("ActualText", &obj)) {
+    if (obj.isString()) {
+      actualText = obj.getString();
+      actualTextBMCLevel = 1;
+      newActualTextSpan = gTrue;
+    }
+  }
+}
+
+void TextOutputDev::endMarkedContent(GfxState *state)
+{
+  char *uniString = NULL;
+  Unicode *uni;
+  int length, i;
+
+  if (actualTextBMCLevel > 0) {
+    actualTextBMCLevel--;
+    if (actualTextBMCLevel == 0) {
+      // ActualText span closed. Output the span text and the
+      // extents of all the glyphs inside the span
+
+      if (newActualTextSpan) {
+	// No content inside span.
+	actualText_x = state->getCurX();
+	actualText_y = state->getCurY();
+	actualText_dx = 0;
+	actualText_dy = 0;
+      }
+
+      if (!actualText->hasUnicodeMarker()) {
+	if (actualText->getLength() > 0) {
+	  //non-unicode string -- assume pdfDocEncoding and
+	  //try to convert to UTF16BE
+	  uniString = pdfDocEncodingToUTF16(actualText, &length);
+	} else {
+	  length = 0;
+	}
+      } else {
+	uniString = actualText->getCString();
+	length = actualText->getLength();
+      }
+
+      if (length < 2)
+	length = 0;
+      else
+	length = length/2 - 1;
+      uni = new Unicode[length];
+      for (i = 0 ; i < length; i++)
+	uni[i] = (uniString[2 + i*2]<<8) + uniString[2 + i*2+1];
+
+      text->addChar(state,
+		    actualText_x, actualText_y,
+		    actualText_dx, actualText_dy,
+		    0, 1, uni, length);
+
+      delete [] uni;
+      if (!actualText->hasUnicodeMarker())
+	delete [] uniString;
+      delete actualText;
+    }
+  }
 }
 
 void TextOutputDev::stroke(GfxState *state) {

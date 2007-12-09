@@ -123,7 +123,7 @@ void OutputDev::drawSoftMaskedImage(GfxState *state, Object *ref, Stream *str,
   drawImage(state, ref, str, width, height, colorMap, NULL, gFalse);
 }
 
-void OutputDev::endMarkedContent() {
+void OutputDev::endMarkedContent(GfxState *state) {
 }
 
 void OutputDev::beginMarkedContent(char *name) {
