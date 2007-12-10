@@ -354,6 +354,40 @@ CID CMap::getCID(char *s, int len, int *nUsed) {
   }
 }
 
+void CMap::setReverseMapVector(Guint startCode, CMapVectorEntry *vec,
+ Guint *rmap, Guint rmapSize, Guint ncand) {
+  int i;
+
+  if (vec == 0) return;
+  for (i = 0;i < 256;i++) {
+    if (vec[i].isVector) {
+      setReverseMapVector((startCode+i) << 8,
+	  vec[i].vector,rmap,rmapSize,ncand);
+    } else {
+      Guint cid = vec[i].cid;
+
+      if (cid < rmapSize) {
+	int cand;
+
+	for (cand = 0;cand < ncand;cand++) {
+	  Guint code = startCode+i;
+	  Guint idx = cid*ncand+cand;
+	  if (rmap[idx] == 0) {
+	    rmap[idx] = code;
+	    break;
+	  } else if (rmap[idx] == code) {
+	    break;
+	  }
+	}
+      }
+    }
+  }
+}
+
+void CMap::setReverseMap(Guint *rmap, Guint rmapSize, Guint ncand) {
+  setReverseMapVector(0,vector,rmap,rmapSize,ncand);
+}
+
 //------------------------------------------------------------------------
 
 CMapCache::CMapCache() {

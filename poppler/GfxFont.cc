@@ -1588,33 +1588,44 @@ Gushort GfxCIDFont::mapCodeToGID(FoFiTrueType *ff, int cmapi,
 
 Gushort *GfxCIDFont::getCodeToGIDMap(FoFiTrueType *ff, int *mapsizep) {
   /* space characters */
+#define N_UCS_CANDIDATES 2
   static unsigned long spaces[] = { 
     0x2000,0x2001,0x2002,0x2003,0x2004,0x2005,0x2006,0x2007,
     0x2008,0x2009,0x200A,0x00A0,0x200B,0x2060,0x3000,0xFEFF,
     0
   };
   static char *adobe_cns1_cmaps[] = {
+    "UniCNS-UTF32-V",
     "UniCNS-UCS2-V",
+    "UniCNS-UTF32-H",
     "UniCNS-UCS2-H",
     0
   };
   static char *adobe_gb1_cmaps[] = {
+    "UniGB-UTF32-V",
     "UniGB-UCS2-V",
+    "UniGB-UTF32-H",
     "UniGB-UCS2-H",
     0
   };
   static char *adobe_japan1_cmaps[] = {
+    "UniJIS-UTF32-V",
     "UniJIS-UCS2-V",
+    "UniJIS-UTF32-H",
     "UniJIS-UCS2-H",
     0
   };
   static char *adobe_japan2_cmaps[] = {
+    "UniHojo-UTF32-V",
     "UniHojo-UCS2-V",
+    "UniHojo-UTF32-H",
     "UniHojo-UCS2-H",
     0
   };
   static char *adobe_korea1_cmaps[] = {
+    "UniKS-UTF32-V",
     "UniKS-UCS2-V",
+    "UniKS-UTF32-H",
     "UniKS-UCS2-H",
     0
   };
@@ -1680,8 +1691,17 @@ Gushort *GfxCIDFont::getCodeToGIDMap(FoFiTrueType *ff, int *mapsizep) {
   for (i = 0; i < ff->getNumCmaps(); ++i) {
     cmapPlatform = ff->getCmapPlatform(i);
     cmapEncoding = ff->getCmapEncoding(i);
-    if ((cmapPlatform == 3 && cmapEncoding == 1) || cmapPlatform == 0)
-      cmap = i;
+    if (cmapPlatform == 3 && cmapEncoding == 10) {
+	/* UCS-4 */
+	cmap = i;
+	/* use UCS-4 cmap */
+	break;
+    } else if (cmapPlatform == 3 && cmapEncoding == 1) {
+	/* Unicode */
+	cmap = i;
+    } else if (cmapPlatform == 0 && cmap < 0) {
+	cmap = i;
+    }
   }
   if (cmap < 0)
     return NULL;
@@ -1692,8 +1712,9 @@ Gushort *GfxCIDFont::getCodeToGIDMap(FoFiTrueType *ff, int *mapsizep) {
       break;
     }
   }
-  n = ctu->getLength();
-  humap = new Unicode[n];
+  //n = ctu->getLength();
+  n = 65536;
+  humap = new Unicode[n*N_UCS_CANDIDATES];
   if (lp->collection != 0) {
     CharCodeToUnicode *tctu;
     GooString tname(lp->toUnicodeMap);
@@ -1706,10 +1727,15 @@ Gushort *GfxCIDFont::getCodeToGIDMap(FoFiTrueType *ff, int *mapsizep) {
 
 	len = tctu->mapToUnicode(cid,ucodes,4);
 	if (len == 1) {
-	  humap[cid] = ucodes[0];
+	  humap[cid*N_UCS_CANDIDATES] = ucodes[0];
+	  for (i = 1;i < N_UCS_CANDIDATES;i++) {
+	      humap[cid*N_UCS_CANDIDATES+i] = 0;
+	  }
 	} else {
 	  /* if not single character, ignore it */
-	  humap[cid] = 0;
+	  for (i = 0;i < N_UCS_CANDIDATES;i++) {
+	      humap[cid*N_UCS_CANDIDATES+i] = 0;
+	  }
 	}
       }
       delete tctu;
@@ -1721,25 +1747,11 @@ Gushort *GfxCIDFont::getCodeToGIDMap(FoFiTrueType *ff, int *mapsizep) {
 
       if ((cMap = globalParams->getCMap(getCollection(),&cname))
 	   != 0) {
-	for (u = 0;u <= 65535;u++) {
-	  CID cid;
-	  char code[2];
-
-	  code[0] = (u >> 8) & 0xff;
-	  code[1] = u & 0xff;
-	  cid = cMap->getCID(code,2,&nUsed);
-	  if (cid != 0) {
 	    if (cMap->getWMode()) {
-	      if (cid < n && vumap[cid] == 0) {
-		vumap[cid] = u;
-	      }
+		cMap->setReverseMap(vumap,n,1);
 	    } else {
-	      if (cid < n && humap[cid] == 0) {
-		humap[cid] = u;
-	      }
+		cMap->setReverseMap(humap,n,N_UCS_CANDIDATES);
 	    }
-	  }
-	}
 	cMap->decRefCnt();
       }
     }
@@ -1754,7 +1766,10 @@ Gushort *GfxCIDFont::getCodeToGIDMap(FoFiTrueType *ff, int *mapsizep) {
 	Unicode ucode;
 
 	len = ctu->mapToUnicode(cid,&ucode,1);
-	humap[cid] = ucode;
+	humap[cid*N_UCS_CANDIDATES] = ucode;
+	for (i = 1;i < N_UCS_CANDIDATES;i++) {
+	    humap[cid*N_UCS_CANDIDATES+i] = 0;
+	}
       }
       ctu->decRefCnt();
     }
@@ -1771,13 +1786,17 @@ Gushort *GfxCIDFont::getCodeToGIDMap(FoFiTrueType *ff, int *mapsizep) {
     if (unicode != 0) {
       gid = mapCodeToGID(ff,cmap,unicode,gTrue);
       if (gid == 0 && humap != 0) {
-	if (humap != 0) unicode = humap[code];
-	if (unicode != 0) gid = mapCodeToGID(ff,cmap,unicode,gTrue);
+	for (i = 0;i < N_UCS_CANDIDATES
+	  && gid == 0 && (unicode = humap[code*N_UCS_CANDIDATES+i]) != 0;i++) {
+	  gid = mapCodeToGID(ff,cmap,unicode,gTrue);
+	}
       }
     }
-    if (gid == 0) {
-      if (humap != 0) unicode = humap[code];
-      if (unicode != 0) gid = mapCodeToGID(ff,cmap,unicode,wmode);
+    if (gid == 0 && humap != 0) {
+      for (i = 0;i < N_UCS_CANDIDATES
+	&& gid == 0 && (unicode = humap[code*N_UCS_CANDIDATES+i]) != 0;i++) {
+	gid = mapCodeToGID(ff,cmap,unicode,wmode);
+      }
     }
     if (gid == 0) {
       /* special handling space characters */

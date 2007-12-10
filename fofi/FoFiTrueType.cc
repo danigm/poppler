@@ -321,10 +321,10 @@ int FoFiTrueType::findCmap(int platform, int encoding) {
   return -1;
 }
 
-Gushort FoFiTrueType::mapCodeToGID(int i, int c) {
+Gushort FoFiTrueType::mapCodeToGID(int i, Guint c) {
   Gushort gid;
-  int segCnt, segEnd, segStart, segDelta, segOffset;
-  int cmapFirst, cmapLen;
+  Guint segCnt, segEnd, segStart, segDelta, segOffset;
+  Guint cmapFirst, cmapLen;
   int pos, a, b, m;
   GBool ok;
 
@@ -335,7 +335,7 @@ Gushort FoFiTrueType::mapCodeToGID(int i, int c) {
   pos = cmaps[i].offset;
   switch (cmaps[i].fmt) {
   case 0:
-    if (c < 0 || c >= cmaps[i].len - 6) {
+    if (c >= cmaps[i].len - 6) {
       return 0;
     }
     gid = getU8(cmaps[i].offset + 6 + c, &ok);
@@ -383,6 +383,31 @@ Gushort FoFiTrueType::mapCodeToGID(int i, int c) {
       return 0;
     }
     gid = getU16BE(pos + 10 + 2 * (c - cmapFirst), &ok);
+    break;
+  case 12:
+    segCnt = getU32BE(pos + 12, &ok);
+    a = -1;
+    b = segCnt - 1;
+    segEnd = getU32BE(pos + 16 + 12*b+4, &ok);
+    if (c > segEnd) {
+      return 0;
+    }
+    // invariant: seg[a].end < code <= seg[b].end
+    while (b - a > 1 && ok) {
+      m = (a + b) / 2;
+      segEnd = getU32BE(pos + 16 + 12*m+4, &ok);
+      if (segEnd < c) {
+	a = m;
+      } else {
+	b = m;
+      }
+    }
+    segStart = getU32BE(pos + 16 + 12*b, &ok);
+    segDelta = getU32BE(pos + 16 + 12*b+8, &ok);
+    if (c < segStart) {
+      return 0;
+    }
+    gid = segDelta + (c-segStart);
     break;
   default:
     return 0;

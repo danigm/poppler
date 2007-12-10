@@ -54,7 +54,7 @@ public:
   int findCmap(int platform, int encoding);
 
   // Return the GID corresponding to <c> according to the <i>th cmap.
-  Gushort mapCodeToGID(int i, int c);
+  Gushort mapCodeToGID(int i, Guint c);
 
   // map gid to vertical glyph gid if exist.
   //   if not exist return original gid

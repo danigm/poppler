@@ -55,6 +55,8 @@ public:
   // Return the writing mode (0=horizontal, 1=vertical).
   int getWMode() { return wMode; }
 
+  void setReverseMap(Guint *rmap, Guint rmapSize, Guint ncand);
+
 private:
 
   CMap(GooString *collectionA, GooString *cMapNameA);
@@ -65,6 +67,8 @@ private:
 		    Guint nBytes);
   void addCIDs(Guint start, Guint end, Guint nBytes, CID firstCID);
   void freeCMapVector(CMapVectorEntry *vec);
+  void setReverseMapVector(Guint startCode, CMapVectorEntry *vec,
+          Guint *rmap, Guint rmapSize, Guint ncand);
 
   GooString *collection;
   GooString *cMapName;
