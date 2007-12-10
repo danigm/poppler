@@ -4060,7 +4060,7 @@ void Gfx::opMarkPoint(Object args[], int numArgs) {
 // misc
 //------------------------------------------------------------------------
 
-void Gfx::drawAnnot(Object *str, AnnotBorderStyle *borderStyle,
+void Gfx::drawAnnot(Object *str, AnnotBorder *border, AnnotColor *aColor,
 		    double xMin, double yMin, double xMax, double yMax) {
   Dict *dict, *resDict;
   Object matrixObj, bboxObj, resObj;
@@ -4182,13 +4182,19 @@ void Gfx::drawAnnot(Object *str, AnnotBorderStyle *borderStyle,
   }
 
   // draw the border
-  if (borderStyle && borderStyle->getWidth() > 0) {
+  if (border && border->getWidth() > 0) {
     if (state->getStrokeColorSpace()->getMode() != csDeviceRGB) {
       state->setStrokePattern(NULL);
       state->setStrokeColorSpace(new GfxDeviceRGBColorSpace());
       out->updateStrokeColorSpace(state);
     }
-    borderStyle->getColor(&r, &g, &b);
+    if (aColor && (aColor->getSpace() == AnnotColor::colorRGB)) {
+      r = aColor->getValue(0);
+      g = aColor->getValue(1);
+      b = aColor->getValue(2);
+    } else {
+      r = g = b = 0;
+    };
     color.c[0] = dblToCol(r);
     color.c[1] = dblToCol(g);
     color.c[2] = dblToCol(b);
@@ -4201,10 +4207,11 @@ void Gfx::drawAnnot(Object *str, AnnotBorderStyle *borderStyle,
     y = (baseMatrix[0] + baseMatrix[2]) * ictm[1] +
         (baseMatrix[1] + baseMatrix[3]) * ictm[3];
     x = sqrt(0.5 * (x * x + y * y));
-    state->setLineWidth(x * borderStyle->getWidth());
+    state->setLineWidth(x * border->getWidth());
     out->updateLineWidth(state);
-    borderStyle->getDash(&dash, &dashLength);
-    if (borderStyle->getType() == annotBorderDashed && dashLength > 0) {
+    dashLength = border->getDashLength();
+    dash = border->getDash();
+    if (border->getStyle() == AnnotBorder::borderDashed && dashLength > 0) {
       dash2 = (double *)gmallocn(dashLength, sizeof(double));
       for (i = 0; i < dashLength; ++i) {
 	dash2[i] = x * dash[i];
@@ -4216,7 +4223,7 @@ void Gfx::drawAnnot(Object *str, AnnotBorderStyle *borderStyle,
     state->clearPath();
     state->moveTo(annotX0, out->upsideDown() ? annotY1 : annotY0);
     state->lineTo(annotX1, out->upsideDown() ? annotY1 : annotY0);
-    if (borderStyle->getType() != annotBorderUnderlined) {
+    if (border->getStyle() != AnnotBorder::borderUnderlined) {
       state->lineTo(annotX1, out->upsideDown() ? annotY0 : annotY1);
       state->lineTo(annotX0, out->upsideDown() ? annotY0 : annotY1);
       state->closePath();
