@@ -40,7 +40,7 @@ public:
     borderInset,      // Inset
     borderUnderlined, // Underlined
   };
-	  
+
   virtual ~AnnotBorder();
 
   virtual double getWidth() { return width; }
@@ -80,7 +80,7 @@ protected:
 
 class AnnotBorderBS: public AnnotBorder {
 public:
-  
+
   AnnotBorderBS();
   AnnotBorderBS(Dict *dict);
 
@@ -103,7 +103,7 @@ public:
     colorRGB         = 3,
     colorCMYK        = 4
   };
-  
+
   AnnotColor();
   AnnotColor(Array *array);
   ~AnnotColor();
@@ -285,7 +285,7 @@ protected:
   GBool ok;
   GBool regen, isTextField;
   GBool isMultiline, isListbox;
-  
+
   bool hasRef;
 };
 
@@ -295,7 +295,6 @@ protected:
 
 class AnnotPopup: public Annot {
 public:
-
   AnnotPopup(XRef *xrefA, Dict *acroForm, Dict *dict, Catalog *catalog, Object *obj);
   virtual ~AnnotPopup();
 
@@ -303,9 +302,8 @@ public:
   bool getOpen() { return open; }
 
 protected:
-
   void initialize(XRef *xrefA, Dict *acroForm, Dict *dict, Catalog *catalog);
-  
+
   Dict *parent; // Parent
   bool open;    // Open
 };
@@ -336,7 +334,6 @@ public:
   AnnotExternalDataType getExData() { return exData; }
 
 protected:
-
   GooString *label;             // T            (Default autor)
   AnnotPopup *popup;            // Popup
   double opacity;               // CA           (Default 1.0)
@@ -351,8 +348,57 @@ protected:
   AnnotExternalDataType exData; // ExData
 
 private:
-
   void initialize(XRef *xrefA, Dict *acroForm, Dict *dict, Catalog *catalog, Object *obj);
+};
+
+//------------------------------------------------------------------------
+// AnnotText
+//------------------------------------------------------------------------
+
+class AnnotText: public Annot, public AnnotMarkup {
+public:
+  enum AnnotTextIcon {
+    iconComment,      // Comment
+    iconKey,          // Key
+    iconNote,         // Note
+    iconHelp,         // Help
+    iconNewParagraph, // NewParagraph
+    iconParagraph,    // Paragraph
+    iconInsert        // Insert
+  };
+
+  enum AnnotTextState {
+    stateUnknown,
+    // Marked state model
+    stateMarked,    // Marked
+    stateUnmarked,  // Unmarked
+    // Review state model
+    stateAccepted,  // Accepted
+    stateRejected,  // Rejected
+    stateCancelled, // Cancelled
+    stateCompleted, // Completed
+    stateNone       // None
+  };
+
+  AnnotText(XRef *xrefA, Dict *acroForm, Dict *dict, Catalog *catalog, Object *obj);
+
+  // getters
+  bool getOpen() { return open; }
+  AnnotTextIcon getIcon() { return icon; }
+  AnnotTextState getState() { return state; }
+
+  // setters
+  void setModified(GooString *date);
+
+private:
+
+  void initialize(XRef *xrefA, Catalog *catalog, Dict *dict);
+
+  bool open;                        // Open       (Default false)
+  AnnotTextIcon icon;               // Name       (Default Note)
+  AnnotTextState state;             // State      (Default Umarked if
+                                    //             StateModel Marked
+                                    //             None if StareModel Review)
 };
 
 //------------------------------------------------------------------------
@@ -374,7 +420,6 @@ public:
   // (Re)generate the appearance streams for all annotations belonging
   // to a form field.
   void generateAppearances(Dict *acroForm);
-
 
 private:
   Annot* createAnnot(XRef *xref, Dict *acroForm, Dict* dict, Catalog *catalog, Object *obj);

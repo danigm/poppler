@@ -1837,6 +1837,127 @@ void AnnotMarkup::initialize(XRef *xrefA, Dict *acroForm, Dict *dict, Catalog *c
 }
 
 //------------------------------------------------------------------------
+// AnnotText
+//------------------------------------------------------------------------
+
+AnnotText::AnnotText(XRef *xrefA, Dict *acroForm, Dict *dict, Catalog *catalog, Object *obj) :
+    Annot(xrefA, acroForm, dict, catalog, obj), AnnotMarkup(xref, acroForm, dict, catalog, obj) {
+
+  type = typeText;
+  flags |= flagNoZoom & flagNoRotate;
+  initialize (xrefA, catalog, dict);
+}
+
+void AnnotText::setModified(GooString* date) {
+  if(date) {
+    delete modified;
+    modified = new GooString(date);
+  }
+}
+
+void AnnotText::initialize(XRef *xrefA, Catalog *catalog, Dict *dict) {
+  Object obj1;
+
+  if (dict->lookup("Open", &obj1)->isBool())
+    open = obj1.getBool();
+  else
+    open = gFalse;
+  obj1.free();
+
+  if (dict->lookup("Name", &obj1)->isName()) {
+    GooString *iconName = new GooString(obj1.getName());
+
+    if(!iconName->cmp("Comment")) {
+      icon = iconComment;
+    } else if(!iconName->cmp("Key")) {
+      icon = iconKey;
+    } else if(!iconName->cmp("Help")) {
+      icon = iconHelp;
+    } else if(!iconName->cmp("NewParagraph")) {
+      icon = iconNewParagraph;
+    } else if(!iconName->cmp("Paragraph")) {
+      icon = iconParagraph;
+    } else if(!iconName->cmp("Insert")) {
+      icon = iconInsert;
+    } else {
+      icon = iconNote;
+    }
+    delete iconName;
+  } else {
+    icon = iconNote;
+  }
+  obj1.free();
+
+  if (dict->lookup("StateModel", &obj1)->isString()) {
+    Object obj2;
+    GooString *modelName = obj1.getString();
+
+    if (dict->lookup("State", &obj2)->isString()) {
+      GooString *stateName = obj2.getString();
+
+      if(!stateName->cmp("Marked")) {
+        state = stateMarked;
+      } else if(!stateName->cmp("Unmarked")) {
+        state = stateUnmarked;
+      } else if(!stateName->cmp("Accepted")) {
+        state = stateAccepted;
+      } else if(!stateName->cmp("Rejected")) {
+        state = stateRejected;
+      } else if(!stateName->cmp("Cancelled")) {
+        state = stateCancelled;
+      } else if(!stateName->cmp("Completed")) {
+        state = stateCompleted;
+      } else if(!stateName->cmp("None")) {
+        state = stateNone;
+      } else {
+        state = stateUnknown;
+      }
+      
+      delete stateName;
+    } else {
+      state = stateUnknown;
+    }
+    obj2.free();
+
+    if(!modelName->cmp("Marked")) {
+      switch (state) {
+        case stateUnknown:
+          state = stateMarked;
+          break;
+        case stateAccepted:
+        case stateRejected:
+        case stateCancelled:
+        case stateCompleted:
+        case stateNone:
+          state = stateUnknown;
+          break;
+        default:
+          break;
+      }
+    } else if(!modelName->cmp("Review")) {
+      switch (state) {
+        case stateUnknown:
+          state = stateNone;
+          break;
+        case stateMarked:
+        case stateUnmarked:
+          state = stateUnknown;
+          break;
+        default:
+          break;
+      }
+    } else {
+      state = stateUnknown;
+    }
+
+    delete modelName;
+  } else {
+    state = stateUnknown;
+  }
+  obj1.free();
+}
+
+//------------------------------------------------------------------------
 // Annots
 //------------------------------------------------------------------------
 
@@ -1886,7 +2007,7 @@ Annot *Annots::createAnnot(XRef *xref, Dict *acroForm, Dict* dict, Catalog *cata
     GooString *typeName = new GooString(obj1.getName());
 
     if (!typeName->cmp("Text")) {
-      annot = new Annot(xref, acroForm, dict, catalog, obj);
+      annot = new AnnotText(xref, acroForm, dict, catalog, obj);
     } else if(!typeName->cmp("Link")) {
       annot = new Annot(xref, acroForm, dict, catalog, obj);
     } else if(!typeName->cmp("FreeText")) {
