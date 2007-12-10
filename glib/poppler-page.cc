@@ -409,16 +409,7 @@ poppler_page_copy_to_pixbuf(PopplerPage *page,
 static GBool
 poppler_print_annot_cb (Annot *annot, void *user_data)
 {
-  GooString *annot_type;
-
-  annot_type = annot->getType ();
-  if (!annot_type)
-    return gFalse;
-  
-  if (annot_type->cmp ("Widget") == 0)
-    return gTrue;
-
-  return gFalse;
+  return (annot->getType() == Annot::typeWidget);
 }
 
 #if defined (HAVE_CAIRO)

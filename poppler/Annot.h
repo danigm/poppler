@@ -168,13 +168,40 @@ public:
     flagLockedContents = 0x0200
   };
 
-  Annot(XRef *xrefA, Dict *acroForm, Dict *dict, Catalog *catalog);
-  Annot(XRef *xrefA, Dict *acroForm, Dict *dict, const Ref& aref, Catalog *catalog);
-  ~Annot();
+  enum AnnotSubtype {
+    typeUnknown,        //                 0
+    typeText,           // Text            1
+    typeLink,           // Link            2
+    typeFreeText,       // FreeText        3
+    typeLine,           // Line            4
+    typeSquare,         // Square          5
+    typeCircle,         // Circle          6
+    typePolygon,        // Polygon         7
+    typePolyLine,       // PolyLine        8
+    typeHighlight,      // Highlight       9
+    typeUnderline,      // Underline      10
+    typeSquiggly,       // Squiggly       11
+    typeStrikeOut,      // StrikeOut      12
+    typeStamp,          // Stamp          13
+    typeCaret,          // Caret          14
+    typeInk,            // Ink            15
+    typePopup,          // Popup          16
+    typeFileAttachment, // FileAttachment 17
+    typeSound,          // Sound          18
+    typeMovie,          // Movie          19
+    typeWidget,         // Widget         20
+    typeScreen,         // Screen         21
+    typePrinterMark,    // PrinterMark    22
+    typeTrapNet,        // TrapNet        23
+    typeWatermark,      // Watermark      24
+    type3D              // 3D             25
+  };
+
+  Annot(XRef *xrefA, Dict *acroForm, Dict *dict, Catalog *catalog, Object *obj);
+  virtual ~Annot();
   GBool isOk() { return ok; }
 
   void draw(Gfx *gfx, GBool printing);
-
   // Get appearance object.
   Object *getAppearance(Object *obj) { return appearance.fetch(xref, obj); }
   GBool textField() { return isTextField; }
@@ -189,11 +216,21 @@ public:
 
   double getFontSize() { return fontSize; }
 
-  GooString *getType() { return type; }
+  // getters
+  AnnotSubtype getType() { return type; }
   PDFRectangle *getRect() { return rect; }
+  GooString *getContents() { return contents; }
+  Dict *getPageDict() { return pageDict; }
+  GooString *getName() { return name; }
+  GooString *getModified() { return modified; }
+  Guint getFlags() { return flags; }
+  /*Dict *getAppearDict() { return appearDict; }*/
+  GooString *getAppearState() { return appearState; }
   AnnotBorder *getBorder() { return border; }
   AnnotColor *getColor() { return color; }
-  
+  int getTreeKey() { return treeKey; }
+  Dict *getOptionalContent() { return optionalContent; }
+
 private:
   void setColor(Array *a, GBool fill, int adjust);
   void drawText(GooString *text, GooString *da, GfxFontDict *fontDict,
@@ -216,7 +253,8 @@ private:
   void initialize (XRef *xrefA, Dict *acroForm, Dict *dict, Catalog *catalog);
 
   // required data
-  PDFRectangle *rect;           // Rect
+  AnnotSubtype type;                // Annotation type
+  PDFRectangle *rect;               // Rect
 
   // optional data
   GooString *contents;              // Contents
@@ -234,7 +272,6 @@ private:
   XRef *xref;			// the xref table for this PDF file
   Ref ref;                      // object ref identifying this annotation
   FormWidget *widget;           // FormWidget object for this annotation
-  GooString *type;              // annotation type
   GooString *appearBuf;
   AnnotBorder *border;          // Border, BS
   AnnotColor *color;            // C
@@ -268,6 +305,7 @@ public:
 
 
 private:
+  Annot* createAnnot(XRef *xref, Dict *acroForm, Dict* dict, Catalog *catalog, Object *obj);
   void scanFieldAppearances(Dict *node, Ref *ref, Dict *parent,
 			    Dict *acroForm);
   Annot *findAnnot(Ref *ref);

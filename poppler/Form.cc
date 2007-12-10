@@ -1213,8 +1213,12 @@ FormPageWidgets::FormPageWidgets (XRef *xrefA, Object* annots, unsigned int page
         //create a temporary Annot to get the font size
         Object obj2;
         if (annots->arrayGet(i, &obj2)->isDict()) {
-          Annot* ann = new Annot(xref, NULL ,obj2.getDict(), NULL);
+          Annot *ann;
+          Object obj3;
+          annots->arrayGetNF(i, &obj3);
+          ann = new Annot(xref, NULL ,obj2.getDict(), NULL, &obj3);
           tmp->setFontSize(ann->getFontSize());
+          obj3.free();
           delete ann;
         }
         obj2.free();
