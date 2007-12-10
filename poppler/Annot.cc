@@ -1686,6 +1686,40 @@ void Annot::draw(Gfx *gfx, GBool printing) {
   obj.free();
 }
 
+//------------------------------------------------------------------------
+// AnnotPopup
+//------------------------------------------------------------------------
+
+AnnotPopup::AnnotPopup(XRef *xrefA, Dict *acroForm, Dict *dict, Catalog *catalog, Object *obj) :
+    Annot(xrefA, acroForm, dict, catalog, obj) {
+  type = typePopup;
+  initialize(xrefA, acroForm, dict, catalog);
+}
+
+AnnotPopup::~AnnotPopup() {
+  /*
+  if (parent)
+    delete parent;
+  */
+}
+
+void AnnotPopup::initialize(XRef *xrefA, Dict *acroForm, Dict *dict, Catalog *catalog) {
+  Object obj1;
+  /*
+  if(dict->lookup("Parent", &obj1)->isDict()) {
+    parent = NULL;
+  } else {
+    parent = NULL;
+  }
+  obj1.free();
+  */
+  if(dict->lookup("Open", &obj1)->isBool()) {
+    open = obj1.getBool();
+  } else {
+    open = gFalse;
+  }
+  obj1.free();
+}
 
 //------------------------------------------------------------------------
 // Annots

@@ -284,6 +284,27 @@ private:
 };
 
 //------------------------------------------------------------------------
+// AnnotPopup
+//------------------------------------------------------------------------
+
+class AnnotPopup: public Annot {
+public:
+
+  AnnotPopup(XRef *xrefA, Dict *acroForm, Dict *dict, Catalog *catalog, Object *obj);
+  virtual ~AnnotPopup();
+
+  Dict *getParent() { return parent; }
+  bool getOpen() { return open; }
+
+protected:
+
+  void initialize(XRef *xrefA, Dict *acroForm, Dict *dict, Catalog *catalog);
+  
+  Dict *parent; // Parent
+  bool open;    // Open
+};
+
+//------------------------------------------------------------------------
 // Annots
 //------------------------------------------------------------------------
 
