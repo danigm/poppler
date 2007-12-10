@@ -60,6 +60,27 @@
 // = (4 * (sqrt(2) - 1) / 3) * r
 #define bezierCircle 0.55228475
 
+AnnotExternalDataType parseAnnotExternalData(Dict* dict) {
+  Object obj1;
+  AnnotExternalDataType type;
+
+  if (dict->lookup("Subtype", &obj1)->isName()) {
+    GooString *typeName = new GooString(obj1.getName());
+
+    if(!typeName->cmp("Markup3D")) {
+      type = annotExternalDataMarkup3D;
+    } else {
+      type = annotExternalDataMarkupUnknown;
+    }
+    delete typeName;
+  } else {
+    type = annotExternalDataMarkupUnknown;
+  }
+  obj1.free();
+
+  return type;
+}
+
 //------------------------------------------------------------------------
 // AnnotBorder
 //------------------------------------------------------------------------
@@ -1717,6 +1738,100 @@ void AnnotPopup::initialize(XRef *xrefA, Dict *acroForm, Dict *dict, Catalog *ca
     open = obj1.getBool();
   } else {
     open = gFalse;
+  }
+  obj1.free();
+}
+
+//------------------------------------------------------------------------
+// AnnotMarkup
+//------------------------------------------------------------------------
+ 
+AnnotMarkup::AnnotMarkup(XRef *xrefA, Dict *acroForm, Dict *dict, Catalog *catalog, Object *obj) {
+  initialize(xrefA, acroForm, dict, catalog, obj);
+}
+
+AnnotMarkup::~AnnotMarkup() {
+  if (label)
+    delete label;
+
+  if (popup)
+    delete popup;
+
+  if (date)
+    delete date;
+
+  if (inReplyTo)
+    delete inReplyTo;
+
+  if (subject)
+    delete subject;
+}
+
+void AnnotMarkup::initialize(XRef *xrefA, Dict *acroForm, Dict *dict, Catalog *catalog, Object *obj) {
+  Object obj1;
+
+  if (dict->lookup("T", &obj1)->isString()) {
+    label = obj1.getString()->copy();
+  } else {
+    label = NULL;
+  }
+  obj1.free();
+
+  if (dict->lookup("Popup", &obj1)->isDict()) {
+    popup = new AnnotPopup(xrefA, acroForm, obj1.getDict(), catalog, obj);
+  } else {
+    popup = NULL;
+  }
+  obj1.free();
+
+  if (dict->lookup("CA", &obj1)->isNum()) {
+    opacity = obj1.getNum();
+  } else {
+    opacity = 1.0;
+  }
+  obj1.free();
+
+  if (dict->lookup("CreationDate", &obj1)->isString()) {
+    date = obj1.getString()->copy();
+  } else {
+    date = NULL;
+  }
+  obj1.free();
+
+  if (dict->lookup("IRT", &obj1)->isDict()) {
+    inReplyTo = obj1.getDict();
+  } else {
+    inReplyTo = NULL;
+  }
+  obj1.free();
+
+  if (dict->lookup("Subj", &obj1)->isString()) {
+    subject = obj1.getString()->copy();
+  } else {
+    subject = NULL;
+  }
+  obj1.free();
+
+  if (dict->lookup("RT", &obj1)->isName()) {
+    GooString *replyName = new GooString(obj1.getName());
+
+    if(!replyName->cmp("R")) {
+      replyTo = replyTypeR;
+    } else if(!replyName->cmp("Group")) {
+      replyTo = replyTypeGroup;
+    } else {
+      replyTo = replyTypeR;
+    }
+    delete replyName;
+  } else {
+    replyTo = replyTypeR;
+  }
+  obj1.free();
+
+  if (dict->lookup("ExData", &obj1)->isDict()) {
+    exData = parseAnnotExternalData(obj1.getDict());
+  } else {
+    exData = annotExternalDataMarkupUnknown;
   }
   obj1.free();
 }

@@ -22,6 +22,11 @@ class GfxFontDict;
 class FormWidget;
 class PDFRectangle;
 
+enum AnnotExternalDataType {
+  annotExternalDataMarkupUnknown,
+  annotExternalDataMarkup3D       // Markup3D
+};
+
 //------------------------------------------------------------------------
 // AnnotBorder
 //------------------------------------------------------------------------
@@ -252,6 +257,7 @@ private:
 
   void initialize (XRef *xrefA, Dict *acroForm, Dict *dict, Catalog *catalog);
 
+protected:
   // required data
   AnnotSubtype type;                // Annotation type
   PDFRectangle *rect;               // Rect
@@ -302,6 +308,51 @@ protected:
   
   Dict *parent; // Parent
   bool open;    // Open
+};
+
+//------------------------------------------------------------------------
+// AnnotMarkup
+//------------------------------------------------------------------------
+
+class AnnotMarkup {
+public:
+  enum  AnnotMarkupReplyType {
+    replyTypeR,     // R
+    replyTypeGroup  // Group
+  };
+
+  AnnotMarkup(XRef *xrefA, Dict *acroForm, Dict *dict, Catalog *catalog, Object *obj);
+  virtual ~AnnotMarkup();
+
+  // getters
+  GooString *getLabel() { return label; }
+  AnnotPopup *getPopup() { return popup; }
+  double getOpacity() { return opacity; }
+  // getRC
+  GooString *getDate() { return date; }
+  Dict *getInReplyTo() { return inReplyTo; }
+  GooString *getSubject() { return subject; }
+  AnnotMarkupReplyType getReplyTo() { return replyTo; }
+  AnnotExternalDataType getExData() { return exData; }
+
+protected:
+
+  GooString *label;             // T            (Default autor)
+  AnnotPopup *popup;            // Popup
+  double opacity;               // CA           (Default 1.0)
+  // RC
+  GooString *date;              // CreationDate
+  Dict *inReplyTo;              // IRT
+  GooString *subject;           // Subj
+  AnnotMarkupReplyType replyTo; // RT           (Default R)
+  // this object is overrided by the custom intent fields defined in some
+  // annotation types.
+  //GooString *intent;          // IT
+  AnnotExternalDataType exData; // ExData
+
+private:
+
+  void initialize(XRef *xrefA, Dict *acroForm, Dict *dict, Catalog *catalog, Object *obj);
 };
 
 //------------------------------------------------------------------------
