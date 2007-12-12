@@ -43,10 +43,10 @@ public:
 
   virtual ~AnnotBorder();
 
-  virtual double getWidth() { return width; }
-  virtual int getDashLength() { return dashLength; }
-  virtual double *getDash() { return dash; }
-  virtual AnnotBorderStyle getStyle() { return style; }
+  virtual double getWidth() const { return width; }
+  virtual int getDashLength() const { return dashLength; }
+  virtual double *getDash() const { return dash; }
+  virtual AnnotBorderStyle getStyle() const { return style; }
 
 protected:
   double width;
@@ -64,8 +64,8 @@ public:
   AnnotBorderArray();
   AnnotBorderArray(Array *array);
 
-  virtual double getHorizontalCorner() { return horizontalCorner; }
-  virtual double getVerticalCorner() { return verticalCorner; }
+  virtual double getHorizontalCorner() const { return horizontalCorner; }
+  virtual double getVerticalCorner() const { return verticalCorner; }
 
 protected:
   static const int DASH_LIMIT = 10; // implementation note 82 in Appendix H.
@@ -108,8 +108,8 @@ public:
   AnnotColor(Array *array);
   ~AnnotColor();
 
-  AnnotColorSpace getSpace();
-  double getValue(int i);
+  AnnotColorSpace getSpace() const;
+  double getValue(int i) const;
 
 private:
 
@@ -222,19 +222,19 @@ public:
   double getFontSize() { return fontSize; }
 
   // getters
-  AnnotSubtype getType() { return type; }
-  PDFRectangle *getRect() { return rect; }
-  GooString *getContents() { return contents; }
-  Dict *getPageDict() { return pageDict; }
-  GooString *getName() { return name; }
-  GooString *getModified() { return modified; }
-  Guint getFlags() { return flags; }
-  /*Dict *getAppearDict() { return appearDict; }*/
-  GooString *getAppearState() { return appearState; }
-  AnnotBorder *getBorder() { return border; }
-  AnnotColor *getColor() { return color; }
-  int getTreeKey() { return treeKey; }
-  Dict *getOptionalContent() { return optionalContent; }
+  AnnotSubtype getType() const { return type; }
+  PDFRectangle *getRect() const { return rect; }
+  GooString *getContents() const { return contents; }
+  Dict *getPageDict() const { return pageDict; }
+  GooString *getName() const { return name; }
+  GooString *getModified() const { return modified; }
+  Guint getFlags() const { return flags; }
+  /*Dict *getAppearDict() const { return appearDict; }*/
+  GooString *getAppearState() const { return appearState; }
+  AnnotBorder *getBorder() const { return border; }
+  AnnotColor *getColor() const { return color; }
+  int getTreeKey() const { return treeKey; }
+  Dict *getOptionalContent() const { return optionalContent; }
 
 private:
   void setColor(Array *a, GBool fill, int adjust);
@@ -298,14 +298,14 @@ public:
   AnnotPopup(XRef *xrefA, Dict *acroForm, Dict *dict, Catalog *catalog, Object *obj);
   virtual ~AnnotPopup();
 
-  Dict *getParent() { return parent; }
-  bool getOpen() { return open; }
+  Dict *getParent() const { return parent; }
+  GBool getOpen() const { return open; }
 
 protected:
   void initialize(XRef *xrefA, Dict *acroForm, Dict *dict, Catalog *catalog);
 
   Dict *parent; // Parent
-  bool open;    // Open
+  GBool open;   // Open
 };
 
 //------------------------------------------------------------------------
@@ -323,15 +323,15 @@ public:
   virtual ~AnnotMarkup();
 
   // getters
-  GooString *getLabel() { return label; }
-  AnnotPopup *getPopup() { return popup; }
-  double getOpacity() { return opacity; }
+  GooString *getLabel() const { return label; }
+  AnnotPopup *getPopup() const { return popup; }
+  double getOpacity() const { return opacity; }
   // getRC
-  GooString *getDate() { return date; }
-  Dict *getInReplyTo() { return inReplyTo; }
-  GooString *getSubject() { return subject; }
-  AnnotMarkupReplyType getReplyTo() { return replyTo; }
-  AnnotExternalDataType getExData() { return exData; }
+  GooString *getDate() const { return date; }
+  Dict *getInReplyTo() const { return inReplyTo; }
+  GooString *getSubject() const { return subject; }
+  AnnotMarkupReplyType getReplyTo() const { return replyTo; }
+  AnnotExternalDataType getExData() const { return exData; }
 
 protected:
   GooString *label;             // T            (Default autor)
@@ -383,9 +383,9 @@ public:
   AnnotText(XRef *xrefA, Dict *acroForm, Dict *dict, Catalog *catalog, Object *obj);
 
   // getters
-  bool getOpen() { return open; }
-  AnnotTextIcon getIcon() { return icon; }
-  AnnotTextState getState() { return state; }
+  GBool getOpen() const { return open; }
+  AnnotTextIcon getIcon() const { return icon; }
+  AnnotTextState getState() const { return state; }
 
   // setters
   void setModified(GooString *date);
@@ -394,7 +394,7 @@ private:
 
   void initialize(XRef *xrefA, Catalog *catalog, Dict *dict);
 
-  bool open;                        // Open       (Default false)
+  GBool open;                       // Open       (Default false)
   AnnotTextIcon icon;               // Name       (Default Note)
   AnnotTextState state;             // State      (Default Umarked if
                                     //             StateModel Marked

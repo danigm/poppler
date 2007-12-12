@@ -124,7 +124,7 @@ AnnotBorderArray::AnnotBorderArray(Array *array) {
 
     // TODO: check not all zero ? (Line Dash Pattern Page 217 PDF 8.1)
     if(arrayLength > 3) {
-      bool correct = true;
+      GBool correct = gTrue;
       int tempLength = array->getLength() - 3;
       double *tempDash = (double *) gmallocn (tempLength, sizeof (double));
 
@@ -134,10 +134,10 @@ AnnotBorderArray::AnnotBorderArray(Array *array) {
           tempDash[i] = obj1.getNum();
 
           if (tempDash[i] < 0)
-            correct = false;
+            correct = gFalse;
 
         } else {
-          correct = false;
+          correct = gFalse;
         }
         obj1.free();
       }
@@ -147,7 +147,7 @@ AnnotBorderArray::AnnotBorderArray(Array *array) {
         dash = tempDash;
         style = borderDashed;
       } else {
-        delete tempDash;
+        gfree (tempDash);
       }
     }
   }
@@ -202,7 +202,7 @@ AnnotBorderBS::AnnotBorderBS(Dict *dict) {
 
   // TODO: check not all zero (Line Dash Pattern Page 217 PDF 8.1)
   if (dict->lookup("D", &obj1)->isArray()) {
-    bool correct = true;
+    GBool correct = gTrue;
     int tempLength = obj1.arrayGetLength();
     double *tempDash = (double *) gmallocn (tempLength, sizeof (double));
 
@@ -213,9 +213,9 @@ AnnotBorderBS::AnnotBorderBS(Dict *dict) {
         tempDash[i] = obj2.getNum();
 
         if(tempDash[i] < 0)
-          correct = false;
+          correct = gFalse;
       } else {
-        correct = false;
+        correct = gFalse;
       }
       obj2.free();
     }
@@ -225,7 +225,7 @@ AnnotBorderBS::AnnotBorderBS(Dict *dict) {
       dash = tempDash;
       style = borderDashed;
     } else {
-      delete tempDash;
+      gfree (tempDash);
     }
 
   } else {
@@ -267,11 +267,11 @@ AnnotColor::AnnotColor(Array *array) {
   }
 }
 
-AnnotColor::AnnotColorSpace AnnotColor::getSpace() {
+AnnotColor::AnnotColorSpace AnnotColor::getSpace() const {
   return (AnnotColor::AnnotColorSpace) length;
 }
 
-double AnnotColor::getValue(int i) {
+double AnnotColor::getValue(int i) const {
   if(i >= 0 && i < length) 
     return values[i];
   return 0;
@@ -310,10 +310,10 @@ AnnotBorderStyle::~AnnotBorderStyle() {
 
 Annot::Annot(XRef *xrefA, Dict *acroForm, Dict *dict, Catalog* catalog, Object *obj) {
   if (obj->isRef()) {
-    hasRef = true;
+    hasRef = gTrue;
     ref = obj->getRef();
   } else {
-    hasRef = false;
+    hasRef = gFalse;
   }
   flags = flagUnknown;
   type = typeUnknown;
@@ -1848,7 +1848,7 @@ AnnotText::AnnotText(XRef *xrefA, Dict *acroForm, Dict *dict, Catalog *catalog, 
   initialize (xrefA, catalog, dict);
 }
 
-void AnnotText::setModified(GooString* date) {
+void AnnotText::setModified(GooString *date) {
   if(date) {
     delete modified;
     modified = new GooString(date);
@@ -1912,7 +1912,7 @@ void AnnotText::initialize(XRef *xrefA, Catalog *catalog, Dict *dict) {
       } else {
         state = stateUnknown;
       }
-      
+
       delete stateName;
     } else {
       state = stateUnknown;
