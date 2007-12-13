@@ -1587,8 +1587,8 @@ Gushort GfxCIDFont::mapCodeToGID(FoFiTrueType *ff, int cmapi,
 }
 
 Gushort *GfxCIDFont::getCodeToGIDMap(FoFiTrueType *ff, int *mapsizep) {
-  /* space characters */
 #define N_UCS_CANDIDATES 2
+  /* space characters */
   static unsigned long spaces[] = { 
     0x2000,0x2001,0x2002,0x2003,0x2004,0x2005,0x2006,0x2007,
     0x2008,0x2009,0x200A,0x00A0,0x200B,0x2060,0x3000,0xFEFF,
@@ -1669,6 +1669,7 @@ Gushort *GfxCIDFont::getCodeToGIDMap(FoFiTrueType *ff, int *mapsizep) {
   };
   Unicode *humap = 0;
   Unicode *vumap = 0;
+  Unicode *tumap = 0;
   Gushort *codeToGID = 0;
   unsigned long n;
   int i;
@@ -1712,9 +1713,8 @@ Gushort *GfxCIDFont::getCodeToGIDMap(FoFiTrueType *ff, int *mapsizep) {
       break;
     }
   }
-  //n = ctu->getLength();
   n = 65536;
-  humap = new Unicode[n*N_UCS_CANDIDATES];
+  tumap = new Unicode[n];
   if (lp->collection != 0) {
     CharCodeToUnicode *tctu;
     GooString tname(lp->toUnicodeMap);
@@ -1727,19 +1727,16 @@ Gushort *GfxCIDFont::getCodeToGIDMap(FoFiTrueType *ff, int *mapsizep) {
 
 	len = tctu->mapToUnicode(cid,ucodes,4);
 	if (len == 1) {
-	  humap[cid*N_UCS_CANDIDATES] = ucodes[0];
-	  for (i = 1;i < N_UCS_CANDIDATES;i++) {
-	      humap[cid*N_UCS_CANDIDATES+i] = 0;
-	  }
+	  tumap[cid] = ucodes[0];
 	} else {
 	  /* if not single character, ignore it */
-	  for (i = 0;i < N_UCS_CANDIDATES;i++) {
-	      humap[cid*N_UCS_CANDIDATES+i] = 0;
-	  }
+	  tumap[cid] = 0;
 	}
       }
       delete tctu;
     }
+    humap = new Unicode[n*N_UCS_CANDIDATES];
+    memset(humap,0,sizeof(Unicode)*n*N_UCS_CANDIDATES);
     vumap = new Unicode[n];
     memset(vumap,0,sizeof(Unicode)*n);
     for (cmapName = lp->CMaps;*cmapName != 0;cmapName++) {
@@ -1782,20 +1779,26 @@ Gushort *GfxCIDFont::getCodeToGIDMap(FoFiTrueType *ff, int *mapsizep) {
 
     unicode = 0;
     gid = 0;
-    if (vumap != 0) unicode = vumap[code];
-    if (unicode != 0) {
-      gid = mapCodeToGID(ff,cmap,unicode,gTrue);
-      if (gid == 0 && humap != 0) {
-	for (i = 0;i < N_UCS_CANDIDATES
-	  && gid == 0 && (unicode = humap[code*N_UCS_CANDIDATES+i]) != 0;i++) {
-	  gid = mapCodeToGID(ff,cmap,unicode,gTrue);
+    if (humap != 0) {
+      for (i = 0;i < N_UCS_CANDIDATES
+	&& gid == 0 && (unicode = humap[code*N_UCS_CANDIDATES+i]) != 0;i++) {
+	gid = mapCodeToGID(ff,cmap,unicode,gFalse);
+      }
+    }
+    if (gid == 0 && vumap != 0) {
+      unicode = vumap[code];
+      if (unicode != 0) {
+	gid = mapCodeToGID(ff,cmap,unicode,gTrue);
+	if (gid == 0 && tumap != 0) {
+	  if ((unicode = tumap[code]) != 0) {
+	    gid = mapCodeToGID(ff,cmap,unicode,gTrue);
+	  }
 	}
       }
     }
-    if (gid == 0 && humap != 0) {
-      for (i = 0;i < N_UCS_CANDIDATES
-	&& gid == 0 && (unicode = humap[code*N_UCS_CANDIDATES+i]) != 0;i++) {
-	gid = mapCodeToGID(ff,cmap,unicode,wmode);
+    if (gid == 0 && tumap != 0) {
+      if ((unicode = tumap[code]) != 0) {
+	gid = mapCodeToGID(ff,cmap,unicode,gFalse);
       }
     }
     if (gid == 0) {
@@ -1818,6 +1821,7 @@ Gushort *GfxCIDFont::getCodeToGIDMap(FoFiTrueType *ff, int *mapsizep) {
   }
   *mapsizep = n;
   if (humap != 0) delete[] humap;
+  if (tumap != 0) delete[] tumap;
   if (vumap != 0) delete[] vumap;
   return codeToGID;
 }
