@@ -293,11 +293,16 @@ LinkDest::LinkDest(Array *a) {
       goto err2;
     }
     kind = destFitH;
-    if (!a->get(2, &obj2)->isNum()) {
+    a->get(2, &obj2);
+    if (obj2.isNull()) {
+      changeTop = gFalse;
+    } else if (obj2.isNum()) {
+      changeTop = gTrue;
+      top = obj2.getNum();
+    } else {
       error(-1, "Bad annotation destination position");
       kind = destFit;
     }
-    top = obj2.getNum();
     obj2.free();
 
   // FitV link
@@ -307,11 +312,16 @@ LinkDest::LinkDest(Array *a) {
       goto err2;
     }
     kind = destFitV;
-    if (!a->get(2, &obj2)->isNum()) {
+    a->get(2, &obj2);
+    if (obj2.isNull()) {
+      changeLeft = gFalse;
+    } else if (obj2.isNum()) {
+      changeLeft = gTrue;
+      left = obj2.getNum();
+    } else {
       error(-1, "Bad annotation destination position");
       kind = destFit;
     }
-    left = obj2.getNum();
     obj2.free();
 
   // FitR link
@@ -361,11 +371,16 @@ LinkDest::LinkDest(Array *a) {
       goto err2;
     }
     kind = destFitBH;
-    if (!a->get(2, &obj2)->isNum()) {
+    a->get(2, &obj2);
+    if (obj2.isNull()) {
+      changeTop = gFalse;
+    } else if (obj2.isNum()) {
+      changeTop = gTrue;
+      top = obj2.getNum();
+    } else {
       error(-1, "Bad annotation destination position");
       kind = destFit;
     }
-    top = obj2.getNum();
     obj2.free();
 
   // FitBV link
@@ -375,11 +390,16 @@ LinkDest::LinkDest(Array *a) {
       goto err2;
     }
     kind = destFitBV;
-    if (!a->get(2, &obj2)->isNum()) {
+    a->get(2, &obj2);
+    if (obj2.isNull()) {
+      changeLeft = gFalse;
+    } else if (obj2.isNum()) {
+      changeLeft = gTrue;
+      left = obj2.getNum();
+    } else {
       error(-1, "Bad annotation destination position");
       kind = destFit;
     }
-    left = obj2.getNum();
     obj2.free();
 
   // unknown link kind
