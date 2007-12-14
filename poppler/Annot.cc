@@ -226,7 +226,9 @@ AnnotBorderBS::AnnotBorderBS(Dict *dict) {
       gfree (tempDash);
     }
 
-  } else {
+  }
+
+  if (!dash) {
     dashLength = 1;
     dash = (double *) gmallocn (dashLength, sizeof (double));
     dash[0] = 3;
