@@ -376,8 +376,9 @@ void Annot::initialize(XRef *xrefA, Dict *acroForm, Dict *dict, Catalog *catalog
   }
   obj1.free();
 
-  /* TODO: Page Object indirect reference (should be parsed ?)
-  if (dict->lookup("P", &obj1)->isDict()) {
+  /* TODO: Page Object indirect reference (should be parsed ?) */
+  pageDict = NULL;
+  /*if (dict->lookup("P", &obj1)->isDict()) {
     pageDict = NULL;
   } else {
     pageDict = NULL;
@@ -491,8 +492,10 @@ void Annot::initialize(XRef *xrefA, Dict *acroForm, Dict *dict, Catalog *catalog
   }
   obj1.free();
 
-  /* TODO: optional content should be parsed
-  if (dict->lookup("OC", &obj1)->isDict()) {
+  /* TODO: optional content should be parsed */
+  optionalContent = NULL;
+  
+  /*if (dict->lookup("OC", &obj1)->isDict()) {
     optionalContent = NULL;
   } else {
     optionalContent = NULL;
