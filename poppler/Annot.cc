@@ -84,8 +84,14 @@ AnnotExternalDataType parseAnnotExternalData(Dict* dict) {
 //------------------------------------------------------------------------
 // AnnotBorder
 //------------------------------------------------------------------------
- 
-AnnotBorder::~AnnotBorder() { 
+AnnotBorder::AnnotBorder() {
+  width = 1;
+  dashLength = 0;
+  dash = NULL;
+  style = borderSolid;
+}
+
+AnnotBorder::~AnnotBorder() {
   if (dash)
     gfree (dash); 
 }
@@ -97,10 +103,6 @@ AnnotBorder::~AnnotBorder() {
 AnnotBorderArray::AnnotBorderArray() {
   horizontalCorner = 0;
   verticalCorner = 0;
-  width = 1;
-  dashLength = 0;
-  dash = NULL;
-  style = borderSolid;
 }
 
 AnnotBorderArray::AnnotBorderArray(Array *array) {
@@ -158,10 +160,6 @@ AnnotBorderArray::AnnotBorderArray(Array *array) {
 //------------------------------------------------------------------------
 
 AnnotBorderBS::AnnotBorderBS() {
-  width = 1;
-  dashLength = 0;
-  dash = NULL;
-  style = borderSolid;
 }
 
 AnnotBorderBS::AnnotBorderBS(Dict *dict) {

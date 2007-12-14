@@ -41,6 +41,7 @@ public:
     borderUnderlined, // Underlined
   };
 
+  AnnotBorder();
   virtual ~AnnotBorder();
 
   virtual double getWidth() const { return width; }
