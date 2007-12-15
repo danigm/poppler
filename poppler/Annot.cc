@@ -308,6 +308,13 @@ AnnotBorderStyle::~AnnotBorderStyle() {
 // Annot
 //------------------------------------------------------------------------
 
+Annot::Annot(XRef *xrefA, Dict *acroForm, Dict *dict, Catalog* catalog) {
+  hasRef = false;
+  flags = flagUnknown;
+  type = typeUnknown;
+  initialize (xrefA, acroForm, dict, catalog);
+}
+
 Annot::Annot(XRef *xrefA, Dict *acroForm, Dict *dict, Catalog* catalog, Object *obj) {
   if (obj->isRef()) {
     hasRef = gTrue;

@@ -203,6 +203,7 @@ public:
     type3D              // 3D             25
   };
 
+  Annot(XRef *xrefA, Dict *acroForm, Dict *dict, Catalog* catalog);
   Annot(XRef *xrefA, Dict *acroForm, Dict *dict, Catalog *catalog, Object *obj);
   virtual ~Annot();
   GBool isOk() { return ok; }
