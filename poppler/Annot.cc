@@ -1968,6 +1968,16 @@ void AnnotText::initialize(XRef *xrefA, Catalog *catalog, Dict *dict) {
 }
 
 //------------------------------------------------------------------------
+// AnnotLink
+//------------------------------------------------------------------------
+
+AnnotLink::AnnotLink(XRef *xrefA, Dict *acroForm, Dict *dict, Catalog *catalog, Object *obj) :
+    Annot(xrefA, acroForm, dict, catalog, obj) {
+
+  type = typeLink;
+}
+
+//------------------------------------------------------------------------
 // Annots
 //------------------------------------------------------------------------
 
@@ -2019,7 +2029,7 @@ Annot *Annots::createAnnot(XRef *xref, Dict *acroForm, Dict* dict, Catalog *cata
     if (!typeName->cmp("Text")) {
       annot = new AnnotText(xref, acroForm, dict, catalog, obj);
     } else if(!typeName->cmp("Link")) {
-      annot = new Annot(xref, acroForm, dict, catalog, obj);
+      annot = new AnnotLink(xref, acroForm, dict, catalog, obj);
     } else if(!typeName->cmp("FreeText")) {
       annot = new Annot(xref, acroForm, dict, catalog, obj);
     } else if(!typeName->cmp("Line")) {
