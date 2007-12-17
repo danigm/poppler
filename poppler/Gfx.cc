@@ -1023,6 +1023,73 @@ void Gfx::opSetExtGState(Object args[], int numArgs) {
     }
   }
   obj2.free();
+  if (obj1.dictLookup("Font", &obj2)->isArray()) {
+    GfxFont *font;
+    if (obj2.arrayGetLength() == 2) {
+      Object fargs0, fargs1;
+
+      obj2.arrayGetNF(0,&fargs0);
+      obj2.arrayGet(1,&fargs1);
+      if (fargs0.isRef() && fargs1.isNum()) {
+	Object fobj;
+	Ref r;
+
+	fargs0.fetch(xref, &fobj);
+	if (fobj.isDict()) {
+	  r = fargs0.getRef();
+	  font = GfxFont::makeFont(xref,args[0].getName(),r,fobj.getDict());
+	  state->setFont(font,fargs1.getNum());
+	  fontChanged = gTrue;
+	}
+	fobj.free();
+      }
+      fargs0.free();
+      fargs1.free();
+    } else {
+      error(getPos(), "Number of args mismatch for /Font in ExtGState");
+    }
+  }
+  obj2.free();
+  if (obj1.dictLookup("LW", &obj2)->isNum()) {
+    opSetLineWidth(&obj2,1);
+  }
+  obj2.free();
+  if (obj1.dictLookup("LC", &obj2)->isInt()) {
+    opSetLineCap(&obj2,1);
+  }
+  obj2.free();
+  if (obj1.dictLookup("LJ", &obj2)->isInt()) {
+    opSetLineJoin(&obj2,1);
+  }
+  obj2.free();
+  if (obj1.dictLookup("ML", &obj2)->isNum()) {
+    opSetMiterLimit(&obj2,1);
+  }
+  obj2.free();
+  if (obj1.dictLookup("D", &obj2)->isArray()) {
+    if (obj2.arrayGetLength() == 2) {
+      Object dargs[2];
+
+      obj2.arrayGetNF(0,&dargs[0]);
+      obj2.arrayGet(1,&dargs[1]);
+      if (dargs[0].isArray() && dargs[1].isInt()) {
+	opSetDash(dargs,2);
+      }
+      dargs[0].free();
+      dargs[1].free();
+    } else {
+      error(getPos(), "Number of args mismatch for /D in ExtGState");
+    }
+  }
+  obj2.free();
+  if (obj1.dictLookup("RI", &obj2)->isName()) {
+    opSetRenderingIntent(&obj2,1);
+  }
+  obj2.free();
+  if (obj1.dictLookup("FL", &obj2)->isNum()) {
+    opSetFlat(&obj2,1);
+  }
+  obj2.free();
 
   obj1.free();
 }
