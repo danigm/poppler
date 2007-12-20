@@ -228,38 +228,12 @@ namespace Poppler {
 	QString result;
 	Object obj;
 	GooString *s1;
-	GBool isUnicode;
-	Unicode u;
-	int i;
 	Dict *infoDict = info.getDict();
 
 	if ( infoDict->lookup( type.toLatin1().data(), &obj )->isString() )
 	{
 	    s1 = obj.getString();
-	    if ( ( s1->getChar(0) & 0xff ) == 0xfe && ( s1->getChar(1) & 0xff ) == 0xff )
-	    {
-		isUnicode = gTrue;
-		i = 2;
-	    }
-	    else
-	    {
-		isUnicode = gFalse;
-		i = 0;
-	    }
-	    while ( i < obj.getString()->getLength() )
-	    {
-		if ( isUnicode )
-		{
-		    u = ( ( s1->getChar(i) & 0xff ) << 8 ) | ( s1->getChar(i+1) & 0xff );
-		    i += 2;
-		}
-		else
-		{
-		    u = s1->getChar(i) & 0xff;
-		    ++i;
-		}
-		result += unicodeToQString( &u, 1 );
-	    }
+	    result = UnicodeParsedString(s1);
 	    obj.free();
 	    info.free();
 	    return result;
