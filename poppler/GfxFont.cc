@@ -1802,8 +1802,6 @@ Gushort *GfxCIDFont::getCodeToGIDMap(FoFiTrueType *ff, int *mapsizep) {
   int wmode;
   char **cmapName;
   CMap *cMap;
-  int nUsed;
-  Unicode u;
   CMapListEntry *lp;
   int cmap;
   int cmapPlatform, cmapEncoding;
@@ -1811,6 +1809,14 @@ Gushort *GfxCIDFont::getCodeToGIDMap(FoFiTrueType *ff, int *mapsizep) {
   *mapsizep = 0;
   if (!ctu) return NULL;
   if (getCollection()->cmp("Adobe-Identity") == 0) return NULL;
+  if (getEmbeddedFontName() != NULL) {
+   /* if this font is embedded font, 
+    * CIDToGIDMap should be embedded in PDF file
+    * and already set. So return it.
+    */
+    *mapsizep = getCIDToGIDLen();
+    return getCIDToGID();
+  }
 
   /* we use only unicode cmap */
   cmap = -1;
@@ -1840,6 +1846,8 @@ Gushort *GfxCIDFont::getCodeToGIDMap(FoFiTrueType *ff, int *mapsizep) {
   }
   n = 65536;
   tumap = new Unicode[n];
+  humap = new Unicode[n*N_UCS_CANDIDATES];
+  memset(humap,0,sizeof(Unicode)*n*N_UCS_CANDIDATES);
   if (lp->collection != 0) {
     CharCodeToUnicode *tctu;
     GooString tname(lp->toUnicodeMap);
@@ -1860,8 +1868,6 @@ Gushort *GfxCIDFont::getCodeToGIDMap(FoFiTrueType *ff, int *mapsizep) {
       }
       delete tctu;
     }
-    humap = new Unicode[n*N_UCS_CANDIDATES];
-    memset(humap,0,sizeof(Unicode)*n*N_UCS_CANDIDATES);
     vumap = new Unicode[n];
     memset(vumap,0,sizeof(Unicode)*n);
     for (cmapName = lp->CMaps;*cmapName != 0;cmapName++) {
