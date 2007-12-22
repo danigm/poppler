@@ -798,26 +798,28 @@ Gfx8BitFont::Gfx8BitFont(XRef *xref, char *tagA, Ref idA, GooString *nameA,
   // references and variants
   if (missing) {
     for (code = 0; code < 256; ++code) {
-      if ((charName = enc[code]) && !toUnicode[code] &&
-	  strcmp(charName, ".notdef")) {
-	if ((n = parseCharName(charName, uBuf, sizeof(uBuf)/sizeof(*uBuf), 
-			       gFalse, // don't check simple names (pass 1)
-			       gTrue, // do check ligatures
-			       globalParams->getMapNumericCharNames(),
-			       hex,
-			       gTrue))) // do check variants
-	  ctu->setMapping((CharCode)code, uBuf, n);
-	else
-	  error(-1, "Could not parse charref for nameToUnicode: %s", charName);
-      }
-    }
-
-  // if the 'mapUnknownCharNames' flag is set, do a simple pass-through
-  // mapping for unknown character names
-  } else if (missing && globalParams->getMapUnknownCharNames()) {
-    for (code = 0; code < 256; ++code) {
       if (!toUnicode[code]) {
-	toUnicode[code] = code;
+	if ((charName = enc[code]) && strcmp(charName, ".notdef")
+	    && (n = parseCharName(charName, uBuf, sizeof(uBuf)/sizeof(*uBuf), 
+				  gFalse, // don't check simple names (pass 1)
+				  gTrue, // do check ligatures
+				  globalParams->getMapNumericCharNames(),
+				  hex,
+				  gTrue))) { // do check variants
+	  ctu->setMapping((CharCode)code, uBuf, n);
+	} else if (globalParams->getMapUnknownCharNames()) {
+	  // if the 'mapUnknownCharNames' flag is set, do a simple pass-through
+	  // mapping for unknown character names
+	  if (charName && charName[0]) {
+	    for (n = 0; n < sizeof(uBuf)/sizeof(*uBuf); ++n)
+	      if (!(uBuf[n] = charName[n]))
+		break;
+	    ctu->setMapping((CharCode)code, uBuf, n);
+	  } else {
+	    uBuf[0] = code;
+	    ctu->setMapping((CharCode)code, uBuf, 1);
+	  }
+	}
       }
     }
   }
@@ -961,7 +963,7 @@ static int parseCharName(char *charName, Unicode *uBuf, int uLen,
 {
   if (uLen <= 0) {
     error(-1, "Zero-length output buffer (recursion overflow?) in "
-	  "nameToUnicode: %s", charName);
+	  "parseCharName, component \"%s\"", charName);
     return 0;
   }
   // Step 1: drop all the characters from the glyph name starting with the
@@ -996,8 +998,8 @@ static int parseCharName(char *charName, Unicode *uBuf, int uLen,
 			       ligaturesRecurse, numeric, hex, variants)))
 	  n += m;
 	else
-	  error(-1, "Could not parse ligature component in charref for "
-		"nameToUnicode: %s", charName);
+	  error(-1, "Could not parse ligature component \"%s\" of \"%s\" in "
+		"parseCharName", lig_part, charName);
       }
       lig_part = lig_end + 1;
     } while (lig_end && n < uLen);
@@ -1016,31 +1018,7 @@ static int parseCharName(char *charName, Unicode *uBuf, int uLen,
     return 1;
   }
   if (numeric) {
-    // Not in Adobe Glyph Mapping convention: look for names of the form 'Axx',
-    // 'xx', 'Ann', 'ABnn', or 'nn', where 'A' and 'B' are any letters, 'xx' is
-    // two hex digits, and 'nn' is 2-4 decimal digits
     unsigned int n = strlen(charName);
-    if (hex && n == 3 && isalpha(charName[0]) &&
-	isxdigit(charName[1]) && isxdigit(charName[2])) {
-      sscanf(charName+1, "%x", (unsigned int *)uBuf);
-      return 1;
-    } else if (hex && n == 2 &&
-	       isxdigit(charName[0]) && isxdigit(charName[1])) {
-      sscanf(charName, "%x", (unsigned int *)uBuf);
-      return 1;
-    } else if (!hex && n >= 2 && n <= 4 &&
-	       isdigit(charName[0]) && isdigit(charName[1])) {
-      uBuf[0] = (Unicode)atoi(charName);
-      return 1;
-    } else if (n >= 3 && n <= 5 &&
-	       isdigit(charName[1]) && isdigit(charName[2])) {
-      uBuf[0] = (Unicode)atoi(charName+1);
-      return 1;
-    } else if (n >= 4 && n <= 6 &&
-	       isdigit(charName[2]) && isdigit(charName[3])) {
-      uBuf[0] = (Unicode)atoi(charName+2);
-      return 1;
-    }
     // 3.3. otherwise, if the component is of the form "uni" (U+0075 U+006E
     // U+0069) followed by a sequence of uppercase hexadecimal digits (0 .. 9,
     // A .. F, i.e. U+0030 .. U+0039, U+0041 .. U+0046), the length of that
@@ -1080,6 +1058,30 @@ static int parseCharName(char *charName, Unicode *uBuf, int uLen,
 	uBuf[0] = u;
 	return 1;
       }
+    }
+    // Not in Adobe Glyph Mapping convention: look for names of the form 'Axx',
+    // 'xx', 'Ann', 'ABnn', or 'nn', where 'A' and 'B' are any letters, 'xx' is
+    // two hex digits, and 'nn' is 2-4 decimal digits
+    if (hex && n == 3 && isalpha(charName[0]) &&
+	isxdigit(charName[1]) && isxdigit(charName[2])) {
+      sscanf(charName+1, "%x", (unsigned int *)uBuf);
+      return 1;
+    } else if (hex && n == 2 &&
+	       isxdigit(charName[0]) && isxdigit(charName[1])) {
+      sscanf(charName, "%x", (unsigned int *)uBuf);
+      return 1;
+    } else if (!hex && n >= 2 && n <= 4 &&
+	       isdigit(charName[0]) && isdigit(charName[1])) {
+      uBuf[0] = (Unicode)atoi(charName);
+      return 1;
+    } else if (n >= 3 && n <= 5 &&
+	       isdigit(charName[1]) && isdigit(charName[2])) {
+      uBuf[0] = (Unicode)atoi(charName+1);
+      return 1;
+    } else if (n >= 4 && n <= 6 &&
+	       isdigit(charName[2]) && isdigit(charName[3])) {
+      uBuf[0] = (Unicode)atoi(charName+2);
+      return 1;
     }
   }
   // 3.5. otherwise, map the component to the empty string
