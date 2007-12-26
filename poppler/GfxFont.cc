@@ -1807,11 +1807,12 @@ Gushort *GfxCIDFont::getCodeToGIDMap(FoFiTrueType *ff, int *mapsizep) {
   CMapListEntry *lp;
   int cmap;
   int cmapPlatform, cmapEncoding;
+  Ref embID;
 
   *mapsizep = 0;
   if (!ctu) return NULL;
   if (getCollection()->cmp("Adobe-Identity") == 0) return NULL;
-  if (getEmbeddedFontName() != NULL) {
+  if (getEmbeddedFontID(&embID)) {
    /* if this font is embedded font, 
     * CIDToGIDMap should be embedded in PDF file
     * and already set. So return it.
