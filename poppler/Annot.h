@@ -22,9 +22,83 @@ class GfxFontDict;
 class FormWidget;
 class PDFRectangle;
 
+enum AnnotLineEndingStyle {
+  annotLineEndingSquare,        // Square
+  annotLineEndingCircle,        // Circle
+  annotLineEndingDiamond,       // Diamond
+  annotLineEndingOpenArrow,     // OpenArrow
+  annotLineEndingClosedArrow,   // ClosedArrow
+  annotLineEndingNone,          // None
+  annotLineEndingButt,          // Butt
+  annotLineEndingROpenArrow,    // ROpenArrow
+  annotLineEndingRClosedArrow,  // RClosedArrow
+  annotLineEndingSlash          // Slash
+};
+
 enum AnnotExternalDataType {
   annotExternalDataMarkupUnknown,
   annotExternalDataMarkup3D       // Markup3D
+};
+
+//------------------------------------------------------------------------
+// AnnotCalloutLine
+//------------------------------------------------------------------------
+
+class AnnotCalloutLine {
+public:
+
+  AnnotCalloutLine(double x1, double y1, double x2, double y2);
+  virtual ~AnnotCalloutLine() { }
+
+  double getX1() const { return x1; }
+  double getY1() const { return y1; }
+  double getX2() const { return x2; }
+  double getY2() const { return y2; }
+  
+protected:
+
+  double x1, y1, x2, y2;
+};
+
+//------------------------------------------------------------------------
+// AnnotCalloutMultiLine
+//------------------------------------------------------------------------
+
+class AnnotCalloutMultiLine: public AnnotCalloutLine {
+public:
+
+  AnnotCalloutMultiLine(double x1, double y1, double x2, double y2,
+    double x3, double y3);
+
+  double getX3() const { return x3; }
+  double getY3() const { return y3; }
+
+protected:
+
+  double x3, y3;
+};
+
+//------------------------------------------------------------------------
+// AnnotBorderEffect
+//------------------------------------------------------------------------
+
+class AnnotBorderEffect {
+public:
+
+  enum AnnotBorderEffectType {
+    borderEffectNoEffect, // S
+    borderEffectCloudy    // C
+  };
+
+  AnnotBorderEffect(Dict *dict);
+
+  AnnotBorderEffectType getEffectType() const { return effectType; }
+  double getIntensity() const { return intensity; }
+
+private:
+
+  AnnotBorderEffectType effectType; // S  (Default S)
+  double intensity;                 // I  (Default 0)
 };
 
 //------------------------------------------------------------------------
@@ -463,6 +537,59 @@ protected:
 
   AnnotQuadPoints **quadrilaterals; // QuadPoints
   int quadrilateralsLength;
+};
+
+//------------------------------------------------------------------------
+// AnnotFreeText
+//------------------------------------------------------------------------
+
+class AnnotFreeText: public Annot, public AnnotMarkup {
+public:
+
+  enum AnnotFreeTextQuadding {
+    quaddingLeftJustified,  // 0
+    quaddingCentered,       // 1
+    quaddingRightJustified  // 2
+  };
+
+  enum AnnotFreeTextIntent {
+    intentFreeText,           // FreeText
+    intentFreeTextCallout,    // FreeTextCallout
+    intentFreeTextTypeWriter  // FreeTextTypeWriter
+  };
+
+  AnnotFreeText(XRef *xrefA, Dict *acroForm, Dict *dict, Catalog *catalog, Object *obj);
+  virtual ~AnnotFreeText();
+
+  // getters
+  GooString *getAppearanceString() const { return appearanceString; }
+  AnnotFreeTextQuadding getQuadding() const { return quadding; }
+  // return rc
+  GooString *getStyleString() const { return styleString; }
+  AnnotCalloutLine *getCalloutLine() const {  return calloutLine; }
+  AnnotFreeTextIntent getIntent() const { return intent; }
+  AnnotBorderEffect *getBorderEffect() const { return borderEffect; }
+  PDFRectangle *getRectangle() const { return rectangle; }
+  AnnotLineEndingStyle getEndStyle() const { return endStyle; }
+
+protected:
+
+  void initialize(XRef *xrefA, Catalog *catalog, Dict *dict);
+
+  // required
+  GooString *appearanceString;      // DA
+
+  // optional
+  AnnotFreeTextQuadding quadding;   // Q  (Default 0)
+  // RC
+  GooString *styleString;           // DS
+  AnnotCalloutLine *calloutLine;    // CL
+  AnnotFreeTextIntent intent;       // IT
+  AnnotBorderEffect *borderEffect;  // BE
+  PDFRectangle *rectangle;          // RD
+  // inherited  from Annot
+  // AnnotBorderBS border;          // BS
+  AnnotLineEndingStyle endStyle;    // LE (Default None)
 };
 
 //------------------------------------------------------------------------

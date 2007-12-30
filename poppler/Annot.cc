@@ -61,6 +61,34 @@
 // = (4 * (sqrt(2) - 1) / 3) * r
 #define bezierCircle 0.55228475
 
+AnnotLineEndingStyle parseAnnotLineEndingStyle(GooString *string) {
+  if(string != NULL) {
+    if(string->cmp("Square")) {
+      return annotLineEndingSquare;
+    } else if(string->cmp("Circle")) {
+      return annotLineEndingCircle;
+    } else if(string->cmp("Diamond")) {
+      return annotLineEndingDiamond;
+    } else if(string->cmp("OpenArrow")) {
+      return annotLineEndingOpenArrow;
+    } else if(string->cmp("ClosedArrow")) {
+      return annotLineEndingClosedArrow;
+    } else if(string->cmp("Butt")) {
+      return annotLineEndingButt;
+    } else if(string->cmp("ROpenArrow")) {
+      return annotLineEndingROpenArrow;
+    } else if(string->cmp("RClosedArrow")) {
+      return annotLineEndingRClosedArrow;
+    } else if(string->cmp("Slash")) {
+      return annotLineEndingSlash;
+    } else {
+      return annotLineEndingNone;
+    }
+  } else {
+    return annotLineEndingNone;
+  }  
+}
+
 AnnotExternalDataType parseAnnotExternalData(Dict* dict) {
   Object obj1;
   AnnotExternalDataType type;
@@ -80,6 +108,55 @@ AnnotExternalDataType parseAnnotExternalData(Dict* dict) {
   obj1.free();
 
   return type;
+}
+
+//------------------------------------------------------------------------
+// AnnotBorderEffect
+//------------------------------------------------------------------------
+
+AnnotBorderEffect::AnnotBorderEffect(Dict *dict) {
+  Object obj1;
+
+  if (dict->lookup("S", &obj1)->isName()) {
+    GooString *effectName = new GooString(obj1.getName());
+
+    if(!effectName->cmp("C"))
+      effectType = borderEffectCloudy;
+    else
+      effectType = borderEffectNoEffect;
+    delete effectName;
+  } else {
+    effectType = borderEffectNoEffect;
+  }
+  obj1.free();
+
+  if ((dict->lookup("I", &obj1)->isNum()) && effectType == borderEffectCloudy) {
+    intensity = obj1.getNum();
+  } else {
+    intensity = 0;
+  }
+  obj1.free();
+}
+
+//------------------------------------------------------------------------
+// AnnotCalloutLine
+//------------------------------------------------------------------------
+
+AnnotCalloutLine::AnnotCalloutLine(double x1, double y1, double x2, double y2) {
+  this->x1 = x1;
+  this->y1 = y1;
+  this->x2 = x2;
+  this->y2 = y2;
+}
+
+//------------------------------------------------------------------------
+// AnnotCalloutMultiLine
+//------------------------------------------------------------------------
+
+AnnotCalloutMultiLine::AnnotCalloutMultiLine(double x1, double y1, double x2,
+    double y2, double x3, double y3) : AnnotCalloutLine(x1, y1, x2, y2) {
+  this->x3 = x3;
+  this->y3 = y3;
 }
 
 //------------------------------------------------------------------------
@@ -2128,6 +2205,159 @@ void AnnotLink::initialize(XRef *xrefA, Catalog *catalog, Dict *dict) {
 }
 
 //------------------------------------------------------------------------
+// AnnotFreeText
+//------------------------------------------------------------------------
+
+AnnotFreeText::AnnotFreeText(XRef *xrefA, Dict *acroForm, Dict *dict, Catalog *catalog, Object *obj) :
+    Annot(xrefA, acroForm, dict, catalog, obj), AnnotMarkup(xref, acroForm, dict, catalog, obj) {
+  type = typeFreeText;
+  initialize(xrefA, catalog, dict);
+}
+
+AnnotFreeText::~AnnotFreeText() {
+  delete appearanceString;
+
+  if (styleString)
+    delete styleString;
+
+  if (calloutLine)
+    delete calloutLine;
+
+  if (borderEffect)
+    delete borderEffect;
+
+  if (rectangle)
+    delete rectangle;
+}
+
+void AnnotFreeText::initialize(XRef *xrefA, Catalog *catalog, Dict *dict) {
+  Object obj1;
+
+  if (dict->lookup("DA", &obj1)->isString()) {
+    appearanceString = obj1.getString()->copy();
+  } else {
+    appearanceString = new GooString();
+    error(-1, "Bad appearance for annotation");
+    ok = gFalse;
+  }
+  obj1.free();
+
+  if (dict->lookup("Q", &obj1)->isInt()) {
+    quadding = (AnnotFreeTextQuadding) obj1.getInt();
+  } else {
+    quadding = quaddingLeftJustified;
+  }
+  obj1.free();
+
+  if (dict->lookup("DS", &obj1)->isString()) {
+    styleString = obj1.getString()->copy();
+  } else {
+    styleString = NULL;
+  }
+  obj1.free();
+
+  if (dict->lookup("CL", &obj1)->isArray() && obj1.arrayGetLength() >= 4) {
+    double x1, y1, x2, y2;
+    Object obj2;
+
+    (obj1.arrayGet(0, &obj2)->isNum() ? x1 = obj2.getNum() : x1 = 0);
+    obj2.free();
+    (obj1.arrayGet(1, &obj2)->isNum() ? y1 = obj2.getNum() : y1 = 0);
+    obj2.free();
+    (obj1.arrayGet(2, &obj2)->isNum() ? x2 = obj2.getNum() : x2 = 0);
+    obj2.free();
+    (obj1.arrayGet(3, &obj2)->isNum() ? y2 = obj2.getNum() : y2 = 0);
+    obj2.free();
+
+    if(obj1.arrayGetLength() == 6) {
+      double x3, y3;
+      (obj1.arrayGet(4, &obj2)->isNum() ? x3 = obj2.getNum() : x3 = 0);
+      obj2.free();
+      (obj1.arrayGet(5, &obj2)->isNum() ? y3 = obj2.getNum() : y3 = 0);
+      obj2.free();
+      calloutLine = new AnnotCalloutMultiLine(x1, y1, x2, y2, x3, y3);
+    } else {
+      calloutLine = new AnnotCalloutLine(x1, y1, x2, y2);
+    }
+  } else {
+    calloutLine = NULL;
+  }
+  obj1.free();
+
+  if (dict->lookup("IT", &obj1)->isName()) {
+    GooString *intentName = new GooString(obj1.getName());
+
+    if (!intentName->cmp("FreeText")) {
+      intent = intentFreeText;
+    } else if (!intentName->cmp("FreeTextCallout")) {
+      intent = intentFreeTextCallout;
+    } else if (!intentName->cmp("FreeTextTypeWriter")) {
+      intent = intentFreeTextTypeWriter;
+    } else {
+      intent = intentFreeText;
+    }
+    delete intentName;
+  } else {
+    intent = intentFreeText;
+  }
+  obj1.free();
+
+  if (dict->lookup("BE", &obj1)->isDict()) {
+    borderEffect = new AnnotBorderEffect(obj1.getDict());
+  } else {
+    borderEffect = NULL;
+  }
+  obj1.free();
+
+  if (dict->lookup("RD", &obj1)->isArray() && obj1.arrayGetLength() == 4) {
+    Object obj2;
+    rectangle = new PDFRectangle();
+
+    (obj1.arrayGet(0, &obj2)->isNum() ? rectangle->x1 = obj2.getNum() :
+      rectangle->x1 = 0);
+    obj2.free();
+    (obj1.arrayGet(1, &obj2)->isNum() ? rectangle->y1 = obj2.getNum() :
+      rectangle->y1 = 0);
+    obj2.free();
+    (obj1.arrayGet(2, &obj2)->isNum() ? rectangle->x2 = obj2.getNum() :
+      rectangle->x2 = 1);
+    obj2.free();
+    (obj1.arrayGet(3, &obj2)->isNum() ? rectangle->y2 = obj2.getNum() :
+      rectangle->y2 = 1);
+    obj2.free();
+
+    if (rectangle->x1 > rectangle->x2) {
+      double t = rectangle->x1;
+      rectangle->x1 = rectangle->x2;
+      rectangle->x2 = t;
+    }
+    if (rectangle->y1 > rectangle->y2) {
+      double t = rectangle->y1;
+      rectangle->y1 = rectangle->y2;
+      rectangle->y2 = t;
+    }
+
+    if ((rectangle->x1 + rectangle->x2) > (rect->x2 - rect->x1))
+      rectangle->x1 = rectangle->x2 = 0;
+
+    if ((rectangle->y1 + rectangle->y2) > (rect->y2 - rect->y1))
+      rectangle->y1 = rectangle->y2 = 0;
+  } else {
+    rectangle = NULL;
+  }
+  obj1.free();
+
+  if (dict->lookup("LE", &obj1)->isName()) {
+    GooString *styleName = new GooString(obj1.getName());
+    endStyle = parseAnnotLineEndingStyle(styleName);
+    delete styleName;
+  } else {
+    endStyle = annotLineEndingNone;
+  }
+  obj1.free();
+}
+
+//------------------------------------------------------------------------
 // Annots
 //------------------------------------------------------------------------
 
@@ -2181,7 +2411,7 @@ Annot *Annots::createAnnot(XRef *xref, Dict *acroForm, Dict* dict, Catalog *cata
     } else if(!typeName->cmp("Link")) {
       annot = new AnnotLink(xref, acroForm, dict, catalog, obj);
     } else if(!typeName->cmp("FreeText")) {
-      annot = new Annot(xref, acroForm, dict, catalog, obj);
+      annot = new AnnotFreeText(xref, acroForm, dict, catalog, obj);
     } else if(!typeName->cmp("Line")) {
       annot = new Annot(xref, acroForm, dict, catalog, obj);
     } else if(!typeName->cmp("Square")) {
