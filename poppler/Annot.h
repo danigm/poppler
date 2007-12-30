@@ -28,6 +28,29 @@ enum AnnotExternalDataType {
 };
 
 //------------------------------------------------------------------------
+// AnnotQuadPoints
+//------------------------------------------------------------------------
+
+class AnnotQuadPoints {
+public:
+  
+  AnnotQuadPoints(double x1, double y1, double x2, double y2, double x3,
+      double y3, double x4, double y4);
+
+  double getX1() const { return x1; }
+  double getY1() const { return y1; }
+  double getX2() const { return x2; }
+  double getY2() const { return y2; }
+  double getX3() const { return x3; }
+  double getY3() const { return y3; }
+  double getX4() const { return x4; }
+  double getY4() const { return y4; }
+
+protected:
+  double x1, y1, x2, y2, x3, y3, x4, y4;
+};
+
+//------------------------------------------------------------------------
 // AnnotBorder
 //------------------------------------------------------------------------
 
@@ -411,7 +434,35 @@ private:
 class AnnotLink: public Annot {
 public:
 
+  enum AnnotLinkEffect {
+    effectNone,     // N
+    effectInvert,   // I
+    effectOutline,  // O
+    effectPush      // P
+  };
+
   AnnotLink(XRef *xrefA, Dict *acroForm, Dict *dict, Catalog *catalog, Object *obj);
+  virtual ~AnnotLink();
+
+  // getters
+  Dict *getActionDict() const { return actionDict; }
+  // getDest
+  AnnotLinkEffect getLinkEffect() const { return linkEffect; }
+  Dict *getUriAction() const { return uriAction; }
+  AnnotQuadPoints **getQuadrilaterals() const { return quadrilaterals; }
+  int getQuadrilateralsLength() const { return quadrilateralsLength; }
+
+protected:
+
+  void initialize(XRef *xrefA, Catalog *catalog, Dict *dict);
+
+  Dict *actionDict;                 // A
+  //Dest
+  AnnotLinkEffect linkEffect;       // H          (Default I)
+  Dict *uriAction;                  // PA
+
+  AnnotQuadPoints **quadrilaterals; // QuadPoints
+  int quadrilateralsLength;
 };
 
 //------------------------------------------------------------------------

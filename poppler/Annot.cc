@@ -83,6 +83,22 @@ AnnotExternalDataType parseAnnotExternalData(Dict* dict) {
 }
 
 //------------------------------------------------------------------------
+// AnnotQuadPoints
+//------------------------------------------------------------------------
+
+AnnotQuadPoints::AnnotQuadPoints(double x1, double y1, double x2, double y2,
+    double x3, double y3, double x4, double y4) {
+  this->x1 = x1;
+  this->y1 = y1;
+  this->x2 = x2;
+  this->y2 = y2;
+  this->x3 = x3;
+  this->y3 = y3;
+  this->x4 = x4;
+  this->y4 = y4;
+}
+
+//------------------------------------------------------------------------
 // AnnotBorder
 //------------------------------------------------------------------------
 AnnotBorder::AnnotBorder() {
@@ -2009,6 +2025,106 @@ AnnotLink::AnnotLink(XRef *xrefA, Dict *acroForm, Dict *dict, Catalog *catalog, 
     Annot(xrefA, acroForm, dict, catalog, obj) {
 
   type = typeLink;
+  initialize (xrefA, catalog, dict);
+}
+
+AnnotLink::~AnnotLink() {
+  /*
+  if (actionDict)
+    delete actionDict;
+
+  if (uriAction)
+    delete uriAction;
+  */
+  if(quadrilaterals) {
+    for(int i = 0; i < quadrilateralsLength; i++)
+      delete quadrilaterals[i];
+
+    gfree (quadrilaterals);
+  }
+}
+
+void AnnotLink::initialize(XRef *xrefA, Catalog *catalog, Dict *dict) {
+  Object obj1;
+  /*
+  if (dict->lookup("A", &obj1)->isDict()) {
+    actionDict = NULL;
+  } else {
+    actionDict = NULL;
+  }
+  obj1.free();
+  */
+  if (dict->lookup("H", &obj1)->isName()) {
+    GooString *effect = new GooString(obj1.getName());
+
+    if (!effect->cmp("N")) {
+      linkEffect = effectNone;
+    } else if (!effect->cmp("I")) {
+      linkEffect = effectInvert;
+    } else if (!effect->cmp("O")) {
+      linkEffect = effectOutline;
+    } else if (!effect->cmp("P")) {
+      linkEffect = effectPush;
+    } else {
+      linkEffect = effectInvert;
+    }
+    delete effect;
+  } else {
+    linkEffect = effectInvert;
+  }
+  obj1.free();
+  /*
+  if (dict->lookup("PA", &obj1)->isDict()) {
+    uriAction = NULL;
+  } else {
+    uriAction = NULL;
+  }
+  obj1.free();
+  */
+  /*
+   * TODO:
+   * QuadPoints should be ignored if any coordinate in the array lies outside
+   * the region specified by Rect.
+   */
+  if(dict->lookup("QuadPoints", &obj1)->isArray()) {
+    quadrilateralsLength = obj1.arrayGetLength();
+    if((quadrilateralsLength % 8) == 0) {
+      Object obj2;
+
+      quadrilaterals = (AnnotQuadPoints **) gmallocn
+        ((quadrilateralsLength / 8), sizeof(AnnotQuadPoints *));
+      for(int i = 0; i < quadrilateralsLength; i += 8) {
+        double x1, y1, x2, y2, x3, y3, x4, y4;
+
+        (obj1.arrayGet(i, &obj2)->isNum() ? x1 = obj2.getNum() : x1 = 0);
+        obj2.free();
+        (obj1.arrayGet((i + 1), &obj2)->isNum() ? y1 = obj2.getNum() : y1 = 0);
+        obj2.free();
+        (obj1.arrayGet((i + 2), &obj2)->isNum() ? x2 = obj2.getNum() : x2 = 0);
+        obj2.free();
+        (obj1.arrayGet((i + 3), &obj2)->isNum() ? y2 = obj2.getNum() : y2 = 0);
+        obj2.free();
+        (obj1.arrayGet((i + 4), &obj2)->isNum() ? x3 = obj2.getNum() : x3 = 0);
+        obj2.free();
+        (obj1.arrayGet((i + 5), &obj2)->isNum() ? y3 = obj2.getNum() : y3 = 0);
+        obj2.free();
+        (obj1.arrayGet((i + 6), &obj2)->isNum() ? x4 = obj2.getNum() : x4 = 0);
+        obj2.free();
+        (obj1.arrayGet((i + 7), &obj2)->isNum() ? y4 = obj2.getNum() : y4 = 0);
+        obj2.free();
+
+        quadrilaterals[i / 8] =
+          new AnnotQuadPoints(x1, y1, x2, y2, x3, y3, x4, y4);
+      }
+      quadrilateralsLength /= 8;
+    } else {
+      quadrilaterals = NULL;
+      quadrilateralsLength = 0;
+    }
+  } else {
+    quadrilaterals = NULL;
+  }
+  obj1.free();
 }
 
 //------------------------------------------------------------------------
