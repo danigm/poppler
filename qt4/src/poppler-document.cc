@@ -450,7 +450,7 @@ namespace Poppler {
 
     Document::RenderHints Document::renderHints() const
     {
-        return Document::RenderHints() & m_doc->m_hints;
+        return Document::RenderHints( m_doc->m_hints );
     }
 
     PSConverter *Document::psConverter() const
