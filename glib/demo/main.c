@@ -27,6 +27,7 @@
 #include "outline.h"
 #include "links.h"
 #include "forms.h"
+#include "transitions.h"
 
 enum {
 	PGD_TITLE_COLUMN,
@@ -41,13 +42,14 @@ typedef struct {
 } PopplerGlibDemo;
 
 static const PopplerGlibDemo demo_list[] = {
-	{ "Info",      pgd_info_create_widget },
-	{ "Fonts",     pgd_fonts_create_widget },
-	{ "Render",    pgd_render_create_widget },
-	{ "Page Info", pgd_page_create_widget },
-	{ "Outline",   pgd_outline_create_widget },
-	{ "Links",     pgd_links_create_widget },
-	{ "Forms",     pgd_forms_create_widget }
+	{ "Info",             pgd_info_create_widget },
+	{ "Fonts",            pgd_fonts_create_widget },
+	{ "Render",           pgd_render_create_widget },
+	{ "Page Info",        pgd_page_create_widget },
+	{ "Outline",          pgd_outline_create_widget },
+	{ "Links",            pgd_links_create_widget },
+	{ "Forms",            pgd_forms_create_widget },
+	{ "Page Transitions", pgd_transitions_create_widget }
 };
 
 static void
