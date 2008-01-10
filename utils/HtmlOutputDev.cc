@@ -820,8 +820,8 @@ void HtmlOutputDev::doFrame(int firstPage){
   fName->append(".html");
 
   if (!(fContentsFrame = fopen(fName->getCString(), "w"))){
-    delete fName;
     error(-1, "Couldn't open html file '%s'", fName->getCString());
+    delete fName;
     return;
   }
   
@@ -934,8 +934,8 @@ HtmlOutputDev::HtmlOutputDev(char *fileName, char *title,
       if (!xml) right->append(".html");
       if (xml) right->append(".xml");
       if (!(page=fopen(right->getCString(),"w"))){
-	delete right;
 	error(-1, "Couldn't open html file '%s'", right->getCString());
+	delete right;
 	return;
       }  
       delete right;
