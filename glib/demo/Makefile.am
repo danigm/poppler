@@ -14,7 +14,7 @@ poppler_glib_demo_SOURCES = 			\
 	forms.h					\
 	forms.c					\
 	info.h					\
-	info.c					\
+	info.cc					\
 	links.h					\
 	links.c					\
 	outline.h				\
