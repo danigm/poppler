@@ -117,7 +117,8 @@ pgd_info_add_metadata (GtkTable    *table,
 	gtk_widget_show (textview);
 	
 	gtk_table_attach (GTK_TABLE (table), swindow, 1, 2, *row, *row + 1,
-			  GTK_EXPAND | GTK_FILL, GTK_EXPAND | GTK_FILL, 0, 0);
+			  (GtkAttachOptions)(GTK_EXPAND | GTK_FILL),
+			  (GtkAttachOptions)(GTK_EXPAND | GTK_FILL), 0, 0);
 	gtk_widget_show (swindow); 
 	
 	*row += 1;
