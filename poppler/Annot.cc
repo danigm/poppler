@@ -1119,7 +1119,7 @@ void Annot::drawText(GooString *text, GooString *da, GfxFontDict *fontDict,
   }
 
   // get the border width
-  borderWidth = border->getWidth();
+  borderWidth = border ? border->getWidth() : 0;
 
   // setup
   if (txField) {
@@ -1438,7 +1438,7 @@ void Annot::drawListBox(GooString **text, GBool *selection,
   }
 
   // get the border width
-  borderWidth = border->getWidth();
+  borderWidth = border ? border->getWidth() : 0;
 
   // compute font autosize
   if (fontSize == 0) {
