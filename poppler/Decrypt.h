@@ -24,6 +24,7 @@
 
 class Decrypt {
 public:
+  static void md5(Guchar *msg, int msgLen, Guchar *digest);
 
   // Generate a file key.  The <fileKey> buffer must have space for at
   // least 16 bytes.  Checks <ownerPassword> and then <userPassword>

@@ -21,7 +21,6 @@ static Guchar rc4DecryptByte(Guchar *state, Guchar *x, Guchar *y, Guchar c);
 static void aesKeyExpansion(DecryptAESState *s,
 			    Guchar *objKey, int objKeyLen);
 static void aesDecryptBlock(DecryptAESState *s, Guchar *in, GBool last);
-static void md5(Guchar *msg, int msgLen, Guchar *digest);
 
 static Guchar passwordPad[32] = {
   0x28, 0xbf, 0x4e, 0x5e, 0x4e, 0x75, 0x8a, 0x41,
@@ -208,7 +207,7 @@ DecryptStream::DecryptStream(Stream *strA, Guchar *fileKey,
   } else {
     n = keyLength + 5;
   }
-  md5(objKey, n, objKey);
+  Decrypt::md5(objKey, n, objKey);
   if ((objKeyLength = keyLength + 5) > 16) {
     objKeyLength = 16;
   }
@@ -633,7 +632,7 @@ static inline Gulong md5Round4(Gulong a, Gulong b, Gulong c, Gulong d,
   return b + rotateLeft((a + (c ^ (b | ~d)) + Xk + Ti), s);
 }
 
-static void md5(Guchar *msg, int msgLen, Guchar *digest) {
+void Decrypt::md5(Guchar *msg, int msgLen, Guchar *digest) {
   Gulong x[16];
   Gulong a, b, c, d, aa, bb, cc, dd;
   int n64;
