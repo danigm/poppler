@@ -163,6 +163,7 @@ void FormWidgetButton::setState (GBool astate, GBool calledByParent)
     return;
   //the state modification may be denied by the parent. e.g we don't want to let the user put all combo boxes to false
   if (!calledByParent) { //avoid infinite recursion
+    modified = gTrue;
     if (!parent->setState(childNum, astate)) {
       return;
     }
@@ -348,6 +349,7 @@ void FormWidgetText::setContent(GooString* new_content)
     return;
   }
 
+  modified = gTrue;
   if (new_content == NULL) {
     parent->setContentCopy(NULL);
   } else {
@@ -364,7 +366,6 @@ void FormWidgetText::setContent(GooString* new_content)
     obj.getDict()->set("V", &obj1);
     //notify the xref about the update
     xref->setModifiedObject(&obj, ref);
-    modified = gTrue;
   }
 }
 
@@ -524,6 +525,7 @@ void FormWidgetChoice::select (int i)
     return;
   }
   if (!_checkRange(i)) return;
+  modified = gTrue;
   parent->select(i);
   _updateV();
 }
@@ -535,6 +537,7 @@ void FormWidgetChoice::toggle (int i)
     return;
   }
   if (!_checkRange(i)) return;
+  modified = gTrue;
   parent->toggle(i);
   _updateV();
 }
@@ -545,6 +548,7 @@ void FormWidgetChoice::deselectAll ()
     error(-1, "FormWidgetChoice::deselectAll called on a read only field\n");
     return;
   }
+  modified = gTrue;
   parent->deselectAll();
   _updateV();
 }
@@ -575,6 +579,7 @@ void FormWidgetChoice::setEditChoice (GooString* new_content)
     return;
   }
 
+  modified = gTrue;
   if (new_content == NULL) {
     parent->setEditChoice(NULL);
   } else {
