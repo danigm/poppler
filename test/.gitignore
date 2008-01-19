@@ -10,4 +10,5 @@ gtk-cairo-test
 gtk-splash-test
 pdf_inspector
 perf-test
+pdf-fullrewrite
 *~
