@@ -30,6 +30,18 @@ Dict::Dict(XRef *xrefA) {
   ref = 1;
 }
 
+Dict::Dict(Dict* dictA) {
+  xref = dictA->xref;
+  size = length = dictA->length;
+  ref = 1;
+
+  entries = (DictEntry *)gmallocn(size, sizeof(DictEntry));
+  for (int i=0; i<length; i++) {
+    entries[i].key = strdup(dictA->entries[i].key);
+    dictA->entries[i].val.copy(&entries[i].val);
+  }
+}
+
 Dict::~Dict() {
   int i;
 
@@ -89,7 +101,7 @@ void Dict::set(char *key, Object *val) {
   e = find (key);
   if (e) {
     e->val.free();
-    e->val = *val;
+    val->copy(&e->val);
   } else {
     add (copyString(key), val);
   }

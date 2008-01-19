@@ -29,6 +29,7 @@ public:
 
   // Constructor.
   Dict(XRef *xrefA);
+  Dict(Dict* dictA);
 
   // Destructor.
   ~Dict();
