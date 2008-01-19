@@ -1068,7 +1068,7 @@ int compare (const void* a, const void* b)
   return (((XRefEntry*)a)->num - ((XRefEntry*)b)->num);
 }
 
-void XRef::writeToFile(FILE* file) {
+void XRef::writeToFile(OutStream* outStr) {
   qsort(entries, size, sizeof(XRefEntry), compare);
   //create free entries linked-list
   if (entries[0].gen != 65535) {
@@ -1083,16 +1083,16 @@ void XRef::writeToFile(FILE* file) {
   }
   //write the new xref
   int j;
-  fprintf(file,"xref\r\n");
+  outStr->printf(file,"xref\r\n");
   for (int i=0; i<size; i++) {
-    for(j=i; j<size; j++) { //look for consecutive entry
+    for(j=i; j<size; j++) { //look for consecutive entries
       if (j!=i && entries[j].num != entries[j-1].num+1) 
               break;
     }
-    fprintf(file,"%i %i\r\n", entries[i].num, j-i);
+    outStr->printf(file,"%i %i\r\n", entries[i].num, j-i);
     for (int k=i; k<j; k++) {
       if(entries[k].gen > 65535) entries[k].gen = 65535; //cap generation number to 65535 (required by PDFReference)
-      fprintf(file,"%010i %05i %c\r\n", entries[k].offset, entries[k].gen, (entries[k].type==xrefEntryFree)?'f':'n');
+      outStr->printf(file,"%010i %05i %c\r\n", entries[k].offset, entries[k].gen, (entries[k].type==xrefEntryFree)?'f':'n');
     }
     i = j-1;
   }

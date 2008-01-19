@@ -111,7 +111,7 @@ public:
   void setModifiedObject(Object* o, Ref r);
   Ref addIndirectObject (Object* o);
   void add(int num, int gen,  Guint offs, GBool used);
-  void writeToFile(FILE* f);
+  void writeToFile(OutStream* outStr);
 
 private:
 
