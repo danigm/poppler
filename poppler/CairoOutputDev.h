@@ -34,11 +34,14 @@ class CairoFont;
 class CairoImage {
 public:
   // Constructor.
-  CairoImage (cairo_surface_t *image, double x1, double y1, double x2, double y2);
+  CairoImage (double x1, double y1, double x2, double y2);
 
   // Destructor.
   ~CairoImage ();
 
+  // Set the image cairo surface
+  void setImage (cairo_surface_t *image);
+  
   // Get the image cairo surface
   cairo_surface_t *getImage () const { return image; }
 
@@ -324,16 +327,21 @@ public:
   virtual void clearSoftMask(GfxState * /*state*/) {}
 
   //----- Image list
+  // By default images are not rendred
+  void setImageDrawDecideCbk(GBool (*cbk)(int img_id, void *data),
+			     void *data) { imgDrawCbk = cbk; imgDrawCbkData = data; }
   // Iterate through list of images.
   int getNumImages() const { return numImages; }
   CairoImage *getImage(int i) const { return images[i]; }
 
 private:
   void saveImage(CairoImage *image);
-	  
+  
   CairoImage **images;
   int numImages;
   int size;
+  GBool (*imgDrawCbk)(int img_id, void *data);
+  void *imgDrawCbkData;
 };
 
 #endif

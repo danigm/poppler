@@ -1106,10 +1106,17 @@ poppler_page_find_text (PopplerPage *page,
 #if defined (HAVE_CAIRO)
 
 static CairoImageOutputDev *
-poppler_page_get_image_output_dev (PopplerPage *page)
+poppler_page_get_image_output_dev (PopplerPage *page,
+				   GBool (*imgDrawDeviceCbk)(int img_id, void *data),
+				   void *imgDrawCbkData)
 {
   if (page->image_dev == NULL) {
     page->image_dev = new CairoImageOutputDev ();
+
+    if (imgDrawDeviceCbk) {
+      page->image_dev->setImageDrawDecideCbk (imgDrawDeviceCbk,
+					      imgDrawCbkData);
+    }
 
     if (page->gfx)
       delete page->gfx;
@@ -1127,33 +1134,12 @@ poppler_page_get_image_output_dev (PopplerPage *page)
   return page->image_dev;
 }
 
-static GdkPixbuf *
-poppler_page_image_pixbuf_create (PopplerPage *page,
-				  CairoImage  *image)
-{
-  GdkPixbuf *pixbuf;
-  cairo_surface_t *surface;
-
-  surface = image->getImage ();
-  
-  pixbuf = gdk_pixbuf_new (GDK_COLORSPACE_RGB,
-			   FALSE, 8,
-			   cairo_image_surface_get_width (surface),
-			   cairo_image_surface_get_height (surface));
-  
-  copy_cairo_surface_to_pixbuf (surface,
-				cairo_image_surface_get_data (surface),
-				pixbuf);
-
-  return pixbuf;
-}
-
 /**
  * poppler_page_get_image_mapping:
  * @page: A #PopplerPage
  *
  * Returns a list of #PopplerImageMapping items that map from a
- * location on @page to a #GdkPixbuf.  This list must be freed
+ * location on @page to an image of the page. This list must be freed
  * with poppler_page_free_image_mapping() when done.
  *
  * Return value: A #GList of #PopplerImageMapping
@@ -1167,7 +1153,7 @@ poppler_page_get_image_mapping (PopplerPage *page)
   
   g_return_val_if_fail (POPPLER_IS_PAGE (page), NULL);
 
-  out = poppler_page_get_image_output_dev (page);
+  out = poppler_page_get_image_output_dev (page, NULL, NULL);
 
   for (i = 0; i < out->getNumImages (); i++) {
     PopplerImageMapping *mapping;
@@ -1180,7 +1166,7 @@ poppler_page_get_image_mapping (PopplerPage *page)
 
     image->getRect (&(mapping->area.x1), &(mapping->area.y1),
 		    &(mapping->area.x2), &(mapping->area.y2));
-    mapping->image = poppler_page_image_pixbuf_create (page, image);
+    mapping->image_id = i;
     
     mapping->area.x1 -= page->page->getCropBox()->x1;
     mapping->area.x2 -= page->page->getCropBox()->x1;
@@ -1193,11 +1179,39 @@ poppler_page_get_image_mapping (PopplerPage *page)
   return map_list;	
 }
 
-static void
-poppler_images_mapping_free (PopplerImageMapping *mapping)
+static GBool
+image_draw_decide_cb (int image_id, void *data)
 {
-  g_object_unref (mapping->image);
-  g_free (mapping);
+  return (image_id == GPOINTER_TO_INT (data));
+}
+
+/**
+ * poppler_page_get_image:
+ * @page: A #PopplerPage
+ * @image_id: The image identificator
+ *
+ * Returns a cairo surface for the image of the @page
+ *
+ * Return value: A cairo surface for the image
+ **/
+cairo_surface_t *
+poppler_page_get_image (PopplerPage *page,
+			gint         image_id)
+{
+  CairoImageOutputDev *out;
+  cairo_surface_t *image;
+  
+  g_return_val_if_fail (POPPLER_IS_PAGE (page), NULL);
+
+  out = poppler_page_get_image_output_dev (page,
+					   image_draw_decide_cb,
+					   GINT_TO_POINTER (image_id));
+
+  if (image_id >= out->getNumImages ())
+    return NULL;
+
+  image = out->getImage (image_id)->getImage ();
+  return image ? cairo_surface_reference (image) : NULL;
 }
 
 /**
@@ -1213,11 +1227,11 @@ poppler_page_free_image_mapping (GList *list)
   if (list == NULL)
     return;
 
-  g_list_foreach (list, (GFunc) (poppler_images_mapping_free), NULL);
+  g_list_foreach (list, (GFunc)g_free, NULL);
   g_list_free (list);
 }
 
-#else
+#else /* HAVE_CAIRO */
 
 GList *
 poppler_page_get_image_mapping (PopplerPage *page)
@@ -1593,8 +1607,6 @@ poppler_image_mapping_copy (PopplerImageMapping *mapping)
   new_mapping = poppler_image_mapping_new ();
 
   *new_mapping = *mapping;
-  if (new_mapping->image)
-    new_mapping->image = gdk_pixbuf_copy (new_mapping->image);
 
   return new_mapping;
 }
@@ -1602,9 +1614,6 @@ poppler_image_mapping_copy (PopplerImageMapping *mapping)
 void
 poppler_image_mapping_free (PopplerImageMapping *mapping)
 {
-  if (mapping->image)
-    g_object_unref (mapping->image);
-
   g_free (mapping);
 }
 

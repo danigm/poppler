@@ -51,9 +51,8 @@ static inline void printMatrix(cairo_matrix_t *matrix){
 // CairoImage
 //------------------------------------------------------------------------
 
-CairoImage::CairoImage (cairo_surface_t *image,
-			double x1, double y1, double x2, double y2) {
-  this->image = cairo_surface_reference (image);
+CairoImage::CairoImage (double x1, double y1, double x2, double y2) {
+  this->image = NULL;
   this->x1 = x1;
   this->y1 = y1;
   this->x2 = x2;
@@ -63,6 +62,12 @@ CairoImage::CairoImage (cairo_surface_t *image,
 CairoImage::~CairoImage () {
   if (image)
     cairo_surface_destroy (image);
+}
+
+void CairoImage::setImage (cairo_surface_t *image) {
+  if (this->image)
+    cairo_surface_destroy (this->image);
+  this->image = cairo_surface_reference (image);
 }
 
 //------------------------------------------------------------------------
@@ -1624,6 +1629,8 @@ CairoImageOutputDev::CairoImageOutputDev()
   images = NULL;
   numImages = 0;
   size = 0;
+  imgDrawCbk = NULL;
+  imgDrawCbkData = NULL;
 }
 
 CairoImageOutputDev::~CairoImageOutputDev()
@@ -1668,20 +1675,23 @@ void CairoImageOutputDev::drawImageMask(GfxState *state, Object *ref, Stream *st
   x2 = x1 + width;
   y2 = y1 + height;
 
-  surface = cairo_image_surface_create (CAIRO_FORMAT_ARGB32, width, height);
-  cr = cairo_create (surface);
-  setCairo (cr);
-  cairo_translate (cr, 0, height);
-  cairo_scale (cr, width, -height);
-
-  CairoOutputDev::drawImageMask(state, ref, str, width, height, invert, inlineImg);
-
-  image = new CairoImage (surface, x1, y1, x2, y2);
+  image = new CairoImage (x1, y1, x2, y2);
   saveImage (image);
-  
-  setCairo (NULL);
-  cairo_surface_destroy (surface);
-  cairo_destroy (cr);
+
+  if (imgDrawCbk && imgDrawCbk (numImages - 1, imgDrawCbkData)) {
+    surface = cairo_image_surface_create (CAIRO_FORMAT_ARGB32, width, height);
+    cr = cairo_create (surface);
+    setCairo (cr);
+    cairo_translate (cr, 0, height);
+    cairo_scale (cr, width, -height);
+
+    CairoOutputDev::drawImageMask(state, ref, str, width, height, invert, inlineImg);
+    image->setImage (surface);
+
+    setCairo (NULL);
+    cairo_surface_destroy (surface);
+    cairo_destroy (cr);
+  }
 }
 
 void CairoImageOutputDev::drawImage(GfxState *state, Object *ref, Stream *str,
@@ -1708,20 +1718,23 @@ void CairoImageOutputDev::drawImage(GfxState *state, Object *ref, Stream *str,
   x2 = x1 + width;
   y2 = y1 + height;
 
-  surface = cairo_image_surface_create (CAIRO_FORMAT_ARGB32, width, height);
-  cr = cairo_create (surface);
-  setCairo (cr);
-  cairo_translate (cr, 0, height);
-  cairo_scale (cr, width, -height);
-
-  CairoOutputDev::drawImage(state, ref, str, width, height, colorMap, maskColors, inlineImg);
-
-  image = new CairoImage (surface, x1, y1, x2, y2);
+  image = new CairoImage (x1, y1, x2, y2);
   saveImage (image);
-  
-  setCairo (NULL);
-  cairo_surface_destroy (surface);
-  cairo_destroy (cr);
+
+  if (imgDrawCbk && imgDrawCbk (numImages - 1, imgDrawCbkData)) {
+    surface = cairo_image_surface_create (CAIRO_FORMAT_ARGB32, width, height);
+    cr = cairo_create (surface);
+    setCairo (cr);
+    cairo_translate (cr, 0, height);
+    cairo_scale (cr, width, -height);
+    
+    CairoOutputDev::drawImage(state, ref, str, width, height, colorMap, maskColors, inlineImg);
+    image->setImage (surface);
+    
+    setCairo (NULL);
+    cairo_surface_destroy (surface);
+    cairo_destroy (cr);
+  }
 }
 
 void CairoImageOutputDev::drawSoftMaskedImage(GfxState *state, Object *ref, Stream *str,
@@ -1751,21 +1764,24 @@ void CairoImageOutputDev::drawSoftMaskedImage(GfxState *state, Object *ref, Stre
   x2 = x1 + width;
   y2 = y1 + height;
 
-  surface = cairo_image_surface_create (CAIRO_FORMAT_ARGB32, width, height);
-  cr = cairo_create (surface);
-  setCairo (cr);
-  cairo_translate (cr, 0, height);
-  cairo_scale (cr, width, -height);
-
-  CairoOutputDev::drawSoftMaskedImage(state, ref, str, width, height, colorMap,
-				      maskStr, maskWidth, maskHeight, maskColorMap);
-
-  image = new CairoImage (surface, x1, y1, x2, y2);
+  image = new CairoImage (x1, y1, x2, y2);
   saveImage (image);
-  
-  setCairo (NULL);
-  cairo_surface_destroy (surface);
-  cairo_destroy (cr);
+
+  if (imgDrawCbk && imgDrawCbk (numImages - 1, imgDrawCbkData)) {
+    surface = cairo_image_surface_create (CAIRO_FORMAT_ARGB32, width, height);
+    cr = cairo_create (surface);
+    setCairo (cr);
+    cairo_translate (cr, 0, height);
+    cairo_scale (cr, width, -height);
+    
+    CairoOutputDev::drawSoftMaskedImage(state, ref, str, width, height, colorMap,
+					maskStr, maskWidth, maskHeight, maskColorMap);
+    image->setImage (surface);
+    
+    setCairo (NULL);
+    cairo_surface_destroy (surface);
+    cairo_destroy (cr);
+  }
 }
 
 void CairoImageOutputDev::drawMaskedImage(GfxState *state, Object *ref, Stream *str,
@@ -1795,19 +1811,22 @@ void CairoImageOutputDev::drawMaskedImage(GfxState *state, Object *ref, Stream *
   x2 = x1 + width;
   y2 = y1 + height;
 
-  surface = cairo_image_surface_create (CAIRO_FORMAT_ARGB32, width, height);
-  cr = cairo_create (surface);
-  setCairo (cr);
-  cairo_translate (cr, 0, height);
-  cairo_scale (cr, width, -height);
-
-  CairoOutputDev::drawMaskedImage(state, ref, str, width, height, colorMap,
-				  maskStr, maskWidth, maskHeight, maskInvert);
-
-  image = new CairoImage (surface, x1, y1, x2, y2);
+  image = new CairoImage (x1, y1, x2, y2);
   saveImage (image);
-  
-  setCairo (NULL);
-  cairo_surface_destroy (surface);
-  cairo_destroy (cr);
+
+  if (imgDrawCbk && imgDrawCbk (numImages - 1, imgDrawCbkData)) {
+    surface = cairo_image_surface_create (CAIRO_FORMAT_ARGB32, width, height);
+    cr = cairo_create (surface);
+    setCairo (cr);
+    cairo_translate (cr, 0, height);
+    cairo_scale (cr, width, -height);
+    
+    CairoOutputDev::drawMaskedImage(state, ref, str, width, height, colorMap,
+				    maskStr, maskWidth, maskHeight, maskInvert);
+    image->setImage (surface);
+    
+    setCairo (NULL);
+    cairo_surface_destroy (surface);
+    cairo_destroy (cr);
+  }
 }

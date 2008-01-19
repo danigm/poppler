@@ -84,6 +84,10 @@ GList                 *poppler_page_get_link_mapping     (PopplerPage        *pa
 void                   poppler_page_free_link_mapping    (GList              *list);
 GList                 *poppler_page_get_image_mapping    (PopplerPage        *page);
 void                   poppler_page_free_image_mapping   (GList              *list);
+#ifdef POPPLER_HAS_CAIRO
+cairo_surface_t       *poppler_page_get_image            (PopplerPage        *page,
+							  gint                image_id);
+#endif
 GList              *poppler_page_get_form_field_mapping  (PopplerPage        *page);
 void                poppler_page_free_form_field_mapping (GList              *list);
 GdkRegion             *poppler_page_get_selection_region (PopplerPage        *page,
@@ -167,7 +171,7 @@ void                   poppler_page_transition_free     (PopplerPageTransition *
 struct  _PopplerImageMapping
 {
   PopplerRectangle area;
-  GdkPixbuf *image;	
+  gint image_id;	
 };
 
 GType                  poppler_image_mapping_get_type (void) G_GNUC_CONST;
