@@ -27,6 +27,7 @@
 #include "Form.h"
 #include "Error.h"
 #include "Page.h"
+#include "XRef.h"
 
 #define annotFlagHidden    0x0002
 #define annotFlagPrint     0x0004
@@ -330,6 +331,8 @@ Annot::Annot(XRef *xrefA, Dict *acroForm, Dict *dict, Catalog* catalog, Object *
 void Annot::initialize(XRef *xrefA, Dict *acroForm, Dict *dict, Catalog *catalog) {
   Object apObj, asObj, obj1, obj2, obj3;
 
+  appRef.num = 0;
+  appRef.gen = 65535;
   ok = gTrue;
   xref = xrefA;
   appearBuf = NULL;
@@ -548,9 +551,6 @@ Annot::~Annot() {
     delete modified;
 
   appearance.free();
-  if (appearBuf) {
-    delete appearBuf;
-  }
 
   if(appearState)
     delete appearState;
@@ -935,10 +935,44 @@ void Annot::generateFieldAppearance(Dict *field, Dict *annot, Dict *acroForm) {
   drObj.free();
 
   // build the appearance stream
-  appearStream = new MemStream(appearBuf->getCString(), 0,
+  appearStream = new MemStream(strdup(appearBuf->getCString()), 0,
       appearBuf->getLength(), &appearDict);
   appearance.free();
   appearance.initStream(appearStream);
+  delete appearBuf;
+
+  appearStream->setNeedFree(gTrue);
+
+  if (widget->isModified()) {
+    //create a new object that will contains the new appearance
+    
+    //if we already have a N entry in our AP dict, reuse it
+    if (annot->lookup("AP", &obj1)->isDict() &&
+        obj1.dictLookupNF("N", &obj2)->isRef()) {
+      appRef = obj2.getRef();
+    }
+
+    // this annot doesn't have an AP yet, create one
+    if (appRef.num == 0)
+      appRef = xref->addIndirectObject(&appearance);
+    else // since we reuse the already existing AP, we have to notify the xref about this update
+      xref->setModifiedObject(&appearance, appRef);
+
+    // update object's AP and AS
+    Object apObj;
+    apObj.initDict(xref);
+
+    Object oaRef;
+    oaRef.initRef(appRef.num, appRef.gen);
+
+    apObj.dictSet("N", &oaRef);
+    annot->set("AP", &apObj);
+    Dict* d = new Dict(annot);
+    Object dictObj;
+    dictObj.initDict(d);
+
+    xref->setModifiedObject(&dictObj, ref);
+  }
 
   if (fontDict) {
     delete fontDict;

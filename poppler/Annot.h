@@ -271,6 +271,7 @@ protected:
   GooString *modified;              // M
   Guint flags;                      // F (must be a 32 bit unsigned int)
   //Dict *appearDict;                 // AP (should be correctly parsed)
+  Ref appRef;                       //the reference to the indirect appearance object in XRef 
   Object appearance;     // a reference to the Form XObject stream
                          //   for the normal appearance
   GooString *appearState;           // AS
