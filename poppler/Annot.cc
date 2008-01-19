@@ -163,7 +163,117 @@ AnnotCalloutMultiLine::AnnotCalloutMultiLine(double x1, double y1, double x2,
 // AnnotQuadrilateral
 //------------------------------------------------------------------------
 
-AnnotQuadrilateral::AnnotQuadrilateral(double x1, double y1,
+AnnotQuadrilaterals::AnnotQuadrilaterals(Array *array, PDFRectangle *rect) {
+  int arrayLength = array->getLength();
+  GBool correct = gTrue;
+  int quadsLength = 0;
+  AnnotQuadrilateral **quads;
+  double *quadArray;
+
+  // default values
+  quadrilaterals = NULL;
+  quadrilateralsLength = 0;
+
+  if ((arrayLength % 8) == 0) {
+    int i = 0;
+
+    quadsLength = arrayLength / 8;
+    quads = (AnnotQuadrilateral **) gmallocn
+        ((quadsLength), sizeof(AnnotQuadrilateral *));
+    quadArray = (double *) gmallocn (8, sizeof(double));
+
+    while (i < (quadsLength) && correct) {
+      for (int j = 0; j < 8 && correct; j++) {
+        Object obj;
+        if (array->get(i * 8 + j, &obj)->isNum()) {
+          quadArray[j] = obj.getNum();
+          if (quadArray[j] < rect->x1 || quadArray[j] > rect->x2 ||
+              quadArray[j] < rect->y1 || quadArray[j] < rect->y2)
+            correct = gFalse;
+        } else {
+            correct = gFalse;
+        }
+      }
+
+      if (correct)
+        quads[i] = new AnnotQuadrilateral(quadArray[0], quadArray[1],
+                                          quadArray[2], quadArray[3],
+                                          quadArray[4], quadArray[5],
+                                          quadArray[6], quadArray[7]);
+      i++;
+    }
+
+    gfree (quadArray);
+
+    if (correct) {
+      quadrilateralsLength = quadsLength;
+      quadrilaterals = quads;
+    } else {
+      for (int j = 0; j < i; j++)
+        delete quads[j];
+      gfree (quads);
+    }
+  }
+}
+
+AnnotQuadrilaterals::~AnnotQuadrilaterals() {
+  if (quadrilaterals) {
+    for(int i = 0; i < quadrilateralsLength; i++)
+      delete quadrilaterals[i];
+
+    gfree (quadrilaterals);
+  }
+}
+
+double AnnotQuadrilaterals::getX1(int quadrilateral) {
+  if (quadrilateral >= 0  && quadrilateral < quadrilateralsLength)
+    return quadrilaterals[quadrilateral]->getX1();
+  return 0;
+}
+
+double AnnotQuadrilaterals::getY1(int quadrilateral) {
+  if (quadrilateral >= 0  && quadrilateral < quadrilateralsLength)
+    return quadrilaterals[quadrilateral]->getY1();
+  return 0;
+}
+
+double AnnotQuadrilaterals::getX2(int quadrilateral) {
+  if (quadrilateral >= 0  && quadrilateral < quadrilateralsLength)
+    return quadrilaterals[quadrilateral]->getX2();
+  return 0;
+}
+
+double AnnotQuadrilaterals::getY2(int quadrilateral) {
+  if (quadrilateral >= 0  && quadrilateral < quadrilateralsLength)
+    return quadrilaterals[quadrilateral]->getY2();
+  return 0;
+}
+
+double AnnotQuadrilaterals::getX3(int quadrilateral) {
+  if (quadrilateral >= 0  && quadrilateral < quadrilateralsLength)
+    return quadrilaterals[quadrilateral]->getX3();
+  return 0;
+}
+
+double AnnotQuadrilaterals::getY3(int quadrilateral) {
+  if (quadrilateral >= 0  && quadrilateral < quadrilateralsLength)
+    return quadrilaterals[quadrilateral]->getY3();
+  return 0;
+}
+
+double AnnotQuadrilaterals::getX4(int quadrilateral) {
+  if (quadrilateral >= 0  && quadrilateral < quadrilateralsLength)
+    return quadrilaterals[quadrilateral]->getX4();
+  return 0;
+}
+
+double AnnotQuadrilaterals::getY4(int quadrilateral) {
+  if (quadrilateral >= 0  && quadrilateral < quadrilateralsLength)
+    return quadrilaterals[quadrilateral]->getY4();
+  return 0;
+}
+
+AnnotQuadrilaterals::AnnotQuadrilateral::AnnotQuadrilateral(double x1, double y1,
         double x2, double y2, double x3, double y3, double x4, double y4) {
   this->x1 = x1;
   this->y1 = y1;
@@ -2129,12 +2239,8 @@ AnnotLink::~AnnotLink() {
   if (uriAction)
     delete uriAction;
   */
-  if (quadrilaterals) {
-    for(int i = 0; i < quadrilateralsLength; i++)
-      delete quadrilaterals[i];
-
-    gfree (quadrilaterals);
-  }
+  if (quadrilaterals)
+    delete quadrilaterals;
 }
 
 void AnnotLink::initialize(XRef *xrefA, Catalog *catalog, Dict *dict) {
@@ -2174,72 +2280,12 @@ void AnnotLink::initialize(XRef *xrefA, Catalog *catalog, Dict *dict) {
   }
   obj1.free();
   */
-  /*
-   * TODO:
-   * QuadPoints should be ignored if any coordinate in the array lies outside
-   * the region specified by Rect.
-   */
   if (dict->lookup("QuadPoints", &obj1)->isArray()) {
-    parseQuadPointsArray(obj1.getArray());
+    quadrilaterals = new AnnotQuadrilaterals(obj1.getArray(), rect);
   } else {
     quadrilaterals = NULL;
   }
   obj1.free();
-}
-
-GBool AnnotLink::parseQuadPointsArray(Array *array) {
-  int arrayLength = array->getLength();
-  GBool correct = gTrue;
-  int quadsLength = 0, i = 0;
-  AnnotQuadrilateral **quads;
-  double *quadArray;
-
-  // default values
-  quadrilaterals = NULL;
-  quadrilateralsLength = 0;
-
-  if ((arrayLength % 8) != 0)
-    return gFalse;
-
-  quadsLength = arrayLength / 8;
-  quads = (AnnotQuadrilateral **) gmallocn
-      ((quadsLength), sizeof(AnnotQuadrilateral *));
-  quadArray = (double *) gmallocn (8, sizeof(double));
-
-  while (i < (quadsLength) && correct) {
-    for (int j = 0; j < 8 && correct; j++) {
-      Object obj;
-      if (array->get(i * 8 + j, &obj)->isNum()) {
-        quadArray[j] = obj.getNum();
-        if (quadArray[j] < rect->x1 || quadArray[j] > rect->x2 ||
-            quadArray[j] < rect->y1 || quadArray[j] < rect->y2)
-          correct = gFalse;
-      } else {
-          correct = gFalse;
-      }
-    }
-
-    if (correct)
-      quads[i] = new AnnotQuadrilateral(quadArray[0], quadArray[1],
-                                        quadArray[2], quadArray[3],
-                                        quadArray[4], quadArray[5],
-                                        quadArray[6], quadArray[7]);
-    i++;
-  }
-
-  gfree (quadArray);
-
-  if (!correct) {
-    for (int j = 0; j < i; j++)
-      delete quads[j];
-    gfree (quads);
-    return gFalse;
-  }
-
-  quadrilateralsLength = quadsLength;
-  quadrilaterals = quads;
-
-  return gTrue;
 }
 
 //------------------------------------------------------------------------
@@ -2393,6 +2439,180 @@ void AnnotFreeText::initialize(XRef *xrefA, Catalog *catalog, Dict *dict) {
     endStyle = annotLineEndingNone;
   }
   obj1.free();
+}
+
+//------------------------------------------------------------------------
+// AnnotLine
+//------------------------------------------------------------------------
+
+AnnotLine::AnnotLine(XRef *xrefA, Dict *acroForm, Dict *dict, Catalog *catalog, Object *obj) :
+    Annot(xrefA, acroForm, dict, catalog, obj), AnnotMarkup(xref, acroForm, dict, catalog, obj) {
+  type = typeLine;
+  initialize(xrefA, catalog, dict);
+}
+
+AnnotLine::~AnnotLine() {
+  if (interiorColor)
+    delete interiorColor;
+
+  if (measure)
+    delete measure;
+}
+
+void AnnotLine::initialize(XRef *xrefA, Catalog *catalog, Dict *dict) {
+  Object obj1;
+
+  if (dict->lookup("L", &obj1)->isArray() && obj1.arrayGetLength() == 4) {
+    Object obj2;
+
+    (obj1.arrayGet(0, &obj2)->isNum() ? x1 = obj2.getNum() : x1 = 0);
+    obj2.free();
+    (obj1.arrayGet(1, &obj2)->isNum() ? y1 = obj2.getNum() : y1 = 0);
+    obj2.free();
+    (obj1.arrayGet(2, &obj2)->isNum() ? x2 = obj2.getNum() : x2 = 0);
+    obj2.free();
+    (obj1.arrayGet(3, &obj2)->isNum() ? y2 = obj2.getNum() : y2 = 0);
+    obj2.free();
+
+  } else {
+    x1 = y1 = x2 = y2 = 0;
+  }
+  obj1.free();
+
+  if (dict->lookup("LE", &obj1)->isArray() && obj1.arrayGetLength() == 2) {
+    Object obj2;
+
+    if(obj1.arrayGet(0, &obj2)->isString())
+      startStyle = parseAnnotLineEndingStyle(obj2.getString());
+    else
+      startStyle = annotLineEndingNone;
+    obj2.free();
+
+    if(obj1.arrayGet(1, &obj2)->isString())
+      endStyle = parseAnnotLineEndingStyle(obj2.getString());
+    else
+      endStyle = annotLineEndingNone;
+    obj2.free();
+
+  } else {
+    startStyle = endStyle = annotLineEndingNone;
+  }
+  obj1.free();
+
+  if (dict->lookup("IC", &obj1)->isArray()) {
+    interiorColor = new AnnotColor(obj1.getArray());
+  } else {
+    interiorColor = NULL;
+  }
+  obj1.free();
+
+  if (dict->lookup("LL", &obj1)->isNum()) {
+    leaderLineLength = obj1.getNum();
+  } else {
+    leaderLineLength = 0;
+  }
+  obj1.free();
+
+  if (dict->lookup("LLE", &obj1)->isNum()) {
+    leaderLineExtension = obj1.getNum();
+
+    if (leaderLineExtension < 0)
+      leaderLineExtension = 0;
+  } else {
+    leaderLineExtension = 0;
+  }
+  obj1.free();
+
+  if (dict->lookup("Cap", &obj1)->isBool()) {
+    caption = obj1.getBool();
+  } else {
+    caption = gFalse;
+  }
+  obj1.free();
+
+  if (dict->lookup("IT", &obj1)->isName()) {
+    GooString *intentName = new GooString(obj1.getName());
+
+    if(!intentName->cmp("LineArrow")) {
+      intent = intentLineArrow;
+    } else if(!intentName->cmp("LineDimension")) {
+      intent = intentLineDimension;
+    } else {
+      intent = intentLineArrow;
+    }
+    delete intentName;
+  } else {
+    intent = intentLineArrow;
+  }
+  obj1.free();
+
+  if (dict->lookup("LLO", &obj1)->isNum()) {
+    leaderLineOffset = obj1.getNum();
+
+    if (leaderLineOffset < 0)
+      leaderLineOffset = 0;
+  } else {
+    leaderLineOffset = 0;
+  }
+  obj1.free();
+
+  if (dict->lookup("CP", &obj1)->isName()) {
+    GooString *captionName = new GooString(obj1.getName());
+
+    if(!captionName->cmp("Inline")) {
+      captionPos = captionPosInline;
+    } else if(!captionName->cmp("Top")) {
+      captionPos = captionPosTop;
+    } else {
+      captionPos = captionPosInline;
+    }
+    delete captionName;
+  } else {
+    captionPos = captionPosInline;
+  }
+  obj1.free();
+
+  if (dict->lookup("Measure", &obj1)->isDict()) {
+    measure = NULL;
+  } else {
+    measure = NULL;
+  }
+  obj1.free();
+
+  if ((dict->lookup("CO", &obj1)->isArray()) && (obj1.arrayGetLength() == 2)) {
+    Object obj2;
+
+    (obj1.arrayGet(0, &obj2)->isNum() ? captionTextHorizontal = obj2.getNum() :
+      captionTextHorizontal = 0);
+    obj2.free();
+    (obj1.arrayGet(1, &obj2)->isNum() ? captionTextVertical = obj2.getNum() :
+      captionTextVertical = 0);
+    obj2.free();
+  } else {
+    captionTextHorizontal = captionTextVertical = 0;
+  }
+  obj1.free();
+}
+
+//------------------------------------------------------------------------
+// AnnotTextMarkup
+//------------------------------------------------------------------------
+
+void AnnotTextMarkup::initialize(XRef *xrefA, Catalog *catalog, Dict *dict) {
+  Object obj1;
+
+  if(dict->lookup("QuadPoints", &obj1)->isArray()) {
+    quadrilaterals = new AnnotQuadrilaterals(obj1.getArray(), rect);
+  } else {
+    quadrilaterals = NULL;
+  }
+  obj1.free();
+}
+
+AnnotTextMarkup::~AnnotTextMarkup() {
+  if(quadrilaterals) {
+    delete quadrilaterals;
+  }
 }
 
 //------------------------------------------------------------------------

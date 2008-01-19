@@ -105,23 +105,43 @@ private:
 // AnnotQuadrilateral
 //------------------------------------------------------------------------
 
-class AnnotQuadrilateral {
-public:
-
-  AnnotQuadrilateral(double x1, double y1, double x2, double y2, double x3,
+class AnnotQuadrilaterals {
+  class AnnotQuadrilateral {
+  public:
+    AnnotQuadrilateral(double x1, double y1, double x2, double y2, double x3,
       double y3, double x4, double y4);
 
-  double getX1() const { return x1; }
-  double getY1() const { return y1; }
-  double getX2() const { return x2; }
-  double getY2() const { return y2; }
-  double getX3() const { return x3; }
-  double getY3() const { return y3; }
-  double getX4() const { return x4; }
-  double getY4() const { return y4; }
+    double getX1() const { return x1; }
+    double getY1() const { return y1; }
+    double getX2() const { return x2; }
+    double getY2() const { return y2; }
+    double getX3() const { return x3; }
+    double getY3() const { return y3; }
+    double getX4() const { return x4; }
+    double getY4() const { return y4; }
 
+  protected:
+    double x1, y1, x2, y2, x3, y3, x4, y4;
+  };
+
+public:
+
+  AnnotQuadrilaterals(Array *array, PDFRectangle *rect);
+  virtual ~AnnotQuadrilaterals();
+
+  double getX1(int quadrilateral);
+  double getY1(int quadrilateral);
+  double getX2(int quadrilateral);
+  double getY2(int quadrilateral);
+  double getX3(int quadrilateral);
+  double getY3(int quadrilateral);
+  double getX4(int quadrilateral);
+  double getY4(int quadrilateral);
+  int getQuadrilateralsLength() const { return quadrilateralsLength; }
 protected:
-  double x1, y1, x2, y2, x3, y3, x4, y4;
+
+  AnnotQuadrilateral** quadrilaterals;
+  int quadrilateralsLength;
 };
 
 //------------------------------------------------------------------------
@@ -546,21 +566,18 @@ public:
   // getDest
   AnnotLinkEffect getLinkEffect() const { return linkEffect; }
   Dict *getUriAction() const { return uriAction; }
-  AnnotQuadrilateral **getQuadrilaterals() const { return quadrilaterals; }
-  int getQuadrilateralsLength() const { return quadrilateralsLength; }
+  AnnotQuadrilaterals *getQuadrilaterals() const { return quadrilaterals; }
 
 protected:
 
   void initialize(XRef *xrefA, Catalog *catalog, Dict *dict);
-  GBool parseQuadPointsArray(Array *array);
 
   Dict *actionDict;                    // A
   //Dest
   AnnotLinkEffect linkEffect;          // H          (Default I)
   Dict *uriAction;                     // PA
 
-  AnnotQuadrilateral **quadrilaterals; // QuadPoints
-  int quadrilateralsLength;
+  AnnotQuadrilaterals *quadrilaterals; // QuadPoints
 };
 
 //------------------------------------------------------------------------
@@ -614,6 +631,83 @@ protected:
   // inherited  from Annot
   // AnnotBorderBS border;          // BS
   AnnotLineEndingStyle endStyle;    // LE (Default None)
+};
+
+//------------------------------------------------------------------------
+// AnnotLine
+//------------------------------------------------------------------------
+
+class AnnotLine: public Annot, public AnnotMarkup {
+public:
+
+  enum AnnotLineIntent {
+    intentLineArrow,    // LineArrow
+    intentLineDimension // LineDimension
+  };
+
+  enum AnnotLineCaptionPos {
+    captionPosInline, // Inline
+    captionPosTop     // Top
+  };
+
+  AnnotLine(XRef *xrefA, Dict *acroForm, Dict *dict, Catalog *catalog, Object *obj);
+  virtual ~AnnotLine();
+
+  // getters
+  AnnotLineEndingStyle getStartStyle() const { return startStyle; }
+  AnnotLineEndingStyle getEndStyle() const { return endStyle; }
+  AnnotColor *getInteriorColor() const { return interiorColor; }
+  double getLeaderLineLength() const { return leaderLineLength; }
+  double getLeaderLineExtension() const { return leaderLineExtension; }
+  bool getCaption() const { return caption; }
+  AnnotLineIntent getIntent() const { return intent; }
+  double  getLeaderLineOffset() const { return leaderLineOffset; }
+  AnnotLineCaptionPos getCaptionPos() const { return captionPos; }
+  Dict *getMeasure() const { return measure; }
+  double getCaptionTextHorizontal() const { return captionTextHorizontal; }
+  double getCaptionTextVertical() const { return captionTextVertical; }
+
+protected:
+
+  void initialize(XRef *xrefA, Catalog *catalog, Dict *dict);
+
+  // required
+  double x1, y1, x2, y2;            // L
+  
+  // optional
+  // inherited  from Annot
+  // AnnotBorderBS border;          // BS
+  AnnotLineEndingStyle startStyle;  // LE       (Default [/None /None])
+  AnnotLineEndingStyle endStyle;    //
+  AnnotColor *interiorColor;        // IC
+  double leaderLineLength;          // LL       (Default 0)
+  double leaderLineExtension;       // LLE      (Default 0)
+  bool caption;                     // Cap      (Default false)
+  AnnotLineIntent intent;           // IT
+  double leaderLineOffset;          // LLO
+  AnnotLineCaptionPos captionPos;   // CP       (Default Inline)
+  Dict *measure;                    // Measure
+  double captionTextHorizontal;     // CO       (Default [0, 0])
+  double captionTextVertical;       //
+};
+
+//------------------------------------------------------------------------
+// AnnotTextMarkup
+//------------------------------------------------------------------------
+
+class AnnotTextMarkup: public Annot, public AnnotMarkup {
+public:
+
+  AnnotTextMarkup(XRef *xrefA, Catalog *catalog, Dict *dict);
+  virtual ~AnnotTextMarkup();
+
+  AnnotQuadrilaterals *getQuadrilaterals() const { return quadrilaterals; }
+
+protected:
+
+  void initialize(XRef *xrefA, Catalog *catalog, Dict *dict);
+  
+  AnnotQuadrilaterals *quadrilaterals; // QuadPoints
 };
 
 //------------------------------------------------------------------------
