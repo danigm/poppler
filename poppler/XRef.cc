@@ -1023,6 +1023,45 @@ void XRef::setModifiedObject (Object* o, Ref r) {
   o->copy(&entries[r.num].obj);
 }
 
+Ref XRef::addIndirectObject (Object* o) {
+  //Find the next free entry
+  // lastEntry is the last free entry we encountered,
+  // entry 0 is always free
+  int lastEntry = 0;
+  int newEntry = entries[0].offset;
+
+  do {
+    lastEntry = newEntry;
+    newEntry = entries[newEntry].offset;
+    //we are looking for a free entry that we can reuse
+    //(=> gen number != 65535)
+  } while ((newEntry != 0) && (entries[newEntry].gen == 65535));
+
+  //the linked list of free entry is empty => create a new one
+  if (newEntry == 0) {
+    newEntry = size;
+    size++;
+    entries = (XRefEntry *)greallocn(entries, size, sizeof(XRefEntry));
+    entries[newEntry].gen = 0;
+    entries[newEntry].num = newEntry;
+  } else { //reuse a free entry
+    //'remove' the entry we are using from the free entry linked list
+    entries[lastEntry].offset = entries[newEntry].offset;
+    entries[newEntry].num = newEntry;
+    //we don't touch gen number, because it should have been 
+    //incremented when the object was deleted
+  }
+
+  entries[newEntry].type = xrefEntryUncompressed;
+  o->copy(&entries[newEntry].obj);
+
+  Ref r;
+  r.num = entries[newEntry].num;
+  r.gen = entries[newEntry].gen;
+  return r;
+}
+
+
 //used to sort the entries
 int compare (const void* a, const void* b)
 {

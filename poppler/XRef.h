@@ -109,6 +109,7 @@ public:
 
   // Write access
   void setModifiedObject(Object* o, Ref r);
+  Ref addIndirectObject (Object* o);
   void add(int num, int gen,  Guint offs, GBool used);
   void writeToFile(FILE* f);
 
