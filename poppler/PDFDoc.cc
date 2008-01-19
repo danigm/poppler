@@ -34,6 +34,7 @@
 #include "Lexer.h"
 #include "Parser.h"
 #include "SecurityHandler.h"
+#include "Decrypt.h"
 #ifndef DISABLE_OUTLINE
 #include "Outline.h"
 #endif
@@ -435,19 +436,387 @@ GBool PDFDoc::isLinearized() {
   return lin;
 }
 
-GBool PDFDoc::saveAs(GooString *name) {
+GBool PDFDoc::saveAs(GooString *name, PDFWriteMode mode) {
   FILE *f;
-  int c;
+  OutStream *outStr;
 
   if (!(f = fopen(name->getCString(), "wb"))) {
     error(-1, "Couldn't open file '%s'", name->getCString());
     return gFalse;
   }
-  str->reset();
-  while ((c = str->getChar()) != EOF) {
-    fputc(c, f);
+  outStr = new FileOutStream(f,0);
+
+  if (mode == writeForceRewrite) {
+    saveCompleteRewrite(outStr);
+  } else if (mode == writeForceIncremental) {
+    saveIncrementalUpdate(outStr); 
+  } else { // let poppler decide
+    // find if we have updated objects
+    GBool updated = gFalse;
+    for(int i=0; i<xref->getNumObjects(); i++) {
+      if (xref->getEntry(i)->updated) {
+        updated = gTrue;
+        break;
+      }
+    }
+    if(updated) { 
+      saveIncrementalUpdate(outStr);
+    } else {
+      // simply copy the original file
+      int c;
+      str->reset();
+      while ((c = str->getChar()) != EOF) {
+        outStr->put(c);
+      }
+      str->close();
+    }
   }
-  str->close();
+
+  delete outStr;
   fclose(f);
   return gTrue;
+}
+
+void PDFDoc::saveIncrementalUpdate (OutStream* outStr)
+{
+  XRef *uxref;
+  int c;
+  //copy the original file
+  str->reset();
+  while ((c = str->getChar()) != EOF) {
+    outStr->put(c);
+  }
+  str->close();
+
+  uxref = new XRef();
+  uxref->add(0, 65535, 0, gFalse);
+  int objectsCount = 0; //count the number of objects in the XRef(s)
+  for(int i=0; i<xref->getNumObjects(); i++) {
+    if ((xref->getEntry(i)->type == xrefEntryFree) && 
+        (xref->getEntry(i)->gen == 0)) //we skip the irrelevant free objects
+      continue;
+    objectsCount++;
+    if (xref->getEntry(i)->updated) { //we have an updated object
+      Object obj1;
+      Ref ref;
+      ref.num = i;
+      ref.gen = xref->getEntry(i)->gen;
+      xref->fetch(ref.num, ref.gen, &obj1);
+      Guint offset = writeObject(&obj1, &ref, outStr);
+      uxref->add(ref.num, ref.gen, offset, gTrue);
+      obj1.free();
+    }
+  }
+  if (uxref->getSize() == 0) { //we have nothing to update
+    delete uxref;
+    return;
+  }
+
+  Guint uxrefOffset = outStr->getPos();
+  uxref->writeToFile(outStr);
+
+  writeTrailer(uxrefOffset, objectsCount, outStr, gTrue);
+
+  delete uxref;
+}
+
+void PDFDoc::saveCompleteRewrite (OutStream* outStr)
+{
+  outStr->printf("%%PDF-%.1f\r\n",pdfVersion);
+  XRef *uxref = new XRef();
+  uxref->add(0, 65535, 0, gFalse);
+  for(int i=0; i<xref->getNumObjects(); i++) {
+    Object obj1;
+    Ref ref;
+    XRefEntryType type = xref->getEntry(i)->type;
+    if (type == xrefEntryFree) {
+      ref.num = i;
+      ref.gen = xref->getEntry(i)->gen;
+      /* the XRef class adds a lot of irrelevant free entries, we only want the significant one
+          and we don't want the one with num=0 because it has already been added (gen = 65535)*/
+      if (ref.gen > 0 && ref.num > 0)
+        uxref->add(ref.num, ref.gen, 0, gFalse);
+    } else if (type == xrefEntryUncompressed){ 
+      ref.num = i;
+      ref.gen = xref->getEntry(i)->gen;
+      xref->fetch(ref.num, ref.gen, &obj1);
+      Guint offset = writeObject(&obj1, &ref, outStr);
+      uxref->add(ref.num, ref.gen, offset, gTrue);
+      obj1.free();
+    } else if (type == xrefEntryCompressed) {
+      ref.num = i;
+      ref.gen = 0; //compressed entries have gen == 0
+      xref->fetch(ref.num, ref.gen, &obj1);
+      Guint offset = writeObject(&obj1, &ref, outStr);
+      uxref->add(ref.num, ref.gen, offset, gTrue);
+      obj1.free();
+    }
+  }
+  Guint uxrefOffset = outStr->getPos();
+  uxref->writeToFile(outStr);
+
+  writeTrailer(uxrefOffset, uxref->getSize(), outStr, gFalse);
+
+
+  delete uxref;
+
+}
+
+void PDFDoc::writeDictionnary (Dict* dict, OutStream* outStr)
+{
+  Object obj1;
+  outStr->printf("<<");
+  for (int i=0; i<dict->getLength(); i++) {
+    outStr->printf("/%s ", dict->getKey(i));
+    writeObject(dict->getValNF(i, &obj1), NULL, outStr);
+    obj1.free();
+  }
+  outStr->printf(">>");
+}
+
+void PDFDoc::writeStream (Stream* str, OutStream* outStr)
+{
+  int c;
+  outStr->printf("stream\r\n");
+  str->reset();
+  for (int c=str->getChar(); c!= EOF; c=str->getChar()) {
+    outStr->printf("%c", c);  
+  }
+  outStr->printf("\r\nendstream\r\n");
+}
+
+void PDFDoc::writeRawStream (Stream* str, OutStream* outStr)
+{
+  Object obj1;
+  str->getDict()->lookup("Length", &obj1);
+  if (!obj1.isInt()) {
+    error (-1, "PDFDoc::writeRawStream, no Length in stream dict");
+    return;
+  }
+
+  const int length = obj1.getInt();
+  obj1.free();
+
+  outStr->printf("stream\r\n");
+  str->unfilteredReset();
+  for (int i=0; i<length; i++) {
+    int c = str->getUnfilteredChar();
+    outStr->printf("%c", c);  
+  }
+  str->reset();
+  outStr->printf("\r\nendstream\r\n");
+}
+
+void PDFDoc::writeString (GooString* s, OutStream* outStr)
+{
+  if (s->hasUnicodeMarker()) {
+    //unicode string don't necessary end with \0
+    const char* c = s->getCString();
+    outStr->printf("(");
+    for(int i=0; i<s->getLength(); i++) {
+      char unescaped = *(c+i)&0x000000ff;
+      //escape if needed
+      if (unescaped == '(' || unescaped == ')' || unescaped == '\\')
+        outStr->printf("%c", '\\');
+      outStr->printf("%c", unescaped);
+    }
+    outStr->printf(") ");
+  } else {
+    const char* c = s->getCString();
+    outStr->printf("(");
+    while(*c!='\0') {
+      char unescaped = (*c)&0x000000ff;
+      //escape if needed
+      if (unescaped == '(' || unescaped == ')' || unescaped == '\\')
+        outStr->printf("%c", '\\');
+      outStr->printf("%c", unescaped);
+      c++;
+    }
+    outStr->printf(") ");
+  }
+}
+
+Guint PDFDoc::writeObject (Object* obj, Ref* ref, OutStream* outStr)
+{
+  Array *array;
+  Object obj1;
+  Guint offset = outStr->getPos();
+  int tmp;
+
+  if(ref) 
+    outStr->printf("%i %i obj", ref->num, ref->gen);
+
+  switch (obj->getType()) {
+    case objBool:
+      outStr->printf("%s ", obj->getBool()?"true":"false");
+      break;
+    case objInt:
+      outStr->printf("%i ", obj->getInt());
+      break;
+    case objReal:
+      outStr->printf("%g ", obj->getReal());
+      break;
+    case objString:
+      writeString(obj->getString(), outStr);
+      break;
+    case objName:
+      outStr->printf("/%s ", obj->getName());
+      break;
+    case objNull:
+      outStr->printf( "null");
+      break;
+    case objArray:
+      array = obj->getArray();
+      outStr->printf("[");
+      for (int i=0; i<array->getLength(); i++) {
+        writeObject(array->getNF(i, &obj1), NULL,outStr);
+        obj1.free();
+      }
+      outStr->printf("]");
+      break;
+    case objDict:
+      writeDictionnary (obj->getDict(),outStr);
+      break;
+    case objStream: 
+      {
+        //We can't modify stream with the current implementation (no write functions in Stream API)
+        // => the only type of streams which that have been modified are internal streams (=strWeird)
+        Stream *stream = obj->getStream();
+        if (stream->getKind() == strWeird) {
+          //we write the stream unencoded => TODO: write stream encoder
+          stream->reset();
+          //recalculate stream length
+          tmp = 0;
+          for (int c=stream->getChar(); c!=EOF; c=stream->getChar()) {
+            tmp++;
+          }
+          obj1.initInt(tmp);
+          stream->getDict()->set("Length", &obj1);
+
+          //Remove Stream encoding
+          stream->getDict()->remove("Filter");
+          stream->getDict()->remove("DecodeParms");
+
+          writeDictionnary (stream->getDict(),outStr);
+          writeStream (stream,outStr);
+          obj1.free();
+        } else {
+          //raw stream copy
+          writeDictionnary (stream->getDict(), outStr);
+          writeRawStream (stream, outStr);
+        }
+        break;
+      }
+    case objRef:
+      outStr->printf("%i %i R ", obj->getRef().num, obj->getRef().gen);
+      break;
+    case objCmd:
+      outStr->printf("cmd\r\n");
+      break;
+    case objError:
+      outStr->printf("error\r\n");
+      break;
+    case objEOF:
+      outStr->printf("eof\r\n");
+      break;
+    case objNone:
+      outStr->printf("none\r\n");
+      break;
+    default:
+      error(-1,"Unhandled objType : %i, please report a bug with a testcase\r\n", obj->getType());
+      break;
+  }
+  if (ref)
+    outStr->printf("endobj\r\n");
+  return offset;
+}
+
+void PDFDoc::writeTrailer (Guint uxrefOffset, int uxrefSize, OutStream* outStr, GBool incrUpdate)
+{
+  Dict *trailerDict = new Dict(xref);
+  Object obj1;
+  obj1.initInt(uxrefSize);
+  trailerDict->set("Size", &obj1);
+  obj1.free();
+
+
+  //build a new ID, as recommended in the reference, uses:
+  // - current time
+  // - file name
+  // - file size
+  // - values of entry in information dictionnary
+  GooString message;
+  char buffer[256];
+  sprintf(buffer, "%i", (int)time(NULL));
+  message.append(buffer);
+  message.append(fileName);
+  // file size
+  unsigned int fileSize = 0;
+  int c;
+  str->reset();
+  while ((c = str->getChar()) != EOF) {
+    fileSize++;
+  }
+  str->close();
+  sprintf(buffer, "%i", fileSize);
+  message.append(buffer);
+
+  //info dict -- only use text string
+  if (xref->getDocInfo(&obj1)->isDict()) {
+    for(int i=0; i<obj1.getDict()->getLength(); i++) {
+      Object obj2;
+      obj1.getDict()->getVal(i, &obj2);  
+      if (obj2.isString()) {
+        message.append(obj2.getString());
+      }
+      obj2.free();
+    }
+  }
+  obj1.free();
+
+  //calculate md5 digest
+  Guchar digest[16];
+  Decrypt::md5((Guchar*)message.getCString(), message.getLength(), digest);
+  obj1.initString(new GooString((const char*)digest, 16));
+
+  //create ID array
+  Object obj2,obj3,obj4;
+  obj2.initArray(xref);
+
+  if (incrUpdate) {
+    //only update the second part of the array
+    if(xref->getTrailerDict()->getDict()->lookup("ID", &obj4) != NULL) {
+      if (!obj4.isArray()) {
+        error(-1, "PDFDoc::writeTrailer original file's ID entry isn't an array. Trying to continue");
+      } else {
+        //Get the first part of the ID
+        obj4.arrayGet(0,&obj3); 
+
+        obj2.arrayAdd(&obj3); 
+        obj2.arrayAdd(&obj1);
+        trailerDict->set("ID", &obj2);
+      }
+    }
+  } else {
+    //new file => same values for the two identifiers
+    obj2.arrayAdd(&obj1);
+    obj2.arrayAdd(&obj1);
+    trailerDict->set("ID", &obj2);
+  }
+
+
+  obj1.initRef(xref->getRootNum(), xref->getRootGen());
+  trailerDict->set("Root", &obj1);
+  obj1.free();
+
+  if (incrUpdate) { 
+    obj1.initInt(xref->getLastXRefPos());
+    trailerDict->set("Prev", &obj1);
+    obj1.free();
+  }
+  outStr->printf( "trailer\r\n");
+  writeDictionnary(trailerDict, outStr);
+  outStr->printf( "\r\nstartxref\r\n");
+  outStr->printf( "%i\r\n", uxrefOffset);
+  outStr->printf( "%%%%EOF\r\n");
 }

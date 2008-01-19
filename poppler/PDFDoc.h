@@ -27,6 +27,12 @@ class LinkAction;
 class LinkDest;
 class Outline;
 
+enum PDFWriteMode {
+  writeStandard,
+  writeForceRewrite,
+  writeForceIncremental
+};
+
 //------------------------------------------------------------------------
 // PDFDoc
 //------------------------------------------------------------------------
@@ -169,12 +175,22 @@ public:
   double getPDFVersion() { return pdfVersion; }
 
   // Save this file with another name.
-  GBool saveAs(GooString *name);
+  GBool saveAs(GooString *name, PDFWriteMode mode=writeStandard);
 
   // Return a pointer to the GUI (XPDFCore or WinPDFCore object).
   void *getGUIData() { return guiData; }
 
 private:
+  // Add object to current file stream and return the offset of the beginning of the object
+  Guint writeObject (Object *obj, Ref *ref, OutStream* outStr);
+  void writeDictionnary (Dict* dict, OutStream* outStr);
+  void writeStream (Stream* str, OutStream* outStr);
+  void writeRawStream (Stream* str, OutStream* outStr);
+  void writeTrailer (Guint uxrefOffset, int uxrefSize, OutStream* outStr, GBool incrUpdate);
+  void writeString (GooString* s, OutStream* outStr);
+  void saveIncrementalUpdate (OutStream* outStr);
+  void saveCompleteRewrite (OutStream* outStr);
+
 
   GBool setup(GooString *ownerPassword, GooString *userPassword);
   GBool checkFooter();

@@ -524,6 +524,7 @@ GBool XRef::readXRefStream(Stream *xrefStr, Guint *pos) {
       entries[i].offset = 0xffffffff;
       entries[i].type = xrefEntryFree;
       entries[i].obj.initNull ();
+      entries[i].updated = false;
     }
     size = newSize;
   }
@@ -619,6 +620,7 @@ GBool XRef::readXRefStreamSection(Stream *xrefStr, int *w, int first, int n) {
       entries[i].offset = 0xffffffff;
       entries[i].type = xrefEntryFree;
       entries[i].obj.initNull ();
+      entries[i].updated = false;
     }
     size = newSize;
   }
@@ -764,6 +766,7 @@ GBool XRef::constructXRef() {
 		    entries[i].offset = 0xffffffff;
 		    entries[i].type = xrefEntryFree;
 		    entries[i].obj.initNull ();
+        entries[i].updated = false;
 		  }
 		  size = newSize;
 		}
@@ -1006,6 +1009,7 @@ void XRef::add(int num, int gen, Guint offs, GBool used) {
   e->gen = gen;
   e->num = num;
   e->obj.initNull ();
+  e->updated = false;
   if (used) {
     e->type = xrefEntryUncompressed;
     e->offset = offs;
@@ -1021,6 +1025,7 @@ void XRef::setModifiedObject (Object* o, Ref r) {
     return;
   }
   o->copy(&entries[r.num].obj);
+  entries[r.num].updated = true;
 }
 
 Ref XRef::addIndirectObject (Object* o) {
@@ -1054,6 +1059,7 @@ Ref XRef::addIndirectObject (Object* o) {
 
   entries[newEntry].type = xrefEntryUncompressed;
   o->copy(&entries[newEntry].obj);
+  entries[newEntry].updated = true;
 
   Ref r;
   r.num = entries[newEntry].num;
@@ -1083,16 +1089,16 @@ void XRef::writeToFile(OutStream* outStr) {
   }
   //write the new xref
   int j;
-  outStr->printf(file,"xref\r\n");
+  outStr->printf("xref\r\n");
   for (int i=0; i<size; i++) {
     for(j=i; j<size; j++) { //look for consecutive entries
       if (j!=i && entries[j].num != entries[j-1].num+1) 
               break;
     }
-    outStr->printf(file,"%i %i\r\n", entries[i].num, j-i);
+    outStr->printf("%i %i\r\n", entries[i].num, j-i);
     for (int k=i; k<j; k++) {
       if(entries[k].gen > 65535) entries[k].gen = 65535; //cap generation number to 65535 (required by PDFReference)
-      outStr->printf(file,"%010i %05i %c\r\n", entries[k].offset, entries[k].gen, (entries[k].type==xrefEntryFree)?'f':'n');
+      outStr->printf("%010i %05i %c\r\n", entries[k].offset, entries[k].gen, (entries[k].type==xrefEntryFree)?'f':'n');
     }
     i = j-1;
   }

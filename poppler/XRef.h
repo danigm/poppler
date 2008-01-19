@@ -36,7 +36,8 @@ struct XRefEntry {
   int gen;
   int num;
   XRefEntryType type;
-  Object obj;
+  bool updated;
+  Object obj; //if this entry was updated, obj will contains the updated object
 };
 
 class XRef {
