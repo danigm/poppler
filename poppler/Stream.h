@@ -392,6 +392,10 @@ public:
   virtual Guint getStart() { return start; }
   virtual void moveStart(int delta);
 
+  //if needFree = true, the stream will delete buf when it is destroyed
+  //otherwise it will not touch it. Default value is false
+  virtual void setNeedFree (GBool val) { needFree = val; }
+
 private:
 
   char *buf;
