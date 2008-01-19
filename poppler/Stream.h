@@ -135,6 +135,70 @@ private:
   int ref;			// reference count
 };
 
+
+ //------------------------------------------------------------------------
+// OutStream
+//
+// This is the base class for all streams that output to a file
+//------------------------------------------------------------------------
+class OutStream {
+public:
+  // Constructor.
+  OutStream ();
+
+  // Desctructor.
+  virtual ~OutStream ();
+
+  // Reference counting.
+  int incRef() { return ++ref; }
+  int decRef() { return --ref; }
+
+  // Reset stream to beginning
+  virtual void reset() = 0;
+
+  // Close the stream
+  virtual void close() = 0;
+
+  // Return position in stream
+  virtual int getPos() = 0;
+
+  // Put a char in the stream
+  virtual void put (char c) = 0;
+
+  //FIXME
+  // Printf-like function                         2,3 because the first arg is class instance ?
+  virtual void printf (const char *format, ...) = 0 ; //__attribute__((format(printf, 2,3))) = 0;
+
+private:
+  int ref; // reference count
+    
+};
+
+//------------------------------------------------------------------------
+// FileOutStream
+//------------------------------------------------------------------------
+class FileOutStream : public OutStream {
+public:
+  FileOutStream (FILE* fa, Guint startA);
+
+  virtual ~FileOutStream ();
+
+  virtual void reset();
+
+  virtual void close();
+
+  virtual int getPos();
+
+  virtual void put (char c);
+
+  virtual void printf (const char *format, ...);
+private:
+  FILE *f;
+  Guint start;
+
+};
+
+
 //------------------------------------------------------------------------
 // BaseStream
 //

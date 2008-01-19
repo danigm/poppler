@@ -283,6 +283,61 @@ Stream *Stream::makeFilter(char *name, Stream *str, Object *params) {
 }
 
 //------------------------------------------------------------------------
+// OutStream
+//------------------------------------------------------------------------
+OutStream::OutStream ()
+{
+  ref = 1;
+}
+
+OutStream::~OutStream ()
+{
+}
+
+//------------------------------------------------------------------------
+// FileOutStream
+//------------------------------------------------------------------------
+FileOutStream::FileOutStream (FILE* fa, Guint startA)
+{
+  f = fa;
+  start = startA;
+}
+
+FileOutStream::~FileOutStream ()
+{
+  close ();
+}
+
+void FileOutStream::reset ()
+{
+  fseek(f, start, SEEK_SET);
+}
+
+void FileOutStream::close ()
+{
+
+}
+
+int FileOutStream::getPos ()
+{
+  return ftell(f);
+}
+
+void FileOutStream::put (char c)
+{
+  fputc(c,f);
+}
+
+void FileOutStream::printf(const char *format, ...)
+{
+  va_list argptr;
+  va_start (argptr, format);
+  vfprintf(f, format, argptr);
+  va_end (argptr);
+}
+
+
+//------------------------------------------------------------------------
 // BaseStream
 //------------------------------------------------------------------------
 
