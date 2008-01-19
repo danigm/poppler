@@ -33,6 +33,9 @@ perf_test =				\
 
 endif
 
+pdf_fullrewrite = \
+	pdf-fullrewrite
+
 INCLUDES =					\
 	-I$(top_srcdir)				\
 	-I$(top_srcdir)/poppler			\
@@ -42,7 +45,7 @@ INCLUDES =					\
 	$(GTK_TEST_CFLAGS)			\
 	$(FONTCONFIG_CFLAGS)
 
-noinst_PROGRAMS = $(gtk_splash_test) $(gtk_cairo_test) $(pdf_inspector) $(perf_test)
+noinst_PROGRAMS = $(gtk_splash_test) $(gtk_cairo_test) $(pdf_inspector) $(perf_test) $(pdf_fullrewrite)
 
 gtk_splash_test_SOURCES =			\
        gtk-splash-test.cc
@@ -78,6 +81,12 @@ perf_test_SOURCES =			\
 perf_test_LDADD =				\
 	$(top_builddir)/poppler/libpoppler.la	\
 	$(FREETYPE_LIBS)
+
+pdf_fullrewrite_SOURCES = \
+	pdf-fullrewrite.cc
+
+pdf_fullrewrite_LDADD = \
+	$(top_builddir)/poppler/libpoppler.la
 
 EXTRA_DIST =					\
 	pdf-operators.c
