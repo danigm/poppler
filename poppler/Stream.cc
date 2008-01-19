@@ -1340,10 +1340,21 @@ CCITTFaxStream::~CCITTFaxStream() {
   gfree(codingLine);
 }
 
+void CCITTFaxStream::unfilteredReset () {
+  str->reset();
+
+  row = 0;
+  nextLine2D = encoding < 0;
+  inputBits = 0;
+  a0i = 0;
+  outputBits = 0;
+  buf = EOF;
+}
+
 void CCITTFaxStream::reset() {
   short code1;
 
-  str->reset();
+  unfilteredReset();
 
   if (codingLine != NULL && refLine != NULL) {
     eof = gFalse;
@@ -1351,12 +1362,6 @@ void CCITTFaxStream::reset() {
   } else {
     eof = gTrue;
   }
-  row = 0;
-  nextLine2D = encoding < 0;
-  inputBits = 0;
-  a0i = 0;
-  outputBits = 0;
-  buf = EOF;
 
   // skip any initial zero bits and end-of-line marker, and get the 2D
   // encoding tag
@@ -2027,9 +2032,7 @@ DCTStream::~DCTStream() {
   delete str;
 }
 
-void DCTStream::reset() {
-  int i, j;
-
+void DCTStream::unfilteredReset() {
   str->reset();
 
   progressive = interleaved = gFalse;
@@ -2038,9 +2041,17 @@ void DCTStream::reset() {
   numQuantTables = 0;
   numDCHuffTables = 0;
   numACHuffTables = 0;
+  colorXform = 0;
   gotJFIFMarker = gFalse;
   gotAdobeMarker = gFalse;
   restartInterval = 0;
+}
+
+
+void DCTStream::reset() {
+  int i, j;
+
+  unfilteredReset();
 
   if (!readHeader()) {
     y = height;
@@ -4041,9 +4052,7 @@ FlateStream::~FlateStream() {
   delete str;
 }
 
-void FlateStream::reset() {
-  int cmf, flg;
-
+void FlateStream::unfilteredReset() {
   index = 0;
   remain = 0;
   codeBuf = 0;
@@ -4053,6 +4062,12 @@ void FlateStream::reset() {
   eof = gTrue;
 
   str->reset();
+}
+
+void FlateStream::reset() {
+  int cmf, flg;
+
+  unfilteredReset();
 
   // read header
   //~ need to look at window size?

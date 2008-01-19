@@ -87,6 +87,14 @@ public:
   // This is only used by StreamPredictor.
   virtual int getRawChar();
 
+  // Get next char directly from stream source, without filtering it
+  virtual int getUnfilteredChar () = 0;
+
+  // Resets the stream without reading anything (even not the headers)
+  // WARNING: Reading the stream with something else than getUnfilteredChar 
+  // may lead to unexcepted behaviour until you call reset ()
+  virtual void unfilteredReset () = 0;
+
   // Get next line from stream.
   virtual char *getLine(char *buf, int size);
 
@@ -247,6 +255,9 @@ public:
   virtual Dict *getDict() { return str->getDict(); }
   virtual Stream *getNextStream() { return str; }
 
+  virtual int getUnfilteredChar () { return str->getUnfilteredChar(); }
+  virtual void unfilteredReset () { str->unfilteredReset(); }
+
 protected:
 
   Stream *str;
@@ -353,6 +364,9 @@ public:
   virtual Guint getStart() { return start; }
   virtual void moveStart(int delta);
 
+  virtual int getUnfilteredChar () { return getChar(); }
+  virtual void unfilteredReset () { reset(); }
+
 private:
 
   GBool fillBuf();
@@ -396,6 +410,9 @@ public:
   //otherwise it will not touch it. Default value is false
   virtual void setNeedFree (GBool val) { needFree = val; }
 
+  virtual int getUnfilteredChar () { return getChar(); }
+  virtual void unfilteredReset () { reset (); } 
+
 private:
 
   char *buf;
@@ -431,6 +448,10 @@ public:
   virtual void setPos(Guint pos, int dir = 0);
   virtual Guint getStart();
   virtual void moveStart(int delta);
+
+  virtual int getUnfilteredChar () { return str->getUnfilteredChar(); }
+  virtual void unfilteredReset () { str->unfilteredReset(); }
+
 
 private:
 
@@ -580,6 +601,8 @@ public:
   virtual GooString *getPSFilter(int psLevel, char *indent);
   virtual GBool isBinary(GBool last = gTrue);
 
+  virtual void unfilteredReset ();
+
 private:
 
   int encoding;			// 'K' parameter
@@ -654,6 +677,8 @@ public:
   virtual GooString *getPSFilter(int psLevel, char *indent);
   virtual GBool isBinary(GBool last = gTrue);
   Stream *getRawStream() { return str; }
+
+  virtual void unfilteredReset();
 
 private:
 
@@ -759,6 +784,7 @@ public:
   virtual int getRawChar();
   virtual GooString *getPSFilter(int psLevel, char *indent);
   virtual GBool isBinary(GBool last = gTrue);
+  virtual void unfilteredReset ();
 
 private:
 
