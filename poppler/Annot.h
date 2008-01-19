@@ -111,16 +111,6 @@ class AnnotQuadrilaterals {
     AnnotQuadrilateral(double x1, double y1, double x2, double y2, double x3,
       double y3, double x4, double y4);
 
-    double getX1() const { return x1; }
-    double getY1() const { return y1; }
-    double getX2() const { return x2; }
-    double getY2() const { return y2; }
-    double getX3() const { return x3; }
-    double getY3() const { return y3; }
-    double getX4() const { return x4; }
-    double getY4() const { return y4; }
-
-  protected:
     double x1, y1, x2, y2, x3, y3, x4, y4;
   };
 
@@ -292,6 +282,102 @@ private:
   double *dash;
   int dashLength;
   double r, g, b;
+};
+
+//------------------------------------------------------------------------
+// AnnotIconFit
+//------------------------------------------------------------------------
+
+class AnnotIconFit {
+public:
+
+  enum AnnotIconFitScaleWhen {
+    scaleAlways,  // A
+    scaleBigger,  // B
+    scaleSmaller, // S
+    scaleNever    // N
+  };
+
+  enum AnnotIconFitScale {
+    scaleAnamorphic,  // A
+    scaleProportional // P
+  };
+
+  AnnotIconFit(Dict *dict);
+
+  AnnotIconFitScaleWhen getScaleWhen() { return scaleWhen; }
+  AnnotIconFitScale getScale() { return scale; }
+  double getLeft() { return left; }
+  double getBottom() { return bottom; }
+  bool getFullyBounds() { return fullyBounds; }
+
+protected:
+
+  AnnotIconFitScaleWhen scaleWhen;  // SW (Default A)
+  AnnotIconFitScale scale;          // S  (Default P)
+  double left;                      // A  (Default [0.5 0.5]
+  double bottom;                    // Only if scale is P
+  bool fullyBounds;                 // FB (Default false)
+};
+
+//------------------------------------------------------------------------
+// AnnotAppearance
+//------------------------------------------------------------------------
+
+class AnnotAppearance {
+public:
+
+  enum AnnotAppearanceType {
+    appearNormal,
+    appearRollover,
+    appearDown
+  };
+
+  AnnotAppearance(Dict *dict);
+};
+
+//------------------------------------------------------------------------
+// AnnotAppearanceCharacs
+//------------------------------------------------------------------------
+
+class AnnotAppearanceCharacs {
+public:
+
+  enum AnnotAppearanceCharacsTextPos {
+    captionNoIcon,    // 0
+    captionNoCaption, // 1
+    captionBelow,     // 2
+    captionAbove,     // 3
+    captionRight,     // 4
+    captionLeft,      // 5
+    captionOverlaid   // 6
+  };
+
+  AnnotAppearanceCharacs(Dict *dict);
+  ~AnnotAppearanceCharacs();
+
+  int getRotation() { return rotation; }
+  AnnotColor *getBorderColor() { return borderColor; }
+  AnnotColor *getBackColor() { return backColor; }
+  GooString *getNormalCaption() { return normalCaption; }
+  GooString *getRolloverCaption() { return rolloverCaption; }
+  GooString *getAlternateCaption() { return alternateCaption; }
+  AnnotIconFit *getIconFit() { return iconFit; }
+  AnnotAppearanceCharacsTextPos getPosition() { return position; }
+
+protected:
+
+  int rotation;                           // R  (Default 0)
+  AnnotColor *borderColor;                // BC
+  AnnotColor *backColor;                  // BG
+  GooString *normalCaption;               // CA
+  GooString *rolloverCaption;             // RC
+  GooString *alternateCaption;            // AC
+  // I
+  // RI
+  // IX
+  AnnotIconFit *iconFit;                  // IF
+  AnnotAppearanceCharacsTextPos position; // TP (Default 0)
 };
 
 //------------------------------------------------------------------------
@@ -708,6 +794,42 @@ protected:
   void initialize(XRef *xrefA, Catalog *catalog, Dict *dict);
   
   AnnotQuadrilaterals *quadrilaterals; // QuadPoints
+};
+
+//------------------------------------------------------------------------
+// AnnotWidget
+//------------------------------------------------------------------------
+
+class AnnotWidget: public Annot {
+public:
+
+  enum AnnotWidgetHighlightMode {
+    highlightModeNone,    // N
+    highlightModeInvert,  // I
+    highlightModeOutline, // O
+    highlightModePush     // P,T
+  };
+
+  AnnotWidget(XRef *xrefA, Dict *acroForm, Dict *dict, Catalog *catalog, Object *obj);
+  virtual ~AnnotWidget();
+
+  AnnotWidgetHighlightMode getMode() { return mode; }
+  AnnotAppearanceCharacs *getAppearCharacs() { return appearCharacs; }
+  Dict *getAction() { return action; }
+  Dict *getAdditionActions() { return additionActions; }
+  Dict *getParent() { return parent; }
+
+protected:
+
+  void initialize(XRef *xrefA, Catalog *catalog, Dict *dict);
+  
+  AnnotWidgetHighlightMode mode;          // H  (Default I)
+  AnnotAppearanceCharacs *appearCharacs;  // MK
+  Dict *action;                           // A
+  Dict *additionActions;                  // AA
+  // inherited  from Annot
+  // AnnotBorderBS border;                // BS
+  Dict *parent;                           // Parent
 };
 
 //------------------------------------------------------------------------

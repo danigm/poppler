@@ -227,49 +227,49 @@ AnnotQuadrilaterals::~AnnotQuadrilaterals() {
 
 double AnnotQuadrilaterals::getX1(int quadrilateral) {
   if (quadrilateral >= 0  && quadrilateral < quadrilateralsLength)
-    return quadrilaterals[quadrilateral]->getX1();
+    return quadrilaterals[quadrilateral]->x1;
   return 0;
 }
 
 double AnnotQuadrilaterals::getY1(int quadrilateral) {
   if (quadrilateral >= 0  && quadrilateral < quadrilateralsLength)
-    return quadrilaterals[quadrilateral]->getY1();
+    return quadrilaterals[quadrilateral]->y1;
   return 0;
 }
 
 double AnnotQuadrilaterals::getX2(int quadrilateral) {
   if (quadrilateral >= 0  && quadrilateral < quadrilateralsLength)
-    return quadrilaterals[quadrilateral]->getX2();
+    return quadrilaterals[quadrilateral]->x2;
   return 0;
 }
 
 double AnnotQuadrilaterals::getY2(int quadrilateral) {
   if (quadrilateral >= 0  && quadrilateral < quadrilateralsLength)
-    return quadrilaterals[quadrilateral]->getY2();
+    return quadrilaterals[quadrilateral]->y2;
   return 0;
 }
 
 double AnnotQuadrilaterals::getX3(int quadrilateral) {
   if (quadrilateral >= 0  && quadrilateral < quadrilateralsLength)
-    return quadrilaterals[quadrilateral]->getX3();
+    return quadrilaterals[quadrilateral]->x3;
   return 0;
 }
 
 double AnnotQuadrilaterals::getY3(int quadrilateral) {
   if (quadrilateral >= 0  && quadrilateral < quadrilateralsLength)
-    return quadrilaterals[quadrilateral]->getY3();
+    return quadrilaterals[quadrilateral]->y3;
   return 0;
 }
 
 double AnnotQuadrilaterals::getX4(int quadrilateral) {
   if (quadrilateral >= 0  && quadrilateral < quadrilateralsLength)
-    return quadrilaterals[quadrilateral]->getX4();
+    return quadrilaterals[quadrilateral]->x4;
   return 0;
 }
 
 double AnnotQuadrilaterals::getY4(int quadrilateral) {
   if (quadrilateral >= 0  && quadrilateral < quadrilateralsLength)
-    return quadrilaterals[quadrilateral]->getY4();
+    return quadrilaterals[quadrilateral]->y4;
   return 0;
 }
 
@@ -522,6 +522,155 @@ AnnotBorderStyle::~AnnotBorderStyle() {
   if (dash) {
     gfree(dash);
   }
+}
+
+//------------------------------------------------------------------------
+// AnnotIconFit
+//------------------------------------------------------------------------
+
+AnnotIconFit::AnnotIconFit(Dict* dict) {
+  Object obj1;
+
+  if (dict->lookup("SW", &obj1)->isName()) {
+    GooString *scaleName = new GooString(obj1.getName());
+
+    if(!scaleName->cmp("B")) {
+      scaleWhen = scaleBigger;
+    } else if(!scaleName->cmp("S")) {
+      scaleWhen = scaleSmaller;
+    } else if(!scaleName->cmp("N")) {
+      scaleWhen = scaleNever;
+    } else {
+      scaleWhen = scaleAlways;
+    }
+    delete scaleName;
+  } else {
+    scaleWhen = scaleAlways;
+  }
+  obj1.free();
+
+  if (dict->lookup("S", &obj1)->isName()) {
+    GooString *scaleName = new GooString(obj1.getName());
+
+    if(!scaleName->cmp("A")) {
+      scale = scaleAnamorphic;
+    } else {
+      scale = scaleProportional;
+    }
+    delete scaleName;
+  } else {
+    scale = scaleProportional;
+  }
+  obj1.free();
+
+  if (dict->lookup("A", &obj1)->isArray() && obj1.arrayGetLength() == 2) {
+    Object obj2;
+    (obj1.arrayGet(0, &obj2)->isNum() ? left = obj2.getNum() : left = 0);
+    obj2.free();
+    (obj1.arrayGet(1, &obj2)->isNum() ? bottom = obj2.getNum() : bottom = 0);
+    obj2.free();
+
+    if (left < 0 || left > 1)
+      left = 0.5;
+
+    if (bottom < 0 || bottom > 1)
+      bottom = 0.5;
+
+  } else {
+    left = bottom = 0.5;
+  }
+  obj1.free();
+
+  if (dict->lookup("FB", &obj1)->isBool()) {
+    fullyBounds = obj1.getBool();
+  } else {
+    fullyBounds = gFalse;
+  }
+  obj1.free();
+}
+
+//------------------------------------------------------------------------
+// AnnotAppearanceCharacs
+//------------------------------------------------------------------------
+
+AnnotAppearanceCharacs::AnnotAppearanceCharacs(Dict *dict) {
+  Object obj1;
+
+  if (dict->lookup("R", &obj1)->isInt()) {
+    rotation = obj1.getInt();
+  } else {
+    rotation = 0;
+  }
+  obj1.free();
+
+  if (dict->lookup("BC", &obj1)->isArray()) {
+    borderColor = new AnnotColor(obj1.getArray());
+  } else {
+    borderColor = NULL;
+  }
+  obj1.free();
+
+  if (dict->lookup("BG", &obj1)->isArray()) {
+    backColor = new AnnotColor(obj1.getArray());
+  } else {
+    backColor = NULL;
+  }
+  obj1.free();
+
+  if (dict->lookup("CA", &obj1)->isName()) {
+    normalCaption = new GooString(obj1.getName());
+  } else {
+    normalCaption = NULL;
+  }
+  obj1.free();
+
+  if (dict->lookup("RC", &obj1)->isName()) {
+    rolloverCaption = new GooString(obj1.getName());
+  } else {
+    rolloverCaption = NULL;
+  }
+  obj1.free();
+
+  if (dict->lookup("AC", &obj1)->isName()) {
+    alternateCaption = new GooString(obj1.getName());
+  } else {
+    alternateCaption = NULL;
+  }
+  obj1.free();
+
+  if (dict->lookup("IF", &obj1)->isDict()) {
+    iconFit = new AnnotIconFit(obj1.getDict());
+  } else {
+    iconFit = NULL;
+  }
+  obj1.free();
+
+  if (dict->lookup("TP", &obj1)->isInt()) {
+    position = (AnnotAppearanceCharacsTextPos) obj1.getInt();
+  } else {
+    position = captionNoIcon;
+  }
+  obj1.free();
+}
+
+AnnotAppearanceCharacs::~AnnotAppearanceCharacs() {
+  if (borderColor)
+    delete borderColor;
+
+  if (backColor)
+    delete backColor;
+
+  if (normalCaption)
+    delete normalCaption;
+
+  if (rolloverCaption)
+    delete rolloverCaption;
+
+  if (alternateCaption)
+    delete alternateCaption;
+
+  if (iconFit)
+    delete iconFit;
 }
 
 //------------------------------------------------------------------------
@@ -2616,6 +2765,80 @@ AnnotTextMarkup::~AnnotTextMarkup() {
 }
 
 //------------------------------------------------------------------------
+// AnnotWidget
+//------------------------------------------------------------------------
+
+AnnotWidget::AnnotWidget(XRef *xrefA, Dict *acroForm, Dict *dict, Catalog *catalog, Object *obj) :
+    Annot(xrefA, acroForm, dict, catalog, obj) {
+  type = typeWidget;
+  initialize(xrefA, catalog, dict);
+}
+
+AnnotWidget::~AnnotWidget() {
+  if (appearCharacs)
+    delete appearCharacs;
+  
+  if (action)
+    delete action;
+    
+  if (additionActions)
+    delete additionActions;
+    
+  if (parent)
+    delete parent;
+}
+
+void AnnotWidget::initialize(XRef *xrefA, Catalog *catalog, Dict *dict) {
+  Object obj1;
+
+  if(dict->lookup("H", &obj1)->isName()) {
+    GooString *modeName = new GooString(obj1.getName());
+
+    if(modeName->cmp("N")) {
+      mode = highlightModeNone;
+    } else if(modeName->cmp("O")) {
+      mode = highlightModeOutline;
+    } else if(modeName->cmp("P") || modeName->cmp("T")) {
+      mode = highlightModePush;
+    } else {
+      mode = highlightModeInvert;
+    }
+    delete modeName;
+  } else {
+    mode = highlightModeInvert;
+  }
+  obj1.free();
+
+  if(dict->lookup("MK", &obj1)->isDict()) {
+    appearCharacs = new AnnotAppearanceCharacs(obj1.getDict());
+  } else {
+    appearCharacs = NULL;
+  }
+  obj1.free();
+
+  if(dict->lookup("A", &obj1)->isDict()) {
+    action = NULL;
+  } else {
+    action = NULL;
+  }
+  obj1.free();
+
+  if(dict->lookup("AA", &obj1)->isDict()) {
+    additionActions = NULL;
+  } else {
+    additionActions = NULL;
+  }
+  obj1.free();
+
+  if(dict->lookup("Parent", &obj1)->isDict()) {
+    parent = NULL;
+  } else {
+    parent = NULL;
+  }
+  obj1.free();
+}
+
+//------------------------------------------------------------------------
 // Annots
 //------------------------------------------------------------------------
 
@@ -2671,7 +2894,7 @@ Annot *Annots::createAnnot(XRef *xref, Dict *acroForm, Dict* dict, Catalog *cata
     } else if (!typeName->cmp("FreeText")) {
       annot = new AnnotFreeText(xref, acroForm, dict, catalog, obj);
     } else if (!typeName->cmp("Line")) {
-      annot = new Annot(xref, acroForm, dict, catalog, obj);
+      annot = new AnnotLine(xref, acroForm, dict, catalog, obj);
     } else if (!typeName->cmp("Square")) {
       annot = new Annot(xref, acroForm, dict, catalog, obj);
     } else if (!typeName->cmp("Circle")) {
@@ -2701,7 +2924,7 @@ Annot *Annots::createAnnot(XRef *xref, Dict *acroForm, Dict* dict, Catalog *cata
     } else if (!typeName->cmp("Movie")) {
       annot = new Annot(xref, acroForm, dict, catalog, obj);
     } else if (!typeName->cmp("Widget")) {
-      annot = new Annot(xref, acroForm, dict, catalog, obj);
+      annot = new AnnotWidget(xref, acroForm, dict, catalog, obj);
     } else if (!typeName->cmp("Screen")) {
       annot = new Annot(xref, acroForm, dict, catalog, obj);
     } else if (!typeName->cmp("PrinterMark")) {
