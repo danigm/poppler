@@ -62,24 +62,24 @@
 #define bezierCircle 0.55228475
 
 AnnotLineEndingStyle parseAnnotLineEndingStyle(GooString *string) {
-  if(string != NULL) {
-    if(string->cmp("Square")) {
+  if (string != NULL) {
+    if (string->cmp("Square")) {
       return annotLineEndingSquare;
-    } else if(string->cmp("Circle")) {
+    } else if (string->cmp("Circle")) {
       return annotLineEndingCircle;
-    } else if(string->cmp("Diamond")) {
+    } else if (string->cmp("Diamond")) {
       return annotLineEndingDiamond;
-    } else if(string->cmp("OpenArrow")) {
+    } else if (string->cmp("OpenArrow")) {
       return annotLineEndingOpenArrow;
-    } else if(string->cmp("ClosedArrow")) {
+    } else if (string->cmp("ClosedArrow")) {
       return annotLineEndingClosedArrow;
-    } else if(string->cmp("Butt")) {
+    } else if (string->cmp("Butt")) {
       return annotLineEndingButt;
-    } else if(string->cmp("ROpenArrow")) {
+    } else if (string->cmp("ROpenArrow")) {
       return annotLineEndingROpenArrow;
-    } else if(string->cmp("RClosedArrow")) {
+    } else if (string->cmp("RClosedArrow")) {
       return annotLineEndingRClosedArrow;
-    } else if(string->cmp("Slash")) {
+    } else if (string->cmp("Slash")) {
       return annotLineEndingSlash;
     } else {
       return annotLineEndingNone;
@@ -96,7 +96,7 @@ AnnotExternalDataType parseAnnotExternalData(Dict* dict) {
   if (dict->lookup("Subtype", &obj1)->isName()) {
     GooString *typeName = new GooString(obj1.getName());
 
-    if(!typeName->cmp("Markup3D")) {
+    if (!typeName->cmp("Markup3D")) {
       type = annotExternalDataMarkup3D;
     } else {
       type = annotExternalDataMarkupUnknown;
@@ -120,7 +120,7 @@ AnnotBorderEffect::AnnotBorderEffect(Dict *dict) {
   if (dict->lookup("S", &obj1)->isName()) {
     GooString *effectName = new GooString(obj1.getName());
 
-    if(!effectName->cmp("C"))
+    if (!effectName->cmp("C"))
       effectType = borderEffectCloudy;
     else
       effectType = borderEffectNoEffect;
@@ -160,11 +160,11 @@ AnnotCalloutMultiLine::AnnotCalloutMultiLine(double x1, double y1, double x2,
 }
 
 //------------------------------------------------------------------------
-// AnnotQuadPoints
+// AnnotQuadrilateral
 //------------------------------------------------------------------------
 
-AnnotQuadPoints::AnnotQuadPoints(double x1, double y1, double x2, double y2,
-    double x3, double y3, double x4, double y4) {
+AnnotQuadrilateral::AnnotQuadrilateral(double x1, double y1,
+        double x2, double y2, double x3, double y3, double x4, double y4) {
   this->x1 = x1;
   this->y1 = y1;
   this->x2 = x2;
@@ -222,27 +222,27 @@ AnnotBorderArray::AnnotBorderArray(Array *array) {
   if (arrayLength >= 3) {
     // implementation note 81 in Appendix H.
 
-    if(array->get(0, &obj1)->isNum())
+    if (array->get(0, &obj1)->isNum())
       horizontalCorner = obj1.getNum();
     obj1.free();
 
-    if(array->get(1, &obj1)->isNum())
+    if (array->get(1, &obj1)->isNum())
       verticalCorner = obj1.getNum();
     obj1.free();
 
-    if(array->get(2, &obj1)->isNum())
+    if (array->get(2, &obj1)->isNum())
       width = obj1.getNum();
     obj1.free();
 
     // TODO: check not all zero ? (Line Dash Pattern Page 217 PDF 8.1)
-    if(arrayLength > 3) {
+    if (arrayLength > 3) {
       GBool correct = gTrue;
       int tempLength = array->getLength() - 3;
       double *tempDash = (double *) gmallocn (tempLength, sizeof (double));
 
       for(int i = 0; i < tempLength && i < DASH_LIMIT && correct; i++) {
 
-        if(array->get((i + 3), &obj1)->isNum()) {
+        if (array->get((i + 3), &obj1)->isNum()) {
           tempDash[i] = obj1.getNum();
 
           if (tempDash[i] < 0)
@@ -288,15 +288,15 @@ AnnotBorderBS::AnnotBorderBS(Dict *dict) {
 
     width = obj1.getNum();
 
-    if(!styleName->cmp("S")) {
+    if (!styleName->cmp("S")) {
       style = borderSolid;
-    } else if(!styleName->cmp("D")) {
+    } else if (!styleName->cmp("D")) {
       style = borderDashed;
-    } else if(!styleName->cmp("B")) {
+    } else if (!styleName->cmp("B")) {
       style = borderBeveled;
-    } else if(!styleName->cmp("I")) {
+    } else if (!styleName->cmp("I")) {
       style = borderInset;
-    } else if(!styleName->cmp("U")) {
+    } else if (!styleName->cmp("U")) {
       style = borderUnderlined;
     } else {
       style = borderSolid;
@@ -317,10 +317,10 @@ AnnotBorderBS::AnnotBorderBS(Dict *dict) {
     for(int i = 0; i < tempLength && correct; i++) {
       Object obj2;
 
-      if(obj1.arrayGet(i, &obj2)->isNum()) {
+      if (obj1.arrayGet(i, &obj2)->isNum()) {
         tempDash[i] = obj2.getNum();
 
-        if(tempDash[i] < 0)
+        if (tempDash[i] < 0)
           correct = gFalse;
       } else {
         correct = gFalse;
@@ -364,7 +364,7 @@ AnnotColor::AnnotColor(Array *array) {
     for(int i = 0; i < length; i++) {  
       Object obj1;
 
-      if(array->get(i, &obj1)->isNum()) {
+      if (array->get(i, &obj1)->isNum()) {
         values[i] = obj1.getNum();
 
         if (values[i] < 0 || values[i] > 1)
@@ -382,13 +382,13 @@ AnnotColor::AnnotColorSpace AnnotColor::getSpace() const {
 }
 
 double AnnotColor::getValue(int i) const {
-  if(i >= 0 && i < length) 
+  if (i >= 0 && i < length) 
     return values[i];
   return 0;
 }
 
 AnnotColor::~AnnotColor() {
-  if(values)
+  if (values)
     gfree (values);
 }
 
@@ -653,7 +653,7 @@ Annot::~Annot() {
   if (pageDict)
     delete pageDict;
 
-  if(name)
+  if (name)
     delete name;
 
   if (modified)
@@ -661,7 +661,7 @@ Annot::~Annot() {
 
   appearance.free();
 
-  if(appearState)
+  if (appearState)
     delete appearState;
 
   if (border)
@@ -1880,14 +1880,14 @@ AnnotPopup::~AnnotPopup() {
 void AnnotPopup::initialize(XRef *xrefA, Dict *acroForm, Dict *dict, Catalog *catalog) {
   Object obj1;
   /*
-  if(dict->lookup("Parent", &obj1)->isDict()) {
+  if (dict->lookup("Parent", &obj1)->isDict()) {
     parent = NULL;
   } else {
     parent = NULL;
   }
   obj1.free();
   */
-  if(dict->lookup("Open", &obj1)->isBool()) {
+  if (dict->lookup("Open", &obj1)->isBool()) {
     open = obj1.getBool();
   } else {
     open = gFalse;
@@ -1968,9 +1968,9 @@ void AnnotMarkup::initialize(XRef *xrefA, Dict *acroForm, Dict *dict, Catalog *c
   if (dict->lookup("RT", &obj1)->isName()) {
     GooString *replyName = new GooString(obj1.getName());
 
-    if(!replyName->cmp("R")) {
+    if (!replyName->cmp("R")) {
       replyTo = replyTypeR;
-    } else if(!replyName->cmp("Group")) {
+    } else if (!replyName->cmp("Group")) {
       replyTo = replyTypeGroup;
     } else {
       replyTo = replyTypeR;
@@ -2002,7 +2002,7 @@ AnnotText::AnnotText(XRef *xrefA, Dict *acroForm, Dict *dict, Catalog *catalog, 
 }
 
 void AnnotText::setModified(GooString *date) {
-  if(date) {
+  if (date) {
     delete modified;
     modified = new GooString(date);
   }
@@ -2020,17 +2020,17 @@ void AnnotText::initialize(XRef *xrefA, Catalog *catalog, Dict *dict) {
   if (dict->lookup("Name", &obj1)->isName()) {
     GooString *iconName = new GooString(obj1.getName());
 
-    if(!iconName->cmp("Comment")) {
+    if (!iconName->cmp("Comment")) {
       icon = iconComment;
-    } else if(!iconName->cmp("Key")) {
+    } else if (!iconName->cmp("Key")) {
       icon = iconKey;
-    } else if(!iconName->cmp("Help")) {
+    } else if (!iconName->cmp("Help")) {
       icon = iconHelp;
-    } else if(!iconName->cmp("NewParagraph")) {
+    } else if (!iconName->cmp("NewParagraph")) {
       icon = iconNewParagraph;
-    } else if(!iconName->cmp("Paragraph")) {
+    } else if (!iconName->cmp("Paragraph")) {
       icon = iconParagraph;
-    } else if(!iconName->cmp("Insert")) {
+    } else if (!iconName->cmp("Insert")) {
       icon = iconInsert;
     } else {
       icon = iconNote;
@@ -2048,19 +2048,19 @@ void AnnotText::initialize(XRef *xrefA, Catalog *catalog, Dict *dict) {
     if (dict->lookup("State", &obj2)->isString()) {
       GooString *stateName = obj2.getString();
 
-      if(!stateName->cmp("Marked")) {
+      if (!stateName->cmp("Marked")) {
         state = stateMarked;
-      } else if(!stateName->cmp("Unmarked")) {
+      } else if (!stateName->cmp("Unmarked")) {
         state = stateUnmarked;
-      } else if(!stateName->cmp("Accepted")) {
+      } else if (!stateName->cmp("Accepted")) {
         state = stateAccepted;
-      } else if(!stateName->cmp("Rejected")) {
+      } else if (!stateName->cmp("Rejected")) {
         state = stateRejected;
-      } else if(!stateName->cmp("Cancelled")) {
+      } else if (!stateName->cmp("Cancelled")) {
         state = stateCancelled;
-      } else if(!stateName->cmp("Completed")) {
+      } else if (!stateName->cmp("Completed")) {
         state = stateCompleted;
-      } else if(!stateName->cmp("None")) {
+      } else if (!stateName->cmp("None")) {
         state = stateNone;
       } else {
         state = stateUnknown;
@@ -2072,7 +2072,7 @@ void AnnotText::initialize(XRef *xrefA, Catalog *catalog, Dict *dict) {
     }
     obj2.free();
 
-    if(!modelName->cmp("Marked")) {
+    if (!modelName->cmp("Marked")) {
       switch (state) {
         case stateUnknown:
           state = stateMarked;
@@ -2087,7 +2087,7 @@ void AnnotText::initialize(XRef *xrefA, Catalog *catalog, Dict *dict) {
         default:
           break;
       }
-    } else if(!modelName->cmp("Review")) {
+    } else if (!modelName->cmp("Review")) {
       switch (state) {
         case stateUnknown:
           state = stateNone;
@@ -2129,7 +2129,7 @@ AnnotLink::~AnnotLink() {
   if (uriAction)
     delete uriAction;
   */
-  if(quadrilaterals) {
+  if (quadrilaterals) {
     for(int i = 0; i < quadrilateralsLength; i++)
       delete quadrilaterals[i];
 
@@ -2179,45 +2179,67 @@ void AnnotLink::initialize(XRef *xrefA, Catalog *catalog, Dict *dict) {
    * QuadPoints should be ignored if any coordinate in the array lies outside
    * the region specified by Rect.
    */
-  if(dict->lookup("QuadPoints", &obj1)->isArray()) {
-    quadrilateralsLength = obj1.arrayGetLength();
-    if((quadrilateralsLength % 8) == 0) {
-      Object obj2;
-
-      quadrilaterals = (AnnotQuadPoints **) gmallocn
-        ((quadrilateralsLength / 8), sizeof(AnnotQuadPoints *));
-      for(int i = 0; i < quadrilateralsLength; i += 8) {
-        double x1, y1, x2, y2, x3, y3, x4, y4;
-
-        (obj1.arrayGet(i, &obj2)->isNum() ? x1 = obj2.getNum() : x1 = 0);
-        obj2.free();
-        (obj1.arrayGet((i + 1), &obj2)->isNum() ? y1 = obj2.getNum() : y1 = 0);
-        obj2.free();
-        (obj1.arrayGet((i + 2), &obj2)->isNum() ? x2 = obj2.getNum() : x2 = 0);
-        obj2.free();
-        (obj1.arrayGet((i + 3), &obj2)->isNum() ? y2 = obj2.getNum() : y2 = 0);
-        obj2.free();
-        (obj1.arrayGet((i + 4), &obj2)->isNum() ? x3 = obj2.getNum() : x3 = 0);
-        obj2.free();
-        (obj1.arrayGet((i + 5), &obj2)->isNum() ? y3 = obj2.getNum() : y3 = 0);
-        obj2.free();
-        (obj1.arrayGet((i + 6), &obj2)->isNum() ? x4 = obj2.getNum() : x4 = 0);
-        obj2.free();
-        (obj1.arrayGet((i + 7), &obj2)->isNum() ? y4 = obj2.getNum() : y4 = 0);
-        obj2.free();
-
-        quadrilaterals[i / 8] =
-          new AnnotQuadPoints(x1, y1, x2, y2, x3, y3, x4, y4);
-      }
-      quadrilateralsLength /= 8;
-    } else {
-      quadrilaterals = NULL;
-      quadrilateralsLength = 0;
-    }
+  if (dict->lookup("QuadPoints", &obj1)->isArray()) {
+    parseQuadPointsArray(obj1.getArray());
   } else {
     quadrilaterals = NULL;
   }
   obj1.free();
+}
+
+GBool AnnotLink::parseQuadPointsArray(Array *array) {
+  int arrayLength = array->getLength();
+  GBool correct = gTrue;
+  int quadsLength = 0, i = 0;
+  AnnotQuadrilateral **quads;
+  double *quadArray;
+
+  // default values
+  quadrilaterals = NULL;
+  quadrilateralsLength = 0;
+
+  if ((arrayLength % 8) != 0)
+    return gFalse;
+
+  quadsLength = arrayLength / 8;
+  quads = (AnnotQuadrilateral **) gmallocn
+      ((quadsLength), sizeof(AnnotQuadrilateral *));
+  quadArray = (double *) gmallocn (8, sizeof(double));
+
+  while (i < (quadsLength) && correct) {
+    for (int j = 0; j < 8 && correct; j++) {
+      Object obj;
+      if (array->get(i * 8 + j, &obj)->isNum()) {
+        quadArray[j] = obj.getNum();
+        if (quadArray[j] < rect->x1 || quadArray[j] > rect->x2 ||
+            quadArray[j] < rect->y1 || quadArray[j] < rect->y2)
+          correct = gFalse;
+      } else {
+          correct = gFalse;
+      }
+    }
+
+    if (correct)
+      quads[i] = new AnnotQuadrilateral(quadArray[0], quadArray[1],
+                                        quadArray[2], quadArray[3],
+                                        quadArray[4], quadArray[5],
+                                        quadArray[6], quadArray[7]);
+    i++;
+  }
+
+  gfree (quadArray);
+
+  if (!correct) {
+    for (int j = 0; j < i; j++)
+      delete quads[j];
+    gfree (quads);
+    return gFalse;
+  }
+
+  quadrilateralsLength = quadsLength;
+  quadrilaterals = quads;
+
+  return gTrue;
 }
 
 //------------------------------------------------------------------------
@@ -2285,7 +2307,7 @@ void AnnotFreeText::initialize(XRef *xrefA, Catalog *catalog, Dict *dict) {
     (obj1.arrayGet(3, &obj2)->isNum() ? y2 = obj2.getNum() : y2 = 0);
     obj2.free();
 
-    if(obj1.arrayGetLength() == 6) {
+    if (obj1.arrayGetLength() == 6) {
       double x3, y3;
       (obj1.arrayGet(4, &obj2)->isNum() ? x3 = obj2.getNum() : x3 = 0);
       obj2.free();
@@ -2424,51 +2446,51 @@ Annot *Annots::createAnnot(XRef *xref, Dict *acroForm, Dict* dict, Catalog *cata
 
     if (!typeName->cmp("Text")) {
       annot = new AnnotText(xref, acroForm, dict, catalog, obj);
-    } else if(!typeName->cmp("Link")) {
+    } else if (!typeName->cmp("Link")) {
       annot = new AnnotLink(xref, acroForm, dict, catalog, obj);
-    } else if(!typeName->cmp("FreeText")) {
+    } else if (!typeName->cmp("FreeText")) {
       annot = new AnnotFreeText(xref, acroForm, dict, catalog, obj);
-    } else if(!typeName->cmp("Line")) {
+    } else if (!typeName->cmp("Line")) {
       annot = new Annot(xref, acroForm, dict, catalog, obj);
-    } else if(!typeName->cmp("Square")) {
+    } else if (!typeName->cmp("Square")) {
       annot = new Annot(xref, acroForm, dict, catalog, obj);
-    } else if(!typeName->cmp("Circle")) {
+    } else if (!typeName->cmp("Circle")) {
       annot = new Annot(xref, acroForm, dict, catalog, obj);
-    } else if(!typeName->cmp("Polygon")) {
+    } else if (!typeName->cmp("Polygon")) {
       annot = new Annot(xref, acroForm, dict, catalog, obj);
-    } else if(!typeName->cmp("PolyLine")) {
+    } else if (!typeName->cmp("PolyLine")) {
       annot = new Annot(xref, acroForm, dict, catalog, obj);
-    } else if(!typeName->cmp("Highlight")) {
+    } else if (!typeName->cmp("Highlight")) {
       annot = new Annot(xref, acroForm, dict, catalog, obj);
-    } else if(!typeName->cmp("Underline")) {
+    } else if (!typeName->cmp("Underline")) {
       annot = new Annot(xref, acroForm, dict, catalog, obj);
-    } else if(!typeName->cmp("Squiggly")) {
+    } else if (!typeName->cmp("Squiggly")) {
       annot = new Annot(xref, acroForm, dict, catalog, obj);
-    } else if(!typeName->cmp("StrikeOut")) {
+    } else if (!typeName->cmp("StrikeOut")) {
       annot = new Annot(xref, acroForm, dict, catalog, obj);
-    } else if(!typeName->cmp("Stamp")) {
+    } else if (!typeName->cmp("Stamp")) {
       annot = new Annot(xref, acroForm, dict, catalog, obj);
-    } else if(!typeName->cmp("Caret")) {
+    } else if (!typeName->cmp("Caret")) {
       annot = new Annot(xref, acroForm, dict, catalog, obj);
-    } else if(!typeName->cmp("Ink")) {
+    } else if (!typeName->cmp("Ink")) {
       annot = new Annot(xref, acroForm, dict, catalog, obj);
-    } else if(!typeName->cmp("FileAttachment")) {
+    } else if (!typeName->cmp("FileAttachment")) {
       annot = new Annot(xref, acroForm, dict, catalog, obj);
-    } else if(!typeName->cmp("Sound")) {
+    } else if (!typeName->cmp("Sound")) {
       annot = new Annot(xref, acroForm, dict, catalog, obj);
-    } else if(!typeName->cmp("Movie")) {
+    } else if (!typeName->cmp("Movie")) {
       annot = new Annot(xref, acroForm, dict, catalog, obj);
-    } else if(!typeName->cmp("Widget")) {
+    } else if (!typeName->cmp("Widget")) {
       annot = new Annot(xref, acroForm, dict, catalog, obj);
-    } else if(!typeName->cmp("Screen")) {
+    } else if (!typeName->cmp("Screen")) {
       annot = new Annot(xref, acroForm, dict, catalog, obj);
-    } else if(!typeName->cmp("PrinterMark")) {
+    } else if (!typeName->cmp("PrinterMark")) {
       annot = new Annot(xref, acroForm, dict, catalog, obj);
-    } else if(!typeName->cmp("TrapNet")) {
+    } else if (!typeName->cmp("TrapNet")) {
       annot = new Annot(xref, acroForm, dict, catalog, obj);
-    } else if(!typeName->cmp("Watermark")) {
+    } else if (!typeName->cmp("Watermark")) {
       annot = new Annot(xref, acroForm, dict, catalog, obj);
-    } else if(!typeName->cmp("3D")) {
+    } else if (!typeName->cmp("3D")) {
       annot = new Annot(xref, acroForm, dict, catalog, obj);
     } else {
       annot = new Annot(xref, acroForm, dict, catalog, obj);

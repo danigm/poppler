@@ -102,13 +102,13 @@ private:
 };
 
 //------------------------------------------------------------------------
-// AnnotQuadPoints
+// AnnotQuadrilateral
 //------------------------------------------------------------------------
 
-class AnnotQuadPoints {
+class AnnotQuadrilateral {
 public:
-  
-  AnnotQuadPoints(double x1, double y1, double x2, double y2, double x3,
+
+  AnnotQuadrilateral(double x1, double y1, double x2, double y2, double x3,
       double y3, double x4, double y4);
 
   double getX1() const { return x1; }
@@ -546,19 +546,20 @@ public:
   // getDest
   AnnotLinkEffect getLinkEffect() const { return linkEffect; }
   Dict *getUriAction() const { return uriAction; }
-  AnnotQuadPoints **getQuadrilaterals() const { return quadrilaterals; }
+  AnnotQuadrilateral **getQuadrilaterals() const { return quadrilaterals; }
   int getQuadrilateralsLength() const { return quadrilateralsLength; }
 
 protected:
 
   void initialize(XRef *xrefA, Catalog *catalog, Dict *dict);
+  GBool parseQuadPointsArray(Array *array);
 
-  Dict *actionDict;                 // A
+  Dict *actionDict;                    // A
   //Dest
-  AnnotLinkEffect linkEffect;       // H          (Default I)
-  Dict *uriAction;                  // PA
+  AnnotLinkEffect linkEffect;          // H          (Default I)
+  Dict *uriAction;                     // PA
 
-  AnnotQuadPoints **quadrilaterals; // QuadPoints
+  AnnotQuadrilateral **quadrilaterals; // QuadPoints
   int quadrilateralsLength;
 };
 
