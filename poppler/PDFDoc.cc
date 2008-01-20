@@ -439,13 +439,20 @@ GBool PDFDoc::isLinearized() {
 GBool PDFDoc::saveAs(GooString *name, PDFWriteMode mode) {
   FILE *f;
   OutStream *outStr;
+  GBool res;
 
   if (!(f = fopen(name->getCString(), "wb"))) {
     error(-1, "Couldn't open file '%s'", name->getCString());
     return gFalse;
   }
   outStr = new FileOutStream(f,0);
+  res = saveAs(outStr, mode);
+  delete outStr;
+  fclose(f);
+  return res;
+}
 
+GBool PDFDoc::saveAs(OutStream *outStr, PDFWriteMode mode) {
   if (mode == writeForceRewrite) {
     saveCompleteRewrite(outStr);
   } else if (mode == writeForceIncremental) {
@@ -472,8 +479,6 @@ GBool PDFDoc::saveAs(GooString *name, PDFWriteMode mode) {
     }
   }
 
-  delete outStr;
-  fclose(f);
   return gTrue;
 }
 

@@ -176,6 +176,8 @@ public:
 
   // Save this file with another name.
   GBool saveAs(GooString *name, PDFWriteMode mode=writeStandard);
+  // Save this file in the given output stream.
+  GBool saveAs(OutStream *outStr, PDFWriteMode mode=writeStandard);
 
   // Return a pointer to the GUI (XPDFCore or WinPDFCore object).
   void *getGUIData() { return guiData; }
