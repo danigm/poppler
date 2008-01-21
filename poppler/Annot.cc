@@ -63,23 +63,23 @@
 
 AnnotLineEndingStyle parseAnnotLineEndingStyle(GooString *string) {
   if (string != NULL) {
-    if (string->cmp("Square")) {
+    if (!string->cmp("Square")) {
       return annotLineEndingSquare;
-    } else if (string->cmp("Circle")) {
+    } else if (!string->cmp("Circle")) {
       return annotLineEndingCircle;
-    } else if (string->cmp("Diamond")) {
+    } else if (!string->cmp("Diamond")) {
       return annotLineEndingDiamond;
-    } else if (string->cmp("OpenArrow")) {
+    } else if (!string->cmp("OpenArrow")) {
       return annotLineEndingOpenArrow;
-    } else if (string->cmp("ClosedArrow")) {
+    } else if (!string->cmp("ClosedArrow")) {
       return annotLineEndingClosedArrow;
-    } else if (string->cmp("Butt")) {
+    } else if (!string->cmp("Butt")) {
       return annotLineEndingButt;
-    } else if (string->cmp("ROpenArrow")) {
+    } else if (!string->cmp("ROpenArrow")) {
       return annotLineEndingROpenArrow;
-    } else if (string->cmp("RClosedArrow")) {
+    } else if (!string->cmp("RClosedArrow")) {
       return annotLineEndingRClosedArrow;
-    } else if (string->cmp("Slash")) {
+    } else if (!string->cmp("Slash")) {
       return annotLineEndingSlash;
     } else {
       return annotLineEndingNone;
@@ -2794,11 +2794,11 @@ void AnnotWidget::initialize(XRef *xrefA, Catalog *catalog, Dict *dict) {
   if(dict->lookup("H", &obj1)->isName()) {
     GooString *modeName = new GooString(obj1.getName());
 
-    if(modeName->cmp("N")) {
+    if(!modeName->cmp("N")) {
       mode = highlightModeNone;
-    } else if(modeName->cmp("O")) {
+    } else if(!modeName->cmp("O")) {
       mode = highlightModeOutline;
-    } else if(modeName->cmp("P") || modeName->cmp("T")) {
+    } else if(!modeName->cmp("P") || !modeName->cmp("T")) {
       mode = highlightModePush;
     } else {
       mode = highlightModeInvert;
