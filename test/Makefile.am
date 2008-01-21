@@ -89,4 +89,5 @@ pdf_fullrewrite_LDADD = \
 	$(top_builddir)/poppler/libpoppler.la
 
 EXTRA_DIST =					\
-	pdf-operators.c
+	pdf-operators.c				\
+	pdf-inspector.glade
