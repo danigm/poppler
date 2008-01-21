@@ -948,7 +948,7 @@ void Annot::generateFieldAppearance(Dict *field, Dict *annot, Dict *acroForm) {
   GBool modified;
 
   // must be a Widget annotation
-  if (type == typeWidget) {
+  if (type != typeWidget) {
     return;
   }
 
