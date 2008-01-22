@@ -47,6 +47,7 @@ namespace Poppler {
 
     class TextBoxData;
 
+    class PDFConverter;
     class PSConverter;
 
     /**
@@ -853,6 +854,13 @@ QString subject = m_doc->info("Subject");
 	PSConverter *psConverter() const;
 	
 	/**
+	  Gets a new PDF converter for this document.
+
+	  The caller gets the ownership of the returned converter.
+	 */
+	PDFConverter *pdfConverter() const;
+	
+	/**
 	  Gets the metadata stream contents
 	*/
 	QString metadata() const;
@@ -871,7 +879,47 @@ QString subject = m_doc->info("Subject");
 	static Document *checkDocument(DocumentData *doc);
     };
     
-    class PSConverterData;
+    class BaseConverterPrivate;
+    class PSConverterPrivate;
+    class PDFConverterPrivate;
+    /**
+       \brief Base converter.
+
+       This is the base class for the converters.
+    */
+    class BaseConverter
+    {
+        friend class Document;
+        public:
+            /**
+              Destructor.
+            */
+            virtual ~BaseConverter();
+
+            /** Sets the output file name. You must set this or the output device. */
+            void setOutputFileName(const QString &outputFileName);
+
+            /** Sets the output device. You must set this or the output file name. */
+            void setOutputDevice(QIODevice *device);
+
+            /**
+              Does the conversion.
+
+              \return whether the conversion succeeded
+            */
+            virtual bool convert() = 0;
+
+        protected:
+            /// \cond PRIVATE
+            BaseConverter(BaseConverterPrivate &dd);
+            Q_DECLARE_PRIVATE(BaseConverter)
+            BaseConverterPrivate *d_ptr;
+            /// \endcond
+
+        private:
+            Q_DISABLE_COPY(BaseConverter)
+    };
+
     /**
        Converts a PDF to PS
 
@@ -886,7 +934,7 @@ width = dummy.width();
 height = dummy.height();
        \endcode
     */
-    class PSConverter
+    class PSConverter : public BaseConverter
     {
         friend class Document;
         public:
@@ -894,12 +942,6 @@ height = dummy.height();
               Destructor.
             */
             ~PSConverter();
-
-            /** Sets the output file name. You must set this or the output device. */
-            void setOutputFileName(const QString &outputFileName);
-
-            /** Sets the output device. You must set this or the output file name. */
-            void setOutputDevice(QIODevice *device);
 
             /** Sets the list of pages to print. Mandatory. */
             void setPageList(const QList<int> &pageList);
@@ -966,19 +1008,34 @@ height = dummy.height();
             /** Defines if the page will be rasterized to an image before printing. Defaults to false */
             void setForceRasterize(bool forceRasterize);
 
-            /**
-              Does the conversion.
-
-              \return whether the conversion succeeded
-            */
             bool convert();
 
         private:
+            Q_DECLARE_PRIVATE(PSConverter)
             Q_DISABLE_COPY(PSConverter)
 
             PSConverter(DocumentData *document);
+    };
 
-            PSConverterData *m_data;
+    /**
+       Converts a PDF to PDF (thus saves a copy of the document).
+    */
+    class PDFConverter : public BaseConverter
+    {
+        friend class Document;
+        public:
+            /**
+              Destructor.
+            */
+            virtual ~PDFConverter();
+
+            bool convert();
+
+        private:
+            Q_DECLARE_PRIVATE(PDFConverter)
+            Q_DISABLE_COPY(PDFConverter)
+
+            PDFConverter(DocumentData *document);
     };
 
     /**

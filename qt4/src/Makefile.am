@@ -28,11 +28,16 @@ libpoppler_qt4_la_SOURCES =			\
 	../../qt/poppler-page-transition.cc	\
 	poppler-sound.cc			\
 	poppler-form.cc				\
+	poppler-base-converter.cc		\
 	poppler-ps-converter.cc			\
+	poppler-pdf-converter.cc		\
+	poppler-qiodeviceoutstream.cc		\
 	poppler-annotation-helper.h		\
 	poppler-page-private.h			\
 	poppler-link-extractor-private.h	\
 	poppler-annotation-private.h		\
+	poppler-converter-private.h		\
+	poppler-qiodeviceoutstream-private.h	\
 	poppler-private.h
 
 libpoppler_qt4_la_LIBADD = 			\

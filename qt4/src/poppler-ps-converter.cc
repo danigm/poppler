@@ -17,11 +17,11 @@
  */
 
 #include "poppler-qt4.h"
+
 #include "poppler-private.h"
+#include "poppler-converter-private.h"
 
 #include "PSOutputDev.h"
-
-#include <QtCore/QFile>
 
 static void outputToQIODevice(void *stream, char *data, int len)
 {
@@ -30,13 +30,11 @@ static void outputToQIODevice(void *stream, char *data, int len)
 
 namespace Poppler {
 
-class PSConverterData
+class PSConverterPrivate : public BaseConverterPrivate
 {
 	public:
-		DocumentData *document;
-		QString outputFileName;
-		QIODevice *iodev;
-		bool ownIodev;
+		PSConverterPrivate();
+
 		QList<int> pageList;
 		QString title;
 		double hDPI;
@@ -52,180 +50,158 @@ class PSConverterData
 		bool forceRasterize;
 };
 
-PSConverter::PSConverter(DocumentData *document)
+PSConverterPrivate::PSConverterPrivate()
+	: BaseConverterPrivate(),
+	hDPI(72), vDPI(72), rotate(0), paperWidth(-1), paperHeight(-1),
+	marginRight(0), marginBottom(0), marginLeft(0), marginTop(0),
+	strictMargins(false), forceRasterize(false)
 {
-	m_data = new PSConverterData();
-	m_data->document = document;
-	m_data->iodev = 0;
-	m_data->ownIodev = true;
-	m_data->hDPI = 72;
-	m_data->vDPI = 72;
-	m_data->rotate = 0;
-	m_data->paperWidth = -1;
-	m_data->paperHeight = -1;
-	m_data->marginRight = 0;
-	m_data->marginBottom = 0;
-	m_data->marginLeft = 0;
-	m_data->marginTop = 0;
-	m_data->strictMargins = false;
-	m_data->forceRasterize = false;
+}
+
+
+PSConverter::PSConverter(DocumentData *document)
+	: BaseConverter(*new PSConverterPrivate())
+{
+	Q_D(PSConverter);
+	d->document = document;
 }
 
 PSConverter::~PSConverter()
 {
-	delete m_data;
-}
-
-void PSConverter::setOutputFileName(const QString &outputFileName)
-{
-	m_data->outputFileName = outputFileName;
-}
-
-void PSConverter::setOutputDevice(QIODevice *device)
-{
-	m_data->iodev = device;
-	m_data->ownIodev = false;
 }
 
 void PSConverter::setPageList(const QList<int> &pageList)
 {
-	m_data->pageList = pageList;
+	Q_D(PSConverter);
+	d->pageList = pageList;
 }
 
 void PSConverter::setTitle(const QString &title)
 {
-	m_data->title = title;
+	Q_D(PSConverter);
+	d->title = title;
 }
 
 void PSConverter::setHDPI(double hDPI)
 {
-	m_data->hDPI = hDPI;
+	Q_D(PSConverter);
+	d->hDPI = hDPI;
 }
 
 void PSConverter::setVDPI(double vDPI)
 {
-	m_data->vDPI = vDPI;
+	Q_D(PSConverter);
+	d->vDPI = vDPI;
 }
 
 void PSConverter::setRotate(int rotate)
 {
-	m_data->rotate = rotate;
+	Q_D(PSConverter);
+	d->rotate = rotate;
 }
 
 void PSConverter::setPaperWidth(int paperWidth)
 {
-	m_data->paperWidth = paperWidth;
+	Q_D(PSConverter);
+	d->paperWidth = paperWidth;
 }
 
 void PSConverter::setPaperHeight(int paperHeight)
 {
-	m_data->paperHeight = paperHeight;
+	Q_D(PSConverter);
+	d->paperHeight = paperHeight;
 }
 
 void PSConverter::setRightMargin(int marginRight)
 {
-	m_data->marginRight = marginRight;
+	Q_D(PSConverter);
+	d->marginRight = marginRight;
 }
 
 void PSConverter::setBottomMargin(int marginBottom)
 {
-	m_data->marginBottom = marginBottom;
+	Q_D(PSConverter);
+	d->marginBottom = marginBottom;
 }
 
 void PSConverter::setLeftMargin(int marginLeft)
 {
-	m_data->marginLeft = marginLeft;
+	Q_D(PSConverter);
+	d->marginLeft = marginLeft;
 }
 
 void PSConverter::setTopMargin(int marginTop)
 {
-	m_data->marginTop = marginTop;
+	Q_D(PSConverter);
+	d->marginTop = marginTop;
 }
 
 void PSConverter::setStrictMargins(bool strictMargins)
 {
-	m_data->strictMargins = strictMargins;
+	Q_D(PSConverter);
+	d->strictMargins = strictMargins;
 }
 
 void PSConverter::setForceRasterize(bool forceRasterize)
 {
-	m_data->forceRasterize = forceRasterize;
+	Q_D(PSConverter);
+	d->forceRasterize = forceRasterize;
 }
 
 bool PSConverter::convert()
 {
-	if (!m_data->iodev)
-	{
-		Q_ASSERT(!m_data->outputFileName.isEmpty());
-		QFile *f = new QFile(m_data->outputFileName);
-		m_data->iodev = f;
-		m_data->ownIodev = true;
-	}
-	Q_ASSERT(m_data->iodev);
-	if (!m_data->iodev->isOpen())
-	{
-		if (!m_data->iodev->open(QIODevice::ReadWrite))
-		{
-			return false;
-		}
-	}
+	Q_D(PSConverter);
 
-	Q_ASSERT(!m_data->pageList.isEmpty());
-	Q_ASSERT(m_data->paperWidth != -1);
-	Q_ASSERT(m_data->paperHeight != -1);
+	Q_ASSERT(!d->pageList.isEmpty());
+	Q_ASSERT(d->paperWidth != -1);
+	Q_ASSERT(d->paperHeight != -1);
 	
-	QByteArray pstitle8Bit = m_data->title.toLocal8Bit();
+	QIODevice *dev = d->openDevice();
+	if (!dev)
+		return false;
+
+	QByteArray pstitle8Bit = d->title.toLocal8Bit();
 	char* pstitlechar;
-	if (!m_data->title.isEmpty()) pstitlechar = pstitle8Bit.data();
+	if (!d->title.isEmpty()) pstitlechar = pstitle8Bit.data();
 	else pstitlechar = 0;
 	
-	PSOutputDev *psOut = new PSOutputDev(outputToQIODevice, m_data->iodev,
+	PSOutputDev *psOut = new PSOutputDev(outputToQIODevice, dev,
 	                                     pstitlechar,
-	                                     m_data->document->doc->getXRef(),
-	                                     m_data->document->doc->getCatalog(),
+	                                     d->document->doc->getXRef(),
+	                                     d->document->doc->getCatalog(),
 	                                     1,
-	                                     m_data->document->doc->getNumPages(),
+	                                     d->document->doc->getNumPages(),
 	                                     psModePS,
-	                                     m_data->paperWidth,
-	                                     m_data->paperHeight,
+	                                     d->paperWidth,
+	                                     d->paperHeight,
 	                                     gFalse,
-	                                     m_data->marginLeft,
-	                                     m_data->marginBottom,
-	                                     m_data->paperWidth - m_data->marginRight,
-	                                     m_data->paperHeight - m_data->marginTop,
-	                                     m_data->forceRasterize);
+	                                     d->marginLeft,
+	                                     d->marginBottom,
+	                                     d->paperWidth - d->marginRight,
+	                                     d->paperHeight - d->marginTop,
+	                                     d->forceRasterize);
 	
-	if (m_data->strictMargins)
+	if (d->strictMargins)
 	{
-		double xScale = ((double)m_data->paperWidth - (double)m_data->marginLeft - (double)m_data->marginRight) / (double)m_data->paperWidth;
-		double yScale = ((double)m_data->paperHeight - (double)m_data->marginBottom - (double)m_data->marginTop) / (double)m_data->paperHeight;
+		double xScale = ((double)d->paperWidth - (double)d->marginLeft - (double)d->marginRight) / (double)d->paperWidth;
+		double yScale = ((double)d->paperHeight - (double)d->marginBottom - (double)d->marginTop) / (double)d->paperHeight;
 		psOut->setScale(xScale, yScale);
 	}
 	
 	if (psOut->isOk())
 	{
-		foreach(int page, m_data->pageList)
+		foreach(int page, d->pageList)
 		{
-			m_data->document->doc->displayPage(psOut, page, m_data->hDPI, m_data->vDPI, m_data->rotate, gFalse, gTrue, gFalse);
+			d->document->doc->displayPage(psOut, page, d->hDPI, d->vDPI, d->rotate, gFalse, gTrue, gFalse);
 		}
 		delete psOut;
-		if (m_data->ownIodev)
-		{
-			m_data->iodev->close();
-			delete m_data->iodev;
-			m_data->iodev = 0;
-		}
+		d->closeDevice();
 		return true;
 	}
 	else
 	{
 		delete psOut;
-		if (m_data->ownIodev)
-		{
-			m_data->iodev->close();
-			delete m_data->iodev;
-			m_data->iodev = 0;
-		}
+		d->closeDevice();
 		return false;
 	}
 }

@@ -458,6 +458,11 @@ namespace Poppler {
         return new PSConverter(m_doc);
     }
 
+    PDFConverter *Document::pdfConverter() const
+    {
+        return new PDFConverter(m_doc);
+    }
+
     QString Document::metadata() const
     {
         QString result;
