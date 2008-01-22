@@ -2864,7 +2864,7 @@ Annots::Annots(XRef *xref, Catalog *catalog, Object *annotsObj) {
       if (annotsObj->arrayGet(i, &obj1)->isDict()) {
         annotsObj->arrayGetNF(i, &obj2);
         annot = createAnnot (xref, acroForm, obj1.getDict(), catalog, &obj2);
-        if (annot->isOk()) {
+        if (annot && annot->isOk()) {
           if (nAnnots >= size) {
             size += 16;
             annots = (Annot **)greallocn(annots, size, sizeof(Annot *));
