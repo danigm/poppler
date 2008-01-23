@@ -53,6 +53,7 @@ FormWidget::FormWidget(XRef *xrefA, Object *aobj, unsigned num, Ref aref)
   ref = aref;
   double t;
   ID = 0;
+  defaultsLoaded = gFalse;
   fontSize = 0.0;
   modified = gFalse;
   childNum = num;
@@ -189,6 +190,11 @@ bool FormWidgetButton::isReadOnly() const
 
 void FormWidgetButton::loadDefaults ()
 {
+  if (defaultsLoaded)
+    return;
+
+  defaultsLoaded = gTrue;
+  
   Dict *dict = obj.getDict();
   Object obj1;
 
@@ -220,7 +226,7 @@ void FormWidgetButton::loadDefaults ()
           Dict *tmpDict2 = str->getDict();
           Object obj3;
           tmpDict2->lookup("Length", &obj3);
-          onStr = new GooString ("D"); 
+          onStr = new GooString ("D");
         }
         obj2.free();
       }
@@ -262,6 +268,11 @@ FormWidgetText::FormWidgetText (XRef *xrefA, Object *aobj, unsigned num, Ref ref
 
 void FormWidgetText::loadDefaults ()
 {
+  if (defaultsLoaded)
+    return;
+
+  defaultsLoaded = gTrue;
+  
   Dict *dict = obj.getDict();
   Object obj1;
 
@@ -377,6 +388,11 @@ FormWidgetChoice::FormWidgetChoice(XRef *xrefA, Object *aobj, unsigned num, Ref 
 
 void FormWidgetChoice::loadDefaults ()
 {
+  if (defaultsLoaded)
+    return;
+
+  defaultsLoaded = gTrue;
+  
   Dict *dict = obj.getDict();
   Object obj1;
   if (dict->lookup("Opt", &obj1)->isArray()) {

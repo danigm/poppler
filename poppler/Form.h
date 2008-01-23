@@ -96,6 +96,7 @@ protected:
   Object obj;
   Ref ref;
   XRef *xref;
+  GBool defaultsLoaded;
   GBool modified;
   //index of this field in the parent's child list
   unsigned childNum;
