@@ -4288,11 +4288,11 @@ void Gfx::drawAnnot(Object *str, AnnotBorder *border, AnnotColor *aColor,
     }
     //~ this doesn't currently handle the beveled and engraved styles
     state->clearPath();
-    state->moveTo(annotX0, out->upsideDown() ? annotY1 : annotY0);
-    state->lineTo(annotX1, out->upsideDown() ? annotY1 : annotY0);
+    state->moveTo(annotX0, out->upsideDown() ? annotY0 : annotY1);
+    state->lineTo(annotX1, out->upsideDown() ? annotY0 : annotY1);
     if (border->getStyle() != AnnotBorder::borderUnderlined) {
-      state->lineTo(annotX1, out->upsideDown() ? annotY0 : annotY1);
-      state->lineTo(annotX0, out->upsideDown() ? annotY0 : annotY1);
+      state->lineTo(annotX1, out->upsideDown() ? annotY1 : annotY0);
+      state->lineTo(annotX0, out->upsideDown() ? annotY1 : annotY0);
       state->closePath();
     }
     out->stroke(state);
