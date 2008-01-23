@@ -220,6 +220,8 @@ void FormWidgetButton::loadDefaults ()
 	      onStr = new GooString (key);
             }
             obj3.free();
+	    if (onStr)
+	      break;
           }
         } else if (obj2.isStream()) {
           Stream *str = obj2.getStream();
@@ -229,6 +231,8 @@ void FormWidgetButton::loadDefaults ()
           onStr = new GooString ("D");
         }
         obj2.free();
+	if (onStr)
+	  break;
       }
     }
     obj1.free();
