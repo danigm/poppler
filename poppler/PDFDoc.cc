@@ -813,16 +813,16 @@ void PDFDoc::writeTrailer (Guint uxrefOffset, int uxrefSize, OutStream* outStr, 
 
   obj1.initRef(xref->getRootNum(), xref->getRootGen());
   trailerDict->set("Root", &obj1);
-  obj1.free();
 
   if (incrUpdate) { 
     obj1.initInt(xref->getLastXRefPos());
     trailerDict->set("Prev", &obj1);
-    obj1.free();
   }
   outStr->printf( "trailer\r\n");
   writeDictionnary(trailerDict, outStr);
   outStr->printf( "\r\nstartxref\r\n");
   outStr->printf( "%i\r\n", uxrefOffset);
   outStr->printf( "%%%%EOF\r\n");
+
+  delete trailerDict;
 }
