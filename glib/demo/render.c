@@ -109,7 +109,7 @@ pgd_render_drawing_area_expose (GtkWidget      *area,
 				 area->style->fg_gc[GTK_STATE_NORMAL],
 				 demo->pixbuf,
 				 0, 0,
-				 demo->slice.x, demo->slice.y,
+				 0, 0,
 				 gdk_pixbuf_get_width (demo->pixbuf),
 				 gdk_pixbuf_get_height (demo->pixbuf),
 				 GDK_RGB_DITHER_NORMAL,
@@ -130,6 +130,7 @@ pgd_render_start (GtkButton     *button,
 	PopplerPage *page;
 	gdouble      page_width, page_height;
 	gdouble      width, height;
+	gint         x, y;
 	gchar       *str;
 	GTimer      *timer;
 
@@ -150,11 +151,15 @@ pgd_render_start (GtkButton     *button,
 	poppler_page_get_size (page, &page_width, &page_height);
 
 	if (demo->rotate == 0 || demo->rotate == 180) {
-		width = page_width * demo->scale;
-		height = page_height * demo->scale;
+		width = demo->slice.width * demo->scale;
+		height = demo->slice.height * demo->scale;
+		x = demo->slice.x * demo->scale;
+		y = demo->slice.y * demo->scale;
 	} else {
-		width = page_height * demo->scale;
-		height = page_width * demo->scale;
+		width = demo->slice.height * demo->scale;
+		height = demo->slice.width * demo->scale;
+		x = demo->slice.y * demo->scale;
+		y = demo->slice.x * demo->scale;
 	}
 
 #if defined (HAVE_CAIRO)
@@ -165,35 +170,36 @@ pgd_render_start (GtkButton     *button,
 		demo->surface = cairo_image_surface_create (CAIRO_FORMAT_RGB24,
 							    width, height);
 		cr = cairo_create (demo->surface);
-		
+
+		cairo_save (cr);
 		cairo_set_source_rgb (cr, 1, 1, 1);
 		cairo_rectangle (cr, 0, 0, width, height);
 		cairo_fill (cr);
-		
+		cairo_restore (cr);
+
+		cairo_save (cr);
 		switch (demo->rotate) {
 		case 90:
-			cairo_translate (cr, width, 0);
+			cairo_translate (cr, x + width, -y);
 			break;
 		case 180:
-			cairo_translate (cr, width, height);
+			cairo_translate (cr, x + width, y + height);
 			break;
 		case 270:
-			cairo_translate (cr, 0, height);
+			cairo_translate (cr, -x, y + height);
 			break;
 		default:
-			cairo_translate (cr, 0, 0);
+			cairo_translate (cr, -x, -y);
 		}
-		
+
 		if (demo->scale != 1.0)
 			cairo_scale (cr, demo->scale, demo->scale);
 		
 		if (demo->rotate != 0)
 			cairo_rotate (cr, demo->rotate * G_PI / 180.0);
 		
-		cairo_rectangle (cr, demo->slice.x, demo->slice.y, demo->slice.width, demo->slice.height);
-		cairo_clip (cr);
-		
 		poppler_page_render (page, cr);
+		cairo_restore (cr);
 		g_timer_stop (timer);
 		
 		cairo_destroy (cr);
@@ -204,8 +210,9 @@ pgd_render_start (GtkButton     *button,
 					       FALSE, 8, width, height);
 		gdk_pixbuf_fill (demo->pixbuf, 0xffffff);
 		poppler_page_render_to_pixbuf (page,
-					       demo->slice.x, demo->slice.y,
-					       demo->slice.width, demo->slice.height,
+					       x, y,
+					       width,
+					       height,
 					       demo->scale,
 					       demo->rotate,
 					       demo->pixbuf);
