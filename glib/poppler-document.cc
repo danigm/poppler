@@ -632,6 +632,8 @@ poppler_document_get_property (GObject    *object,
 	flag |= POPPLER_PERMISSIONS_OK_TO_COPY;
       if (document->doc->okToAddNotes ())
 	flag |= POPPLER_PERMISSIONS_OK_TO_ADD_NOTES;
+      if (document->doc->okToFillForm ())
+        flag |= POPPLER_PERMISSIONS_OK_TO_FILL_FORM;
       g_value_set_flags (value, flag);
       break;
     case PROP_METADATA:

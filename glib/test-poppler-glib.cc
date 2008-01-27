@@ -58,6 +58,7 @@ print_document_info (PopplerDocument *document)
   PopplerPageLayout layout;
   PopplerPageMode mode;
   PopplerViewerPreferences view_prefs;
+  PopplerPermissions permissions;
   PopplerFontInfo *font_info;
   PopplerFontsIter *fonts_iter;
   PopplerIndexIter *index_iter;
@@ -77,6 +78,7 @@ print_document_info (PopplerDocument *document)
 		"page-mode", &mode,
 		"page-layout", &layout,
 		"viewer-preferences", &view_prefs,
+		"permissions", &permissions,
 		NULL);
 
   printf ("\t---------------------------------------------------------\n");
@@ -128,8 +130,23 @@ print_document_info (PopplerDocument *document)
       print_index (index_iter);
       poppler_index_iter_free (index_iter);
     }
-  
 
+  printf ("\t---------------------------------------------------------\n");
+  printf ("\tDocument Permissions\n");
+  printf ("\t---------------------------------------------------------\n");
+
+  printf ("\tOk to Print: %s\n",
+	  permissions & POPPLER_PERMISSIONS_OK_TO_PRINT ? "Yes" : "No");
+  printf ("\tOk to Modify: %s\n",
+	  permissions & POPPLER_PERMISSIONS_OK_TO_MODIFY ? "Yes" : "No");
+  printf ("\tOk to Copy: %s\n",
+	  permissions & POPPLER_PERMISSIONS_OK_TO_COPY ? "Yes" : "No");
+  printf ("\tOk to Add Notes: %s\n",
+	  permissions & POPPLER_PERMISSIONS_OK_TO_ADD_NOTES ? "Yes" : "No");
+  printf ("\tOk to Fill Forms: %s\n",
+	  permissions & POPPLER_PERMISSIONS_OK_TO_FILL_FORM ? "Yes" : "No");
+
+  printf ("\n");
   
   /* FIXME: print out the view prefs when we support it */
 
@@ -323,7 +340,7 @@ int main (int argc, char *argv[])
   PopplerRectangle area;
   gint num_images;
   gint num_forms;
-  gint form_id;
+  gint form_id = 0;
 
   if (argc != 3)
     FAIL ("usage: test-poppler-glib file://FILE PAGE");
