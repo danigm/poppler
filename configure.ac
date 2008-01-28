@@ -17,6 +17,7 @@ AC_PROG_CXX
 AC_PROG_INSTALL
 AC_CHECK_FUNC(gettimeofday, AC_DEFINE(HAVE_GETTIMEOFDAY, 1, [Defines if gettimeofday is available on your system]))
 AC_CHECK_FUNC(localtime_r, AC_DEFINE(HAVE_LOCALTIME_R, 1, [Defines if localtime_r is available on your system]))
+AC_CHECK_FUNC(strndup, AC_DEFINE(HAVE_STRNDUP, 1, [Defines if strndup is available on your system]))
 
 dnl Enable these unconditionally.
 AC_DEFINE([OPI_SUPPORT], [1], [Generate OPI comments in PS output.])
