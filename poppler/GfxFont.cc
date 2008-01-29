@@ -974,13 +974,7 @@ static int parseCharName(char *charName, Unicode *uBuf, int uLen,
       return 0;	// .notdef or similar
     } else if (var_part != NULL) {
       // parse names of the form 7.oldstyle, P.swash, s.sc, etc.
-#ifdef HAVE_STRNDUP
-      char *main_part = strndup(charName, var_part - charName);
-#else
-      char *main_part = (char*)gmalloc(var_part - charName + 1);
-      main_part[var_part - charName] = '\0';
-      memcpy(main_part, charName, var_part - charName);
-#endif
+      char *main_part = gstrndup(charName, var_part - charName);
       GBool namesRecurse = gTrue, variantsRecurse = gFalse;
       int n = parseCharName(main_part, uBuf, uLen, namesRecurse, ligatures,
 			    numeric, hex, variantsRecurse);

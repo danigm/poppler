@@ -75,6 +75,11 @@ extern void gMemReport(FILE *f);
  */
 extern char *copyString(char *s);
 
+/*
+ * Allocate memory and copy a limited-length string to it.
+ */
+extern char *gstrndup(const char *s, size_t n);
+
 #ifdef __cplusplus
 }
 #endif
