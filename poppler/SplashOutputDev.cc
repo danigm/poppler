@@ -965,6 +965,7 @@ void SplashOutputDev::doUpdateFont(GfxState *state) {
   SplashCoord mat[4];
   int substIdx, n;
   int faceIndex = 0;
+  GBool recreateFont = gFalse;
 
   needFontUpdate = gFalse;
   font = NULL;
@@ -1142,6 +1143,7 @@ void SplashOutputDev::doUpdateFont(GfxState *state) {
       // this shouldn't happen
       goto err2;
     }
+    fontFile->doAdjustMatrix = gTrue;
   }
 
   // get the font matrix
@@ -1156,6 +1158,41 @@ void SplashOutputDev::doUpdateFont(GfxState *state) {
   mat[0] = m11;  mat[1] = m12;
   mat[2] = m21;  mat[3] = m22;
   font = fontEngine->getFont(fontFile, mat, splash->getMatrix());
+
+  // for substituted fonts: adjust the font matrix -- compare the
+  // width of 'm' in the original font and the substituted font
+  if (fontFile->doAdjustMatrix && !gfxFont->isCIDFont()) {
+    double w1, w2;
+    CharCode code;
+    char *name;
+    for (code = 0; code < 256; ++code) {
+      if ((name = ((Gfx8BitFont *)gfxFont)->getCharName(code)) &&
+          name[0] == 'm' && name[1] == '\0') {
+        break;
+      }
+    }
+    if (code < 256) {
+      w1 = ((Gfx8BitFont *)gfxFont)->getWidth(code);
+      w2 = font->getGlyphAdvance(code);
+      if (!gfxFont->isSymbolic() && w2 > 0) {
+        // if real font is substantially narrower than substituted
+        // font, reduce the font size accordingly
+        if (w1 > 0.01 && w1 < 0.9 * w2) {
+          w1 /= w2;
+          m11 *= w1;
+          m21 *= w1;
+          recreateFont = gTrue;
+        }
+      }
+    }
+  }
+
+  if (recreateFont)
+  {
+    mat[0] = m11;  mat[1] = m12;
+    mat[2] = m21;  mat[3] = m22;
+    font = fontEngine->getFont(fontFile, mat, splash->getMatrix());
+  }
 
   if (fontsrc && !fontsrc->isFile)
       fontsrc->unref();

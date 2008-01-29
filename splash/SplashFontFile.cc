@@ -34,6 +34,7 @@ SplashFontFile::SplashFontFile(SplashFontFileID *idA, SplashFontSrc *srcA) {
   src = srcA;
   src->ref();
   refCnt = 0;
+  doAdjustMatrix = gFalse;
 }
 
 SplashFontFile::~SplashFontFile() {

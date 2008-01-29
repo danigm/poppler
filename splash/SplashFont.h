@@ -75,6 +75,10 @@ public:
   // Return the path for a glyph.
   virtual SplashPath *getGlyphPath(int c) = 0;
 
+  // Return the advance of a glyph. (in 0..1 range)
+  // < 0 means not known
+  virtual double getGlyphAdvance(int c) { return -1; }
+
   // Return the font transform matrix.
   SplashCoord *getMatrix() { return mat; }
 

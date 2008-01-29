@@ -62,6 +62,8 @@ public:
   // the SplashFontFile object.
   void decRefCnt();
 
+  GBool doAdjustMatrix;
+
 protected:
 
   SplashFontFile(SplashFontFileID *idA, SplashFontSrc *srcA);

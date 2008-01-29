@@ -42,7 +42,7 @@ SplashFTFont::SplashFTFont(SplashFTFontFile *fontFileA, SplashCoord *matA,
   SplashFont(fontFileA, matA, textMatA, fontFileA->engine->aa)
 {
   FT_Face face;
-  double size, div;
+  double div;
   int x, y;
 
   face = fontFileA->face;
@@ -237,6 +237,59 @@ GBool SplashFTFont::makeGlyph(int c, int xFrac, int yFrac,
   }
 
   return gTrue;
+}
+
+double SplashFTFont::getGlyphAdvance(int c)
+{
+  SplashFTFontFile *ff;
+  FT_Vector offset;
+  FT_UInt gid;
+  FT_Matrix identityMatrix;
+
+  ff = (SplashFTFontFile *)fontFile;
+
+  // init the matrix
+  identityMatrix.xx = 65536; // 1 in 16.16 format
+  identityMatrix.xy = 0;
+  identityMatrix.yx = 0;
+  identityMatrix.yy = 65536; // 1 in 16.16 format
+
+  // init the offset
+  offset.x = 0;
+  offset.y = 0;
+
+  FT_Set_Transform(ff->face, &identityMatrix, &offset);
+
+  if (ff->codeToGID && c < ff->codeToGIDLen) {
+    gid = (FT_UInt)ff->codeToGID[c];
+  } else {
+    gid = (FT_UInt)c;
+  }
+  if (ff->trueType && gid == 0) {
+    // skip the TrueType notdef glyph
+    return -1;
+  }
+
+  // if we have the FT2 bytecode interpreter, autohinting won't be used
+#ifdef TT_CONFIG_OPTION_BYTECODE_INTERPRETER
+  if (FT_Load_Glyph(ff->face, gid,
+		    aa ? FT_LOAD_NO_BITMAP : FT_LOAD_DEFAULT)) {
+    return -1;
+  }
+#else
+  // FT2's autohinting doesn't always work very well (especially with
+  // font subsets), so turn it off if anti-aliasing is enabled; if
+  // anti-aliasing is disabled, this seems to be a tossup - some fonts
+  // look better with hinting, some without, so leave hinting on
+  if (FT_Load_Glyph(ff->face, gid,
+		    aa ? FT_LOAD_NO_HINTING | FT_LOAD_NO_BITMAP
+                       : FT_LOAD_DEFAULT)) {
+    return -1;
+  }
+#endif
+
+  // 64.0 is 1 in 26.6 format
+  return ff->face->glyph->metrics.horiAdvance / 64.0 / size;
 }
 
 struct SplashFTFontPath {

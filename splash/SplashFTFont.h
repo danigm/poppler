@@ -43,12 +43,16 @@ public:
   // Return the path for a glyph.
   virtual SplashPath *getGlyphPath(int c);
 
+  // Return the advance of a glyph. (in 0..1 range)
+  virtual double getGlyphAdvance(int c);
+
 private:
 
   FT_Size sizeObj;
   FT_Matrix matrix;
   FT_Matrix textMatrix;
   SplashCoord textScale;
+  double size;
 };
 
 #endif // HAVE_FREETYPE_FREETYPE_H || HAVE_FREETYPE_H
