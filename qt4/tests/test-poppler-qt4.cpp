@@ -35,6 +35,8 @@ PDFDisplay::PDFDisplay( Poppler::Document *d, bool arthur )
         backendString = "Splash";
         doc->setRenderBackend(Poppler::Document::SplashBackend);
     }
+    doc->setRenderHint(Poppler::Document::Antialiasing, true);
+    doc->setRenderHint(Poppler::Document::TextAntialiasing, true);
     display();
 }
 
