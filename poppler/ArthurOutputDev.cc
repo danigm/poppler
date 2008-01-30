@@ -237,7 +237,9 @@ void ArthurOutputDev::updateStrokeOpacity(GfxState *state)
 
 void ArthurOutputDev::updateFont(GfxState *state)
 {
+#ifdef __GNUC__
 #warning fix this, probably update with updated code from SplashOutputdev
+#endif
 /*
   GfxFont *gfxFont;
   GfxFontType fontType;
@@ -511,7 +513,9 @@ void ArthurOutputDev::drawChar(GfxState *state, double x, double y,
 		       fontPath->pts[i+1].x+x0, fontPath->pts[i+1].y+y0);
 	  ++i;
 	}
+#ifdef __GNUC__
 #warning FIX THIS
+#endif
 // 	else if (fontPath->flags[i] & splashPathArcCW) {
 // 	  qDebug() << "Need to implement arc";
 // 	}
