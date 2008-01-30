@@ -35,13 +35,6 @@ set(QT3_MIN_VERSION "3.3.0")
 set(QT4_MIN_VERSION "4.1.0")
 set(CAIRO_VERSION "1.4")
 
-# set the default compile warnings
-if(CMAKE_COMPILER_IS_GNUCXX)
-  set(DEFAULT_COMPILE_WARNINGS_NO)
-  set(DEFAULT_COMPILE_WARNINGS_YES "-Wall -Wno-write-strings")
-  set(DEFAULT_COMPILE_WARNINGS_KDE "-Wnon-virtual-dtor -Wno-long-long -Wundef -ansi -D_XOPEN_SOURCE=500 -D_BSD_SOURCE -Wcast-align -Wconversion -Wchar-subscripts -Wall -W -Wpointer-arith -Wwrite-strings -O2 -Wformat-security -Wmissing-format-attribute -fno-exceptions -fno-check-new -fno-common")
-endif(CMAKE_COMPILER_IS_GNUCXX)
-
 macro_bool_to_01(ENABLE_SPLASH HAVE_SPLASH)
 find_package(Freetype REQUIRED)
 find_package(Fontconfig REQUIRED)
