@@ -1892,9 +1892,9 @@ Gushort *GfxCIDFont::getCodeToGIDMap(FoFiTrueType *ff, int *mapsizep) {
       getCollection()->getCString());
     if ((ctu = getToUnicode()) != 0) {
       CharCode cid;
-      for (cid = 0;cid <= n ;cid++) {
+      for (cid = 0;cid < n ;cid++) {
 	int len;
-	Unicode ucode;
+	Unicode ucode = 0;
 
 	len = ctu->mapToUnicode(cid,&ucode,1);
 	humap[cid*N_UCS_CANDIDATES] = ucode;
