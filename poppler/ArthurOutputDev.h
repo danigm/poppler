@@ -7,8 +7,8 @@
 //
 //========================================================================
 
-#ifndef CAIROOUTPUTDEV_H
-#define CAIROOUTPUTDEV_H
+#ifndef ARTHUROUTPUTDEV_H
+#define ARTHUROUTPUTDEV_H
 
 #ifdef USE_GCC_PRAGMAS
 #pragma interface
