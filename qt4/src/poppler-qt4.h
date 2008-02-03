@@ -40,6 +40,7 @@ class Sound;
 namespace Poppler {
 
     class Document;
+    class DocumentData;
 
     class PageData;
 
@@ -454,11 +455,9 @@ namespace Poppler {
     private:
 	Q_DISABLE_COPY(Page)
 
-	Page(const Document *doc, int index);
+	Page(DocumentData *doc, int index);
 	PageData *m_page;
     };
-
-    class DocumentData;
 
 /**
    PDF document

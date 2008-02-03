@@ -101,7 +101,7 @@ namespace Poppler {
 
     Page *Document::page(int index) const
     {
-	return new Page(this, index);
+	return new Page(m_doc, index);
     }
 
     bool Document::isLocked() const

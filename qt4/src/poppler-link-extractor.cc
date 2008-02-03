@@ -26,10 +26,10 @@
 namespace Poppler
 {
 
-LinkExtractorOutputDev::LinkExtractorOutputDev(PageData *data, DocumentData *doc)
-  : m_data(data), m_doc(doc)
+LinkExtractorOutputDev::LinkExtractorOutputDev(PageData *data)
+  : m_data(data)
 {
-  m_popplerPage = m_doc->doc->getCatalog()->getPage(m_data->index + 1);
+  m_popplerPage = m_data->parentDoc->doc->getCatalog()->getPage(m_data->index + 1);
   GfxState gfxState(72.0, 72.0, m_popplerPage->getCropBox(), m_popplerPage->getRotate(), gTrue);
   setDefaultCTM(gfxState.getCTM());
 }
@@ -56,7 +56,7 @@ void LinkExtractorOutputDev::processLink(::Link *link, Catalog *catalog)
   linkArea.setRight((double)rightAux / (double)m_popplerPage->getCropWidth());
   linkArea.setBottom((double)bottomAux / (double)m_popplerPage->getCropHeight());
 
-  Link *popplerLink = m_data->convertLinkActionToLink(link->getAction(), linkArea, m_doc);
+  Link *popplerLink = m_data->convertLinkActionToLink(link->getAction(), linkArea);
   if (popplerLink)
   {
     m_links.append(popplerLink);

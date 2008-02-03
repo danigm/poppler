@@ -26,9 +26,9 @@ namespace Poppler
 
 class PageData {
 public:
-  Link* convertLinkActionToLink(::LinkAction * a, const QRectF &linkArea, DocumentData * doc);
+  Link* convertLinkActionToLink(::LinkAction * a, const QRectF &linkArea);
 
-  const Document *parentDoc;
+  DocumentData *parentDoc;
   int index;
   PageTransition *transition;
 };

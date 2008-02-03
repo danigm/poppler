@@ -27,12 +27,11 @@ namespace Poppler
 {
 
 class PageData;
-class DocumentData;
 
 class LinkExtractorOutputDev : public OutputDev
 {
   public:
-    LinkExtractorOutputDev(PageData *data, DocumentData *doc);
+    LinkExtractorOutputDev(PageData *data);
     virtual ~LinkExtractorOutputDev();
 
     // inherited from OutputDev
@@ -47,7 +46,6 @@ class LinkExtractorOutputDev : public OutputDev
   private:
     ::Page *m_popplerPage;
     PageData *m_data;
-    DocumentData *m_doc;
     QList< Link* > m_links;
 };
 
