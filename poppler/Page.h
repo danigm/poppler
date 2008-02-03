@@ -148,6 +148,9 @@ public:
   // Return a list of links.
   Links *getLinks(Catalog *catalog);
 
+  // Return a list of annots. Ownership is transferred to the caller.
+  Annots *getAnnots(Catalog *catalog);
+
   // Get contents.
   Object *getContents(Object *obj) { return contents.fetch(xref, obj); }
 

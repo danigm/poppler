@@ -163,6 +163,12 @@ protected:
 
 class AnnotBorder {
 public:
+  enum AnnotBorderType {
+    typeUnknown,
+    typeArray,
+    typeBS,
+  };
+
   enum AnnotBorderStyle {
     borderSolid,      // Solid
     borderDashed,     // Dashed
@@ -174,12 +180,14 @@ public:
   AnnotBorder();
   virtual ~AnnotBorder();
 
+  virtual AnnotBorderType getType() const { return type; }
   virtual double getWidth() const { return width; }
   virtual int getDashLength() const { return dashLength; }
   virtual double *getDash() const { return dash; }
   virtual AnnotBorderStyle getStyle() const { return style; }
 
 protected:
+  AnnotBorderType type;
   double width;
   int dashLength;
   double *dash;
@@ -239,8 +247,8 @@ public:
   AnnotColor(Array *array);
   ~AnnotColor();
 
-  AnnotColorSpace getSpace() const;
-  double getValue(int i) const;
+  AnnotColorSpace getSpace() const { return (AnnotColorSpace) length; }
+  double *getValues() const { return values; }
 
 private:
 

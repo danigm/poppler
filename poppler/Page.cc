@@ -313,6 +313,15 @@ Page::~Page() {
   contents.free();
 }
 
+Annots *Page::getAnnots(Catalog *catalog) {
+  Annots *annots;
+  Object obj;
+
+  annots = new Annots(xref, catalog, getAnnots(&obj));
+  obj.free();
+  return annots;
+}
+
 Links *Page::getLinks(Catalog *catalog) {
   Links *links;
   Object obj;
