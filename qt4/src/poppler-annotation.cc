@@ -27,6 +27,10 @@
 #include "poppler-link.h"
 #include "poppler-annotation-private.h"
 
+// poppler includes
+#include <Page.h>
+#include <Annot.h>
+
 namespace Poppler {
 
 //BEGIN AnnotationUtils implementation
@@ -1658,5 +1662,32 @@ void LinkAnnotation::setLinkRegionPoint( int id, const QPointF &point )
     Q_D( LinkAnnotation );
     d->linkRegion[id] = point;
 }
+
+//BEGIN utility annotation functions
+QColor convertAnnotColor( AnnotColor *color )
+{
+    if ( !color )
+        return QColor();
+
+    QColor newcolor;
+    double *color_data = color->getValues();
+    switch ( color->getSpace() )
+    {
+        case AnnotColor::colorTransparent: // = 0,
+            newcolor = Qt::transparent;
+            break;
+        case AnnotColor::colorGray: // = 1,
+            newcolor.setRgbF( color_data[0], color_data[0], color_data[0] );
+            break;
+        case AnnotColor::colorRGB: // = 3,
+            newcolor.setRgbF( color_data[0], color_data[1], color_data[2] );
+            break;
+        case AnnotColor::colorCMYK: // = 4
+            newcolor.setCmykF( color_data[0], color_data[1], color_data[2], color_data[3] );
+            break;
+    }
+    return newcolor;
+}
+//END utility annotation functions
 
 }

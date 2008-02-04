@@ -20,6 +20,10 @@
 
 #include <QtCore/QDebug>
 
+class QColor;
+
+class AnnotColor;
+
 namespace Poppler {
 
 class XPDFReader
@@ -209,5 +213,7 @@ struct PopupWindow
     Annotation *  dummyAnnotation;  // window properties (in pdf as Annotation)
     bool          shown;            // converted to Annotation::Hidden flag
 };
+
+QColor convertAnnotColor( AnnotColor *color );
 
 }
