@@ -488,9 +488,12 @@ namespace Poppler {
         int tzHours = 0;
         int tzMins = 0;
 
+        if ( dateString == NULL ) return QDateTime();
+        if ( strlen(dateString) < 2 ) return QDateTime();
+
         if ( dateString[0] == 'D' && dateString[1] == ':' )
             dateString += 2;
-        if ( sscanf( dateString,
+        if ( dateString != NULL && sscanf( dateString,
 		     "%4d%2d%2d%2d%2d%2d%c%2d%*c%2d",
 		     &year, &mon, &day, &hour, &min, &sec,
 		     &tz, &tzHours, &tzMins ) > 0 ) {
