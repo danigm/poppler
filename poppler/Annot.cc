@@ -305,6 +305,7 @@ AnnotQuadPoints::AnnotQuadPoints(double x1, double y1, double x2, double y2,
 // AnnotBorder
 //------------------------------------------------------------------------
 AnnotBorder::AnnotBorder() {
+  type = typeUnknown;
   width = 1;
   dashLength = 0;
   dash = NULL;
@@ -321,6 +322,7 @@ AnnotBorder::~AnnotBorder() {
 //------------------------------------------------------------------------
 
 AnnotBorderArray::AnnotBorderArray() {
+  type = typeArray;
   horizontalCorner = 0;
   verticalCorner = 0;
 }
@@ -380,6 +382,7 @@ AnnotBorderArray::AnnotBorderArray(Array *array) {
 //------------------------------------------------------------------------
 
 AnnotBorderBS::AnnotBorderBS() {
+  type = typeBS;
 }
 
 AnnotBorderBS::AnnotBorderBS(Dict *dict) {
@@ -485,16 +488,6 @@ AnnotColor::AnnotColor(Array *array) {
       obj1.free();
     }
   }
-}
-
-AnnotColor::AnnotColorSpace AnnotColor::getSpace() const {
-  return (AnnotColor::AnnotColorSpace) length;
-}
-
-double AnnotColor::getValue(int i) const {
-  if (i >= 0 && i < length) 
-    return values[i];
-  return 0;
 }
 
 AnnotColor::~AnnotColor() {
@@ -2256,7 +2249,7 @@ AnnotText::AnnotText(XRef *xrefA, Dict *acroForm, Dict *dict, Catalog *catalog, 
     Annot(xrefA, acroForm, dict, catalog, obj), AnnotMarkup(xref, acroForm, dict, catalog, obj) {
 
   type = typeText;
-  flags |= flagNoZoom & flagNoRotate;
+  flags |= flagNoZoom | flagNoRotate;
   initialize (xrefA, catalog, dict);
 }
 

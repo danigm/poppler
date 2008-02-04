@@ -4256,9 +4256,10 @@ void Gfx::drawAnnot(Object *str, AnnotBorder *border, AnnotColor *aColor,
       out->updateStrokeColorSpace(state);
     }
     if (aColor && (aColor->getSpace() == AnnotColor::colorRGB)) {
-      r = aColor->getValue(0);
-      g = aColor->getValue(1);
-      b = aColor->getValue(2);
+      double *values = aColor->getValues();
+      r = values[0];
+      g = values[1];
+      b = values[2];
     } else {
       r = g = b = 0;
     };
