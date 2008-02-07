@@ -44,8 +44,9 @@ class LinkExtractorOutputDev : public OutputDev
     QList< Link* > links();
 
   private:
-    ::Page *m_popplerPage;
     PageData *m_data;
+    double m_pageCropWidth;
+    double m_pageCropHeight;
     QList< Link* > m_links;
 };
 
