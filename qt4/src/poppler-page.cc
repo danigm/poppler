@@ -515,7 +515,7 @@ QList<Annotation*> Page::annotations() const
         annotArray.arrayGet( j, &annot );
         if ( !annot.isDict() )
         {
-            qDebug() << "PDFGenerator: annot not dictionary." << endl;
+            qDebug() << "PDFGenerator: annot not dictionary.";
             annot.free();
             continue;
         }
@@ -531,7 +531,7 @@ QList<Annotation*> Page::annotations() const
         XPDFReader::lookupName( annotDict, "Subtype", subType );
         if ( subType.isEmpty() )
         {
-            qDebug() << "annot has no Subtype" << endl;
+            qDebug() << "Annot has no Subtype";
             annot.free();
             continue;
         }
@@ -618,7 +618,7 @@ QList<Annotation*> Page::annotations() const
             int num = XPDFReader::lookupNumArray( annotDict, (char*)((subType == "Line") ? "L" : "Vertices"), c, 100 );
             if ( num < 4 || (num % 2) != 0 )
             {
-                qDebug() << "L/Vertices wrong fol Line/Poly." << endl;
+                qDebug() << "L/Vertices wrong fol Line/Poly.";
                 delete annotation;
                 annot.free();
                 continue;
@@ -760,7 +760,7 @@ QList<Annotation*> Page::annotations() const
             int num = XPDFReader::lookupNumArray( annotDict, "QuadPoints", c, 80 );
             if ( num < 8 || (num % 8) != 0 )
             {
-                qDebug() << "Wrong QuadPoints for a Highlight annotation." << endl;
+                qDebug() << "Wrong QuadPoints for a Highlight annotation.";
                 delete annotation;
                 annot.free();
                 continue;
@@ -806,7 +806,7 @@ QList<Annotation*> Page::annotations() const
             annotDict->lookup( "InkList", &pathsArray );
             if ( !pathsArray.isArray() || pathsArray.arrayGetLength() < 1 )
             {
-                qDebug() << "InkList not present for ink annot" << endl;
+                qDebug() << "InkList not present for ink annot";
                 delete annotation;
                 annot.free();
                 continue;
@@ -884,7 +884,7 @@ QList<Annotation*> Page::annotations() const
             int num = XPDFReader::lookupNumArray( annotDict, "QuadPoints", c, 8 );
             if ( num > 0 && num != 8 )
             {
-                qDebug() << "Wrong QuadPoints for a Link annotation." << endl;
+                qDebug() << "Wrong QuadPoints for a Link annotation.";
                 delete annotation;
                 annot.free();
                 continue;
@@ -920,7 +920,7 @@ QList<Annotation*> Page::annotations() const
         {
             // MISSING: Caret, FileAttachment, Sound, Movie, Widget,
             //          Screen, PrinterMark, TrapNet, Watermark, 3D
-            qDebug() << "annotation '" << subType << "' not supported" << endl;
+            qDebug() << "Annotation" << subType << "not supported";
             annot.free();
             continue;
         }
@@ -930,7 +930,7 @@ QList<Annotation*> Page::annotations() const
         double r[4];
         if ( XPDFReader::lookupNumArray( annotDict, "Rect", r, 4 ) != 4 )
         {
-            qDebug() << "Rect is missing for annotation." << endl;
+            qDebug() << "Rect is missing for annotation.";
             annot.free();
             continue;
         }
@@ -1149,7 +1149,7 @@ QList<Annotation*> Page::annotations() const
         if ( addToPage )
         {
             if ( annotationsMap.contains( annotID ) )
-                qDebug() << "PDFGenerator: clash for annotations with ID:" << annotID << endl;
+                qDebug() << "Clash for annotations with ID:" << annotID;
             annotationsMap[ annotID ] = annotation;
         }
     } // end Annotation/PopupWindow parsing loop
@@ -1164,8 +1164,8 @@ QList<Annotation*> Page::annotations() const
             const ResolveWindow & request = *it;
             if ( !popupsMap.contains( request.popupWindowID ) )
                 // warn aboud problems in popup resolving logic
-                qDebug() << "PDFGenerator: can't resolve popup "
-                          << request.popupWindowID << "." << endl;
+                qDebug() << "Cannot resolve popup"
+                          << request.popupWindowID << ".";
             else
             {
                 // set annotation's window properties taking ones from popup
@@ -1208,8 +1208,8 @@ QList<Annotation*> Page::annotations() const
             int parentID = request.prevAnnotationID;
             if ( !annotationsMap.contains( parentID ) )
                 // warn about problems in reparenting logic
-                qDebug() << "PDFGenerator: can't reparent annotation to "
-                          << parentID << "." << endl;
+                qDebug() << "Cannot reparent annotation to"
+                          << parentID << ".";
             else
             {
                 // compile and add a Revision structure to the parent annotation
