@@ -21,6 +21,8 @@
 
 #include "poppler-private.h"
 
+class Page;
+
 namespace Poppler
 {
 
@@ -29,6 +31,7 @@ public:
   Link* convertLinkActionToLink(::LinkAction * a, const QRectF &linkArea);
 
   DocumentData *parentDoc;
+  ::Page *page;
   int index;
   PageTransition *transition;
 };

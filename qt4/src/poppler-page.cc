@@ -161,6 +161,7 @@ Page::Page(DocumentData *doc, int index) {
   m_page = new PageData();
   m_page->index = index;
   m_page->parentDoc = doc;
+  m_page->page = doc->doc->getCatalog()->getPage(m_page->index + 1);
   m_page->transition = 0;
 }
 
@@ -258,21 +259,19 @@ QString Page::text(const QRectF &r) const
   GooString *s;
   PDFRectangle *rect;
   QString result;
-  ::Page *p;
   
   output_dev = new TextOutputDev(0, gFalse, gFalse, gFalse);
   m_page->parentDoc->doc->displayPageSlice(output_dev, m_page->index + 1, 72, 72,
       0, false, true, false, -1, -1, -1, -1);
-  p = m_page->parentDoc->doc->getCatalog()->getPage(m_page->index + 1);
   if (r.isNull())
   {
-    rect = p->getCropBox();
+    rect = m_page->page->getCropBox();
     s = output_dev->getText(rect->x1, rect->y1, rect->x2, rect->y2);
   }
   else
   {
     double height, y1, y2;
-    height = p->getCropHeight();
+    height = m_page->page->getCropHeight();
     y1 = height - r.top();
     y2 = height - r.bottom();
     s = output_dev->getText(r.left(), y1, r.right(), y2);
@@ -387,7 +386,7 @@ PageTransition *Page::transition() const
   if (!m_page->transition) {
     Object o;
     PageTransitionParams params;
-    params.dictObj = m_page->parentDoc->doc->getCatalog()->getPage(m_page->index + 1)->getTrans(&o);
+    params.dictObj = m_page->page->getTrans(&o);
     if (params.dictObj->isDict()) m_page->transition = new PageTransition(params);
     o.free();
   }
@@ -398,9 +397,8 @@ Link *Page::action( PageAction act ) const
 {
   if ( act == Page::Opening || act == Page::Closing )
   {
-    ::Page *p = m_page->parentDoc->doc->getCatalog()->getPage(m_page->index + 1);
     Object o;
-    p->getActions(&o);
+    m_page->page->getActions(&o);
     if (!o.isDict())
     {
       o.free();
@@ -426,13 +424,11 @@ Link *Page::action( PageAction act ) const
 
 QSizeF Page::pageSizeF() const
 {
-  ::Page *p;
-  
-  p = m_page->parentDoc->doc->getCatalog()->getPage(m_page->index + 1);
-  if ( ( Page::Landscape == orientation() ) || (Page::Seascape == orientation() ) ) {
-      return QSizeF( p->getCropHeight(), p->getCropWidth() );
+  Page::Orientation orient = orientation();
+  if ( ( Page::Landscape == orient ) || (Page::Seascape == orient ) ) {
+      return QSizeF( m_page->page->getCropHeight(), m_page->page->getCropWidth() );
   } else {
-    return QSizeF( p->getCropWidth(), p->getCropHeight() );
+    return QSizeF( m_page->page->getCropWidth(), m_page->page->getCropHeight() );
   }
 }
 
@@ -443,7 +439,7 @@ QSize Page::pageSize() const
 
 Page::Orientation Page::orientation() const
 {
-  int rotation = m_page->parentDoc->doc->getCatalog()->getPage(m_page->index + 1)->getRotate();
+  const int rotation = m_page->page->getRotate();
   switch (rotation) {
   case 90:
     return Page::Landscape;
@@ -461,9 +457,7 @@ Page::Orientation Page::orientation() const
 
 void Page::defaultCTM(double *CTM, double dpiX, double dpiY, int rotate, bool upsideDown)
 {
-  ::Page *p;
-  p = m_page->parentDoc->doc->getCatalog()->getPage(m_page->index + 1);
-  p->getDefaultCTM(CTM, dpiX, dpiY, rotate, gFalse, upsideDown);
+  m_page->page->getDefaultCTM(CTM, dpiX, dpiY, rotate, gFalse, upsideDown);
 }
 
 QList<Link*> Page::links() const
@@ -478,7 +472,7 @@ QList<Link*> Page::links() const
 QList<Annotation*> Page::annotations() const
 {
     Object annotArray;
-    ::Page *pdfPage = m_page->parentDoc->doc->getCatalog()->getPage(m_page->index + 1);
+    ::Page *pdfPage = m_page->page;
     pdfPage->getAnnots( &annotArray );
     if ( !annotArray.isArray() || annotArray.arrayGetLength() < 1 )
     {
@@ -1262,7 +1256,7 @@ QList<Annotation*> Page::annotations() const
 QList<FormField*> Page::formFields() const
 {
   QList<FormField*> fields;
-  ::Page *p = m_page->parentDoc->doc->getCatalog()->getPage(m_page->index + 1);
+  ::Page *p = m_page->page;
   ::FormPageWidgets * form = p->getPageWidgets();
   int formcount = form->getNumWidgets();
   for (int i = 0; i < formcount; ++i)
@@ -1295,10 +1289,7 @@ QList<FormField*> Page::formFields() const
 
 double Page::duration() const
 {
-  ::Page *p;
-  p = m_page->parentDoc->doc->getCatalog()->getPage(m_page->index + 1);
-  if (p) return p->getDuration();
-  else return -1;
+  return m_page->page->getDuration();
 }
 
 QString Page::label() const
