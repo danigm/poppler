@@ -29,6 +29,7 @@ namespace Poppler
 LinkExtractorOutputDev::LinkExtractorOutputDev(PageData *data)
   : m_data(data)
 {
+  Q_ASSERT(m_data);
   ::Page *popplerPage = m_data->page;
   m_pageCropWidth = popplerPage->getCropWidth();
   m_pageCropHeight = popplerPage->getCropHeight();
@@ -43,7 +44,7 @@ LinkExtractorOutputDev::~LinkExtractorOutputDev()
 
 void LinkExtractorOutputDev::processLink(::Link *link, Catalog *catalog)
 {
-  if (!link->isOk() || !m_data)
+  if (!link->isOk())
     return;
 
   double left, top, right, bottom;
