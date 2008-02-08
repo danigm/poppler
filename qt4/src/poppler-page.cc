@@ -17,12 +17,12 @@
  */
 
 #include <poppler-qt4.h>
-#include <QtCore/QFile>
+
 #include <QtCore/QMap>
 #include <QtGui/QImage>
 #include <QtGui/QPainter>
+
 #include <config.h>
-#include <GlobalParams.h>
 #include <PDFDoc.h>
 #include <Catalog.h>
 #include <Form.h>
