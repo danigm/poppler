@@ -235,7 +235,7 @@ namespace Poppler {
 	/**
 		The checksum of the file.
 		
-		This will return an empty QString if there is no checksum element
+	   This will return an empty QByteArray if there is no checksum element.
 	*/
 	QByteArray checksum() const;
 
