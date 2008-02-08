@@ -17,6 +17,7 @@ set(poppler_qt4_SRCS
   poppler-page.cc
   poppler-base-converter.cc
   poppler-pdf-converter.cc
+  poppler-private.cc
   poppler-ps-converter.cc
   poppler-qiodeviceoutstream.cc
   poppler-sound.cc

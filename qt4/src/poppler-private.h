@@ -38,54 +38,16 @@
 #include <SplashOutputDev.h>
 #endif
 
+#include "poppler-qt4.h"
+
 class FormWidget;
 
 namespace Poppler {
 
     /* borrowed from kpdf */
-    static QString unicodeToQString(Unicode* u, int len) {
-        QString ret;
-        ret.resize(len);
-        QChar* qch = (QChar*) ret.unicode();
-        for (;len;--len)
-          *qch++ = (QChar) *u++;
-        return ret;
-    }
+    QString unicodeToQString(Unicode* u, int len);
 
-    static QString UnicodeParsedString(GooString *s1) {
-        if ( !s1 || s1->getLength() == 0 )
-            return QString();
-
-        GBool isUnicode;
-        int i;
-        Unicode u;
-        QString result;
-        if ( ( s1->getChar(0) & 0xff ) == 0xfe && ( s1->getLength() > 1 && ( s1->getChar(1) & 0xff ) == 0xff ) )
-        {
-            isUnicode = gTrue;
-            i = 2;
-        }
-        else
-        {
-            isUnicode = gFalse;
-            i = 0;
-        }
-        while ( i < s1->getLength() )
-        {
-            if ( isUnicode )
-            {
-                u = ( ( s1->getChar(i) & 0xff ) << 8 ) | ( s1->getChar(i+1) & 0xff );
-                i += 2;
-            }
-            else
-            {
-                u = s1->getChar(i) & 0xff;
-                ++i;
-            }
-            result += unicodeToQString( &u, 1 );
-        }
-        return result;
-    }
+    QString UnicodeParsedString(GooString *s1);
 
 
     class LinkDestinationData
