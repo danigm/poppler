@@ -43,7 +43,7 @@ namespace Poppler {
 	DocumentData *doc = new DocumentData(new GooString(QFile::encodeName(filePath)), 
 					     new GooString(ownerPassword.data()),
 					     new GooString(userPassword.data()));
-	return checkDocument(doc);
+	return DocumentData::checkDocument(doc);
     }
 
     Document *Document::loadFromData(const QByteArray &fileContents,
@@ -54,10 +54,10 @@ namespace Poppler {
 	DocumentData *doc = new DocumentData(fileContents,
 					     new GooString(ownerPassword.data()),
 					     new GooString(userPassword.data()));
-	return checkDocument(doc);
+	return DocumentData::checkDocument(doc);
     }
     
-    Document *Document::checkDocument(DocumentData *doc)
+    Document *DocumentData::checkDocument(DocumentData *doc)
     {
 	Document *pdoc;
 	if (doc->doc->isOk() || doc->doc->getErrorCode() == errEncrypted) {

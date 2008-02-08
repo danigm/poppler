@@ -464,6 +464,7 @@ namespace Poppler {
 */
     class Document {
 	friend class Page;
+	friend class DocumentData;
   
     public:
 	/**
@@ -873,7 +874,6 @@ QString subject = m_doc->info("Subject");
 	DocumentData *m_doc;
 	
 	Document(DocumentData *dataA);
-	static Document *checkDocument(DocumentData *doc);
     };
     
     class BaseConverterPrivate;

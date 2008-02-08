@@ -239,6 +239,8 @@ namespace Poppler {
 			}
 		}
 	}
+	
+	static Document *checkDocument(DocumentData *doc);
 
 	PDFDoc *doc;
 	QByteArray fileContents;
