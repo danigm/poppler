@@ -128,7 +128,7 @@ namespace Poppler {
 	return m_doc->locked;
     }
 
-    Document::PageMode Document::pageMode(void) const
+    Document::PageMode Document::pageMode() const
     {
 	switch (m_doc->doc->getCatalog()->getPageMode()) {
 	case Catalog::pageModeNone:
@@ -148,7 +148,7 @@ namespace Poppler {
 	}
     }
 
-    Document::PageLayout Document::pageLayout(void) const
+    Document::PageLayout Document::pageLayout() const
     {
 	switch (m_doc->doc->getCatalog()->getPageLayout()) {
 	case Catalog::pageLayoutNone:
