@@ -19,6 +19,7 @@
 #ifndef _POPPLER_LINK_EXTRACTOR_H_
 #define _POPPLER_LINK_EXTRACTOR_H_
 
+#include <Object.h>
 #include <OutputDev.h>
 
 #include <QtCore/QList>
@@ -26,6 +27,7 @@
 namespace Poppler
 {
 
+class Link;
 class PageData;
 
 class LinkExtractorOutputDev : public OutputDev

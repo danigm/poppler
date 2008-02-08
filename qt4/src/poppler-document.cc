@@ -29,7 +29,6 @@
 
 #include <QtCore/QDebug>
 #include <QtCore/QFile>
-#include <QtGui/QImage>
 #include <QtCore/QByteArray>
 
 #include "poppler-private.h"

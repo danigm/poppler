@@ -16,11 +16,11 @@
  * Foundation, Inc., 51 Franklin Street - Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
+#include "poppler-qt4.h"
+
 #include "Object.h"
 #include "Stream.h"
 #include "Sound.h"
-
-#include "poppler-qt4.h"
 
 namespace Poppler
 {

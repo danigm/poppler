@@ -17,6 +17,8 @@
  * Foundation, Inc., 51 Franklin Street - Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
+#include "poppler-qt4.h"
+
 #include <QtCore/QString>
 #include <QtCore/QDateTime>
 
@@ -24,7 +26,6 @@
 #include "Stream.h"
 #include "Catalog.h"
 
-#include "poppler-qt4.h"
 #include "poppler-private.h"
 
 namespace Poppler

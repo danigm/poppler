@@ -16,12 +16,15 @@
  * Foundation, Inc., 51 Franklin Street - Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
+#include "poppler-link-extractor-private.h"
+
+#include <GfxState.h>
+#include <Link.h>
 #include <Object.h>
+#include <Page.h>
 
 #include "poppler-qt4.h"
-#include "poppler-link-extractor-private.h"
 #include "poppler-page-private.h"
-#include "poppler-private.h"
 
 namespace Poppler
 {

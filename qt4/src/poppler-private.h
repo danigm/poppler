@@ -23,6 +23,9 @@
 #ifndef _POPPLER_PRIVATE_H_
 #define _POPPLER_PRIVATE_H_
 
+#include <QtCore/QVariant>
+#include <QtCore/QVector>
+
 #include <config.h>
 #include <GfxState.h>
 #include <GlobalParams.h>
@@ -34,7 +37,6 @@
 #if defined(HAVE_SPLASH)
 #include <SplashOutputDev.h>
 #endif
-#include <QtCore/QVariant>
 
 class FormWidget;
 

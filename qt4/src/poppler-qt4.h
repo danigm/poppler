@@ -27,8 +27,6 @@
 #include <QtCore/QByteArray>
 #include <QtCore/QDateTime>
 #include <QtCore/QSet>
-#include <QtCore/QVector>
-#include <QtGui/QPixmap>
 #include <QtXml/QDomDocument>
 
 class EmbFile;

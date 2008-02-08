@@ -19,12 +19,16 @@
 #ifndef _POPPLER_PAGE_PRIVATE_H_
 #define _POPPLER_PAGE_PRIVATE_H_
 
-#include "poppler-private.h"
+class QRectF;
 
+class LinkAction;
 class Page;
 
 namespace Poppler
 {
+
+class DocumentData;
+class PageTransition;
 
 class PageData {
 public:
