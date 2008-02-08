@@ -275,8 +275,8 @@ namespace Poppler {
 
 		QString fontName;
 		QString fontFile;
-		bool isEmbedded;
-		bool isSubset;
+		bool isEmbedded : 1;
+		bool isSubset : 1;
 		FontInfo::Type type;
     };
 

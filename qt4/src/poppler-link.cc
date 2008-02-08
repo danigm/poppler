@@ -37,8 +37,8 @@ class LinkDestinationPrivate : public QSharedData
 		double left, bottom; // position
 		double right, top;
 		double zoom; // zoom factor
-		bool changeLeft, changeTop; // for destXYZ links, which position
-		bool changeZoom; //   components to change
+		bool changeLeft : 1, changeTop : 1; // for destXYZ links, which position
+		bool changeZoom : 1; //   components to change
 };
 
 	LinkDestinationPrivate::LinkDestinationPrivate()
@@ -135,9 +135,9 @@ class LinkSoundPrivate : public LinkPrivate
 		~LinkSoundPrivate();
 
 		double volume;
-		bool sync;
-		bool repeat;
-		bool mix;
+		bool sync : 1;
+		bool repeat : 1;
+		bool mix : 1;
 		SoundObject *sound;
 };
 

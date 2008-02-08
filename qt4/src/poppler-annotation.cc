@@ -673,19 +673,19 @@ class LineAnnotationPrivate : public AnnotationPrivate
         QLinkedList<QPointF> linePoints;
         LineAnnotation::TermStyle lineStartStyle;
         LineAnnotation::TermStyle lineEndStyle;
-        bool lineClosed;  // (if true draw close shape)
+        bool lineClosed : 1;  // (if true draw close shape)
+        bool lineShowCaption : 1;
         QColor lineInnerColor;
         double lineLeadingFwdPt;
         double lineLeadingBackPt;
-        bool lineShowCaption;
         LineAnnotation::LineIntent lineIntent;
 };
 
 LineAnnotationPrivate::LineAnnotationPrivate()
     : AnnotationPrivate(), lineStartStyle( LineAnnotation::None ),
     lineEndStyle( LineAnnotation::None ), lineClosed( false ),
-    lineLeadingFwdPt( 0 ), lineLeadingBackPt( 0 ),
-    lineShowCaption( false ), lineIntent( LineAnnotation::Unknown )
+    lineShowCaption( false ), lineLeadingFwdPt( 0 ), lineLeadingBackPt( 0 ),
+    lineIntent( LineAnnotation::Unknown )
 {
 }
 
