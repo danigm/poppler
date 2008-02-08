@@ -81,9 +81,16 @@ QString FontInfo::typeName() const
 		return QObject::tr("CID Type 0C");
 	case CIDTrueType:
 		return QObject::tr("CID TrueType");
-	default:
-		return QObject::tr("Bug: unexpected font type. Notify poppler mailing list!");
+	case Type1COT:
+		return QObject::tr("Type 1C (OpenType)");
+	case TrueTypeOT:
+		return QObject::tr("TrueType (OpenType)");
+	case CIDType0COT:
+		return QObject::tr("CID Type 0C (OpenType)");
+	case CIDTrueTypeOT:
+		return QObject::tr("CID TrueType (OpenType)");
 	}
+	return QObject::tr("Bug: unexpected font type. Notify poppler mailing list!");
 }
 
 FontInfo& FontInfo::operator=( const FontInfo &fi )
