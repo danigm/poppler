@@ -208,11 +208,11 @@ namespace Poppler {
 	// [Albert] Code adapted from pdfinfo.cc on xpdf
 	Object info;
 	if ( m_doc->locked )
-	    return NULL;
+	    return QString();
 
 	m_doc->doc->getDocInfo( &info );
 	if ( !info.isDict() )
-	    return NULL;
+	    return QString();
 
 	QString result;
 	Object obj;
@@ -229,7 +229,7 @@ namespace Poppler {
 	}
 	obj.free();
 	info.free();
-	return NULL;
+	return QString();
     }
 
     QStringList Document::infoKeys() const
