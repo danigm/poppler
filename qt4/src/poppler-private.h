@@ -49,6 +49,10 @@ namespace Poppler {
 
     QString UnicodeParsedString(GooString *s1);
 
+    GooString *QStringToUnicodeGooString(const QString &s);
+
+    GooString *QStringToGooString(const QString &s);
+
 
     class LinkDestinationData
     {
