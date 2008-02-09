@@ -1131,4 +1131,7 @@ height = dummy.height();
 
 }
 
+Q_DECLARE_OPERATORS_FOR_FLAGS(Poppler::Document::RenderHints)
+Q_DECLARE_OPERATORS_FOR_FLAGS(Poppler::PDFConverter::PDFOptions)
+
 #endif
