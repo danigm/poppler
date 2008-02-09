@@ -28,10 +28,12 @@ class PDFConverterPrivate : public BaseConverterPrivate
 {
 	public:
 		PDFConverterPrivate();
+
+		PDFConverter::PDFOptions opts;
 };
 
 PDFConverterPrivate::PDFConverterPrivate()
-	: BaseConverterPrivate()
+	: BaseConverterPrivate(), opts(0)
 {
 }
 
@@ -47,6 +49,18 @@ PDFConverter::~PDFConverter()
 {
 }
 
+void PDFConverter::setPDFOptions(PDFConverter::PDFOptions options)
+{
+	Q_D(PDFConverter);
+	d->opts = options;
+}
+
+PDFConverter::PDFOptions PDFConverter::pdfOptions() const
+{
+	Q_D(const PDFConverter);
+	return d->opts;
+}
+
 bool PDFConverter::convert()
 {
 	Q_D(PDFConverter);
@@ -59,7 +73,14 @@ bool PDFConverter::convert()
 		return false;
 
 	QIODeviceOutStream stream(dev);
-	d->document->doc->saveAs(&stream);
+	if (d->opts & WithChanges)
+	{
+		d->document->doc->saveAs(&stream);
+	}
+	else
+	{
+		d->document->doc->saveWithoutChangesAs(&stream);
+	}
 	d->closeDevice();
 
 	return true;
