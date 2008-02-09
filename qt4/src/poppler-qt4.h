@@ -1022,9 +1022,23 @@ height = dummy.height();
         friend class Document;
         public:
             /**
+              Options for the PDF export.
+             */
+            enum PDFOption {
+                WithChanges = 0x00000001        ///< The changes done to the document are saved as well
+            };
+            Q_DECLARE_FLAGS( PDFOptions, PDFOption )
+
+            /**
               Destructor.
             */
             virtual ~PDFConverter();
+
+            /**
+              Options for the PDF export.
+             */
+            void setPDFOptions(PDFOptions options);
+            PDFOptions pdfOptions() const;
 
             bool convert();
 
@@ -1116,5 +1130,8 @@ height = dummy.height();
     };
 
 }
+
+Q_DECLARE_OPERATORS_FOR_FLAGS(Poppler::Document::RenderHints)
+Q_DECLARE_OPERATORS_FOR_FLAGS(Poppler::PDFConverter::PDFOptions)
 
 #endif

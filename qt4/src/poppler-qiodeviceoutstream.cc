@@ -20,9 +20,9 @@
 
 #include <QtCore/QIODevice>
 
-#include <iostream>
-
 #include <stdio.h>
+
+#define QIODeviceOutStreamBufSize 8192
 
 namespace Poppler {
 
@@ -58,14 +58,11 @@ void QIODeviceOutStream::printf(const char *format, ...)
 {
   va_list ap;
   va_start(ap, format);
-  char* buf = 0;
+  char buf[QIODeviceOutStreamBufSize];
   size_t bufsize = 0;
-  FILE* stream = open_memstream(&buf, &bufsize);
-  vfprintf(stream, format, ap);
+  bufsize = qvsnprintf(buf, QIODeviceOutStreamBufSize - 1, format, ap);
   va_end(ap);
-  fclose(stream);
   m_device->write(buf, bufsize);
-  free(buf);
 }
 
 }
