@@ -78,7 +78,7 @@ pgd_page_set_page (PgdPageDemo *demo,
 		gtk_label_set_text (GTK_LABEL (demo->size), NULL);
 	}
 
-	str = page ? g_strdup_printf ("%d seconds", poppler_page_get_duration (page)) : NULL;
+	str = page ? g_strdup_printf ("%.2f seconds", poppler_page_get_duration (page)) : NULL;
 	gtk_label_set_text (GTK_LABEL (demo->duration), str);
 	g_free (str);
 
