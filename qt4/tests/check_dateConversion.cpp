@@ -11,6 +11,8 @@ class TestDateConv: public QObject
 private slots:
     void checkDates_data();
     void checkDates();
+    void checkInvalidDates_data();
+    void checkInvalidDates();
 };
 
 void TestDateConv::checkDates_data()
@@ -97,6 +99,38 @@ void TestDateConv::checkDates()
     QFETCH(QTime, time);
 
     QCOMPARE( Poppler::convertDate(input.data()), QDateTime(day, time, Qt::UTC) );
+}
+
+void TestDateConv::checkInvalidDates_data()
+{
+    QTest::addColumn<QByteArray>("input");
+
+    // Null data
+    QTest::newRow("Null data")
+      << QByteArray();
+
+    // Empty data
+    QTest::newRow("Empty data")
+      << QByteArray("");
+
+    // Empty data
+    QTest::newRow("One character")
+      << QByteArray("D");
+
+    // Empty data
+    QTest::newRow("'D:'")
+      << QByteArray("D:");
+
+    // Empty data
+    QTest::newRow("Not a date")
+      << QByteArray("D:IAmNotAValidDate");
+}
+
+void TestDateConv::checkInvalidDates()
+{
+    QFETCH(QByteArray, input);
+
+    QCOMPARE(Poppler::convertDate(input.data()), QDateTime());
 }
 
 QTEST_MAIN(TestDateConv)
