@@ -104,6 +104,9 @@ PopplerDocument *poppler_document_new_from_data     (char             *data,
 gboolean         poppler_document_save              (PopplerDocument  *document,
 						     const char       *uri,
 						     GError          **error);
+gboolean         poppler_document_save_a_copy       (PopplerDocument  *document,
+						     const char       *uri,
+						     GError          **error);
 int              poppler_document_get_n_pages       (PopplerDocument  *document);
 PopplerPage     *poppler_document_get_page          (PopplerDocument  *document,
 						     int               index);

@@ -471,14 +471,40 @@ GBool PDFDoc::saveAs(OutStream *outStr, PDFWriteMode mode) {
       saveIncrementalUpdate(outStr);
     } else {
       // simply copy the original file
-      int c;
-      str->reset();
-      while ((c = str->getChar()) != EOF) {
-        outStr->put(c);
-      }
-      str->close();
+      saveWithoutChangesAs (outStr);
     }
   }
+
+  return gTrue;
+}
+
+GBool PDFDoc::saveWithoutChangesAs(GooString *name) {
+  FILE *f;
+  OutStream *outStr;
+  GBool res;
+
+  if (!(f = fopen(name->getCString(), "wb"))) {
+    error(-1, "Couldn't open file '%s'", name->getCString());
+    return gFalse;
+  }
+  
+  outStr = new FileOutStream(f,0);
+  res = saveWithoutChangesAs(outStr);
+  delete outStr;
+
+  fclose(f);
+
+  return res;
+}
+
+GBool PDFDoc::saveWithoutChangesAs(OutStream *outStr) {
+  int c;
+  
+  str->reset();
+  while ((c = str->getChar()) != EOF) {
+    outStr->put(c);
+  }
+  str->close();
 
   return gTrue;
 }

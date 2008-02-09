@@ -205,7 +205,9 @@ poppler_document_new_from_data (char        *data,
  * @uri: uri of file to save
  * @error: return location for an error, or %NULL
  * 
- * Saves @document.  If @error is set, %FALSE will be returned. Possible errors
+ * Saves @document. Any change made in the document such as 
+ * form fields filled by the user will be saved. 
+ * If @error is set, %FALSE will be returned. Possible errors
  * include those in the #G_FILE_ERROR domain.
  * 
  * Return value: %TRUE, if the document was successfully saved
@@ -226,6 +228,43 @@ poppler_document_save (PopplerDocument  *document,
     g_free (filename);
 
     retval = document->doc->saveAs (fname);
+
+    delete fname;
+  }
+
+  return retval;
+}
+
+/**
+ * poppler_document_save_a_copy:
+ * @document: a #PopplerDocument
+ * @uri: uri of file to save
+ * @error: return location for an error, or %NULL
+ * 
+ * Saves a copy of the original @document.
+ * Any change made in the document such as 
+ * form fields filled by the user will not be saved. 
+ * If @error is set, %FALSE will be returned. Possible errors
+ * include those in the #G_FILE_ERROR domain.
+ * 
+ * Return value: %TRUE, if the document was successfully saved
+ **/
+gboolean
+poppler_document_save_a_copy (PopplerDocument  *document,
+			      const char       *uri,
+			      GError          **error)
+{
+  char *filename;
+  gboolean retval = FALSE;
+
+  g_return_val_if_fail (POPPLER_IS_DOCUMENT (document), FALSE);
+
+  filename = g_filename_from_uri (uri, NULL, error);
+  if (filename != NULL) {
+    GooString *fname = new GooString (filename);
+    g_free (filename);
+
+    retval = document->doc->saveWithoutChangesAs (fname);
 
     delete fname;
   }
