@@ -88,6 +88,7 @@ CairoOutputDev::CairoOutputDev() {
   cairo = NULL;
   currentFont = NULL;
   prescaleImages = gTrue;
+  printing = gTrue;
 
   groupColorSpaceStack = NULL;
   group = NULL;
@@ -908,7 +909,7 @@ void CairoOutputDev::drawImageMask(GfxState *state, Object *ref, Stream *str,
   cairo_get_matrix (cairo, &matrix);
   //XXX: it is possible that we should only do sub pixel positioning if 
   // we are rendering fonts */
-  if (prescaleImages && matrix.xy == 0.0 && matrix.yx == 0.0) {
+  if (!printing && prescaleImages && matrix.xy == 0.0 && matrix.yx == 0.0) {
     drawImageMaskPrescaled(state, ref, str, width, height, invert, inlineImg);
   } else {
     drawImageMaskRegular(state, ref, str, width, height, invert, inlineImg);

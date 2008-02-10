@@ -193,6 +193,7 @@ public:
   GBool isReverseVideo() { return gFalse; }
   
   void setCairo (cairo_t *cr);
+  void setPrinting (GBool printing) { this->printing = printing; }
 
 protected:
   void doPath(cairo_t *cairo, GfxState *state, GfxPath *path);
@@ -210,6 +211,7 @@ protected:
   cairo_t *cairo;
   cairo_matrix_t orig_matrix;
   GBool needFontUpdate;                // set when the font needs to be updated
+  GBool printing;
   cairo_surface_t *surface;
   cairo_glyph_t *glyphs;
   int glyphCount;
