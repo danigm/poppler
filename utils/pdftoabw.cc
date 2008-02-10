@@ -40,7 +40,7 @@ GBool stout = gFalse;
 static char ownerPassword[33] = "";
 static char userPassword[33] = "";
 
-static char textEncName[128] = "";
+// static char textEncName[128] = "";
 
 static ArgDesc argDesc[] = {
   {"-f",      argInt,      &firstPage,     0,
@@ -63,9 +63,9 @@ static ArgDesc argDesc[] = {
 int main(int argc, char *argv[]) {
   PDFDoc *doc = NULL;
   GooString *fileName = NULL;
-  GooString *abwFileName = NULL;
+//  GooString *abwFileName = NULL;
   ABWOutputDev *abwOut = NULL;
-  GBool ok;
+//  GBool ok;
   GooString *ownerPW, *userPW;
   Object info;
 
