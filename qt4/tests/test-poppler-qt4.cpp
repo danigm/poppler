@@ -144,7 +144,7 @@ int main( int argc, char **argv )
     qDebug() << "      Page mode: " << doc->pageMode();
     qDebug() << "       Metadata: " << doc->metadata();
     QStringList fontNameList;
-    foreach( Poppler::FontInfo font, doc->fonts() )
+    foreach( const Poppler::FontInfo &font, doc->fonts() )
 	fontNameList += font.name();
     qDebug() << "          Fonts: " << fontNameList.join( ", " );
 

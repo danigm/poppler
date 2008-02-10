@@ -27,7 +27,7 @@ int main( int argc, char **argv )
     std::cout << "------------------------------------ ------------ --- --- ---------";
     std::cout << std::endl;
   
-    foreach( Poppler::FontInfo font, doc->fonts() ) {
+    foreach( const Poppler::FontInfo &font, doc->fonts() ) {
 	if (font.name().isNull()) {
 	    std::cout << qPrintable( QString("%1").arg(QString("[none]"), -37) );
 	} else {

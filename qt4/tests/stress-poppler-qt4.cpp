@@ -25,7 +25,7 @@ int main( int argc, char **argv )
     QStringList excludeSubDirs;
     excludeSubDirs << "000048" << "000607";
 
-    foreach ( QString subdir, dbDir.entryList(QStringList() << "0000*", QDir::Dirs) ) {
+    foreach ( const QString &subdir, dbDir.entryList(QStringList() << "0000*", QDir::Dirs) ) {
 	if ( excludeSubDirs.contains(subdir) ) {
 	    // then skip it
 	} else {

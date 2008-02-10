@@ -16,7 +16,7 @@ int main( int argc, char **argv )
     t.start();
 
     QDir directory( argv[1] );
-    foreach ( const QString fileName, directory.entryList() ) {
+    foreach ( const QString &fileName, directory.entryList() ) {
         if (fileName.endsWith("pdf") ) {
 	    qDebug() << "Doing" << fileName.toLatin1().data() << ":";
 	    Poppler::Document *doc = Poppler::Document::load( directory.canonicalPath()+"/"+fileName );
