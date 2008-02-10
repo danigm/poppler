@@ -425,6 +425,7 @@ _poppler_page_render (PopplerPage *page,
 
   output_dev = page->document->output_dev;
   output_dev->setCairo (cairo);
+  output_dev->setPrinting (printing);
 
   /* NOTE: instead of passing -1 we should/could use cairo_clip_extents()
    * to get a bounding box */
