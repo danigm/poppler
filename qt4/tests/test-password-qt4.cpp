@@ -1,7 +1,9 @@
-#include <stdlib.h>
-#include <QtCore/QtCore>
-#include <QtGui/QtGui>
-#include <ctype.h>
+#include <QtCore/QDebug>
+#include <QtGui/QApplication>
+#include <QtGui/QImage>
+#include <QtGui/QPainter>
+#include <QtGui/QPaintEvent>
+#include <QtGui/QWidget>
 
 #include <poppler-qt4.h>
 

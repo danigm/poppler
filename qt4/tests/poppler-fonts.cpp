@@ -1,4 +1,6 @@
-#include <QtCore/QtCore>
+#include <QtCore/QCoreApplication>
+#include <QtCore/QDebug>
+
 #include <iostream>
 
 #include <poppler-qt4.h>
