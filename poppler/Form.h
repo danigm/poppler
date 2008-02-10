@@ -67,6 +67,7 @@ public:
   unsigned getID () { return ID; }
   void setID (unsigned int i) { ID=i; }
 
+  FormField *getField () { return field; }
   FormFieldType getType() { return type; }
 
   Object* getObj() { return &obj; }
@@ -80,7 +81,7 @@ public:
 
   GBool isModified () { return modified; }
 
-  virtual bool isReadOnly() const = 0;
+  bool isReadOnly() const;
 
   // return the unique ID corresponding to pageNum/fieldNum
   static int encodeID (unsigned pageNum, unsigned fieldNum);
@@ -88,7 +89,7 @@ public:
   static void decodeID (unsigned id, unsigned* pageNum, unsigned* fieldNum);
 
 protected:
-  FormWidget(XRef *xrefA, Object *aobj, unsigned num, Ref aref);
+  FormWidget(XRef *xrefA, Object *aobj, unsigned num, Ref aref, FormField *fieldA);
   FormWidget(FormWidget *dest);
 
   FormField* field;
@@ -123,7 +124,7 @@ protected:
 
 class FormWidgetButton: public FormWidget {
 public:
-  FormWidgetButton(XRef *xrefA, Object *dict, unsigned num, Ref ref, FormFieldButton *p);
+  FormWidgetButton(XRef *xrefA, Object *dict, unsigned num, Ref ref, FormField *p);
   ~FormWidgetButton ();
 
   FormButtonType getButtonType() const;
@@ -134,8 +135,6 @@ public:
   char* getOnStr () { return onStr->getCString(); }
 
   void loadDefaults();
-
-  bool isReadOnly () const;
 
   void setNumSiblingsID (int i);
   void setSiblingsID (int i, unsigned id) { siblingsID[i] = id; }
@@ -159,7 +158,7 @@ protected:
 
 class FormWidgetText: public FormWidget {
 public:
-  FormWidgetText(XRef *xrefA, Object *dict, unsigned num, Ref ref, FormFieldText *p);
+  FormWidgetText(XRef *xrefA, Object *dict, unsigned num, Ref ref, FormField *p);
   //return the field's content (UTF16BE)
   GooString* getContent() ;
   //return a copy of the field's content (UTF16BE)
@@ -177,7 +176,6 @@ public:
   bool noScroll () const; 
   bool isComb () const; 
   bool isRichText () const;
-  bool isReadOnly () const;
   int getMaxLen () const;
 protected:
   FormFieldText *parent;
@@ -189,7 +187,7 @@ protected:
 
 class FormWidgetChoice: public FormWidget {
 public:
-  FormWidgetChoice(XRef *xrefA, Object *dict, unsigned num, Ref ref, FormFieldChoice *p);
+  FormWidgetChoice(XRef *xrefA, Object *dict, unsigned num, Ref ref, FormField *p);
   ~FormWidgetChoice();
 
   void loadDefaults ();
@@ -218,7 +216,6 @@ public:
   bool isMultiSelect () const; 
   bool noSpellCheck () const; 
   bool commitOnSelChange () const; 
-  bool isReadOnly () const;
   bool isListBox () const;
 protected:
   void _updateV ();
@@ -232,8 +229,7 @@ protected:
 
 class FormWidgetSignature: public FormWidget {
 public:
-  FormWidgetSignature(XRef *xrefA, Object *dict, unsigned num, Ref ref, FormFieldSignature *p);
-  bool isReadOnly () const;
+  FormWidgetSignature(XRef *xrefA, Object *dict, unsigned num, Ref ref, FormField *p);
 protected:
   FormFieldSignature *parent;
 };
@@ -247,7 +243,7 @@ protected:
 
 class FormField {
 public:
-  FormField(XRef* xrefa, Object *aobj, const Ref& aref, Form* aform, FormFieldType t=formUndef);
+  FormField(XRef* xrefa, Object *aobj, const Ref& aref, FormFieldType t=formUndef);
 
   virtual ~FormField();
 
@@ -279,7 +275,6 @@ public:
   FormField **children;
   int numChildren;
   FormWidget **widgets;
-  Form* form;
   bool readOnly;
 
 private:
@@ -293,7 +288,7 @@ private:
 
 class FormFieldButton: public FormField {
 public:
-  FormFieldButton(XRef *xrefA, Object *dict, const Ref& ref, Form* form);
+  FormFieldButton(XRef *xrefA, Object *dict, const Ref& ref);
 
   FormButtonType getButtonType () { return btype; }
 
@@ -318,7 +313,7 @@ protected:
 
 class FormFieldText: public FormField {
 public:
-  FormFieldText(XRef *xrefA, Object *dict, const Ref& ref, Form* form);
+  FormFieldText(XRef *xrefA, Object *dict, const Ref& ref);
   
   GooString* getContent () { return content; }
   GooString* getContentCopy ();
@@ -352,7 +347,7 @@ protected:
 
 class FormFieldChoice: public FormField {
 public:
-  FormFieldChoice(XRef *xrefA, Object *aobj, const Ref& ref, Form* form);
+  FormFieldChoice(XRef *xrefA, Object *aobj, const Ref& ref);
 
   virtual ~FormFieldChoice();
 
@@ -415,7 +410,7 @@ protected:
 
 class FormFieldSignature: public FormField {
 public:
-  FormFieldSignature(XRef *xrefA, Object *dict, const Ref& ref, Form* form);
+  FormFieldSignature(XRef *xrefA, Object *dict, const Ref& ref);
 
   virtual ~FormFieldSignature();
 };
@@ -432,16 +427,18 @@ public:
 
   ~Form();
 
+  // Look up an inheritable field dictionary entry.
   static Object *fieldLookup(Dict *field, char *key, Object *obj);
   
+  /* Creates a new Field of the type specified in obj's dict.
+     used in Form::Form and FormField::FormField */
+  static FormField *createFieldFromDict (Object* obj, XRef *xref, const Ref& aref);
+
+  Object *getObj () const { return acroForm; }
   int getNumFields() const { return numFields; }
   FormField* getRootField(int i) const { return rootFields[i]; }
 
   FormWidget* findWidgetByRef (Ref aref);
-
-  /* Creates a new Field of the type specified in obj's dict. 
-     used in Form::Form and FormField::FormField */
-  void createFieldFromDict (Object* obj, FormField** ptr, XRef *xref, const Ref& aref);
 
   void postWidgetsLoad();
 private:
@@ -449,7 +446,7 @@ private:
   int numFields;
   int size;
   XRef* xref;
-  Catalog* catalog;
+  Object *acroForm;
 };
 
 //------------------------------------------------------------------------

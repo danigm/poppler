@@ -47,7 +47,7 @@ char* pdfDocEncodingToUTF16 (GooString* orig, int* length)
 
 
 
-FormWidget::FormWidget(XRef *xrefA, Object *aobj, unsigned num, Ref aref) 
+FormWidget::FormWidget(XRef *xrefA, Object *aobj, unsigned num, Ref aref, FormField *fieldA) 
 {
   Object obj1, obj2;
   ref = aref;
@@ -60,6 +60,7 @@ FormWidget::FormWidget(XRef *xrefA, Object *aobj, unsigned num, Ref aref)
   xref = xrefA;
   aobj->copy(&obj);
   type = formUndef;
+  field = fieldA;
   Dict *dict = obj.getDict();
 
   if (!dict->lookup("Rect", &obj1)->isArray()) {
@@ -117,12 +118,18 @@ FormWidget::FormWidget(FormWidget *dest)
   y2 = dest->x2;
 
   type = dest->type;
+  field = dest->field;
 
 }
 
 FormWidget::~FormWidget()
 {
   obj.free ();
+}
+
+bool FormWidget::isReadOnly() const
+{
+  return field->isReadOnly();
 }
 
 int FormWidget::encodeID (unsigned pageNum, unsigned fieldNum)
@@ -136,10 +143,11 @@ void FormWidget::decodeID (unsigned id, unsigned* pageNum, unsigned* fieldNum)
   *fieldNum = (id << 4*sizeof(unsigned)) >> 4*sizeof(unsigned);
 }
 
-FormWidgetButton::FormWidgetButton (XRef *xrefA, Object *aobj, unsigned num, Ref ref, FormFieldButton *p) : FormWidget(xrefA, aobj, num, ref)
+FormWidgetButton::FormWidgetButton (XRef *xrefA, Object *aobj, unsigned num, Ref ref, FormField *p) :
+	FormWidget(xrefA, aobj, num, ref, p)
 {
-  parent = p;
   type = formButton;
+  parent = static_cast<FormFieldButton*>(field);
   onStr = NULL;
   state = gFalse;
   siblingsID = NULL;
@@ -183,18 +191,13 @@ void FormWidgetButton::setState (GBool astate, GBool calledByParent)
   xref->setModifiedObject(&obj, ref);
 }
 
-bool FormWidgetButton::isReadOnly() const
-{
-  return parent->isReadOnly();
-}
-
 void FormWidgetButton::loadDefaults ()
 {
   if (defaultsLoaded)
     return;
 
   defaultsLoaded = gTrue;
-  
+
   Dict *dict = obj.getDict();
   Object obj1;
 
@@ -264,10 +267,11 @@ void FormWidgetButton::setNumSiblingsID (int i)
 }
 
 
-FormWidgetText::FormWidgetText (XRef *xrefA, Object *aobj, unsigned num, Ref ref, FormFieldText *p) : FormWidget(xrefA, aobj, num, ref)
+FormWidgetText::FormWidgetText (XRef *xrefA, Object *aobj, unsigned num, Ref ref, FormField *p) :
+	FormWidget(xrefA, aobj, num, ref, p)
 {
-  parent = p;
   type = formText;
+  parent = static_cast<FormFieldText*>(field);
 }
 
 void FormWidgetText::loadDefaults ()
@@ -276,7 +280,7 @@ void FormWidgetText::loadDefaults ()
     return;
 
   defaultsLoaded = gTrue;
-  
+
   Dict *dict = obj.getDict();
   Object obj1;
 
@@ -347,11 +351,6 @@ bool FormWidgetText::isRichText () const
   return parent->isRichText(); 
 }
 
-bool FormWidgetText::isReadOnly () const
-{
-  return parent->isReadOnly();
-}
-
 int FormWidgetText::getMaxLen () const
 {
   return parent->getMaxLen ();
@@ -384,10 +383,11 @@ void FormWidgetText::setContent(GooString* new_content)
   }
 }
 
-FormWidgetChoice::FormWidgetChoice(XRef *xrefA, Object *aobj, unsigned num, Ref ref, FormFieldChoice *p) : FormWidget(xrefA, aobj, num, ref)
+FormWidgetChoice::FormWidgetChoice(XRef *xrefA, Object *aobj, unsigned num, Ref ref, FormField *p) :
+	FormWidget(xrefA, aobj, num, ref, p)
 {
-  parent = p;
   type = formChoice;
+  parent = static_cast<FormFieldChoice*>(field);
 }
 
 void FormWidgetChoice::loadDefaults ()
@@ -396,7 +396,7 @@ void FormWidgetChoice::loadDefaults ()
     return;
 
   defaultsLoaded = gTrue;
-  
+
   Dict *dict = obj.getDict();
   Object obj1;
   if (dict->lookup("Opt", &obj1)->isArray()) {
@@ -460,10 +460,10 @@ void FormWidgetChoice::loadDefaults ()
 
   //convert choice's human readable strings to UTF16
   //and update the /Opt dict entry to reflect this change
-  #ifdef UPDATE_OPT
+#ifdef UPDATE_OPT
   Object *objOpt = new Object();
   objOpt->initArray(xref);
-  #endif
+#endif
   for(int i=0; i<parent->getNumChoices(); i++) {
         if (parent->getChoice(i)->hasUnicodeMarker()) { //string already in UTF16, do nothing
 
@@ -484,10 +484,10 @@ void FormWidgetChoice::loadDefaults ()
     if (tmpCurrentChoice[i])
       parent->select(i);
   }
-  #ifdef UPDATE_OPT
+#ifdef UPDATE_OPT
   obj.getDict()->set("Opt", objOpt);
   xref->setModifiedObject(&obj, ref); 
-  #endif
+#endif
   delete [] tmpCurrentChoice;
 }
 
@@ -623,7 +623,6 @@ GooString* FormWidgetChoice::getChoice(int i)
   return parent->getChoice(i); 
 }
 
-
 bool FormWidgetChoice::isCombo () const 
 { 
   return parent->isCombo(); 
@@ -649,32 +648,24 @@ bool FormWidgetChoice::commitOnSelChange () const
   return parent->commitOnSelChange(); 
 }
 
-bool FormWidgetChoice::isReadOnly () const
-{
-  return parent->isReadOnly();
-}
-
 bool FormWidgetChoice::isListBox () const
 {
   return parent->isListBox();
 }
 
-FormWidgetSignature::FormWidgetSignature(XRef *xrefA, Object *aobj, unsigned num, Ref ref, FormFieldSignature *p) : FormWidget(xrefA, aobj, num, ref)
+FormWidgetSignature::FormWidgetSignature(XRef *xrefA, Object *aobj, unsigned num, Ref ref, FormField *p) :
+	FormWidget(xrefA, aobj, num, ref, p)
 {
-  parent = p;
   type = formSignature;
+  parent = static_cast<FormFieldSignature*>(field);
 }
 
-bool FormWidgetSignature::isReadOnly () const
-{
-  return parent->isReadOnly();
-}
 
 //========================================================================
 // FormField
 //========================================================================
 
-FormField::FormField(XRef* xrefA, Object *aobj, const Ref& aref, Form* aform, FormFieldType ty) 
+FormField::FormField(XRef* xrefA, Object *aobj, const Ref& aref, FormFieldType ty) 
 {
   xref = xrefA;
   aobj->copy(&obj);
@@ -686,7 +677,6 @@ FormField::FormField(XRef* xrefA, Object *aobj, const Ref& aref, Form* aform, Fo
   terminal = false;
   widgets = NULL;
   readOnly = false;
-  form = aform;
   ref = aref;
 
   Object obj1;
@@ -721,7 +711,7 @@ FormField::FormField(XRef* xrefA, Object *aobj, const Ref& aref, Form* aform, Fo
         children = (FormField**)greallocn(children, numChildren, sizeof(FormField*));
 
         obj3.free();
-        form->createFieldFromDict (&obj2, &children[numChildren-1], xrefA, childRef.getRef());
+	children[numChildren-1] = Form::createFieldFromDict (&obj2, xrefA, childRef.getRef());
       }
       // 1 - we will handle 'collapsed' fields (field + annot in the same dict)
       // as if the annot was in the Kids array of the field
@@ -797,11 +787,20 @@ void FormField::_createWidget (Object *obj, Ref aref)
   numChildren++;
   widgets = (FormWidget**)greallocn(widgets, numChildren, sizeof(FormWidget*));
   //ID = index in "widgets" table
-  if(type==formButton) widgets[numChildren-1] = new FormWidgetButton(xref, obj, numChildren-1, aref, static_cast<FormFieldButton*>(this));
-  else if (type==formText) widgets[numChildren-1] = new FormWidgetText(xref, obj, numChildren-1, aref, static_cast<FormFieldText*>(this));
-  else if (type==formChoice) widgets[numChildren-1] = new FormWidgetChoice(xref, obj, numChildren-1, aref, static_cast<FormFieldChoice*>(this));
-  else if (type==formSignature) widgets[numChildren-1] = new FormWidgetSignature(xref, obj, numChildren-1, aref, static_cast<FormFieldSignature*>(this));
-  else  {
+  switch (type) {
+  case formButton:
+    widgets[numChildren-1] = new FormWidgetButton(xref, obj, numChildren-1, aref, this);
+    break;
+  case formText:
+    widgets[numChildren-1] = new FormWidgetText(xref, obj, numChildren-1, aref, this);
+    break;
+  case formChoice:
+    widgets[numChildren-1] = new FormWidgetChoice(xref, obj, numChildren-1, aref, this);
+    break;
+  case formSignature:
+    widgets[numChildren-1] = new FormWidgetSignature(xref, obj, numChildren-1, aref, this);
+    break;
+  default:
     error(-1, "SubType on non-terminal field, invalid document?");
     numChildren--;
     terminal = false;
@@ -829,10 +828,9 @@ FormWidget* FormField::findWidgetByRef (Ref aref)
 //------------------------------------------------------------------------
 // FormFieldButton
 //------------------------------------------------------------------------
-FormFieldButton::FormFieldButton(XRef *xrefA, Object *aobj, const Ref& ref, Form* form) 
-                                 : FormField(xrefA, aobj, ref, form, formButton)
+FormFieldButton::FormFieldButton(XRef *xrefA, Object *aobj, const Ref& ref) 
+	: FormField(xrefA, aobj, ref, formButton)
 {
-  type = formButton;
   Dict* dict = obj.getDict();
   active_child = -1;
   noAllOff = false;
@@ -924,10 +922,9 @@ FormFieldButton::~FormFieldButton()
 //------------------------------------------------------------------------
 // FormFieldText
 //------------------------------------------------------------------------
-FormFieldText::FormFieldText(XRef *xrefA, Object *aobj, const Ref& ref, Form* form) 
-                             : FormField(xrefA, aobj, ref, form, formText)
+FormFieldText::FormFieldText(XRef *xrefA, Object *aobj, const Ref& ref) 
+	: FormField(xrefA, aobj, ref, formText)
 {
-  type = formText;
   Dict* dict = obj.getDict();
   Object obj1;
   content = NULL;
@@ -982,8 +979,8 @@ FormFieldText::~FormFieldText()
 //------------------------------------------------------------------------
 // FormFieldChoice
 //------------------------------------------------------------------------
-FormFieldChoice::FormFieldChoice(XRef *xrefA, Object *aobj, const Ref& ref, Form* form) 
-                                 : FormField(xrefA, aobj, ref, form, formChoice)
+FormFieldChoice::FormFieldChoice(XRef *xrefA, Object *aobj, const Ref& ref) 
+	: FormField(xrefA, aobj, ref, formChoice)
 {
   numChoices = 0;
   choices = NULL;
@@ -1076,8 +1073,8 @@ void FormFieldChoice::_createChoicesTab ()
 //------------------------------------------------------------------------
 // FormFieldSignature
 //------------------------------------------------------------------------
-FormFieldSignature::FormFieldSignature(XRef *xrefA, Object *dict, const Ref& ref, Form* form)
-                                      : FormField(xrefA, dict, ref, form, formSignature)
+FormFieldSignature::FormFieldSignature(XRef *xrefA, Object *dict, const Ref& ref)
+	: FormField(xrefA, dict, ref, formSignature)
 {
 }
 
@@ -1090,11 +1087,12 @@ FormFieldSignature::~FormFieldSignature()
 // Form
 //------------------------------------------------------------------------
 
-Form::Form(XRef *xrefA, Object* acroForm)
+Form::Form(XRef *xrefA, Object* acroFormA)
 {
   Array *array = NULL;
   Object obj1;
   xref = xrefA;
+  acroForm = acroFormA;
   acroForm->dictLookup("Fields",&obj1);
   if (obj1.isArray()) array = obj1.getArray();
   obj1.free();
@@ -1128,7 +1126,7 @@ Form::Form(XRef *xrefA, Object* acroForm)
         rootFields = (FormField**)greallocn(rootFields,size,sizeof(FormField*));
       }
 
-      createFieldFromDict (&obj1, &rootFields[numFields++], xrefA, oref.getRef());
+      rootFields[numFields++] = createFieldFromDict (&obj1, xrefA, oref.getRef());
 
       //Mark readonly field
       Object obj3;
@@ -1171,23 +1169,27 @@ Object *Form::fieldLookup(Dict *field, char *key, Object *obj) {
   return obj;
 }
 
-void Form::createFieldFromDict (Object* obj, FormField** ptr, XRef *xrefA, const Ref& pref)
+FormField *Form::createFieldFromDict (Object* obj, XRef *xrefA, const Ref& pref)
 {
     Object obj2;
+    FormField *field;
 
     if (Form::fieldLookup(obj->getDict (), "FT", &obj2)->isName("Btn")) {
-      (*ptr) = new FormFieldButton(xrefA, obj, pref, this);
+      field = new FormFieldButton(xrefA, obj, pref);
     } else if (obj2.isName("Tx")) {
-      (*ptr) = new FormFieldText(xrefA, obj, pref, this);
+      field = new FormFieldText(xrefA, obj, pref);
     } else if (obj2.isName("Ch")) {
-      (*ptr) = new FormFieldChoice(xrefA, obj, pref, this);
+      field = new FormFieldChoice(xrefA, obj, pref);
     } else if (obj2.isName("Sig")) {
-      (*ptr) = new FormFieldSignature(xrefA, obj, pref, this);
+      field = new FormFieldSignature(xrefA, obj, pref);
     } else { //we don't have an FT entry => non-terminal field
-      (*ptr) = new FormField(xrefA, obj, pref, this);
+      field = new FormField(xrefA, obj, pref);
     }
     obj2.free();
-    (*ptr)->loadChildrenDefaults();
+    
+    field->loadChildrenDefaults();
+
+    return field;
 }
 
 void Form::postWidgetsLoad ()
