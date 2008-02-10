@@ -235,7 +235,6 @@ namespace Poppler {
 			for (int yalv = 0; yalv < numEmb; ++yalv) {
 				EmbFile *ef = doc->getCatalog()->embeddedFile(yalv);
 				m_embeddedFiles.append(new EmbeddedFile(ef));
-				delete ef;
 			}
 		}
 	}

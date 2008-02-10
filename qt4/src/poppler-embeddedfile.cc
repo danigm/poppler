@@ -34,67 +34,56 @@ namespace Poppler
 class EmbeddedFileData
 {
 public:
-	QString m_label;
-	QString m_description;
-	int m_size;
-	QDateTime m_modDate;
-	QDateTime m_createDate;
-	QByteArray m_checksum;
-	Object m_streamObject;
+	EmbFile *embfile;
 };
 
 EmbeddedFile::EmbeddedFile(EmbFile *embfile)
 {
 	m_embeddedFile = new EmbeddedFileData();
-	m_embeddedFile->m_label = QString(embfile->name()->getCString());
-	m_embeddedFile->m_description = UnicodeParsedString(embfile->description());
-	m_embeddedFile->m_size = embfile->size();
-	m_embeddedFile->m_modDate = convertDate(embfile->modDate()->getCString());
-	m_embeddedFile->m_createDate = convertDate(embfile->createDate()->getCString());
-	m_embeddedFile->m_checksum = QByteArray::fromRawData(embfile->checksum()->getCString(), embfile->checksum()->getLength());
-	embfile->streamObject().copy(&m_embeddedFile->m_streamObject);
+	m_embeddedFile->embfile = embfile;
 }
 
 EmbeddedFile::~EmbeddedFile()
 {
-	m_embeddedFile->m_streamObject.free();
+	delete m_embeddedFile->embfile;
 	delete m_embeddedFile;
 }
 
 QString EmbeddedFile::name() const
 {
-	return m_embeddedFile->m_label;
+	return QString(m_embeddedFile->embfile->name()->getCString());
 }
 
 QString EmbeddedFile::description() const
 {
-	return m_embeddedFile->m_description;
+	return UnicodeParsedString(m_embeddedFile->embfile->description());
 }
 
 int EmbeddedFile::size() const
 {
-	return m_embeddedFile->m_size;
+	return m_embeddedFile->embfile->size();
 }
 
 QDateTime EmbeddedFile::modDate() const
 {
-	return m_embeddedFile->m_modDate;
+	return convertDate(m_embeddedFile->embfile->modDate()->getCString());
 }
 
 QDateTime EmbeddedFile::createDate() const
 {
-	return m_embeddedFile->m_createDate;
+	return convertDate(m_embeddedFile->embfile->createDate()->getCString());
 }
 
 QByteArray EmbeddedFile::checksum() const
 {
-	return m_embeddedFile->m_checksum;
+	GooString *goo_checksum = m_embeddedFile->embfile->checksum();
+	return QByteArray::fromRawData(goo_checksum->getCString(), goo_checksum->getLength());
 }
 
 QByteArray EmbeddedFile::data()
 {
 	Object obj;
-	Stream *stream = m_embeddedFile->m_streamObject.getStream();
+	Stream *stream = m_embeddedFile->embfile->streamObject().getStream();
 	stream->reset();
 	int dataLen = 0;
 	QByteArray fileArray;
