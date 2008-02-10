@@ -393,7 +393,6 @@ void Page::displaySlice(OutputDev *out, double hDPI, double vDPI,
   Gfx *gfx;
   Object obj;
   Annots *annotList;
-  Dict *acroForm;
   int i;
   
   if (!out->checkPageSlice(this, hDPI, vDPI, rotate, useMediaBox, crop,
@@ -417,15 +416,9 @@ void Page::displaySlice(OutputDev *out, double hDPI, double vDPI,
   }
   obj.free();
 
-
   // draw annotations
   annotList = new Annots(xref, catalog, getAnnots(&obj));
   obj.free();
-  acroForm = catalog->getAcroForm()->isDict() ?
-               catalog->getAcroForm()->getDict() : NULL;
-  if (acroForm) {
-    annotList->generateAppearances(acroForm);
-  }
   
   if (annotList->getNumAnnots() > 0) {
     if (globalParams->getPrintCommands()) {
@@ -437,7 +430,7 @@ void Page::displaySlice(OutputDev *out, double hDPI, double vDPI,
              (*annotDisplayDecideCbk)(annot, annotDisplayDecideCbkData)) || 
             !annotDisplayDecideCbk) {
              annotList->getAnnot(i)->draw(gfx, printing);
-    }
+	}
     }
     out->dump();
   }

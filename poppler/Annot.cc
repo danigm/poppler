@@ -670,14 +670,14 @@ AnnotAppearanceCharacs::~AnnotAppearanceCharacs() {
 // Annot
 //------------------------------------------------------------------------
 
-Annot::Annot(XRef *xrefA, Dict *acroForm, Dict *dict, Catalog* catalog) {
+Annot::Annot(XRef *xrefA, Dict *dict, Catalog* catalog) {
   hasRef = false;
   flags = flagUnknown;
   type = typeUnknown;
-  initialize (xrefA, acroForm, dict, catalog);
+  initialize (xrefA, dict, catalog);
 }
 
-Annot::Annot(XRef *xrefA, Dict *acroForm, Dict *dict, Catalog* catalog, Object *obj) {
+Annot::Annot(XRef *xrefA, Dict *dict, Catalog* catalog, Object *obj) {
   if (obj->isRef()) {
     hasRef = gTrue;
     ref = obj->getRef();
@@ -686,10 +686,10 @@ Annot::Annot(XRef *xrefA, Dict *acroForm, Dict *dict, Catalog* catalog, Object *
   }
   flags = flagUnknown;
   type = typeUnknown;
-  initialize (xrefA, acroForm, dict, catalog);
+  initialize (xrefA, dict, catalog);
 }
 
-void Annot::initialize(XRef *xrefA, Dict *acroForm, Dict *dict, Catalog *catalog) {
+void Annot::initialize(XRef *xrefA, Dict *dict, Catalog *catalog) {
   Object apObj, asObj, obj1, obj2, obj3;
 
   appRef.num = 0;
@@ -698,15 +698,6 @@ void Annot::initialize(XRef *xrefA, Dict *acroForm, Dict *dict, Catalog *catalog
   xref = xrefA;
   appearBuf = NULL;
   fontSize = 0;
-  widget = NULL;
-
-  //----- get the FormWidget
-  if (hasRef) {
-    Form *form = catalog->getForm ();
-    
-    if (form)
-      widget = form->findWidgetByRef (ref);
-  }
 
   //----- parse the rectangle
   rect = new PDFRectangle();
@@ -779,22 +770,6 @@ void Annot::initialize(XRef *xrefA, Dict *acroForm, Dict *dict, Catalog *catalog
   }
   obj1.free();
 
-  // check if field apperances need to be regenerated
-  // Only text or choice fields needs to have appearance regenerated
-  // see section 8.6.2 "Variable Text" of PDFReference
-  regen = gFalse;
-  Form::fieldLookup(dict, "FT", &obj3);
-  if (obj3.isName("Tx") || obj3.isName("Ch")) {
-    if (acroForm) {
-      acroForm->lookup("NeedAppearances", &obj1);
-      if (obj1.isBool() && obj1.getBool()) {
-        regen = gTrue;
-      }
-      obj1.free();
-    }
-  }
-  obj3.free();
-
   if (dict->lookup("AP", &obj1)->isDict()) {
     Object obj2;
 
@@ -811,8 +786,7 @@ void Annot::initialize(XRef *xrefA, Dict *acroForm, Dict *dict, Catalog *catalog
           obj4.free();
           if (obj3.dictLookupNF("Off", &obj4)->isRef()) {
             obj4.copy(&appearance);
-          } else
-            regen = gTrue;
+          }
         } 
         obj4.free();
       }
@@ -823,14 +797,11 @@ void Annot::initialize(XRef *xrefA, Dict *acroForm, Dict *dict, Catalog *catalog
       appearState = NULL;
       if (obj1.dictLookupNF("N", &obj2)->isRef()) {
         obj2.copy(&appearance);
-      } else
-        regen = gTrue;
+      }
     }
     obj2.free();
   } else {
     appearState = NULL;
-    // If field doesn't have an AP we'll have to generate it
-    regen = gTrue;
   }
   obj1.free();
 
@@ -926,8 +897,1531 @@ Annot::~Annot() {
     delete optionalContent;
 }
 
-void Annot::generateFieldAppearance(Dict *field, Dict *annot, Dict *acroForm) {
+// Set the current fill or stroke color, based on <a> (which should
+// have 1, 3, or 4 elements).  If <adjust> is +1, color is brightened;
+// if <adjust> is -1, color is darkened; otherwise color is not
+// modified.
+void Annot::setColor(Array *a, GBool fill, int adjust) {
+  Object obj1;
+  double color[4];
+  int nComps, i;
+
+  nComps = a->getLength();
+  if (nComps > 4) {
+    nComps = 4;
+  }
+  for (i = 0; i < nComps && i < 4; ++i) {
+    if (a->get(i, &obj1)->isNum()) {
+      color[i] = obj1.getNum();
+    } else {
+      color[i] = 0;
+    }
+    obj1.free();
+  }
+  if (nComps == 4) {
+    adjust = -adjust;
+  }
+  if (adjust > 0) {
+    for (i = 0; i < nComps; ++i) {
+      color[i] = 0.5 * color[i] + 0.5;
+    }
+  } else if (adjust < 0) {
+    for (i = 0; i < nComps; ++i) {
+      color[i] = 0.5 * color[i];
+    }
+  }
+  if (nComps == 4) {
+    appearBuf->appendf("{0:.2f} {1:.2f} {2:.2f} {3:.2f} {4:c}\n",
+        color[0], color[1], color[2], color[3],
+        fill ? 'k' : 'K');
+  } else if (nComps == 3) {
+    appearBuf->appendf("{0:.2f} {1:.2f} {2:.2f} {3:s}\n",
+        color[0], color[1], color[2],
+        fill ? "rg" : "RG");
+  } else {
+    appearBuf->appendf("{0:.2f} {1:c}\n",
+        color[0],
+        fill ? 'g' : 'G');
+  }
+}
+
+// Draw an (approximate) circle of radius <r> centered at (<cx>, <cy>).
+// If <fill> is true, the circle is filled; otherwise it is stroked.
+void Annot::drawCircle(double cx, double cy, double r, GBool fill) {
+  appearBuf->appendf("{0:.2f} {1:.2f} m\n",
+      cx + r, cy);
+  appearBuf->appendf("{0:.2f} {1:.2f} {2:.2f} {3:.2f} {4:.2f} {5:.2f} c\n",
+      cx + r, cy + bezierCircle * r,
+      cx + bezierCircle * r, cy + r,
+      cx, cy + r);
+  appearBuf->appendf("{0:.2f} {1:.2f} {2:.2f} {3:.2f} {4:.2f} {5:.2f} c\n",
+      cx - bezierCircle * r, cy + r,
+      cx - r, cy + bezierCircle * r,
+      cx - r, cy);
+  appearBuf->appendf("{0:.2f} {1:.2f} {2:.2f} {3:.2f} {4:.2f} {5:.2f} c\n",
+      cx - r, cy - bezierCircle * r,
+      cx - bezierCircle * r, cy - r,
+      cx, cy - r);
+  appearBuf->appendf("{0:.2f} {1:.2f} {2:.2f} {3:.2f} {4:.2f} {5:.2f} c\n",
+      cx + bezierCircle * r, cy - r,
+      cx + r, cy - bezierCircle * r,
+      cx + r, cy);
+  appearBuf->append(fill ? "f\n" : "s\n");
+}
+
+// Draw the top-left half of an (approximate) circle of radius <r>
+// centered at (<cx>, <cy>).
+void Annot::drawCircleTopLeft(double cx, double cy, double r) {
+  double r2;
+
+  r2 = r / sqrt(2.0);
+  appearBuf->appendf("{0:.2f} {1:.2f} m\n",
+      cx + r2, cy + r2);
+  appearBuf->appendf("{0:.2f} {1:.2f} {2:.2f} {3:.2f} {4:.2f} {5:.2f} c\n",
+      cx + (1 - bezierCircle) * r2,
+      cy + (1 + bezierCircle) * r2,
+      cx - (1 - bezierCircle) * r2,
+      cy + (1 + bezierCircle) * r2,
+      cx - r2,
+      cy + r2);
+  appearBuf->appendf("{0:.2f} {1:.2f} {2:.2f} {3:.2f} {4:.2f} {5:.2f} c\n",
+      cx - (1 + bezierCircle) * r2,
+      cy + (1 - bezierCircle) * r2,
+      cx - (1 + bezierCircle) * r2,
+      cy - (1 - bezierCircle) * r2,
+      cx - r2,
+      cy - r2);
+  appearBuf->append("S\n");
+}
+
+// Draw the bottom-right half of an (approximate) circle of radius <r>
+// centered at (<cx>, <cy>).
+void Annot::drawCircleBottomRight(double cx, double cy, double r) {
+  double r2;
+
+  r2 = r / sqrt(2.0);
+  appearBuf->appendf("{0:.2f} {1:.2f} m\n",
+      cx - r2, cy - r2);
+  appearBuf->appendf("{0:.2f} {1:.2f} {2:.2f} {3:.2f} {4:.2f} {5:.2f} c\n",
+      cx - (1 - bezierCircle) * r2,
+      cy - (1 + bezierCircle) * r2,
+      cx + (1 - bezierCircle) * r2,
+      cy - (1 + bezierCircle) * r2,
+      cx + r2,
+      cy - r2);
+  appearBuf->appendf("{0:.2f} {1:.2f} {2:.2f} {3:.2f} {4:.2f} {5:.2f} c\n",
+      cx + (1 + bezierCircle) * r2,
+      cy - (1 - bezierCircle) * r2,
+      cx + (1 + bezierCircle) * r2,
+      cy + (1 - bezierCircle) * r2,
+      cx + r2,
+      cy + r2);
+  appearBuf->append("S\n");
+}
+
+void Annot::draw(Gfx *gfx, GBool printing) {
+  Object obj;
+
+  // check the flags
+  if ((flags & annotFlagHidden) ||
+      (printing && !(flags & annotFlagPrint)) ||
+      (!printing && (flags & annotFlagNoView))) {
+    return;
+  }
+
+  // draw the appearance stream
+  appearance.fetch(xref, &obj);
+  gfx->drawAnnot(&obj, (type == typeLink) ? border : (AnnotBorder *)NULL, color,
+      rect->x1, rect->y1, rect->x2, rect->y2);
+  obj.free();
+}
+
+//------------------------------------------------------------------------
+// AnnotPopup
+//------------------------------------------------------------------------
+
+AnnotPopup::AnnotPopup(XRef *xrefA, Dict *dict, Catalog *catalog, Object *obj) :
+    Annot(xrefA, dict, catalog, obj) {
+  type = typePopup;
+  initialize(xrefA, dict, catalog);
+}
+
+AnnotPopup::~AnnotPopup() {
+  /*
+  if (parent)
+    delete parent;
+  */
+}
+
+void AnnotPopup::initialize(XRef *xrefA, Dict *dict, Catalog *catalog) {
+  Object obj1;
+  /*
+  if (dict->lookup("Parent", &obj1)->isDict()) {
+    parent = NULL;
+  } else {
+    parent = NULL;
+  }
+  obj1.free();
+  */
+  if (dict->lookup("Open", &obj1)->isBool()) {
+    open = obj1.getBool();
+  } else {
+    open = gFalse;
+  }
+  obj1.free();
+}
+
+//------------------------------------------------------------------------
+// AnnotMarkup
+//------------------------------------------------------------------------
+ 
+AnnotMarkup::AnnotMarkup(XRef *xrefA, Dict *dict, Catalog *catalog, Object *obj) {
+  initialize(xrefA, dict, catalog, obj);
+}
+
+AnnotMarkup::~AnnotMarkup() {
+  if (label)
+    delete label;
+
+  if (popup)
+    delete popup;
+
+  if (date)
+    delete date;
+
+  if (inReplyTo)
+    delete inReplyTo;
+
+  if (subject)
+    delete subject;
+}
+
+void AnnotMarkup::initialize(XRef *xrefA, Dict *dict, Catalog *catalog, Object *obj) {
+  Object obj1;
+
+  if (dict->lookup("T", &obj1)->isString()) {
+    label = obj1.getString()->copy();
+  } else {
+    label = NULL;
+  }
+  obj1.free();
+
+  if (dict->lookup("Popup", &obj1)->isDict()) {
+    popup = new AnnotPopup(xrefA, obj1.getDict(), catalog, obj);
+  } else {
+    popup = NULL;
+  }
+  obj1.free();
+
+  if (dict->lookup("CA", &obj1)->isNum()) {
+    opacity = obj1.getNum();
+  } else {
+    opacity = 1.0;
+  }
+  obj1.free();
+
+  if (dict->lookup("CreationDate", &obj1)->isString()) {
+    date = obj1.getString()->copy();
+  } else {
+    date = NULL;
+  }
+  obj1.free();
+
+  if (dict->lookup("IRT", &obj1)->isDict()) {
+    inReplyTo = obj1.getDict();
+  } else {
+    inReplyTo = NULL;
+  }
+  obj1.free();
+
+  if (dict->lookup("Subj", &obj1)->isString()) {
+    subject = obj1.getString()->copy();
+  } else {
+    subject = NULL;
+  }
+  obj1.free();
+
+  if (dict->lookup("RT", &obj1)->isName()) {
+    GooString *replyName = new GooString(obj1.getName());
+
+    if (!replyName->cmp("R")) {
+      replyTo = replyTypeR;
+    } else if (!replyName->cmp("Group")) {
+      replyTo = replyTypeGroup;
+    } else {
+      replyTo = replyTypeR;
+    }
+    delete replyName;
+  } else {
+    replyTo = replyTypeR;
+  }
+  obj1.free();
+
+  if (dict->lookup("ExData", &obj1)->isDict()) {
+    exData = parseAnnotExternalData(obj1.getDict());
+  } else {
+    exData = annotExternalDataMarkupUnknown;
+  }
+  obj1.free();
+}
+
+//------------------------------------------------------------------------
+// AnnotText
+//------------------------------------------------------------------------
+
+AnnotText::AnnotText(XRef *xrefA, Dict *dict, Catalog *catalog, Object *obj) :
+    Annot(xrefA, dict, catalog, obj), AnnotMarkup(xref, dict, catalog, obj) {
+
+  type = typeText;
+  flags |= flagNoZoom | flagNoRotate;
+  initialize (xrefA, catalog, dict);
+}
+
+void AnnotText::setModified(GooString *date) {
+  if (date) {
+    delete modified;
+    modified = new GooString(date);
+  }
+}
+
+void AnnotText::initialize(XRef *xrefA, Catalog *catalog, Dict *dict) {
+  Object obj1;
+
+  if (dict->lookup("Open", &obj1)->isBool())
+    open = obj1.getBool();
+  else
+    open = gFalse;
+  obj1.free();
+
+  if (dict->lookup("Name", &obj1)->isName()) {
+    GooString *iconName = new GooString(obj1.getName());
+
+    if (!iconName->cmp("Comment")) {
+      icon = iconComment;
+    } else if (!iconName->cmp("Key")) {
+      icon = iconKey;
+    } else if (!iconName->cmp("Help")) {
+      icon = iconHelp;
+    } else if (!iconName->cmp("NewParagraph")) {
+      icon = iconNewParagraph;
+    } else if (!iconName->cmp("Paragraph")) {
+      icon = iconParagraph;
+    } else if (!iconName->cmp("Insert")) {
+      icon = iconInsert;
+    } else {
+      icon = iconNote;
+    }
+    delete iconName;
+  } else {
+    icon = iconNote;
+  }
+  obj1.free();
+
+  if (dict->lookup("StateModel", &obj1)->isString()) {
+    Object obj2;
+    GooString *modelName = obj1.getString();
+
+    if (dict->lookup("State", &obj2)->isString()) {
+      GooString *stateName = obj2.getString();
+
+      if (!stateName->cmp("Marked")) {
+        state = stateMarked;
+      } else if (!stateName->cmp("Unmarked")) {
+        state = stateUnmarked;
+      } else if (!stateName->cmp("Accepted")) {
+        state = stateAccepted;
+      } else if (!stateName->cmp("Rejected")) {
+        state = stateRejected;
+      } else if (!stateName->cmp("Cancelled")) {
+        state = stateCancelled;
+      } else if (!stateName->cmp("Completed")) {
+        state = stateCompleted;
+      } else if (!stateName->cmp("None")) {
+        state = stateNone;
+      } else {
+        state = stateUnknown;
+      }
+
+      delete stateName;
+    } else {
+      state = stateUnknown;
+    }
+    obj2.free();
+
+    if (!modelName->cmp("Marked")) {
+      switch (state) {
+        case stateUnknown:
+          state = stateMarked;
+          break;
+        case stateAccepted:
+        case stateRejected:
+        case stateCancelled:
+        case stateCompleted:
+        case stateNone:
+          state = stateUnknown;
+          break;
+        default:
+          break;
+      }
+    } else if (!modelName->cmp("Review")) {
+      switch (state) {
+        case stateUnknown:
+          state = stateNone;
+          break;
+        case stateMarked:
+        case stateUnmarked:
+          state = stateUnknown;
+          break;
+        default:
+          break;
+      }
+    } else {
+      state = stateUnknown;
+    }
+
+    delete modelName;
+  } else {
+    state = stateUnknown;
+  }
+  obj1.free();
+}
+
+//------------------------------------------------------------------------
+// AnnotLink
+//------------------------------------------------------------------------
+
+AnnotLink::AnnotLink(XRef *xrefA, Dict *dict, Catalog *catalog, Object *obj) :
+    Annot(xrefA, dict, catalog, obj) {
+
+  type = typeLink;
+  initialize (xrefA, catalog, dict);
+}
+
+AnnotLink::~AnnotLink() {
+  /*
+  if (actionDict)
+    delete actionDict;
+
+  if (uriAction)
+    delete uriAction;
+  */
+  if (quadrilaterals)
+    delete quadrilaterals;
+}
+
+void AnnotLink::initialize(XRef *xrefA, Catalog *catalog, Dict *dict) {
+  Object obj1;
+  /*
+  if (dict->lookup("A", &obj1)->isDict()) {
+    actionDict = NULL;
+  } else {
+    actionDict = NULL;
+  }
+  obj1.free();
+  */
+  if (dict->lookup("H", &obj1)->isName()) {
+    GooString *effect = new GooString(obj1.getName());
+
+    if (!effect->cmp("N")) {
+      linkEffect = effectNone;
+    } else if (!effect->cmp("I")) {
+      linkEffect = effectInvert;
+    } else if (!effect->cmp("O")) {
+      linkEffect = effectOutline;
+    } else if (!effect->cmp("P")) {
+      linkEffect = effectPush;
+    } else {
+      linkEffect = effectInvert;
+    }
+    delete effect;
+  } else {
+    linkEffect = effectInvert;
+  }
+  obj1.free();
+  /*
+  if (dict->lookup("PA", &obj1)->isDict()) {
+    uriAction = NULL;
+  } else {
+    uriAction = NULL;
+  }
+  obj1.free();
+  */
+  if (dict->lookup("QuadPoints", &obj1)->isArray()) {
+    quadrilaterals = new AnnotQuadrilaterals(obj1.getArray(), rect);
+  } else {
+    quadrilaterals = NULL;
+  }
+  obj1.free();
+}
+
+void AnnotLink::draw(Gfx *gfx, GBool printing) {
+  Object obj;
+
+  // check the flags
+  if ((flags & annotFlagHidden) ||
+      (printing && !(flags & annotFlagPrint)) ||
+      (!printing && (flags & annotFlagNoView))) {
+    return;
+  }
+
+  // draw the appearance stream
+  appearance.fetch(xref, &obj);
+  gfx->drawAnnot(&obj, border, color,
+		 rect->x1, rect->y1, rect->x2, rect->y2);
+  obj.free();
+}
+
+//------------------------------------------------------------------------
+// AnnotFreeText
+//------------------------------------------------------------------------
+
+AnnotFreeText::AnnotFreeText(XRef *xrefA, Dict *dict, Catalog *catalog, Object *obj) :
+    Annot(xrefA, dict, catalog, obj), AnnotMarkup(xref, dict, catalog, obj) {
+  type = typeFreeText;
+  initialize(xrefA, catalog, dict);
+}
+
+AnnotFreeText::~AnnotFreeText() {
+  delete appearanceString;
+
+  if (styleString)
+    delete styleString;
+
+  if (calloutLine)
+    delete calloutLine;
+
+  if (borderEffect)
+    delete borderEffect;
+
+  if (rectangle)
+    delete rectangle;
+}
+
+void AnnotFreeText::initialize(XRef *xrefA, Catalog *catalog, Dict *dict) {
+  Object obj1;
+
+  if (dict->lookup("DA", &obj1)->isString()) {
+    appearanceString = obj1.getString()->copy();
+  } else {
+    appearanceString = new GooString();
+    error(-1, "Bad appearance for annotation");
+    ok = gFalse;
+  }
+  obj1.free();
+
+  if (dict->lookup("Q", &obj1)->isInt()) {
+    quadding = (AnnotFreeTextQuadding) obj1.getInt();
+  } else {
+    quadding = quaddingLeftJustified;
+  }
+  obj1.free();
+
+  if (dict->lookup("DS", &obj1)->isString()) {
+    styleString = obj1.getString()->copy();
+  } else {
+    styleString = NULL;
+  }
+  obj1.free();
+
+  if (dict->lookup("CL", &obj1)->isArray() && obj1.arrayGetLength() >= 4) {
+    double x1, y1, x2, y2;
+    Object obj2;
+
+    (obj1.arrayGet(0, &obj2)->isNum() ? x1 = obj2.getNum() : x1 = 0);
+    obj2.free();
+    (obj1.arrayGet(1, &obj2)->isNum() ? y1 = obj2.getNum() : y1 = 0);
+    obj2.free();
+    (obj1.arrayGet(2, &obj2)->isNum() ? x2 = obj2.getNum() : x2 = 0);
+    obj2.free();
+    (obj1.arrayGet(3, &obj2)->isNum() ? y2 = obj2.getNum() : y2 = 0);
+    obj2.free();
+
+    if (obj1.arrayGetLength() == 6) {
+      double x3, y3;
+      (obj1.arrayGet(4, &obj2)->isNum() ? x3 = obj2.getNum() : x3 = 0);
+      obj2.free();
+      (obj1.arrayGet(5, &obj2)->isNum() ? y3 = obj2.getNum() : y3 = 0);
+      obj2.free();
+      calloutLine = new AnnotCalloutMultiLine(x1, y1, x2, y2, x3, y3);
+    } else {
+      calloutLine = new AnnotCalloutLine(x1, y1, x2, y2);
+    }
+  } else {
+    calloutLine = NULL;
+  }
+  obj1.free();
+
+  if (dict->lookup("IT", &obj1)->isName()) {
+    GooString *intentName = new GooString(obj1.getName());
+
+    if (!intentName->cmp("FreeText")) {
+      intent = intentFreeText;
+    } else if (!intentName->cmp("FreeTextCallout")) {
+      intent = intentFreeTextCallout;
+    } else if (!intentName->cmp("FreeTextTypeWriter")) {
+      intent = intentFreeTextTypeWriter;
+    } else {
+      intent = intentFreeText;
+    }
+    delete intentName;
+  } else {
+    intent = intentFreeText;
+  }
+  obj1.free();
+
+  if (dict->lookup("BE", &obj1)->isDict()) {
+    borderEffect = new AnnotBorderEffect(obj1.getDict());
+  } else {
+    borderEffect = NULL;
+  }
+  obj1.free();
+
+  if (dict->lookup("RD", &obj1)->isArray() && obj1.arrayGetLength() == 4) {
+    Object obj2;
+    rectangle = new PDFRectangle();
+
+    (obj1.arrayGet(0, &obj2)->isNum() ? rectangle->x1 = obj2.getNum() :
+      rectangle->x1 = 0);
+    obj2.free();
+    (obj1.arrayGet(1, &obj2)->isNum() ? rectangle->y1 = obj2.getNum() :
+      rectangle->y1 = 0);
+    obj2.free();
+    (obj1.arrayGet(2, &obj2)->isNum() ? rectangle->x2 = obj2.getNum() :
+      rectangle->x2 = 1);
+    obj2.free();
+    (obj1.arrayGet(3, &obj2)->isNum() ? rectangle->y2 = obj2.getNum() :
+      rectangle->y2 = 1);
+    obj2.free();
+
+    if (rectangle->x1 > rectangle->x2) {
+      double t = rectangle->x1;
+      rectangle->x1 = rectangle->x2;
+      rectangle->x2 = t;
+    }
+    if (rectangle->y1 > rectangle->y2) {
+      double t = rectangle->y1;
+      rectangle->y1 = rectangle->y2;
+      rectangle->y2 = t;
+    }
+
+    if ((rectangle->x1 + rectangle->x2) > (rect->x2 - rect->x1))
+      rectangle->x1 = rectangle->x2 = 0;
+
+    if ((rectangle->y1 + rectangle->y2) > (rect->y2 - rect->y1))
+      rectangle->y1 = rectangle->y2 = 0;
+  } else {
+    rectangle = NULL;
+  }
+  obj1.free();
+
+  if (dict->lookup("LE", &obj1)->isName()) {
+    GooString *styleName = new GooString(obj1.getName());
+    endStyle = parseAnnotLineEndingStyle(styleName);
+    delete styleName;
+  } else {
+    endStyle = annotLineEndingNone;
+  }
+  obj1.free();
+}
+
+//------------------------------------------------------------------------
+// AnnotLine
+//------------------------------------------------------------------------
+
+AnnotLine::AnnotLine(XRef *xrefA, Dict *dict, Catalog *catalog, Object *obj) :
+    Annot(xrefA, dict, catalog, obj), AnnotMarkup(xref, dict, catalog, obj) {
+  type = typeLine;
+  initialize(xrefA, catalog, dict);
+}
+
+AnnotLine::~AnnotLine() {
+  if (interiorColor)
+    delete interiorColor;
+
+  if (measure)
+    delete measure;
+}
+
+void AnnotLine::initialize(XRef *xrefA, Catalog *catalog, Dict *dict) {
+  Object obj1;
+
+  if (dict->lookup("L", &obj1)->isArray() && obj1.arrayGetLength() == 4) {
+    Object obj2;
+
+    (obj1.arrayGet(0, &obj2)->isNum() ? x1 = obj2.getNum() : x1 = 0);
+    obj2.free();
+    (obj1.arrayGet(1, &obj2)->isNum() ? y1 = obj2.getNum() : y1 = 0);
+    obj2.free();
+    (obj1.arrayGet(2, &obj2)->isNum() ? x2 = obj2.getNum() : x2 = 0);
+    obj2.free();
+    (obj1.arrayGet(3, &obj2)->isNum() ? y2 = obj2.getNum() : y2 = 0);
+    obj2.free();
+
+  } else {
+    x1 = y1 = x2 = y2 = 0;
+  }
+  obj1.free();
+
+  if (dict->lookup("LE", &obj1)->isArray() && obj1.arrayGetLength() == 2) {
+    Object obj2;
+
+    if(obj1.arrayGet(0, &obj2)->isString())
+      startStyle = parseAnnotLineEndingStyle(obj2.getString());
+    else
+      startStyle = annotLineEndingNone;
+    obj2.free();
+
+    if(obj1.arrayGet(1, &obj2)->isString())
+      endStyle = parseAnnotLineEndingStyle(obj2.getString());
+    else
+      endStyle = annotLineEndingNone;
+    obj2.free();
+
+  } else {
+    startStyle = endStyle = annotLineEndingNone;
+  }
+  obj1.free();
+
+  if (dict->lookup("IC", &obj1)->isArray()) {
+    interiorColor = new AnnotColor(obj1.getArray());
+  } else {
+    interiorColor = NULL;
+  }
+  obj1.free();
+
+  if (dict->lookup("LL", &obj1)->isNum()) {
+    leaderLineLength = obj1.getNum();
+  } else {
+    leaderLineLength = 0;
+  }
+  obj1.free();
+
+  if (dict->lookup("LLE", &obj1)->isNum()) {
+    leaderLineExtension = obj1.getNum();
+
+    if (leaderLineExtension < 0)
+      leaderLineExtension = 0;
+  } else {
+    leaderLineExtension = 0;
+  }
+  obj1.free();
+
+  if (dict->lookup("Cap", &obj1)->isBool()) {
+    caption = obj1.getBool();
+  } else {
+    caption = gFalse;
+  }
+  obj1.free();
+
+  if (dict->lookup("IT", &obj1)->isName()) {
+    GooString *intentName = new GooString(obj1.getName());
+
+    if(!intentName->cmp("LineArrow")) {
+      intent = intentLineArrow;
+    } else if(!intentName->cmp("LineDimension")) {
+      intent = intentLineDimension;
+    } else {
+      intent = intentLineArrow;
+    }
+    delete intentName;
+  } else {
+    intent = intentLineArrow;
+  }
+  obj1.free();
+
+  if (dict->lookup("LLO", &obj1)->isNum()) {
+    leaderLineOffset = obj1.getNum();
+
+    if (leaderLineOffset < 0)
+      leaderLineOffset = 0;
+  } else {
+    leaderLineOffset = 0;
+  }
+  obj1.free();
+
+  if (dict->lookup("CP", &obj1)->isName()) {
+    GooString *captionName = new GooString(obj1.getName());
+
+    if(!captionName->cmp("Inline")) {
+      captionPos = captionPosInline;
+    } else if(!captionName->cmp("Top")) {
+      captionPos = captionPosTop;
+    } else {
+      captionPos = captionPosInline;
+    }
+    delete captionName;
+  } else {
+    captionPos = captionPosInline;
+  }
+  obj1.free();
+
+  if (dict->lookup("Measure", &obj1)->isDict()) {
+    measure = NULL;
+  } else {
+    measure = NULL;
+  }
+  obj1.free();
+
+  if ((dict->lookup("CO", &obj1)->isArray()) && (obj1.arrayGetLength() == 2)) {
+    Object obj2;
+
+    (obj1.arrayGet(0, &obj2)->isNum() ? captionTextHorizontal = obj2.getNum() :
+      captionTextHorizontal = 0);
+    obj2.free();
+    (obj1.arrayGet(1, &obj2)->isNum() ? captionTextVertical = obj2.getNum() :
+      captionTextVertical = 0);
+    obj2.free();
+  } else {
+    captionTextHorizontal = captionTextVertical = 0;
+  }
+  obj1.free();
+}
+
+//------------------------------------------------------------------------
+// AnnotTextMarkup
+//------------------------------------------------------------------------
+
+void AnnotTextMarkup::initialize(XRef *xrefA, Catalog *catalog, Dict *dict) {
+  Object obj1;
+
+  if(dict->lookup("QuadPoints", &obj1)->isArray()) {
+    quadrilaterals = new AnnotQuadrilaterals(obj1.getArray(), rect);
+  } else {
+    quadrilaterals = NULL;
+  }
+  obj1.free();
+}
+
+AnnotTextMarkup::~AnnotTextMarkup() {
+  if(quadrilaterals) {
+    delete quadrilaterals;
+  }
+}
+
+//------------------------------------------------------------------------
+// AnnotWidget
+//------------------------------------------------------------------------
+
+AnnotWidget::AnnotWidget(XRef *xrefA, Dict *dict, Catalog *catalog, Object *obj) :
+    Annot(xrefA, dict, catalog, obj) {
+  type = typeWidget;
+  initialize(xrefA, catalog, dict);
+}
+
+AnnotWidget::~AnnotWidget() {
+  if (appearCharacs)
+    delete appearCharacs;
+  
+  if (action)
+    delete action;
+    
+  if (additionActions)
+    delete additionActions;
+    
+  if (parent)
+    delete parent;
+}
+
+void AnnotWidget::initialize(XRef *xrefA, Catalog *catalog, Dict *dict) {
+  Object obj1;
+
+  form = catalog->getForm ();
+  widget = form->findWidgetByRef (ref);
+
+  // check if field apperances need to be regenerated
+  // Only text or choice fields needs to have appearance regenerated
+  // see section 8.6.2 "Variable Text" of PDFReference
+  regen = gFalse;
+  if (widget->getType () == formText || widget->getType () == formChoice) {
+    regen = form->getNeedAppearances ();
+  }
+
+  // If field doesn't have an AP we'll have to generate it
+  if (appearance.isNone () || appearance.isNull ())
+    regen = gTrue;
+
+  if(dict->lookup("H", &obj1)->isName()) {
+    GooString *modeName = new GooString(obj1.getName());
+
+    if(!modeName->cmp("N")) {
+      mode = highlightModeNone;
+    } else if(!modeName->cmp("O")) {
+      mode = highlightModeOutline;
+    } else if(!modeName->cmp("P") || !modeName->cmp("T")) {
+      mode = highlightModePush;
+    } else {
+      mode = highlightModeInvert;
+    }
+    delete modeName;
+  } else {
+    mode = highlightModeInvert;
+  }
+  obj1.free();
+
+  if(dict->lookup("MK", &obj1)->isDict()) {
+    appearCharacs = new AnnotAppearanceCharacs(obj1.getDict());
+  } else {
+    appearCharacs = NULL;
+  }
+  obj1.free();
+
+  if(dict->lookup("A", &obj1)->isDict()) {
+    action = NULL;
+  } else {
+    action = NULL;
+  }
+  obj1.free();
+
+  if(dict->lookup("AA", &obj1)->isDict()) {
+    additionActions = NULL;
+  } else {
+    additionActions = NULL;
+  }
+  obj1.free();
+
+  if(dict->lookup("Parent", &obj1)->isDict()) {
+    parent = NULL;
+  } else {
+    parent = NULL;
+  }
+  obj1.free();
+}
+
+// Draw the variable text or caption for a field.
+void AnnotWidget::drawText(GooString *text, GooString *da, GfxFontDict *fontDict,
+    GBool multiline, int comb, int quadding,
+    GBool txField, GBool forceZapfDingbats,
+    GBool password) {
+  GooList *daToks;
+  GooString *tok;
+  GfxFont *font;
+  double fontSize, fontSize2, borderWidth, x, xPrev, y, w, w2, wMax;
+  int tfPos, tmPos, i, j, k;
+
+  //~ if there is no MK entry, this should use the existing content stream,
+  //~ and only replace the marked content portion of it
+  //~ (this is only relevant for Tx fields)
+  
+  // parse the default appearance string
+  tfPos = tmPos = -1;
+  if (da) {
+    daToks = new GooList();
+    i = 0;
+    while (i < da->getLength()) {
+      while (i < da->getLength() && Lexer::isSpace(da->getChar(i))) {
+        ++i;
+      }
+      if (i < da->getLength()) {
+        for (j = i + 1;
+            j < da->getLength() && !Lexer::isSpace(da->getChar(j));
+            ++j) ;
+        daToks->append(new GooString(da, i, j - i));
+        i = j;
+      }
+    }
+    for (i = 2; i < daToks->getLength(); ++i) {
+      if (i >= 2 && !((GooString *)daToks->get(i))->cmp("Tf")) {
+        tfPos = i - 2;
+      } else if (i >= 6 && !((GooString *)daToks->get(i))->cmp("Tm")) {
+        tmPos = i - 6;
+      }
+    }
+  } else {
+    daToks = NULL;
+  }
+
+  // force ZapfDingbats
+  //~ this should create the font if needed (?)
+  if (forceZapfDingbats) {
+    if (tfPos >= 0) {
+      tok = (GooString *)daToks->get(tfPos);
+      if (tok->cmp("/ZaDb")) {
+        tok->clear();
+        tok->append("/ZaDb");
+      }
+    }
+  }
+  // get the font and font size
+  font = NULL;
+  fontSize = 0;
+  if (tfPos >= 0) {
+    tok = (GooString *)daToks->get(tfPos);
+    if (tok->getLength() >= 1 && tok->getChar(0) == '/') {
+      if (!fontDict || !(font = fontDict->lookup(tok->getCString() + 1))) {
+        error(-1, "Unknown font in field's DA string");
+      }
+    } else {
+      error(-1, "Invalid font name in 'Tf' operator in field's DA string");
+    }
+    tok = (GooString *)daToks->get(tfPos + 1);
+    fontSize = atof(tok->getCString());
+  } else {
+    error(-1, "Missing 'Tf' operator in field's DA string");
+  }
+  if (!font) {
+    return;
+  }
+
+  // get the border width
+  borderWidth = border ? border->getWidth() : 0;
+
+  // setup
+  if (txField) {
+    appearBuf->append("/Tx BMC\n");
+  }
+  appearBuf->append("q\n");
+  appearBuf->append("BT\n");
+  // multi-line text
+  if (multiline) {
+    // note: the comb flag is ignored in multiline mode
+
+    wMax = rect->x2 - rect->x1 - 2 * borderWidth - 4;
+
+    // compute font autosize
+    if (fontSize == 0) {
+      for (fontSize = 20; fontSize > 1; --fontSize) {
+        y = rect->y2 - rect->y1;
+        w2 = 0;
+        i = 0;
+        while (i < text->getLength()) {
+          getNextLine(text, i, font, fontSize, wMax, &j, &w, &k);
+          if (w > w2) {
+            w2 = w;
+          }
+          i = k;
+          y -= fontSize;
+        }
+        // approximate the descender for the last line
+        if (y >= 0.33 * fontSize) {
+          break;
+        }
+      }
+      if (tfPos >= 0) {
+        tok = (GooString *)daToks->get(tfPos + 1);
+        tok->clear();
+        tok->appendf("{0:.2f}", fontSize);
+      }
+    }
+
+    // starting y coordinate
+    // (note: each line of text starts with a Td operator that moves
+    // down a line)
+    y = rect->y2 - rect->y1;
+
+    // set the font matrix
+    if (tmPos >= 0) {
+      tok = (GooString *)daToks->get(tmPos + 4);
+      tok->clear();
+      tok->append('0');
+      tok = (GooString *)daToks->get(tmPos + 5);
+      tok->clear();
+      tok->appendf("{0:.2f}", y);
+    }
+
+    // write the DA string
+    if (daToks) {
+      for (i = 0; i < daToks->getLength(); ++i) {
+        appearBuf->append((GooString *)daToks->get(i))->append(' ');
+      }
+    }
+
+    // write the font matrix (if not part of the DA string)
+    if (tmPos < 0) {
+      appearBuf->appendf("1 0 0 1 0 {0:.2f} Tm\n", y);
+    }
+
+    // write a series of lines of text
+    i = 0;
+    xPrev = 0;
+    while (i < text->getLength()) {
+
+      getNextLine(text, i, font, fontSize, wMax, &j, &w, &k);
+
+      // compute text start position
+      switch (quadding) {
+        case fieldQuadLeft:
+        default:
+          x = borderWidth + 2;
+          break;
+        case fieldQuadCenter:
+          x = (rect->x2 - rect->x1 - w) / 2;
+          break;
+        case fieldQuadRight:
+          x = rect->x2 - rect->x1 - borderWidth - 2 - w;
+          break;
+      }
+
+      // draw the line
+      appearBuf->appendf("{0:.2f} {1:.2f} Td\n", x - xPrev, -fontSize);
+      appearBuf->append('(');
+      writeTextString (text, appearBuf, &i, j, font->getToUnicode(), password);
+      appearBuf->append(") Tj\n");
+
+      // next line
+      i = k;
+      xPrev = x;
+    }
+
+    // single-line text
+  } else {
+    //~ replace newlines with spaces? - what does Acrobat do?
+
+    // comb formatting
+    if (comb > 0) {
+      // compute comb spacing
+      w = (rect->x2 - rect->x1 - 2 * borderWidth) / comb;
+
+      // compute font autosize
+      if (fontSize == 0) {
+        fontSize = rect->y2 - rect->y1 - 2 * borderWidth;
+        if (w < fontSize) {
+          fontSize = w;
+        }
+        fontSize = floor(fontSize);
+        if (tfPos >= 0) {
+          tok = (GooString *)daToks->get(tfPos + 1);
+          tok->clear();
+          tok->appendf("{0:.2f}", fontSize);
+        }
+      }
+
+      // compute text start position
+      switch (quadding) {
+        case fieldQuadLeft:
+        default:
+          x = borderWidth + 2;
+          break;
+        case fieldQuadCenter:
+          x = borderWidth + 2 + 0.5 * (comb - text->getLength()) * w;
+          break;
+        case fieldQuadRight:
+          x = borderWidth + 2 + (comb - text->getLength()) * w;
+          break;
+      }
+      y = 0.5 * (rect->y2 - rect->y1) - 0.4 * fontSize;
+
+      // set the font matrix
+      if (tmPos >= 0) {
+        tok = (GooString *)daToks->get(tmPos + 4);
+        tok->clear();
+        tok->appendf("{0:.2f}", x);
+        tok = (GooString *)daToks->get(tmPos + 5);
+        tok->clear();
+        tok->appendf("{0:.2f}", y);
+      }
+
+      // write the DA string
+      if (daToks) {
+        for (i = 0; i < daToks->getLength(); ++i) {
+          appearBuf->append((GooString *)daToks->get(i))->append(' ');
+        }
+      }
+
+      // write the font matrix (if not part of the DA string)
+      if (tmPos < 0) {
+        appearBuf->appendf("1 0 0 1 {0:.2f} {1:.2f} Tm\n", x, y);
+      }
+      // write the text string
+      //~ this should center (instead of left-justify) each character within
+      //~     its comb cell
+      for (i = 0; i < text->getLength(); ++i) {
+        if (i > 0) {
+          appearBuf->appendf("{0:.2f} 0 Td\n", w);
+        }
+        appearBuf->append('(');
+        //~ it would be better to call it only once for the whole string instead of once for
+        //each character => but we need to handle centering in writeTextString
+        writeTextString (text, appearBuf, &i, i+1, font->getToUnicode(), password);
+        appearBuf->append(") Tj\n");
+      }
+
+      // regular (non-comb) formatting
+    } else {
+      // compute string width
+      if (font && !font->isCIDFont()) {
+        w = 0;
+        for (i = 0; i < text->getLength(); ++i) {
+          w += ((Gfx8BitFont *)font)->getWidth(text->getChar(i));
+        }
+      } else {
+        // otherwise, make a crude estimate
+        w = text->getLength() * 0.5;
+      }
+
+      // compute font autosize
+      if (fontSize == 0) {
+        fontSize = rect->y2 - rect->y1 - 2 * borderWidth;
+        fontSize2 = (rect->x2 - rect->x1 - 4 - 2 * borderWidth) / w;
+        if (fontSize2 < fontSize) {
+          fontSize = fontSize2;
+        }
+        fontSize = floor(fontSize);
+        if (tfPos >= 0) {
+          tok = (GooString *)daToks->get(tfPos + 1);
+          tok->clear();
+          tok->appendf("{0:.2f}", fontSize);
+        }
+      }
+
+      // compute text start position
+      w *= fontSize;
+      switch (quadding) {
+        case fieldQuadLeft:
+        default:
+          x = borderWidth + 2;
+          break;
+        case fieldQuadCenter:
+          x = (rect->x2 - rect->x1 - w) / 2;
+          break;
+        case fieldQuadRight:
+          x = rect->x2 - rect->x1 - borderWidth - 2 - w;
+          break;
+      }
+      y = 0.5 * (rect->y2 - rect->y1) - 0.4 * fontSize;
+
+      // set the font matrix
+      if (tmPos >= 0) {
+        tok = (GooString *)daToks->get(tmPos + 4);
+        tok->clear();
+        tok->appendf("{0:.2f}", x);
+        tok = (GooString *)daToks->get(tmPos + 5);
+        tok->clear();
+        tok->appendf("{0:.2f}", y);
+      }
+
+      // write the DA string
+      if (daToks) {
+        for (i = 0; i < daToks->getLength(); ++i) {
+          appearBuf->append((GooString *)daToks->get(i))->append(' ');
+        }
+      }
+
+      // write the font matrix (if not part of the DA string)
+      if (tmPos < 0) {
+        appearBuf->appendf("1 0 0 1 {0:.2f} {1:.2f} Tm\n", x, y);
+      }
+      // write the text string
+      appearBuf->append('(');
+      i=0;
+      writeTextString (text, appearBuf, &i, text->getLength(), font->getToUnicode(), password);
+      appearBuf->append(") Tj\n");
+    }
+  }
+  // cleanup
+  appearBuf->append("ET\n");
+  appearBuf->append("Q\n");
+  if (txField) {
+    appearBuf->append("EMC\n");
+  }
+  if (daToks) {
+    deleteGooList(daToks, GooString);
+  }
+}
+
+// Draw the variable text or caption for a field.
+void AnnotWidget::drawListBox(GooString **text, GBool *selection,
+			      int nOptions, int topIdx,
+			      GooString *da, GfxFontDict *fontDict, GBool quadding) {
+  GooList *daToks;
+  GooString *tok;
+  GfxFont *font;
+  double fontSize, fontSize2, borderWidth, x, y, w, wMax;
+  int tfPos, tmPos, i, j;
+
+  //~ if there is no MK entry, this should use the existing content stream,
+  //~ and only replace the marked content portion of it
+  //~ (this is only relevant for Tx fields)
+
+  // parse the default appearance string
+  tfPos = tmPos = -1;
+  if (da) {
+    daToks = new GooList();
+    i = 0;
+    while (i < da->getLength()) {
+      while (i < da->getLength() && Lexer::isSpace(da->getChar(i))) {
+	++i;
+       }
+      if (i < da->getLength()) {
+	for (j = i + 1;
+	     j < da->getLength() && !Lexer::isSpace(da->getChar(j));
+	     ++j) ;
+	daToks->append(new GooString(da, i, j - i));
+	i = j;
+      }
+    }
+    for (i = 2; i < daToks->getLength(); ++i) {
+      if (i >= 2 && !((GooString *)daToks->get(i))->cmp("Tf")) {
+	tfPos = i - 2;
+      } else if (i >= 6 && !((GooString *)daToks->get(i))->cmp("Tm")) {
+	tmPos = i - 6;
+      }
+    }
+  } else {
+    daToks = NULL;
+  }
+
+  // get the font and font size
+  font = NULL;
+  fontSize = 0;
+  if (tfPos >= 0) {
+    tok = (GooString *)daToks->get(tfPos);
+    if (tok->getLength() >= 1 && tok->getChar(0) == '/') {
+      if (!fontDict || !(font = fontDict->lookup(tok->getCString() + 1))) {
+        error(-1, "Unknown font in field's DA string");
+      }
+    } else {
+      error(-1, "Invalid font name in 'Tf' operator in field's DA string");
+    }
+    tok = (GooString *)daToks->get(tfPos + 1);
+    fontSize = atof(tok->getCString());
+  } else {
+    error(-1, "Missing 'Tf' operator in field's DA string");
+  }
+  if (!font) {
+    return;
+  }
+
+  // get the border width
+  borderWidth = border ? border->getWidth() : 0;
+
+  // compute font autosize
+  if (fontSize == 0) {
+    wMax = 0;
+    for (i = 0; i < nOptions; ++i) {
+      if (font && !font->isCIDFont()) {
+        w = 0;
+        for (j = 0; j < text[i]->getLength(); ++j) {
+          w += ((Gfx8BitFont *)font)->getWidth(text[i]->getChar(j));
+        }
+      } else {
+        // otherwise, make a crude estimate
+        w = text[i]->getLength() * 0.5;
+      }
+      if (w > wMax) {
+        wMax = w;
+      }
+    }
+    fontSize = rect->y2 - rect->y1 - 2 * borderWidth;
+    fontSize2 = (rect->x2 - rect->x1 - 4 - 2 * borderWidth) / wMax;
+    if (fontSize2 < fontSize) {
+      fontSize = fontSize2;
+    }
+    fontSize = floor(fontSize);
+    if (tfPos >= 0) {
+      tok = (GooString *)daToks->get(tfPos + 1);
+      tok->clear();
+      tok->appendf("{0:.2f}", fontSize);
+    }
+  }
+  // draw the text
+  y = rect->y2 - rect->y1 - 1.1 * fontSize;
+  for (i = topIdx; i < nOptions; ++i) {
+    // setup
+    appearBuf->append("q\n");
+
+    // draw the background if selected
+    if (selection[i]) {
+      appearBuf->append("0 g f\n");
+      appearBuf->appendf("{0:.2f} {1:.2f} {2:.2f} {3:.2f} re f\n",
+          borderWidth,
+          y - 0.2 * fontSize,
+          rect->x2 - rect->x1 - 2 * borderWidth,
+          1.1 * fontSize);
+    }
+
+    // setup
+    appearBuf->append("BT\n");
+
+    // compute string width
+    if (font && !font->isCIDFont()) {
+      w = 0;
+      for (j = 0; j < text[i]->getLength(); ++j) {
+        w += ((Gfx8BitFont *)font)->getWidth(text[i]->getChar(j));
+      }
+    } else {
+      // otherwise, make a crude estimate
+      w = text[i]->getLength() * 0.5;
+    }
+
+    // compute text start position
+    w *= fontSize;
+    switch (quadding) {
+      case fieldQuadLeft:
+      default:
+        x = borderWidth + 2;
+        break;
+      case fieldQuadCenter:
+        x = (rect->x2 - rect->x1 - w) / 2;
+        break;
+      case fieldQuadRight:
+        x = rect->x2 - rect->x1 - borderWidth - 2 - w;
+        break;
+    }
+
+    // set the font matrix
+    if (tmPos >= 0) {
+      tok = (GooString *)daToks->get(tmPos + 4);
+      tok->clear();
+      tok->appendf("{0:.2f}", x);
+      tok = (GooString *)daToks->get(tmPos + 5);
+      tok->clear();
+      tok->appendf("{0:.2f}", y);
+    }
+
+    // write the DA string
+    if (daToks) {
+      for (j = 0; j < daToks->getLength(); ++j) {
+        appearBuf->append((GooString *)daToks->get(j))->append(' ');
+      }
+    }
+
+    // write the font matrix (if not part of the DA string)
+    if (tmPos < 0) {
+      appearBuf->appendf("1 0 0 1 {0:.2f} {1:.2f} Tm\n", x, y);
+    }
+
+    // change the text color if selected
+    if (selection[i]) {
+      appearBuf->append("1 g\n");
+    }
+
+    // write the text string
+    appearBuf->append('(');
+    j = 0;
+    writeTextString (text[i], appearBuf, &j, text[i]->getLength(), font->getToUnicode(), false);
+    appearBuf->append(") Tj\n");
+
+    // cleanup
+    appearBuf->append("ET\n");
+    appearBuf->append("Q\n");
+
+    // next line
+    y -= 1.1 * fontSize;
+  }
+
+  if (daToks) {
+    deleteGooList(daToks, GooString);
+  }
+}
+
+// Figure out how much text will fit on the next line.  Returns:
+// *end = one past the last character to be included
+// *width = width of the characters start .. end-1
+// *next = index of first character on the following line
+void AnnotWidget::getNextLine(GooString *text, int start,
+			      GfxFont *font, double fontSize, double wMax,
+			      int *end, double *width, int *next) {
+  double w, dw;
+  int j, k, c;
+
+  // figure out how much text will fit on the line
+  //~ what does Adobe do with tabs?
+  w = 0;
+  for (j = start; j < text->getLength() && w <= wMax; ++j) {
+    c = text->getChar(j) & 0xff;
+    if (c == 0x0a || c == 0x0d) {
+      break;
+    }
+    if (font && !font->isCIDFont()) {
+      dw = ((Gfx8BitFont *)font)->getWidth(c) * fontSize;
+    } else {
+      // otherwise, make a crude estimate
+      dw = 0.5 * fontSize;
+    }
+    w += dw;
+  }
+  if (w > wMax) {
+    for (k = j; k > start && text->getChar(k-1) != ' '; --k) ;
+    for (; k > start && text->getChar(k-1) == ' '; --k) ;
+    if (k > start) {
+      j = k;
+    }
+    if (j == start) {
+      // handle the pathological case where the first character is
+      // too wide to fit on the line all by itself
+      j = start + 1;
+    }
+  }
+  *end = j;
+
+  // compute the width
+  w = 0;
+  for (k = start; k < j; ++k) {
+    if (font && !font->isCIDFont()) {
+      dw = ((Gfx8BitFont *)font)->getWidth(text->getChar(k)) * fontSize;
+    } else {
+      // otherwise, make a crude estimate
+      dw = 0.5 * fontSize;
+    }
+    w += dw;
+  }
+  *width = w;
+
+  // next line
+  while (j < text->getLength() && text->getChar(j) == ' ') {
+    ++j;
+  }
+  if (j < text->getLength() && text->getChar(j) == 0x0d) {
+    ++j;
+  }
+  if (j < text->getLength() && text->getChar(j) == 0x0a) {
+    ++j;
+  }
+  *next = j;
+}
+
+void AnnotWidget::writeTextString (GooString *text, GooString *appearBuf, int *i, int j,
+				   CharCodeToUnicode *ccToUnicode, GBool password)
+{
+  CharCode c;
+  int charSize;
+
+  if (*i == 0 && text->hasUnicodeMarker()) {
+    //we need to have an even number of chars
+    if (text->getLength () % 2 != 0) {
+      error(-1, "Annot::writeTextString, bad unicode string");
+      return;
+    }
+    //skip unicode marker an go one char forward because we read character by pairs
+    (*i) += 3;
+    charSize = 2;
+  } else
+    charSize = 1;
+
+  for (; (*i) < j; (*i)+=charSize) {
+    // Render '*' instead of characters for password
+    if (password)
+      appearBuf->append('*');
+    else {
+      c = text->getChar(*i);
+      if (ccToUnicode && text->hasUnicodeMarker()) {
+        char ctmp[2];
+        ctmp[0] = text->getChar((*i)-1);
+        ctmp[1] = text->getChar((*i));
+        ccToUnicode->mapToCharCode((Unicode*)ctmp, &c, 2);
+        if (c == '(' || c == ')' || c == '\\')
+          appearBuf->append('\\');
+        appearBuf->append(c);
+      } else {
+        c &= 0xff;
+        if (c == '(' || c == ')' || c == '\\') {
+          appearBuf->append('\\');
+          appearBuf->append(c);
+        } else if (c < 0x20 || c >= 0x80) {
+          appearBuf->appendf("\\{0:03o}", c);
+        } else {
+          appearBuf->append(c);
+        }
+      }
+    }
+  }
+}
+
+void AnnotWidget::generateFieldAppearance() {
   Object mkObj, ftObj, appearDict, drObj, obj1, obj2, obj3;
+  Dict *field;
+  Dict *annot;
+  Dict *acroForm;
   Dict *mkDict;
   MemStream *appearStream;
   GfxFontDict *fontDict;
@@ -940,17 +2434,15 @@ void Annot::generateFieldAppearance(Dict *field, Dict *annot, Dict *acroForm) {
   int dashLength, ff, quadding, comb, nOptions, topIdx, i, j;
   GBool modified;
 
-  // must be a Widget annotation
-  if (type != typeWidget) {
+  if (!widget->getField () || !widget->getField ()->getObj ()->isDict ())
     return;
-  }
 
+  field = widget->getField ()->getObj ()->getDict ();
+  annot = widget->getObj ()->getDict ();
+  acroForm = form->getObj ()->getDict ();
+  
   // do not regenerate appearence if widget has not changed
-  if (widget && widget->isModified ()) {
-    modified = gTrue;
-  } else {
-    modified = gFalse;
-  }
+  modified = widget->isModified ();
 
   // only regenerate when it doesn't have an AP or
   // it already has an AP but widget has been modified
@@ -1343,759 +2835,7 @@ void Annot::generateFieldAppearance(Dict *field, Dict *annot, Dict *acroForm) {
 }
 
 
-// Set the current fill or stroke color, based on <a> (which should
-// have 1, 3, or 4 elements).  If <adjust> is +1, color is brightened;
-// if <adjust> is -1, color is darkened; otherwise color is not
-// modified.
-void Annot::setColor(Array *a, GBool fill, int adjust) {
-  Object obj1;
-  double color[4];
-  int nComps, i;
-
-  nComps = a->getLength();
-  if (nComps > 4) {
-    nComps = 4;
-  }
-  for (i = 0; i < nComps && i < 4; ++i) {
-    if (a->get(i, &obj1)->isNum()) {
-      color[i] = obj1.getNum();
-    } else {
-      color[i] = 0;
-    }
-    obj1.free();
-  }
-  if (nComps == 4) {
-    adjust = -adjust;
-  }
-  if (adjust > 0) {
-    for (i = 0; i < nComps; ++i) {
-      color[i] = 0.5 * color[i] + 0.5;
-    }
-  } else if (adjust < 0) {
-    for (i = 0; i < nComps; ++i) {
-      color[i] = 0.5 * color[i];
-    }
-  }
-  if (nComps == 4) {
-    appearBuf->appendf("{0:.2f} {1:.2f} {2:.2f} {3:.2f} {4:c}\n",
-        color[0], color[1], color[2], color[3],
-        fill ? 'k' : 'K');
-  } else if (nComps == 3) {
-    appearBuf->appendf("{0:.2f} {1:.2f} {2:.2f} {3:s}\n",
-        color[0], color[1], color[2],
-        fill ? "rg" : "RG");
-  } else {
-    appearBuf->appendf("{0:.2f} {1:c}\n",
-        color[0],
-        fill ? 'g' : 'G');
-  }
-}
-
-void Annot::writeTextString (GooString *text, GooString *appearBuf, int *i, int j,
-                             CharCodeToUnicode *ccToUnicode, GBool password)
-{
-  CharCode c;
-  int charSize;
-
-  if (*i == 0 && text->hasUnicodeMarker()) {
-    //we need to have an even number of chars
-    if (text->getLength () % 2 != 0) {
-      error(-1, "Annot::writeTextString, bad unicode string");
-      return;
-    }
-    //skip unicode marker an go one char forward because we read character by pairs
-    (*i) += 3;
-    charSize = 2;
-  } else
-    charSize = 1;
-
-  for (; (*i) < j; (*i)+=charSize) {
-    // Render '*' instead of characters for password
-    if (password)
-      appearBuf->append('*');
-    else {
-      c = text->getChar(*i);
-      if (ccToUnicode && text->hasUnicodeMarker()) {
-        char ctmp[2];
-        ctmp[0] = text->getChar((*i)-1);
-        ctmp[1] = text->getChar((*i));
-        ccToUnicode->mapToCharCode((Unicode*)ctmp, &c, 2);
-        if (c == '(' || c == ')' || c == '\\')
-          appearBuf->append('\\');
-        appearBuf->append(c);
-      } else {
-        c &= 0xff;
-        if (c == '(' || c == ')' || c == '\\') {
-          appearBuf->append('\\');
-          appearBuf->append(c);
-        } else if (c < 0x20 || c >= 0x80) {
-          appearBuf->appendf("\\{0:03o}", c);
-        } else {
-          appearBuf->append(c);
-        }
-      }
-    }
-  }
-}
-
-// Draw the variable text or caption for a field.
-void Annot::drawText(GooString *text, GooString *da, GfxFontDict *fontDict,
-    GBool multiline, int comb, int quadding,
-    GBool txField, GBool forceZapfDingbats,
-    GBool password) {
-  GooList *daToks;
-  GooString *tok;
-  GfxFont *font;
-  double fontSize, fontSize2, borderWidth, x, xPrev, y, w, w2, wMax;
-  int tfPos, tmPos, i, j, k;
-
-  //~ if there is no MK entry, this should use the existing content stream,
-  //~ and only replace the marked content portion of it
-  //~ (this is only relevant for Tx fields)
-  
-  // parse the default appearance string
-  tfPos = tmPos = -1;
-  if (da) {
-    daToks = new GooList();
-    i = 0;
-    while (i < da->getLength()) {
-      while (i < da->getLength() && Lexer::isSpace(da->getChar(i))) {
-        ++i;
-      }
-      if (i < da->getLength()) {
-        for (j = i + 1;
-            j < da->getLength() && !Lexer::isSpace(da->getChar(j));
-            ++j) ;
-        daToks->append(new GooString(da, i, j - i));
-        i = j;
-      }
-    }
-    for (i = 2; i < daToks->getLength(); ++i) {
-      if (i >= 2 && !((GooString *)daToks->get(i))->cmp("Tf")) {
-        tfPos = i - 2;
-      } else if (i >= 6 && !((GooString *)daToks->get(i))->cmp("Tm")) {
-        tmPos = i - 6;
-      }
-    }
-  } else {
-    daToks = NULL;
-  }
-
-  // force ZapfDingbats
-  //~ this should create the font if needed (?)
-  if (forceZapfDingbats) {
-    if (tfPos >= 0) {
-      tok = (GooString *)daToks->get(tfPos);
-      if (tok->cmp("/ZaDb")) {
-        tok->clear();
-        tok->append("/ZaDb");
-      }
-    }
-  }
-  // get the font and font size
-  font = NULL;
-  fontSize = 0;
-  if (tfPos >= 0) {
-    tok = (GooString *)daToks->get(tfPos);
-    if (tok->getLength() >= 1 && tok->getChar(0) == '/') {
-      if (!fontDict || !(font = fontDict->lookup(tok->getCString() + 1))) {
-        error(-1, "Unknown font in field's DA string");
-      }
-    } else {
-      error(-1, "Invalid font name in 'Tf' operator in field's DA string");
-    }
-    tok = (GooString *)daToks->get(tfPos + 1);
-    fontSize = atof(tok->getCString());
-  } else {
-    error(-1, "Missing 'Tf' operator in field's DA string");
-  }
-  if (!font) {
-    return;
-  }
-
-  // get the border width
-  borderWidth = border ? border->getWidth() : 0;
-
-  // setup
-  if (txField) {
-    appearBuf->append("/Tx BMC\n");
-  }
-  appearBuf->append("q\n");
-  appearBuf->append("BT\n");
-  // multi-line text
-  if (multiline) {
-    // note: the comb flag is ignored in multiline mode
-
-    wMax = rect->x2 - rect->x1 - 2 * borderWidth - 4;
-
-    // compute font autosize
-    if (fontSize == 0) {
-      for (fontSize = 20; fontSize > 1; --fontSize) {
-        y = rect->y2 - rect->y1;
-        w2 = 0;
-        i = 0;
-        while (i < text->getLength()) {
-          getNextLine(text, i, font, fontSize, wMax, &j, &w, &k);
-          if (w > w2) {
-            w2 = w;
-          }
-          i = k;
-          y -= fontSize;
-        }
-        // approximate the descender for the last line
-        if (y >= 0.33 * fontSize) {
-          break;
-        }
-      }
-      if (tfPos >= 0) {
-        tok = (GooString *)daToks->get(tfPos + 1);
-        tok->clear();
-        tok->appendf("{0:.2f}", fontSize);
-      }
-    }
-
-    // starting y coordinate
-    // (note: each line of text starts with a Td operator that moves
-    // down a line)
-    y = rect->y2 - rect->y1;
-
-    // set the font matrix
-    if (tmPos >= 0) {
-      tok = (GooString *)daToks->get(tmPos + 4);
-      tok->clear();
-      tok->append('0');
-      tok = (GooString *)daToks->get(tmPos + 5);
-      tok->clear();
-      tok->appendf("{0:.2f}", y);
-    }
-
-    // write the DA string
-    if (daToks) {
-      for (i = 0; i < daToks->getLength(); ++i) {
-        appearBuf->append((GooString *)daToks->get(i))->append(' ');
-      }
-    }
-
-    // write the font matrix (if not part of the DA string)
-    if (tmPos < 0) {
-      appearBuf->appendf("1 0 0 1 0 {0:.2f} Tm\n", y);
-    }
-
-    // write a series of lines of text
-    i = 0;
-    xPrev = 0;
-    while (i < text->getLength()) {
-
-      getNextLine(text, i, font, fontSize, wMax, &j, &w, &k);
-
-      // compute text start position
-      switch (quadding) {
-        case fieldQuadLeft:
-        default:
-          x = borderWidth + 2;
-          break;
-        case fieldQuadCenter:
-          x = (rect->x2 - rect->x1 - w) / 2;
-          break;
-        case fieldQuadRight:
-          x = rect->x2 - rect->x1 - borderWidth - 2 - w;
-          break;
-      }
-
-      // draw the line
-      appearBuf->appendf("{0:.2f} {1:.2f} Td\n", x - xPrev, -fontSize);
-      appearBuf->append('(');
-      writeTextString (text, appearBuf, &i, j, font->getToUnicode(), password);
-      appearBuf->append(") Tj\n");
-
-      // next line
-      i = k;
-      xPrev = x;
-    }
-
-    // single-line text
-  } else {
-    //~ replace newlines with spaces? - what does Acrobat do?
-
-    // comb formatting
-    if (comb > 0) {
-      // compute comb spacing
-      w = (rect->x2 - rect->x1 - 2 * borderWidth) / comb;
-
-      // compute font autosize
-      if (fontSize == 0) {
-        fontSize = rect->y2 - rect->y1 - 2 * borderWidth;
-        if (w < fontSize) {
-          fontSize = w;
-        }
-        fontSize = floor(fontSize);
-        if (tfPos >= 0) {
-          tok = (GooString *)daToks->get(tfPos + 1);
-          tok->clear();
-          tok->appendf("{0:.2f}", fontSize);
-        }
-      }
-
-      // compute text start position
-      switch (quadding) {
-        case fieldQuadLeft:
-        default:
-          x = borderWidth + 2;
-          break;
-        case fieldQuadCenter:
-          x = borderWidth + 2 + 0.5 * (comb - text->getLength()) * w;
-          break;
-        case fieldQuadRight:
-          x = borderWidth + 2 + (comb - text->getLength()) * w;
-          break;
-      }
-      y = 0.5 * (rect->y2 - rect->y1) - 0.4 * fontSize;
-
-      // set the font matrix
-      if (tmPos >= 0) {
-        tok = (GooString *)daToks->get(tmPos + 4);
-        tok->clear();
-        tok->appendf("{0:.2f}", x);
-        tok = (GooString *)daToks->get(tmPos + 5);
-        tok->clear();
-        tok->appendf("{0:.2f}", y);
-      }
-
-      // write the DA string
-      if (daToks) {
-        for (i = 0; i < daToks->getLength(); ++i) {
-          appearBuf->append((GooString *)daToks->get(i))->append(' ');
-        }
-      }
-
-      // write the font matrix (if not part of the DA string)
-      if (tmPos < 0) {
-        appearBuf->appendf("1 0 0 1 {0:.2f} {1:.2f} Tm\n", x, y);
-      }
-      // write the text string
-      //~ this should center (instead of left-justify) each character within
-      //~     its comb cell
-      for (i = 0; i < text->getLength(); ++i) {
-        if (i > 0) {
-          appearBuf->appendf("{0:.2f} 0 Td\n", w);
-        }
-        appearBuf->append('(');
-        //~ it would be better to call it only once for the whole string instead of once for
-        //each character => but we need to handle centering in writeTextString
-        writeTextString (text, appearBuf, &i, i+1, font->getToUnicode(), password);
-        appearBuf->append(") Tj\n");
-      }
-
-      // regular (non-comb) formatting
-    } else {
-      // compute string width
-      if (font && !font->isCIDFont()) {
-        w = 0;
-        for (i = 0; i < text->getLength(); ++i) {
-          w += ((Gfx8BitFont *)font)->getWidth(text->getChar(i));
-        }
-      } else {
-        // otherwise, make a crude estimate
-        w = text->getLength() * 0.5;
-      }
-
-      // compute font autosize
-      if (fontSize == 0) {
-        fontSize = rect->y2 - rect->y1 - 2 * borderWidth;
-        fontSize2 = (rect->x2 - rect->x1 - 4 - 2 * borderWidth) / w;
-        if (fontSize2 < fontSize) {
-          fontSize = fontSize2;
-        }
-        fontSize = floor(fontSize);
-        if (tfPos >= 0) {
-          tok = (GooString *)daToks->get(tfPos + 1);
-          tok->clear();
-          tok->appendf("{0:.2f}", fontSize);
-        }
-      }
-
-      // compute text start position
-      w *= fontSize;
-      switch (quadding) {
-        case fieldQuadLeft:
-        default:
-          x = borderWidth + 2;
-          break;
-        case fieldQuadCenter:
-          x = (rect->x2 - rect->x1 - w) / 2;
-          break;
-        case fieldQuadRight:
-          x = rect->x2 - rect->x1 - borderWidth - 2 - w;
-          break;
-      }
-      y = 0.5 * (rect->y2 - rect->y1) - 0.4 * fontSize;
-
-      // set the font matrix
-      if (tmPos >= 0) {
-        tok = (GooString *)daToks->get(tmPos + 4);
-        tok->clear();
-        tok->appendf("{0:.2f}", x);
-        tok = (GooString *)daToks->get(tmPos + 5);
-        tok->clear();
-        tok->appendf("{0:.2f}", y);
-      }
-
-      // write the DA string
-      if (daToks) {
-        for (i = 0; i < daToks->getLength(); ++i) {
-          appearBuf->append((GooString *)daToks->get(i))->append(' ');
-        }
-      }
-
-      // write the font matrix (if not part of the DA string)
-      if (tmPos < 0) {
-        appearBuf->appendf("1 0 0 1 {0:.2f} {1:.2f} Tm\n", x, y);
-      }
-      // write the text string
-      appearBuf->append('(');
-      i=0;
-      writeTextString (text, appearBuf, &i, text->getLength(), font->getToUnicode(), password);
-      appearBuf->append(") Tj\n");
-    }
-  }
-  // cleanup
-  appearBuf->append("ET\n");
-  appearBuf->append("Q\n");
-  if (txField) {
-    appearBuf->append("EMC\n");
-  }
-  if (daToks) {
-    deleteGooList(daToks, GooString);
-  }
-}
-
-// Draw the variable text or caption for a field.
-void Annot::drawListBox(GooString **text, GBool *selection,
-			int nOptions, int topIdx,
-			GooString *da, GfxFontDict *fontDict, GBool quadding) {
-  GooList *daToks;
-  GooString *tok;
-  GfxFont *font;
-  double fontSize, fontSize2, borderWidth, x, y, w, wMax;
-  int tfPos, tmPos, i, j;
-
-  //~ if there is no MK entry, this should use the existing content stream,
-  //~ and only replace the marked content portion of it
-  //~ (this is only relevant for Tx fields)
-
-  // parse the default appearance string
-  tfPos = tmPos = -1;
-  if (da) {
-    daToks = new GooList();
-    i = 0;
-    while (i < da->getLength()) {
-      while (i < da->getLength() && Lexer::isSpace(da->getChar(i))) {
-	++i;
-       }
-      if (i < da->getLength()) {
-	for (j = i + 1;
-	     j < da->getLength() && !Lexer::isSpace(da->getChar(j));
-	     ++j) ;
-	daToks->append(new GooString(da, i, j - i));
-	i = j;
-      }
-    }
-    for (i = 2; i < daToks->getLength(); ++i) {
-      if (i >= 2 && !((GooString *)daToks->get(i))->cmp("Tf")) {
-	tfPos = i - 2;
-      } else if (i >= 6 && !((GooString *)daToks->get(i))->cmp("Tm")) {
-	tmPos = i - 6;
-      }
-    }
-  } else {
-    daToks = NULL;
-  }
-
-  // get the font and font size
-  font = NULL;
-  fontSize = 0;
-  if (tfPos >= 0) {
-    tok = (GooString *)daToks->get(tfPos);
-    if (tok->getLength() >= 1 && tok->getChar(0) == '/') {
-      if (!fontDict || !(font = fontDict->lookup(tok->getCString() + 1))) {
-        error(-1, "Unknown font in field's DA string");
-      }
-    } else {
-      error(-1, "Invalid font name in 'Tf' operator in field's DA string");
-    }
-    tok = (GooString *)daToks->get(tfPos + 1);
-    fontSize = atof(tok->getCString());
-  } else {
-    error(-1, "Missing 'Tf' operator in field's DA string");
-  }
-  if (!font) {
-    return;
-  }
-
-  // get the border width
-  borderWidth = border ? border->getWidth() : 0;
-
-  // compute font autosize
-  if (fontSize == 0) {
-    wMax = 0;
-    for (i = 0; i < nOptions; ++i) {
-      if (font && !font->isCIDFont()) {
-        w = 0;
-        for (j = 0; j < text[i]->getLength(); ++j) {
-          w += ((Gfx8BitFont *)font)->getWidth(text[i]->getChar(j));
-        }
-      } else {
-        // otherwise, make a crude estimate
-        w = text[i]->getLength() * 0.5;
-      }
-      if (w > wMax) {
-        wMax = w;
-      }
-    }
-    fontSize = rect->y2 - rect->y1 - 2 * borderWidth;
-    fontSize2 = (rect->x2 - rect->x1 - 4 - 2 * borderWidth) / wMax;
-    if (fontSize2 < fontSize) {
-      fontSize = fontSize2;
-    }
-    fontSize = floor(fontSize);
-    if (tfPos >= 0) {
-      tok = (GooString *)daToks->get(tfPos + 1);
-      tok->clear();
-      tok->appendf("{0:.2f}", fontSize);
-    }
-  }
-  // draw the text
-  y = rect->y2 - rect->y1 - 1.1 * fontSize;
-  for (i = topIdx; i < nOptions; ++i) {
-    // setup
-    appearBuf->append("q\n");
-
-    // draw the background if selected
-    if (selection[i]) {
-      appearBuf->append("0 g f\n");
-      appearBuf->appendf("{0:.2f} {1:.2f} {2:.2f} {3:.2f} re f\n",
-          borderWidth,
-          y - 0.2 * fontSize,
-          rect->x2 - rect->x1 - 2 * borderWidth,
-          1.1 * fontSize);
-    }
-
-    // setup
-    appearBuf->append("BT\n");
-
-    // compute string width
-    if (font && !font->isCIDFont()) {
-      w = 0;
-      for (j = 0; j < text[i]->getLength(); ++j) {
-        w += ((Gfx8BitFont *)font)->getWidth(text[i]->getChar(j));
-      }
-    } else {
-      // otherwise, make a crude estimate
-      w = text[i]->getLength() * 0.5;
-    }
-
-    // compute text start position
-    w *= fontSize;
-    switch (quadding) {
-      case fieldQuadLeft:
-      default:
-        x = borderWidth + 2;
-        break;
-      case fieldQuadCenter:
-        x = (rect->x2 - rect->x1 - w) / 2;
-        break;
-      case fieldQuadRight:
-        x = rect->x2 - rect->x1 - borderWidth - 2 - w;
-        break;
-    }
-
-    // set the font matrix
-    if (tmPos >= 0) {
-      tok = (GooString *)daToks->get(tmPos + 4);
-      tok->clear();
-      tok->appendf("{0:.2f}", x);
-      tok = (GooString *)daToks->get(tmPos + 5);
-      tok->clear();
-      tok->appendf("{0:.2f}", y);
-    }
-
-    // write the DA string
-    if (daToks) {
-      for (j = 0; j < daToks->getLength(); ++j) {
-        appearBuf->append((GooString *)daToks->get(j))->append(' ');
-      }
-    }
-
-    // write the font matrix (if not part of the DA string)
-    if (tmPos < 0) {
-      appearBuf->appendf("1 0 0 1 {0:.2f} {1:.2f} Tm\n", x, y);
-    }
-
-    // change the text color if selected
-    if (selection[i]) {
-      appearBuf->append("1 g\n");
-    }
-
-    // write the text string
-    appearBuf->append('(');
-    j = 0;
-    writeTextString (text[i], appearBuf, &j, text[i]->getLength(), font->getToUnicode(), false);
-    appearBuf->append(") Tj\n");
-
-    // cleanup
-    appearBuf->append("ET\n");
-    appearBuf->append("Q\n");
-
-    // next line
-    y -= 1.1 * fontSize;
-  }
-
-  if (daToks) {
-    deleteGooList(daToks, GooString);
-  }
-}
-
-// Figure out how much text will fit on the next line.  Returns:
-// *end = one past the last character to be included
-// *width = width of the characters start .. end-1
-// *next = index of first character on the following line
-void Annot::getNextLine(GooString *text, int start,
-    GfxFont *font, double fontSize, double wMax,
-    int *end, double *width, int *next) {
-  double w, dw;
-  int j, k, c;
-
-  // figure out how much text will fit on the line
-  //~ what does Adobe do with tabs?
-  w = 0;
-  for (j = start; j < text->getLength() && w <= wMax; ++j) {
-    c = text->getChar(j) & 0xff;
-    if (c == 0x0a || c == 0x0d) {
-      break;
-    }
-    if (font && !font->isCIDFont()) {
-      dw = ((Gfx8BitFont *)font)->getWidth(c) * fontSize;
-    } else {
-      // otherwise, make a crude estimate
-      dw = 0.5 * fontSize;
-    }
-    w += dw;
-  }
-  if (w > wMax) {
-    for (k = j; k > start && text->getChar(k-1) != ' '; --k) ;
-    for (; k > start && text->getChar(k-1) == ' '; --k) ;
-    if (k > start) {
-      j = k;
-    }
-    if (j == start) {
-      // handle the pathological case where the first character is
-      // too wide to fit on the line all by itself
-      j = start + 1;
-    }
-  }
-  *end = j;
-
-  // compute the width
-  w = 0;
-  for (k = start; k < j; ++k) {
-    if (font && !font->isCIDFont()) {
-      dw = ((Gfx8BitFont *)font)->getWidth(text->getChar(k)) * fontSize;
-    } else {
-      // otherwise, make a crude estimate
-      dw = 0.5 * fontSize;
-    }
-    w += dw;
-  }
-  *width = w;
-
-  // next line
-  while (j < text->getLength() && text->getChar(j) == ' ') {
-    ++j;
-  }
-  if (j < text->getLength() && text->getChar(j) == 0x0d) {
-    ++j;
-  }
-  if (j < text->getLength() && text->getChar(j) == 0x0a) {
-    ++j;
-  }
-  *next = j;
-}
-
-// Draw an (approximate) circle of radius <r> centered at (<cx>, <cy>).
-// If <fill> is true, the circle is filled; otherwise it is stroked.
-void Annot::drawCircle(double cx, double cy, double r, GBool fill) {
-  appearBuf->appendf("{0:.2f} {1:.2f} m\n",
-      cx + r, cy);
-  appearBuf->appendf("{0:.2f} {1:.2f} {2:.2f} {3:.2f} {4:.2f} {5:.2f} c\n",
-      cx + r, cy + bezierCircle * r,
-      cx + bezierCircle * r, cy + r,
-      cx, cy + r);
-  appearBuf->appendf("{0:.2f} {1:.2f} {2:.2f} {3:.2f} {4:.2f} {5:.2f} c\n",
-      cx - bezierCircle * r, cy + r,
-      cx - r, cy + bezierCircle * r,
-      cx - r, cy);
-  appearBuf->appendf("{0:.2f} {1:.2f} {2:.2f} {3:.2f} {4:.2f} {5:.2f} c\n",
-      cx - r, cy - bezierCircle * r,
-      cx - bezierCircle * r, cy - r,
-      cx, cy - r);
-  appearBuf->appendf("{0:.2f} {1:.2f} {2:.2f} {3:.2f} {4:.2f} {5:.2f} c\n",
-      cx + bezierCircle * r, cy - r,
-      cx + r, cy - bezierCircle * r,
-      cx + r, cy);
-  appearBuf->append(fill ? "f\n" : "s\n");
-}
-
-// Draw the top-left half of an (approximate) circle of radius <r>
-// centered at (<cx>, <cy>).
-void Annot::drawCircleTopLeft(double cx, double cy, double r) {
-  double r2;
-
-  r2 = r / sqrt(2.0);
-  appearBuf->appendf("{0:.2f} {1:.2f} m\n",
-      cx + r2, cy + r2);
-  appearBuf->appendf("{0:.2f} {1:.2f} {2:.2f} {3:.2f} {4:.2f} {5:.2f} c\n",
-      cx + (1 - bezierCircle) * r2,
-      cy + (1 + bezierCircle) * r2,
-      cx - (1 - bezierCircle) * r2,
-      cy + (1 + bezierCircle) * r2,
-      cx - r2,
-      cy + r2);
-  appearBuf->appendf("{0:.2f} {1:.2f} {2:.2f} {3:.2f} {4:.2f} {5:.2f} c\n",
-      cx - (1 + bezierCircle) * r2,
-      cy + (1 - bezierCircle) * r2,
-      cx - (1 + bezierCircle) * r2,
-      cy - (1 - bezierCircle) * r2,
-      cx - r2,
-      cy - r2);
-  appearBuf->append("S\n");
-}
-
-// Draw the bottom-right half of an (approximate) circle of radius <r>
-// centered at (<cx>, <cy>).
-void Annot::drawCircleBottomRight(double cx, double cy, double r) {
-  double r2;
-
-  r2 = r / sqrt(2.0);
-  appearBuf->appendf("{0:.2f} {1:.2f} m\n",
-      cx - r2, cy - r2);
-  appearBuf->appendf("{0:.2f} {1:.2f} {2:.2f} {3:.2f} {4:.2f} {5:.2f} c\n",
-      cx - (1 - bezierCircle) * r2,
-      cy - (1 + bezierCircle) * r2,
-      cx + (1 - bezierCircle) * r2,
-      cy - (1 + bezierCircle) * r2,
-      cx + r2,
-      cy - r2);
-  appearBuf->appendf("{0:.2f} {1:.2f} {2:.2f} {3:.2f} {4:.2f} {5:.2f} c\n",
-      cx + (1 + bezierCircle) * r2,
-      cy - (1 - bezierCircle) * r2,
-      cx + (1 + bezierCircle) * r2,
-      cy + (1 - bezierCircle) * r2,
-      cx + r2,
-      cy + r2);
-  appearBuf->append("S\n");
-}
-
-void Annot::draw(Gfx *gfx, GBool printing) {
+void AnnotWidget::draw(Gfx *gfx, GBool printing) {
   Object obj;
 
   // check the flags
@@ -2105,730 +2845,13 @@ void Annot::draw(Gfx *gfx, GBool printing) {
     return;
   }
 
+  generateFieldAppearance ();
+
   // draw the appearance stream
   appearance.fetch(xref, &obj);
-  gfx->drawAnnot(&obj, (type == typeLink) ? border : (AnnotBorder *)NULL, color,
-      rect->x1, rect->y1, rect->x2, rect->y2);
+  gfx->drawAnnot(&obj, (AnnotBorder *)NULL, color,
+		 rect->x1, rect->y1, rect->x2, rect->y2);
   obj.free();
-}
-
-//------------------------------------------------------------------------
-// AnnotPopup
-//------------------------------------------------------------------------
-
-AnnotPopup::AnnotPopup(XRef *xrefA, Dict *acroForm, Dict *dict, Catalog *catalog, Object *obj) :
-    Annot(xrefA, acroForm, dict, catalog, obj) {
-  type = typePopup;
-  initialize(xrefA, acroForm, dict, catalog);
-}
-
-AnnotPopup::~AnnotPopup() {
-  /*
-  if (parent)
-    delete parent;
-  */
-}
-
-void AnnotPopup::initialize(XRef *xrefA, Dict *acroForm, Dict *dict, Catalog *catalog) {
-  Object obj1;
-  /*
-  if (dict->lookup("Parent", &obj1)->isDict()) {
-    parent = NULL;
-  } else {
-    parent = NULL;
-  }
-  obj1.free();
-  */
-  if (dict->lookup("Open", &obj1)->isBool()) {
-    open = obj1.getBool();
-  } else {
-    open = gFalse;
-  }
-  obj1.free();
-}
-
-//------------------------------------------------------------------------
-// AnnotMarkup
-//------------------------------------------------------------------------
- 
-AnnotMarkup::AnnotMarkup(XRef *xrefA, Dict *acroForm, Dict *dict, Catalog *catalog, Object *obj) {
-  initialize(xrefA, acroForm, dict, catalog, obj);
-}
-
-AnnotMarkup::~AnnotMarkup() {
-  if (label)
-    delete label;
-
-  if (popup)
-    delete popup;
-
-  if (date)
-    delete date;
-
-  if (inReplyTo)
-    delete inReplyTo;
-
-  if (subject)
-    delete subject;
-}
-
-void AnnotMarkup::initialize(XRef *xrefA, Dict *acroForm, Dict *dict, Catalog *catalog, Object *obj) {
-  Object obj1;
-
-  if (dict->lookup("T", &obj1)->isString()) {
-    label = obj1.getString()->copy();
-  } else {
-    label = NULL;
-  }
-  obj1.free();
-
-  if (dict->lookup("Popup", &obj1)->isDict()) {
-    popup = new AnnotPopup(xrefA, acroForm, obj1.getDict(), catalog, obj);
-  } else {
-    popup = NULL;
-  }
-  obj1.free();
-
-  if (dict->lookup("CA", &obj1)->isNum()) {
-    opacity = obj1.getNum();
-  } else {
-    opacity = 1.0;
-  }
-  obj1.free();
-
-  if (dict->lookup("CreationDate", &obj1)->isString()) {
-    date = obj1.getString()->copy();
-  } else {
-    date = NULL;
-  }
-  obj1.free();
-
-  if (dict->lookup("IRT", &obj1)->isDict()) {
-    inReplyTo = obj1.getDict();
-  } else {
-    inReplyTo = NULL;
-  }
-  obj1.free();
-
-  if (dict->lookup("Subj", &obj1)->isString()) {
-    subject = obj1.getString()->copy();
-  } else {
-    subject = NULL;
-  }
-  obj1.free();
-
-  if (dict->lookup("RT", &obj1)->isName()) {
-    GooString *replyName = new GooString(obj1.getName());
-
-    if (!replyName->cmp("R")) {
-      replyTo = replyTypeR;
-    } else if (!replyName->cmp("Group")) {
-      replyTo = replyTypeGroup;
-    } else {
-      replyTo = replyTypeR;
-    }
-    delete replyName;
-  } else {
-    replyTo = replyTypeR;
-  }
-  obj1.free();
-
-  if (dict->lookup("ExData", &obj1)->isDict()) {
-    exData = parseAnnotExternalData(obj1.getDict());
-  } else {
-    exData = annotExternalDataMarkupUnknown;
-  }
-  obj1.free();
-}
-
-//------------------------------------------------------------------------
-// AnnotText
-//------------------------------------------------------------------------
-
-AnnotText::AnnotText(XRef *xrefA, Dict *acroForm, Dict *dict, Catalog *catalog, Object *obj) :
-    Annot(xrefA, acroForm, dict, catalog, obj), AnnotMarkup(xref, acroForm, dict, catalog, obj) {
-
-  type = typeText;
-  flags |= flagNoZoom | flagNoRotate;
-  initialize (xrefA, catalog, dict);
-}
-
-void AnnotText::setModified(GooString *date) {
-  if (date) {
-    delete modified;
-    modified = new GooString(date);
-  }
-}
-
-void AnnotText::initialize(XRef *xrefA, Catalog *catalog, Dict *dict) {
-  Object obj1;
-
-  if (dict->lookup("Open", &obj1)->isBool())
-    open = obj1.getBool();
-  else
-    open = gFalse;
-  obj1.free();
-
-  if (dict->lookup("Name", &obj1)->isName()) {
-    GooString *iconName = new GooString(obj1.getName());
-
-    if (!iconName->cmp("Comment")) {
-      icon = iconComment;
-    } else if (!iconName->cmp("Key")) {
-      icon = iconKey;
-    } else if (!iconName->cmp("Help")) {
-      icon = iconHelp;
-    } else if (!iconName->cmp("NewParagraph")) {
-      icon = iconNewParagraph;
-    } else if (!iconName->cmp("Paragraph")) {
-      icon = iconParagraph;
-    } else if (!iconName->cmp("Insert")) {
-      icon = iconInsert;
-    } else {
-      icon = iconNote;
-    }
-    delete iconName;
-  } else {
-    icon = iconNote;
-  }
-  obj1.free();
-
-  if (dict->lookup("StateModel", &obj1)->isString()) {
-    Object obj2;
-    GooString *modelName = obj1.getString();
-
-    if (dict->lookup("State", &obj2)->isString()) {
-      GooString *stateName = obj2.getString();
-
-      if (!stateName->cmp("Marked")) {
-        state = stateMarked;
-      } else if (!stateName->cmp("Unmarked")) {
-        state = stateUnmarked;
-      } else if (!stateName->cmp("Accepted")) {
-        state = stateAccepted;
-      } else if (!stateName->cmp("Rejected")) {
-        state = stateRejected;
-      } else if (!stateName->cmp("Cancelled")) {
-        state = stateCancelled;
-      } else if (!stateName->cmp("Completed")) {
-        state = stateCompleted;
-      } else if (!stateName->cmp("None")) {
-        state = stateNone;
-      } else {
-        state = stateUnknown;
-      }
-
-      delete stateName;
-    } else {
-      state = stateUnknown;
-    }
-    obj2.free();
-
-    if (!modelName->cmp("Marked")) {
-      switch (state) {
-        case stateUnknown:
-          state = stateMarked;
-          break;
-        case stateAccepted:
-        case stateRejected:
-        case stateCancelled:
-        case stateCompleted:
-        case stateNone:
-          state = stateUnknown;
-          break;
-        default:
-          break;
-      }
-    } else if (!modelName->cmp("Review")) {
-      switch (state) {
-        case stateUnknown:
-          state = stateNone;
-          break;
-        case stateMarked:
-        case stateUnmarked:
-          state = stateUnknown;
-          break;
-        default:
-          break;
-      }
-    } else {
-      state = stateUnknown;
-    }
-
-    delete modelName;
-  } else {
-    state = stateUnknown;
-  }
-  obj1.free();
-}
-
-//------------------------------------------------------------------------
-// AnnotLink
-//------------------------------------------------------------------------
-
-AnnotLink::AnnotLink(XRef *xrefA, Dict *acroForm, Dict *dict, Catalog *catalog, Object *obj) :
-    Annot(xrefA, acroForm, dict, catalog, obj) {
-
-  type = typeLink;
-  initialize (xrefA, catalog, dict);
-}
-
-AnnotLink::~AnnotLink() {
-  /*
-  if (actionDict)
-    delete actionDict;
-
-  if (uriAction)
-    delete uriAction;
-  */
-  if (quadrilaterals)
-    delete quadrilaterals;
-}
-
-void AnnotLink::initialize(XRef *xrefA, Catalog *catalog, Dict *dict) {
-  Object obj1;
-  /*
-  if (dict->lookup("A", &obj1)->isDict()) {
-    actionDict = NULL;
-  } else {
-    actionDict = NULL;
-  }
-  obj1.free();
-  */
-  if (dict->lookup("H", &obj1)->isName()) {
-    GooString *effect = new GooString(obj1.getName());
-
-    if (!effect->cmp("N")) {
-      linkEffect = effectNone;
-    } else if (!effect->cmp("I")) {
-      linkEffect = effectInvert;
-    } else if (!effect->cmp("O")) {
-      linkEffect = effectOutline;
-    } else if (!effect->cmp("P")) {
-      linkEffect = effectPush;
-    } else {
-      linkEffect = effectInvert;
-    }
-    delete effect;
-  } else {
-    linkEffect = effectInvert;
-  }
-  obj1.free();
-  /*
-  if (dict->lookup("PA", &obj1)->isDict()) {
-    uriAction = NULL;
-  } else {
-    uriAction = NULL;
-  }
-  obj1.free();
-  */
-  if (dict->lookup("QuadPoints", &obj1)->isArray()) {
-    quadrilaterals = new AnnotQuadrilaterals(obj1.getArray(), rect);
-  } else {
-    quadrilaterals = NULL;
-  }
-  obj1.free();
-}
-
-//------------------------------------------------------------------------
-// AnnotFreeText
-//------------------------------------------------------------------------
-
-AnnotFreeText::AnnotFreeText(XRef *xrefA, Dict *acroForm, Dict *dict, Catalog *catalog, Object *obj) :
-    Annot(xrefA, acroForm, dict, catalog, obj), AnnotMarkup(xref, acroForm, dict, catalog, obj) {
-  type = typeFreeText;
-  initialize(xrefA, catalog, dict);
-}
-
-AnnotFreeText::~AnnotFreeText() {
-  delete appearanceString;
-
-  if (styleString)
-    delete styleString;
-
-  if (calloutLine)
-    delete calloutLine;
-
-  if (borderEffect)
-    delete borderEffect;
-
-  if (rectangle)
-    delete rectangle;
-}
-
-void AnnotFreeText::initialize(XRef *xrefA, Catalog *catalog, Dict *dict) {
-  Object obj1;
-
-  if (dict->lookup("DA", &obj1)->isString()) {
-    appearanceString = obj1.getString()->copy();
-  } else {
-    appearanceString = new GooString();
-    error(-1, "Bad appearance for annotation");
-    ok = gFalse;
-  }
-  obj1.free();
-
-  if (dict->lookup("Q", &obj1)->isInt()) {
-    quadding = (AnnotFreeTextQuadding) obj1.getInt();
-  } else {
-    quadding = quaddingLeftJustified;
-  }
-  obj1.free();
-
-  if (dict->lookup("DS", &obj1)->isString()) {
-    styleString = obj1.getString()->copy();
-  } else {
-    styleString = NULL;
-  }
-  obj1.free();
-
-  if (dict->lookup("CL", &obj1)->isArray() && obj1.arrayGetLength() >= 4) {
-    double x1, y1, x2, y2;
-    Object obj2;
-
-    (obj1.arrayGet(0, &obj2)->isNum() ? x1 = obj2.getNum() : x1 = 0);
-    obj2.free();
-    (obj1.arrayGet(1, &obj2)->isNum() ? y1 = obj2.getNum() : y1 = 0);
-    obj2.free();
-    (obj1.arrayGet(2, &obj2)->isNum() ? x2 = obj2.getNum() : x2 = 0);
-    obj2.free();
-    (obj1.arrayGet(3, &obj2)->isNum() ? y2 = obj2.getNum() : y2 = 0);
-    obj2.free();
-
-    if (obj1.arrayGetLength() == 6) {
-      double x3, y3;
-      (obj1.arrayGet(4, &obj2)->isNum() ? x3 = obj2.getNum() : x3 = 0);
-      obj2.free();
-      (obj1.arrayGet(5, &obj2)->isNum() ? y3 = obj2.getNum() : y3 = 0);
-      obj2.free();
-      calloutLine = new AnnotCalloutMultiLine(x1, y1, x2, y2, x3, y3);
-    } else {
-      calloutLine = new AnnotCalloutLine(x1, y1, x2, y2);
-    }
-  } else {
-    calloutLine = NULL;
-  }
-  obj1.free();
-
-  if (dict->lookup("IT", &obj1)->isName()) {
-    GooString *intentName = new GooString(obj1.getName());
-
-    if (!intentName->cmp("FreeText")) {
-      intent = intentFreeText;
-    } else if (!intentName->cmp("FreeTextCallout")) {
-      intent = intentFreeTextCallout;
-    } else if (!intentName->cmp("FreeTextTypeWriter")) {
-      intent = intentFreeTextTypeWriter;
-    } else {
-      intent = intentFreeText;
-    }
-    delete intentName;
-  } else {
-    intent = intentFreeText;
-  }
-  obj1.free();
-
-  if (dict->lookup("BE", &obj1)->isDict()) {
-    borderEffect = new AnnotBorderEffect(obj1.getDict());
-  } else {
-    borderEffect = NULL;
-  }
-  obj1.free();
-
-  if (dict->lookup("RD", &obj1)->isArray() && obj1.arrayGetLength() == 4) {
-    Object obj2;
-    rectangle = new PDFRectangle();
-
-    (obj1.arrayGet(0, &obj2)->isNum() ? rectangle->x1 = obj2.getNum() :
-      rectangle->x1 = 0);
-    obj2.free();
-    (obj1.arrayGet(1, &obj2)->isNum() ? rectangle->y1 = obj2.getNum() :
-      rectangle->y1 = 0);
-    obj2.free();
-    (obj1.arrayGet(2, &obj2)->isNum() ? rectangle->x2 = obj2.getNum() :
-      rectangle->x2 = 1);
-    obj2.free();
-    (obj1.arrayGet(3, &obj2)->isNum() ? rectangle->y2 = obj2.getNum() :
-      rectangle->y2 = 1);
-    obj2.free();
-
-    if (rectangle->x1 > rectangle->x2) {
-      double t = rectangle->x1;
-      rectangle->x1 = rectangle->x2;
-      rectangle->x2 = t;
-    }
-    if (rectangle->y1 > rectangle->y2) {
-      double t = rectangle->y1;
-      rectangle->y1 = rectangle->y2;
-      rectangle->y2 = t;
-    }
-
-    if ((rectangle->x1 + rectangle->x2) > (rect->x2 - rect->x1))
-      rectangle->x1 = rectangle->x2 = 0;
-
-    if ((rectangle->y1 + rectangle->y2) > (rect->y2 - rect->y1))
-      rectangle->y1 = rectangle->y2 = 0;
-  } else {
-    rectangle = NULL;
-  }
-  obj1.free();
-
-  if (dict->lookup("LE", &obj1)->isName()) {
-    GooString *styleName = new GooString(obj1.getName());
-    endStyle = parseAnnotLineEndingStyle(styleName);
-    delete styleName;
-  } else {
-    endStyle = annotLineEndingNone;
-  }
-  obj1.free();
-}
-
-//------------------------------------------------------------------------
-// AnnotLine
-//------------------------------------------------------------------------
-
-AnnotLine::AnnotLine(XRef *xrefA, Dict *acroForm, Dict *dict, Catalog *catalog, Object *obj) :
-    Annot(xrefA, acroForm, dict, catalog, obj), AnnotMarkup(xref, acroForm, dict, catalog, obj) {
-  type = typeLine;
-  initialize(xrefA, catalog, dict);
-}
-
-AnnotLine::~AnnotLine() {
-  if (interiorColor)
-    delete interiorColor;
-
-  if (measure)
-    delete measure;
-}
-
-void AnnotLine::initialize(XRef *xrefA, Catalog *catalog, Dict *dict) {
-  Object obj1;
-
-  if (dict->lookup("L", &obj1)->isArray() && obj1.arrayGetLength() == 4) {
-    Object obj2;
-
-    (obj1.arrayGet(0, &obj2)->isNum() ? x1 = obj2.getNum() : x1 = 0);
-    obj2.free();
-    (obj1.arrayGet(1, &obj2)->isNum() ? y1 = obj2.getNum() : y1 = 0);
-    obj2.free();
-    (obj1.arrayGet(2, &obj2)->isNum() ? x2 = obj2.getNum() : x2 = 0);
-    obj2.free();
-    (obj1.arrayGet(3, &obj2)->isNum() ? y2 = obj2.getNum() : y2 = 0);
-    obj2.free();
-
-  } else {
-    x1 = y1 = x2 = y2 = 0;
-  }
-  obj1.free();
-
-  if (dict->lookup("LE", &obj1)->isArray() && obj1.arrayGetLength() == 2) {
-    Object obj2;
-
-    if(obj1.arrayGet(0, &obj2)->isString())
-      startStyle = parseAnnotLineEndingStyle(obj2.getString());
-    else
-      startStyle = annotLineEndingNone;
-    obj2.free();
-
-    if(obj1.arrayGet(1, &obj2)->isString())
-      endStyle = parseAnnotLineEndingStyle(obj2.getString());
-    else
-      endStyle = annotLineEndingNone;
-    obj2.free();
-
-  } else {
-    startStyle = endStyle = annotLineEndingNone;
-  }
-  obj1.free();
-
-  if (dict->lookup("IC", &obj1)->isArray()) {
-    interiorColor = new AnnotColor(obj1.getArray());
-  } else {
-    interiorColor = NULL;
-  }
-  obj1.free();
-
-  if (dict->lookup("LL", &obj1)->isNum()) {
-    leaderLineLength = obj1.getNum();
-  } else {
-    leaderLineLength = 0;
-  }
-  obj1.free();
-
-  if (dict->lookup("LLE", &obj1)->isNum()) {
-    leaderLineExtension = obj1.getNum();
-
-    if (leaderLineExtension < 0)
-      leaderLineExtension = 0;
-  } else {
-    leaderLineExtension = 0;
-  }
-  obj1.free();
-
-  if (dict->lookup("Cap", &obj1)->isBool()) {
-    caption = obj1.getBool();
-  } else {
-    caption = gFalse;
-  }
-  obj1.free();
-
-  if (dict->lookup("IT", &obj1)->isName()) {
-    GooString *intentName = new GooString(obj1.getName());
-
-    if(!intentName->cmp("LineArrow")) {
-      intent = intentLineArrow;
-    } else if(!intentName->cmp("LineDimension")) {
-      intent = intentLineDimension;
-    } else {
-      intent = intentLineArrow;
-    }
-    delete intentName;
-  } else {
-    intent = intentLineArrow;
-  }
-  obj1.free();
-
-  if (dict->lookup("LLO", &obj1)->isNum()) {
-    leaderLineOffset = obj1.getNum();
-
-    if (leaderLineOffset < 0)
-      leaderLineOffset = 0;
-  } else {
-    leaderLineOffset = 0;
-  }
-  obj1.free();
-
-  if (dict->lookup("CP", &obj1)->isName()) {
-    GooString *captionName = new GooString(obj1.getName());
-
-    if(!captionName->cmp("Inline")) {
-      captionPos = captionPosInline;
-    } else if(!captionName->cmp("Top")) {
-      captionPos = captionPosTop;
-    } else {
-      captionPos = captionPosInline;
-    }
-    delete captionName;
-  } else {
-    captionPos = captionPosInline;
-  }
-  obj1.free();
-
-  if (dict->lookup("Measure", &obj1)->isDict()) {
-    measure = NULL;
-  } else {
-    measure = NULL;
-  }
-  obj1.free();
-
-  if ((dict->lookup("CO", &obj1)->isArray()) && (obj1.arrayGetLength() == 2)) {
-    Object obj2;
-
-    (obj1.arrayGet(0, &obj2)->isNum() ? captionTextHorizontal = obj2.getNum() :
-      captionTextHorizontal = 0);
-    obj2.free();
-    (obj1.arrayGet(1, &obj2)->isNum() ? captionTextVertical = obj2.getNum() :
-      captionTextVertical = 0);
-    obj2.free();
-  } else {
-    captionTextHorizontal = captionTextVertical = 0;
-  }
-  obj1.free();
-}
-
-//------------------------------------------------------------------------
-// AnnotTextMarkup
-//------------------------------------------------------------------------
-
-void AnnotTextMarkup::initialize(XRef *xrefA, Catalog *catalog, Dict *dict) {
-  Object obj1;
-
-  if(dict->lookup("QuadPoints", &obj1)->isArray()) {
-    quadrilaterals = new AnnotQuadrilaterals(obj1.getArray(), rect);
-  } else {
-    quadrilaterals = NULL;
-  }
-  obj1.free();
-}
-
-AnnotTextMarkup::~AnnotTextMarkup() {
-  if(quadrilaterals) {
-    delete quadrilaterals;
-  }
-}
-
-//------------------------------------------------------------------------
-// AnnotWidget
-//------------------------------------------------------------------------
-
-AnnotWidget::AnnotWidget(XRef *xrefA, Dict *acroForm, Dict *dict, Catalog *catalog, Object *obj) :
-    Annot(xrefA, acroForm, dict, catalog, obj) {
-  type = typeWidget;
-  initialize(xrefA, catalog, dict);
-}
-
-AnnotWidget::~AnnotWidget() {
-  if (appearCharacs)
-    delete appearCharacs;
-  
-  if (action)
-    delete action;
-    
-  if (additionActions)
-    delete additionActions;
-    
-  if (parent)
-    delete parent;
-}
-
-void AnnotWidget::initialize(XRef *xrefA, Catalog *catalog, Dict *dict) {
-  Object obj1;
-
-  if(dict->lookup("H", &obj1)->isName()) {
-    GooString *modeName = new GooString(obj1.getName());
-
-    if(!modeName->cmp("N")) {
-      mode = highlightModeNone;
-    } else if(!modeName->cmp("O")) {
-      mode = highlightModeOutline;
-    } else if(!modeName->cmp("P") || !modeName->cmp("T")) {
-      mode = highlightModePush;
-    } else {
-      mode = highlightModeInvert;
-    }
-    delete modeName;
-  } else {
-    mode = highlightModeInvert;
-  }
-  obj1.free();
-
-  if(dict->lookup("MK", &obj1)->isDict()) {
-    appearCharacs = new AnnotAppearanceCharacs(obj1.getDict());
-  } else {
-    appearCharacs = NULL;
-  }
-  obj1.free();
-
-  if(dict->lookup("A", &obj1)->isDict()) {
-    action = NULL;
-  } else {
-    action = NULL;
-  }
-  obj1.free();
-
-  if(dict->lookup("AA", &obj1)->isDict()) {
-    additionActions = NULL;
-  } else {
-    additionActions = NULL;
-  }
-  obj1.free();
-
-  if(dict->lookup("Parent", &obj1)->isDict()) {
-    parent = NULL;
-  } else {
-    parent = NULL;
-  }
-  obj1.free();
 }
 
 //------------------------------------------------------------------------
@@ -2836,7 +2859,6 @@ void AnnotWidget::initialize(XRef *xrefA, Catalog *catalog, Dict *dict) {
 //------------------------------------------------------------------------
 
 Annots::Annots(XRef *xref, Catalog *catalog, Object *annotsObj) {
-  Dict *acroForm;
   Annot *annot;
   Object obj1;
   int size;
@@ -2846,8 +2868,6 @@ Annots::Annots(XRef *xref, Catalog *catalog, Object *annotsObj) {
   size = 0;
   nAnnots = 0;
 
-  acroForm = catalog->getAcroForm()->isDict() ?
-    catalog->getAcroForm()->getDict() : NULL;
   if (annotsObj->isArray()) {
     for (i = 0; i < annotsObj->arrayGetLength(); ++i) {
       //get the Ref to this annot and pass it to Annot constructor 
@@ -2856,7 +2876,7 @@ Annots::Annots(XRef *xref, Catalog *catalog, Object *annotsObj) {
       Object obj2;
       if (annotsObj->arrayGet(i, &obj1)->isDict()) {
         annotsObj->arrayGetNF(i, &obj2);
-        annot = createAnnot (xref, acroForm, obj1.getDict(), catalog, &obj2);
+        annot = createAnnot (xref, obj1.getDict(), catalog, &obj2);
         if (annot && annot->isOk()) {
           if (nAnnots >= size) {
             size += 16;
@@ -2873,7 +2893,7 @@ Annots::Annots(XRef *xref, Catalog *catalog, Object *annotsObj) {
   }
 }
 
-Annot *Annots::createAnnot(XRef *xref, Dict *acroForm, Dict* dict, Catalog *catalog, Object *obj) {
+Annot *Annots::createAnnot(XRef *xref, Dict* dict, Catalog *catalog, Object *obj) {
   Annot *annot;
   Object obj1;
 
@@ -2881,55 +2901,55 @@ Annot *Annots::createAnnot(XRef *xref, Dict *acroForm, Dict* dict, Catalog *cata
     GooString *typeName = new GooString(obj1.getName());
 
     if (!typeName->cmp("Text")) {
-      annot = new AnnotText(xref, acroForm, dict, catalog, obj);
+      annot = new AnnotText(xref, dict, catalog, obj);
     } else if (!typeName->cmp("Link")) {
-      annot = new AnnotLink(xref, acroForm, dict, catalog, obj);
+      annot = new AnnotLink(xref, dict, catalog, obj);
     } else if (!typeName->cmp("FreeText")) {
-      annot = new AnnotFreeText(xref, acroForm, dict, catalog, obj);
+      annot = new AnnotFreeText(xref, dict, catalog, obj);
     } else if (!typeName->cmp("Line")) {
-      annot = new AnnotLine(xref, acroForm, dict, catalog, obj);
+      annot = new AnnotLine(xref, dict, catalog, obj);
     } else if (!typeName->cmp("Square")) {
-      annot = new Annot(xref, acroForm, dict, catalog, obj);
+      annot = new Annot(xref, dict, catalog, obj);
     } else if (!typeName->cmp("Circle")) {
-      annot = new Annot(xref, acroForm, dict, catalog, obj);
+      annot = new Annot(xref, dict, catalog, obj);
     } else if (!typeName->cmp("Polygon")) {
-      annot = new Annot(xref, acroForm, dict, catalog, obj);
+      annot = new Annot(xref, dict, catalog, obj);
     } else if (!typeName->cmp("PolyLine")) {
-      annot = new Annot(xref, acroForm, dict, catalog, obj);
+      annot = new Annot(xref, dict, catalog, obj);
     } else if (!typeName->cmp("Highlight")) {
-      annot = new Annot(xref, acroForm, dict, catalog, obj);
+      annot = new Annot(xref, dict, catalog, obj);
     } else if (!typeName->cmp("Underline")) {
-      annot = new Annot(xref, acroForm, dict, catalog, obj);
+      annot = new Annot(xref, dict, catalog, obj);
     } else if (!typeName->cmp("Squiggly")) {
-      annot = new Annot(xref, acroForm, dict, catalog, obj);
+      annot = new Annot(xref, dict, catalog, obj);
     } else if (!typeName->cmp("StrikeOut")) {
-      annot = new Annot(xref, acroForm, dict, catalog, obj);
+      annot = new Annot(xref, dict, catalog, obj);
     } else if (!typeName->cmp("Stamp")) {
-      annot = new Annot(xref, acroForm, dict, catalog, obj);
+      annot = new Annot(xref, dict, catalog, obj);
     } else if (!typeName->cmp("Caret")) {
-      annot = new Annot(xref, acroForm, dict, catalog, obj);
+      annot = new Annot(xref, dict, catalog, obj);
     } else if (!typeName->cmp("Ink")) {
-      annot = new Annot(xref, acroForm, dict, catalog, obj);
+      annot = new Annot(xref, dict, catalog, obj);
     } else if (!typeName->cmp("FileAttachment")) {
-      annot = new Annot(xref, acroForm, dict, catalog, obj);
+      annot = new Annot(xref, dict, catalog, obj);
     } else if (!typeName->cmp("Sound")) {
-      annot = new Annot(xref, acroForm, dict, catalog, obj);
+      annot = new Annot(xref, dict, catalog, obj);
     } else if (!typeName->cmp("Movie")) {
-      annot = new Annot(xref, acroForm, dict, catalog, obj);
+      annot = new Annot(xref, dict, catalog, obj);
     } else if (!typeName->cmp("Widget")) {
-      annot = new AnnotWidget(xref, acroForm, dict, catalog, obj);
+      annot = new AnnotWidget(xref, dict, catalog, obj);
     } else if (!typeName->cmp("Screen")) {
-      annot = new Annot(xref, acroForm, dict, catalog, obj);
+      annot = new Annot(xref, dict, catalog, obj);
     } else if (!typeName->cmp("PrinterMark")) {
-      annot = new Annot(xref, acroForm, dict, catalog, obj);
+      annot = new Annot(xref, dict, catalog, obj);
     } else if (!typeName->cmp("TrapNet")) {
-      annot = new Annot(xref, acroForm, dict, catalog, obj);
+      annot = new Annot(xref, dict, catalog, obj);
     } else if (!typeName->cmp("Watermark")) {
-      annot = new Annot(xref, acroForm, dict, catalog, obj);
+      annot = new Annot(xref, dict, catalog, obj);
     } else if (!typeName->cmp("3D")) {
-      annot = new Annot(xref, acroForm, dict, catalog, obj);
+      annot = new Annot(xref, dict, catalog, obj);
     } else {
-      annot = new Annot(xref, acroForm, dict, catalog, obj);
+      annot = new Annot(xref, dict, catalog, obj);
     }
 
     delete typeName;
@@ -2939,69 +2959,6 @@ Annot *Annots::createAnnot(XRef *xref, Dict *acroForm, Dict* dict, Catalog *cata
   obj1.free();
 
   return annot;
-}
-
-void Annots::generateAppearances(Dict *acroForm) {
-  Object obj1, obj2;
-  Ref ref;
-  int i;
-  
-  if (acroForm->lookup("Fields", &obj1)->isArray()) {
-    for (i = 0; i < obj1.arrayGetLength(); ++i) {
-      if (obj1.arrayGetNF(i, &obj2)->isRef()) {
-        ref = obj2.getRef();
-        obj2.free();
-        obj1.arrayGet(i, &obj2);
-      } else {
-        ref.num = ref.gen = -1;
-      }
-      if (obj2.isDict()) {
-        scanFieldAppearances(obj2.getDict(), &ref, NULL, acroForm);
-      }
-      obj2.free();
-    }
-  }
-  obj1.free();
-}
-
-void Annots::scanFieldAppearances(Dict *node, Ref *ref, Dict *parent,
-    Dict *acroForm) {
-  Annot *annot;
-  Object obj1, obj2;
-  Ref ref2;
-  int i;
-
-  // non-terminal node: scan the children
-  if (node->lookup("Kids", &obj1)->isArray()) {
-    for (i = 0; i < obj1.arrayGetLength(); ++i) {
-      if (obj1.arrayGetNF(i, &obj2)->isRef()) {
-        ref2 = obj2.getRef();
-        obj2.free();
-        obj1.arrayGet(i, &obj2);
-      } else {
-        ref2.num = ref2.gen = -1;
-      }
-      if (obj2.isDict()) {
-        scanFieldAppearances(obj2.getDict(), &ref2, node, acroForm);
-      }
-      obj2.free();
-    }
-    obj1.free();
-    return;
-  }
-  obj1.free();
-
-  // terminal node: this is either a combined annot/field dict, or an
-  // annot dict whose parent is a field
-  if ((annot = findAnnot(ref))) {
-    node->lookupNF("Parent", &obj1);
-    if (!parent || !obj1.isNull()) {
-      annot->generateFieldAppearance(node, node, acroForm);
-    } else {
-      annot->generateFieldAppearance(parent, node, acroForm);
-    }
-    obj1.free();
-  }
 }
 
 Annot *Annots::findAnnot(Ref *ref) {

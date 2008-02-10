@@ -1089,34 +1089,38 @@ FormFieldSignature::~FormFieldSignature()
 
 Form::Form(XRef *xrefA, Object* acroFormA)
 {
-  Array *array = NULL;
   Object obj1;
+
   xref = xrefA;
   acroForm = acroFormA;
-  acroForm->dictLookup("Fields",&obj1);
-  if (obj1.isArray()) array = obj1.getArray();
-  obj1.free();
-  if(!array) {
-    error(-1, "Can't get Fields array\n");
-  }
+  
   size = 0;
   numFields = 0;
   rootFields = NULL;
-  if (array) {
+
+  acroForm->dictLookup("NeedAppearances", &obj1);
+  needAppearances = (obj1.isBool() && obj1.getBool());
+  obj1.free();
+
+  acroForm->dictLookup("Fields", &obj1);
+  if (obj1.isArray()) {
+    Array *array = obj1.getArray();
+    Object obj2;
+    
     for(int i=0; i<array->getLength(); i++) {
       Object oref;
-      array->get(i, &obj1);
+      array->get(i, &obj2);
       array->getNF(i, &oref);
       if (!oref.isRef()) {
         error(-1, "Direct object in rootFields");
-	obj1.free();
+	obj2.free();
 	oref.free();
         continue;
       }
 
-      if (!obj1.isDict()) {
+      if (!obj2.isDict()) {
         error(-1, "Reference in Fields array to an invalid or non existant object");
-	obj1.free();
+	obj2.free();
 	oref.free();
 	continue;
       }
@@ -1126,21 +1130,24 @@ Form::Form(XRef *xrefA, Object* acroFormA)
         rootFields = (FormField**)greallocn(rootFields,size,sizeof(FormField*));
       }
 
-      rootFields[numFields++] = createFieldFromDict (&obj1, xrefA, oref.getRef());
+      rootFields[numFields++] = createFieldFromDict (&obj2, xrefA, oref.getRef());
 
       //Mark readonly field
       Object obj3;
-      if (Form::fieldLookup(obj1.getDict (), "Ff", &obj3)->isInt()) {
+      if (Form::fieldLookup(obj2.getDict (), "Ff", &obj3)->isInt()) {
         int flags = obj3.getInt();
         if (flags & 0x1)
           rootFields[numFields-1]->setReadOnly(true);
       }
       obj3.free();
 
-      obj1.free();
+      obj2.free();
       oref.free();
     }
+  } else {
+    error(-1, "Can't get Fields array\n");
   }
+  obj1.free ();
 }
 
 Form::~Form() {
@@ -1246,7 +1253,7 @@ FormPageWidgets::FormPageWidgets (XRef *xrefA, Object* annots, unsigned int page
         if (annots->arrayGet(i, &obj2)->isDict()) {
           Annot *ann;
 	  
-          ann = new Annot(xref, NULL ,obj2.getDict(), NULL);
+          ann = new Annot(xref, obj2.getDict(), NULL);
           tmp->setFontSize(ann->getFontSize());
           delete ann;
         }

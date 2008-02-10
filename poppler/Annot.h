@@ -19,6 +19,7 @@ class Catalog;
 class CharCodeToUnicode;
 class GfxFont;
 class GfxFontDict;
+class Form;
 class FormWidget;
 class PDFRectangle;
 
@@ -437,20 +438,17 @@ public:
     type3D              // 3D             25
   };
 
-  Annot(XRef *xrefA, Dict *acroForm, Dict *dict, Catalog* catalog);
-  Annot(XRef *xrefA, Dict *acroForm, Dict *dict, Catalog *catalog, Object *obj);
+  Annot(XRef *xrefA, Dict *dict, Catalog* catalog);
+  Annot(XRef *xrefA, Dict *dict, Catalog *catalog, Object *obj);
   virtual ~Annot();
   GBool isOk() { return ok; }
 
-  void draw(Gfx *gfx, GBool printing);
+  virtual void draw(Gfx *gfx, GBool printing);
   // Get appearance object.
   Object *getAppearance(Object *obj) { return appearance.fetch(xref, obj); }
-  GBool textField() { return isTextField; }
 
   GBool match(Ref *refA)
     { return ref.num == refA->num && ref.gen == refA->gen; }
-
-  void generateFieldAppearance(Dict *field, Dict *annot, Dict *acroForm);
 
   double getXMin();
   double getYMin();
@@ -473,27 +471,17 @@ public:
   Dict *getOptionalContent() const { return optionalContent; }
 
 private:
+  void readArrayNum(Object *pdfArray, int key, double *value);
+  // write vStr[i:j[ in appearBuf
+
+  void initialize (XRef *xrefA, Dict *dict, Catalog *catalog);
+
+protected:
   void setColor(Array *a, GBool fill, int adjust);
-  void drawText(GooString *text, GooString *da, GfxFontDict *fontDict,
-		GBool multiline, int comb, int quadding,
-		GBool txField, GBool forceZapfDingbats,
-    GBool password=false);
-  void drawListBox(GooString **text, GBool *selection,
-		   int nOptions, int topIdx,
-		   GooString *da, GfxFontDict *fontDict, GBool quadding);
-  void getNextLine(GooString *text, int start,
-		   GfxFont *font, double fontSize, double wMax,
-		   int *end, double *width, int *next);
   void drawCircle(double cx, double cy, double r, GBool fill);
   void drawCircleTopLeft(double cx, double cy, double r);
   void drawCircleBottomRight(double cx, double cy, double r);
-  void readArrayNum(Object *pdfArray, int key, double *value);
-  // write vStr[i:j[ in appearBuf
-  void writeTextString (GooString *text, GooString *appearBuf, int *i, int j, CharCodeToUnicode *ccToUnicode, GBool password); 
-
-  void initialize (XRef *xrefA, Dict *acroForm, Dict *dict, Catalog *catalog);
-
-protected:
+  
   // required data
   AnnotSubtype type;                // Annotation type
   PDFRectangle *rect;               // Rect
@@ -514,14 +502,11 @@ protected:
 
   XRef *xref;			// the xref table for this PDF file
   Ref ref;                      // object ref identifying this annotation
-  FormWidget *widget;           // FormWidget object for this annotation
   GooString *appearBuf;
   AnnotBorder *border;          // Border, BS
   AnnotColor *color;            // C
   double fontSize; 
   GBool ok;
-  GBool regen, isTextField;
-  GBool isMultiline, isListbox;
 
   bool hasRef;
 };
@@ -532,14 +517,14 @@ protected:
 
 class AnnotPopup: public Annot {
 public:
-  AnnotPopup(XRef *xrefA, Dict *acroForm, Dict *dict, Catalog *catalog, Object *obj);
+  AnnotPopup(XRef *xrefA, Dict *dict, Catalog *catalog, Object *obj);
   virtual ~AnnotPopup();
 
   Dict *getParent() const { return parent; }
   GBool getOpen() const { return open; }
 
 protected:
-  void initialize(XRef *xrefA, Dict *acroForm, Dict *dict, Catalog *catalog);
+  void initialize(XRef *xrefA, Dict *dict, Catalog *catalog);
 
   Dict *parent; // Parent
   GBool open;   // Open
@@ -556,7 +541,7 @@ public:
     replyTypeGroup  // Group
   };
 
-  AnnotMarkup(XRef *xrefA, Dict *acroForm, Dict *dict, Catalog *catalog, Object *obj);
+  AnnotMarkup(XRef *xrefA, Dict *dict, Catalog *catalog, Object *obj);
   virtual ~AnnotMarkup();
 
   // getters
@@ -585,7 +570,7 @@ protected:
   AnnotExternalDataType exData; // ExData
 
 private:
-  void initialize(XRef *xrefA, Dict *acroForm, Dict *dict, Catalog *catalog, Object *obj);
+  void initialize(XRef *xrefA, Dict *dict, Catalog *catalog, Object *obj);
 };
 
 //------------------------------------------------------------------------
@@ -617,7 +602,7 @@ public:
     stateNone       // None
   };
 
-  AnnotText(XRef *xrefA, Dict *acroForm, Dict *dict, Catalog *catalog, Object *obj);
+  AnnotText(XRef *xrefA, Dict *dict, Catalog *catalog, Object *obj);
 
   // getters
   GBool getOpen() const { return open; }
@@ -652,8 +637,10 @@ public:
     effectPush      // P
   };
 
-  AnnotLink(XRef *xrefA, Dict *acroForm, Dict *dict, Catalog *catalog, Object *obj);
+  AnnotLink(XRef *xrefA, Dict *dict, Catalog *catalog, Object *obj);
   virtual ~AnnotLink();
+
+  virtual void draw(Gfx *gfx, GBool printing);
 
   // getters
   Dict *getActionDict() const { return actionDict; }
@@ -693,7 +680,7 @@ public:
     intentFreeTextTypeWriter  // FreeTextTypeWriter
   };
 
-  AnnotFreeText(XRef *xrefA, Dict *acroForm, Dict *dict, Catalog *catalog, Object *obj);
+  AnnotFreeText(XRef *xrefA, Dict *dict, Catalog *catalog, Object *obj);
   virtual ~AnnotFreeText();
 
   // getters
@@ -744,7 +731,7 @@ public:
     captionPosTop     // Top
   };
 
-  AnnotLine(XRef *xrefA, Dict *acroForm, Dict *dict, Catalog *catalog, Object *obj);
+  AnnotLine(XRef *xrefA, Dict *dict, Catalog *catalog, Object *obj);
   virtual ~AnnotLine();
 
   // getters
@@ -818,8 +805,12 @@ public:
     highlightModePush     // P,T
   };
 
-  AnnotWidget(XRef *xrefA, Dict *acroForm, Dict *dict, Catalog *catalog, Object *obj);
+  AnnotWidget(XRef *xrefA, Dict *dict, Catalog *catalog, Object *obj);
   virtual ~AnnotWidget();
+
+  virtual void draw(Gfx *gfx, GBool printing);
+
+  void generateFieldAppearance ();
 
   AnnotWidgetHighlightMode getMode() { return mode; }
   AnnotAppearanceCharacs *getAppearCharacs() { return appearCharacs; }
@@ -827,10 +818,25 @@ public:
   Dict *getAdditionActions() { return additionActions; }
   Dict *getParent() { return parent; }
 
-protected:
+private:
 
   void initialize(XRef *xrefA, Catalog *catalog, Dict *dict);
-  
+
+  void drawText(GooString *text, GooString *da, GfxFontDict *fontDict,
+		GBool multiline, int comb, int quadding,
+		GBool txField, GBool forceZapfDingbats,
+		GBool password=false);
+  void drawListBox(GooString **text, GBool *selection,
+		   int nOptions, int topIdx,
+		   GooString *da, GfxFontDict *fontDict, GBool quadding);
+  void getNextLine(GooString *text, int start,
+		   GfxFont *font, double fontSize, double wMax,
+		   int *end, double *width, int *next);
+  void writeTextString (GooString *text, GooString *appearBuf, int *i, int j,
+			CharCodeToUnicode *ccToUnicode, GBool password); 
+
+  Form *form;
+  FormWidget *widget;                     // FormWidget object for this annotation
   AnnotWidgetHighlightMode mode;          // H  (Default I)
   AnnotAppearanceCharacs *appearCharacs;  // MK
   Dict *action;                           // A
@@ -838,6 +844,7 @@ protected:
   // inherited  from Annot
   // AnnotBorderBS border;                // BS
   Dict *parent;                           // Parent
+  GBool regen;
 };
 
 //------------------------------------------------------------------------
@@ -856,14 +863,8 @@ public:
   int getNumAnnots() { return nAnnots; }
   Annot *getAnnot(int i) { return annots[i]; }
 
-  // (Re)generate the appearance streams for all annotations belonging
-  // to a form field.
-  void generateAppearances(Dict *acroForm);
-
 private:
-  Annot* createAnnot(XRef *xref, Dict *acroForm, Dict* dict, Catalog *catalog, Object *obj);
-  void scanFieldAppearances(Dict *node, Ref *ref, Dict *parent,
-			    Dict *acroForm);
+  Annot* createAnnot(XRef *xref, Dict* dict, Catalog *catalog, Object *obj);
   Annot *findAnnot(Ref *ref);
 
   Annot **annots;

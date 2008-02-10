@@ -435,6 +435,7 @@ public:
   static FormField *createFieldFromDict (Object* obj, XRef *xref, const Ref& aref);
 
   Object *getObj () const { return acroForm; }
+  GBool getNeedAppearances () const { return needAppearances; }
   int getNumFields() const { return numFields; }
   FormField* getRootField(int i) const { return rootFields[i]; }
 
@@ -447,6 +448,7 @@ private:
   int size;
   XRef* xref;
   Object *acroForm;
+  GBool needAppearances;
 };
 
 //------------------------------------------------------------------------
