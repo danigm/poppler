@@ -19,6 +19,7 @@
 #include <poppler-qt4.h>
 
 #include <QtCore/QMap>
+#include <QtCore/QVarLengthArray>
 #include <QtGui/QImage>
 #include <QtGui/QPainter>
 
@@ -1193,7 +1194,7 @@ QList<Annotation*> Page::annotations() const
     if ( !resolveRevList.isEmpty() )
     {
         // append children to parents
-        int excludeIDs[ resolveRevList.count() ];   // can't even reach this size
+        QVarLengthArray< int > excludeIDs( resolveRevList.count() );   // can't even reach this size
         int excludeIndex = 0;                       // index in excludeIDs array
         QLinkedList< ResolveRevision >::iterator it = resolveRevList.begin(), end = resolveRevList.end();
         for ( ; it != end; ++it )
