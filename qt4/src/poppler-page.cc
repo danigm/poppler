@@ -1265,6 +1265,12 @@ QList<FormField*> Page::formFields() const
     FormField * ff = NULL;
     switch (fm->getType())
     {
+      case formButton:
+      {
+        ff = new FormFieldButton(m_page->parentDoc, p, static_cast<FormWidgetButton*>(fm));
+      }
+      break;
+
       case formText:
       {
         ff = new FormFieldText(m_page->parentDoc, p, static_cast<FormWidgetText*>(fm));

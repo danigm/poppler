@@ -126,6 +126,61 @@ bool FormField::isVisible() const
 }
 
 
+FormFieldButton::FormFieldButton(DocumentData *doc, ::Page *p, ::FormWidgetButton *w)
+  : FormField(*new FormFieldData(doc, p, w))
+{
+}
+
+FormFieldButton::~FormFieldButton()
+{
+}
+
+FormFieldButton::FormType FormFieldButton::type() const
+{
+  return FormField::FormButton;
+}
+
+FormFieldButton::ButtonType FormFieldButton::buttonType() const
+{
+  FormWidgetButton* fwb = static_cast<FormWidgetButton*>(m_formData->fm);
+  switch (fwb->getButtonType())
+  {
+    case formButtonCheck:
+      return FormFieldButton::CheckBox;
+      break;
+    case formButtonPush:
+      return FormFieldButton::Push;
+      break;
+    case formButtonRadio:
+      return FormFieldButton::Radio;
+      break;
+  }
+  return FormFieldButton::CheckBox;
+}
+
+QString FormFieldButton::caption() const
+{
+  FormWidgetButton* fwb = static_cast<FormWidgetButton*>(m_formData->fm);
+  // HACK push buttons seems to have a null GooString for the caption
+  if (fwb->getButtonType() == formButtonPush)
+    return QString();
+
+  return fwb->getOnStr() ? QString::fromUtf8(fwb->getOnStr()) : QString();
+}
+
+bool FormFieldButton::state() const
+{
+  FormWidgetButton* fwb = static_cast<FormWidgetButton*>(m_formData->fm);
+  return fwb->getState();
+}
+
+void FormFieldButton::setState( bool state )
+{
+  FormWidgetButton* fwb = static_cast<FormWidgetButton*>(m_formData->fm);
+  fwb->setState((GBool)state);
+}
+
+
 FormFieldText::FormFieldText(DocumentData *doc, ::Page *p, ::FormWidgetText *w)
   : FormField(*new FormFieldData(doc, p, w))
 {

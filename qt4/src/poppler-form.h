@@ -100,6 +100,60 @@ namespace Poppler {
     };
 
     /**
+      A form field that represents a choice field.
+     */
+    class FormFieldButton : public FormField {
+    public:
+
+	/**
+	 * The types of button field.
+	 */
+	enum ButtonType
+	{
+	    Push,          ///< A simple push button.
+	    CheckBox,      ///< A check box.
+	    Radio          ///< A radio button.
+	};
+
+	/// \cond PRIVATE
+	FormFieldButton(DocumentData *doc, ::Page *p, ::FormWidgetButton *w);
+	/// \endcond
+	virtual ~FormFieldButton();
+
+	virtual FormType type() const;
+
+	/**
+	  The particular type of the button field.
+	 */
+	ButtonType buttonType() const;
+
+	/**
+	 * The caption to be used for a @ref Push button.
+	 *
+	 * May be a null string if the push button has no particular caption
+	 * set for that @p type .
+	 *
+	 * Always a null string if the button is not a push button.
+	 *
+	 * @param type is the type of the caption
+	 */
+	QString caption() const;
+
+	/**
+	  The state of the button.
+	 */
+	bool state() const;
+
+	/**
+	  Sets the state of the button to the new \p state .
+	 */
+	void setState( bool state );
+
+    private:
+	Q_DISABLE_COPY(FormFieldButton)
+    };
+
+    /**
       A form field that represents a text input.
      */
     class FormFieldText : public FormField {
