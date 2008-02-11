@@ -100,7 +100,7 @@ namespace Poppler {
     };
 
     /**
-      A form field that represents a choice field.
+      A form field that represents a "button".
      */
     class FormFieldButton : public FormField {
     public:
@@ -128,14 +128,7 @@ namespace Poppler {
 	ButtonType buttonType() const;
 
 	/**
-	 * The caption to be used for a @ref Push button.
-	 *
-	 * May be a null string if the push button has no particular caption
-	 * set for that @p type .
-	 *
-	 * Always a null string if the button is not a push button.
-	 *
-	 * @param type is the type of the caption
+	 * The caption to be used for the button.
 	 */
 	QString caption() const;
 
