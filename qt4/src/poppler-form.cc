@@ -180,6 +180,20 @@ void FormFieldButton::setState( bool state )
   fwb->setState((GBool)state);
 }
 
+QList<int> FormFieldButton::siblings() const
+{
+  FormWidgetButton* fwb = static_cast<FormWidgetButton*>(m_formData->fm);
+  if (fwb->getButtonType() != formButtonRadio)
+    return QList<int>();
+
+  QList<int> ret;
+  unsigned *sibls = fwb->getSiblingsID();
+  for (int i = 0; i < fwb->getNumSiblingsID(); ++i)
+    ret.append(sibls[i]);
+
+  return ret;
+}
+
 
 FormFieldText::FormFieldText(DocumentData *doc, ::Page *p, ::FormWidgetText *w)
   : FormField(*new FormFieldData(doc, p, w))

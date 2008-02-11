@@ -142,6 +142,14 @@ namespace Poppler {
 	 */
 	void setState( bool state );
 
+	/**
+	  The list with the IDs of siblings (ie, buttons belonging to the same
+	  group as the current one.
+
+	  Valid only for \ref Radio buttons, an empty list otherwise.
+	 */
+	QList<int> siblings() const;
+
     private:
 	Q_DISABLE_COPY(FormFieldButton)
     };
