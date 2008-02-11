@@ -119,7 +119,6 @@ FormWidget::FormWidget(FormWidget *dest)
 
   type = dest->type;
   field = dest->field;
-
 }
 
 FormWidget::~FormWidget()
@@ -141,6 +140,28 @@ void FormWidget::decodeID (unsigned id, unsigned* pageNum, unsigned* fieldNum)
 {
   *pageNum = id >> 4*sizeof(unsigned);
   *fieldNum = (id << 4*sizeof(unsigned)) >> 4*sizeof(unsigned);
+}
+
+void FormWidget::updateField (const char *key, Object *value)
+{
+  Object *obj1;
+  Ref ref1;
+  Object obj2;
+
+  if (obj.getDict()->lookup ("FT", &obj2)->isName ()) {
+    // It's a composed (annot + field) dict
+    obj1 = &obj;
+    ref1 = ref;
+  } else {
+    // It's an annot dict, we have to modify the Field (parent) dict
+    obj1 = field->getObj ();
+    ref1 = field->getRef ();
+  }
+  obj2.free ();
+
+  obj1->getDict ()->set ("V", value);
+  //notify the xref about the update
+  xref->setModifiedObject(obj1, ref1);
 }
 
 FormWidgetButton::FormWidgetButton (XRef *xrefA, Object *aobj, unsigned num, Ref ref, FormField *p) :
@@ -178,15 +199,16 @@ void FormWidgetButton::setState (GBool astate, GBool calledByParent)
     }
   }
   state = astate;
+  
   //update appearance
   char *offStr = "Off";
   Object obj1;
   obj1.initName(state?getOnStr():offStr);
-  obj.getDict()->set("V", &obj1);
+  updateField ("V", &obj1);
+
   obj1.initName(state?getOnStr():offStr);
   //modify the Appearance State entry as well
   obj.getDict()->set("AS", &obj1);
-
   //notify the xref about the update
   xref->setModifiedObject(&obj, ref);
 }
@@ -375,11 +397,10 @@ void FormWidgetText::setContent(GooString* new_content)
     
     GooString *cont = new GooString(new_content);
     parent->setContentCopy(cont);
+    
     Object obj1;
     obj1.initString(cont);
-    obj.getDict()->set("V", &obj1);
-    //notify the xref about the update
-    xref->setModifiedObject(&obj, ref);
+    updateField ("V", &obj1);
   }
 }
 
@@ -485,8 +506,7 @@ void FormWidgetChoice::loadDefaults ()
       parent->select(i);
   }
 #ifdef UPDATE_OPT
-  obj.getDict()->set("Opt", objOpt);
-  xref->setModifiedObject(&obj, ref); 
+  updateField ("Opt", objOpt);
 #endif
   delete [] tmpCurrentChoice;
 }
@@ -523,9 +543,7 @@ void FormWidgetChoice::_updateV ()
       }
     }
   }
-  obj.getDict()->set("V", &obj1);
-  //notify the xref about the update
-  xref->setModifiedObject(&obj, ref);
+  updateField ("V", &obj1);
   modified = gTrue;
 }
 
@@ -900,8 +918,8 @@ GBool FormFieldButton::setState (int num, GBool s)
         if (actChild->getOnStr()) {
           Object obj1;
           obj1.initName(actChild->getOnStr());
-          obj.getDict()->set("V", &obj1);
-          xref->setModifiedObject(&obj, ref);
+	  obj.getDict()->set("V", &obj1);
+	  xref->setModifiedObject(&obj, ref);
         }
       }
     } else {

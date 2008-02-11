@@ -92,6 +92,8 @@ protected:
   FormWidget(XRef *xrefA, Object *aobj, unsigned num, Ref aref, FormField *fieldA);
   FormWidget(FormWidget *dest);
 
+  void updateField (const char *key, Object *value);
+
   FormField* field;
   FormFieldType type;
   Object obj;
