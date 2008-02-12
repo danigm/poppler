@@ -2825,6 +2825,7 @@ void AnnotWidget::generateFieldAppearance() {
     dictObj.initDict(d);
 
     xref->setModifiedObject(&dictObj, ref);
+    dictObj.free();
   }
 
   if (fontDict) {
