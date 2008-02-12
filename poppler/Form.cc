@@ -172,6 +172,7 @@ FormWidgetButton::FormWidgetButton (XRef *xrefA, Object *aobj, unsigned num, Ref
   onStr = NULL;
   state = gFalse;
   siblingsID = NULL;
+  numSiblingsID = 0;
 }
 
 FormWidgetButton::~FormWidgetButton ()
@@ -275,6 +276,7 @@ void FormWidgetButton::loadDefaults ()
   } else if (obj1.isArray()) { //handle the case where we have multiple choices
     error(-1, "FormWidgetButton:: multiple choice isn't supported yet\n");
   }
+  obj1.free();
 }
 
 GBool FormWidgetButton::getState ()
