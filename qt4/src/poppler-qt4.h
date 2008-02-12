@@ -233,7 +233,7 @@ namespace Poppler {
 	QDateTime createDate() const;
 	
 	/**
-		The checksum of the file.
+	   The MD5 checksum of the file.
 		
 	   This will return an empty QByteArray if there is no checksum element.
 	*/
