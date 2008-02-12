@@ -183,7 +183,7 @@ void FormFieldButton::setState( bool state )
 QList<int> FormFieldButton::siblings() const
 {
   FormWidgetButton* fwb = static_cast<FormWidgetButton*>(m_formData->fm);
-  if (fwb->getButtonType() != formButtonRadio)
+  if (fwb->getButtonType() == formButtonPush)
     return QList<int>();
 
   QList<int> ret;
