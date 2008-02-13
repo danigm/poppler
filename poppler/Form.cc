@@ -39,8 +39,8 @@ char* pdfDocEncodingToUTF16 (GooString* orig, int* length)
   //convert to utf16
   for(int i=2,j=0; i<(*length); i+=2,j++) {
     Unicode u = pdfDocEncoding[(unsigned int)((unsigned char)cstring[j])]&0xffff;
-    result[i+1] = *(char*)(&u);
-    result[i] = *(1+(char*)(&u));
+    result[i] = (u >> 8) & 0xff;
+    result[i+1] = u & 0xff;
   }
   return result;
 }

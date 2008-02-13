@@ -501,8 +501,8 @@ int CharCodeToUnicode::mapToCharCode(Unicode* u, CharCode *c, int usize) {
   //look for charcode in map
   if (usize == 1) {
     for (CharCode i=0; i<mapLen; i++) {
-      if (map[i] == ((*u)&0xff)) {
-        *c = (char)map[i];
+      if (map[i] == *u) {
+        *c = i;
         return 1;
       }
     }
