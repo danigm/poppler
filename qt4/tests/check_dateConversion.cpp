@@ -9,17 +9,21 @@ class TestDateConv: public QObject
 {
     Q_OBJECT
 private slots:
+    void initTestCase();
     void checkDates_data();
     void checkDates();
     void checkInvalidDates_data();
     void checkInvalidDates();
 };
 
-void TestDateConv::checkDates_data()
+void TestDateConv::initTestCase()
 {
     qRegisterMetaType<QDate>("QDate");
     qRegisterMetaType<QTime>("QTime");
+}
 
+void TestDateConv::checkDates_data()
+{
     QTest::addColumn<QByteArray>("input");
     QTest::addColumn<QDate>("day");
     QTest::addColumn<QTime>("time");
@@ -134,5 +138,5 @@ void TestDateConv::checkInvalidDates()
 }
 
 QTEST_MAIN(TestDateConv)
-#include "check_dateConversion.moc"
 
+#include "check_dateConversion.moc"
