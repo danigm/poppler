@@ -24,6 +24,7 @@
 #include "Annot.h"
 #include "GfxFont.h"
 #include "CharCodeToUnicode.h"
+#include "PDFDocEncoding.h"
 #include "Form.h"
 #include "Error.h"
 #include "Page.h"
@@ -1787,16 +1788,249 @@ void AnnotWidget::initialize(XRef *xrefA, Catalog *catalog, Dict *dict) {
   obj1.free();
 }
 
+// Grand unified handler for preparing text strings to be drawn into form
+// fields.  Takes as input a text string (in PDFDocEncoding or UTF-16).
+// Converts some or all of this string to the appropriate encoding for the
+// specified font, and computes the width of the text.  Can optionally stop
+// converting when a specified width has been reached, to perform line-breaking
+// for multi-line fields.
+//
+// Parameters:
+//   text: input text string to convert
+//   outBuf: buffer for writing re-encoded string
+//   i: index at which to start converting; will be updated to point just after
+//      last character processed
+//   font: the font which will be used for display
+//   width: computed width (unscaled by font size) will be stored here
+//   widthLimit: if non-zero, stop converting to keep width under this value
+//      (should be scaled down by font size)
+//   charCount: count of number of characters will be stored here
+//   noReencode: if set, do not try to translate the character encoding
+//      (useful for Zapf Dingbats or other unusual encodings)
+//      can only be used with simple fonts, not CID-keyed fonts
+//
+// TODO: Handle surrogate pairs in UTF-16.
+//       Should be able to generate output for any CID-keyed font.
+//       Doesn't handle vertical fonts--should it?
+void AnnotWidget::layoutText(GooString *text, GooString *outBuf, int *i,
+                             GfxFont *font, double *width, double widthLimit,
+                             int *charCount, GBool noReencode)
+{
+  CharCode c;
+  Unicode uChar;
+  double w = 0.0;
+  int uLen, n;
+  double dx, dy, ox, oy;
+  GBool unicode = text->hasUnicodeMarker();
+  CharCodeToUnicode *ccToUnicode = font->getToUnicode();
+  GBool spacePrev;              // previous character was a space
+
+  // State for backtracking when more text has been processed than fits within
+  // widthLimit.  We track for both input (text) and output (outBuf) the offset
+  // to the first character to discard.
+  //
+  // We keep track of several points:
+  //   1 - end of previous completed word which fits
+  //   2 - previous character which fit
+  int last_i1, last_i2, last_o1, last_o2;
+
+  if (unicode && text->getLength() % 2 != 0) {
+    error(-1, "AnnotWidget::layoutText, bad unicode string");
+    return;
+  }
+
+  // skip Unicode marker on string if needed
+  if (unicode && *i == 0)
+    *i = 2;
+
+  // Start decoding and copying characters, until either:
+  //   we reach the end of the string
+  //   we reach the maximum width
+  //   we reach a newline character
+  // As we copy characters, keep track of the last full word to fit, so that we
+  // can backtrack if we exceed the maximum width.
+  last_i1 = last_i2 = *i;
+  last_o1 = last_o2 = 0;
+  spacePrev = gFalse;
+  outBuf->clear();
+
+  while (*i < text->getLength()) {
+    last_i2 = *i;
+    last_o2 = outBuf->getLength();
+
+    if (unicode) {
+      uChar = (unsigned char)(text->getChar(*i)) << 8;
+      uChar += (unsigned char)(text->getChar(*i + 1));
+      *i += 2;
+    } else {
+      if (noReencode)
+        uChar = text->getChar(*i) & 0xff;
+      else
+        uChar = pdfDocEncoding[text->getChar(*i) & 0xff];
+      *i += 1;
+    }
+
+    // Explicit line break?
+    if (uChar == '\r' || uChar == '\n') {
+      // Treat a <CR><LF> sequence as a single line break
+      if (uChar == '\r' && *i < text->getLength()) {
+        if (unicode && text->getChar(*i) == '\0'
+            && text->getChar(*i + 1) == '\n')
+          *i += 2;
+        else if (!unicode && text->getChar(*i) == '\n')
+          *i += 1;
+      }
+
+      break;
+    }
+
+    if (noReencode) {
+      outBuf->append(uChar);
+    } else if (ccToUnicode->mapToCharCode(&uChar, &c, 1)) {
+      if (font->isCIDFont()) {
+        // TODO: This assumes an identity CMap.  It should be extended to
+        // handle the general case.
+        outBuf->append((c >> 8) & 0xff);
+        outBuf->append(c & 0xff);
+      } else {
+        // 8-bit font
+        outBuf->append(c);
+      }
+    } else {
+      fprintf(stderr,
+              "warning: layoutText: cannot convert U+%04X\n", uChar);
+    }
+
+    // If we see a space, then we have a linebreak opportunity.
+    if (uChar == ' ') {
+      last_i1 = *i;
+      if (!spacePrev)
+        last_o1 = last_o2;
+      spacePrev = gTrue;
+    } else {
+      spacePrev = gFalse;
+    }
+
+    // Compute width of character just output
+    if (outBuf->getLength() > last_o2) {
+      dx = 0.0;
+      font->getNextChar(outBuf->getCString() + last_o2,
+                        outBuf->getLength() - last_o2,
+                        &c, &uChar, 1, &uLen, &dx, &dy, &ox, &oy);
+      w += dx;
+    }
+
+    // Current line over-full now?
+    if (widthLimit > 0.0 && w > widthLimit) {
+      if (last_o1 > 0) {
+        // Back up to the previous word which fit, if there was a previous
+        // word.
+        *i = last_i1;
+        outBuf->del(last_o1, outBuf->getLength() - last_o1);
+      } else if (last_o2 > 0) {
+        // Otherwise, back up to the previous character (in the only word on
+        // this line)
+        *i = last_i2;
+        outBuf->del(last_o2, outBuf->getLength() - last_o2);
+      } else {
+        // Otherwise, we were trying to fit the first character; include it
+        // anyway even if it overflows the space--no updates to make.
+      }
+      break;
+    }
+  }
+
+  // If splitting input into lines because we reached the width limit, then
+  // consume any remaining trailing spaces that would go on this line from the
+  // input.  If in doing so we reach a newline, consume that also.  This code
+  // won't run if we stopped at a newline above, since in that case w <=
+  // widthLimit still.
+  if (widthLimit > 0.0 && w > widthLimit) {
+    if (unicode) {
+      while (*i < text->getLength()
+             && text->getChar(*i) == '\0' && text->getChar(*i + 1) == ' ')
+        *i += 2;
+      if (*i < text->getLength()
+          && text->getChar(*i) == '\0' && text->getChar(*i + 1) == '\r')
+        *i += 2;
+      if (*i < text->getLength()
+          && text->getChar(*i) == '\0' && text->getChar(*i + 1) == '\n')
+        *i += 2;
+    } else {
+      while (*i < text->getLength() && text->getChar(*i) == ' ')
+        *i += 1;
+      if (*i < text->getLength() && text->getChar(*i) == '\r')
+        *i += 1;
+      if (*i < text->getLength() && text->getChar(*i) == '\n')
+        *i += 1;
+    }
+  }
+
+  // Compute the actual width and character count of the final string, based on
+  // breakpoint, if this information is requested by the caller.
+  if (width != NULL || charCount != NULL) {
+    char *s = outBuf->getCString();
+    int len = outBuf->getLength();
+
+    if (width != NULL)
+      *width = 0.0;
+    if (charCount != NULL)
+      *charCount = 0;
+
+    while (len > 0) {
+      dx = 0.0;
+      n = font->getNextChar(s, len, &c, &uChar, 1, &uLen, &dx, &dy, &ox, &oy);
+
+      if (n == 0) {
+        break;
+      }
+
+      if (width != NULL)
+        *width += dx;
+      if (charCount != NULL)
+        *charCount += 1;
+
+      s += n;
+      len -= n;
+    }
+  }
+}
+
+// Copy the given string to appearBuf, adding parentheses around it and
+// escaping characters as appropriate.
+void AnnotWidget::writeString(GooString *str, GooString *appearBuf)
+{
+  char c;
+  int i;
+
+  appearBuf->append('(');
+
+  for (i = 0; i < str->getLength(); ++i) {
+    c = str->getChar(i);
+    if (c == '(' || c == ')' || c == '\\') {
+      appearBuf->append('\\');
+      appearBuf->append(c);
+    } else if (c < 0x20) {
+      appearBuf->appendf("\\{0:03o}", (unsigned char)c);
+    } else {
+      appearBuf->append(c);
+    }
+  }
+
+  appearBuf->append(')');
+}
+
 // Draw the variable text or caption for a field.
 void AnnotWidget::drawText(GooString *text, GooString *da, GfxFontDict *fontDict,
     GBool multiline, int comb, int quadding,
     GBool txField, GBool forceZapfDingbats,
     GBool password) {
   GooList *daToks;
-  GooString *tok;
+  GooString *tok, *convertedText;
   GfxFont *font;
-  double fontSize, fontSize2, borderWidth, x, xPrev, y, w, w2, wMax;
-  int tfPos, tmPos, i, j, k;
+  double fontSize, fontSize2, borderWidth, x, xPrev, y, w, wMax;
+  int tfPos, tmPos, i, j;
+  GBool freeText = gFalse;      // true if text should be freed before return
 
   //~ if there is no MK entry, this should use the existing content stream,
   //~ and only replace the marked content portion of it
@@ -1865,6 +2099,22 @@ void AnnotWidget::drawText(GooString *text, GooString *da, GfxFontDict *fontDict
   // get the border width
   borderWidth = border ? border->getWidth() : 0;
 
+  // for a password field, replace all characters with asterisks
+  if (password) {
+    int len;
+    if (text->hasUnicodeMarker())
+      len = (text->getLength() - 2) / 2;
+    else
+      len = text->getLength();
+
+    text = new GooString;
+    for (i = 0; i < len; ++i)
+      text->append('*');
+    freeText = gTrue;
+  }
+
+  convertedText = new GooString;
+
   // setup
   if (txField) {
     appearBuf->append("/Tx BMC\n");
@@ -1881,14 +2131,10 @@ void AnnotWidget::drawText(GooString *text, GooString *da, GfxFontDict *fontDict
     if (fontSize == 0) {
       for (fontSize = 20; fontSize > 1; --fontSize) {
         y = rect->y2 - rect->y1;
-        w2 = 0;
         i = 0;
         while (i < text->getLength()) {
-          getNextLine(text, i, font, fontSize, wMax, &j, &w, &k);
-          if (w > w2) {
-            w2 = w;
-          }
-          i = k;
+          layoutText(text, convertedText, &i, font, &w, wMax / fontSize, NULL,
+                     forceZapfDingbats);
           y -= fontSize;
         }
         // approximate the descender for the last line
@@ -1934,8 +2180,9 @@ void AnnotWidget::drawText(GooString *text, GooString *da, GfxFontDict *fontDict
     i = 0;
     xPrev = 0;
     while (i < text->getLength()) {
-
-      getNextLine(text, i, font, fontSize, wMax, &j, &w, &k);
+      layoutText(text, convertedText, &i, font, &w, wMax / fontSize, NULL,
+                 forceZapfDingbats);
+      w *= fontSize;
 
       // compute text start position
       switch (quadding) {
@@ -1953,12 +2200,10 @@ void AnnotWidget::drawText(GooString *text, GooString *da, GfxFontDict *fontDict
 
       // draw the line
       appearBuf->appendf("{0:.2f} {1:.2f} Td\n", x - xPrev, -fontSize);
-      appearBuf->append('(');
-      writeTextString (text, appearBuf, &i, j, font->getToUnicode(), password);
-      appearBuf->append(") Tj\n");
+      writeString(convertedText, appearBuf);
+      appearBuf->append(" Tj\n");
 
       // next line
-      i = k;
       xPrev = x;
     }
 
@@ -1968,6 +2213,8 @@ void AnnotWidget::drawText(GooString *text, GooString *da, GfxFontDict *fontDict
 
     // comb formatting
     if (comb > 0) {
+      int charCount;
+
       // compute comb spacing
       w = (rect->x2 - rect->x1 - 2 * borderWidth) / comb;
 
@@ -1985,17 +2232,23 @@ void AnnotWidget::drawText(GooString *text, GooString *da, GfxFontDict *fontDict
         }
       }
 
-      // compute text start position
+      i = 0;
+      layoutText(text, convertedText, &i, font, NULL, 0.0, &charCount,
+                 forceZapfDingbats);
+      if (charCount > comb)
+        charCount = comb;
+
+      // compute starting text cell
       switch (quadding) {
         case fieldQuadLeft:
         default:
-          x = borderWidth + 2;
+          x = borderWidth;
           break;
         case fieldQuadCenter:
-          x = borderWidth + 2 + 0.5 * (comb - text->getLength()) * w;
+          x = borderWidth + (comb - charCount) / 2 * w;
           break;
         case fieldQuadRight:
-          x = borderWidth + 2 + (comb - text->getLength()) * w;
+          x = borderWidth + (comb - charCount) * w;
           break;
       }
       y = 0.5 * (rect->y2 - rect->y1) - 0.4 * fontSize;
@@ -2021,32 +2274,44 @@ void AnnotWidget::drawText(GooString *text, GooString *da, GfxFontDict *fontDict
       if (tmPos < 0) {
         appearBuf->appendf("1 0 0 1 {0:.2f} {1:.2f} Tm\n", x, y);
       }
+
       // write the text string
-      //~ this should center (instead of left-justify) each character within
-      //~     its comb cell
-      for (i = 0; i < text->getLength(); ++i) {
-        if (i > 0) {
-          appearBuf->appendf("{0:.2f} 0 Td\n", w);
-        }
-        appearBuf->append('(');
-        //~ it would be better to call it only once for the whole string instead of once for
-        //each character => but we need to handle centering in writeTextString
-        writeTextString (text, appearBuf, &i, i+1, font->getToUnicode(), password);
-        appearBuf->append(") Tj\n");
+      char *s = convertedText->getCString();
+      int len = convertedText->getLength();
+      i = 0;
+      xPrev = w;                // so that first character is placed properly
+      while (i < comb && len > 0) {
+        CharCode code;
+        Unicode u;
+        int uLen, n;
+        double dx, dy, ox, oy;
+
+        dx = 0.0;
+        n = font->getNextChar(s, len, &code, &u, 1, &uLen, &dx, &dy, &ox, &oy);
+        dx *= fontSize;
+
+        // center each character within its cell, by advancing the text
+        // position the appropriate amount relative to the start of the
+        // previous character
+        x = 0.5 * (w - dx);
+        appearBuf->appendf("{0:.2f} 0 Td\n", x - xPrev + w);
+
+        GooString *charBuf = new GooString(s, n);
+        writeString(charBuf, appearBuf);
+        appearBuf->append(" Tj\n");
+        delete charBuf;
+
+        i++;
+        s += n;
+        len -= n;
+        xPrev = x;
       }
 
       // regular (non-comb) formatting
     } else {
-      // compute string width
-      if (font && !font->isCIDFont()) {
-        w = 0;
-        for (i = 0; i < text->getLength(); ++i) {
-          w += ((Gfx8BitFont *)font)->getWidth(text->getChar(i));
-        }
-      } else {
-        // otherwise, make a crude estimate
-        w = text->getLength() * 0.5;
-      }
+      i = 0;
+      layoutText(text, convertedText, &i, font, &w, 0.0, NULL,
+                 forceZapfDingbats);
 
       // compute font autosize
       if (fontSize == 0) {
@@ -2100,11 +2365,10 @@ void AnnotWidget::drawText(GooString *text, GooString *da, GfxFontDict *fontDict
       if (tmPos < 0) {
         appearBuf->appendf("1 0 0 1 {0:.2f} {1:.2f} Tm\n", x, y);
       }
+
       // write the text string
-      appearBuf->append('(');
-      i=0;
-      writeTextString (text, appearBuf, &i, text->getLength(), font->getToUnicode(), password);
-      appearBuf->append(") Tj\n");
+      writeString(convertedText, appearBuf);
+      appearBuf->append(" Tj\n");
     }
   }
   // cleanup
@@ -2116,6 +2380,10 @@ void AnnotWidget::drawText(GooString *text, GooString *da, GfxFontDict *fontDict
   if (daToks) {
     deleteGooList(daToks, GooString);
   }
+  if (freeText) {
+    delete text;
+  }
+  delete convertedText;
 }
 
 // Draw the variable text or caption for a field.
@@ -2123,7 +2391,7 @@ void AnnotWidget::drawListBox(GooString **text, GBool *selection,
 			      int nOptions, int topIdx,
 			      GooString *da, GfxFontDict *fontDict, GBool quadding) {
   GooList *daToks;
-  GooString *tok;
+  GooString *tok, *convertedText;
   GfxFont *font;
   double fontSize, fontSize2, borderWidth, x, y, w, wMax;
   int tfPos, tmPos, i, j;
@@ -2181,6 +2449,8 @@ void AnnotWidget::drawListBox(GooString **text, GBool *selection,
     return;
   }
 
+  convertedText = new GooString;
+
   // get the border width
   borderWidth = border ? border->getWidth() : 0;
 
@@ -2188,15 +2458,8 @@ void AnnotWidget::drawListBox(GooString **text, GBool *selection,
   if (fontSize == 0) {
     wMax = 0;
     for (i = 0; i < nOptions; ++i) {
-      if (font && !font->isCIDFont()) {
-        w = 0;
-        for (j = 0; j < text[i]->getLength(); ++j) {
-          w += ((Gfx8BitFont *)font)->getWidth(text[i]->getChar(j));
-        }
-      } else {
-        // otherwise, make a crude estimate
-        w = text[i]->getLength() * 0.5;
-      }
+      j = 0;
+      layoutText(text[i], convertedText, &j, font, &w, 0.0, NULL, gFalse);
       if (w > wMax) {
         wMax = w;
       }
@@ -2232,18 +2495,9 @@ void AnnotWidget::drawListBox(GooString **text, GBool *selection,
     // setup
     appearBuf->append("BT\n");
 
-    // compute string width
-    if (font && !font->isCIDFont()) {
-      w = 0;
-      for (j = 0; j < text[i]->getLength(); ++j) {
-        w += ((Gfx8BitFont *)font)->getWidth(text[i]->getChar(j));
-      }
-    } else {
-      // otherwise, make a crude estimate
-      w = text[i]->getLength() * 0.5;
-    }
-
-    // compute text start position
+    // compute text width and start position
+    j = 0;
+    layoutText(text[i], convertedText, &j, font, &w, 0.0, NULL, gFalse);
     w *= fontSize;
     switch (quadding) {
       case fieldQuadLeft:
@@ -2286,10 +2540,8 @@ void AnnotWidget::drawListBox(GooString **text, GBool *selection,
     }
 
     // write the text string
-    appearBuf->append('(');
-    j = 0;
-    writeTextString (text[i], appearBuf, &j, text[i]->getLength(), font->getToUnicode(), false);
-    appearBuf->append(") Tj\n");
+    writeString(convertedText, appearBuf);
+    appearBuf->append(" Tj\n");
 
     // cleanup
     appearBuf->append("ET\n");
@@ -2302,119 +2554,8 @@ void AnnotWidget::drawListBox(GooString **text, GBool *selection,
   if (daToks) {
     deleteGooList(daToks, GooString);
   }
-}
 
-// Figure out how much text will fit on the next line.  Returns:
-// *end = one past the last character to be included
-// *width = width of the characters start .. end-1
-// *next = index of first character on the following line
-void AnnotWidget::getNextLine(GooString *text, int start,
-			      GfxFont *font, double fontSize, double wMax,
-			      int *end, double *width, int *next) {
-  double w, dw;
-  int j, k, c;
-
-  // figure out how much text will fit on the line
-  //~ what does Adobe do with tabs?
-  w = 0;
-  for (j = start; j < text->getLength() && w <= wMax; ++j) {
-    c = text->getChar(j) & 0xff;
-    if (c == 0x0a || c == 0x0d) {
-      break;
-    }
-    if (font && !font->isCIDFont()) {
-      dw = ((Gfx8BitFont *)font)->getWidth(c) * fontSize;
-    } else {
-      // otherwise, make a crude estimate
-      dw = 0.5 * fontSize;
-    }
-    w += dw;
-  }
-  if (w > wMax) {
-    for (k = j; k > start && text->getChar(k-1) != ' '; --k) ;
-    for (; k > start && text->getChar(k-1) == ' '; --k) ;
-    if (k > start) {
-      j = k;
-    }
-    if (j == start) {
-      // handle the pathological case where the first character is
-      // too wide to fit on the line all by itself
-      j = start + 1;
-    }
-  }
-  *end = j;
-
-  // compute the width
-  w = 0;
-  for (k = start; k < j; ++k) {
-    if (font && !font->isCIDFont()) {
-      dw = ((Gfx8BitFont *)font)->getWidth(text->getChar(k)) * fontSize;
-    } else {
-      // otherwise, make a crude estimate
-      dw = 0.5 * fontSize;
-    }
-    w += dw;
-  }
-  *width = w;
-
-  // next line
-  while (j < text->getLength() && text->getChar(j) == ' ') {
-    ++j;
-  }
-  if (j < text->getLength() && text->getChar(j) == 0x0d) {
-    ++j;
-  }
-  if (j < text->getLength() && text->getChar(j) == 0x0a) {
-    ++j;
-  }
-  *next = j;
-}
-
-void AnnotWidget::writeTextString (GooString *text, GooString *appearBuf, int *i, int j,
-				   CharCodeToUnicode *ccToUnicode, GBool password)
-{
-  CharCode c;
-  int charSize;
-
-  if (*i == 0 && text->hasUnicodeMarker()) {
-    //we need to have an even number of chars
-    if (text->getLength () % 2 != 0) {
-      error(-1, "Annot::writeTextString, bad unicode string");
-      return;
-    }
-    //skip unicode marker an go one char forward because we read character by pairs
-    (*i) += 3;
-    charSize = 2;
-  } else
-    charSize = 1;
-
-  for (; (*i) < j; (*i)+=charSize) {
-    // Render '*' instead of characters for password
-    if (password)
-      appearBuf->append('*');
-    else {
-      c = text->getChar(*i);
-      if (ccToUnicode && text->hasUnicodeMarker()) {
-        char ctmp[2];
-        ctmp[0] = text->getChar((*i)-1);
-        ctmp[1] = text->getChar((*i));
-        ccToUnicode->mapToCharCode((Unicode*)ctmp, &c, 2);
-        if (c == '(' || c == ')' || c == '\\')
-          appearBuf->append('\\');
-        appearBuf->append(c);
-      } else {
-        c &= 0xff;
-        if (c == '(' || c == ')' || c == '\\') {
-          appearBuf->append('\\');
-          appearBuf->append(c);
-        } else if (c < 0x20 || c >= 0x80) {
-          appearBuf->appendf("\\{0:03o}", c);
-        } else {
-          appearBuf->append(c);
-        }
-      }
-    }
-  }
+  delete convertedText;
 }
 
 void AnnotWidget::generateFieldAppearance() {
@@ -2664,7 +2805,6 @@ void AnnotWidget::generateFieldAppearance() {
       delete caption;
     }
   } else if (ftObj.isName("Tx")) {
-    //~ value strings can be Unicode
     if (Form::fieldLookup(field, "V", &obj1)->isString()) {
       if (Form::fieldLookup(field, "Q", &obj2)->isInt()) {
         quadding = obj2.getInt();
@@ -2684,7 +2824,6 @@ void AnnotWidget::generateFieldAppearance() {
     }
     obj1.free();
   } else if (ftObj.isName("Ch")) {
-    //~ value/option strings can be Unicode
     if (Form::fieldLookup(field, "Q", &obj1)->isInt()) {
       quadding = obj1.getInt();
     } else {

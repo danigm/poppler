@@ -829,11 +829,10 @@ private:
   void drawListBox(GooString **text, GBool *selection,
 		   int nOptions, int topIdx,
 		   GooString *da, GfxFontDict *fontDict, GBool quadding);
-  void getNextLine(GooString *text, int start,
-		   GfxFont *font, double fontSize, double wMax,
-		   int *end, double *width, int *next);
-  void writeTextString (GooString *text, GooString *appearBuf, int *i, int j,
-			CharCodeToUnicode *ccToUnicode, GBool password); 
+  void layoutText(GooString *text, GooString *outBuf, int *i, GfxFont *font,
+		  double *width, double widthLimit, int *charCount,
+		  GBool noReencode);
+  void writeString(GooString *str, GooString *appearBuf);
 
   Form *form;
   FormWidget *widget;                     // FormWidget object for this annotation
