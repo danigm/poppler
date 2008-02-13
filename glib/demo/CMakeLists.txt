@@ -6,6 +6,7 @@ set(poppler_glib_demo_SRCS
   fonts.c
   forms.c
   info.cc
+  images.c
   links.c
   outline.c
   page.c
