@@ -136,7 +136,7 @@
 //------------------------------------------------------------------------
 
 #ifdef CDECL
-#cmakedefine CDECL 1
+#undef CDECL
 #endif
 
 #if defined(_MSC_VER) || defined(__BORLANDC__)
