@@ -246,16 +246,9 @@ bool FormFieldText::isRichText() const
 
 int FormFieldText::maximumLength() const
 {
-  Object *obj = m_formData->fm->getObj();
-  int maxlen = -1;
-  if (!obj->isDict()) return maxlen;
-  Object tmp;
-  if (obj->dictLookup("MaxLen", &tmp)->isInt())
-  {
-    maxlen = tmp.getInt();
-  }
-  tmp.free();
-  return maxlen;
+  FormWidgetText* fwt = static_cast<FormWidgetText*>(m_formData->fm);
+  const int maxlen = fwt->getMaxLen();
+  return maxlen > 0 ? maxlen : -1;
 }
 
 Qt::Alignment FormFieldText::textAlignment() const
