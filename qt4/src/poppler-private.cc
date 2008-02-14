@@ -42,7 +42,7 @@ namespace Poppler {
         }
         qvsnprintf(buffer, sizeof(buffer) - 1, msg, args);
         emsg += QString::fromAscii(buffer);
-        qDebug() << emsg;
+        qDebug() << qPrintable(emsg);
     }
 
     QString unicodeToQString(Unicode* u, int len) {
