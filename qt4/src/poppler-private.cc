@@ -22,7 +22,28 @@
 
 #include "poppler-private.h"
 
+#include <QtCore/QByteArray>
+#include <QtCore/QDebug>
+
 namespace Poppler {
+
+    void qt4ErrorFunction(int pos, char *msg, va_list args)
+    {
+        QString emsg;
+        char buffer[1024]; // should be big enough
+
+        if (pos >= 0)
+        {
+            emsg = QString::fromLatin1("Error (%1): ").arg(pos);
+        }
+        else
+        {
+            emsg = QString::fromLatin1("Error: ");
+        }
+        qvsnprintf(buffer, sizeof(buffer) - 1, msg, args);
+        emsg += QString::fromAscii(buffer);
+        qDebug() << emsg;
+    }
 
     QString unicodeToQString(Unicode* u, int len) {
         QString ret;

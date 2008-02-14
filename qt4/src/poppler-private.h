@@ -34,6 +34,7 @@
 #include <PDFDoc.h>
 #include <FontInfo.h>
 #include <OutputDev.h>
+#include <Error.h>
 #if defined(HAVE_SPLASH)
 #include <SplashOutputDev.h>
 #endif
@@ -53,6 +54,7 @@ namespace Poppler {
 
     GooString *QStringToGooString(const QString &s);
 
+    void qt4ErrorFunction(int pos, char *msg, va_list args);
 
     class LinkDestinationData
     {
@@ -96,7 +98,11 @@ namespace Poppler {
 		delete ownerPassword;
 		delete userPassword;
 		
-		if ( count == 0 ) globalParams = new GlobalParams();
+		if ( count == 0 )
+		{
+			globalParams = new GlobalParams();
+			setErrorFunction(qt4ErrorFunction);
+		}
 		count ++;
 	    }
 	
