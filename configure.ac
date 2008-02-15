@@ -338,6 +338,7 @@ qt/Makefile
 qt4/Makefile
 qt4/src/Makefile
 qt4/tests/Makefile
+qt4/demos/Makefile
 poppler.pc
 poppler-cairo.pc
 poppler-splash.pc
