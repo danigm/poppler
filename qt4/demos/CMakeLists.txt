@@ -8,3 +8,10 @@ include_directories(
   ${QT4_INCLUDE_DIR}
 )
 
+set(poppler_qt4viewer_SRCS
+  main_viewer.cpp
+  viewer.cpp
+)
+qt4_automoc(${poppler_qt4viewer_SRCS})
+poppler_add_test(poppler_qt4viewer BUILD_QT4_TESTS ${poppler_qt4viewer_SRCS})
+target_link_libraries(poppler_qt4viewer poppler-qt4)
