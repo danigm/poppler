@@ -55,6 +55,7 @@ void PageView::pageChanged(int page)
         m_imageLabel->resize(0, 0);
         m_imageLabel->setPixmap(QPixmap());
     }
+    delete popplerPage;
 }
 
 #include "pageview.moc"
