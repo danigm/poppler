@@ -18,6 +18,7 @@
 
 #include "viewer.h"
 
+#include "info.h"
 #include "navigationtoolbar.h"
 #include "pageview.h"
 
@@ -49,6 +50,10 @@ PdfViewer::PdfViewer()
     PageView *view = new PageView(this);
     setCentralWidget(view);
     m_observers.append(view);
+
+    InfoDock *infoDock = new InfoDock(this);
+    addDockWidget(Qt::LeftDockWidgetArea, infoDock);
+    m_observers.append(infoDock);
 
     Q_FOREACH(DocumentObserver *obs, m_observers) {
         obs->m_viewer = this;
