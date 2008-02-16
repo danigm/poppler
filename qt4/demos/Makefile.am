@@ -22,6 +22,7 @@ noinst_PROGRAMS = poppler_qt4viewer
 
 poppler_qt4viewer_SOURCES =			\
 	documentobserver.cpp			\
+	fonts.cpp				\
 	info.cpp				\
 	main_viewer.cpp				\
 	navigationtoolbar.cpp			\

@@ -18,6 +18,7 @@
 
 #include "viewer.h"
 
+#include "fonts.h"
 #include "info.h"
 #include "navigationtoolbar.h"
 #include "pageview.h"
@@ -58,6 +59,12 @@ PdfViewer::PdfViewer()
     infoDock->hide();
     viewMenu->addAction(infoDock->toggleViewAction());
     m_observers.append(infoDock);
+
+    FontsDock *fontsDock = new FontsDock(this);
+    addDockWidget(Qt::LeftDockWidgetArea, fontsDock);
+    fontsDock->hide();
+    viewMenu->addAction(fontsDock->toggleViewAction());
+    m_observers.append(fontsDock);
 
     Q_FOREACH(DocumentObserver *obs, m_observers) {
         obs->m_viewer = this;

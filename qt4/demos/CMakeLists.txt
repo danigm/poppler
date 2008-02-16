@@ -10,6 +10,7 @@ include_directories(
 
 set(poppler_qt4viewer_SRCS
   documentobserver.cpp
+  fonts.cpp
   info.cpp
   main_viewer.cpp
   navigationtoolbar.cpp
