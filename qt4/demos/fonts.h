@@ -19,13 +19,11 @@
 #ifndef FONTS_H
 #define FONTS_H
 
-#include <QtGui/QDockWidget>
-
-#include "documentobserver.h"
+#include "abstractinfodock.h"
 
 class QTableWidget;
 
-class FontsDock : public QDockWidget, public DocumentObserver
+class FontsDock : public AbstractInfoDock
 {
     Q_OBJECT
 
@@ -33,9 +31,10 @@ public:
     FontsDock(QWidget *parent = 0);
     ~FontsDock();
 
-    /*virtual*/ void documentLoaded();
     /*virtual*/ void documentClosed();
-    /*virtual*/ void pageChanged(int page);
+
+protected:
+    /*virtual*/ void fillInfo();
 
 private:
     QTableWidget *m_table;

@@ -19,13 +19,11 @@
 #ifndef INFO_H
 #define INFO_H
 
-#include <QtGui/QDockWidget>
-
-#include "documentobserver.h"
+#include "abstractinfodock.h"
 
 class QTableWidget;
 
-class InfoDock : public QDockWidget, public DocumentObserver
+class InfoDock : public AbstractInfoDock
 {
     Q_OBJECT
 
@@ -33,9 +31,10 @@ public:
     InfoDock(QWidget *parent = 0);
     ~InfoDock();
 
-    /*virtual*/ void documentLoaded();
     /*virtual*/ void documentClosed();
-    /*virtual*/ void pageChanged(int page);
+
+protected:
+    /*virtual*/ void fillInfo();
 
 private:
     QTableWidget *m_table;

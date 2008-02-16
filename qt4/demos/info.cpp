@@ -23,7 +23,7 @@
 #include <QtGui/QTableWidget>
 
 InfoDock::InfoDock(QWidget *parent)
-    : QDockWidget(parent)
+    : AbstractInfoDock(parent)
 {
     m_table = new QTableWidget(this);
     setWidget(m_table);
@@ -39,7 +39,7 @@ InfoDock::~InfoDock()
 {
 }
 
-void InfoDock::documentLoaded()
+void InfoDock::fillInfo()
 {
     QStringList keys = document()->infoKeys();
     m_table->setHorizontalHeaderLabels(QStringList() << tr("Key") << tr("Value"));
@@ -68,11 +68,7 @@ void InfoDock::documentClosed()
 {
     m_table->clear();
     m_table->setRowCount(0);
-}
-
-void InfoDock::pageChanged(int page)
-{
-    Q_UNUSED(page)
+    AbstractInfoDock::documentClosed();
 }
 
 #include "info.moc"

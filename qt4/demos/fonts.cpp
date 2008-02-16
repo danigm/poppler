@@ -28,7 +28,7 @@ static QString yesNoStatement(bool value)
 }
 
 FontsDock::FontsDock(QWidget *parent)
-    : QDockWidget(parent)
+    : AbstractInfoDock(parent)
 {
     m_table = new QTableWidget(this);
     setWidget(m_table);
@@ -44,7 +44,7 @@ FontsDock::~FontsDock()
 {
 }
 
-void FontsDock::documentLoaded()
+void FontsDock::fillInfo()
 {
     const QList<Poppler::FontInfo> fonts = document()->fonts();
     m_table->setHorizontalHeaderLabels(QStringList() << tr("Name") << tr("Type") << tr("Embedded") << tr("Subset") << tr("File"));
@@ -68,11 +68,7 @@ void FontsDock::documentClosed()
 {
     m_table->clear();
     m_table->setRowCount(0);
-}
-
-void FontsDock::pageChanged(int page)
-{
-    Q_UNUSED(page)
+    AbstractInfoDock::documentClosed();
 }
 
 #include "fonts.moc"
