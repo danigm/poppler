@@ -28,6 +28,7 @@ poppler_qt4viewer_SOURCES =			\
 	main_viewer.cpp				\
 	navigationtoolbar.cpp			\
 	pageview.cpp				\
+	toc.cpp					\
 	viewer.cpp				\
 	viewer.moc
 

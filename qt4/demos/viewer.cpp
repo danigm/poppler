@@ -22,6 +22,7 @@
 #include "info.h"
 #include "navigationtoolbar.h"
 #include "pageview.h"
+#include "toc.h"
 
 #include <poppler-qt4.h>
 
@@ -59,6 +60,12 @@ PdfViewer::PdfViewer()
     infoDock->hide();
     viewMenu->addAction(infoDock->toggleViewAction());
     m_observers.append(infoDock);
+
+    TocDock *tocDock = new TocDock(this);
+    addDockWidget(Qt::LeftDockWidgetArea, tocDock);
+    tocDock->hide();
+    viewMenu->addAction(tocDock->toggleViewAction());
+    m_observers.append(tocDock);
 
     FontsDock *fontsDock = new FontsDock(this);
     addDockWidget(Qt::LeftDockWidgetArea, fontsDock);

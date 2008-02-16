@@ -16,6 +16,7 @@ set(poppler_qt4viewer_SRCS
   main_viewer.cpp
   navigationtoolbar.cpp
   pageview.cpp
+  toc.cpp
   viewer.cpp
 )
 qt4_automoc(${poppler_qt4viewer_SRCS})
