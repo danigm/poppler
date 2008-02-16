@@ -21,6 +21,7 @@ SUFFIXES: .moc
 noinst_PROGRAMS = poppler_qt4viewer
 
 poppler_qt4viewer_SOURCES =			\
+	abstractinfodock.cpp			\
 	documentobserver.cpp			\
 	fonts.cpp				\
 	info.cpp				\

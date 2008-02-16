@@ -9,6 +9,7 @@ include_directories(
 )
 
 set(poppler_qt4viewer_SRCS
+  abstractinfodock.cpp
   documentobserver.cpp
   fonts.cpp
   info.cpp
