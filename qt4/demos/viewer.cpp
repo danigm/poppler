@@ -43,6 +43,8 @@ PdfViewer::PdfViewer()
     QAction *act = fileMenu->addAction(tr("&Quit"), qApp, SLOT(closeAllWindows()));
     act->setShortcut(Qt::CTRL + Qt::Key_Q);
 
+    QMenu *viewMenu = menuBar()->addMenu(tr("&View"));
+
     NavigationToolBar *navbar = new NavigationToolBar(this);
     addToolBar(navbar);
     m_observers.append(navbar);
@@ -53,6 +55,8 @@ PdfViewer::PdfViewer()
 
     InfoDock *infoDock = new InfoDock(this);
     addDockWidget(Qt::LeftDockWidgetArea, infoDock);
+    infoDock->hide();
+    viewMenu->addAction(infoDock->toggleViewAction());
     m_observers.append(infoDock);
 
     Q_FOREACH(DocumentObserver *obs, m_observers) {
