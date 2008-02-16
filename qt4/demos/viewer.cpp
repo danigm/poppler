@@ -22,6 +22,7 @@
 #include "info.h"
 #include "navigationtoolbar.h"
 #include "pageview.h"
+#include "permissions.h"
 #include "toc.h"
 
 #include <poppler-qt4.h>
@@ -80,6 +81,12 @@ PdfViewer::PdfViewer()
     fontsDock->hide();
     viewMenu->addAction(fontsDock->toggleViewAction());
     m_observers.append(fontsDock);
+
+    PermissionsDock *permissionsDock = new PermissionsDock(this);
+    addDockWidget(Qt::LeftDockWidgetArea, permissionsDock);
+    permissionsDock->hide();
+    viewMenu->addAction(permissionsDock->toggleViewAction());
+    m_observers.append(permissionsDock);
 
     Q_FOREACH(DocumentObserver *obs, m_observers) {
         obs->m_viewer = this;
