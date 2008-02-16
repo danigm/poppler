@@ -16,47 +16,41 @@
  * Foundation, Inc., 51 Franklin Street - Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
-#ifndef PDFVIEWER_H
-#define PDFVIEWER_H
+#ifndef NAVIGATIONTOOLBAR_H
+#define NAVIGATIONTOOLBAR_H
 
-#include <QtGui/QMainWindow>
+#include <QtGui/QToolBar>
+
+#include "documentobserver.h"
 
 class QAction;
-class QLabel;
-class DocumentObserver;
-namespace Poppler {
-class Document;
-}
+class QComboBox;
 
-class PdfViewer : public QMainWindow
+class NavigationToolBar : public QToolBar, public DocumentObserver
 {
     Q_OBJECT
 
-    friend class DocumentObserver;
-
 public:
-    PdfViewer();
-    ~PdfViewer();
+    NavigationToolBar(QWidget *parent = 0);
+    ~NavigationToolBar();
 
-    /*virtual*/ QSize sizeHint() const;
-
-    void loadDocument(const QString &file);
-    void closeDocument();
+    /*virtual*/ void documentLoaded();
+    /*virtual*/ void documentClosed();
+    /*virtual*/ void pageChanged(int page);
 
 private Q_SLOTS:
-    void slotOpenFile();
+    void slotGoFirst();
+    void slotGoPrev();
+    void slotGoNext();
+    void slotGoLast();
+    void slotComboActivated(int index);
 
 private:
-    void setPage(int page);
-    int page() const;
-
-    int m_currentPage;
-
-    QAction *m_fileOpenAct;
-
-    QList<DocumentObserver *> m_observers;
-
-    Poppler::Document *m_doc;
+    QAction *m_firstAct;
+    QAction *m_prevAct;
+    QComboBox *m_pageCombo;
+    QAction *m_nextAct;
+    QAction *m_lastAct;
 };
 
 #endif

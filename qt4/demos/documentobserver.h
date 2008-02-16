@@ -16,47 +16,34 @@
  * Foundation, Inc., 51 Franklin Street - Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
-#ifndef PDFVIEWER_H
-#define PDFVIEWER_H
+#ifndef DOCUMENTOBSERVER_H
+#define DOCUMENTOBSERVER_H
 
-#include <QtGui/QMainWindow>
-
-class QAction;
-class QLabel;
-class DocumentObserver;
+class PdfViewer;
 namespace Poppler {
 class Document;
 }
 
-class PdfViewer : public QMainWindow
+class DocumentObserver
 {
-    Q_OBJECT
-
-    friend class DocumentObserver;
+friend class PdfViewer;
 
 public:
-    PdfViewer();
-    ~PdfViewer();
+    virtual ~DocumentObserver();
 
-    /*virtual*/ QSize sizeHint() const;
+    virtual void documentLoaded() = 0;
+    virtual void documentClosed() = 0;
+    virtual void pageChanged(int page) = 0;
 
-    void loadDocument(const QString &file);
-    void closeDocument();
+protected:
+    DocumentObserver();
 
-private Q_SLOTS:
-    void slotOpenFile();
-
-private:
+    Poppler::Document* document() const;
     void setPage(int page);
     int page() const;
 
-    int m_currentPage;
-
-    QAction *m_fileOpenAct;
-
-    QList<DocumentObserver *> m_observers;
-
-    Poppler::Document *m_doc;
+private:
+    PdfViewer *m_viewer;
 };
 
 #endif

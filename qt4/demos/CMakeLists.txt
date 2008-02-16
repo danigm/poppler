@@ -9,7 +9,10 @@ include_directories(
 )
 
 set(poppler_qt4viewer_SRCS
+  documentobserver.cpp
   main_viewer.cpp
+  navigationtoolbar.cpp
+  pageview.cpp
   viewer.cpp
 )
 qt4_automoc(${poppler_qt4viewer_SRCS})
