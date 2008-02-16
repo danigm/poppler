@@ -45,6 +45,8 @@ public:
 
 private Q_SLOTS:
     void slotOpenFile();
+    void slotToggleTextAA(bool value);
+    void slotToggleGfxAA(bool value);
 
 private:
     void setPage(int page);
@@ -53,6 +55,8 @@ private:
     int m_currentPage;
 
     QAction *m_fileOpenAct;
+    QAction *m_settingsTextAAAct;
+    QAction *m_settingsGfxAAAct;
 
     QList<DocumentObserver *> m_observers;
 

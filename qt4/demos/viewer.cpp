@@ -47,6 +47,14 @@ PdfViewer::PdfViewer()
 
     QMenu *viewMenu = menuBar()->addMenu(tr("&View"));
 
+    QMenu *settingsMenu = menuBar()->addMenu(tr("&Settings"));
+    m_settingsTextAAAct = settingsMenu->addAction(tr("Text Antialias"));
+    m_settingsTextAAAct->setCheckable(true);
+    connect(m_settingsTextAAAct, SIGNAL(toggled(bool)), this, SLOT(slotToggleTextAA(bool)));
+    m_settingsGfxAAAct = settingsMenu->addAction(tr("Graphics Antialias"));
+    m_settingsGfxAAAct->setCheckable(true);
+    connect(m_settingsGfxAAAct, SIGNAL(toggled(bool)), this, SLOT(slotToggleGfxAA(bool)));
+
     NavigationToolBar *navbar = new NavigationToolBar(this);
     addToolBar(navbar);
     m_observers.append(navbar);
@@ -76,6 +84,10 @@ PdfViewer::PdfViewer()
     Q_FOREACH(DocumentObserver *obs, m_observers) {
         obs->m_viewer = this;
     }
+
+    // activate AA by default
+    m_settingsTextAAAct->setChecked(true);
+    m_settingsGfxAAAct->setChecked(true);
 }
 
 PdfViewer::~PdfViewer()
@@ -114,6 +126,9 @@ void PdfViewer::loadDocument(const QString &file)
 
     m_doc = newdoc;
 
+    slotToggleTextAA(m_settingsTextAAAct->isChecked());
+    slotToggleGfxAA(m_settingsGfxAAAct->isChecked());
+
     Q_FOREACH(DocumentObserver *obs, m_observers) {
         obs->documentLoaded();
         obs->pageChanged(0);
@@ -142,6 +157,32 @@ void PdfViewer::slotOpenFile()
     }
 
     loadDocument(fileName);
+}
+
+void PdfViewer::slotToggleTextAA(bool value)
+{
+    if (!m_doc) {
+        return;
+    }
+
+    m_doc->setRenderHint(Poppler::Document::TextAntialiasing, value);
+
+    Q_FOREACH(DocumentObserver *obs, m_observers) {
+        obs->pageChanged(m_currentPage);
+    }
+}
+
+void PdfViewer::slotToggleGfxAA(bool value)
+{
+    if (!m_doc) {
+        return;
+    }
+
+    m_doc->setRenderHint(Poppler::Document::Antialiasing, value);
+
+    Q_FOREACH(DocumentObserver *obs, m_observers) {
+        obs->pageChanged(m_currentPage);
+    }
 }
 
 void PdfViewer::setPage(int page)
