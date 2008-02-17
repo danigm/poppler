@@ -42,6 +42,8 @@ void PageView::documentLoaded()
 
 void PageView::documentClosed()
 {
+    m_imageLabel->clear();
+    m_imageLabel->resize(0, 0);
 }
 
 void PageView::pageChanged(int page)
