@@ -63,6 +63,10 @@ PdfViewer::PdfViewer()
     m_settingsGfxAAAct->setCheckable(true);
     connect(m_settingsGfxAAAct, SIGNAL(toggled(bool)), this, SLOT(slotToggleGfxAA(bool)));
 
+    QMenu *helpMenu = menuBar()->addMenu(tr("&Help"));
+    act = helpMenu->addAction(tr("&About"), this, SLOT(slotAbout()));
+    act = helpMenu->addAction(tr("&About Qt"), this, SLOT(slotAboutQt()));
+
     NavigationToolBar *navbar = new NavigationToolBar(this);
     addToolBar(navbar);
     m_observers.append(navbar);
@@ -195,6 +199,17 @@ void PdfViewer::slotSaveCopy()
         QMessageBox msgbox(QMessageBox::Critical, tr("Save Error"), tr("Cannot export to:\n%1").arg(fileName),
                            QMessageBox::Ok, this);
     }
+}
+
+void PdfViewer::slotAbout()
+{
+    const QString text("This is a demo of the Poppler-Qt4 library.");
+    QMessageBox::about(this, QString::fromLatin1("About Poppler-Qt4 Demo"), text);
+}
+
+void PdfViewer::slotAboutQt()
+{
+    QMessageBox::aboutQt(this);
 }
 
 void PdfViewer::slotToggleTextAA(bool value)

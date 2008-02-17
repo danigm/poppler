@@ -46,6 +46,8 @@ public:
 private Q_SLOTS:
     void slotOpenFile();
     void slotSaveCopy();
+    void slotAbout();
+    void slotAboutQt();
     void slotToggleTextAA(bool value);
     void slotToggleGfxAA(bool value);
 
