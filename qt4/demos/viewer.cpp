@@ -39,6 +39,8 @@
 PdfViewer::PdfViewer()
     : QMainWindow(), m_currentPage(0), m_doc(0)
 {
+    setWindowTitle(tr("Poppler-Qt4 Demo"));
+
     // setup the menus
     QMenu *fileMenu = menuBar()->addMenu(tr("&File"));
     m_fileOpenAct = fileMenu->addAction(tr("&Open"), this, SLOT(slotOpenFile()));
