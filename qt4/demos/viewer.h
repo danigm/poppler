@@ -45,6 +45,7 @@ public:
 
 private Q_SLOTS:
     void slotOpenFile();
+    void slotSaveCopy();
     void slotToggleTextAA(bool value);
     void slotToggleGfxAA(bool value);
 
@@ -55,6 +56,7 @@ private:
     int m_currentPage;
 
     QAction *m_fileOpenAct;
+    QAction *m_fileSaveCopyAct;
     QAction *m_settingsTextAAAct;
     QAction *m_settingsGfxAAAct;
 

@@ -43,6 +43,11 @@ PdfViewer::PdfViewer()
     QMenu *fileMenu = menuBar()->addMenu(tr("&File"));
     m_fileOpenAct = fileMenu->addAction(tr("&Open"), this, SLOT(slotOpenFile()));
     m_fileOpenAct->setShortcut(Qt::CTRL + Qt::Key_O);
+    fileMenu->addSeparator();
+    m_fileSaveCopyAct = fileMenu->addAction(tr("&Save a Copy..."), this, SLOT(slotSaveCopy()));
+    m_fileSaveCopyAct->setShortcut(Qt::CTRL + Qt::SHIFT + Qt::Key_S);
+    m_fileSaveCopyAct->setEnabled(false);
+    fileMenu->addSeparator();
     QAction *act = fileMenu->addAction(tr("&Quit"), qApp, SLOT(closeAllWindows()));
     act->setShortcut(Qt::CTRL + Qt::Key_Q);
 
@@ -140,6 +145,8 @@ void PdfViewer::loadDocument(const QString &file)
         obs->documentLoaded();
         obs->pageChanged(0);
     }
+
+    m_fileSaveCopyAct->setEnabled(true);
 }
 
 void PdfViewer::closeDocument()
@@ -154,6 +161,8 @@ void PdfViewer::closeDocument()
 
     delete m_doc;
     m_doc = 0;
+
+    m_fileSaveCopyAct->setEnabled(false);
 }
 
 void PdfViewer::slotOpenFile()
@@ -164,6 +173,26 @@ void PdfViewer::slotOpenFile()
     }
 
     loadDocument(fileName);
+}
+
+void PdfViewer::slotSaveCopy()
+{
+    if (!m_doc) {
+        return;
+    }
+
+    QString fileName = QFileDialog::getSaveFileName(this, tr("Save Copy"), QDir::homePath(), tr("PDF Documents (*.pdf)"));
+    if (fileName.isEmpty()) {
+        return;
+    }
+
+    Poppler::PDFConverter *converter = m_doc->pdfConverter();
+    converter->setOutputFileName(fileName);
+    converter->setPDFOptions(converter->pdfOptions() & ~Poppler::PDFConverter::WithChanges);
+    if (!converter->convert()) {
+        QMessageBox msgbox(QMessageBox::Critical, tr("Save Error"), tr("Cannot export to:\n%1").arg(fileName),
+                           QMessageBox::Ok, this);
+    }
 }
 
 void PdfViewer::slotToggleTextAA(bool value)
