@@ -22,15 +22,24 @@ noinst_PROGRAMS = poppler_qt4viewer
 
 poppler_qt4viewer_SOURCES =			\
 	abstractinfodock.cpp			\
+	abstractinfodock.h			\
 	documentobserver.cpp			\
+	documentobserver.h			\
 	fonts.cpp				\
+	fonts.h					\
 	info.cpp				\
+	info.h					\
 	main_viewer.cpp				\
 	navigationtoolbar.cpp			\
+	navigationtoolbar.h			\
 	pageview.cpp				\
+	pageview.h				\
 	permissions.cpp				\
+	permissions.h				\
 	toc.cpp					\
-	viewer.cpp
+	toc.h					\
+	viewer.cpp				\
+	viewer.h
 
 abstractinfodock.$(OBJEXT): abstractinfodock.moc
 fonts.$(OBJEXT): fonts.moc
