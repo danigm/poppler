@@ -1,3 +1,99 @@
+Release 0.7.0 (0.8 Beta 1)
+
+	* Saving support
+	* Partial annotation support
+	* Forms improvements
+	* Add support for ActualText entries
+	* Display characters outside of unicode BMP with TT font
+	* CJK rendering fixes
+	* Implement Adobe Glyph Naming convention for fonts
+	* CMake as optional build tool
+	* Better font scaling for non embedded fonts
+	* Preserve PDF page labels when we output as postscript
+
+Release 0.6.4
+
+	Qt4 frontend:
+	 * Fix crash on links that point to a non existant page
+	 * Make Document::renderHints return the correct render hints
+	 * Fix infinite loop when parsing LineAnnotation
+
+	core:
+	 * Fix crash in the Splash renderer when T3 fonts are badly defined
+	 * Draw underlined Links correctly
+
+	utils:
+	 * Fix two use after free bugs in HtmlOutputDev.cc
+
+	build system:
+	 * Fix build on mingw32
+
+	tests:
+	 * Distribute the glade file of pdf-inspector
+
+Release 0.6.3
+
+	core:
+	 * Fix crash in extra debug code
+
+	glib frontend:
+	 * Make sure passwords are passed correctly to poppler core
+
+	Qt frontend:
+	 * Fix crash on documents that specify an empty date
+	
+	build system:
+	 * Disable gtk tests if the user disabled glib frontend
+
+Release 0.6.2
+
+	poppler core:
+	 * Fix CVE-2007-4352, CVE-2007-5392 and CVE-2007-5393
+	 * Fix a crash on documents with wrong CCITTFaxStream
+	 * Fix a crash in the Cairo renderer with invalid embedded fonts
+	 * Fix a crash with invalid TrueType fonts
+	 * Check if font is inside the clip area before rendering
+	   it to a temporary bitmap in the Splash renderer. Fixes crashes on
+	   incorrect documents
+	 * Do not use exit(1) on DCTStream errors
+	 * Detect form fields at any depth level
+	 * Do not generate appearance stream for radio buttons that are not active
+	 * mingw fixes
+	
+	build system:
+	 * Require fontconfig >= 2.0
+	 * builddir != srcdir fixes
+	
+	Qt4 frontend:
+	 * Improved documentation
+	
+	misc:
+	 * Fix FSF address
+
+Release 0.6.1
+
+	poppler core:
+	 * Fix printing with different x and y scale
+	 * Fix crash when Form Fields array contains references to non existent objects
+	 * Fix crash in CairoOutputDev::drawMaskedImage()
+	 * Fix embedded file description not working on some cases
+	
+	Qt4 frontend:
+	 * Fix printing issue
+	 * Avoid double free
+	 * Fix memory leak when dealing with embedded files
+	
+	glib frontend:
+	 * Fix build with --disable-cairo-output
+	 * Do not return unknown field type for signature form fields
+	
+	build system:
+	 * Support automake-1.10
+	 * More compatible sh code in qt.m4
+	
+	utils:
+	 * Fix build on Sun Studio compiler
+
 Release 0.6
 
 	- CairoOutputDev fixes
