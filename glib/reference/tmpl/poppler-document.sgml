@@ -83,6 +83,7 @@ The #PopplerDocument is an object used to refer to a main document.
 @POPPLER_PERMISSIONS_OK_TO_MODIFY: 
 @POPPLER_PERMISSIONS_OK_TO_COPY: 
 @POPPLER_PERMISSIONS_OK_TO_ADD_NOTES: 
+@POPPLER_PERMISSIONS_OK_TO_FILL_FORM: 
 @POPPLER_PERMISSIONS_FULL: 
 
 <!-- ##### FUNCTION poppler_document_new_from_file ##### -->

@@ -385,7 +385,7 @@ Information about a page in a document
 </para>
 
 @area: 
-@image: 
+@image_id: 
 
 <!-- ##### FUNCTION poppler_image_mapping_get_type ##### -->
 <para>
