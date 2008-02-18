@@ -195,3 +195,22 @@ void ImageOutputDev::drawImage(GfxState *state, Object *ref, Stream *str,
     fclose(f);
   }
 }
+
+void ImageOutputDev::drawMaskedImage(
+  GfxState *state, Object *ref, Stream *str,
+  int width, int height, GfxImageColorMap *colorMap,
+  Stream *maskStr, int maskWidth, int maskHeight, GBool maskInvert) {
+  drawImage(state, ref, str, width, height, colorMap, NULL, gFalse);
+  drawImageMask(state, ref, maskStr, maskWidth, maskHeight,
+		maskInvert, gFalse);
+}
+
+void ImageOutputDev::drawSoftMaskedImage(
+  GfxState *state, Object *ref, Stream *str,
+  int width, int height, GfxImageColorMap *colorMap,
+  Stream *maskStr, int maskWidth, int maskHeight,
+  GfxImageColorMap *maskColorMap) {
+  drawImage(state, ref, str, width, height, colorMap, NULL, gFalse);
+  drawImage(state, ref, maskStr, maskWidth, maskHeight,
+	    maskColorMap, NULL, gFalse);
+}
