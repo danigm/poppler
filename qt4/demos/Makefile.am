@@ -15,8 +15,8 @@ LDADDS =					\
 SUFFIXES: .moc
 
 # This rule lets GNU make create any *.moc from the equivalent *.h
-%.moc: %.h
-	moc $< -o $@
+.h.moc:
+	moc -i $< -o $@
 
 noinst_PROGRAMS = poppler_qt4viewer
 
@@ -30,7 +30,15 @@ poppler_qt4viewer_SOURCES =			\
 	pageview.cpp				\
 	permissions.cpp				\
 	toc.cpp					\
-	viewer.cpp				\
-	viewer.moc
+	viewer.cpp
+
+abstractinfodock.$(OBJEXT): abstractinfodock.moc
+fonts.$(OBJEXT): fonts.moc
+info.$(OBJEXT): info.moc
+navigationtoolbar.$(OBJEXT): navigationtoolbar.moc
+pageview.$(OBJEXT): pageview.moc
+permissions.$(OBJEXT): permissions.moc
+toc.$(OBJEXT): toc.moc
+viewer.$(OBJEXT): viewer.moc
 
 poppler_qt4viewer_LDADD = $(LDADDS)
