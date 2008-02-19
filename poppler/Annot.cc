@@ -2789,10 +2789,8 @@ void AnnotWidget::generateFieldAppearance() {
       }
       // checkbox
     } else {
-      // According to the PDF spec the off state must be named "Off",
-      // and the on state can be named anything, but Acrobat apparently
-      // looks for "Yes" and treats anything else as off.
-      if (Form::fieldLookup(field, "V", &obj1)->isName("Yes")) {
+      if (annot->lookup("AS", &obj1)->isName() &&
+          strcmp(obj1.getName(), "Off") != 0) {
         if (!caption) {
           caption = new GooString("3"); // ZapfDingbats checkmark
         }
