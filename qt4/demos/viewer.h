@@ -22,6 +22,7 @@
 #include <QtGui/QMainWindow>
 
 class QAction;
+class QActionGroup;
 class QLabel;
 class DocumentObserver;
 namespace Poppler {
@@ -50,6 +51,7 @@ private Q_SLOTS:
     void slotAboutQt();
     void slotToggleTextAA(bool value);
     void slotToggleGfxAA(bool value);
+    void slotRenderBackend(QAction *act);
 
 private:
     void setPage(int page);
@@ -61,6 +63,7 @@ private:
     QAction *m_fileSaveCopyAct;
     QAction *m_settingsTextAAAct;
     QAction *m_settingsGfxAAAct;
+    QActionGroup *m_settingsRenderBackendGrp;
 
     QList<DocumentObserver *> m_observers;
 
