@@ -25,6 +25,8 @@ poppler_qt4viewer_SOURCES =			\
 	abstractinfodock.h			\
 	documentobserver.cpp			\
 	documentobserver.h			\
+	embeddedfiles.cpp			\
+	embeddedfiles.h				\
 	fonts.cpp				\
 	fonts.h					\
 	info.cpp				\
@@ -42,6 +44,7 @@ poppler_qt4viewer_SOURCES =			\
 	viewer.h
 
 abstractinfodock.$(OBJEXT): abstractinfodock.moc
+embeddedfiles.cpp.$(OBJEXT): embeddedfiles.moc
 fonts.$(OBJEXT): fonts.moc
 info.$(OBJEXT): info.moc
 navigationtoolbar.$(OBJEXT): navigationtoolbar.moc
