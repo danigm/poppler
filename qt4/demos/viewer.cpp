@@ -80,7 +80,7 @@ PdfViewer::PdfViewer()
 
     QMenu *helpMenu = menuBar()->addMenu(tr("&Help"));
     act = helpMenu->addAction(tr("&About"), this, SLOT(slotAbout()));
-    act = helpMenu->addAction(tr("&About Qt"), this, SLOT(slotAboutQt()));
+    act = helpMenu->addAction(tr("About &Qt"), this, SLOT(slotAboutQt()));
 
     NavigationToolBar *navbar = new NavigationToolBar(this);
     addToolBar(navbar);
