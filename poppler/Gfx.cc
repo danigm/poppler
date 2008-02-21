@@ -3523,6 +3523,9 @@ void Gfx::doImage(Object *ref, Stream *str, GBool inlineImg) {
     goto err2;
   obj1.free();
 
+  if (width < 1 || height < 1)
+    goto err1;
+
   // image or mask?
   dict->lookup("ImageMask", &obj1);
   if (obj1.isNull()) {
