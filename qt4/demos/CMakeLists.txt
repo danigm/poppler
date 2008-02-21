@@ -15,6 +15,7 @@ set(poppler_qt4viewer_SRCS
   fonts.cpp
   info.cpp
   main_viewer.cpp
+  metadata.cpp
   navigationtoolbar.cpp
   pageview.cpp
   permissions.cpp

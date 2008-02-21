@@ -21,6 +21,7 @@
 #include "embeddedfiles.h"
 #include "fonts.h"
 #include "info.h"
+#include "metadata.h"
 #include "navigationtoolbar.h"
 #include "pageview.h"
 #include "permissions.h"
@@ -119,6 +120,12 @@ PdfViewer::PdfViewer()
     embfilesDock->hide();
     viewMenu->addAction(embfilesDock->toggleViewAction());
     m_observers.append(embfilesDock);
+
+    MetadataDock *metadataDock = new MetadataDock(this);
+    addDockWidget(Qt::BottomDockWidgetArea, metadataDock);
+    metadataDock->hide();
+    viewMenu->addAction(metadataDock->toggleViewAction());
+    m_observers.append(metadataDock);
 
     Q_FOREACH(DocumentObserver *obs, m_observers) {
         obs->m_viewer = this;
