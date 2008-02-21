@@ -158,11 +158,15 @@ void CairoOutputDev::drawLink(Link *link, Catalog *catalog) {
 void CairoOutputDev::saveState(GfxState *state) {
   LOG(printf ("save\n"));
   cairo_save (cairo);
+  if (cairo_shape)
+      cairo_save (cairo_shape);
 }
 
 void CairoOutputDev::restoreState(GfxState *state) {
   LOG(printf ("restore\n"));
   cairo_restore (cairo);
+  if (cairo_shape)
+      cairo_restore (cairo_shape);
 
   /* These aren't restored by cairo_restore() since we keep them in
    * the output device. */
@@ -196,6 +200,8 @@ void CairoOutputDev::setDefaultCTM(double *ctm) {
   matrix.y0 = ctm[5];
 
   cairo_transform (cairo, &matrix);
+  if (shape)
+      cairo_transform (cairo_shape, &matrix);
 
   OutputDev::setDefaultCTM(ctm);
 }
