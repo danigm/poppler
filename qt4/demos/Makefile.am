@@ -46,7 +46,7 @@ poppler_qt4viewer_SOURCES =			\
 	viewer.h
 
 abstractinfodock.$(OBJEXT): abstractinfodock.moc
-embeddedfiles.cpp.$(OBJEXT): embeddedfiles.moc
+embeddedfiles.$(OBJEXT): embeddedfiles.moc
 fonts.$(OBJEXT): fonts.moc
 info.$(OBJEXT): info.moc
 metadata.$(OBJEXT): metadata.moc
