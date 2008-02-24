@@ -47,6 +47,45 @@ pkgconfig_DATA =				\
 	$(qt_pc_file)                           \
 	$(qt4_pc_file)
 
+# Add CMake buildsystem files here so they get added on make dist
+EXTRA_DIST +=							\
+	glib/demo/CMakeLists.txt				\
+	glib/CMakeLists.txt					\
+	glib/poppler-features.h.cmake				\
+	qt/CMakeLists.txt					\
+	qt4/src/CMakeLists.txt					\
+	qt4/tests/CMakeLists.txt				\
+	qt4/CMakeLists.txt					\
+	qt4/demos/CMakeLists.txt				\
+	test/CMakeLists.txt					\
+	utils/CMakeLists.txt					\
+	CMakeLists.txt						\
+	ConfigureChecks.cmake					\
+	cmake/modules/COPYING-CMAKE-SCRIPTS			\
+	cmake/modules/FindCairo.cmake				\
+	cmake/modules/FindFontconfig.cmake			\
+	cmake/modules/FindFreetype.cmake			\
+	cmake/modules/FindGTK.cmake				\
+	cmake/modules/FindPackageHandleStandardArgs.cmake	\
+	cmake/modules/FindQt3.cmake				\
+	cmake/modules/FindQt4.cmake				\
+	cmake/modules/MacroBoolTo01.cmake			\
+	cmake/modules/MacroEnsureVersion.cmake			\
+	cmake/modules/MacroOptionalFindPackage.cmake		\
+	cmake/modules/MacroPushRequiredVars.cmake		\
+	cmake/modules/PopplerDefaults.cmake			\
+	cmake/modules/PopplerMacros.cmake			\
+	config.h.cmake						\
+	poppler-cairo.pc.cmake					\
+	poppler-config.h.cmake					\
+	poppler-glib.pc.cmake					\
+	poppler-qt.pc.cmake					\
+	poppler-qt4.pc.cmake					\
+	poppler-splash.pc.cmake					\
+	poppler.pc.cmake
+
+
+
 dist-hook: ChangeLog
 
 ChangeLog : .git/HEAD
