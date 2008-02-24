@@ -12,7 +12,9 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <string.h>
+#ifdef HAVE_DIRENT_H
 #include <dirent.h>
+#endif
 #include <time.h>
 #include "parseargs.h"
 #include "goo/GooString.h"
