@@ -138,6 +138,10 @@
 #define HAVE_BOOLEAN
 #endif
 
+/* MS has defined snprintf as deprecated */
+#ifdef _MSC_VER
+#define snprintf _snprintf
+#endif
 
 /* Number of bits in a file offset, on hosts where this is settable. */
 /* #undef _FILE_OFFSET_BITS */
