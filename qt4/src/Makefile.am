@@ -39,6 +39,7 @@ libpoppler_qt4_la_SOURCES =			\
 	poppler-annotation-private.h		\
 	poppler-converter-private.h		\
 	poppler-qiodeviceoutstream-private.h	\
+	poppler-export.h			\
 	poppler-private.h
 
 libpoppler_qt4_la_LIBADD = 			\
