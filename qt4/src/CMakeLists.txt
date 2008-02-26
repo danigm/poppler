@@ -32,6 +32,9 @@ endif (ENABLE_SPLASH)
 add_library(poppler-qt4 SHARED ${poppler_qt4_SRCS})
 set_target_properties(poppler-qt4 PROPERTIES VERSION 2.0.0 SOVERSION 2)
 target_link_libraries(poppler-qt4 poppler ${QT4_QTCORE_LIBRARY} ${QT4_QTGUI_LIBRARY} ${QT4_QTXML_LIBRARY})
+if(MSVC)
+target_link_libraries(poppler-qt4 poppler ${poppler_LIBS})
+endif(MSVC)
 install(TARGETS poppler-qt4 RUNTIME DESTINATION bin LIBRARY DESTINATION lib ARCHIVE DESTINATION lib)
 
 install(FILES

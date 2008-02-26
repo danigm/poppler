@@ -21,6 +21,7 @@
 #define POPPLER_QT4_CONVERTER_PRIVATE_H
 
 #include <QtCore/QString>
+#include "poppler-export.h"
 
 class QIODevice;
 

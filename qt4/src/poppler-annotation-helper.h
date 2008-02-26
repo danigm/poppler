@@ -19,6 +19,7 @@
  */
 
 #include <QtCore/QDebug>
+#include "poppler-export.h"
 
 class QColor;
 

@@ -10,8 +10,8 @@
 # define LIB_IMPORT
 #endif
 
-#ifdef poppler_qt4_EXPORTS
-# define poppler_qt4_EXPORT LIB_EXPORT
+#ifdef POPPLER_QT4_EXPORTS
+# define POPPLER_QT4_EXPORT LIB_EXPORT
 #else
-# define poppler_qt4_EXPORT LIB_IMPORT
+# define POPPLER_QT4_EXPORT LIB_IMPORT
 #endif

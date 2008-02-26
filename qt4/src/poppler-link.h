@@ -24,6 +24,7 @@
 #include <QtCore/QString>
 #include <QtCore/QRectF>
 #include <QtCore/QSharedDataPointer>
+#include "poppler-export.h"
 
 namespace Poppler {
 
@@ -43,7 +44,7 @@ class SoundObject;
  *
  * Coordinates are in 0..1 range
  */
-class LinkDestination
+class POPPLER_QT4_EXPORT LinkDestination
 {
 	public:
 		enum Kind
@@ -102,7 +103,7 @@ class LinkDestination
  * kind of links to reimplement the linkType() method and return the type of
  * the link described by the reimplemented class.
  */
-class Link
+class POPPLER_QT4_EXPORT Link
 {
 	public:
 		Link( const QRectF &linkArea );
@@ -155,7 +156,7 @@ class Link
 
 
 /** Goto: a viewport and maybe a reference to an external filename **/
-class LinkGoto : public Link
+class POPPLER_QT4_EXPORT LinkGoto : public Link
 {
 	public:
 		/**
@@ -187,7 +188,7 @@ class LinkGoto : public Link
 };
 
 /** Execute: filename and parameters to execute **/
-class LinkExecute : public Link
+class POPPLER_QT4_EXPORT LinkExecute : public Link
 {
 	public:
 		/**
@@ -216,7 +217,7 @@ class LinkExecute : public Link
 };
 
 /** Browse: an URL to open, ranging from 'http://' to 'mailto:', etc. **/
-class LinkBrowse : public Link
+class POPPLER_QT4_EXPORT LinkBrowse : public Link
 {
 	public:
 		/**
@@ -243,7 +244,7 @@ class LinkBrowse : public Link
 };	
 
 /** Action: contains an action to perform on document / viewer **/
-class LinkAction : public Link
+class POPPLER_QT4_EXPORT LinkAction : public Link
 {
 	public:
 		/**
@@ -287,7 +288,7 @@ class LinkAction : public Link
 };
 
 /** Sound: a sound to be played **/
-class LinkSound : public Link
+class POPPLER_QT4_EXPORT LinkSound : public Link
 {
 	public:
 		// create a Link_Sound
@@ -325,7 +326,7 @@ class LinkSound : public Link
 };
 
 /** Movie: Not yet defined -> think renaming to 'Media' link **/
-class LinkMovie : public Link
+class POPPLER_QT4_EXPORT LinkMovie : public Link
 // TODO this (Movie link)
 {
 	public:

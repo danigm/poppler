@@ -29,6 +29,7 @@
 #include <QtGui/QColor>
 #include <QtGui/QFont>
 #include <QtXml/QDomDocument>
+#include "poppler-export.h"
 
 namespace Poppler {
 
@@ -47,7 +48,7 @@ class Link;
  * \short Helper class for (recursive) Annotation retrieval/storage.
  *
  */
-class AnnotationUtils
+class POPPLER_QT4_EXPORT AnnotationUtils
 {
     public:
         /**
@@ -80,7 +81,7 @@ class AnnotationUtils
  * An Annotation is an object (text note, highlight, sound, popup window, ..)
  * contained by a Page in the document.
  */
-class Annotation
+class POPPLER_QT4_EXPORT Annotation
 {
   public:
     // enum definitions
@@ -193,7 +194,7 @@ class Annotation
  * A text annotation is an object showing some text directly on the page, or
  * linked to the contents using an icon shown on a page.
  */
-class TextAnnotation : public Annotation
+class POPPLER_QT4_EXPORT TextAnnotation : public Annotation
 {
   public:
     TextAnnotation();
@@ -262,7 +263,7 @@ class TextAnnotation : public Annotation
  *
  * This annotation represents a polygon (or polyline) to be drawn on a page.
  */
-class LineAnnotation : public Annotation
+class POPPLER_QT4_EXPORT LineAnnotation : public Annotation
 {
   public:
     LineAnnotation();
@@ -314,7 +315,7 @@ class LineAnnotation : public Annotation
  * The geometric annotation represents a geometric figure, like a rectangle or
  * an ellipse.
  */
-class GeomAnnotation : public Annotation
+class POPPLER_QT4_EXPORT GeomAnnotation : public Annotation
 {
   public:
     GeomAnnotation();
@@ -345,7 +346,7 @@ class GeomAnnotation : public Annotation
  *
  * The higlight annotation represents some areas of text being "highlighted".
  */
-class HighlightAnnotation : public Annotation
+class POPPLER_QT4_EXPORT HighlightAnnotation : public Annotation
 {
   public:
     HighlightAnnotation();
@@ -408,7 +409,7 @@ class HighlightAnnotation : public Annotation
  *
  * A simple annotation drawing a stamp on a page.
  */
-class StampAnnotation : public Annotation
+class POPPLER_QT4_EXPORT StampAnnotation : public Annotation
 {
   public:
     StampAnnotation();
@@ -455,7 +456,7 @@ class StampAnnotation : public Annotation
  *
  * Annotation representing an ink path on a page.
  */
-class InkAnnotation : public Annotation
+class POPPLER_QT4_EXPORT InkAnnotation : public Annotation
 {
   public:
     InkAnnotation();
@@ -472,7 +473,7 @@ class InkAnnotation : public Annotation
     Q_DISABLE_COPY( InkAnnotation )
 };
 
-class LinkAnnotation : public Annotation
+class POPPLER_QT4_EXPORT LinkAnnotation : public Annotation
 {
   public:
     LinkAnnotation();

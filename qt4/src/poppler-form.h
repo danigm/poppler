@@ -21,6 +21,7 @@
 
 #include <QtCore/QRectF>
 #include <QtCore/QStringList>
+#include "poppler-export.h"
 
 class Page;
 class FormWidget;
@@ -36,7 +37,7 @@ namespace Poppler {
     /**
       The base class representing a form field.
      */
-    class FormField {
+    class POPPLER_QT4_EXPORT FormField {
     public:
 
 	/**
@@ -102,7 +103,7 @@ namespace Poppler {
     /**
       A form field that represents a "button".
      */
-    class FormFieldButton : public FormField {
+    class POPPLER_QT4_EXPORT FormFieldButton : public FormField {
     public:
 
 	/**
@@ -157,7 +158,7 @@ namespace Poppler {
     /**
       A form field that represents a text input.
      */
-    class FormFieldText : public FormField {
+    class POPPLER_QT4_EXPORT FormFieldText : public FormField {
     public:
 
 	/**
@@ -228,7 +229,7 @@ namespace Poppler {
     /**
       A form field that represents a choice field.
      */
-    class FormFieldChoice : public FormField {
+    class POPPLER_QT4_EXPORT FormFieldChoice : public FormField {
     public:
 
 	/**

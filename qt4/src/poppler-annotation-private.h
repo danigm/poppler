@@ -20,6 +20,7 @@
 #define _POPPLER_ANNOTATION_PRIVATE_H_
 
 #include "poppler-annotation.h"
+#include "poppler-export.h"
 
 namespace Poppler
 {

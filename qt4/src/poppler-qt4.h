@@ -28,6 +28,7 @@
 #include <QtCore/QDateTime>
 #include <QtCore/QSet>
 #include <QtXml/QDomDocument>
+#include "poppler-export.h"
 
 class EmbFile;
 class Sound;
@@ -58,7 +59,7 @@ namespace Poppler {
 	- a QRectF that gives a box that describes where on the page
 	the text is found.
     */
-    class TextBox {
+    class POPPLER_QT4_EXPORT TextBox {
     friend class Page;
     public:
       /**
@@ -101,7 +102,7 @@ namespace Poppler {
        Container class for information about a font within a PDF
        document
     */
-    class FontInfo {
+    class POPPLER_QT4_EXPORT FontInfo {
     public:
 	enum Type {
 		unknown,
@@ -192,7 +193,7 @@ namespace Poppler {
     /**
        Container class for an embedded file with a PDF document
     */
-    class EmbeddedFile {
+    class POPPLER_QT4_EXPORT EmbeddedFile {
     public:
 	/// \cond PRIVATE
 	EmbeddedFile(EmbFile *embfile);
@@ -259,7 +260,7 @@ namespace Poppler {
     /**
        Page within a PDF document
     */
-    class Page {
+    class POPPLER_QT4_EXPORT Page {
 	friend class Document;
     public:
 	/**
@@ -462,7 +463,7 @@ namespace Poppler {
 
    A document potentially contains multiple Pages
 */
-    class Document {
+    class POPPLER_QT4_EXPORT Document {
 	friend class Page;
 	friend class DocumentData;
   
@@ -884,7 +885,7 @@ QString subject = m_doc->info("Subject");
 
        This is the base class for the converters.
     */
-    class BaseConverter
+    class POPPLER_QT4_EXPORT BaseConverter
     {
         friend class Document;
         public:
@@ -931,7 +932,7 @@ width = dummy.width();
 height = dummy.height();
        \endcode
     */
-    class PSConverter : public BaseConverter
+    class POPPLER_QT4_EXPORT PSConverter : public BaseConverter
     {
         friend class Document;
         public:
@@ -1017,7 +1018,7 @@ height = dummy.height();
     /**
        Converts a PDF to PDF (thus saves a copy of the document).
     */
-    class PDFConverter : public BaseConverter
+    class POPPLER_QT4_EXPORT PDFConverter : public BaseConverter
     {
         friend class Document;
         public:
@@ -1052,7 +1053,7 @@ height = dummy.height();
     /**
        Conversion from PDF date string format to QDateTime
     */
-    QDateTime convertDate( char *dateString );
+    POPPLER_QT4_EXPORT QDateTime convertDate( char *dateString );
 
     class SoundData;
     /**
@@ -1062,7 +1063,7 @@ height = dummy.height();
        whose url is represented by url() ), or Embedded, and the player has to
        play the data contained in data().
     */
-    class SoundObject {
+    class POPPLER_QT4_EXPORT SoundObject {
     public:
 	/**
 	   The type of sound

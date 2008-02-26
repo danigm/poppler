@@ -38,6 +38,7 @@
 #if defined(HAVE_SPLASH)
 #include <SplashOutputDev.h>
 #endif
+#include "poppler-export.h"
 
 #include "poppler-qt4.h"
 
