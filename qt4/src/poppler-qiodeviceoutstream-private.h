@@ -21,7 +21,6 @@
 
 #include "Object.h"
 #include "Stream.h"
-#include "poppler-export.h"
 
 class QIODevice;
 

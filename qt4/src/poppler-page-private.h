@@ -18,7 +18,6 @@
 
 #ifndef _POPPLER_PAGE_PRIVATE_H_
 #define _POPPLER_PAGE_PRIVATE_H_
-#include "poppler-export.h"
 
 class QRectF;
 

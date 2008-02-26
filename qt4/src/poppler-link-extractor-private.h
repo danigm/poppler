@@ -23,7 +23,6 @@
 #include <OutputDev.h>
 
 #include <QtCore/QList>
-#include "poppler-export.h"
 
 namespace Poppler
 {
