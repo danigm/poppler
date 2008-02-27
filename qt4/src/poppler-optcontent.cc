@@ -25,6 +25,7 @@
 #include "poppler-private.h"
 
 #include <QtCore/QDebug>
+#include <QtCore/QtAlgorithms>
 
 namespace Poppler
 {
@@ -50,14 +51,18 @@ namespace Poppler
   {
   }
 
-  void RadioButtonGroup::setItemOn( OptContentItem *itemToSetOn )
+  QSet<OptContentItem *> RadioButtonGroup::setItemOn( OptContentItem *itemToSetOn )
   {
+    QSet<OptContentItem *> changedItems;
     for (int i = 0; i < itemsInGroup.size(); ++i) {
       OptContentItem *thisItem = itemsInGroup.at(i);
       if (thisItem != itemToSetOn) {
-	thisItem->setState( OptContentItem::Off );
+        QSet<OptContentItem *> newChangedItems;
+        thisItem->setState(OptContentItem::Off, newChangedItems);
+        changedItems += newChangedItems;
       }
     }
+    return changedItems;
   }
 
 
@@ -97,9 +102,10 @@ namespace Poppler
   }
 
 
-  bool OptContentItem::setState( ItemState state )
+  bool OptContentItem::setState(ItemState state, QSet<OptContentItem *> &changedItems)
   {
     m_state = state;
+    changedItems.insert(this);
     if (!m_group) {
       return false;
     }
@@ -107,7 +113,7 @@ namespace Poppler
       m_group->setState( OptionalContentGroup::On );
       for (int i = 0; i < m_rbGroups.size(); ++i) {
 	RadioButtonGroup *rbgroup = m_rbGroups.at(i);
-	rbgroup->setItemOn( this );
+        changedItems += rbgroup->setItemOn( this );
       }
     } else if ( state == OptContentItem::Off ) {
       m_group->setState( OptionalContentGroup::Off );
@@ -165,7 +171,7 @@ namespace Poppler
 	Object item;
 	orderArray->getNF(i, &item);
 	if (item.isRef() ) {
-	  OptContentItem *ocItem = m_optContentItems[ QString("%1").arg(item.getRefNum()) ];
+          OptContentItem *ocItem = m_optContentItems.value(QString::number(item.getRefNum()), 0);
 	  if (ocItem) {
 	    addChild( parentNode, ocItem );
 	    lastItem = ocItem;
@@ -220,21 +226,24 @@ namespace Poppler
     delete d;
   }
 
-  void OptContentModel::setRootNode( OptContentItem *node )
+  void OptContentModelPrivate::setRootNode(OptContentItem *node)
   {
-    delete d->m_rootNode;
-    d->m_rootNode = node;
-    reset();
+    delete m_rootNode;
+    m_rootNode = node;
+    q->reset();
   }
 
   QModelIndex OptContentModel::index(int row, int column, const QModelIndex &parent) const
   {
-    if (! d->m_rootNode) {
+    if (row < 0 || column != 0) {
       return QModelIndex();
     }
 
     OptContentItem *parentNode = d->nodeFromIndex( parent );
-    return createIndex( row, column, parentNode->childList()[row] );
+    if (row < parentNode->childList().count()) {
+      return createIndex(row, column, parentNode->childList().at(row));
+    }
+    return QModelIndex();
   }
 
   QModelIndex OptContentModel::parent(const QModelIndex &child) const
@@ -243,16 +252,20 @@ namespace Poppler
     if (!childNode) {
       return QModelIndex();
     }
-    OptContentItem *parentNode = childNode->parent();
+    return d->indexFromItem(childNode->parent(), child.column());
+  }
+
+  QModelIndex OptContentModelPrivate::indexFromItem(OptContentItem *node, int column) const
+  {
+    if (!node) {
+      return QModelIndex();
+    }
+    OptContentItem *parentNode = node->parent();
     if (!parentNode) {
       return QModelIndex();
     }
-    OptContentItem *grandparentNode = parentNode->parent();
-    if (!grandparentNode) {
-      return QModelIndex();
-    }
-    int row = grandparentNode->childList().indexOf(parentNode);
-    return createIndex(row, child.column(), parentNode);
+    const int row = parentNode->childList().indexOf(node);
+    return q->createIndex(row, column, node);
   }
  
   int OptContentModel::rowCount(const QModelIndex &parent) const
@@ -267,31 +280,35 @@ namespace Poppler
 
   int OptContentModel::columnCount(const QModelIndex &parent) const
   {
-    return 2;
+    return 1;
   }
 
 
   QVariant OptContentModel::data(const QModelIndex &index, int role) const
   {
-    if ( (role != Qt::DisplayRole) && (role != Qt::EditRole) ) {
-      return QVariant();
-    }
-
-    OptContentItem *node = d->nodeFromIndex( index );
+    OptContentItem *node = d->nodeFromIndex(index, true);
     if (!node) {
       return QVariant();
     }
 
-    if (index.column() == 0) {
-      return node->name();
-    } else if (index.column() == 1) {
-      if ( node->state() == OptContentItem::On ) {
-	return true;
-      } else if ( node->state() == OptContentItem::Off ) {
-	return false;
-      } else {
-	return QVariant();
-      }
+    switch (role) {
+      case Qt::DisplayRole:
+        return node->name();
+        break;
+      case Qt::EditRole:
+        if (node->state() == OptContentItem::On) {
+          return true;
+        } else if (node->state() == OptContentItem::Off) {
+          return false;
+        }
+        break;
+      case Qt::CheckStateRole:
+        if (node->state() == OptContentItem::On) {
+          return Qt::Checked;
+        } else if (node->state() == OptContentItem::Off) {
+          return Qt::Unchecked;
+        }
+        break;
     }
 
     return QVariant();
@@ -299,29 +316,45 @@ namespace Poppler
 
   bool OptContentModel::setData ( const QModelIndex & index, const QVariant & value, int role )
   {
-    OptContentItem *node = d->nodeFromIndex( index );
+    OptContentItem *node = d->nodeFromIndex(index, true);
     if (!node) {
       return false;
     }
 
-    if (index.column() == 0) {
-      // we don't allow setting of the label
-      return false;
-    } else if (index.column() == 1) {
-      if ( value.toBool() == true ) {
-	if ( node->state() != OptContentItem::On ) {
-	  node->setState( OptContentItem::On );
-	  emit dataChanged( index, index );
-	}
-	return true;
-      } else if ( value.toBool() == false ) {
-	if ( node->state() != OptContentItem::Off ) {
-	  node->setState( OptContentItem::Off );
-	  emit dataChanged( index, index );
-	}
-	return true;
-      } else {
-	return false;
+    switch (role) {
+      case Qt::CheckStateRole:
+      {
+        const bool newvalue = value.toBool();
+        if (newvalue) {
+          if (node->state() != OptContentItem::On) {
+            QSet<OptContentItem *> changedItems;
+            node->setState(OptContentItem::On, changedItems);
+            QModelIndexList indexes;
+            Q_FOREACH (OptContentItem *item, changedItems) {
+              indexes.append(d->indexFromItem(item, 0));
+            }
+            qStableSort(indexes);
+            Q_FOREACH (const QModelIndex &changedIndex, indexes) {
+              emit dataChanged(changedIndex, changedIndex);
+            }
+            return true;
+          }
+        } else {
+          if (node->state() != OptContentItem::Off) {
+            QSet<OptContentItem *> changedItems;
+            node->setState(OptContentItem::Off, changedItems);
+            QModelIndexList indexes;
+            Q_FOREACH (OptContentItem *item, changedItems) {
+              indexes.append(d->indexFromItem(item, 0));
+            }
+            qStableSort(indexes);
+            Q_FOREACH (const QModelIndex &changedIndex, indexes) {
+              emit dataChanged(changedIndex, changedIndex);
+            }
+            return true;
+          }
+        }
+        break;
       }
     }
 
@@ -331,12 +364,15 @@ namespace Poppler
   Qt::ItemFlags OptContentModel::flags ( const QModelIndex & index ) const
   {
     if (index.column() == 0) {
-      return QAbstractItemModel::flags(index) | Qt::ItemIsSelectable | Qt::ItemIsEnabled;
-    } else if (index.column() == 1) {
-      return QAbstractItemModel::flags(index) | Qt::ItemIsSelectable | Qt::ItemIsEditable | Qt::ItemIsUserCheckable | Qt::ItemIsEnabled;
+      return QAbstractItemModel::flags(index) | Qt::ItemIsSelectable | Qt::ItemIsUserCheckable | Qt::ItemIsEnabled;
     } else {
       return QAbstractItemModel::flags(index);
     }
+  }
+
+  QVariant OptContentModel::headerData( int section, Qt::Orientation orientation, int role ) const
+  {
+    return QAbstractItemModel::headerData( section, orientation, role );
   }
 
   void OptContentModelPrivate::addChild( OptContentItem *parent, OptContentItem *child )
@@ -346,18 +382,15 @@ namespace Poppler
 
   OptContentItem* OptContentModelPrivate::itemFromRef( const QString &ref ) const
   {
-    if ( !m_optContentItems.contains( ref ) ) {
-      return 0;
-    }
-    return m_optContentItems[ ref ];
+    return m_optContentItems.value(ref, 0);
   }
 
-  OptContentItem* OptContentModelPrivate::nodeFromIndex( const QModelIndex &index ) const
+  OptContentItem* OptContentModelPrivate::nodeFromIndex(const QModelIndex &index, bool canBeNull) const
   {
     if (index.isValid()) {
       return static_cast<OptContentItem *>(index.internalPointer());
     } else {
-      return m_rootNode;
+      return canBeNull ? 0 : m_rootNode;
     }
   }
 }

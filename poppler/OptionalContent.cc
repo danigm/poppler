@@ -174,6 +174,7 @@ bool OCGs::optContentIsVisible( Object *dictRef )
   dictRef->fetch( m_xref, &dictObj );
   if ( ! dictObj.isDict() ) {
     printf( "Unexpected oc reference target: %i\n", dictObj.getType() );
+    dictObj.free();
     return result;
   }
   dict = dictObj.getDict();
@@ -216,6 +217,7 @@ bool OCGs::optContentIsVisible( Object *dictRef )
     }
   } 
   dictType.free();
+  dictObj.free();
   // printf("visibility: %s\n", result? "on" : "off");
   return result;
 }

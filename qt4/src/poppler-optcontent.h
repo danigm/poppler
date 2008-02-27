@@ -22,23 +22,23 @@
 
 #include <QtCore/QAbstractListModel>
 
+#include "poppler-export.h"
+
 class OCGs;
 
 namespace Poppler
 {
-  class OptContentItem;
-  class OptContentModel;
+  class Document;
   class OptContentModelPrivate;
 
-  class OptContentModel : public QAbstractItemModel
+  class POPPLER_QT4_EXPORT OptContentModel : public QAbstractItemModel
   {
+    friend class Document;
+
     Q_OBJECT
 
     public:
-    OptContentModel( OCGs *optContent, QObject *parent = 0);
     virtual ~OptContentModel();
-
-    void setRootNode(OptContentItem *node);
 
     QModelIndex index(int row, int column, const QModelIndex &parent) const;
     QModelIndex parent(const QModelIndex &child) const;
@@ -51,7 +51,11 @@ namespace Poppler
 
     Qt::ItemFlags flags ( const QModelIndex & index ) const;
 
+    virtual QVariant headerData( int section, Qt::Orientation orientation, int role = Qt::DisplayRole ) const;
+
     private:
+    OptContentModel( OCGs *optContent, QObject *parent = 0);
+
     friend class OptContentModelPrivate;
     OptContentModelPrivate *d;
   };

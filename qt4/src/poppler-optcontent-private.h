@@ -29,13 +29,14 @@ class OptionalContentGroup;
 
 namespace Poppler
 {
+  class OptContentItem;
 
   class RadioButtonGroup
   {
   public:
     RadioButtonGroup( OptContentModelPrivate *ocModel, Array *rbarray);
     ~RadioButtonGroup();
-    void setItemOn( OptContentItem *itemToSetOn );
+    QSet<OptContentItem *> setItemOn( OptContentItem *itemToSetOn );
 
   private:
     QList<OptContentItem*> itemsInGroup;
@@ -53,7 +54,7 @@ namespace Poppler
 
     QString name() const { return m_name; }
     ItemState state() const { return m_state; }
-    bool setState( ItemState state );
+    bool setState(ItemState state, QSet<OptContentItem *> &changedItems);
 
     QList<OptContentItem*> childList() { return m_children; }
 
@@ -80,7 +81,8 @@ namespace Poppler
     ~OptContentModelPrivate();
 
     void parseRBGroupsArray( Array *rBGroupArray );
-    OptContentItem *nodeFromIndex( const QModelIndex &index ) const;
+    OptContentItem *nodeFromIndex(const QModelIndex &index, bool canBeNull = false) const;
+    QModelIndex indexFromItem(OptContentItem *node, int column) const;
 
     /**
        Get the OptContentItem corresponding to a given reference value.
@@ -90,6 +92,7 @@ namespace Poppler
        \return the matching optional content item, or null if the reference wasn't found
     */
     OptContentItem *itemFromRef( const QString &ref ) const;
+    void setRootNode(OptContentItem *node);
 
     OptContentModel *q;
 
