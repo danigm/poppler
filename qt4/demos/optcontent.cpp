@@ -44,12 +44,20 @@ void OptContentDock::fillInfo()
     }
 
     m_view->setModel(document()->optionalContentModel());
+    connect(m_view->model(), SIGNAL(dataChanged(QModelIndex, QModelIndex)), this, SLOT(reloadImage()));
+    m_view->expandToDepth(1);
 }
 
 void OptContentDock::documentClosed()
 {
+    disconnect(m_view->model(), SIGNAL(dataChanged(QModelIndex, QModelIndex)), this, SLOT(reloadImage()));
     m_view->setModel(0);
     AbstractInfoDock::documentClosed();
+}
+
+void OptContentDock::reloadImage()
+{
+    reloadPage();
 }
 
 #include "optcontent.moc"

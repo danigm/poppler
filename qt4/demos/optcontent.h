@@ -36,6 +36,9 @@ public:
 protected:
     /*virtual*/ void fillInfo();
 
+private Q_SLOTS:
+    void reloadImage();
+
 private:
     QTreeView *m_view;
 };
