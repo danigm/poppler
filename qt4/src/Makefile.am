@@ -5,6 +5,8 @@ INCLUDES =					\
 	$(FONTCONFIG_CFLAGS)			\
 	$(POPPLER_QT4_CFLAGS)
 
+SUFFIXES: .moc
+
 poppler_includedir = $(includedir)/poppler/qt4
 
 poppler_include_HEADERS =			\
@@ -43,6 +45,7 @@ libpoppler_qt4_la_SOURCES =			\
 	poppler-annotation-private.h		\
 	poppler-converter-private.h		\
 	poppler-qiodeviceoutstream-private.h	\
+	poppler-optcontent-private.h		\
 	poppler-export.h			\
 	poppler-private.h
 
@@ -58,8 +61,8 @@ endif
 
 libpoppler_qt4_la_LDFLAGS = -version-info 2:0:0
 
-# This rule lets GNU make create any moc_*.cpp from the equivalent *.h
-moc_%.cpp: %.h
-	moc $< -o $@
+# This rule lets GNU make create any *.moc from the equivalent *.h
+.h.moc:
+	moc -i $< -o $@
 
 poppler-optcontent.$(OBJEXT): poppler-optcontent.moc
