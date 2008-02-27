@@ -80,7 +80,7 @@ namespace Poppler
     ~OptContentModelPrivate();
 
     void parseRBGroupsArray( Array *rBGroupArray );
-    OptContentItem *nodeFromIndex( const QModelIndex &index ) const;
+    OptContentItem *nodeFromIndex(const QModelIndex &index, bool canBeNull = false) const;
 
     /**
        Get the OptContentItem corresponding to a given reference value.

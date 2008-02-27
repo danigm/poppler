@@ -230,12 +230,15 @@ namespace Poppler
 
   QModelIndex OptContentModel::index(int row, int column, const QModelIndex &parent) const
   {
-    if (! d->m_rootNode) {
+    if (row < 0 || column != 0) {
       return QModelIndex();
     }
 
     OptContentItem *parentNode = d->nodeFromIndex( parent );
-    return createIndex( row, column, parentNode->childList()[row] );
+    if (row < parentNode->childList().count()) {
+      return createIndex(row, column, parentNode->childList().at(row));
+    }
+    return QModelIndex();
   }
 
   QModelIndex OptContentModel::parent(const QModelIndex &child) const
@@ -274,7 +277,7 @@ namespace Poppler
 
   QVariant OptContentModel::data(const QModelIndex &index, int role) const
   {
-    OptContentItem *node = d->nodeFromIndex( index );
+    OptContentItem *node = d->nodeFromIndex(index, true);
     if (!node) {
       return QVariant();
     }
@@ -304,7 +307,7 @@ namespace Poppler
 
   bool OptContentModel::setData ( const QModelIndex & index, const QVariant & value, int role )
   {
-    OptContentItem *node = d->nodeFromIndex( index );
+    OptContentItem *node = d->nodeFromIndex(index, true);
     if (!node) {
       return false;
     }
@@ -360,12 +363,12 @@ namespace Poppler
     return m_optContentItems[ ref ];
   }
 
-  OptContentItem* OptContentModelPrivate::nodeFromIndex( const QModelIndex &index ) const
+  OptContentItem* OptContentModelPrivate::nodeFromIndex(const QModelIndex &index, bool canBeNull) const
   {
     if (index.isValid()) {
       return static_cast<OptContentItem *>(index.internalPointer());
     } else {
-      return m_rootNode;
+      return canBeNull ? 0 : m_rootNode;
     }
   }
 }
