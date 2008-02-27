@@ -37,7 +37,7 @@ namespace Poppler
       if ( ! ref.isRef() ) {
 	qDebug() << "expected ref, but got:" << ref.getType();
       }
-      OptContentItem *item = ocModel->q->itemFromRef( QString::number(ref.getRefNum() ) );
+      OptContentItem *item = ocModel->itemFromRef( QString::number(ref.getRefNum() ) );
       itemsInGroup.append( item );
     }
     for (int i = 0; i < itemsInGroup.size(); ++i) {
@@ -345,12 +345,12 @@ namespace Poppler
     parent->addChild( child );
   }
 
-  OptContentItem* OptContentModel::itemFromRef( const QString &ref ) const
+  OptContentItem* OptContentModelPrivate::itemFromRef( const QString &ref ) const
   {
-    if ( ! d->m_optContentItems.contains( ref ) ) {
+    if ( !m_optContentItems.contains( ref ) ) {
       return 0;
     }
-    return d->m_optContentItems[ ref ];
+    return m_optContentItems[ ref ];
   }
 
   OptContentItem* OptContentModelPrivate::nodeFromIndex( const QModelIndex &index ) const

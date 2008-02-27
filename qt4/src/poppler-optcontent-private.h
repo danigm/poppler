@@ -22,6 +22,8 @@
 
 #include "poppler-optcontent.h"
 
+#include <QtCore/QString>
+
 #include "goo/GooList.h"
 
 namespace Poppler
@@ -38,6 +40,38 @@ namespace Poppler
     QList<OptContentItem*> itemsInGroup;
   };
 
+  class OptContentItem
+  {
+    public:
+    enum ItemState { On, Off, HeadingOnly };
+
+    OptContentItem( OptionalContentGroup *group );
+    OptContentItem( const QString &label );
+    OptContentItem();
+    ~OptContentItem();
+
+    QString name() const { return m_name; }
+    ItemState state() const { return m_state; }
+    bool setState( ItemState state );
+
+    QList<OptContentItem*> childList() { return m_children; }
+
+    void setParent( OptContentItem* parent) { m_parent = parent; }
+    OptContentItem* parent() { return m_parent; }
+
+    void addChild( OptContentItem *child );
+
+    void appendRBGroup( RadioButtonGroup *rbgroup );
+
+    private:
+    OptionalContentGroup *m_group;
+    QString m_name;
+    ItemState m_state; // true for ON, false for OFF
+    QList<OptContentItem*> m_children;
+    OptContentItem *m_parent;
+    QList<RadioButtonGroup*> m_rbGroups;
+  };
+
   class OptContentModelPrivate
   {
     public:
@@ -46,6 +80,15 @@ namespace Poppler
 
     void parseRBGroupsArray( Array *rBGroupArray );
     OptContentItem *nodeFromIndex( const QModelIndex &index ) const;
+
+    /**
+       Get the OptContentItem corresponding to a given reference value.
+
+       \param ref the reference number (e.g. from Object.getRefNum()) to look up
+
+       \return the matching optional content item, or null if the reference wasn't found
+    */
+    OptContentItem *itemFromRef( const QString &ref ) const;
 
     OptContentModel *q;
 
