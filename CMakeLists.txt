@@ -148,6 +148,7 @@ set(poppler_SRCS
   poppler/Link.cc
   poppler/NameToCharCode.cc
   poppler/Object.cc
+  poppler/OptionalContent.cc
   poppler/Outline.cc
   poppler/OutputDev.cc
   poppler/Page.cc

@@ -25,6 +25,7 @@
 #include "PageLabelInfo.h"
 #include "Catalog.h"
 #include "Form.h"
+#include "OptionalContent.h"
 
 //------------------------------------------------------------------------
 // Catalog
@@ -33,6 +34,7 @@
 Catalog::Catalog(XRef *xrefA) {
   Object catDict, pagesDict, pagesDictRef;
   Object obj, obj2;
+  Object optContentProps;
   char *alreadyRead;
   int numPages0;
   int i;
@@ -45,6 +47,7 @@ Catalog::Catalog(XRef *xrefA) {
   baseURI = NULL;
   pageLabelInfo = NULL;
   form = NULL;
+  optContent = NULL;
 
   xref->getCatalog(&catDict);
   if (!catDict.isDict()) {
@@ -171,6 +174,11 @@ Catalog::Catalog(XRef *xrefA) {
   // get the outline dictionary
   catDict.dictLookup("Outlines", &outline);
 
+  // get the Optional Content dictionary
+  catDict.dictLookup("OCProperties", &optContentProps);
+  optContent = new OCGs(&optContentProps, xref);
+  optContentProps.free();
+
   // perform form-related loading after all widgets have been loaded
   if (form) 
     form->postWidgetsLoad();
@@ -208,6 +216,7 @@ Catalog::~Catalog() {
   }
   delete pageLabelInfo;
   delete form;
+  delete optContent;
   metadata.free();
   structTreeRoot.free();
   outline.free();

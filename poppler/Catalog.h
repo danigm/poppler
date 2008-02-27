@@ -21,6 +21,7 @@ struct Ref;
 class LinkDest;
 class PageLabelInfo;
 class Form;
+class OCGs;
 
 //------------------------------------------------------------------------
 // NameTree
@@ -162,6 +163,8 @@ public:
 
   Object *getAcroForm() { return &acroForm; }
 
+  OCGs *getOptContentConfig() { return optContent; }
+
   Form* getForm() { return form; }
 
   enum PageMode {
@@ -202,6 +205,7 @@ private:
   Object structTreeRoot;	// structure tree root dictionary
   Object outline;		// outline dictionary
   Object acroForm;		// AcroForm dictionary
+  OCGs *optContent;		// Optional Content groups
   GBool ok;			// true if catalog is valid
   PageLabelInfo *pageLabelInfo; // info about page labels
   PageMode pageMode;		// page mode

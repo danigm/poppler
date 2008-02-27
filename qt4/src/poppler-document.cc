@@ -465,6 +465,19 @@ namespace Poppler {
         return result;
     }
 
+    bool Document::hasOptionalContent()
+    {
+        return ( m_doc->doc->getOptContentConfig()->hasOCGs() );
+    }
+
+    OptContentModel *Document::optionalContentModel(QObject *parent)
+    {
+        if (!m_doc->m_optContentModel) {
+	    m_doc->m_optContentModel = new OptContentModel(m_doc->doc->getOptContentConfig(), parent);
+	}
+	return (m_doc->m_optContentModel);
+    }
+
     QDateTime convertDate( char *dateString )
     {
         int year;

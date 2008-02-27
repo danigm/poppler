@@ -61,6 +61,7 @@ TESTS = \
 	check_dateConversion 	\
 	check_fonts		\
 	check_metadata         	\
+	check_optcontent	\
 	check_permissions      	\
 	check_pagemode    	\
 	check_password    	\
@@ -84,6 +85,10 @@ check_fonts_LDADD = $(LDADDS)
 check_metadata_SOURCES = check_metadata.cpp
 check_metadata.$(OBJEXT): check_metadata.moc
 check_metadata_LDADD = $(LDADDS)
+
+check_optcontent_SOURCES = check_optcontent.cpp
+check_optcontent.$(OBJEXT): check_optcontent.moc
+check_optcontent_LDADD = $(LDADDS)
 
 check_pagemode_SOURCES = check_pagemode.cpp
 check_pagemode.$(OBJEXT): check_pagemode.moc

@@ -147,6 +147,7 @@ poppler_include_HEADERS =	\
 	Link.h			\
 	NameToCharCode.h	\
 	Object.h		\
+	OptionalContent.h	\
 	Outline.h		\
 	OutputDev.h		\
 	Page.h			\
@@ -212,6 +213,7 @@ libpoppler_la_SOURCES =		\
 	Link.cc 		\
 	NameToCharCode.cc	\
 	Object.cc 		\
+	OptionalContent.cc	\
 	Outline.cc		\
 	OutputDev.cc 		\
 	Page.cc 		\

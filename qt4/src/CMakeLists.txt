@@ -4,6 +4,7 @@ include_directories(
   ${CMAKE_CURRENT_SOURCE_DIR}
   ${CMAKE_SOURCE_DIR}/qt # for PageTransition
   ${QT4_INCLUDE_DIR}
+  ${CMAKE_CURRENT_BINARY_DIR}
 )
 
 set(poppler_qt4_SRCS
@@ -14,6 +15,7 @@ set(poppler_qt4_SRCS
   poppler-form.cc
   poppler-link.cc
   poppler-link-extractor.cc
+  poppler-optcontent.cc
   poppler-page.cc
   poppler-base-converter.cc
   poppler-pdf-converter.cc
@@ -29,6 +31,7 @@ if (ENABLE_SPLASH)
     ${CMAKE_SOURCE_DIR}/poppler/ArthurOutputDev.cc
   )
 endif (ENABLE_SPLASH)
+qt4_automoc(${poppler_qt4_SRCS})
 add_library(poppler-qt4 SHARED ${poppler_qt4_SRCS})
 set_target_properties(poppler-qt4 PROPERTIES VERSION 2.0.0 SOVERSION 2)
 target_link_libraries(poppler-qt4 poppler ${QT4_QTCORE_LIBRARY} ${QT4_QTGUI_LIBRARY} ${QT4_QTXML_LIBRARY})

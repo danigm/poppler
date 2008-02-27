@@ -94,6 +94,7 @@ namespace Poppler {
 		m_outputDev = 0;
 		paperColor = Qt::white;
 		m_hints = 0;
+		m_optContentModel = 0;
 		// It might be more appropriate to delete these in PDFDoc
 		delete ownerPassword;
 		delete userPassword;
@@ -109,6 +110,8 @@ namespace Poppler {
 	~DocumentData()
 	{
 		qDeleteAll(m_embeddedFiles);
+		delete m_optContentModel;
+		m_optContentModel = 0;
 		delete doc;
 		delete m_outputDev;
 		delete m_fontInfoScanner;
@@ -254,6 +257,7 @@ namespace Poppler {
 	Document::RenderBackend m_backend;
 	OutputDev *m_outputDev;
 	QList<EmbeddedFile*> m_embeddedFiles;
+	OptContentModel *m_optContentModel;
 	QColor paperColor;
 	int m_hints;
 	static int count;

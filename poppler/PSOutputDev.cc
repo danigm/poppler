@@ -2514,7 +2514,7 @@ void PSOutputDev::setupType3Font(GfxFont *font, GooString *psName,
     box.y1 = m[1];
     box.x2 = m[2];
     box.y2 = m[3];
-    gfx = new Gfx(xref, this, resDict, &box, NULL);
+    gfx = new Gfx(xref, this, resDict, m_catalog, &box, NULL);
     inType3Char = gTrue;
     for (i = 0; i < charProcs->getLength(); ++i) {
       t3Cacheable = gFalse;
@@ -2833,7 +2833,7 @@ void PSOutputDev::setupForm(Ref id, Object *strObj) {
   box.y1 = bbox[1];
   box.x2 = bbox[2];
   box.y2 = bbox[3];
-  gfx = new Gfx(xref, this, resDict, &box, &box);
+  gfx = new Gfx(xref, this, resDict, m_catalog, &box, &box);
   gfx->display(strObj);
   delete gfx;
 
@@ -3668,7 +3668,7 @@ void PSOutputDev::tilingPatternFill(GfxState *state, Object *str,
   box.y1 = bbox[1];
   box.x2 = bbox[2];
   box.y2 = bbox[3];
-  gfx = new Gfx(xref, this, resDict, &box, NULL);
+  gfx = new Gfx(xref, this, resDict, m_catalog, &box, NULL);
   writePS("/x {\n");
   if (paintType == 2) {
     writePSFmt("{0:.4g} 0 {1:.4g} {2:.4g} {3:.4g} {4:.4g} setcachedevice\n",

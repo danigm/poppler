@@ -22,6 +22,7 @@
 
 #include "poppler-annotation.h"
 #include "poppler-link.h"
+#include "poppler-optcontent.h"
 #include "poppler-page-transition.h"
 
 #include <QtCore/QByteArray>
@@ -863,6 +864,23 @@ QString subject = m_doc->info("Subject");
 	  Gets the metadata stream contents
 	*/
 	QString metadata() const;
+
+	/**
+	   Test whether this document has "optional content".
+
+	   Optional content is used to optionally turn on (display)
+	   and turn off (not display) some elements of the document.
+	   The most common use of this is for layers in design
+	   applications, but it can be used for a range of things,
+	   such as not including some content in printing, and
+	   displaying content in the appropriate language.
+	*/
+	bool hasOptionalContent();
+
+	/**
+	   Itemviews model for optional content
+	*/
+	OptContentModel *optionalContentModel(QObject *parent = 0);
 
 	/**
 	   Destructor.

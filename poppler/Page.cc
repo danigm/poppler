@@ -375,7 +375,7 @@ Gfx *Page::createGfx(OutputDev *out, double hDPI, double vDPI,
     printf("***** Rotate = %d\n", attrs->getRotate());
   }
 
-  gfx = new Gfx(xref, out, num, attrs->getResourceDict(),
+  gfx = new Gfx(xref, out, num, attrs->getResourceDict(), catalog,
 		hDPI, vDPI, &box, crop ? cropBox : (PDFRectangle *)NULL,
 		rotate, abortCheckCbk, abortCheckCbkData);
 

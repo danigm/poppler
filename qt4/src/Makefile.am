@@ -12,6 +12,7 @@ poppler_include_HEADERS =			\
 	poppler-link.h				\
 	poppler-annotation.h			\
 	poppler-form.h				\
+	poppler-optcontent.h			\
 	poppler-export.h			\
 	../../qt/poppler-page-transition.h
 
@@ -26,6 +27,8 @@ libpoppler_qt4_la_SOURCES =			\
 	poppler-link.cc				\
 	poppler-annotation.cc			\
 	poppler-link-extractor.cc		\
+	poppler-optcontent.cc			\
+	moc_poppler-optcontent.cpp		\
 	../../qt/poppler-page-transition.cc	\
 	poppler-sound.cc			\
 	poppler-form.cc				\
@@ -55,3 +58,6 @@ endif
 
 libpoppler_qt4_la_LDFLAGS = -version-info 2:0:0
 
+# This rule lets GNU make create any moc_*.cpp from the equivalent *.h
+moc_%.cpp: %.h
+	moc $< -o $@

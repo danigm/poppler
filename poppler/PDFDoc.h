@@ -18,6 +18,7 @@
 #include "Catalog.h"
 #include "Page.h"
 #include "Annot.h"
+#include "OptionalContent.h"
 
 class GooString;
 class BaseStream;
@@ -66,6 +67,9 @@ public:
 
   // Get catalog.
   Catalog *getCatalog() { return catalog; }
+
+  // Get optional content configuration
+  OCGs *getOptContentConfig() { return catalog->getOptContentConfig(); }
 
   // Get base stream.
   BaseStream *getBaseStream() { return str; }
@@ -213,6 +217,7 @@ private:
 #ifndef DISABLE_OUTLINE
   Outline *outline;
 #endif
+  OCGs *optContentConfig;
 
   GBool ok;
   int errCode;

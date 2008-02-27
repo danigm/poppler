@@ -36,6 +36,8 @@
 #include "Error.h"
 #include "Gfx.h"
 #include "ProfileData.h"
+#include "Catalog.h"
+#include "OptionalContent.h"
 
 // the MSVC math.h doesn't define this
 #ifndef M_PI
@@ -301,6 +303,9 @@ GfxResources::GfxResources(XRef *xref, Dict *resDict, GfxResources *nextA) {
     // get graphics state parameter dictionary
     resDict->lookup("ExtGState", &gStateDict);
 
+    // get properties dictionary
+    resDict->lookup("Properties", &propertiesDict);
+
   } else {
     fonts = NULL;
     xObjDict.initNull();
@@ -308,6 +313,7 @@ GfxResources::GfxResources(XRef *xref, Dict *resDict, GfxResources *nextA) {
     patternDict.initNull();
     shadingDict.initNull();
     gStateDict.initNull();
+    propertiesDict.initNull();
   }
 
   next = nextA;
@@ -322,6 +328,7 @@ GfxResources::~GfxResources() {
   patternDict.free();
   shadingDict.free();
   gStateDict.free();
+  propertiesDict.free();
 }
 
 GfxFont *GfxResources::lookupFont(char *name) {
@@ -363,6 +370,20 @@ GBool GfxResources::lookupXObjectNF(char *name, Object *obj) {
     }
   }
   error(-1, "XObject '%s' is unknown", name);
+  return gFalse;
+}
+
+GBool GfxResources::lookupMarkedContentNF(char *name, Object *obj) {
+  GfxResources *resPtr;
+
+  for (resPtr = this; resPtr; resPtr = resPtr->next) {
+    if (resPtr->propertiesDict.isDict()) {
+      if (!resPtr->propertiesDict.dictLookupNF(name, obj)->isNull())
+	return gTrue;
+      obj->free();
+    }
+  }
+  error(-1, "Marked Content '%s' is unknown", name);
   return gFalse;
 }
 
@@ -437,7 +458,7 @@ GBool GfxResources::lookupGState(char *name, Object *obj) {
 // Gfx
 //------------------------------------------------------------------------
 
-Gfx::Gfx(XRef *xrefA, OutputDev *outA, int pageNum, Dict *resDict,
+Gfx::Gfx(XRef *xrefA, OutputDev *outA, int pageNum, Dict *resDict, Catalog *catalogA,
 	 double hDPI, double vDPI, PDFRectangle *box,
 	 PDFRectangle *cropBox, int rotate,
 	 GBool (*abortCheckCbkA)(void *data),
@@ -445,6 +466,7 @@ Gfx::Gfx(XRef *xrefA, OutputDev *outA, int pageNum, Dict *resDict,
   int i;
 
   xref = xrefA;
+  catalog = catalogA;
   subPage = gFalse;
   printCommands = globalParams->getPrintCommands();
   profileCommands = globalParams->getProfileCommands();
@@ -481,13 +503,14 @@ Gfx::Gfx(XRef *xrefA, OutputDev *outA, int pageNum, Dict *resDict,
   }
 }
 
-Gfx::Gfx(XRef *xrefA, OutputDev *outA, Dict *resDict,
+Gfx::Gfx(XRef *xrefA, OutputDev *outA, Dict *resDict, Catalog *catalogA,
 	 PDFRectangle *box, PDFRectangle *cropBox,
 	 GBool (*abortCheckCbkA)(void *data),
 	 void *abortCheckCbkDataA) {
   int i;
 
   xref = xrefA;
+  catalog = catalogA;
   subPage = gTrue;
   printCommands = globalParams->getPrintCommands();
 
@@ -3431,6 +3454,19 @@ void Gfx::opXObject(Object args[], int numArgs) {
     obj1.free();
     return;
   }
+
+  obj1.streamGetDict()->lookupNF("OC", &obj2);
+  if (obj2.isNull()) {
+    // No OC entry - so we proceed as normal
+  } else if (obj2.isRef()) {
+    if ( ! catalog->getOptContentConfig()->optContentIsVisible( &obj2 ) ) {
+      return;
+    }
+  } else {
+    error(getPos(), "XObject OC value not null or dict: %i", obj2.getType());
+  }
+  obj2.free();
+
 #if OPI_SUPPORT
   obj1.streamGetDict()->lookup("OPI", &opiDict);
   if (opiDict.isDict()) {
@@ -4090,6 +4126,29 @@ void Gfx::opEndIgnoreUndef(Object args[], int numArgs) {
 //------------------------------------------------------------------------
 
 void Gfx::opBeginMarkedContent(Object args[], int numArgs) {
+  // TODO: we really need to be adding this to the markedContentStack
+  char* name0 = args[0].getName();
+  if ( strncmp( name0, "OC", 2) == 0 ) {
+    if ( numArgs >= 2 ) {
+      if (!args[1].isName()) {
+	error(getPos(), "Unexpected MC Type: %i", args[1].getType());
+      }
+      char* name1 = args[1].getName();
+      Object markedContent;
+      if ( res->lookupMarkedContentNF( name1, &markedContent ) ) {
+	if ( markedContent.isRef() ) {
+	  bool visible = catalog->getOptContentConfig()->optContentIsVisible( &markedContent );
+	  ocSuppressed = !(visible);
+       }
+      } else {
+	error(getPos(), "DID NOT find %s", name1);
+      }
+    } else {
+      error(getPos(), "insufficient arguments for Marked Content");
+    }
+  }
+
+
   if (printCommands) {
     printf("  marked content: %s ", args[0].getName());
     if (numArgs == 2)
@@ -4106,6 +4165,8 @@ void Gfx::opBeginMarkedContent(Object args[], int numArgs) {
 }
 
 void Gfx::opEndMarkedContent(Object args[], int numArgs) {
+  // TODO: we should turn this off based on the markedContentStack
+  ocSuppressed = false;
   out->endMarkedContent(state);
 }
 

@@ -14,6 +14,7 @@
 #endif
 
 #include "goo/gtypes.h"
+#include "goo/GooList.h"
 #include "Object.h"
 
 class GooString;
@@ -43,6 +44,7 @@ class Gfx;
 class PDFRectangle;
 class AnnotBorder;
 class AnnotColor;
+class Catalog;
 
 //------------------------------------------------------------------------
 
@@ -84,6 +86,7 @@ public:
   GfxFont *lookupFont(char *name);
   GBool lookupXObject(char *name, Object *obj);
   GBool lookupXObjectNF(char *name, Object *obj);
+  GBool lookupMarkedContentNF(char *name, Object *obj);
   void lookupColorSpace(char *name, Object *obj);
   GfxPattern *lookupPattern(char *name);
   GfxShading *lookupShading(char *name);
@@ -99,6 +102,7 @@ private:
   Object patternDict;
   Object shadingDict;
   Object gStateDict;
+  Object propertiesDict;
   GfxResources *next;
 };
 
@@ -110,14 +114,14 @@ class Gfx {
 public:
 
   // Constructor for regular output.
-  Gfx(XRef *xrefA, OutputDev *outA, int pageNum, Dict *resDict,
+  Gfx(XRef *xrefA, OutputDev *outA, int pageNum, Dict *resDict, Catalog *catalog,
       double hDPI, double vDPI, PDFRectangle *box,
       PDFRectangle *cropBox, int rotate,
       GBool (*abortCheckCbkA)(void *data) = NULL,
       void *abortCheckCbkDataA = NULL);
 
   // Constructor for a sub-page object.
-  Gfx(XRef *xrefA, OutputDev *outA, Dict *resDict,
+  Gfx(XRef *xrefA, OutputDev *outA, Dict *resDict, Catalog *catalog,
       PDFRectangle *box, PDFRectangle *cropBox,
       GBool (*abortCheckCbkA)(void *data) = NULL,
       void *abortCheckCbkDataA = NULL);
@@ -144,12 +148,14 @@ public:
 private:
 
   XRef *xref;			// the xref table for this PDF file
+  Catalog *catalog;		// the Catalog for this PDF file  
   OutputDev *out;		// output device
   GBool subPage;		// is this a sub-page object?
   GBool printCommands;		// print the drawing commands (for debugging)
   GBool profileCommands;	// profile the drawing commands (for debugging)
   GfxResources *res;		// resource stack
   int updateLevel;
+  GBool ocSuppressed;		// are we ignoring content based on OptionalContent?
 
   GfxState *state;		// current graphics state
   GBool fontChanged;		// set if font or text matrix has changed
@@ -158,6 +164,8 @@ private:
   double baseMatrix[6];		// default matrix for most recent
 				//   page/form/pattern
   int formDepth;
+
+  GooList *markedContentStack;	// current BMC/EMC stack
 
   Parser *parser;		// parser for page content stream(s)
 

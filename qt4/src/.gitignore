@@ -6,3 +6,4 @@ Makefile
 Makefile.in
 APIDOCS-html
 APIDOCS-latex
+moc_poppler-optcontent.cpp
