@@ -236,4 +236,5 @@ libpoppler_la_SOURCES =		\
 	Sound.cc		\
 	XpdfPluginAPI.cc
 
-EXTRA_DIST = gen-unicode-tables.py
+EXTRA_DIST = gen-unicode-tables.py	\
+             GlobalParamsWin.cc
