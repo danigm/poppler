@@ -51,6 +51,8 @@ namespace Poppler
 
     Qt::ItemFlags flags ( const QModelIndex & index ) const;
 
+    virtual QVariant headerData( int section, Qt::Orientation orientation, int role = Qt::DisplayRole ) const;
+
     private:
     friend class OptContentModelPrivate;
     OptContentModelPrivate *d;

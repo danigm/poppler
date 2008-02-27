@@ -340,6 +340,11 @@ namespace Poppler
     }
   }
 
+  QVariant OptContentModel::headerData( int section, Qt::Orientation orientation, int role ) const
+  {
+    return QAbstractItemModel::headerData( section, orientation, role );
+  }
+
   void OptContentModelPrivate::addChild( OptContentItem *parent, OptContentItem *child )
   {
     parent->addChild( child );
