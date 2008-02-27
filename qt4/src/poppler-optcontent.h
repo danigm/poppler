@@ -26,14 +26,16 @@ class OCGs;
 
 namespace Poppler
 {
+  class Document;
   class OptContentModelPrivate;
 
   class OptContentModel : public QAbstractItemModel
   {
+    friend class Document;
+
     Q_OBJECT
 
     public:
-    OptContentModel( OCGs *optContent, QObject *parent = 0);
     virtual ~OptContentModel();
 
     QModelIndex index(int row, int column, const QModelIndex &parent) const;
@@ -50,6 +52,8 @@ namespace Poppler
     virtual QVariant headerData( int section, Qt::Orientation orientation, int role = Qt::DisplayRole ) const;
 
     private:
+    OptContentModel( OCGs *optContent, QObject *parent = 0);
+
     friend class OptContentModelPrivate;
     OptContentModelPrivate *d;
   };
