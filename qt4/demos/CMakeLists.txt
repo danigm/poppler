@@ -17,6 +17,7 @@ set(poppler_qt4viewer_SRCS
   main_viewer.cpp
   metadata.cpp
   navigationtoolbar.cpp
+  optcontent.cpp
   pageview.cpp
   permissions.cpp
   toc.cpp

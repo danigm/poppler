@@ -36,6 +36,8 @@ poppler_qt4viewer_SOURCES =			\
 	metadata.h				\
 	navigationtoolbar.cpp			\
 	navigationtoolbar.h			\
+	optcontent.cpp				\
+	optcontent.h				\
 	pageview.cpp				\
 	pageview.h				\
 	permissions.cpp				\
@@ -51,6 +53,7 @@ fonts.$(OBJEXT): fonts.moc
 info.$(OBJEXT): info.moc
 metadata.$(OBJEXT): metadata.moc
 navigationtoolbar.$(OBJEXT): navigationtoolbar.moc
+optcontent.$(OBJEXT): optcontent.moc
 pageview.$(OBJEXT): pageview.moc
 permissions.$(OBJEXT): permissions.moc
 toc.$(OBJEXT): toc.moc

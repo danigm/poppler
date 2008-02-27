@@ -23,6 +23,7 @@
 #include "info.h"
 #include "metadata.h"
 #include "navigationtoolbar.h"
+#include "optcontent.h"
 #include "pageview.h"
 #include "permissions.h"
 #include "toc.h"
@@ -126,6 +127,12 @@ PdfViewer::PdfViewer()
     metadataDock->hide();
     viewMenu->addAction(metadataDock->toggleViewAction());
     m_observers.append(metadataDock);
+
+    OptContentDock *optContentDock = new OptContentDock(this);
+    addDockWidget(Qt::LeftDockWidgetArea, optContentDock);
+    optContentDock->hide();
+    viewMenu->addAction(optContentDock->toggleViewAction());
+    m_observers.append(optContentDock);
 
     Q_FOREACH(DocumentObserver *obs, m_observers) {
         obs->m_viewer = this;
