@@ -55,6 +55,9 @@ stress_poppler_dir_SOURCES =			\
 
 stress_poppler_dir_LDADD = $(LDADDS)
 
+clean-generic:
+	rm *.moc
+
 if BUILD_POPPLER_QT4
 TESTS = \
 	check_attachments	\
