@@ -58,7 +58,7 @@ namespace Poppler
     ~OptContentItem();
 
     QString name() const { return m_name; }
-    ItemState state() const { return m_state; }
+    ItemState state() const { return m_stateBackup; }
     bool setState(ItemState state, QSet<OptContentItem *> &changedItems);
 
     QList<OptContentItem*> childList() { return m_children; }
@@ -70,13 +70,19 @@ namespace Poppler
 
     void appendRBGroup( RadioButtonGroup *rbgroup );
 
+    bool isEnabled() const { return m_enabled; }
+
+    QSet<OptContentItem*> recurseListChildren(bool includeMe = false) const;
+
     private:
     OptionalContentGroup *m_group;
     QString m_name;
     ItemState m_state; // true for ON, false for OFF
+    ItemState m_stateBackup;
     QList<OptContentItem*> m_children;
     OptContentItem *m_parent;
     QList<RadioButtonGroup*> m_rbGroups;
+    bool m_enabled;
   };
 
   class OptContentModelPrivate

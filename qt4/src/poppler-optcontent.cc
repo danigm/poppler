@@ -78,6 +78,8 @@ namespace Poppler
     } else {
       m_state = OptContentItem::Off;
     }
+    m_stateBackup = m_state;
+    m_enabled = true;
   }
 
   OptContentItem::OptContentItem( const QString &label )
@@ -86,10 +88,12 @@ namespace Poppler
     m_name = label;
     m_group = 0;
     m_state = OptContentItem::HeadingOnly;
+    m_stateBackup = m_state;
+    m_enabled = true;
   }
 
   OptContentItem::OptContentItem() :
-    m_parent( 0 )
+    m_parent( 0 ), m_enabled(true)
   {
   }
 
@@ -106,7 +110,15 @@ namespace Poppler
   bool OptContentItem::setState(ItemState state, QSet<OptContentItem *> &changedItems)
   {
     m_state = state;
+    m_stateBackup = m_state;
     changedItems.insert(this);
+    QSet<OptContentItem *> empty;
+    Q_FOREACH (OptContentItem *child, m_children) {
+      ItemState oldState = child->m_stateBackup;
+      child->setState(state == OptContentItem::On ? child->m_stateBackup : OptContentItem::Off, empty);
+      child->m_enabled = state == OptContentItem::On;
+      child->m_stateBackup = oldState;
+    }
     if (!m_group) {
       return false;
     }
@@ -126,6 +138,18 @@ namespace Poppler
   {
     m_children += child;
     child->setParent( this );
+  }
+
+  QSet<OptContentItem*> OptContentItem::recurseListChildren(bool includeMe) const
+  {
+    QSet<OptContentItem*> ret;
+    if (includeMe) {
+      ret.insert(const_cast<OptContentItem*>(this));
+    }
+    Q_FOREACH (OptContentItem *child, m_children) {
+      ret += child->recurseListChildren(true);
+    }
+    return ret;
   }
 
   OptContentModelPrivate::OptContentModelPrivate( OptContentModel *qq, OCGs *optContent )
@@ -330,6 +354,7 @@ namespace Poppler
           if (node->state() != OptContentItem::On) {
             QSet<OptContentItem *> changedItems;
             node->setState(OptContentItem::On, changedItems);
+            changedItems += node->recurseListChildren(false);
             QModelIndexList indexes;
             Q_FOREACH (OptContentItem *item, changedItems) {
               indexes.append(d->indexFromItem(item, 0));
@@ -344,6 +369,7 @@ namespace Poppler
           if (node->state() != OptContentItem::Off) {
             QSet<OptContentItem *> changedItems;
             node->setState(OptContentItem::Off, changedItems);
+            changedItems += node->recurseListChildren(false);
             QModelIndexList indexes;
             Q_FOREACH (OptContentItem *item, changedItems) {
               indexes.append(d->indexFromItem(item, 0));
@@ -364,11 +390,12 @@ namespace Poppler
 
   Qt::ItemFlags OptContentModel::flags ( const QModelIndex & index ) const
   {
-    if (index.column() == 0) {
-      return QAbstractItemModel::flags(index) | Qt::ItemIsSelectable | Qt::ItemIsUserCheckable | Qt::ItemIsEnabled;
-    } else {
-      return QAbstractItemModel::flags(index);
+    OptContentItem *node = d->nodeFromIndex(index);
+    Qt::ItemFlags itemFlags = Qt::ItemIsSelectable | Qt::ItemIsUserCheckable;
+    if (node->isEnabled()) {
+      itemFlags |= Qt::ItemIsEnabled;
     }
+    return itemFlags;
   }
 
   QVariant OptContentModel::headerData( int section, Qt::Orientation orientation, int role ) const
