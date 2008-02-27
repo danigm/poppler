@@ -268,31 +268,35 @@ namespace Poppler
 
   int OptContentModel::columnCount(const QModelIndex &parent) const
   {
-    return 2;
+    return 1;
   }
 
 
   QVariant OptContentModel::data(const QModelIndex &index, int role) const
   {
-    if ( (role != Qt::DisplayRole) && (role != Qt::EditRole) ) {
-      return QVariant();
-    }
-
     OptContentItem *node = d->nodeFromIndex( index );
     if (!node) {
       return QVariant();
     }
 
-    if (index.column() == 0) {
-      return node->name();
-    } else if (index.column() == 1) {
-      if ( node->state() == OptContentItem::On ) {
-	return true;
-      } else if ( node->state() == OptContentItem::Off ) {
-	return false;
-      } else {
-	return QVariant();
-      }
+    switch (role) {
+      case Qt::DisplayRole:
+        return node->name();
+        break;
+      case Qt::EditRole:
+        if (node->state() == OptContentItem::On) {
+          return true;
+        } else if (node->state() == OptContentItem::Off) {
+          return false;
+        }
+        break;
+      case Qt::CheckStateRole:
+        if (node->state() == OptContentItem::On) {
+          return qVariantFromValue<int>(Qt::Checked);
+        } else if (node->state() == OptContentItem::Off) {
+          return qVariantFromValue<int>(Qt::Unchecked);
+        }
+        break;
     }
 
     return QVariant();
@@ -305,24 +309,24 @@ namespace Poppler
       return false;
     }
 
-    if (index.column() == 0) {
-      // we don't allow setting of the label
-      return false;
-    } else if (index.column() == 1) {
-      if ( value.toBool() == true ) {
-	if ( node->state() != OptContentItem::On ) {
-	  node->setState( OptContentItem::On );
-	  emit dataChanged( index, index );
-	}
-	return true;
-      } else if ( value.toBool() == false ) {
-	if ( node->state() != OptContentItem::Off ) {
-	  node->setState( OptContentItem::Off );
-	  emit dataChanged( index, index );
-	}
-	return true;
-      } else {
-	return false;
+    switch (role) {
+      case Qt::CheckStateRole:
+      {
+        const bool newvalue = value.toBool();
+        if (newvalue) {
+          if (node->state() != OptContentItem::On) {
+            node->setState(OptContentItem::On);
+            emit dataChanged(index, index);
+            return true;
+          }
+        } else {
+          if (node->state() != OptContentItem::Off) {
+            node->setState(OptContentItem::Off);
+            emit dataChanged(index, index);
+            return true;
+          }
+        }
+        break;
       }
     }
 
@@ -332,9 +336,7 @@ namespace Poppler
   Qt::ItemFlags OptContentModel::flags ( const QModelIndex & index ) const
   {
     if (index.column() == 0) {
-      return QAbstractItemModel::flags(index) | Qt::ItemIsSelectable | Qt::ItemIsEnabled;
-    } else if (index.column() == 1) {
-      return QAbstractItemModel::flags(index) | Qt::ItemIsSelectable | Qt::ItemIsEditable | Qt::ItemIsUserCheckable | Qt::ItemIsEnabled;
+      return QAbstractItemModel::flags(index) | Qt::ItemIsSelectable | Qt::ItemIsUserCheckable | Qt::ItemIsEnabled;
     } else {
       return QAbstractItemModel::flags(index);
     }
