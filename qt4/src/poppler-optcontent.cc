@@ -82,9 +82,9 @@ namespace Poppler
     m_state = OptContentItem::HeadingOnly;
   }
 
-  OptContentItem::OptContentItem()
+  OptContentItem::OptContentItem() :
+    m_parent( 0 )
   {
-    m_parent = 0;
   }
 
   OptContentItem::~OptContentItem()
@@ -145,6 +145,7 @@ namespace Poppler
       parseOrderArray( m_rootNode, optContent->getOrderArray() );
     }
 
+    parseRBGroupsArray( optContent->getRBGroupsArray() );
   }
 
   OptContentModelPrivate::~OptContentModelPrivate()
@@ -212,8 +213,6 @@ namespace Poppler
     : QAbstractItemModel(parent)
   {
     d = new OptContentModelPrivate( this, optContent );
-
-    d->parseRBGroupsArray( optContent->getRBGroupsArray() );
   }
 
   OptContentModel::~OptContentModel()
