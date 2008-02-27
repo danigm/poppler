@@ -3460,6 +3460,8 @@ void Gfx::opXObject(Object args[], int numArgs) {
     // No OC entry - so we proceed as normal
   } else if (obj2.isRef()) {
     if ( ! catalog->getOptContentConfig()->optContentIsVisible( &obj2 ) ) {
+      obj2.free();
+      obj1.free();
       return;
     }
   } else {
