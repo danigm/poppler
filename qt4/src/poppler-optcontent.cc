@@ -25,6 +25,7 @@
 #include "poppler-private.h"
 
 #include <QtCore/QDebug>
+#include <QtCore/QtAlgorithms>
 
 namespace Poppler
 {
@@ -50,14 +51,18 @@ namespace Poppler
   {
   }
 
-  void RadioButtonGroup::setItemOn( OptContentItem *itemToSetOn )
+  QSet<OptContentItem *> RadioButtonGroup::setItemOn( OptContentItem *itemToSetOn )
   {
+    QSet<OptContentItem *> changedItems;
     for (int i = 0; i < itemsInGroup.size(); ++i) {
       OptContentItem *thisItem = itemsInGroup.at(i);
       if (thisItem != itemToSetOn) {
-	thisItem->setState( OptContentItem::Off );
+        QSet<OptContentItem *> newChangedItems;
+        thisItem->setState(OptContentItem::Off, newChangedItems);
+        changedItems += newChangedItems;
       }
     }
+    return changedItems;
   }
 
 
@@ -97,9 +102,10 @@ namespace Poppler
   }
 
 
-  bool OptContentItem::setState( ItemState state )
+  bool OptContentItem::setState(ItemState state, QSet<OptContentItem *> &changedItems)
   {
     m_state = state;
+    changedItems.insert(this);
     if (!m_group) {
       return false;
     }
@@ -107,7 +113,7 @@ namespace Poppler
       m_group->setState( OptionalContentGroup::On );
       for (int i = 0; i < m_rbGroups.size(); ++i) {
 	RadioButtonGroup *rbgroup = m_rbGroups.at(i);
-	rbgroup->setItemOn( this );
+        changedItems += rbgroup->setItemOn( this );
       }
     } else if ( state == OptContentItem::Off ) {
       m_group->setState( OptionalContentGroup::Off );
@@ -322,14 +328,30 @@ namespace Poppler
         const bool newvalue = value.toBool();
         if (newvalue) {
           if (node->state() != OptContentItem::On) {
-            node->setState(OptContentItem::On);
-            emit dataChanged(index, index);
+            QSet<OptContentItem *> changedItems;
+            node->setState(OptContentItem::On, changedItems);
+            QModelIndexList indexes;
+            Q_FOREACH (OptContentItem *item, changedItems) {
+              indexes.append(d->indexFromItem(item, 0));
+            }
+            qStableSort(indexes);
+            Q_FOREACH (const QModelIndex &changedIndex, indexes) {
+              emit dataChanged(changedIndex, changedIndex);
+            }
             return true;
           }
         } else {
           if (node->state() != OptContentItem::Off) {
-            node->setState(OptContentItem::Off);
-            emit dataChanged(index, index);
+            QSet<OptContentItem *> changedItems;
+            node->setState(OptContentItem::Off, changedItems);
+            QModelIndexList indexes;
+            Q_FOREACH (OptContentItem *item, changedItems) {
+              indexes.append(d->indexFromItem(item, 0));
+            }
+            qStableSort(indexes);
+            Q_FOREACH (const QModelIndex &changedIndex, indexes) {
+              emit dataChanged(changedIndex, changedIndex);
+            }
             return true;
           }
         }

@@ -35,7 +35,7 @@ namespace Poppler
   public:
     RadioButtonGroup( OptContentModelPrivate *ocModel, Array *rbarray);
     ~RadioButtonGroup();
-    void setItemOn( OptContentItem *itemToSetOn );
+    QSet<OptContentItem *> setItemOn( OptContentItem *itemToSetOn );
 
   private:
     QList<OptContentItem*> itemsInGroup;
@@ -53,7 +53,7 @@ namespace Poppler
 
     QString name() const { return m_name; }
     ItemState state() const { return m_state; }
-    bool setState( ItemState state );
+    bool setState(ItemState state, QSet<OptContentItem *> &changedItems);
 
     QList<OptContentItem*> childList() { return m_children; }
 
