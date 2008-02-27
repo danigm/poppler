@@ -875,12 +875,14 @@ QString subject = m_doc->info("Subject");
 	   such as not including some content in printing, and
 	   displaying content in the appropriate language.
 	*/
-	bool hasOptionalContent();
+	bool hasOptionalContent() const;
 
 	/**
-	   Itemviews model for optional content
+	   Itemviews model for optional content.
+
+	   The model is owned by the document.
 	*/
-	OptContentModel *optionalContentModel(QObject *parent = 0);
+	OptContentModel *optionalContentModel();
 
 	/**
 	   Destructor.

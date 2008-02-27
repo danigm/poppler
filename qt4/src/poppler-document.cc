@@ -465,15 +465,15 @@ namespace Poppler {
         return result;
     }
 
-    bool Document::hasOptionalContent()
+    bool Document::hasOptionalContent() const
     {
         return ( m_doc->doc->getOptContentConfig()->hasOCGs() );
     }
 
-    OptContentModel *Document::optionalContentModel(QObject *parent)
+    OptContentModel *Document::optionalContentModel()
     {
         if (!m_doc->m_optContentModel) {
-	    m_doc->m_optContentModel = new OptContentModel(m_doc->doc->getOptContentConfig(), parent);
+	    m_doc->m_optContentModel = new OptContentModel(m_doc->doc->getOptContentConfig(), 0);
 	}
 	return (m_doc->m_optContentModel);
     }
