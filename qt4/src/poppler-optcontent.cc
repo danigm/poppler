@@ -244,6 +244,11 @@ namespace Poppler
   QModelIndex OptContentModel::parent(const QModelIndex &child) const
   {
     OptContentItem *childNode = d->nodeFromIndex( child );
+    return d->indexFromItem(childNode, child.column());
+  }
+
+  QModelIndex OptContentModelPrivate::indexFromItem(OptContentItem *childNode, int column) const
+  {
     if (!childNode) {
       return QModelIndex();
     }
@@ -256,7 +261,7 @@ namespace Poppler
       return QModelIndex();
     }
     int row = grandparentNode->childList().indexOf(parentNode);
-    return createIndex(row, child.column(), parentNode);
+    return q->createIndex(row, column, parentNode);
   }
  
   int OptContentModel::rowCount(const QModelIndex &parent) const
