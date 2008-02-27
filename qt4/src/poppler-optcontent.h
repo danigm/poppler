@@ -23,7 +23,6 @@
 #include <QtCore/QAbstractListModel>
 #include <QtCore/QStringList>
 
-#include "goo/GooList.h"
 class OptionalContentGroup;
 class OCGs;
 class Array;
@@ -32,17 +31,8 @@ namespace Poppler
 {
   class OptContentItem;
   class OptContentModel;
-
-  class RadioButtonGroup
-  {
-  public:
-    RadioButtonGroup( OptContentModel *ocModel, Array *rbarray);
-    ~RadioButtonGroup();
-    void setItemOn( OptContentItem *itemToSetOn );
-
-  private:
-    QList<OptContentItem*> itemsInGroup;
-  };
+  class OptContentModelPrivate;
+  class RadioButtonGroup;
 
   class OptContentItem
   {
@@ -97,8 +87,6 @@ namespace Poppler
 
     Qt::ItemFlags flags ( const QModelIndex & index ) const;
 
-    void addChild( OptContentItem *parent, OptContentItem *child);
-
     /**
        Get the OptContentItem corresponding to a given reference value.
 
@@ -109,13 +97,11 @@ namespace Poppler
     OptContentItem *itemFromRef( const QString &ref ) const;
 
     private:
-    OptContentItem *nodeFromIndex( const QModelIndex &index ) const;
-    void parseOrderArray( OptContentItem *parentNode, Array *orderArray );
     void parseRBGroupsArray( Array *rBGroupArray );
 
-    QMap<QString, OptContentItem*> m_optContentItems;
-    QList<RadioButtonGroup*> m_rbgroups;
-    OptContentItem *m_rootNode;
+    OptContentItem *nodeFromIndex( const QModelIndex &index ) const;
+
+    OptContentModelPrivate *d;
   };
 }
 

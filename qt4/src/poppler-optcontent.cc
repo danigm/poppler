@@ -17,7 +17,7 @@
  * Foundation, Inc., 51 Franklin Street - Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
-#include "poppler-optcontent.h"
+#include "poppler-optcontent-private.h"
 
 #include "poppler/OptionalContent.h"
 
@@ -121,8 +121,7 @@ namespace Poppler
     child->setParent( this );
   }
 
-  OptContentModel::OptContentModel( OCGs *optContent, QObject *parent)
-    : QAbstractItemModel(parent)
+  OptContentModelPrivate::OptContentModelPrivate( OCGs *optContent )
   {
     m_rootNode = new OptContentItem();
     GooList *ocgs = optContent->getOCGs();
@@ -145,24 +144,16 @@ namespace Poppler
       parseOrderArray( m_rootNode, optContent->getOrderArray() );
     }
 
-    parseRBGroupsArray( optContent->getRBGroupsArray() );
   }
 
-  OptContentModel::~OptContentModel()
+  OptContentModelPrivate::~OptContentModelPrivate()
   {
     qDeleteAll( m_optContentItems );
     qDeleteAll( m_rbgroups );
     delete m_rootNode;
   }
 
-  void OptContentModel::setRootNode( OptContentItem *node )
-  {
-    delete m_rootNode;
-    m_rootNode = node;
-    reset();
-  }
-
-  void OptContentModel::parseOrderArray( OptContentItem *parentNode, Array *orderArray )
+  void OptContentModelPrivate::parseOrderArray( OptContentItem *parentNode, Array *orderArray )
   {
     OptContentItem *lastItem = parentNode;
     for (int i = 0; i < orderArray->getLength(); ++i) {
@@ -211,14 +202,34 @@ namespace Poppler
       }
       Array *rbarray = rbObj.getArray();
       RadioButtonGroup *rbg = new RadioButtonGroup( this, rbarray );
-      m_rbgroups.append( rbg );
+      d->m_rbgroups.append( rbg );
       rbObj.free();
     }
   }
 
+  OptContentModel::OptContentModel( OCGs *optContent, QObject *parent)
+    : QAbstractItemModel(parent)
+  {
+    d = new OptContentModelPrivate( optContent );
+
+    parseRBGroupsArray( optContent->getRBGroupsArray() );
+  }
+
+  OptContentModel::~OptContentModel()
+  {
+    delete d;
+  }
+
+  void OptContentModel::setRootNode( OptContentItem *node )
+  {
+    delete d->m_rootNode;
+    d->m_rootNode = node;
+    reset();
+  }
+
   QModelIndex OptContentModel::index(int row, int column, const QModelIndex &parent) const
   {
-    if (!m_rootNode) {
+    if (! d->m_rootNode) {
       return QModelIndex();
     }
 
@@ -328,17 +339,17 @@ namespace Poppler
     }
   }
 
-  void OptContentModel::addChild( OptContentItem *parent, OptContentItem *child )
+  void OptContentModelPrivate::addChild( OptContentItem *parent, OptContentItem *child )
   {
     parent->addChild( child );
   }
 
   OptContentItem* OptContentModel::itemFromRef( const QString &ref ) const
   {
-    if ( ! m_optContentItems.contains( ref ) ) {
+    if ( ! d->m_optContentItems.contains( ref ) ) {
       return 0;
     }
-    return m_optContentItems[ ref ];
+    return d->m_optContentItems[ ref ];
   }
 
   OptContentItem* OptContentModel::nodeFromIndex( const QModelIndex &index ) const
@@ -346,7 +357,7 @@ namespace Poppler
     if (index.isValid()) {
       return static_cast<OptContentItem *>(index.internalPointer());
     } else {
-      return m_rootNode;
+      return d->m_rootNode;
     }
   }
 }
