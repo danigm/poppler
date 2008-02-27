@@ -22,6 +22,8 @@
 
 #include <QtCore/QAbstractListModel>
 
+#include "poppler-export.h"
+
 class OCGs;
 
 namespace Poppler
@@ -29,7 +31,7 @@ namespace Poppler
   class Document;
   class OptContentModelPrivate;
 
-  class OptContentModel : public QAbstractItemModel
+  class POPPLER_QT4_EXPORT OptContentModel : public QAbstractItemModel
   {
     friend class Document;
 
