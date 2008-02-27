@@ -170,7 +170,7 @@ namespace Poppler
 	Object item;
 	orderArray->getNF(i, &item);
 	if (item.isRef() ) {
-	  OptContentItem *ocItem = m_optContentItems[ QString("%1").arg(item.getRefNum()) ];
+          OptContentItem *ocItem = m_optContentItems.value(QString::number(item.getRefNum()), 0);
 	  if (ocItem) {
 	    addChild( parentNode, ocItem );
 	    lastItem = ocItem;
@@ -305,9 +305,9 @@ namespace Poppler
         break;
       case Qt::CheckStateRole:
         if (node->state() == OptContentItem::On) {
-          return qVariantFromValue<int>(Qt::Checked);
+          return Qt::Checked;
         } else if (node->state() == OptContentItem::Off) {
-          return qVariantFromValue<int>(Qt::Unchecked);
+          return Qt::Unchecked;
         }
         break;
     }
@@ -383,10 +383,7 @@ namespace Poppler
 
   OptContentItem* OptContentModelPrivate::itemFromRef( const QString &ref ) const
   {
-    if ( !m_optContentItems.contains( ref ) ) {
-      return 0;
-    }
-    return m_optContentItems[ ref ];
+    return m_optContentItems.value(ref, 0);
   }
 
   OptContentItem* OptContentModelPrivate::nodeFromIndex(const QModelIndex &index, bool canBeNull) const
