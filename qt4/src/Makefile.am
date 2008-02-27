@@ -28,7 +28,7 @@ libpoppler_qt4_la_SOURCES =			\
 	poppler-annotation.cc			\
 	poppler-link-extractor.cc		\
 	poppler-optcontent.cc			\
-	moc_poppler-optcontent.cpp		\
+	poppler-optcontent.h			\
 	../../qt/poppler-page-transition.cc	\
 	poppler-sound.cc			\
 	poppler-form.cc				\
@@ -61,3 +61,5 @@ libpoppler_qt4_la_LDFLAGS = -version-info 2:0:0
 # This rule lets GNU make create any moc_*.cpp from the equivalent *.h
 moc_%.cpp: %.h
 	moc $< -o $@
+
+poppler-optcontent.$(OBJEXT): poppler-optcontent.moc
