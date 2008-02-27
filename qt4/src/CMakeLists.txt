@@ -45,6 +45,7 @@ install(FILES
   poppler-link.h
   poppler-annotation.h
   poppler-form.h
+  poppler-optcontent.h
   poppler-export.h
   ${CMAKE_SOURCE_DIR}/qt/poppler-page-transition.h
   DESTINATION include/poppler/qt4)
