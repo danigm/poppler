@@ -248,7 +248,7 @@ pgd_images_create_widget (PopplerDocument *document)
 	gtk_widget_show (label);
 	g_free (str);
 
-	button = gtk_button_new_with_label ("Get Imagess");
+	button = gtk_button_new_with_label ("Get Images");
 	g_signal_connect (G_OBJECT (button), "clicked",
 			  G_CALLBACK (pgd_images_get_images),
 			  (gpointer)demo);
