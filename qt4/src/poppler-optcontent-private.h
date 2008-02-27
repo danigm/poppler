@@ -24,7 +24,8 @@
 
 #include <QtCore/QString>
 
-#include "goo/GooList.h"
+class Array;
+class OptionalContentGroup;
 
 namespace Poppler
 {

@@ -21,11 +21,8 @@
 #define POPPLER_OPTCONTENT_H
 
 #include <QtCore/QAbstractListModel>
-#include <QtCore/QStringList>
 
-class OptionalContentGroup;
 class OCGs;
-class Array;
 
 namespace Poppler
 {
@@ -55,6 +52,7 @@ namespace Poppler
     Qt::ItemFlags flags ( const QModelIndex & index ) const;
 
     private:
+    friend class OptContentModelPrivate;
     OptContentModelPrivate *d;
   };
 }
