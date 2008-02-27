@@ -23,6 +23,7 @@
 #ifndef _POPPLER_PRIVATE_H_
 #define _POPPLER_PRIVATE_H_
 
+#include <QtCore/QPointer>
 #include <QtCore/QVariant>
 #include <QtCore/QVector>
 
@@ -110,8 +111,7 @@ namespace Poppler {
 	~DocumentData()
 	{
 		qDeleteAll(m_embeddedFiles);
-		delete m_optContentModel;
-		m_optContentModel = 0;
+		delete (OptContentModel *)m_optContentModel;
 		delete doc;
 		delete m_outputDev;
 		delete m_fontInfoScanner;
@@ -257,7 +257,7 @@ namespace Poppler {
 	Document::RenderBackend m_backend;
 	OutputDev *m_outputDev;
 	QList<EmbeddedFile*> m_embeddedFiles;
-	OptContentModel *m_optContentModel;
+	QPointer<OptContentModel> m_optContentModel;
 	QColor paperColor;
 	int m_hints;
 	static int count;

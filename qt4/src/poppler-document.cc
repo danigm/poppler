@@ -472,10 +472,10 @@ namespace Poppler {
 
     OptContentModel *Document::optionalContentModel()
     {
-        if (!m_doc->m_optContentModel) {
+        if (m_doc->m_optContentModel.isNull()) {
 	    m_doc->m_optContentModel = new OptContentModel(m_doc->doc->getOptContentConfig(), 0);
 	}
-	return (m_doc->m_optContentModel);
+        return (OptContentModel *)m_doc->m_optContentModel;
     }
 
     QDateTime convertDate( char *dateString )
