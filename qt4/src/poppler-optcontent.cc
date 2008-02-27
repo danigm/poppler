@@ -29,7 +29,7 @@
 namespace Poppler
 {
 
-  RadioButtonGroup::RadioButtonGroup( OptContentModel *ocModel, Array *rbarray )
+  RadioButtonGroup::RadioButtonGroup( OptContentModelPrivate *ocModel, Array *rbarray )
   {
     for (int i = 0; i < rbarray->getLength(); ++i) {
       Object ref;
@@ -37,7 +37,7 @@ namespace Poppler
       if ( ! ref.isRef() ) {
 	qDebug() << "expected ref, but got:" << ref.getType();
       }
-      OptContentItem *item = ocModel->itemFromRef( QString::number(ref.getRefNum() ) );
+      OptContentItem *item = ocModel->q->itemFromRef( QString::number(ref.getRefNum() ) );
       itemsInGroup.append( item );
     }
     for (int i = 0; i < itemsInGroup.size(); ++i) {
@@ -121,7 +121,8 @@ namespace Poppler
     child->setParent( this );
   }
 
-  OptContentModelPrivate::OptContentModelPrivate( OCGs *optContent )
+  OptContentModelPrivate::OptContentModelPrivate( OptContentModel *qq, OCGs *optContent )
+    : q(qq)
   {
     m_rootNode = new OptContentItem();
     GooList *ocgs = optContent->getOCGs();
@@ -187,7 +188,7 @@ namespace Poppler
     }
   }
 
-  void OptContentModel::parseRBGroupsArray( Array *rBGroupArray )
+  void OptContentModelPrivate::parseRBGroupsArray( Array *rBGroupArray )
   {
     if (! rBGroupArray) {
       return;
@@ -202,7 +203,7 @@ namespace Poppler
       }
       Array *rbarray = rbObj.getArray();
       RadioButtonGroup *rbg = new RadioButtonGroup( this, rbarray );
-      d->m_rbgroups.append( rbg );
+      m_rbgroups.append( rbg );
       rbObj.free();
     }
   }
@@ -210,9 +211,9 @@ namespace Poppler
   OptContentModel::OptContentModel( OCGs *optContent, QObject *parent)
     : QAbstractItemModel(parent)
   {
-    d = new OptContentModelPrivate( optContent );
+    d = new OptContentModelPrivate( this, optContent );
 
-    parseRBGroupsArray( optContent->getRBGroupsArray() );
+    d->parseRBGroupsArray( optContent->getRBGroupsArray() );
   }
 
   OptContentModel::~OptContentModel()
@@ -233,13 +234,13 @@ namespace Poppler
       return QModelIndex();
     }
 
-    OptContentItem *parentNode = nodeFromIndex( parent );
+    OptContentItem *parentNode = d->nodeFromIndex( parent );
     return createIndex( row, column, parentNode->childList()[row] );
   }
 
   QModelIndex OptContentModel::parent(const QModelIndex &child) const
   {
-    OptContentItem *childNode = nodeFromIndex( child );
+    OptContentItem *childNode = d->nodeFromIndex( child );
     if (!childNode) {
       return QModelIndex();
     }
@@ -257,7 +258,7 @@ namespace Poppler
  
   int OptContentModel::rowCount(const QModelIndex &parent) const
   {
-    OptContentItem *parentNode = nodeFromIndex( parent );
+    OptContentItem *parentNode = d->nodeFromIndex( parent );
     if (!parentNode) {
       return 0;
     } else {
@@ -277,7 +278,7 @@ namespace Poppler
       return QVariant();
     }
 
-    OptContentItem *node = nodeFromIndex( index );
+    OptContentItem *node = d->nodeFromIndex( index );
     if (!node) {
       return QVariant();
     }
@@ -299,7 +300,7 @@ namespace Poppler
 
   bool OptContentModel::setData ( const QModelIndex & index, const QVariant & value, int role )
   {
-    OptContentItem *node = nodeFromIndex( index );
+    OptContentItem *node = d->nodeFromIndex( index );
     if (!node) {
       return false;
     }
@@ -352,12 +353,12 @@ namespace Poppler
     return d->m_optContentItems[ ref ];
   }
 
-  OptContentItem* OptContentModel::nodeFromIndex( const QModelIndex &index ) const
+  OptContentItem* OptContentModelPrivate::nodeFromIndex( const QModelIndex &index ) const
   {
     if (index.isValid()) {
       return static_cast<OptContentItem *>(index.internalPointer());
     } else {
-      return d->m_rootNode;
+      return m_rootNode;
     }
   }
 }

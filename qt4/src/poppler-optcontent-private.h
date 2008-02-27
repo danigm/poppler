@@ -30,7 +30,7 @@ namespace Poppler
   class RadioButtonGroup
   {
   public:
-    RadioButtonGroup( OptContentModel *ocModel, Array *rbarray);
+    RadioButtonGroup( OptContentModelPrivate *ocModel, Array *rbarray);
     ~RadioButtonGroup();
     void setItemOn( OptContentItem *itemToSetOn );
 
@@ -41,8 +41,13 @@ namespace Poppler
   class OptContentModelPrivate
   {
     public:
-    OptContentModelPrivate( OCGs *optContent );
+    OptContentModelPrivate( OptContentModel *qq, OCGs *optContent );
     ~OptContentModelPrivate();
+
+    void parseRBGroupsArray( Array *rBGroupArray );
+    OptContentItem *nodeFromIndex( const QModelIndex &index ) const;
+
+    OptContentModel *q;
 
     QMap<QString, OptContentItem*> m_optContentItems;
     QList<RadioButtonGroup*> m_rbgroups;

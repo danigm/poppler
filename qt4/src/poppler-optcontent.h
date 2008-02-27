@@ -97,10 +97,6 @@ namespace Poppler
     OptContentItem *itemFromRef( const QString &ref ) const;
 
     private:
-    void parseRBGroupsArray( Array *rBGroupArray );
-
-    OptContentItem *nodeFromIndex( const QModelIndex &index ) const;
-
     OptContentModelPrivate *d;
   };
 }
