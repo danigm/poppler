@@ -65,4 +65,7 @@ libpoppler_qt4_la_LDFLAGS = -version-info 2:0:0
 .h.moc:
 	moc -i $< -o $@
 
-poppler-optcontent.$(OBJEXT): poppler-optcontent.moc
+poppler-optcontent.lo: poppler-optcontent.moc
+
+clean-generic:
+	rm *.moc
