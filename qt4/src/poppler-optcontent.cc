@@ -17,15 +17,16 @@
  * Foundation, Inc., 51 Franklin Street - Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
+#include "poppler-optcontent.h"
+
 #include "poppler-optcontent-private.h"
 
-#include "poppler/OptionalContent.h"
-
-#include "poppler-qt4.h"
 #include "poppler-private.h"
 
 #include <QtCore/QDebug>
 #include <QtCore/QtAlgorithms>
+
+#include "poppler/OptionalContent.h"
 
 namespace Poppler
 {

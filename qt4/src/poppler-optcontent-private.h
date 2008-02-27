@@ -20,16 +20,21 @@
 #ifndef POPPLER_OPTCONTENT_PRIVATE_H
 #define POPPLER_OPTCONTENT_PRIVATE_H
 
-#include "poppler-optcontent.h"
-
+#include <QtCore/QMap>
+#include <QtCore/QSet>
 #include <QtCore/QString>
 
 class Array;
+class OCGs;
 class OptionalContentGroup;
+
+class QModelIndex;
 
 namespace Poppler
 {
   class OptContentItem;
+  class OptContentModel;
+  class OptContentModelPrivate;
 
   class RadioButtonGroup
   {
