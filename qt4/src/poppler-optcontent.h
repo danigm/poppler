@@ -26,8 +26,6 @@ class OCGs;
 
 namespace Poppler
 {
-  class OptContentItem;
-  class OptContentModel;
   class OptContentModelPrivate;
 
   class OptContentModel : public QAbstractItemModel
@@ -37,8 +35,6 @@ namespace Poppler
     public:
     OptContentModel( OCGs *optContent, QObject *parent = 0);
     virtual ~OptContentModel();
-
-    void setRootNode(OptContentItem *node);
 
     QModelIndex index(int row, int column, const QModelIndex &parent) const;
     QModelIndex parent(const QModelIndex &child) const;

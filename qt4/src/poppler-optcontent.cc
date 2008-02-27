@@ -227,11 +227,11 @@ namespace Poppler
     delete d;
   }
 
-  void OptContentModel::setRootNode( OptContentItem *node )
+  void OptContentModelPrivate::setRootNode(OptContentItem *node)
   {
-    delete d->m_rootNode;
-    d->m_rootNode = node;
-    reset();
+    delete m_rootNode;
+    m_rootNode = node;
+    q->reset();
   }
 
   QModelIndex OptContentModel::index(int row, int column, const QModelIndex &parent) const
