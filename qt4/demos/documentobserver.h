@@ -41,6 +41,7 @@ protected:
     Poppler::Document* document() const;
     void setPage(int page);
     int page() const;
+    void reloadPage();
 
 private:
     PdfViewer *m_viewer;

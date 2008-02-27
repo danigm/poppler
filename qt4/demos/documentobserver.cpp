@@ -43,3 +43,8 @@ int DocumentObserver::page() const
 {
     return m_viewer->page();
 }
+
+void DocumentObserver::reloadPage()
+{
+    m_viewer->setPage(m_viewer->page());
+}
