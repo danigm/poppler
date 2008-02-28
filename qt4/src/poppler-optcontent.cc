@@ -201,7 +201,7 @@ namespace Poppler
 	    addChild( parentNode, ocItem );
 	    lastItem = ocItem;
 	  } else {
-	    printf("couldn't find group for object %i\n", item.getRefNum());
+            qDebug() << "could not find group for object" << item.getRefNum();
 	  }
 	}
 	item.free();
