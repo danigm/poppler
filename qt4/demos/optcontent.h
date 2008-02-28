@@ -31,6 +31,7 @@ public:
     OptContentDock(QWidget *parent = 0);
     ~OptContentDock();
 
+    /*virtual*/ void documentLoaded();
     /*virtual*/ void documentClosed();
 
 protected:

@@ -65,6 +65,13 @@ void EmbeddedFilesDock::fillInfo()
     }
 }
 
+void EmbeddedFilesDock::documentLoaded()
+{
+    if ( document()->pageMode() == Poppler::Document::UseAttach ) {
+        show();
+    }
+}
+
 void EmbeddedFilesDock::documentClosed()
 {
     m_table->clear();

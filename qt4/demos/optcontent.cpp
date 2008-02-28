@@ -37,6 +37,14 @@ OptContentDock::~OptContentDock()
 {
 }
 
+
+void OptContentDock::documentLoaded()
+{
+    if ( document()->pageMode() == Poppler::Document::UseOC ) {
+        show();
+    }  
+}
+
 void OptContentDock::fillInfo()
 {
     if (!document()->hasOptionalContent()) {

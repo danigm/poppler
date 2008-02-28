@@ -31,6 +31,7 @@ public:
     EmbeddedFilesDock(QWidget *parent = 0);
     ~EmbeddedFilesDock();
 
+    virtual void documentLoaded();
     /*virtual*/ void documentClosed();
 
 protected:
