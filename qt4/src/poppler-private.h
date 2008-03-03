@@ -294,6 +294,11 @@ namespace Poppler {
     class TextBoxData
     {
 	public:
+		TextBoxData()
+		  : nextWord(0), hasSpaceAfter(false)
+		{
+		}
+
 		QString text;
 		QRectF bBox;
 		TextBox *nextWord;
