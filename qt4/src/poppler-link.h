@@ -59,8 +59,10 @@ class POPPLER_QT4_EXPORT LinkDestination
 			destFitBV = 8
 		};
 
+		/// \cond PRIVATE
 		LinkDestination(const LinkDestinationData &data);
 		LinkDestination(const QString &description);
+		/// \endcond
 		/**
 		 * Copy constructor.
 		 */
@@ -178,6 +180,10 @@ class POPPLER_QT4_EXPORT LinkGoto : public Link
 		 */
 		bool isExternal() const;
 		// query for goto parameters
+		/**
+		 * The file name of the document the destination() refers to,
+		 * or an empty string in case it refers to the current document.
+		 */
 		QString fileName() const;
 		LinkDestination destination() const;
 		LinkType linkType() const;
@@ -308,12 +314,23 @@ class POPPLER_QT4_EXPORT LinkSound : public Link
 		 * - 1: full volume
 		 */
 		double volume() const;
+		/**
+		 * Whether the playback of the sound should be synchronous
+		 * (thus blocking, waiting for the end of the sound playback).
+		 */
 		bool synchronous() const;
 		/**
 		 * Whether the sound should be played continuously (that is,
 		 * started again when it ends)
 		 */
 		bool repeat() const;
+		/**
+		 * Whether the playback of this sound can be mixed with
+		 * playbacks with other sounds of the same document.
+		 *
+		 * \note When false, any other playback must be stopped before
+		 *       playing the sound.
+		 */
 		bool mix() const;
 		/**
 		 * The sound object to be played

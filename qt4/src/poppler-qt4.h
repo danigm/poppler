@@ -85,10 +85,23 @@ namespace Poppler {
       */
       QRectF boundingBox() const;
 
+      /**
+	  Returns the pointer to the next text box, if there is one.
+
+	  Otherwise, it returns a null pointer.
+      */
       TextBox *nextWord() const;
 
+      /**
+	  Returns the position of \p i -th edge of the current word.
+
+	  For a text() of \em n characters, there are \em n+1 edges.
+      */
       double edge(int i) const;
 
+      /**
+	  Returns whether there is a space character after this text box
+      */
       bool hasSpaceAfter() const;
 
     private:
@@ -105,6 +118,9 @@ namespace Poppler {
     */
     class POPPLER_QT4_EXPORT FontInfo {
     public:
+	/**
+	   The type of font.
+	*/
 	enum Type {
 		unknown,
 		Type1,
@@ -120,10 +136,12 @@ namespace Poppler {
 		CIDTrueTypeOT
 	};
 	
+	/// \cond PRIVATE
 	/**
 	   Create a new font information container.
 	*/
 	FontInfo( const FontInfoData &fid );
+	/// \endcond
 	
 	/**
 	   Copy constructor.
@@ -1056,9 +1074,12 @@ height = dummy.height();
             virtual ~PDFConverter();
 
             /**
-              Options for the PDF export.
+              Sets the options for the PDF export.
              */
             void setPDFOptions(PDFOptions options);
+            /**
+              The currently set options for the PDF export.
+             */
             PDFOptions pdfOptions() const;
 
             bool convert();
