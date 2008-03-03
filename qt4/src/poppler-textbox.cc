@@ -50,7 +50,7 @@ TextBox *TextBox::nextWord() const
 
 double TextBox::edge(int i) const
 {
-	return m_data->edge[i];
+	return m_data->edge.value(i, 0.0);
 }
 
 bool TextBox::hasSpaceAfter() const
