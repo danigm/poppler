@@ -65,13 +65,15 @@ public:
 	  int size,
 	  GooString *createDate,
 	  GooString *modDate, GooString *checksum,
+	  GooString *mimetype,
 	  Object objStr) :
     m_name(name),
     m_description(description),
     m_size(size),
     m_createDate(createDate),
     m_modDate(modDate),
-    m_checksum(checksum)
+    m_checksum(checksum),
+    m_mimetype(mimetype)
   {
     objStr.copy(&m_objStr);
   }
@@ -83,6 +85,7 @@ public:
     delete m_modDate;
     delete m_createDate;
     delete m_checksum;
+    delete m_mimetype;
     m_objStr.free();
   }
 
@@ -92,6 +95,7 @@ public:
   GooString *modDate() { return m_modDate; }
   GooString *createDate() { return m_createDate; }
   GooString *checksum() { return m_checksum; }
+  GooString *mimeType() { return m_mimetype; }
   Object &streamObject() { return m_objStr; }
 
 private:
@@ -101,6 +105,7 @@ private:
   GooString *m_createDate;
   GooString *m_modDate;
   GooString *m_checksum;
+  GooString *m_mimetype;
   Object m_objStr;
 };
 

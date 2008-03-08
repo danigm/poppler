@@ -396,6 +396,7 @@ EmbFile *Catalog::embeddedFile(int i)
     GooString *createDate = new GooString();
     GooString *modDate = new GooString();
     GooString *checksum = new GooString();
+    GooString *mimetype = new GooString();
     Stream *efStream = NULL;
     int size = -1;
     if (obj.isRef()) {
@@ -436,13 +437,13 @@ EmbFile *Catalog::embeddedFile(int i)
 		// dataDict corresponds to Table 3.41 in the PDF1.6 spec.
 		Dict *dataDict = efStream->getDict();
 
-		// subtype is normally mimetype. You can extract it with code like this:
-		// Object subtypeName;
-		// dataDict->lookup( "Subtype", &subtypeName );
-		// It is optional, so this will sometimes return a null object
-		// if (subtypeName.isName()) {
-		//        std::cout << "got subtype name: " << subtypeName.getName() << std::endl;
-		// }
+		// subtype is normally the mimetype
+		Object subtypeName;
+		if (dataDict->lookup("Subtype", &subtypeName)->isName()) {
+		    delete mimetype;
+		    mimetype = new GooString(subtypeName.getName());
+		}
+		subtypeName.free();
 
 		// paramDict corresponds to Table 3.42 in the PDF1.6 spec
 		Object paramDict;
@@ -478,7 +479,7 @@ EmbFile *Catalog::embeddedFile(int i)
 	    obj2.free();
 	}
     }
-    EmbFile *embeddedFile = new EmbFile(fileName, desc, size, createDate, modDate, checksum, strObj);
+    EmbFile *embeddedFile = new EmbFile(fileName, desc, size, createDate, modDate, checksum, mimetype, strObj);
     strObj.free();
     return embeddedFile;
 }
