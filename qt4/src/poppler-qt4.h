@@ -260,6 +260,11 @@ namespace Poppler {
 	QByteArray checksum() const;
 
 	/**
+	   The MIME type of the file, if known.
+	*/
+	QString mimeType() const;
+
+	/**
 	   The data as a byte array
 	*/
 	QByteArray data();

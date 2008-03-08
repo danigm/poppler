@@ -80,6 +80,11 @@ QByteArray EmbeddedFile::checksum() const
 	return QByteArray::fromRawData(goo_checksum->getCString(), goo_checksum->getLength());
 }
 
+QString EmbeddedFile::mimeType() const
+{
+	return QString(m_embeddedFile->embfile->mimeType()->getCString());
+}
+
 QByteArray EmbeddedFile::data()
 {
 	Object obj;
