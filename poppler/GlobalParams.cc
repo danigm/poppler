@@ -928,10 +928,10 @@ GBool findModifier(const char *name, const char *modifier, const char **start)
 #ifndef _MSC_VER
 static FcPattern *buildFcPattern(GfxFont *font)
 {
-  int weight = FC_WEIGHT_NORMAL,
-      slant = FC_SLANT_ROMAN,
-      width = FC_WIDTH_NORMAL,
-      spacing = FC_PROPORTIONAL;
+  int weight = -1,
+      slant = -1,
+      width = -1,
+      spacing = -1;
   bool deleteFamily = false;
   char *family, *name, *lang, *modifiers;
   const char *start;
@@ -1057,12 +1057,13 @@ static FcPattern *buildFcPattern(GfxFont *font)
   
   p = FcPatternBuild(NULL,
                     FC_FAMILY, FcTypeString, family,
-                    FC_SLANT, FcTypeInteger, slant, 
-                    FC_WEIGHT, FcTypeInteger, weight,
-                    FC_WIDTH, FcTypeInteger, width, 
-                    FC_SPACING, FcTypeInteger, spacing,
                     FC_LANG, FcTypeString, lang,
                     NULL);
+  if (slant != -1) FcPatternAddInteger(p, FC_SLANT, slant);
+  if (weight != -1) FcPatternAddInteger(p, FC_WEIGHT, weight);
+  if (width != -1) FcPatternAddInteger(p, FC_WIDTH, width);
+  if (spacing != -1) FcPatternAddInteger(p, FC_SPACING, spacing);
+
   if (deleteFamily)
     delete[] family;
   return p;
