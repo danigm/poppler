@@ -3,8 +3,10 @@
 #include <QtGui/QApplication>
 #include <QtGui/QImage>
 #include <QtGui/QLabel>
+#include <QtGui/QMouseEvent>
 #include <QtGui/QPainter>
 #include <QtGui/QPaintEvent>
+#include <QtGui/QToolTip>
 #include <QtGui/QWidget>
 
 #include <poppler-qt4.h>
@@ -14,19 +16,24 @@ class PDFDisplay : public QWidget           // picture display widget
 public:
     PDFDisplay( Poppler::Document *d, bool arthur );
     ~PDFDisplay();
+    void setShowTextRects(bool show);
+    void display();
 protected:
     void paintEvent( QPaintEvent * );
     void keyPressEvent( QKeyEvent * );
+    void mousePressEvent( QMouseEvent * );
 private:
-    void display();
     int m_currentPage;
     QImage image;
     Poppler::Document *doc;
     QString backendString;
+    bool showTextRects;
+    QList<Poppler::TextBox*> textRects;
 };
 
 PDFDisplay::PDFDisplay( Poppler::Document *d, bool arthur )
 {
+    showTextRects = false;
     doc = d;
     m_currentPage = 0;
     if (arthur)
@@ -41,7 +48,11 @@ PDFDisplay::PDFDisplay( Poppler::Document *d, bool arthur )
     }
     doc->setRenderHint(Poppler::Document::Antialiasing, true);
     doc->setRenderHint(Poppler::Document::TextAntialiasing, true);
-    display();
+}
+
+void PDFDisplay::setShowTextRects(bool show)
+{
+    showTextRects = show;
 }
 
 void PDFDisplay::display()
@@ -51,6 +62,17 @@ void PDFDisplay::display()
         if (page) {
             qDebug() << "Displaying page using" << backendString << "backend: " << m_currentPage;
             image = page->renderToImage();
+            if (showTextRects)
+            {
+                QPainter painter(&image);
+                painter.setPen(Qt::red);
+                textRects = page->textList();
+                foreach(Poppler::TextBox *tb, textRects)
+                {
+                    painter.drawRect(tb->boundingBox());
+                }
+            }
+            else textRects.clear();
             update();
             delete page;
         }
@@ -98,16 +120,27 @@ void PDFDisplay::keyPressEvent( QKeyEvent *e )
   }
 }
 
+void PDFDisplay::mousePressEvent( QMouseEvent *e )
+{
+  foreach(Poppler::TextBox *tb, textRects)
+  {
+    if (tb->boundingBox().contains(e->pos()))
+    {
+      QToolTip::showText(e->globalPos(), tb->text(), this);
+    }
+  }
+}
+
 int main( int argc, char **argv )
 {
     QApplication a( argc, argv );               // QApplication required!
 
     if ( argc < 2 ||
-        (argc == 3 && strcmp(argv[2], "-extract") != 0 && strcmp(argv[2], "-arthur") != 0) ||
+        (argc == 3 && strcmp(argv[2], "-extract") != 0 && strcmp(argv[2], "-arthur") != 0 && strcmp(argv[2], "-textRects") != 0) ||
         argc > 3)
     {
 	// use argument as file name
-	qWarning() << "usage: test-poppler-qt filename [-extract|-arthur]";
+	qWarning() << "usage: test-poppler-qt filename [-extract|-arthur|-textRects]";
 	exit(1);
     }
   
@@ -163,11 +196,13 @@ int main( int argc, char **argv )
     qDebug() << "Page 1 size: " << page->pageSize().width()/72 << "inches x " << page->pageSize().height()/72 << "inches";
     delete page;
 
-    if (argc == 2 || (argc == 3 && strcmp(argv[2], "-arthur") == 0))
+    if (argc == 2 || (argc == 3 && strcmp(argv[2], "-arthur") == 0) || (argc == 3 && strcmp(argv[2], "-textRects") == 0))
     {
         bool useArthur = (argc == 3 && strcmp(argv[2], "-arthur") == 0);
         PDFDisplay test( doc, useArthur );        // create picture display
         test.setWindowTitle("Poppler-Qt4 Test");
+        test.setShowTextRects(argc == 3 && strcmp(argv[2], "-textRects") == 0);
+        test.display();
         test.show();                            // show it
 
         return a.exec();                        // start event loop
