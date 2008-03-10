@@ -62,6 +62,7 @@ void PDFDisplay::display()
         if (page) {
             qDebug() << "Displaying page using" << backendString << "backend: " << m_currentPage;
             image = page->renderToImage();
+            qDeleteAll(textRects);
             if (showTextRects)
             {
                 QPainter painter(&image);
@@ -83,6 +84,7 @@ void PDFDisplay::display()
 
 PDFDisplay::~PDFDisplay()
 {
+    qDeleteAll(textRects);
     delete doc;
 }
 
