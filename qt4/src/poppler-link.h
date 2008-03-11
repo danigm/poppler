@@ -342,6 +342,7 @@ class POPPLER_QT4_EXPORT LinkSound : public Link
 		Q_DISABLE_COPY( LinkSound )
 };
 
+#if 0
 /** Movie: Not yet defined -> think renaming to 'Media' link **/
 class POPPLER_QT4_EXPORT LinkMovie : public Link
 // TODO this (Movie link)
@@ -355,6 +356,7 @@ class POPPLER_QT4_EXPORT LinkMovie : public Link
 		Q_DECLARE_PRIVATE( LinkMovie )
 		Q_DISABLE_COPY( LinkMovie )
 };
+#endif
 
 }
 
