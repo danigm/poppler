@@ -151,6 +151,7 @@ class LinkSoundPrivate : public LinkPrivate
 		delete sound;
 	}
 
+#if 0
 class LinkMoviePrivate : public LinkPrivate
 {
 	public:
@@ -161,6 +162,7 @@ class LinkMoviePrivate : public LinkPrivate
 		: LinkPrivate( area )
 	{
 	}
+#endif
 
 	static void cvtUserToDev(::Page *page, double xu, double yu, int *xd, int *yd) {
 		double ctm[6];
@@ -513,6 +515,7 @@ class LinkMoviePrivate : public LinkPrivate
 		return d->sound;
 	}
 
+#if 0
 	// LinkMovie
 	LinkMovie::LinkMovie( const QRectF &linkArea )
 		: Link( *new LinkMoviePrivate( linkArea ) )
@@ -527,5 +530,6 @@ class LinkMoviePrivate : public LinkPrivate
 	{
 		return Movie;
 	}
+#endif
 
 }

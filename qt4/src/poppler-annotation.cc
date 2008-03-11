@@ -1480,11 +1480,13 @@ LinkAnnotation::LinkAnnotation( const QDomNode & node )
                         d->linkDestination = action;
                     }
                 }
+#if 0
                 else if ( type == "Movie" )
                 {
                     Poppler::LinkMovie * movie = new Poppler::LinkMovie( QRect() );
                     d->linkDestination = movie;
                 }
+#endif
             }
         }
 
