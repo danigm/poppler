@@ -58,6 +58,7 @@ struct _PopplerPage
   int index;
   TextOutputDev *text_dev;
   Gfx *gfx;
+  Annots *annots;
 #if defined (HAVE_CAIRO)
   CairoImageOutputDev *image_dev;
 #endif
@@ -69,7 +70,6 @@ struct _PopplerFormField
   PopplerDocument *document;
   FormWidget *widget;
 };
-
 
 PopplerPage   *_poppler_page_new   (PopplerDocument *document,
 				    Page            *page,
@@ -83,6 +83,9 @@ PopplerFormField *_poppler_form_field_new (PopplerDocument *document,
 					   FormWidget      *field);
 PopplerAttachment *_poppler_attachment_new (PopplerDocument *document,
 					    EmbFile         *file);
+PopplerAnnot      *_poppler_annot_new           (Annot *annot);
+PopplerAnnot      *_poppler_annot_text_new      (Annot *annot);
+PopplerAnnot      *_poppler_annot_free_text_new (Annot *annot);
 
 char *_poppler_goo_string_to_utf8(GooString *s);
 gboolean _poppler_convert_pdf_date_to_gtime (GooString *date,

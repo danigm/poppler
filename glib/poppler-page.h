@@ -90,6 +90,8 @@ cairo_surface_t       *poppler_page_get_image            (PopplerPage        *pa
 #endif
 GList              *poppler_page_get_form_field_mapping  (PopplerPage        *page);
 void                poppler_page_free_form_field_mapping (GList              *list);
+GList                 *poppler_page_get_annot_mapping    (PopplerPage        *page);
+void                   poppler_page_free_annot_mapping   (GList              *list);
 GdkRegion             *poppler_page_get_selection_region (PopplerPage        *page,
 							  gdouble             scale,
 							  PopplerSelectionStyle style,
@@ -191,6 +193,19 @@ GType                    poppler_form_field_mapping_get_type (void) G_GNUC_CONST
 PopplerFormFieldMapping *poppler_form_field_mapping_new      (void);
 PopplerFormFieldMapping *poppler_form_field_mapping_copy     (PopplerFormFieldMapping *mapping);
 void                     poppler_form_field_mapping_free     (PopplerFormFieldMapping *mapping);
+
+/* Mapping between areas on the current page and annots */
+#define POPPLER_TYPE_ANNOT_MAPPING                  (poppler_annot_mapping_get_type ())
+struct _PopplerAnnotMapping
+{
+  PopplerRectangle area;
+  PopplerAnnot *annot;
+};
+
+GType                poppler_annot_mapping_get_type (void) G_GNUC_CONST;
+PopplerAnnotMapping *poppler_annot_mapping_new      (void);
+PopplerAnnotMapping *poppler_annot_mapping_copy     (PopplerAnnotMapping *mapping);
+void                 poppler_annot_mapping_free     (PopplerAnnotMapping *mapping);
 
 G_END_DECLS
 
