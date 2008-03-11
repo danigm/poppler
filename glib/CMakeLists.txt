@@ -24,6 +24,7 @@ set(poppler_glib_public_headers
   poppler-page.h
   poppler-attachment.h
   poppler-form-field.h
+  poppler-annot.h
   poppler.h
 )
 
@@ -74,6 +75,7 @@ set(poppler_glib_SRCS
   poppler-page.cc
   poppler-attachment.cc
   poppler-form-field.cc
+  poppler-annot.cc
   poppler.cc
   ${CMAKE_CURRENT_BINARY_DIR}/poppler-enums.c
 )
