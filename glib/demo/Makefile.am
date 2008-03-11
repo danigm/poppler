@@ -9,6 +9,8 @@ endif
 
 poppler_glib_demo_SOURCES = 			\
 	main.c					\
+	annots.h				\
+	annots.c				\
 	fonts.h					\
 	fonts.c					\
 	forms.h					\

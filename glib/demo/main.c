@@ -29,6 +29,7 @@
 #include "forms.h"
 #include "transitions.h"
 #include "images.h"
+#include "annots.h"
 
 enum {
 	PGD_TITLE_COLUMN,
@@ -51,7 +52,8 @@ static const PopplerGlibDemo demo_list[] = {
 	{ "Links",            pgd_links_create_widget },
 	{ "Forms",            pgd_forms_create_widget },
 	{ "Page Transitions", pgd_transitions_create_widget },
-	{ "Images",           pgd_images_create_widget }
+	{ "Images",           pgd_images_create_widget },
+	{ "Annots",           pgd_annots_create_widget }
 };
 
 static void
