@@ -302,8 +302,7 @@ namespace Poppler {
 		QString text;
 		QRectF bBox;
 		TextBox *nextWord;
-		QVector<double> edge;	// "near" edge x or y coord of each char
-					//   (plus one extra entry for the last char)
+		QVector<QRectF> charBBoxes; // the boundingRect of each character
 		bool hasSpaceAfter;
     };
 

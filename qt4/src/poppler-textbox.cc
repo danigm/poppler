@@ -48,9 +48,9 @@ TextBox *TextBox::nextWord() const
 	return m_data->nextWord;
 }
 
-double TextBox::edge(int i) const
+QRectF TextBox::charBoundingBox(int i) const
 {
-	return m_data->edge.value(i, 0.0);
+	return m_data->charBBoxes.value(i);
 }
 
 bool TextBox::hasSpaceAfter() const

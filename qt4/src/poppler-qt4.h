@@ -93,11 +93,9 @@ namespace Poppler {
       TextBox *nextWord() const;
 
       /**
-	  Returns the position of \p i -th edge of the current word.
-
-	  For a text() of \em n characters, there are \em n+1 edges.
+	  Returns the bounding box of the \p i -th characted of the word.
       */
-      double edge(int i) const;
+      QRectF charBoundingBox(int i) const;
 
       /**
 	  Returns whether there is a space character after this text box

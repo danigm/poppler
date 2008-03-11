@@ -362,8 +362,12 @@ QList<TextBox*> Page::textList(Rotation rotate) const
     
     TextBox* text_box = new TextBox(string, QRectF(xMin, yMin, xMax-xMin, yMax-yMin));
     text_box->m_data->hasSpaceAfter = word->hasSpaceAfter() == gTrue;
-    text_box->m_data->edge.reserve(word->getLength() + 1);
-    for (int j = 0; j <= word->getLength(); ++j) text_box->m_data->edge.append(word->getEdge(j));
+    text_box->m_data->charBBoxes.reserve(word->getLength());
+    for (int j = 0; j < word->getLength(); ++j)
+    {
+        word->getCharBBox(j, &xMin, &yMin, &xMax, &yMax);
+        text_box->m_data->charBBoxes.append(QRectF(xMin, yMin, xMax-xMin, yMax-yMin));
+    }
     
     wordBoxMap.insert(word, text_box);
     
