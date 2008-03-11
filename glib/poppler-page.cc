@@ -1519,7 +1519,7 @@ poppler_page_get_annot_mapping (PopplerPage *page)
   g_return_val_if_fail (POPPLER_IS_PAGE (page), NULL);
 
   if (!page->annots)
-    page->annots = page->page->getAnnots (document->doc->getCatalog ());
+    page->annots = page->page->getAnnots (page->document->doc->getCatalog ());
   
   if (!page->annots)
     return NULL;
@@ -1541,10 +1541,10 @@ poppler_page_get_annot_mapping (PopplerPage *page)
     switch (annot->getType ())
       {
       case Annot::typeText:
-        mapping->annot = poppler_annot_text_new (annot);
+        mapping->annot = _poppler_annot_text_new (annot);
 	break;
       case Annot::typeFreeText:
-        mapping->annot = poppler_annot_free_text_new (annot);
+        mapping->annot = _poppler_annot_free_text_new (annot);
 	break;
       default:
         mapping->annot = _poppler_annot_new (annot);
