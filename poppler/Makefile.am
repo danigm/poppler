@@ -145,6 +145,7 @@ poppler_include_HEADERS =	\
 	JPXStream.h		\
 	Lexer.h			\
 	Link.h			\
+	Movie.h                 \
 	NameToCharCode.h	\
 	Object.h		\
 	OptionalContent.h	\
@@ -211,6 +212,7 @@ libpoppler_la_SOURCES =		\
 	JPXStream.cc		\
 	Lexer.cc 		\
 	Link.cc 		\
+	Movie.cc                \
 	NameToCharCode.cc	\
 	Object.cc 		\
 	OptionalContent.cc	\

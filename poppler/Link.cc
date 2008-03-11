@@ -22,6 +22,7 @@
 #include "Dict.h"
 #include "Link.h"
 #include "Sound.h"
+#include "Movie.h"
 
 //------------------------------------------------------------------------
 // LinkAction
@@ -82,11 +83,11 @@ LinkAction *LinkAction::parseAction(Object *obj, GooString *baseURI) {
 
   // Movie action
   } else if (obj2.isName("Movie")) {
-    obj->dictLookupNF("Annot", &obj3);
-    obj->dictLookup("T", &obj4);
-    action = new LinkMovie(&obj3, &obj4);
-    obj3.free();
-    obj4.free();
+    action = new LinkMovie(obj);
+
+  // Rendition action
+  } else if (obj2.isName("Rendition")) {
+    action = new LinkRendition(obj);
 
   // Sound action
   } else if (obj2.isName("Sound")) {
@@ -631,21 +632,47 @@ LinkNamed::~LinkNamed() {
 // LinkMovie
 //------------------------------------------------------------------------
 
-LinkMovie::LinkMovie(Object *annotObj, Object *titleObj) {
+LinkMovie::LinkMovie(Object *obj) {
   annotRef.num = -1;
-  title = NULL;
-  if (annotObj->isRef()) {
-    annotRef = annotObj->getRef();
-  } else if (titleObj->isString()) {
-    title = titleObj->getString()->copy();
-  } else {
+  annotTitle = NULL;
+
+  Object tmp;
+  if (obj->dictLookupNF("Annotation", &tmp)->isRef()) {
+    annotRef = tmp.getRef();
+  }
+  tmp.free();
+
+  if (obj->dictLookup("T", &tmp)->isString()) {
+    annotTitle = tmp.getString()->copy();
+  }
+  tmp.free();
+
+  if ((annotTitle == NULL) && (annotRef.num == -1)) {
     error(-1, "Movie action is missing both the Annot and T keys");
   }
+
+  if (obj->dictLookup("Operation", &tmp)->isName()) {
+    char *name = tmp.getName();
+    
+    if (!strcmp(name, "Play")) {
+      operation = operationTypePlay;
+    }
+    else if (!strcmp(name, "Stop")) {
+      operation = operationTypeStop;
+    }
+    else if (!strcmp(name, "Pause")) {
+      operation = operationTypePause;
+    }
+    else if (!strcmp(name, "Resume")) {
+      operation = operationTypeResume;
+    }
+  }
+  tmp.free();
 }
 
 LinkMovie::~LinkMovie() {
-  if (title) {
-    delete title;
+  if (annotTitle) {
+    delete annotTitle;
   }
 }
 
@@ -696,6 +723,59 @@ LinkSound::LinkSound(Object *soundObj) {
 LinkSound::~LinkSound() {
   delete sound;
 }
+
+//------------------------------------------------------------------------
+// LinkRendition
+//------------------------------------------------------------------------
+
+LinkRendition::LinkRendition(Object *Obj) {
+  operation = -1;
+  movie = NULL;
+  screenRef.num = -1;
+
+  if (Obj->isDict())
+  {
+    Object tmp;
+
+    if (Obj->dictLookup("OP", &tmp)->isNull()) {
+      error(-1, "Rendition action : no /OP field defined");
+      tmp.free();
+    } else {
+    
+      operation = tmp.getInt();
+      tmp.free();
+
+      // screen annotation reference
+      Obj->dictLookupNF("AN", &tmp);
+      if (tmp.isRef()) {
+	screenRef = tmp.getRef();
+      }
+      tmp.free();
+
+      // retrieve rendition object
+      Obj->dictLookup("R", &renditionObj);
+      if (renditionObj.isDict()) {
+
+	movie = new Movie();
+	movie->parseMediaRendition(&renditionObj);
+	
+	if (screenRef.num == -1) {
+	  error(-1, "Action Rendition : Rendition without Screen Annotation !");
+	}
+      }      
+
+    }
+  }
+
+}
+
+LinkRendition::~LinkRendition() {
+  renditionObj.free();
+
+  if (movie)
+    delete movie;
+}
+
 
 //------------------------------------------------------------------------
 // LinkUnknown

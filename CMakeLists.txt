@@ -169,6 +169,7 @@ set(poppler_SRCS
   poppler/SecurityHandler.cc
   poppler/Sound.cc
   poppler/XpdfPluginAPI.cc
+  poppler/Movie.cc
 )
 set(poppler_LIBS ${FREETYPE_LIBRARIES} ${FONTCONFIG_LIBRARIES})
 if(ENABLE_SPLASH)
@@ -296,6 +297,7 @@ if(ENABLE_XPDF_HEADERS)
     poppler/UTF8.h
     poppler/XpdfPluginAPI.h
     poppler/Sound.h
+    poppler/Movie.h
     ${CMAKE_CURRENT_BINARY_DIR}/poppler/poppler-config.h
     DESTINATION include/poppler)
   if(ENABLE_SPLASH)

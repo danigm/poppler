@@ -19,6 +19,7 @@ class GooString;
 class Array;
 class Dict;
 class Sound;
+class Movie;
 
 //------------------------------------------------------------------------
 // LinkAction
@@ -31,6 +32,7 @@ enum LinkActionKind {
   actionURI,			// URI
   actionNamed,			// named action
   actionMovie,			// movie action
+  actionRendition,
   actionSound,			// sound action
   actionUnknown			// anything else
 };
@@ -252,6 +254,7 @@ private:
   GooString *name;
 };
 
+
 //------------------------------------------------------------------------
 // LinkMovie
 //------------------------------------------------------------------------
@@ -259,21 +262,70 @@ private:
 class LinkMovie: public LinkAction {
 public:
 
-  LinkMovie(Object *annotObj, Object *titleObj);
+  enum OperationType {
+    operationTypePlay,
+    operationTypePause,
+    operationTypeResume,
+    operationTypeStop
+  };
 
+  LinkMovie(Object *obj);
   virtual ~LinkMovie();
 
-  virtual GBool isOk() { return annotRef.num >= 0 || title != NULL; }
-
+  virtual GBool isOk() { return annotRef.num >= 0 || annotTitle != NULL; }
   virtual LinkActionKind getKind() { return actionMovie; }
+
+  // a movie action stores either an indirect reference to a movie annotation
+  // or the movie annotation title
+
   GBool hasAnnotRef() { return annotRef.num >= 0; }
+  GBool hasAnnotTitle() { return annotTitle != NULL; }
   Ref *getAnnotRef() { return &annotRef; }
-  GooString *getTitle() { return title; }
+  GooString *getAnnotTitle() { return annotTitle; }
+
+  OperationType getOperation() { return operation; }
 
 private:
 
-  Ref annotRef;
-  GooString *title;
+  Ref annotRef;            // Annotation
+  GooString *annotTitle;   // T
+
+  OperationType operation; // Operation
+};
+
+
+//------------------------------------------------------------------------
+// LinkRendition
+//------------------------------------------------------------------------
+
+class LinkRendition: public LinkAction {
+public:
+
+  LinkRendition(Object *Obj);
+
+  virtual ~LinkRendition();
+
+  virtual GBool isOk() { return true; }
+
+  virtual LinkActionKind getKind() { return actionRendition; }
+
+  GBool hasRenditionObject() { return !renditionObj.isNull(); }
+  Object* getRenditionObject() { return &renditionObj; }
+
+  GBool hasScreenAnnot() { return screenRef.num > 0; }
+  Ref* getScreenAnnot() { return &screenRef; }
+
+  int getOperation() { return operation; }
+
+  Movie* getMovie() { return movie; }
+
+private:
+
+  Ref screenRef;
+  Object renditionObj;
+  int operation;
+
+  Movie* movie;
 };
 
 //------------------------------------------------------------------------

@@ -22,6 +22,7 @@ class GfxFontDict;
 class Form;
 class FormWidget;
 class PDFRectangle;
+class Movie;
 
 enum AnnotLineEndingStyle {
   annotLineEndingSquare,        // Square
@@ -470,11 +471,14 @@ public:
   int getTreeKey() const { return treeKey; }
   Dict *getOptionalContent() const { return optionalContent; }
 
+  int getId() { return ref.num; }
+
 private:
   void readArrayNum(Object *pdfArray, int key, double *value);
   // write vStr[i:j[ in appearBuf
 
   void initialize (XRef *xrefA, Dict *dict, Catalog *catalog);
+
 
 protected:
   void setColor(Array *a, GBool fill, int adjust);
@@ -621,6 +625,127 @@ private:
   AnnotTextState state;             // State      (Default Umarked if
                                     //             StateModel Marked
                                     //             None if StareModel Review)
+};
+
+//------------------------------------------------------------------------
+// AnnotMovie
+//------------------------------------------------------------------------
+
+
+
+class AnnotMovie: public Annot {
+ public:
+  enum PosterType {
+    posterTypeNone,
+    posterTypeStream,
+    posterTypeFromMovie
+  };
+
+  enum RepeatMode {
+    repeatModeOnce,
+    repeatModeOpen,
+    repeatModeRepeat,
+    repeatModePalindrome
+  };
+
+  struct Time {
+    Time() { units_per_second = 0; }
+    Gulong units;
+    int units_per_second; // 0 : defined by movie
+  };
+
+  AnnotMovie(XRef *xrefA, Dict *dict, Catalog *catalog, Object *obj);
+  ~AnnotMovie();
+
+  GooString* getTitle() { return title; }
+  GooString* getFileName() { return fileName; }
+  int getRotationAngle() { return rotationAngle; }
+
+  PosterType getPosterType() { return posterType; }
+  Stream* getPosterStream() { return posterStream; }
+
+  Time getStart() { return start; }
+  Time getDuration() { return duration; }
+  double getRate() { return rate; }
+  double getVolume() { return volume; }
+
+  GBool getShowControls() { return showControls; }
+  RepeatMode getRepeatMode() { return repeatMode; }
+  GBool getSynchronousPlay() { return synchronousPlay; }
+
+  GBool needFloatingWindow() { return hasFloatingWindow; }
+  GBool needFullscreen() { return isFullscreen; }
+  
+  
+  void getMovieSize(int& width, int& height);
+  void getZoomFactor(int& num, int& denum);
+  void getWindowPosition(double& x, double& y) { x = FWPosX; y = FWPosY; }
+
+  Movie* getMovie() { return movie; }
+
+ private:
+  void initialize(XRef *xrefA, Catalog *catalog, Dict *dict);
+
+  GooString* title;      // T
+  GooString* fileName;   // Movie/F
+
+  int width;             // Movie/Aspect
+  int height;            // Movie/Aspect
+  int rotationAngle;     // Movie/Rotate
+
+  PosterType posterType; // Movie/Poster
+  Stream* posterStream;
+
+  Time start;            // A/Start
+  Time duration;         // A/Duration
+  double rate;           // A/Rate
+  double volume;         // A/Volume
+  
+  GBool showControls;    // A/ShowControls
+  
+  RepeatMode repeatMode; // A/Mode
+  
+  GBool synchronousPlay; // A/Synchronous
+
+  // floating window
+  GBool hasFloatingWindow; 
+  unsigned short FWScaleNum; // A/FWScale
+  unsigned short FWScaleDenum;
+  GBool isFullscreen;
+
+  double FWPosX;         // A/FWPosition
+  double FWPosY; 
+
+  Movie* movie;
+};
+
+
+//------------------------------------------------------------------------
+// AnnotScreen
+//------------------------------------------------------------------------
+
+class AnnotScreen: public Annot {
+ public:
+
+  AnnotScreen(XRef *xrefA, Dict *dict, Catalog *catalog, Object *obj);
+  ~AnnotScreen();
+
+  GooString* getTitle() { return title; }
+
+  AnnotAppearanceCharacs *getAppearCharacs() { return appearCharacs; }
+  Object* getAction() { return &action; }
+  Object* getAdditionActions() { return &additionAction; }
+
+ private:
+  void initialize(XRef *xrefA, Catalog *catalog, Dict *dict);
+
+
+  GooString* title;                      // T
+
+  AnnotAppearanceCharacs* appearCharacs; // MK
+
+  Object action;                         // A
+  Object additionAction;                 // AA
 };
 
 //------------------------------------------------------------------------
