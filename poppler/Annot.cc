@@ -1076,7 +1076,8 @@ void AnnotPopup::initialize(XRef *xrefA, Dict *dict, Catalog *catalog) {
 // AnnotMarkup
 //------------------------------------------------------------------------
  
-AnnotMarkup::AnnotMarkup(XRef *xrefA, Dict *dict, Catalog *catalog, Object *obj) {
+AnnotMarkup::AnnotMarkup(XRef *xrefA, Dict *dict, Catalog *catalog, Object *obj) :
+    Annot(xrefA, dict, catalog, obj) {
   initialize(xrefA, dict, catalog, obj);
 }
 
@@ -1171,7 +1172,7 @@ void AnnotMarkup::initialize(XRef *xrefA, Dict *dict, Catalog *catalog, Object *
 //------------------------------------------------------------------------
 
 AnnotText::AnnotText(XRef *xrefA, Dict *dict, Catalog *catalog, Object *obj) :
-    Annot(xrefA, dict, catalog, obj), AnnotMarkup(xref, dict, catalog, obj) {
+    AnnotMarkup(xrefA, dict, catalog, obj) {
 
   type = typeText;
   flags |= flagNoZoom | flagNoRotate;
@@ -1377,7 +1378,7 @@ void AnnotLink::draw(Gfx *gfx, GBool printing) {
 //------------------------------------------------------------------------
 
 AnnotFreeText::AnnotFreeText(XRef *xrefA, Dict *dict, Catalog *catalog, Object *obj) :
-    Annot(xrefA, dict, catalog, obj), AnnotMarkup(xref, dict, catalog, obj) {
+    AnnotMarkup(xrefA, dict, catalog, obj) {
   type = typeFreeText;
   initialize(xrefA, catalog, dict);
 }
@@ -1530,7 +1531,7 @@ void AnnotFreeText::initialize(XRef *xrefA, Catalog *catalog, Dict *dict) {
 //------------------------------------------------------------------------
 
 AnnotLine::AnnotLine(XRef *xrefA, Dict *dict, Catalog *catalog, Object *obj) :
-    Annot(xrefA, dict, catalog, obj), AnnotMarkup(xref, dict, catalog, obj) {
+    AnnotMarkup(xrefA, dict, catalog, obj) {
   type = typeLine;
   initialize(xrefA, catalog, dict);
 }

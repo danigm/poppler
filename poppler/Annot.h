@@ -534,7 +534,7 @@ protected:
 // AnnotMarkup
 //------------------------------------------------------------------------
 
-class AnnotMarkup {
+class AnnotMarkup: public Annot {
 public:
   enum  AnnotMarkupReplyType {
     replyTypeR,     // R
@@ -577,7 +577,7 @@ private:
 // AnnotText
 //------------------------------------------------------------------------
 
-class AnnotText: public Annot, public AnnotMarkup {
+class AnnotText: public AnnotMarkup {
 public:
   enum AnnotTextIcon {
     iconComment,      // Comment
@@ -665,7 +665,7 @@ protected:
 // AnnotFreeText
 //------------------------------------------------------------------------
 
-class AnnotFreeText: public Annot, public AnnotMarkup {
+class AnnotFreeText: public AnnotMarkup {
 public:
 
   enum AnnotFreeTextQuadding {
@@ -718,7 +718,7 @@ protected:
 // AnnotLine
 //------------------------------------------------------------------------
 
-class AnnotLine: public Annot, public AnnotMarkup {
+class AnnotLine: public AnnotMarkup {
 public:
 
   enum AnnotLineIntent {
@@ -776,7 +776,7 @@ protected:
 // AnnotTextMarkup
 //------------------------------------------------------------------------
 
-class AnnotTextMarkup: public Annot, public AnnotMarkup {
+class AnnotTextMarkup: public AnnotMarkup {
 public:
 
   AnnotTextMarkup(XRef *xrefA, Catalog *catalog, Dict *dict);
