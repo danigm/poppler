@@ -3380,7 +3380,7 @@ Annot *Annots::createAnnot(XRef *xref, Dict* dict, Catalog *catalog, Object *obj
     } else if(!typeName->cmp("Movie")) {
       annot = new AnnotMovie(xref, dict, catalog, obj);
     } else if(!typeName->cmp("Widget")) {
-      annot = new Annot(xref, dict, catalog, obj);
+      annot = new AnnotWidget(xref, dict, catalog, obj);
     } else if(!typeName->cmp("Screen")) {
       annot = new AnnotScreen(xref, dict, catalog, obj);
     } else if(!typeName->cmp("PrinterMark")) {
