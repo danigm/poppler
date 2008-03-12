@@ -412,6 +412,7 @@ GBool XRef::readXRefTable(Parser *parser, Guint *pos) {
 	entries[i].offset = 0xffffffff;
 	entries[i].type = xrefEntryFree;
 	entries[i].obj.initNull ();
+	entries[i].updated = false;
       }
       size = newSize;
     }
@@ -756,17 +757,17 @@ GBool XRef::constructXRef() {
 		    error(-1, "Bad object number");
 		    return gFalse;
 		  }
-                  if (newSize*(int)sizeof(XRefEntry)/sizeof(XRefEntry) != newSize) {
-                    error(-1, "Invalid 'obj' parameters.");
-                    return gFalse;
-                  }
+		  if (newSize*(int)sizeof(XRefEntry)/sizeof(XRefEntry) != newSize) {
+		    error(-1, "Invalid 'obj' parameters.");
+		    return gFalse;
+		  }
 		  entries = (XRefEntry *)
 		      greallocn(entries, newSize, sizeof(XRefEntry));
 		  for (i = size; i < newSize; ++i) {
 		    entries[i].offset = 0xffffffff;
 		    entries[i].type = xrefEntryFree;
 		    entries[i].obj.initNull ();
-        entries[i].updated = false;
+		    entries[i].updated = false;
 		  }
 		  size = newSize;
 		}
