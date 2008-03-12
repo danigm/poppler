@@ -11,7 +11,7 @@ find_package(PkgConfig)
 include(MacroEnsureVersion)
 include(MacroBoolTo01)
 
-set(POPPLER_VERSION "0.7.1")
+set(POPPLER_VERSION "0.7.2")
 
 # command line switches
 option(ENABLE_XPDF_HEADERS "Install unsupported xpdf headers." OFF)

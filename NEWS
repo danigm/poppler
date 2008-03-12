@@ -1,3 +1,23 @@
+Release 0.7.2 (0.8 RC 1)
+
+	Major Changes:
+	 * Improve font matching not forcing default values onto Fontconfig
+	 * Add preliminary annotations support in the glib frontend
+	 * Initial Movie support in the core
+	 * Make GDK dependency optional in glib bindings
+
+	Minor Changes:
+	 * Make the core able to read mime types of embedded files
+	 * Qt4 API for accessing mime types of embedded files
+	 * Handle correctly check state of optional content groups
+	   regarding parents state
+	 * Avoid setting singular CTM matrices on the Cairo backend
+	 * Improved Qt4 API to get character position
+	 * Qt4 api documentation improvements
+	 * Qt4 minor stability fixes
+	 * Proper lib64 Qt detection
+	 * Fix build when compiling without cairo support
+
 Release 0.7.1 (0.8 Beta 2)
 
 	Major Changes:
