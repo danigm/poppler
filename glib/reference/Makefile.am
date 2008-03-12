@@ -70,6 +70,7 @@ expand_content_files=
 INCLUDES=-I$(top_srcdir)/glib -I$(top_builddir)/glib	\
 	$(CAIRO_CFLAGS)					\
 	$(POPPLER_GLIB_CFLAGS)				\
+	$(GDK_CFLAGS)					\
 	$(FREETYPE_CFLAGS)
 
 GTKDOC_LIBS=$(top_builddir)/poppler/libpoppler.la	\
