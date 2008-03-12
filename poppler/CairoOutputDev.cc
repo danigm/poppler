@@ -209,7 +209,7 @@ void CairoOutputDev::setDefaultCTM(double *ctm) {
 void CairoOutputDev::updateCTM(GfxState *state, double m11, double m12,
 				double m21, double m22,
 				double m31, double m32) {
-  cairo_matrix_t matrix;
+  cairo_matrix_t matrix, invert_matrix;
   matrix.xx = m11;
   matrix.yx = m12;
   matrix.xy = m21;
@@ -225,8 +225,9 @@ void CairoOutputDev::updateCTM(GfxState *state, double m11, double m12,
    *
    * Ideally, we could do the cairo_transform
    * and then check if anything went wrong and fix it then
-   * instead of having to invert the matrix twice. */
-  if (cairo_matrix_invert(&matrix)) {
+   * instead of having to invert the matrix. */
+  invert_matrix = matrix;
+  if (cairo_matrix_invert(&invert_matrix)) {
     warning("matrix not invertible\n");
     return;
   }
