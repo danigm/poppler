@@ -205,6 +205,7 @@ pgd_render_start (GtkButton     *button,
 		cairo_destroy (cr);
 	} else if (demo->mode == PGD_RENDER_PIXBUF) {
 #endif
+#ifdef POPPLER_WITH_GDK
 		timer = g_timer_new ();
 		demo->pixbuf = gdk_pixbuf_new (GDK_COLORSPACE_RGB,
 					       FALSE, 8, width, height);
@@ -217,6 +218,7 @@ pgd_render_start (GtkButton     *button,
 					       demo->rotate,
 					       demo->pixbuf);
 		g_timer_stop (timer);
+#endif /* POPPLER_WITH_GDK */
 #if defined (HAVE_CAIRO)
 	} else {
 		g_assert_not_reached ();
@@ -391,7 +393,9 @@ pgd_render_properties_selector_create (PgdRenderDemo *demo)
 #if defined (HAVE_CAIRO)
 	gtk_combo_box_append_text (GTK_COMBO_BOX (mode_selector), "cairo");
 #endif
+#ifdef POPPLER_WITH_GDK
 	gtk_combo_box_append_text (GTK_COMBO_BOX (mode_selector), "pixbuf");
+#endif
 	gtk_combo_box_set_active (GTK_COMBO_BOX (mode_selector), 0);
 	g_signal_connect (G_OBJECT (mode_selector), "changed",
 			  G_CALLBACK (pgd_render_mode_selector_changed),

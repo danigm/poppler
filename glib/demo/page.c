@@ -16,6 +16,8 @@
  * Foundation, Inc., 51 Franklin Street - Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
+#include "config.h"
+
 #include <gtk/gtk.h>
 
 #include "page.h"
@@ -48,11 +50,86 @@ pgd_page_free (PgdPageDemo *demo)
 	g_free (demo);
 }
 
+#ifndef POPPLER_WITH_GDK
+static void
+image_set_from_surface (GtkImage        *gtkimage,
+			cairo_surface_t *surface)
+{
+	GdkPixbuf       *pixbuf;
+	cairo_surface_t *image;
+	cairo_t         *cr;
+	gboolean         has_alpha;
+	gint             width, height;
+	cairo_format_t   surface_format;
+	gint             pixbuf_n_channels;
+	gint             pixbuf_rowstride;
+	guchar          *pixbuf_pixels;
+	gint             x, y;
+
+	width = cairo_image_surface_get_width (surface);
+	height = cairo_image_surface_get_height (surface);
+	
+	surface_format = cairo_image_surface_get_format (surface);
+	has_alpha = (surface_format == CAIRO_FORMAT_ARGB32);
+
+	pixbuf = gdk_pixbuf_new (GDK_COLORSPACE_RGB,
+				 TRUE, 8,
+				 width, height);
+	pixbuf_n_channels = gdk_pixbuf_get_n_channels (pixbuf);
+	pixbuf_rowstride = gdk_pixbuf_get_rowstride (pixbuf);
+	pixbuf_pixels = gdk_pixbuf_get_pixels (pixbuf);
+
+	image = cairo_image_surface_create_for_data (pixbuf_pixels,
+						     surface_format,
+						     width, height,
+						     pixbuf_rowstride);
+	cr = cairo_create (image);
+	cairo_set_source_surface (cr, surface, 0, 0);
+
+	if (has_alpha)
+		cairo_mask_surface (cr, surface, 0, 0);
+	else
+		cairo_paint (cr);
+
+	cairo_destroy (cr);
+	cairo_surface_destroy (image);
+
+	for (y = 0; y < height; y++) {
+		guchar *p = pixbuf_pixels + y * pixbuf_rowstride;
+
+		for (x = 0; x < width; x++) {
+			guchar tmp;
+			
+#if G_BYTE_ORDER == G_LITTLE_ENDIAN
+			tmp = p[0];
+			p[0] = p[2];
+			p[2] = tmp;
+			p[3] = (has_alpha) ? p[3] : 0xff;
+#else
+			tmp = p[0];
+			p[0] = (has_alpha) ? p[3] : 0xff;
+			p[3] = p[2];
+			p[2] = p[1];
+			p[1] = tmp;
+#endif			
+			p += pixbuf_n_channels;
+		}
+	}
+
+	gtk_image_set_from_pixbuf (gtkimage, pixbuf);
+	g_object_unref (pixbuf);
+}
+#endif /* !POPPLER_WITH_GDK */
+
 static void
 pgd_page_set_page (PgdPageDemo *demo,
 		   PopplerPage *page)
 {
+#ifdef POPPLER_WITH_GDK
 	GdkPixbuf *thumbnail;
+#else
+	cairo_surface_t *thumbnail;
+#endif
 	gchar     *str;
 
 	str = page ? g_strdup_printf ("%d", poppler_page_get_index (page)) : NULL;
@@ -82,7 +159,11 @@ pgd_page_set_page (PgdPageDemo *demo,
 	gtk_label_set_text (GTK_LABEL (demo->duration), str);
 	g_free (str);
 
+#ifdef POPPLER_WITH_GDK
+	thumbnail = page ? poppler_page_get_thumbnail_pixbuf (page) : NULL;
+#else
 	thumbnail = page ? poppler_page_get_thumbnail (page) : NULL;
+#endif
 	if (thumbnail) {
 		gint width, height;
 		
@@ -90,9 +171,14 @@ pgd_page_set_page (PgdPageDemo *demo,
 		str = g_strdup_printf ("%d x %d", width, height);
 		gtk_label_set_text (GTK_LABEL (demo->thumbnail_size), str);
 		g_free (str);
-
+		
+#ifdef POPPLER_WITH_GDK
 		gtk_image_set_from_pixbuf (GTK_IMAGE (demo->thumbnail), thumbnail);
 		g_object_unref (thumbnail);
+#else
+		image_set_from_surface (GTK_IMAGE (demo->thumbnail), thumbnail);
+		cairo_surface_destroy (thumbnail);
+#endif
 	} else {
 		str = g_strdup ("<i>No thumbnail found</i>");
 		gtk_label_set_markup (GTK_LABEL (demo->thumbnail_size), str);

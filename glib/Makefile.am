@@ -16,6 +16,7 @@ INCLUDES =					\
 	-I$(top_srcdir)/poppler			\
 	$(cairo_includes)			\
 	$(POPPLER_GLIB_CFLAGS)			\
+	$(GDK_CFLAGS)				\
 	$(FREETYPE_CFLAGS)			\
 	$(FONTCONFIG_CFLAGS)                    \
 	$(cairo_includes)			
@@ -88,12 +89,14 @@ libpoppler_glib_la_SOURCES =			\
 libpoppler_glib_la_LIBADD =				\
 	$(top_builddir)/poppler/libpoppler.la		\
 	$(POPPLER_GLIB_LIBS)				\
+	$(GDK_LIBS)					\
 	$(FREETYPE_LIBS)				\
 	$(FONTCONFIG_LIBS)				\
 	$(cairo_libs)
 
-libpoppler_glib_la_LDFLAGS = -version-info 2:0:0
+libpoppler_glib_la_LDFLAGS = -version-info 3:0:0
 
+if BUILD_WITH_GDK
 noinst_PROGRAMS = test-poppler-glib
 
 test_poppler_glib_SOURCES =			\
@@ -103,8 +106,10 @@ test_poppler_glib_LDADD =			\
 	$(top_builddir)/poppler/libpoppler.la	\
 	libpoppler-glib.la			\
 	$(POPPLER_GLIB_LIBS)			\
+	$(GDK_LIBS)				\
 	$(FREETYPE_LIBS)			\
 	$(cairo_libs)
+endif
 
 BUILT_SOURCES =					\
 	poppler-enums.c				\

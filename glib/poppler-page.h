@@ -20,18 +20,20 @@
 #define __POPPLER_PAGE_H__
 
 #include <glib-object.h>
+
+#include "poppler.h"
+
+#ifdef POPPLER_WITH_GDK
 #include <gdk/gdkregion.h>
 #include <gdk/gdkcolor.h>
 #include <gdk-pixbuf/gdk-pixbuf.h>
+#endif
 
 #ifdef POPPLER_HAS_CAIRO
 #include <cairo.h>
 #endif
 
-#include "poppler.h"
-
 G_BEGIN_DECLS
-
 
 #define POPPLER_TYPE_PAGE             (poppler_page_get_type ())
 #define POPPLER_PAGE(obj)             (G_TYPE_CHECK_INSTANCE_CAST ((obj), POPPLER_TYPE_PAGE, PopplerPage))
@@ -39,6 +41,8 @@ G_BEGIN_DECLS
 
 
 GType      	       poppler_page_get_type             (void) G_GNUC_CONST;
+
+#ifdef POPPLER_WITH_GDK
 void                   poppler_page_render_to_pixbuf     (PopplerPage        *page,
 							  int                 src_x,
 							  int                 src_y,
@@ -55,56 +59,7 @@ void          poppler_page_render_to_pixbuf_for_printing (PopplerPage        *pa
 							  double              scale,
 							  int                 rotation,
 							  GdkPixbuf          *pixbuf);
-
-#ifdef POPPLER_HAS_CAIRO
-void                   poppler_page_render               (PopplerPage        *page,
-							  cairo_t            *cairo);
-void                   poppler_page_render_for_printing  (PopplerPage        *page,
-							  cairo_t            *cairo);
-#endif	
-
-void                   poppler_page_get_size             (PopplerPage        *page,
-							  double             *width,
-							  double             *height);
-int                    poppler_page_get_index            (PopplerPage        *page);
-double                 poppler_page_get_duration         (PopplerPage        *page);
-PopplerPageTransition *poppler_page_get_transition       (PopplerPage        *page);
-GdkPixbuf             *poppler_page_get_thumbnail        (PopplerPage        *page);
-gboolean               poppler_page_get_thumbnail_size   (PopplerPage        *page,
-							  int                *width,
-							  int                *height);
-GList     	      *poppler_page_find_text            (PopplerPage        *page,
-							  const  char        *text);
-void                   poppler_page_render_to_ps         (PopplerPage        *page,
-							  PopplerPSFile      *ps_file);
-char                  *poppler_page_get_text             (PopplerPage        *page,
-							  PopplerSelectionStyle style,
-							  PopplerRectangle   *rect);
-GList                 *poppler_page_get_link_mapping     (PopplerPage        *page);
-void                   poppler_page_free_link_mapping    (GList              *list);
-GList                 *poppler_page_get_image_mapping    (PopplerPage        *page);
-void                   poppler_page_free_image_mapping   (GList              *list);
-#ifdef POPPLER_HAS_CAIRO
-cairo_surface_t       *poppler_page_get_image            (PopplerPage        *page,
-							  gint                image_id);
-#endif
-GList              *poppler_page_get_form_field_mapping  (PopplerPage        *page);
-void                poppler_page_free_form_field_mapping (GList              *list);
-GList                 *poppler_page_get_annot_mapping    (PopplerPage        *page);
-void                   poppler_page_free_annot_mapping   (GList              *list);
-GdkRegion             *poppler_page_get_selection_region (PopplerPage        *page,
-							  gdouble             scale,
-							  PopplerSelectionStyle style,
-							  PopplerRectangle   *selection);
-#ifdef POPPLER_HAS_CAIRO
-void                   poppler_page_render_selection     (PopplerPage        *page,
-							  cairo_t            *cairo,
-							  PopplerRectangle   *selection,
-							  PopplerRectangle   *old_selection,
-							  PopplerSelectionStyle style,
-							  GdkColor           *glyph_color,
-							  GdkColor           *background_color);
-#endif
+GdkPixbuf             *poppler_page_get_thumbnail_pixbuf (PopplerPage        *page);
 void                poppler_page_render_selection_to_pixbuf (
 							  PopplerPage        *page,
 							  gdouble             scale,
@@ -115,7 +70,56 @@ void                poppler_page_render_selection_to_pixbuf (
 							  PopplerSelectionStyle style,
 							  GdkColor           *glyph_color,
 							  GdkColor           *background_color);
+#endif /* POPPLER_WITH_GDK */
 
+#ifdef POPPLER_HAS_CAIRO
+void                   poppler_page_render               (PopplerPage        *page,
+							  cairo_t            *cairo);
+void                   poppler_page_render_for_printing  (PopplerPage        *page,
+							  cairo_t            *cairo);
+cairo_surface_t       *poppler_page_get_thumbnail        (PopplerPage        *page);
+void                   poppler_page_render_selection     (PopplerPage        *page,
+							  cairo_t            *cairo,
+							  PopplerRectangle   *selection,
+							  PopplerRectangle   *old_selection,
+							  PopplerSelectionStyle style,
+							  PopplerColor       *glyph_color,
+							  PopplerColor       *background_color);
+#endif /* POPPLER_HAS_CAIRO */
+
+void                   poppler_page_get_size             (PopplerPage        *page,
+							  double             *width,
+							  double             *height);
+int                    poppler_page_get_index            (PopplerPage        *page);
+double                 poppler_page_get_duration         (PopplerPage        *page);
+PopplerPageTransition *poppler_page_get_transition       (PopplerPage        *page);
+gboolean               poppler_page_get_thumbnail_size   (PopplerPage        *page,
+							  int                *width,
+							  int                *height);
+GList     	      *poppler_page_find_text            (PopplerPage        *page,
+							  const  char        *text);
+void                   poppler_page_render_to_ps         (PopplerPage        *page,
+							  PopplerPSFile      *ps_file);
+char                  *poppler_page_get_text             (PopplerPage        *page,
+							  PopplerSelectionStyle style,
+							  PopplerRectangle   *rect);
+GList                 *poppler_page_get_selection_region (PopplerPage        *page,
+							  gdouble             scale,
+							  PopplerSelectionStyle style,
+							  PopplerRectangle   *selection);
+void                   poppler_page_selection_region_free(GList              *region);
+GList                 *poppler_page_get_link_mapping     (PopplerPage        *page);
+void                   poppler_page_free_link_mapping    (GList              *list);
+GList                 *poppler_page_get_image_mapping    (PopplerPage        *page);
+void                   poppler_page_free_image_mapping   (GList              *list);
+#ifdef POPPLER_HAS_CAIRO
+cairo_surface_t       *poppler_page_get_image            (PopplerPage        *page,
+							  gint                image_id);
+#endif /* POPPLER_HAS_CAIRO */
+GList              *poppler_page_get_form_field_mapping  (PopplerPage        *page);
+void                poppler_page_free_form_field_mapping (GList              *list);
+GList                 *poppler_page_get_annot_mapping    (PopplerPage        *page);
+void                   poppler_page_free_annot_mapping   (GList              *list);
 void 		      poppler_page_get_crop_box 	 (PopplerPage        *page,
 							  PopplerRectangle   *rect);
 
@@ -135,7 +139,19 @@ PopplerRectangle *poppler_rectangle_new      (void);
 PopplerRectangle *poppler_rectangle_copy     (PopplerRectangle *rectangle);
 void              poppler_rectangle_free     (PopplerRectangle *rectangle);
 
+/* A color in RGB */
+#define POPPLER_TYPE_COLOR                 (poppler_color_get_type ())
+struct _PopplerColor
+{
+  guint16 red;
+  guint16 green;
+  guint16 blue;
+};
 
+GType             poppler_color_get_type      (void) G_GNUC_CONST;
+PopplerColor     *poppler_color_new           (void);
+PopplerColor     *poppler_color_copy          (PopplerColor *color);
+void              poppler_color_free          (PopplerColor *color);
 
 /* Mapping between areas on the current page and PopplerActions */
 #define POPPLER_TYPE_LINK_MAPPING             (poppler_link_mapping_get_type ())

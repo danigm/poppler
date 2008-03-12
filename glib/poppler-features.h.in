@@ -20,5 +20,6 @@
 #define __POPPLER_FEATURES_H__
 
 @CAIRO_FEATURE@
+@GDK_FEATURE@
 
 #endif /* __POPPLER_FEATURES_H__ */

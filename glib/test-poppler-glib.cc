@@ -381,7 +381,7 @@ int main (int argc, char *argv[])
     printf ("\tpage transition:no transition effect for page\n");
   }
 
-  thumb = poppler_page_get_thumbnail (page);
+  thumb = poppler_page_get_thumbnail_pixbuf (page);
   if (thumb != NULL) {
     gdk_pixbuf_save (thumb, "thumb.png", "png", &error, NULL);
     if (error != NULL)

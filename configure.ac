@@ -194,15 +194,16 @@ fi
 AC_SUBST(CAIRO_FEATURE)
 AC_SUBST(CAIRO_REQ)
 
+GLIB_REQUIRED=2.6
 AC_ARG_ENABLE(poppler-glib,
               AC_HELP_STRING([--disable-poppler-glib],
 	                     [Don't compile poppler glib wrapper.]),
               enable_poppler_glib=$enableval,
               enable_poppler_glib="try")
 if test x$enable_poppler_glib = xyes; then
-  PKG_CHECK_MODULES(POPPLER_GLIB, gdk-2.0 >= 2.4.0 glib-2.0 >= 2.6)
+  PKG_CHECK_MODULES(POPPLER_GLIB, glib-2.0 >= $GLIB_REQUIRED gobject-2.0 >= $GLIB_REQUIRED)
 elif test x$enable_poppler_glib = xtry; then
-  PKG_CHECK_MODULES(POPPLER_GLIB, gdk-2.0 >= 2.4.0 glib-2.0 >= 2.6,
+  PKG_CHECK_MODULES(POPPLER_GLIB, glib-2.0 >= $GLIB_REQUIRED gobject-2.0 >= $GLIB_REQUIRED, 
                     [enable_poppler_glib="yes"],
                     [enable_poppler_glib="no"])
 fi
@@ -212,6 +213,45 @@ fi
 AM_CONDITIONAL(BUILD_POPPLER_GLIB, test x$enable_poppler_glib = xyes)
 
 GTK_DOC_CHECK([1.0])
+
+dnl
+dnl GDK
+dnl
+AC_ARG_ENABLE(gdk,
+              AC_HELP_STRING([--disable-gdk],
+	                     [Compile without gdk.]),
+              enable_gdk=$enableval,
+	      enable_gdk="try")
+
+if test x$enable_poppler_glib = xyes; then
+  if test x$enable_gdk = xyes; then
+    PKG_CHECK_MODULES(GDK, gdk-2.0)
+  elif test x$enable_gdk = xtry; then
+    if test x$enable_splash_output = xyes; then
+      PKG_CHECK_MODULES(GDK, gdk-2.0)
+      enable_gdk=yes
+    elif test x$enable_cairo_output = xyes; then
+      PKG_CHECK_MODULES(GDK, gdk-2.0,
+                        [enable_gdk="yes"],
+			[enable_gdk="no"])
+    fi
+  elif test x$enable_splash_output = xyes; then
+    PKG_CHECK_MODULES(GDK, gdk-2.0)
+    AC_MSG_WARN("GDK is required by the glib wrapper when splash output device is
+                 enabled. If you want to comppile popler without GDK use --disable-splash-output too")
+    enable_gdk=yes
+  fi
+  if test x$enable_gdk = xyes; then
+    AC_DEFINE(POPPLER_WITH_GDK,[1], [Have GDK])
+    GDK_FEATURE="#define POPPLER_WITH_GDK 1"
+  else
+    GDK_FEATURE=""
+  fi
+fi
+AM_CONDITIONAL(BUILD_WITH_GDK, test x$enable_gdk = xyes)
+AC_SUBST(GDK_CFLAGS)
+AC_SUBST(GDK_LIBS)
+AC_SUBST(GDK_FEATURE)
 
 AC_ARG_ENABLE(poppler-qt,
 	      AC_HELP_STRING([--disable-poppler-qt],
@@ -355,6 +395,7 @@ echo "  abiword output:     $enable_abiword_output"
 echo "  qt wrapper:         $enable_poppler_qt"
 echo "  qt4 wrapper:        $enable_poppler_qt4"
 echo "  glib wrapper:       $enable_poppler_glib"
+echo "    use GDK:          $enable_gdk"
 echo "  use gtk-doc:        $enable_gtk_doc"
 echo "  use libjpeg:        $enable_libjpeg"
 echo "  use zlib:           $enable_zlib"

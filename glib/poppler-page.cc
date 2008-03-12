@@ -234,8 +234,34 @@ poppler_page_get_transition (PopplerPage *page)
   return transition;
 }
 
+static TextOutputDev *
+poppler_page_get_text_output_dev (PopplerPage *page)
+{
+  if (page->text_dev == NULL) {
+    page->text_dev = new TextOutputDev (NULL, gTrue, gFalse, gFalse);
+
+    if (page->gfx)
+      delete page->gfx;
+    page->gfx = page->page->createGfx(page->text_dev,
+				      72.0, 72.0, 0,
+				      gFalse, /* useMediaBox */
+				      gTrue, /* Crop */
+				      -1, -1, -1, -1,
+				      gFalse, /* printing */
+				      page->document->doc->getCatalog (),
+				      NULL, NULL, NULL, NULL);
+
+    page->page->display(page->gfx);
+
+    page->text_dev->endPage();
+  }
+
+  return page->text_dev;
+}
+
 #if defined (HAVE_CAIRO)
 
+#ifdef POPPLER_WITH_GDK
 typedef struct {
   unsigned char *cairo_data;
   cairo_surface_t *surface;
@@ -342,6 +368,17 @@ poppler_page_copy_to_pixbuf (PopplerPage *page,
   gfree (output_dev_data->cairo_data);
 }
 
+static void
+poppler_page_set_selection_alpha (PopplerPage           *page,
+				  double                 scale,
+				  GdkPixbuf             *pixbuf,
+				  PopplerSelectionStyle  style,
+				  PopplerRectangle      *selection)
+{
+  /* Cairo doesn't need this, since cairo generates an alpha channel. */ 
+}
+#endif /* POPPLER_WITH_GDK */
+
 #elif defined (HAVE_SPLASH)
  
 typedef struct {
@@ -406,7 +443,60 @@ poppler_page_copy_to_pixbuf(PopplerPage *page,
   delete [] pixel;
 }
 
-#endif
+static void
+poppler_page_set_selection_alpha (PopplerPage           *page,
+				  double                 scale,
+				  GdkPixbuf             *pixbuf,
+				  PopplerSelectionStyle  style,
+				  PopplerRectangle      *selection)
+{
+  GList *region, *l;
+  gint x, y, width, height;
+  int pixbuf_rowstride, pixbuf_n_channels;
+  guchar *pixbuf_data, *dst;
+
+  pixbuf_data = gdk_pixbuf_get_pixels (pixbuf);
+  pixbuf_rowstride = gdk_pixbuf_get_rowstride (pixbuf);
+  pixbuf_n_channels = gdk_pixbuf_get_n_channels (pixbuf);
+  width = gdk_pixbuf_get_width (pixbuf);
+  height = gdk_pixbuf_get_height (pixbuf);
+
+  if (pixbuf_n_channels != 4)
+    return;
+
+  for (y = 0; y < height; y++) {
+      dst = pixbuf_data + y * pixbuf_rowstride;
+      for (x = 0; x < width; x++) {
+	  dst[3] = 0x00;
+	  dst += pixbuf_n_channels;
+      }
+  }
+
+  region = poppler_page_get_selection_region (page, scale, style, selection);
+
+  for (l = region; l; l = g_list_next (l)) {
+    PopplerRectangle *rectangle = (PopplerRectangle *)l->data;
+    GdkRectangle rect;
+    
+    rect.x = (gint)rectangle->x1;
+    rect.y = (gint)rectangle->y1;
+    rect.width  = (gint) (rectangle->x2 - rectangle->x1);
+    rect.height = (gint) (rectangle->y2 - rectangle->y1);
+    
+    for (y = 0; y < rect.height; y++) {
+      dst = pixbuf_data + (rect.y + y) * pixbuf_rowstride +
+	rect.x * pixbuf_n_channels;
+      for (x = 0; x < rect.width; x++) {
+	  dst[3] = 0xff;
+	  dst += pixbuf_n_channels;
+      }
+    }
+  }
+
+  poppler_page_selection_region_free (region);
+}
+
+#endif /* HAVE_SPLASH */
 
 static GBool
 poppler_print_annot_cb (Annot *annot, void *user_data)
@@ -480,8 +570,165 @@ poppler_page_render_for_printing (PopplerPage *page,
   _poppler_page_render (page, cairo, gTrue);	
 }
 
+static cairo_surface_t *
+create_surface_from_thumbnail_data (guchar *data,
+				    gint    width,
+				    gint    height,
+				    gint    rowstride)
+{
+  guchar *cairo_pixels;
+  cairo_surface_t *surface;
+  static cairo_user_data_key_t key;
+  int j;
+
+  cairo_pixels = (guchar *)g_malloc (4 * width * height);
+  surface = cairo_image_surface_create_for_data ((unsigned char *)cairo_pixels,
+						 CAIRO_FORMAT_RGB24,
+						 width, height, 4 * width);
+  cairo_surface_set_user_data (surface, &key,
+			       cairo_pixels, (cairo_destroy_func_t)g_free);
+
+  for (j = height; j; j--) {
+    guchar *p = data;
+    guchar *q = cairo_pixels;
+    guchar *end = p + 3 * width;
+	  
+    while (p < end) {
+#if G_BYTE_ORDER == G_LITTLE_ENDIAN
+      q[0] = p[2];
+      q[1] = p[1];
+      q[2] = p[0];
+#else	  
+      q[1] = p[0];
+      q[2] = p[1];
+      q[3] = p[2];
+#endif
+      p += 3;
+      q += 4;
+    }
+
+    data += rowstride;
+    cairo_pixels += 4 * width;
+  }
+
+  return surface;
+}
+				    
+
+/**
+ * poppler_page_get_thumbnail:
+ * @page: the #PopperPage to get the thumbnail for
+ * 
+ * Get the embedded thumbnail for the specified page.  If the document
+ * doesn't have an embedded thumbnail for the page, this function
+ * returns %NULL.
+ * 
+ * Return value: the tumbnail as a cairo_surface_t or %NULL if the document
+ * doesn't have a thumbnail for this page.
+ **/
+cairo_surface_t *
+poppler_page_get_thumbnail (PopplerPage *page)
+{
+  unsigned char *data;
+  int width, height, rowstride;
+  cairo_surface_t *surface;
+
+  g_return_val_if_fail (POPPLER_IS_PAGE (page), FALSE);
+
+  if (!page->page->loadThumb (&data, &width, &height, &rowstride))
+    return NULL;
+
+  surface = create_surface_from_thumbnail_data (data, width, height, rowstride);
+  gfree (data);
+  
+  return surface;
+}
+
+/**
+ * poppler_page_render_selection:
+ * @page: the #PopplerPage for which to render selection
+ * @cairo: cairo context to render to
+ * @selection: start and end point of selection as a rectangle
+ * @old_selection: previous selection
+ * @style: a #PopplerSelectionStyle
+ * @glyph_color: color to use for drawing glyphs
+ * @background_color: color to use for the selection background
+ *
+ * Render the selection specified by @selection for @page to
+ * the given cairo context.  The selection will be rendered, using
+ * @glyph_color for the glyphs and @background_color for the selection
+ * background.
+ *
+ * If non-NULL, @old_selection specifies the selection that is already
+ * rendered to @cairo, in which case this function will (some day)
+ * only render the changed part of the selection.
+ **/
+void
+poppler_page_render_selection (PopplerPage           *page,
+			       cairo_t               *cairo,
+			       PopplerRectangle      *selection,
+			       PopplerRectangle      *old_selection,
+			       PopplerSelectionStyle  style, 
+			       PopplerColor          *glyph_color,
+			       PopplerColor          *background_color)
+{
+  TextOutputDev *text_dev;
+  CairoOutputDev *output_dev;
+  SelectionStyle selection_style = selectionStyleGlyph;
+  PDFRectangle pdf_selection(selection->x1, selection->y1,
+			     selection->x2, selection->y2);
+
+  GfxColor gfx_background_color = {
+      {
+	  background_color->red,
+	  background_color->green,
+	  background_color->blue
+      }
+  };
+  GfxColor gfx_glyph_color = {
+      {
+	  glyph_color->red,
+	  glyph_color->green,
+	  glyph_color->blue
+      }
+  };
+
+  switch (style)
+    {
+      case POPPLER_SELECTION_GLYPH:
+        selection_style = selectionStyleGlyph;
+	break;
+      case POPPLER_SELECTION_WORD:
+        selection_style = selectionStyleWord;
+	break;
+      case POPPLER_SELECTION_LINE:
+        selection_style = selectionStyleLine;
+	break;
+    }
+
+  text_dev = poppler_page_get_text_output_dev (page);
+  output_dev = page->document->output_dev;
+  output_dev->setCairo (cairo);
+
+  text_dev->drawSelection (output_dev, 1.0, 0,
+			   &pdf_selection, selection_style,
+			   &gfx_glyph_color, &gfx_background_color);
+
+  output_dev->setCairo (NULL);
+
+  /* We'll need a function to destroy page->text_dev and page->gfx
+   * when the application wants to get rid of them.
+   *
+   * Two improvements: 1) make GfxFont refcounted and let TextPage and
+   * friends hold a reference to the GfxFonts they need so we can free
+   * up Gfx early.  2) use a TextPage directly when rendering the page
+   * so we don't have to use TextOutputDev and render a second
+   * time. */
+}
+
 #endif /* HAVE_CAIRO */
 
+#ifdef POPPLER_WITH_GDK
 static void
 _poppler_page_render_to_pixbuf (PopplerPage *page,
 				int src_x, int src_y,
@@ -582,246 +829,32 @@ poppler_page_render_to_pixbuf_for_printing (PopplerPage *page,
 				  pixbuf);
 }
 
-static TextOutputDev *
-poppler_page_get_text_output_dev (PopplerPage *page)
-{
-  if (page->text_dev == NULL) {
-    page->text_dev = new TextOutputDev (NULL, gTrue, gFalse, gFalse);
-
-    if (page->gfx)
-      delete page->gfx;
-    page->gfx = page->page->createGfx(page->text_dev,
-				      72.0, 72.0, 0,
-				      gFalse, /* useMediaBox */
-				      gTrue, /* Crop */
-				      -1, -1, -1, -1,
-				      gFalse, /* printing */
-				      page->document->doc->getCatalog (),
-				      NULL, NULL, NULL, NULL);
-
-    page->page->display(page->gfx);
-
-    page->text_dev->endPage();
-  }
-
-  return page->text_dev;
-}
-
 /**
- * poppler_page_get_selection_region:
- * @page: a #PopplerPage
- * @scale: scale specified as pixels per point
- * @style: a #PopplerSelectionStyle
- * @selection: start and end point of selection as a rectangle
+ * poppler_page_get_thumbnail_pixbuf:
+ * @page: the #PopperPage to get the thumbnail for
  * 
- * Returns a region containing the area that would be rendered by
- * poppler_page_render_selection() or
- * poppler_page_render_selection_to_pixbuf(). The returned
- * region must be freed with gdk_region_destroy().
+ * Get the embedded thumbnail for the specified page.  If the document
+ * doesn't have an embedded thumbnail for the page, this function
+ * returns %NULL.
  * 
- * Return value: a newly allocated #GdkRegion
+ * Return value: the tumbnail as a #GdkPixbuf or %NULL if the document
+ * doesn't have a thumbnail for this page.
  **/
-GdkRegion *
-poppler_page_get_selection_region (PopplerPage           *page,
-				   gdouble                scale,
-				   PopplerSelectionStyle  style,
-				   PopplerRectangle      *selection)
+GdkPixbuf *
+poppler_page_get_thumbnail_pixbuf (PopplerPage *page)
 {
-  TextOutputDev *text_dev;
-  PDFRectangle poppler_selection;
-  SelectionStyle selection_style = selectionStyleGlyph;
-  GooList *list;
-  GdkRectangle rect;
-  GdkRegion *region;
-  int i;
+  unsigned char *data;
+  int width, height, rowstride;
 
-  poppler_selection.x1 = selection->x1;
-  poppler_selection.y1 = selection->y1;
-  poppler_selection.x2 = selection->x2;
-  poppler_selection.y2 = selection->y2;
+  g_return_val_if_fail (POPPLER_IS_PAGE (page), FALSE);
 
-  switch (style)
-    {
-      case POPPLER_SELECTION_GLYPH:
-        selection_style = selectionStyleGlyph;
-	break;
-      case POPPLER_SELECTION_WORD:
-        selection_style = selectionStyleWord;
-	break;
-      case POPPLER_SELECTION_LINE:
-        selection_style = selectionStyleLine;
-	break;
-    }
-	      
-  text_dev = poppler_page_get_text_output_dev (page);
-  list = text_dev->getSelectionRegion(&poppler_selection, 
-				      selection_style, scale);
+  if (!page->page->loadThumb (&data, &width, &height, &rowstride))
+    return NULL;
 
-  region = gdk_region_new();
-
-  for (i = 0; i < list->getLength(); i++) {
-    PDFRectangle *selection_rect = (PDFRectangle *) list->get(i);
-    rect.x      = (gint) selection_rect->x1;
-    rect.y      = (gint) selection_rect->y1;
-    rect.width  = (gint) (selection_rect->x2 - selection_rect->x1);
-    rect.height = (gint) (selection_rect->y2 - selection_rect->y1);
-    gdk_region_union_with_rect (region, &rect);
-    delete selection_rect;
-  }
-
-  delete list;
-
-  return region;
+  return gdk_pixbuf_new_from_data (data, GDK_COLORSPACE_RGB,
+				   FALSE, 8, width, height, rowstride,
+				   (GdkPixbufDestroyNotify)gfree, NULL);
 }
-
-#if defined (HAVE_CAIRO)
-
-static void
-poppler_page_set_selection_alpha (PopplerPage           *page,
-				  double                 scale,
-				  GdkPixbuf             *pixbuf,
-				  PopplerSelectionStyle  style,
-				  PopplerRectangle      *selection)
-{
-  /* Cairo doesn't need this, since cairo generates an alpha channel. */ 
-}
-
-#elif defined (HAVE_SPLASH)
-
-static void
-poppler_page_set_selection_alpha (PopplerPage           *page,
-				  double                 scale,
-				  GdkPixbuf             *pixbuf,
-				  PopplerSelectionStyle  style,
-				  PopplerRectangle      *selection)
-{
-  GdkRegion *region;
-  gint n_rectangles, i, x, y, width, height;
-  GdkRectangle *rectangles;
-  int pixbuf_rowstride, pixbuf_n_channels;
-  guchar *pixbuf_data, *dst;
-
-  pixbuf_data = gdk_pixbuf_get_pixels (pixbuf);
-  pixbuf_rowstride = gdk_pixbuf_get_rowstride (pixbuf);
-  pixbuf_n_channels = gdk_pixbuf_get_n_channels (pixbuf);
-  width = gdk_pixbuf_get_width (pixbuf);
-  height = gdk_pixbuf_get_height (pixbuf);
-
-  if (pixbuf_n_channels != 4)
-    return;
-
-  for (y = 0; y < height; y++) {
-      dst = pixbuf_data + y * pixbuf_rowstride;
-      for (x = 0; x < width; x++) {
-	  dst[3] = 0x00;
-	  dst += pixbuf_n_channels;
-      }
-  }
-
-  region = poppler_page_get_selection_region (page, scale, style, selection);
-
-  gdk_region_get_rectangles (region, &rectangles, &n_rectangles);
-  for (i = 0; i < n_rectangles; i++) {
-    for (y = 0; y < rectangles[i].height; y++) {
-      dst = pixbuf_data + (rectangles[i].y + y) * pixbuf_rowstride +
-	rectangles[i].x * pixbuf_n_channels;
-      for (x = 0; x < rectangles[i].width; x++) {
-	  dst[3] = 0xff;
-	  dst += pixbuf_n_channels;
-      }
-    }
-  }
-
-  g_free (rectangles);
-
-  gdk_region_destroy (region);
-}
-
-#endif
-
-#if defined (HAVE_CAIRO)
-/**
- * poppler_page_render_selection:
- * @page: the #PopplerPage for which to render selection
- * @cairo: cairo context to render to
- * @selection: start and end point of selection as a rectangle
- * @old_selection: previous selection
- * @style: a #PopplerSelectionStyle
- * @glyph_color: color to use for drawing glyphs
- * @background_color: color to use for the selection background
- *
- * Render the selection specified by @selection for @page to
- * the given cairo context.  The selection will be rendered, using
- * @glyph_color for the glyphs and @background_color for the selection
- * background.
- *
- * If non-NULL, @old_selection specifies the selection that is already
- * rendered to @cairo, in which case this function will (some day)
- * only render the changed part of the selection.
- **/
-void
-poppler_page_render_selection (PopplerPage           *page,
-			       cairo_t               *cairo,
-			       PopplerRectangle      *selection,
-			       PopplerRectangle      *old_selection,
-			       PopplerSelectionStyle  style, 
-			       GdkColor              *glyph_color,
-			       GdkColor              *background_color)
-{
-  TextOutputDev *text_dev;
-  CairoOutputDev *output_dev;
-  SelectionStyle selection_style = selectionStyleGlyph;
-  PDFRectangle pdf_selection(selection->x1, selection->y1,
-			     selection->x2, selection->y2);
-
-  GfxColor gfx_background_color = {
-      {
-	  background_color->red,
-	  background_color->green,
-	  background_color->blue
-      }
-  };
-  GfxColor gfx_glyph_color = {
-      {
-	  glyph_color->red,
-	  glyph_color->green,
-	  glyph_color->blue
-      }
-  };
-
-  switch (style)
-    {
-      case POPPLER_SELECTION_GLYPH:
-        selection_style = selectionStyleGlyph;
-	break;
-      case POPPLER_SELECTION_WORD:
-        selection_style = selectionStyleWord;
-	break;
-      case POPPLER_SELECTION_LINE:
-        selection_style = selectionStyleLine;
-	break;
-    }
-
-  text_dev = poppler_page_get_text_output_dev (page);
-  output_dev = page->document->output_dev;
-  output_dev->setCairo (cairo);
-
-  text_dev->drawSelection (output_dev, 1.0, 0,
-			   &pdf_selection, selection_style,
-			   &gfx_glyph_color, &gfx_background_color);
-
-  output_dev->setCairo (NULL);
-
-  /* We'll need a function to destroy page->text_dev and page->gfx
-   * when the application wants to get rid of them.
-   *
-   * Two improvements: 1) make GfxFont refcounted and let TextPage and
-   * friends hold a reference to the GfxFonts they need so we can free
-   * up Gfx early.  2) use a TextPage directly when rendering the page
-   * so we don't have to use TextOutputDev and render a second
-   * time. */
-}
-#endif
 
 /**
  * poppler_page_render_selection_to_pixbuf:
@@ -913,39 +946,7 @@ poppler_page_render_selection_to_pixbuf (PopplerPage           *page,
    * time. */
 }
 
-
-static void
-destroy_thumb_data (guchar *pixels, gpointer data)
-{
-  gfree (pixels);
-}
-
-/**
- * poppler_page_get_thumbnail:
- * @page: the #PopperPage to get the thumbnail for
- * 
- * Get the embedded thumbnail for the specified page.  If the document
- * doesn't have an embedded thumbnail for the page, this function
- * returns %NULL.
- * 
- * Return value: the tumbnail as a #GdkPixbuf or %NULL if the document
- * doesn't have a thumbnail for this page.
- **/
-GdkPixbuf *
-poppler_page_get_thumbnail (PopplerPage *page)
-{
-  unsigned char *data;
-  int width, height, rowstride;
-
-  g_return_val_if_fail (POPPLER_IS_PAGE (page), FALSE);
-
-  if (!page->page->loadThumb (&data, &width, &height, &rowstride))
-    return NULL;
-
-  return gdk_pixbuf_new_from_data (data, GDK_COLORSPACE_RGB,
-				   FALSE, 8, width, height, rowstride,
-				   destroy_thumb_data, NULL);
-}
+#endif /* POPPLER_WITH_GDK */
 
 /**
  * poppler_page_get_thumbnail_size:
@@ -991,6 +992,87 @@ poppler_page_get_thumbnail_size (PopplerPage *page,
   thumb.free ();
 
   return retval;
+}
+
+/**
+ * poppler_page_get_selection_region:
+ * @page: a #PopplerPage
+ * @scale: scale specified as pixels per point
+ * @style: a #PopplerSelectionStyle
+ * @selection: start and end point of selection as a rectangle
+ * 
+ * Returns a region containing the area that would be rendered by
+ * poppler_page_render_selection() or 
+ * poppler_page_render_selection_to_pixbuf() as a #GList of
+ * #PopplerRectangle. The returned list must be freed with
+ * poppler_page_selection_region_free().
+ * 
+ * Return value: a #GList of #PopplerRectangle
+ **/
+GList *
+poppler_page_get_selection_region (PopplerPage           *page,
+				   gdouble                scale,
+				   PopplerSelectionStyle  style,
+				   PopplerRectangle      *selection)
+{
+  TextOutputDev *text_dev;
+  PDFRectangle poppler_selection;
+  SelectionStyle selection_style = selectionStyleGlyph;
+  GooList *list;
+  GList *region = NULL;
+  int i;
+
+  poppler_selection.x1 = selection->x1;
+  poppler_selection.y1 = selection->y1;
+  poppler_selection.x2 = selection->x2;
+  poppler_selection.y2 = selection->y2;
+
+  switch (style)
+    {
+      case POPPLER_SELECTION_GLYPH:
+        selection_style = selectionStyleGlyph;
+	break;
+      case POPPLER_SELECTION_WORD:
+        selection_style = selectionStyleWord;
+	break;
+      case POPPLER_SELECTION_LINE:
+        selection_style = selectionStyleLine;
+	break;
+    }
+	      
+  text_dev = poppler_page_get_text_output_dev (page);
+  list = text_dev->getSelectionRegion(&poppler_selection, 
+				      selection_style, scale);
+
+  for (i = 0; i < list->getLength(); i++) {
+    PDFRectangle *selection_rect = (PDFRectangle *) list->get(i);
+    PopplerRectangle *rect;
+
+    rect = poppler_rectangle_new ();
+    
+    rect->x1 = selection_rect->x1;
+    rect->y1 = selection_rect->y1;
+    rect->x2 = selection_rect->x2;
+    rect->y2 = selection_rect->y2;
+    
+    region = g_list_prepend (region, rect);
+    
+    delete selection_rect;
+  }
+
+  delete list;
+
+  return g_list_reverse (region);
+}
+
+void
+poppler_page_selection_region_free (GList *region)
+{
+  if (!region)
+    return;
+
+  g_list_foreach (region, (GFunc)poppler_rectangle_free, NULL);
+  g_list_free (region);
 }
 
 /**
@@ -1624,7 +1706,7 @@ poppler_rectangle_get_type (void)
 {
   static GType our_type = 0;
 
-  if (our_type == 0)
+  if (G_UNLIKELY (our_type == 0))
     our_type = g_boxed_type_register_static ("PopplerRectangle",
 					     (GBoxedCopyFunc) poppler_rectangle_copy,
 					     (GBoxedFreeFunc) poppler_rectangle_free);
@@ -1645,7 +1727,7 @@ poppler_rectangle_copy (PopplerRectangle *rectangle)
 
   g_return_val_if_fail (rectangle != NULL, NULL);
   
-  new_rectangle = g_new0 (PopplerRectangle, 1);
+  new_rectangle = g_new (PopplerRectangle, 1);
   *new_rectangle = *rectangle;
 
   return new_rectangle;
@@ -1657,13 +1739,50 @@ poppler_rectangle_free (PopplerRectangle *rectangle)
   g_free (rectangle);
 }
 
+/* PopplerColor type */
+GType
+poppler_color_get_type (void)
+{
+  static GType our_type = 0;
+
+  if (G_UNLIKELY (our_type == 0))
+    our_type = g_boxed_type_register_static ("PopplerColor",
+					     (GBoxedCopyFunc) poppler_color_copy,
+					     (GBoxedFreeFunc) poppler_color_free);
+
+  return our_type;
+}
+
+PopplerColor *
+poppler_color_new (void)
+{
+  return (PopplerColor *) g_new0 (PopplerColor, 1);
+}
+
+PopplerColor *
+poppler_color_copy (PopplerColor *color)
+{
+  PopplerColor *new_color;
+
+  new_color = g_new (PopplerColor, 1);
+  *new_color = *color;
+
+  return new_color;
+}
+
+void
+poppler_color_free (PopplerColor *color)
+{
+  g_free (color);
+}
+
 /* PopplerLinkMapping type */
 GType
 poppler_link_mapping_get_type (void)
 {
   static GType our_type = 0;
 
-  if (our_type == 0)
+  if (G_UNLIKELY (our_type == 0))
     our_type = g_boxed_type_register_static ("PopplerLinkMapping",
 					     (GBoxedCopyFunc) poppler_link_mapping_copy,
 					     (GBoxedFreeFunc) poppler_link_mapping_free);
@@ -1706,7 +1825,7 @@ poppler_image_mapping_get_type (void)
 {
   static GType our_type = 0;
 
-  if (our_type == 0)
+  if (G_UNLIKELY (our_type == 0))
     our_type = g_boxed_type_register_static ("PopplerImageMapping",
 					     (GBoxedCopyFunc) poppler_image_mapping_copy,
 					     (GBoxedFreeFunc) poppler_image_mapping_free);
@@ -1743,7 +1862,7 @@ GType
 poppler_page_transition_get_type (void)
 {
   static GType our_type = 0;
-  if (our_type == 0)
+  if (G_UNLIKELY (our_type == 0))
     our_type = g_boxed_type_register_static("PopplerPageTransition",
 					    (GBoxedCopyFunc) poppler_page_transition_copy,
 					    (GBoxedFreeFunc) poppler_page_transition_free);
@@ -1778,7 +1897,7 @@ GType
 poppler_form_field_mapping_get_type (void)
 {
   static GType our_type = 0;
-  if (our_type == 0)
+  if (G_UNLIKELY (our_type == 0))
     our_type = g_boxed_type_register_static("PopplerFormFieldMapping",
 					    (GBoxedCopyFunc) poppler_form_field_mapping_copy,
 					    (GBoxedFreeFunc) poppler_form_field_mapping_free);

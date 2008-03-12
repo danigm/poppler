@@ -20,7 +20,6 @@
 #define __POPPLER_ACTION_H__
 
 #include <glib-object.h>
-#include <gdk-pixbuf/gdk-pixbuf.h>
 #include "poppler.h"
 
 G_BEGIN_DECLS

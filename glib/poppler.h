@@ -20,7 +20,6 @@
 #define __POPPLER_GLIB_H__
 
 #include <glib-object.h>
-#include <gdk-pixbuf/gdk-pixbuf.h>
 
 G_BEGIN_DECLS
 
@@ -81,6 +80,7 @@ typedef struct _PopplerDocument         PopplerDocument;
 typedef struct _PopplerIndexIter        PopplerIndexIter;
 typedef struct _PopplerFontsIter        PopplerFontsIter;
 typedef struct _PopplerRectangle        PopplerRectangle;
+typedef struct _PopplerColor            PopplerColor;
 typedef struct _PopplerLinkMapping      PopplerLinkMapping;
 typedef struct _PopplerPageTransition   PopplerPageTransition;
 typedef struct _PopplerImageMapping     PopplerImageMapping;

@@ -316,10 +316,10 @@ poppler_annot_get_flags (PopplerAnnot *poppler_annot)
  *
  * Retrieves the color of @poppler_annot.
  *
- * Return value: a new allocated #GdkColor with the color values of
+ * Return value: a new allocated #PopplerColor with the color values of
  *               @poppler_annot. It must be freed with g_free() when done.
  **/
-GdkColor *
+PopplerColor *
 poppler_annot_get_color (PopplerAnnot *poppler_annot)
 {
   AnnotColor *color;
@@ -327,23 +327,23 @@ poppler_annot_get_color (PopplerAnnot *poppler_annot)
   g_return_val_if_fail (POPPLER_IS_ANNOT (poppler_annot), NULL);
 
   if ((color = poppler_annot->annot->getColor ())) {
-    GdkColor *gdk_color;
+    PopplerColor *poppler_color;
     double *values = color->getValues ();
 
     switch (color->getSpace ())
       {
       case AnnotColor::colorGray:
-        gdk_color = g_new0 (GdkColor, 1);
-        gdk_color->red = (guint16) values[0];
-        gdk_color->green = (guint16) values[0];
-        gdk_color->blue = (guint16) values[0];
-        return gdk_color;
+        poppler_color = g_new (PopplerColor, 1);
+        poppler_color->red = (guint16) values[0];
+        poppler_color->green = (guint16) values[0];
+        poppler_color->blue = (guint16) values[0];
+        return poppler_color;
       case AnnotColor::colorRGB:
-        gdk_color = g_new0 (GdkColor, 1);
-        gdk_color->red = (guint16) values[0];
-        gdk_color->green = (guint16) values[1];
-        gdk_color->blue = (guint16) values[2];
-        return gdk_color;
+        poppler_color = g_new (PopplerColor, 1);
+        poppler_color->red = (guint16) values[0];
+        poppler_color->green = (guint16) values[1];
+        poppler_color->blue = (guint16) values[2];
+        return poppler_color;
       case AnnotColor::colorTransparent:
       case AnnotColor::colorCMYK:
       default:

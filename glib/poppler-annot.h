@@ -147,7 +147,7 @@ gchar                        *poppler_annot_get_contents                       (
 gchar                        *poppler_annot_get_name                           (PopplerAnnot *poppler_annot);
 gchar                        *poppler_annot_get_modified                       (PopplerAnnot *poppler_annot);
 PopplerAnnotFlag              poppler_annot_get_flags                          (PopplerAnnot *poppler_annot);
-GdkColor                     *poppler_annot_get_color                          (PopplerAnnot *poppler_annot);
+PopplerColor                 *poppler_annot_get_color                          (PopplerAnnot *poppler_annot);
 
 /* PopplerAnnotMarkup */
 GType                         poppler_annot_markup_get_type                    (void) G_GNUC_CONST;
