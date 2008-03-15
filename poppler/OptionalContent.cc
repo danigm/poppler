@@ -40,6 +40,8 @@ OCGs::OCGs(Object *ocgObject, XRef *xref) :
   ocgObject->dictLookup("OCGs", &ocgList);
   if (!ocgList.isArray()) {
     error(-1, "Expected the optional content group list, but wasn't able to find it, or it isn't an Array");
+    ocgList.free();
+    return;
   }
 
   // we now enumerate over the ocgList, and build up the optionalContentGroups list.
@@ -65,6 +67,9 @@ OCGs::OCGs(Object *ocgObject, XRef *xref) :
   ocgObject->dictLookup("D", &defaultOcgConfig);
   if (!defaultOcgConfig.isDict()) {
     error(-1, "Expected the default config, but wasn't able to find it, or it isn't a Dictionary");
+    defaultOcgConfig.free();
+    ocgList.free();
+    return;
   }
 #if 0
   // this is untested - we need an example showing BaseState
