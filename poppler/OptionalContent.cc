@@ -46,6 +46,7 @@ OCGs::OCGs(Object *ocgObject, XRef *xref) :
     Object ocg;
     ocgList.arrayGet(i, &ocg);
     if (!ocg.isDict()) {
+      ocg.free();
       break;
     }
     OptionalContentGroup *thisOptionalContentGroup = new OptionalContentGroup(ocg.getDict(), xref);
@@ -82,6 +83,7 @@ OCGs::OCGs(Object *ocgObject, XRef *xref) :
       on.arrayGetNF(i, &reference);
       if (!reference.isRef()) {
 	// there can be null entries
+	reference.free();
 	break;
       }
       OptionalContentGroup *group = findOcgByRef( reference.getRef() );
@@ -104,6 +106,7 @@ OCGs::OCGs(Object *ocgObject, XRef *xref) :
       off.arrayGetNF(i, &reference);
       if (!reference.isRef()) {
 	// there can be null entries
+	reference.free();
 	break;
       }
       OptionalContentGroup *group = findOcgByRef( reference.getRef() );
