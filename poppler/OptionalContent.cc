@@ -17,6 +17,7 @@
 #include "goo/gmem.h"
 #include "goo/GooString.h"
 #include "goo/GooList.h"
+#include "Error.h"
 // #include "PDFDocEncoding.h"
 #include "OptionalContent.h"
 
@@ -38,7 +39,7 @@ OCGs::OCGs(Object *ocgObject, XRef *xref) :
   Object ocgList;
   ocgObject->dictLookup("OCGs", &ocgList);
   if (!ocgList.isArray()) {
-    printf("PROBLEM: expected the optional content group list, but wasn't able to find it, or it isn't an Array\n");
+    error(-1, "Expected the optional content group list, but wasn't able to find it, or it isn't an Array");
   }
 
   // we now enumerate over the ocgList, and build up the optionalContentGroups list.
@@ -63,7 +64,7 @@ OCGs::OCGs(Object *ocgObject, XRef *xref) :
   Object defaultOcgConfig;
   ocgObject->dictLookup("D", &defaultOcgConfig);
   if (!defaultOcgConfig.isDict()) {
-    printf("PROBLEM: expected the default config, but wasn't able to find it, or it isn't a Dictionary\n");
+    error(-1, "Expected the default config, but wasn't able to find it, or it isn't a Dictionary");
   }
 #if 0
   // this is untested - we need an example showing BaseState
@@ -89,7 +90,7 @@ OCGs::OCGs(Object *ocgObject, XRef *xref) :
       OptionalContentGroup *group = findOcgByRef( reference.getRef() );
       reference.free();
       if (!group) {
-	printf("Couldn't find group for reference\n");
+	error(-1, "Couldn't find group for reference");
 	break;
       }
       group->setState(OptionalContentGroup::On);
@@ -112,7 +113,7 @@ OCGs::OCGs(Object *ocgObject, XRef *xref) :
       OptionalContentGroup *group = findOcgByRef( reference.getRef() );
       reference.free();
       if (!group) {
-	printf("Couldn't find group for reference to set OFF\n");
+	error(-1, "Couldn't find group for reference to set OFF");
 	break;
       }
       group->setState(OptionalContentGroup::Off);
@@ -176,7 +177,7 @@ bool OCGs::optContentIsVisible( Object *dictRef )
   bool result = true;
   dictRef->fetch( m_xref, &dictObj );
   if ( ! dictObj.isDict() ) {
-    printf( "Unexpected oc reference target: %i\n", dictObj.getType() );
+    error(-1, "Unexpected oc reference target: %i", dictObj.getType() );
     dictObj.free();
     return result;
   }
@@ -213,7 +214,7 @@ bool OCGs::optContentIsVisible( Object *dictRef )
   } else if ( dictType.isName("OCG") ) {
     OptionalContentGroup* oc = findOcgByRef( dictRef->getRef() );
     if ( oc ) {
-      printf("Found valid group object\n");
+//       printf("Found valid group object\n");
       if ( oc->state() == OptionalContentGroup::Off ) {
 	result=false;
       }
@@ -292,7 +293,7 @@ OptionalContentGroup::OptionalContentGroup(Dict *ocgDict, XRef *xrefA)
   Object ocgName;
   ocgDict->lookupNF("Name", &ocgName);
   if (!ocgName.isString()) {
-    printf("PROBLEM: expected the name of the OCG, but wasn't able to find it, or it isn't a String\n");
+    error(-1, "Expected the name of the OCG, but wasn't able to find it, or it isn't a String");
   } else {
     m_name = new GooString( ocgName.getString() );
   }
