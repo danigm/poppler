@@ -30,7 +30,10 @@ GQuark poppler_error_quark (void);
 typedef enum
 {
   POPPLER_ERROR_INVALID,
-  POPPLER_ERROR_ENCRYPTED
+  POPPLER_ERROR_ENCRYPTED,
+  POPPLER_ERROR_OPEN_FILE,
+  POPPLER_ERROR_BAD_CATALOG,
+  POPPLER_ERROR_DAMAGED
 } PopplerError;
 
 typedef enum

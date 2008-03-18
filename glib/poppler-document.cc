@@ -70,19 +70,35 @@ _poppler_document_new_from_pdfdoc (PDFDoc  *newDoc,
   document = (PopplerDocument *) g_object_new (POPPLER_TYPE_DOCUMENT, NULL, NULL);
 
   if (!newDoc->isOk()) {
-    err = newDoc->getErrorCode();
-    delete newDoc;
-    if (err == errEncrypted) {
-      g_set_error (error, POPPLER_ERROR,
-		   POPPLER_ERROR_ENCRYPTED,
-		   "Document is encrypted.");
-    } else {
-      g_set_error (error, G_FILE_ERROR,
-		   G_FILE_ERROR_FAILED,
-		   "Failed to load document from data (error %d)'\n",
-		   err);
+    switch (newDoc->getErrorCode())
+      {
+      case errOpenFile:
+        g_set_error (error, POPPLER_ERROR,
+		     POPPLER_ERROR_OPEN_FILE,
+		     "Failed to open the PDF file");
+	break;
+      case errBadCatalog:
+        g_set_error (error, POPPLER_ERROR,
+		     POPPLER_ERROR_BAD_CATALOG,
+		     "Failed to read the document catalog");
+	break;
+      case errDamaged:
+        g_set_error (error, POPPLER_ERROR,
+		     POPPLER_ERROR_DAMAGED,
+		     "PDF document is damaged");
+	break;
+      case errEncrypted:
+        g_set_error (error, POPPLER_ERROR,
+		     POPPLER_ERROR_ENCRYPTED,
+		     "Document is encrypted");
+	break;
+      default:
+        g_set_error (error, POPPLER_ERROR,
+		     POPPLER_ERROR_INVALID,
+		     "Failed to load document");
     }
-
+    
+    delete newDoc;
     return NULL;
   }
 
