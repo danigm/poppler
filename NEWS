@@ -1,3 +1,10 @@
+Release 0.7.3 (0.8 RC 2)
+
+	* Fix regression in Splash renderer
+	* Fix off-by-one write in Splash
+	* Plug some minor leaks in Optional Content code
+	* Improve error handling when creating a document in the glib frontend
+
 Release 0.7.2 (0.8 RC 1)
 
 	Major Changes:
