@@ -227,7 +227,7 @@ pgd_annot_view_set_annot (GtkWidget    *annot_view,
         pgd_table_add_property (GTK_TABLE (table), "<b>Popup is open:</b>",
                                 poppler_annot_markup_get_popup_is_open (markup) ? "Yes" : "No", &row);
 
-        text = g_strdup_printf ("%d", poppler_annot_markup_get_opacity (markup));
+        text = g_strdup_printf ("%f", poppler_annot_markup_get_opacity (markup));
         pgd_table_add_property (GTK_TABLE (table), "<b>Opacity:</b>", text, &row);
 
         text = poppler_annot_markup_get_subject (markup);
