@@ -200,6 +200,9 @@ pgd_action_view_set_action (GtkWidget     *action_view,
 	case POPPLER_ACTION_UNKNOWN:
 		pgd_table_add_property (GTK_TABLE (table), "<b>Type:</b>", "Unknown", &row);
 		break;
+	case POPPLER_ACTION_NONE:
+		pgd_table_add_property (GTK_TABLE (table), "<b>Type:</b>", "None", &row);
+		break;
 	case POPPLER_ACTION_GOTO_DEST:
 		pgd_action_view_add_destination (action_view, GTK_TABLE (table), action->goto_dest.dest, &row);
 		break;
