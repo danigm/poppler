@@ -27,6 +27,7 @@ G_BEGIN_DECLS
 typedef enum
 {
 	POPPLER_ACTION_UNKNOWN,		/* unknown action */
+	POPPLER_ACTION_NONE,            /* no action specified */
 	POPPLER_ACTION_GOTO_DEST,	/* go to destination */
 	POPPLER_ACTION_GOTO_REMOTE,	/* go to destination in new file */
 	POPPLER_ACTION_LAUNCH,		/* launch app (or open document) */

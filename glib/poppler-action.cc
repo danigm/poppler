@@ -390,7 +390,7 @@ _poppler_action_new (PopplerDocument *document,
 		action->any.title = g_strdup (title);
 
 	if (link == NULL) {
-		action->type = POPPLER_ACTION_UNKNOWN;
+		action->type = POPPLER_ACTION_NONE;
 		return action;
 	}
 
