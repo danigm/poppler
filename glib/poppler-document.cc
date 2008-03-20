@@ -65,7 +65,6 @@ _poppler_document_new_from_pdfdoc (PDFDoc  *newDoc,
                                    GError **error)
 {
   PopplerDocument *document;
-  int err;
 
   document = (PopplerDocument *) g_object_new (POPPLER_TYPE_DOCUMENT, NULL, NULL);
 
