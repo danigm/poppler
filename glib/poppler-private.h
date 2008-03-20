@@ -59,9 +59,6 @@ struct _PopplerPage
   TextOutputDev *text_dev;
   Gfx *gfx;
   Annots *annots;
-#if defined (HAVE_CAIRO)
-  CairoImageOutputDev *image_dev;
-#endif
 };
 
 struct _PopplerFormField

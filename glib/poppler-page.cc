@@ -75,10 +75,6 @@ poppler_page_finalize (GObject *object)
     delete page->gfx;
   if (page->text_dev != NULL)
     delete page->text_dev;
-#if defined (HAVE_CAIRO)
-  if (page->image_dev != NULL)
-    delete page->image_dev;
-#endif
   /* page->page is owned by the document */
 }
 
@@ -1195,28 +1191,28 @@ poppler_page_get_image_output_dev (PopplerPage *page,
 				   GBool (*imgDrawDeviceCbk)(int img_id, void *data),
 				   void *imgDrawCbkData)
 {
-  if (page->image_dev == NULL) {
-    page->image_dev = new CairoImageOutputDev ();
+  CairoImageOutputDev *image_dev;
+  Gfx *gfx;
+  
+  image_dev = new CairoImageOutputDev ();
 
-    if (imgDrawDeviceCbk) {
-      page->image_dev->setImageDrawDecideCbk (imgDrawDeviceCbk,
-					      imgDrawCbkData);
-    }
-
-    if (page->gfx)
-      delete page->gfx;
-    page->gfx = page->page->createGfx(page->image_dev,
-				      72.0, 72.0, 0,
-				      gFalse, /* useMediaBox */
-				      gTrue, /* Crop */
-				      -1, -1, -1, -1,
-				      gFalse, /* printing */
-				      page->document->doc->getCatalog (),
-				      NULL, NULL, NULL, NULL);
-    page->page->display(page->gfx);
+  if (imgDrawDeviceCbk) {
+    image_dev->setImageDrawDecideCbk (imgDrawDeviceCbk,
+				      imgDrawCbkData);
   }
 
-  return page->image_dev;
+  gfx = page->page->createGfx(image_dev,
+			      72.0, 72.0, 0,
+			      gFalse, /* useMediaBox */
+			      gTrue, /* Crop */
+			      -1, -1, -1, -1,
+			      gFalse, /* printing */
+			      page->document->doc->getCatalog (),
+			      NULL, NULL, NULL, NULL);
+  page->page->display(gfx);
+  delete gfx;
+
+  return image_dev;
 }
 
 /**
@@ -1261,6 +1257,8 @@ poppler_page_get_image_mapping (PopplerPage *page)
     map_list = g_list_prepend (map_list, mapping);
   }
 
+  delete out;
+
   return map_list;	
 }
 
@@ -1292,11 +1290,23 @@ poppler_page_get_image (PopplerPage *page,
 					   image_draw_decide_cb,
 					   GINT_TO_POINTER (image_id));
 
-  if (image_id >= out->getNumImages ())
+  if (image_id >= out->getNumImages ()) {
+    delete out;
+    
     return NULL;
+  }
 
   image = out->getImage (image_id)->getImage ();
-  return image ? cairo_surface_reference (image) : NULL;
+  if (!image) {
+    delete out;
+
+    return NULL;
+  }
+
+  cairo_surface_reference (image);
+  delete out;
+  
+  return image;
 }
 
 /**
