@@ -161,7 +161,7 @@ PopplerAnnotExternalDataType  poppler_annot_markup_get_external_data           (
 
 /* PopplerAnnotText */
 GType                         poppler_annot_text_get_type                      (void) G_GNUC_CONST;
-gboolean                      poppler_annot_text_is_open                       (PopplerAnnotText *poppler_annot);
+gboolean                      poppler_annot_text_get_is_open                   (PopplerAnnotText *poppler_annot);
 PopplerAnnotTextIcon          poppler_annot_text_get_icon                      (PopplerAnnotText *poppler_annot);
 PopplerAnnotTextState         poppler_annot_text_get_state                     (PopplerAnnotText *poppler_annot);
 

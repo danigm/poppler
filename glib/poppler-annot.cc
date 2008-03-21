@@ -534,7 +534,7 @@ poppler_annot_markup_get_external_data (PopplerAnnotMarkup *poppler_annot)
 
 /* PopplerAnnotText */
 /**
- * poppler_annot_text_is_open:
+ * poppler_annot_text_get_is_open:
  * @poppler_annot: a #PopplerAnnotText
  *
  * Retrieves the state of @poppler_annot.
@@ -543,7 +543,7 @@ poppler_annot_markup_get_external_data (PopplerAnnotMarkup *poppler_annot)
  *               other case.
  **/
 gboolean
-poppler_annot_text_is_open (PopplerAnnotText *poppler_annot)
+poppler_annot_text_get_is_open (PopplerAnnotText *poppler_annot)
 {
   AnnotText *annot;
 
