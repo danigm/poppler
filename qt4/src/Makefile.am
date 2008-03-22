@@ -68,4 +68,4 @@ libpoppler_qt4_la_LDFLAGS = -version-info 3:0:0
 poppler-optcontent.lo: poppler-optcontent.moc
 
 clean-generic:
-	rm *.moc
+	rm -f *.moc
