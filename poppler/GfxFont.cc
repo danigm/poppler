@@ -408,9 +408,17 @@ char *GfxFont::readExtFontFile(int *len) {
     error(-1, "External font file '%s' vanished", extFontFile->getCString());
     return NULL;
   }
-  fseek(f, 0, SEEK_END);
+  if (fseek(f, 0, SEEK_END) != 0) {
+    error(-1, "Cannot seek to end of '%s'", extFontFile->getCString());
+    fclose(f);
+    return NULL;
+  }
   *len = (int)ftell(f);
-  fseek(f, 0, SEEK_SET);
+  if (fseek(f, 0, SEEK_SET) != 0) {
+    error(-1, "Cannot seek to start of '%s'", extFontFile->getCString());
+    fclose(f);
+    return NULL;
+  }
   buf = (char *)gmalloc(*len);
   if ((int)fread(buf, 1, *len, f) != *len) {
     error(-1, "Error reading external font file '%s'",

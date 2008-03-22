@@ -14,6 +14,7 @@
 
 #include <stdio.h>
 #include "goo/gmem.h"
+#include "Error.h"
 #include "FoFiBase.h"
 
 //------------------------------------------------------------------------
@@ -38,11 +39,20 @@ char *FoFiBase::readFile(char *fileName, int *fileLen) {
   int n;
 
   if (!(f = fopen(fileName, "rb"))) {
+    error(-1, "Cannot open '%s'", fileName);
     return NULL;
   }
-  fseek(f, 0, SEEK_END);
+  if (fseek(f, 0, SEEK_END) != 0) {
+    error(-1, "Cannot seek to end of '%s'", fileName);
+    fclose(f);
+    return NULL;
+  }
   n = (int)ftell(f);
-  fseek(f, 0, SEEK_SET);
+  if (fseek(f, 0, SEEK_SET) != 0) {
+    error(-1, "Cannot seek to start of '%s'", fileName);
+    fclose(f);
+    return NULL;
+  }
   buf = (char *)gmalloc(n);
   if ((int)fread(buf, 1, n, f) != n) {
     gfree(buf);
