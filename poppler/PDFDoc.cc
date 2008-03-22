@@ -182,7 +182,7 @@ PDFDoc::PDFDoc(BaseStream *strA, GooString *ownerPassword,
 
 GBool PDFDoc::setup(GooString *ownerPassword, GooString *userPassword) {
   str->setPos(0, -1);
-  if (str->getPos() <= 0)
+  if (str->getPos() < 0)
   {
     error(-1, "Document base stream is not seekable");
     return gFalse;
