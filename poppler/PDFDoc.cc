@@ -615,7 +615,6 @@ void PDFDoc::writeDictionnary (Dict* dict, OutStream* outStr)
 
 void PDFDoc::writeStream (Stream* str, OutStream* outStr)
 {
-  int c;
   outStr->printf("stream\r\n");
   str->reset();
   for (int c=str->getChar(); c!= EOF; c=str->getChar()) {
