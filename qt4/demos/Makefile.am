@@ -62,4 +62,4 @@ viewer.$(OBJEXT): viewer.moc
 poppler_qt4viewer_LDADD = $(LDADDS)
 
 clean-generic:
-	rm *.moc
+	rm -f *.moc
