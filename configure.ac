@@ -228,8 +228,9 @@ if test x$enable_poppler_glib = xyes; then
     PKG_CHECK_MODULES(GDK, gdk-2.0)
   elif test x$enable_gdk = xtry; then
     if test x$enable_splash_output = xyes; then
-      PKG_CHECK_MODULES(GDK, gdk-2.0)
-      enable_gdk=yes
+      PKG_CHECK_MODULES(GDK, gdk-2.0,
+                        [enable_gdk="yes"],
+                        [enable_gdk="no"])
     elif test x$enable_cairo_output = xyes; then
       PKG_CHECK_MODULES(GDK, gdk-2.0,
                         [enable_gdk="yes"],
