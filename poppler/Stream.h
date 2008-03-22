@@ -161,9 +161,6 @@ public:
   int incRef() { return ++ref; }
   int decRef() { return --ref; }
 
-  // Reset stream to beginning
-  virtual void reset() = 0;
-
   // Close the stream
   virtual void close() = 0;
 
@@ -190,8 +187,6 @@ public:
   FileOutStream (FILE* fa, Guint startA);
 
   virtual ~FileOutStream ();
-
-  virtual void reset();
 
   virtual void close();
 

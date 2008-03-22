@@ -32,7 +32,6 @@ class QIODeviceOutStream : public OutStream
     QIODeviceOutStream(QIODevice* device);
     virtual ~QIODeviceOutStream();
 
-    virtual void reset();
     virtual void close();
     virtual int getPos();
     virtual void put(char c);

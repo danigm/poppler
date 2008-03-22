@@ -35,11 +35,6 @@ QIODeviceOutStream::~QIODeviceOutStream()
 {
 }
 
-void QIODeviceOutStream::reset()
-{
-  m_device->reset();
-}
-
 void QIODeviceOutStream::close()
 {
 }

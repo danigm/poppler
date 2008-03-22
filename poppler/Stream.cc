@@ -308,11 +308,6 @@ FileOutStream::~FileOutStream ()
   close ();
 }
 
-void FileOutStream::reset ()
-{
-  fseek(f, start, SEEK_SET);
-}
-
 void FileOutStream::close ()
 {
 
