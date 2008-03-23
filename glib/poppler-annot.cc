@@ -721,8 +721,8 @@ poppler_annot_callout_line_get_type (void)
 
   if (our_type == 0)
     our_type = g_boxed_type_register_static ("PopplerAnnotCalloutLine",
-                                             (GBoxedCopyFunc) poppler_rectangle_copy,
-                                             (GBoxedFreeFunc) poppler_rectangle_free);
+                                             (GBoxedCopyFunc) poppler_annot_callout_line_copy,
+                                             (GBoxedFreeFunc) poppler_annot_callout_line_free);
 
   return our_type;
 }
