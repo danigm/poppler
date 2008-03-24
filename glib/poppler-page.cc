@@ -375,7 +375,7 @@ poppler_page_set_selection_alpha (PopplerPage           *page,
 }
 #endif /* POPPLER_WITH_GDK */
 
-#elif defined (HAVE_SPLASH)
+#elif defined (HAVE_SPLASH) && defined (POPPLER_WITH_GDK)
  
 typedef struct {
 } OutputDevData;

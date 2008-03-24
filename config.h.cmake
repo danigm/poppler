@@ -84,6 +84,9 @@
 /* Define to 1 if you have the <zlib.h> header file. */
 #cmakedefine HAVE_ZLIB_H 1
 
+/* Define to 1 if gdk was found */
+#cmakedefine POPPLER_WITH_GDK 1
+
 /* Enable multithreading support. */
 #cmakedefine MULTITHREADED 1
 

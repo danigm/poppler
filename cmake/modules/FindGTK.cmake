@@ -18,26 +18,33 @@ if (NOT WIN32)
   pkgconfig(glib-2.0 _LibGLIB2IncDir _LibGLIB2LinkDir GLIB2LinkFlags GLIB2Cflags)
   pkgconfig(gdk-2.0 _LibGDK2IncDir _LibGDK2LinkDir GDK2LinkFlags GDK2Cflags)
   set (GLIB_FOUND FALSE)
-  if (_LibGLIB2IncDir AND _LibGDK2IncDir)
+  if (_LibGLIB2IncDir)
 
     exec_program(${PKGCONFIG_EXECUTABLE} ARGS --atleast-version=2.6 glib-2.0 RETURN_VALUE _return_VALUE OUTPUT_VARIABLE _pkgconfigDevNull)
     if(_return_VALUE STREQUAL "0")
       set(_glib_FOUND TRUE)
     endif(_return_VALUE STREQUAL "0")
+  endif (_LibGLIB2IncDir)
 
+  if (_LibGDK2IncDir)
     exec_program(${PKGCONFIG_EXECUTABLE} ARGS --atleast-version=2.4.0 gdk-2.0 RETURN_VALUE _return_VALUE OUTPUT_VARIABLE _pkgconfigDevNull)
     if(_return_VALUE STREQUAL "0")
       set(_gdk_FOUND TRUE)
     endif(_return_VALUE STREQUAL "0")
+  endif (_LibGDK2IncDir)
 
-    if (_glib_FOUND AND _gdk_FOUND)
-      set (GLIB2_CFLAGS ${GLIB2Cflags} ${GDK2Cflags})
-      set (GLIB2_LIBRARIES ${GLIB2LinkFlags} ${GDK2LinkFlags})
-    endif (_glib_FOUND AND _gdk_FOUND)
+  if (_glib_FOUND)
+    set (GLIB2_CFLAGS ${GLIB2Cflags})
+    set (GLIB2_LIBRARIES ${GLIB2LinkFlags})
+  endif (_glib_FOUND)
 
-    find_package_handle_standard_args(GLib DEFAULT_MSG GLIB2_LIBRARIES GLIB2_CFLAGS)
+  if (_gdk_FOUND)
+    set (GDK2_CFLAGS ${GDK2Cflags})
+    set (GDK2_LIBRARIES ${GDK2LinkFlags})
+  endif (_gdk_FOUND)
 
-  endif (_LibGLIB2IncDir AND _LibGDK2IncDir)
+  find_package_handle_standard_args(GLib DEFAULT_MSG GLIB2_LIBRARIES GLIB2_CFLAGS)
+  find_package_handle_standard_args(GDK DEFAULT_MSG GDK2_LIBRARIES GDK2_CFLAGS)
 
   pkgconfig(gtk+-2.0 _LibGTK2IncDir _LibGTK2LinkDir GTK2LinkFlags GTK2Cflags)
   pkgconfig(gdk-pixbuf-2.0 _LibGDK2PixbufIncDir _LibGDK2PixbufLinkDir GDK2PixbufLinkFlags GDK2PixbufCflags)
@@ -64,6 +71,8 @@ endif(NOT WIN32)
 mark_as_advanced(
   GLIB2_CFLAGS
   GLIB2_LIBRARIES
+  GDK2_CFLAGS
+  GDK2_LIBRARIES
   GTK2_CFLAGS
   GTK2_LIBRARIES
 )
