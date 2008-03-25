@@ -125,7 +125,7 @@ void FontInfoScanner::scanFonts(Dict *resDict, GooList *fontsList) {
       xObjDict.dictGetVal(i, &xObj);
       if (xObj.isStream()) {
 	xObj.streamGetDict()->lookup("Resources", &resObj);
-	if (resObj.isDict()) {
+	if (resObj.isDict() && resObj.getDict() != resDict) {
 	  scanFonts(resObj.getDict(), fontsList);
 	}
 	resObj.free();
