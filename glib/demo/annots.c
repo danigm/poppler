@@ -28,6 +28,7 @@ enum {
     ANNOTS_X2_COLUMN,
     ANNOTS_Y2_COLUMN,
     ANNOTS_TYPE_COLUMN,
+    ANNOTS_COLOR_COLUMN,
     ANNOTS_COLUMN,
     N_COLUMNS
 };
@@ -144,6 +145,108 @@ get_annot_type (PopplerAnnot *poppler_annot)
   return "Unknown";
 }
 
+GdkPixbuf *
+get_annot_color (PopplerAnnot *poppler_annot)
+{
+    PopplerColor *poppler_color;
+
+    if ((poppler_color = poppler_annot_get_color (poppler_annot))) {
+        GdkPixbuf *pixbuf;
+
+        pixbuf = gdk_pixbuf_new (GDK_COLORSPACE_RGB,
+                                 FALSE, 8,
+                                 64, 16);
+
+        if (pixbuf) {
+            gint rowstride, num, x;
+            guchar *pixels;
+
+            rowstride = gdk_pixbuf_get_rowstride (pixbuf);
+            pixels = gdk_pixbuf_get_pixels (pixbuf);
+            
+            num = gdk_pixbuf_get_width (pixbuf) *
+                gdk_pixbuf_get_height (pixbuf);
+
+            for (x = 0; x < num; x++) {
+                pixels[0] = poppler_color->red * 255;
+                pixels[1] = poppler_color->green * 255;
+                pixels[2] = poppler_color->blue * 255;
+                pixels += 3;
+            }
+        }
+
+        g_free (poppler_color);
+
+        return pixbuf;
+    }
+
+    return NULL;
+}
+
+gchar *
+get_markup_date (PopplerAnnotMarkup *poppler_annot)
+{
+    GDate *date;
+
+    if ((date = poppler_annot_markup_get_date (poppler_annot))) {
+        gchar *text;
+        
+        text = g_strdup_printf ("D: %d:", g_date_get_day (date));
+        
+        switch (g_date_get_month (date))
+        {
+          case G_DATE_BAD_MONTH:
+            text = g_strdup_printf ("%s,M: Bad", text);
+            break;
+          case G_DATE_JANUARY:
+            text = g_strdup_printf ("%s,M: January", text);
+            break;
+          case G_DATE_FEBRUARY:
+            text = g_strdup_printf ("%s,M: February", text);
+            break;
+          case G_DATE_MARCH:
+            text = g_strdup_printf ("%s,M: March", text);
+            break;
+          case G_DATE_APRIL:
+            text = g_strdup_printf ("%s,M: April", text);
+            break;
+          case G_DATE_MAY:
+            text = g_strdup_printf ("%s,M: May", text);
+            break;
+          case G_DATE_JUNE:
+            text = g_strdup_printf ("%s,M: June", text);
+            break;
+          case G_DATE_JULY:
+            text = g_strdup_printf ("%s,M: July", text);
+            break;
+          case G_DATE_AUGUST:
+            text = g_strdup_printf ("%s,M: August", text);
+            break;
+          case G_DATE_SEPTEMBER:
+            text = g_strdup_printf ("%s,M: September", text);
+            break;
+          case G_DATE_OCTOBER:
+            text = g_strdup_printf ("%s,M: October", text);
+            break;
+          case G_DATE_NOVEMBER:
+            text = g_strdup_printf ("%s,M: November", text);
+            break;
+          case G_DATE_DECEMBER:
+            text = g_strdup_printf ("%s,M: December", text);
+            break;
+          default:
+            text = g_strdup_printf ("%s,M: Unknown", text);
+            break;
+        }
+        text = g_strdup_printf ("%s,Y: %d", text, g_date_get_year (date));
+
+        g_free (date);
+        return text;
+    }
+
+    return NULL;
+}
+
 const gchar *
 get_markup_reply_to (PopplerAnnotMarkup *poppler_annot)
 {
@@ -172,6 +275,159 @@ get_markup_external_data (PopplerAnnotMarkup *poppler_annot)
     }
 
   return "Unknown";
+}
+
+const gchar *
+get_text_icon (PopplerAnnotText *poppler_annot)
+{
+    switch (poppler_annot_text_get_icon (poppler_annot))
+    {
+      case POPPLER_ANNOT_TEXT_ICON_COMMENT:
+        return "Icon Comment";
+      case POPPLER_ANNOT_TEXT_ICON_KEY:
+        return "Icon Key";
+      case POPPLER_ANNOT_TEXT_ICON_NOTE:
+        return "Icon Note";
+      case POPPLER_ANNOT_TEXT_ICON_HELP:
+        return "Icon Help";
+      case POPPLER_ANNOT_TEXT_ICON_NEW_PARAGRAPH:
+        return "Icon New Paragraph";
+      case POPPLER_ANNOT_TEXT_ICON_PARAGRAPH:
+        return "Icon Paragraph";
+      case POPPLER_ANNOT_TEXT_ICON_INSERT:
+        return "Icon Insert";
+      default:
+        break;
+    }
+
+  return "Unknown";
+}
+
+const gchar *
+get_text_state (PopplerAnnotText *poppler_annot)
+{
+    switch (poppler_annot_text_get_state (poppler_annot))
+    {
+      case POPPLER_ANNOT_TEXT_STATE_MARKED:
+        return "Marked";
+      case POPPLER_ANNOT_TEXT_STATE_UNMARKED:
+        return "Unmarked";
+      case POPPLER_ANNOT_TEXT_STATE_ACCEPTED:
+        return "Accepted";
+      case POPPLER_ANNOT_TEXT_STATE_REJECTED:
+        return "Rejected";
+      case POPPLER_ANNOT_TEXT_STATE_CANCELLED:
+        return "Cancelled";
+      case POPPLER_ANNOT_TEXT_STATE_COMPLETED:
+        return "Completed";
+      case POPPLER_ANNOT_TEXT_STATE_NONE:
+        return "None";
+      case POPPLER_ANNOT_TEXT_STATE_UNKNOWN:
+        return "Unknown";
+      default:
+        break;
+    }
+
+  return "Unknown";
+}
+
+const gchar *
+get_free_text_quadding (PopplerAnnotFreeText *poppler_annot)
+{
+    switch (poppler_annot_free_text_get_quadding (poppler_annot))
+    {
+      case POPPLER_ANNOT_FREE_TEXT_QUADDING_LEFT_JUSTIFIED:
+        return "Left Justified";
+      case POPPLER_ANNOT_FREE_TEXT_QUADDING_CENTERED:
+        return "Centered";
+      case POPPLER_ANNOT_FREE_TEXT_QUADDING_RIGHT_JUSTIFIED:
+        return "Right Justified";
+      default:
+        break;
+    }
+
+  return "Unknown";
+}
+
+gchar *
+get_free_text_callout_line (PopplerAnnotFreeText *poppler_annot)
+{
+    PopplerAnnotCalloutLine *callout;
+    gdouble x1, y1, x2, y2;
+    gchar *text;
+    
+    if ((callout = poppler_annot_free_text_get_callout_line (poppler_annot))) {
+        text = g_strdup_printf ("%f,%f,%f,%f", callout->x1,
+                                               callout->y1,
+                                               callout->x2,
+                                               callout->y2);
+        if (callout->multiline)
+            text = g_strdup_printf ("%s,%f,%f", text,
+                                                callout->x3,
+                                                callout->y3);
+
+        return text;
+    }
+    
+    return NULL;
+}
+
+static void
+pgd_annot_view_set_annot_markup (GtkWidget          *table,
+                                 PopplerAnnotMarkup *markup,
+                                 gint               *row)
+{
+    gchar *text;
+
+    text = poppler_annot_markup_get_label (markup);
+    pgd_table_add_property (GTK_TABLE (table), "<b>Label:</b>", text, row);
+    g_free (text);
+
+    pgd_table_add_property (GTK_TABLE (table), "<b>Popup is open:</b>",
+                            poppler_annot_markup_get_popup_is_open (markup) ? "Yes" : "No", row);
+
+    text = g_strdup_printf ("%f", poppler_annot_markup_get_opacity (markup));
+    pgd_table_add_property (GTK_TABLE (table), "<b>Opacity:</b>", text, row);
+    g_free (text);
+
+    text = get_markup_date (markup);
+    pgd_table_add_property (GTK_TABLE (table), "<b>Date:</b>", text, row);
+    g_free (text);
+
+    text = poppler_annot_markup_get_subject (markup);
+    pgd_table_add_property (GTK_TABLE (table), "<b>Subject:</b>", text, row);
+    g_free (text);
+
+    pgd_table_add_property (GTK_TABLE (table), "<b>Reply To:</b>", get_markup_reply_to (markup), row);
+
+    pgd_table_add_property (GTK_TABLE (table), "<b>External Data:</b>", get_markup_external_data (markup), row);
+}
+
+static void
+pgd_annot_view_set_annot_text (GtkWidget        *table,
+                               PopplerAnnotText *annot,
+                               gint             *row)
+{
+    pgd_table_add_property (GTK_TABLE (table), "<b>Is open:</b>",
+                            poppler_annot_text_get_is_open (annot) ? "Yes" : "No", row);
+
+    pgd_table_add_property (GTK_TABLE (table), "<b>Icon:</b>", get_text_icon (annot), row);
+
+    pgd_table_add_property (GTK_TABLE (table), "<b>State:</b>", get_text_state (annot), row);
+}
+
+static void
+pgd_annot_view_set_annot_free_text (GtkWidget            *table,
+                                    PopplerAnnotFreeText *annot,
+                                    gint                 *row)
+{
+    gchar *text;
+
+    pgd_table_add_property (GTK_TABLE (table), "<b>Quadding:</b>", get_free_text_quadding (annot), row);
+
+    text = get_free_text_callout_line (annot);
+    pgd_table_add_property (GTK_TABLE (table), "<b>Callout:</b>", text, row);
+    g_free (text);
 }
 
 static void
@@ -217,26 +473,19 @@ pgd_annot_view_set_annot (GtkWidget    *annot_view,
     pgd_table_add_property (GTK_TABLE (table), "<b>Flags:</b>", text, &row);
     g_free (text);
 
-    if (POPPLER_IS_ANNOT_MARKUP (annot)) {
-        PopplerAnnotMarkup *markup = POPPLER_ANNOT_MARKUP (annot);
+    if (POPPLER_IS_ANNOT_MARKUP (annot))
+        pgd_annot_view_set_annot_markup (table, POPPLER_ANNOT_MARKUP (annot), &row);
 
-        text = poppler_annot_markup_get_label (markup);
-        pgd_table_add_property (GTK_TABLE (table), "<b>Label:</b>", text, &row);
-        g_free (text);
-
-        pgd_table_add_property (GTK_TABLE (table), "<b>Popup is open:</b>",
-                                poppler_annot_markup_get_popup_is_open (markup) ? "Yes" : "No", &row);
-
-        text = g_strdup_printf ("%f", poppler_annot_markup_get_opacity (markup));
-        pgd_table_add_property (GTK_TABLE (table), "<b>Opacity:</b>", text, &row);
-
-        text = poppler_annot_markup_get_subject (markup);
-        pgd_table_add_property (GTK_TABLE (table), "<b>Subject:</b>", text, &row);
-        g_free (text);
-
-        pgd_table_add_property (GTK_TABLE (table), "<b>Reply To:</b>", get_markup_reply_to (markup), &row);
-
-        pgd_table_add_property (GTK_TABLE (table), "<b>External Data:</b>", get_markup_external_data (markup), &row);
+    switch (poppler_annot_get_annot_type (annot))
+    {
+        case POPPLER_ANNOT_TEXT:
+          pgd_annot_view_set_annot_text (table, POPPLER_ANNOT_TEXT (annot), &row);
+          break;
+        case POPPLER_ANNOT_FREE_TEXT:
+          pgd_annot_view_set_annot_free_text (table, POPPLER_ANNOT_FREE_TEXT (annot), &row);
+          break;
+        default:
+          break;
     }
 
     gtk_container_add (GTK_CONTAINER (alignment), table);
@@ -285,6 +534,7 @@ pgd_annots_get_annots (GtkWidget     *button,
         PopplerAnnotMapping *amapping;
         GtkTreeIter          iter;
         gchar               *x1, *y1, *x2, *y2;
+        GdkPixbuf           *pixbuf;
 
         amapping = (PopplerAnnotMapping *) l->data;
 
@@ -293,6 +543,8 @@ pgd_annots_get_annots (GtkWidget     *button,
         x2 = g_strdup_printf ("%.2f", amapping->area.x2);
         y2 = g_strdup_printf ("%.2f", amapping->area.y2);
 
+        pixbuf = get_annot_color (amapping->annot);
+
         gtk_list_store_append (demo->model, &iter);
         gtk_list_store_set (demo->model, &iter,
                             ANNOTS_X1_COLUMN, x1, 
@@ -300,8 +552,13 @@ pgd_annots_get_annots (GtkWidget     *button,
                             ANNOTS_X2_COLUMN, x2,
                             ANNOTS_Y2_COLUMN, y2,
                             ANNOTS_TYPE_COLUMN, get_annot_type (amapping->annot),
+                            ANNOTS_COLOR_COLUMN, pixbuf,
                             ANNOTS_COLUMN, amapping->annot,
                            -1);
+
+        if (pixbuf)
+            g_object_unref (pixbuf);
+
         g_free (x1);
         g_free (y1);
         g_free (x2);
@@ -406,39 +663,46 @@ pgd_annots_create_widget (PopplerDocument *document)
     demo->model = gtk_list_store_new (N_COLUMNS, G_TYPE_STRING,
                                       G_TYPE_STRING, G_TYPE_STRING,
                                       G_TYPE_STRING, G_TYPE_STRING,
-                                      G_TYPE_OBJECT);
+                                      GDK_TYPE_PIXBUF, G_TYPE_OBJECT);
     treeview = gtk_tree_view_new_with_model (GTK_TREE_MODEL (demo->model));
 
     renderer = gtk_cell_renderer_text_new ();
     gtk_tree_view_insert_column_with_attributes (GTK_TREE_VIEW (treeview),
-                                                 0, "X1",
+                                                 ANNOTS_X1_COLUMN, "X1",
                                                  renderer,
                                                  "text", ANNOTS_X1_COLUMN,
                                                  NULL);
     renderer = gtk_cell_renderer_text_new ();
     gtk_tree_view_insert_column_with_attributes (GTK_TREE_VIEW (treeview),
-                                                 1, "Y1",
+                                                 ANNOTS_Y1_COLUMN, "Y1",
                                                  renderer,
                                                  "text", ANNOTS_Y1_COLUMN,
                                                  NULL);
     renderer = gtk_cell_renderer_text_new ();
     gtk_tree_view_insert_column_with_attributes (GTK_TREE_VIEW (treeview),
-                                                 2, "X2",
+                                                 ANNOTS_X2_COLUMN, "X2",
                                                  renderer,
                                                  "text", ANNOTS_X2_COLUMN,
                                                  NULL);
     renderer = gtk_cell_renderer_text_new ();
     gtk_tree_view_insert_column_with_attributes (GTK_TREE_VIEW (treeview),
-                                                 3, "Y2",
+                                                 ANNOTS_Y2_COLUMN, "Y2",
                                                  renderer,
                                                  "text", ANNOTS_Y2_COLUMN,
                                                  NULL);
 
     renderer = gtk_cell_renderer_text_new ();
     gtk_tree_view_insert_column_with_attributes (GTK_TREE_VIEW (treeview),
-                                                 4, "Annot Type",
+                                                 ANNOTS_TYPE_COLUMN, "Type",
                                                  renderer,
                                                  "text", ANNOTS_TYPE_COLUMN,
+                                                 NULL);
+
+    renderer = gtk_cell_renderer_pixbuf_new ();
+    gtk_tree_view_insert_column_with_attributes (GTK_TREE_VIEW (treeview),
+                                                 ANNOTS_COLOR_COLUMN, "Color",
+                                                 renderer,
+                                                 "pixbuf", ANNOTS_COLOR_COLUMN,
                                                  NULL);
 
     selection = gtk_tree_view_get_selection (GTK_TREE_VIEW (treeview));
