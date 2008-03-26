@@ -140,13 +140,6 @@ Link* PageData::convertLinkActionToLink(::LinkAction * a, const QRectF &linkArea
     }
     break;
 
-    case actionJavaScript:
-    {
-      ::LinkJavaScript *ljs = (::LinkJavaScript *)a;
-      popplerLink = new LinkJavaScript( linkArea, UnicodeParsedString(ljs->getScript()) );
-    }
-    break;
-
     case actionMovie:
 /*      TODO this (Movie link)
           m_type = Movie;

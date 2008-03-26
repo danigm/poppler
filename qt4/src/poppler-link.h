@@ -34,6 +34,7 @@ class LinkExecutePrivate;
 class LinkBrowsePrivate;
 class LinkActionPrivate;
 class LinkSoundPrivate;
+class LinkJavaScriptPrivate;
 class LinkMoviePrivate;
 class LinkDestinationData;
 class LinkDestinationPrivate;
@@ -124,7 +125,8 @@ class POPPLER_QT4_EXPORT Link
 		    Browse,
 		    Action,
 		    Sound,    ///< A link representing a sound to be played
-		    Movie
+		    Movie,
+		    JavaScript    ///< A JavaScript code to be interpreted
 		};
 
 		/**
@@ -341,6 +343,34 @@ class POPPLER_QT4_EXPORT LinkSound : public Link
 		Q_DECLARE_PRIVATE( LinkSound )
 		Q_DISABLE_COPY( LinkSound )
 };
+
+/** JavaScript: a JavaScript code to be interpreted. **/
+class POPPLER_QT4_EXPORT LinkJavaScript : public Link
+{
+	public:
+		/**
+		 * Create a new JavaScript link.
+		 *
+		 * \param linkArea the active area of the link
+		 * \param js the JS code to be interpreted
+		 */
+		LinkJavaScript( const QRectF &linkArea, const QString &js );
+		/**
+		 * Destructor.
+		 */
+		virtual ~LinkJavaScript();
+
+		LinkType linkType() const;
+
+		/**
+		 * The JS code
+		 */
+		QString script() const;
+
+	private:
+		Q_DECLARE_PRIVATE( LinkJavaScript )
+		Q_DISABLE_COPY( LinkJavaScript )
+};	
 
 #if 0
 /** Movie: Not yet defined -> think renaming to 'Media' link **/

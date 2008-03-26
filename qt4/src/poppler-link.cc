@@ -151,6 +151,19 @@ class LinkSoundPrivate : public LinkPrivate
 		delete sound;
 	}
 
+class LinkJavaScriptPrivate : public LinkPrivate
+{
+	public:
+		LinkJavaScriptPrivate( const QRectF &area );
+
+		QString js;
+};
+
+	LinkJavaScriptPrivate::LinkJavaScriptPrivate( const QRectF &area )
+		: LinkPrivate( area )
+	{
+	}
+
 #if 0
 class LinkMoviePrivate : public LinkPrivate
 {
@@ -513,6 +526,29 @@ class LinkMoviePrivate : public LinkPrivate
 	{
 		Q_D( const LinkSound );
 		return d->sound;
+	}
+
+	// LinkJavaScript
+	LinkJavaScript::LinkJavaScript( const QRectF &linkArea, const QString &js )
+		: Link( *new LinkJavaScriptPrivate( linkArea ) )
+	{
+		Q_D( LinkJavaScript );
+		d->js = js;
+	}
+	
+	LinkJavaScript::~LinkJavaScript()
+	{
+	}
+	
+	Link::LinkType LinkJavaScript::linkType() const
+	{
+		return JavaScript;
+	}
+	
+	QString LinkJavaScript::script() const
+	{
+		Q_D( const LinkJavaScript );
+		return d->js;
 	}
 
 #if 0
