@@ -138,6 +138,7 @@ Link* PageData::convertLinkActionToLink(::LinkAction * a, const QRectF &linkArea
       ::LinkSound *ls = (::LinkSound *)a;
       popplerLink = new LinkSound( linkArea, ls->getVolume(), ls->getSynchronous(), ls->getRepeat(), ls->getMix(), new SoundObject( ls->getSound() ) );
     }
+    break;
 
     case actionMovie:
 /*      TODO this (Movie link)
