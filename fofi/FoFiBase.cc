@@ -14,7 +14,7 @@
 
 #include <stdio.h>
 #include "goo/gmem.h"
-#include "Error.h"
+#include "poppler/Error.h"
 #include "FoFiBase.h"
 
 //------------------------------------------------------------------------
