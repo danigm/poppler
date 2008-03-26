@@ -1,3 +1,13 @@
+Release 0.8.0
+
+	* Fix caching of members in the glib frontend causing issues with rendering
+	* Change glib public api to have a correct naming
+	* Some better error handling on corner cases
+	* Check the document stream is seekable when opening it
+	* Build fixes with autotools and with cmake
+	* Fix infinite recursion on some malformed documents when consulting the fonts
+	* Fix possible crash when asking for Movie contents
+
 Release 0.7.3 (0.8 RC 2)
 
 	* Fix regression in Splash renderer
