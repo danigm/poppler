@@ -295,6 +295,7 @@ Movie::Movie() {
   contentType = NULL;
   isEmbedded = gFalse;
   embeddedStream = NULL;
+  posterStream = NULL;
 }
 
 Movie::~Movie() {
