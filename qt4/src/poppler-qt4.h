@@ -906,6 +906,14 @@ QString subject = m_doc->info("Subject");
 	OptContentModel *optionalContentModel();
 
 	/**
+	   Document JavaScript scripts.
+
+	   Returns the list of document level JavaScript scripts to be always
+	   executed before any other script.
+	*/
+	QStringList scripts() const;
+
+	/**
 	   Destructor.
 	*/
 	~Document();

@@ -478,6 +478,21 @@ namespace Poppler {
         return (OptContentModel *)m_doc->m_optContentModel;
     }
 
+    QStringList Document::scripts() const
+    {
+        Catalog *catalog = m_doc->doc->getCatalog();
+        const int numScripts = catalog->numJS();
+        QStringList scripts;
+        for (int i = 0; i < numScripts; ++i) {
+            GooString *s = catalog->getJS(i);
+            if (s) {
+                scripts.append(UnicodeParsedString(s));
+                delete s;
+            }
+        }
+        return scripts;
+    }
+
     QDateTime convertDate( char *dateString )
     {
         int year;
