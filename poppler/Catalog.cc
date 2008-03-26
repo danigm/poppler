@@ -114,6 +114,9 @@ Catalog::Catalog(XRef *xrefA) {
     obj.dictLookup("EmbeddedFiles", &obj2);
     embeddedFileNameTree.init(xref, &obj2);
     obj2.free();
+    obj.dictLookup("JavaScript", &obj2);
+    jsNameTree.init(xref, &obj2);
+    obj2.free();
   }
   obj.free();
 
@@ -211,6 +214,7 @@ Catalog::~Catalog() {
   dests.free();
   destNameTree.free();
   embeddedFileNameTree.free();
+  jsNameTree.free();
   if (baseURI) {
     delete baseURI;
   }
@@ -482,6 +486,41 @@ EmbFile *Catalog::embeddedFile(int i)
     EmbFile *embeddedFile = new EmbFile(fileName, desc, size, createDate, modDate, checksum, mimetype, strObj);
     strObj.free();
     return embeddedFile;
+}
+
+GooString *Catalog::getJS(int i)
+{
+  Object obj = jsNameTree.getValue(i);
+  if (obj.isRef()) {
+    Ref r = obj.getRef();
+    obj.free();
+    xref->fetch(r.num, r.gen, &obj);
+  }
+
+  if (!obj.isDict()) {
+    obj.free();
+    return 0;
+  }
+  Object obj2;
+  if (!obj.dictLookup("S", &obj2)->isName()) {
+    obj2.free();
+    obj.free();
+    return 0;
+  }
+  if (strcmp(obj2.getName(), "JavaScript")) {
+    obj2.free();
+    obj.free();
+    return 0;
+  }
+  if (!obj.dictLookup("JS", &obj2)->isString()) {
+    obj2.free();
+    obj.free();
+    return 0;
+  }
+  GooString *js = new GooString(obj2.getString());
+  obj2.free();
+  obj.free();
+  return js;
 }
 
 NameTree::NameTree()

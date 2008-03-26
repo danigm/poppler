@@ -160,6 +160,12 @@ public:
   // Get the i'th file embedded (at the Document level) in the document
   EmbFile *embeddedFile(int i);
 
+  // Get the number of javascript scripts
+  int numJS() { return jsNameTree.numEntries(); }
+
+  // Get the i'th JavaScript script (at the Document level) in the document
+  GooString *getJS(int i);
+
   // Convert between page indices and page labels.
   GBool labelToIndex(GooString *label, int *index);
   GBool indexToLabel(int index, GooString *label);
@@ -205,6 +211,7 @@ private:
   Object dests;			// named destination dictionary
   NameTree destNameTree;	// named destination name-tree
   NameTree embeddedFileNameTree;  // embedded file name-tree
+  NameTree jsNameTree;		// Java Script name-tree
   GooString *baseURI;		// base URI for URI-type links
   Object metadata;		// metadata stream
   Object structTreeRoot;	// structure tree root dictionary
