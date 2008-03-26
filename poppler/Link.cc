@@ -93,6 +93,12 @@ LinkAction *LinkAction::parseAction(Object *obj, GooString *baseURI) {
   } else if (obj2.isName("Sound")) {
     action = new LinkSound(obj);
 
+  // JavaScript action
+  } else if (obj2.isName("JavaScript")) {
+    obj->dictLookup("JS", &obj3);
+    action = new LinkJavaScript(&obj3);
+    obj3.free();
+
   // unknown action
   } else if (obj2.isName()) {
     action = new LinkUnknown(obj2.getName());
@@ -776,6 +782,33 @@ LinkRendition::~LinkRendition() {
     delete movie;
 }
 
+
+//------------------------------------------------------------------------
+// LinkJavaScript
+//------------------------------------------------------------------------
+
+LinkJavaScript::LinkJavaScript(Object *jsObj) {
+  js = NULL;
+
+  if (jsObj->isString()) {
+    js = new GooString(jsObj->getString());
+  }
+  else if (jsObj->isStream()) {
+    Stream *stream = jsObj->getStream();
+    js = new GooString();
+    stream->reset();
+    int i;
+    while ((i = stream->getChar()) != EOF) {
+      js->append((char)i);
+    }
+  }
+}
+
+LinkJavaScript::~LinkJavaScript() {
+  if (js) {
+    delete js;
+  }
+}
 
 //------------------------------------------------------------------------
 // LinkUnknown

@@ -34,6 +34,7 @@ enum LinkActionKind {
   actionMovie,			// movie action
   actionRendition,
   actionSound,			// sound action
+  actionJavaScript,		// JavaScript action
   actionUnknown			// anything else
 };
 
@@ -356,6 +357,28 @@ private:
   GBool repeat;
   GBool mix;
   Sound *sound;
+};
+
+//------------------------------------------------------------------------
+// LinkJavaScript
+//------------------------------------------------------------------------
+
+class LinkJavaScript: public LinkAction {
+public:
+
+  // Build a LinkJavaScript given the action name.
+  LinkJavaScript(Object *jsObj);
+
+  virtual ~LinkJavaScript();
+
+  virtual GBool isOk() { return js != NULL; }
+
+  virtual LinkActionKind getKind() { return actionJavaScript; }
+  GooString *getScript() { return js; }
+
+private:
+
+  GooString *js;
 };
 
 //------------------------------------------------------------------------
