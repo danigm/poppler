@@ -24,7 +24,7 @@ set(poppler_qt4_SRCS
   poppler-qiodeviceoutstream.cc
   poppler-sound.cc
   poppler-textbox.cc
-  ${CMAKE_SOURCE_DIR}/qt/poppler-page-transition.cc
+  poppler-page-transition.cc
 )
 if (ENABLE_SPLASH)
   set(poppler_qt4_SRCS ${poppler_qt4_SRCS}
@@ -47,6 +47,6 @@ install(FILES
   poppler-form.h
   poppler-optcontent.h
   poppler-export.h
-  ${CMAKE_SOURCE_DIR}/qt/poppler-page-transition.h
+  poppler-page-transition.h
   DESTINATION include/poppler/qt4)
 

@@ -16,7 +16,7 @@ poppler_include_HEADERS =			\
 	poppler-form.h				\
 	poppler-optcontent.h			\
 	poppler-export.h			\
-	../../qt/poppler-page-transition.h
+	poppler-page-transition.h
 
 lib_LTLIBRARIES = libpoppler-qt4.la
 
@@ -31,7 +31,7 @@ libpoppler_qt4_la_SOURCES =			\
 	poppler-link-extractor.cc		\
 	poppler-optcontent.cc			\
 	poppler-optcontent.h			\
-	../../qt/poppler-page-transition.cc	\
+	poppler-page-transition.cc		\
 	poppler-sound.cc			\
 	poppler-form.cc				\
 	poppler-base-converter.cc		\
