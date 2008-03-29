@@ -20,6 +20,8 @@
 #ifndef __PAGETRANSITION_X_H__
 #define __PAGETRANSITION_X_H__
 
+#include "poppler-export.h"
+
 namespace Poppler {
 
 class PageTransitionParams;
@@ -39,7 +41,7 @@ class PageTransitionData;
 */
 
 
-class PageTransition {
+class POPPLER_QT4_EXPORT PageTransition {
  public:
 
   /** \brief transition effect that shall be used
