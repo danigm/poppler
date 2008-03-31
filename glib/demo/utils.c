@@ -101,7 +101,7 @@ pgd_action_view_add_destination (GtkWidget   *action_view,
 			PopplerPage *poppler_page;
 			gchar       *page_label;
 			
-			poppler_page = poppler_document_get_page (document, dest->page_num);
+			poppler_page = poppler_document_get_page (document, MAX (0, dest->page_num - 1));
 			
 			g_object_get (G_OBJECT (poppler_page),
 				      "label", &page_label,
