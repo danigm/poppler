@@ -657,9 +657,9 @@ GDir::GDir(char *name, GBool doStatA) {
 GDir::~GDir() {
   delete path;
 #if defined(WIN32)
-  if (hnd) {
+  if (hnd != INVALID_HANDLE_VALUE) {
     FindClose(hnd);
-    hnd = NULL;
+    hnd = INVALID_HANDLE_VALUE;
   }
 #elif defined(ACORN)
 #elif defined(MACOS)
@@ -673,11 +673,11 @@ GDirEntry *GDir::getNextEntry() {
   GDirEntry *e;
 
 #if defined(WIN32)
-  if (hnd) {
+  if (hnd != INVALID_HANDLE_VALUE) {
     e = new GDirEntry(path->getCString(), ffd.cFileName, doStat);
-    if (hnd  && !FindNextFile(hnd, &ffd)) {
+    if (!FindNextFile(hnd, &ffd)) {
       FindClose(hnd);
-      hnd = NULL;
+      hnd = INVALID_HANDLE_VALUE;
     }
   } else {
     e = NULL;
@@ -719,7 +719,7 @@ void GDir::rewind() {
 #ifdef WIN32
   GooString *tmp;
 
-  if (hnd)
+  if (hnd != INVALID_HANDLE_VALUE)
     FindClose(hnd);
   tmp = path->copy();
   tmp->append("/*.*");
