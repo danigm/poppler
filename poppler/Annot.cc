@@ -1180,6 +1180,10 @@ AnnotText::AnnotText(XRef *xrefA, Dict *dict, Catalog *catalog, Object *obj) :
   initialize (xrefA, catalog, dict);
 }
 
+AnnotText::~AnnotText() {
+  delete icon;
+}
+
 void AnnotText::setModified(GooString *date) {
   if (date) {
     delete modified;
@@ -1197,26 +1201,9 @@ void AnnotText::initialize(XRef *xrefA, Catalog *catalog, Dict *dict) {
   obj1.free();
 
   if (dict->lookup("Name", &obj1)->isName()) {
-    GooString *iconName = new GooString(obj1.getName());
-
-    if (!iconName->cmp("Comment")) {
-      icon = iconComment;
-    } else if (!iconName->cmp("Key")) {
-      icon = iconKey;
-    } else if (!iconName->cmp("Help")) {
-      icon = iconHelp;
-    } else if (!iconName->cmp("NewParagraph")) {
-      icon = iconNewParagraph;
-    } else if (!iconName->cmp("Paragraph")) {
-      icon = iconParagraph;
-    } else if (!iconName->cmp("Insert")) {
-      icon = iconInsert;
-    } else {
-      icon = iconNote;
-    }
-    delete iconName;
+    icon = new GooString(obj1.getName());
   } else {
-    icon = iconNote;
+    icon = new GooString("Note");
   }
   obj1.free();
 

@@ -583,16 +583,6 @@ private:
 
 class AnnotText: public AnnotMarkup {
 public:
-  enum AnnotTextIcon {
-    iconComment,      // Comment
-    iconKey,          // Key
-    iconNote,         // Note
-    iconHelp,         // Help
-    iconNewParagraph, // NewParagraph
-    iconParagraph,    // Paragraph
-    iconInsert        // Insert
-  };
-
   enum AnnotTextState {
     stateUnknown,
     // Marked state model
@@ -607,10 +597,11 @@ public:
   };
 
   AnnotText(XRef *xrefA, Dict *dict, Catalog *catalog, Object *obj);
+  ~AnnotText();
 
   // getters
   GBool getOpen() const { return open; }
-  AnnotTextIcon getIcon() const { return icon; }
+  GooString *getIcon() const { return icon; }
   AnnotTextState getState() const { return state; }
 
   // setters
@@ -621,7 +612,7 @@ private:
   void initialize(XRef *xrefA, Catalog *catalog, Dict *dict);
 
   GBool open;                       // Open       (Default false)
-  AnnotTextIcon icon;               // Name       (Default Note)
+  GooString *icon;                  // Name       (Default Note)
   AnnotTextState state;             // State      (Default Umarked if
                                     //             StateModel Marked
                                     //             None if StareModel Review)
