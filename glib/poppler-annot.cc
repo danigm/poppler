@@ -562,36 +562,19 @@ poppler_annot_text_get_is_open (PopplerAnnotText *poppler_annot)
  *
  * Return value: #PopplerAnnotTextIcon of @poppler_annot.
  **/ 
-PopplerAnnotTextIcon
+gchar *
 poppler_annot_text_get_icon (PopplerAnnotText *poppler_annot)
 {
   AnnotText *annot;
+  GooString *text;
 
-  g_return_val_if_fail (POPPLER_IS_ANNOT_TEXT (poppler_annot), POPPLER_ANNOT_TEXT_ICON_NOTE);
+  g_return_val_if_fail (POPPLER_IS_ANNOT_TEXT (poppler_annot), NULL);
 
   annot = static_cast<AnnotText *>(POPPLER_ANNOT (poppler_annot)->annot);
 
-  switch (annot->getIcon ())
-    {
-    case AnnotText::iconComment:
-      return POPPLER_ANNOT_TEXT_ICON_COMMENT;
-    case AnnotText::iconKey:
-      return POPPLER_ANNOT_TEXT_ICON_KEY;
-    case AnnotText::iconNote:
-      return POPPLER_ANNOT_TEXT_ICON_NOTE;
-    case AnnotText::iconHelp:
-      return POPPLER_ANNOT_TEXT_ICON_HELP;
-    case AnnotText::iconNewParagraph:
-      return POPPLER_ANNOT_TEXT_ICON_NEW_PARAGRAPH;
-    case AnnotText::iconParagraph:
-      return POPPLER_ANNOT_TEXT_ICON_PARAGRAPH;
-    case AnnotText::iconInsert:
-      return POPPLER_ANNOT_TEXT_ICON_INSERT;
-    default:
-      g_warning ("Unsupported Annot Text Icon");
-    }
+  text = annot->getIcon ();
 
-  return POPPLER_ANNOT_TEXT_ICON_NOTE;
+  return text ? _poppler_goo_string_to_utf8 (text) : NULL;
 }
 
 /**

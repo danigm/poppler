@@ -102,17 +102,6 @@ typedef enum
 
 typedef enum
 {
-  POPPLER_ANNOT_TEXT_ICON_COMMENT,
-  POPPLER_ANNOT_TEXT_ICON_KEY,
-  POPPLER_ANNOT_TEXT_ICON_NOTE,
-  POPPLER_ANNOT_TEXT_ICON_HELP,
-  POPPLER_ANNOT_TEXT_ICON_NEW_PARAGRAPH,
-  POPPLER_ANNOT_TEXT_ICON_PARAGRAPH,
-  POPPLER_ANNOT_TEXT_ICON_INSERT
-} PopplerAnnotTextIcon;
-
-typedef enum
-{
   POPPLER_ANNOT_TEXT_STATE_MARKED,
   POPPLER_ANNOT_TEXT_STATE_UNMARKED,
   POPPLER_ANNOT_TEXT_STATE_ACCEPTED,
@@ -162,7 +151,7 @@ PopplerAnnotExternalDataType  poppler_annot_markup_get_external_data           (
 /* PopplerAnnotText */
 GType                         poppler_annot_text_get_type                      (void) G_GNUC_CONST;
 gboolean                      poppler_annot_text_get_is_open                   (PopplerAnnotText *poppler_annot);
-PopplerAnnotTextIcon          poppler_annot_text_get_icon                      (PopplerAnnotText *poppler_annot);
+gchar                        *poppler_annot_text_get_icon                      (PopplerAnnotText *poppler_annot);
 PopplerAnnotTextState         poppler_annot_text_get_state                     (PopplerAnnotText *poppler_annot);
 
 /* PopplerAnnotFreeText */

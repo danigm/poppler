@@ -278,32 +278,6 @@ get_markup_external_data (PopplerAnnotMarkup *poppler_annot)
 }
 
 const gchar *
-get_text_icon (PopplerAnnotText *poppler_annot)
-{
-    switch (poppler_annot_text_get_icon (poppler_annot))
-    {
-      case POPPLER_ANNOT_TEXT_ICON_COMMENT:
-        return "Icon Comment";
-      case POPPLER_ANNOT_TEXT_ICON_KEY:
-        return "Icon Key";
-      case POPPLER_ANNOT_TEXT_ICON_NOTE:
-        return "Icon Note";
-      case POPPLER_ANNOT_TEXT_ICON_HELP:
-        return "Icon Help";
-      case POPPLER_ANNOT_TEXT_ICON_NEW_PARAGRAPH:
-        return "Icon New Paragraph";
-      case POPPLER_ANNOT_TEXT_ICON_PARAGRAPH:
-        return "Icon Paragraph";
-      case POPPLER_ANNOT_TEXT_ICON_INSERT:
-        return "Icon Insert";
-      default:
-        break;
-    }
-
-  return "Unknown";
-}
-
-const gchar *
 get_text_state (PopplerAnnotText *poppler_annot)
 {
     switch (poppler_annot_text_get_state (poppler_annot))
@@ -408,10 +382,14 @@ pgd_annot_view_set_annot_text (GtkWidget        *table,
                                PopplerAnnotText *annot,
                                gint             *row)
 {
+    gchar *text;
+
     pgd_table_add_property (GTK_TABLE (table), "<b>Is open:</b>",
                             poppler_annot_text_get_is_open (annot) ? "Yes" : "No", row);
 
-    pgd_table_add_property (GTK_TABLE (table), "<b>Icon:</b>", get_text_icon (annot), row);
+    text = poppler_annot_text_get_icon (annot);
+    pgd_table_add_property (GTK_TABLE (table), "<b>Icon:</b>", text, row);
+    g_free (text);
 
     pgd_table_add_property (GTK_TABLE (table), "<b>State:</b>", get_text_state (annot), row);
 }
