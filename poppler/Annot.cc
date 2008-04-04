@@ -3285,6 +3285,32 @@ void AnnotScreen::initialize(XRef *xrefA, Catalog *catalog, Dict* dict) {
 }
 
 //------------------------------------------------------------------------
+// AnnotStamp
+//------------------------------------------------------------------------
+ 
+AnnotStamp::AnnotStamp(XRef *xrefA, Dict *dict, Catalog *catalog, Object *obj) :
+  AnnotMarkup(xrefA, dict, catalog, obj) {
+  type = typeStamp;
+  initialize(xrefA, catalog, dict);
+}
+
+AnnotStamp::~AnnotStamp() {
+  delete icon;
+}
+
+void AnnotStamp::initialize(XRef *xrefA, Catalog *catalog, Dict* dict) {
+  Object obj1;
+
+  if (dict->lookup("Name", &obj1)->isName()) {
+    icon = new GooString(obj1.getName());
+  } else {
+    icon = new GooString("Draft");
+  }
+  obj1.free();
+
+}
+
+//------------------------------------------------------------------------
 // Annots
 //------------------------------------------------------------------------
 
@@ -3355,7 +3381,7 @@ Annot *Annots::createAnnot(XRef *xref, Dict* dict, Catalog *catalog, Object *obj
     } else if (!typeName->cmp("StrikeOut")) {
       annot = new Annot(xref, dict, catalog, obj);
     } else if (!typeName->cmp("Stamp")) {
-      annot = new Annot(xref, dict, catalog, obj);
+      annot = new AnnotStamp(xref, dict, catalog, obj);
     } else if (!typeName->cmp("Caret")) {
       annot = new Annot(xref, dict, catalog, obj);
     } else if (!typeName->cmp("Ink")) {

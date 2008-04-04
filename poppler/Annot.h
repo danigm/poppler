@@ -908,6 +908,26 @@ protected:
 };
 
 //------------------------------------------------------------------------
+// AnnotStamp
+//------------------------------------------------------------------------
+
+class AnnotStamp: public AnnotMarkup {
+public:
+
+  AnnotStamp(XRef *xrefA, Dict *dict, Catalog *catalog, Object *obj);
+  ~AnnotStamp();
+
+  // getters
+  GooString *getIcon() const { return icon; }
+
+private:
+
+  void initialize(XRef *xrefA, Catalog *catalog, Dict *dict);
+
+  GooString *icon;                  // Name       (Default Draft)
+};
+
+//------------------------------------------------------------------------
 // AnnotWidget
 //------------------------------------------------------------------------
 
