@@ -63,6 +63,9 @@ Annotation * AnnotationUtils::createAnnotation( const QDomElement & annElement )
         case Annotation::AInk:
             annotation = new InkAnnotation( annElement );
             break;
+        case Annotation::ACaret:
+            annotation = new CaretAnnotation( annElement );
+            break;
     }
 
     // return created annotation
