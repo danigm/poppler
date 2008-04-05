@@ -113,6 +113,35 @@ AnnotExternalDataType parseAnnotExternalData(Dict* dict) {
   return type;
 }
 
+PDFRectangle *parseDiffRectangle(Array *array, PDFRectangle *rect) {
+  PDFRectangle *newRect = NULL;
+  if (array->getLength() == 4) {
+    // deltas
+    Object obj1;
+    double dx1 = (array->get(0, &obj1)->isNum() ? obj1.getNum() : 0);
+    obj1.free();
+    double dy1 = (array->get(1, &obj1)->isNum() ? obj1.getNum() : 0);
+    obj1.free();
+    double dx2 = (array->get(2, &obj1)->isNum() ? obj1.getNum() : 0);
+    obj1.free();
+    double dy2 = (array->get(3, &obj1)->isNum() ? obj1.getNum() : 0);
+    obj1.free();
+
+    // checking that the numbers are valid (i.e. >= 0),
+    // and that applying the differences still give us a valid rect
+    if (dx1 >= 0 && dy1 >= 0 && dx2 >= 0 && dy2
+        && (rect->x2 - rect->x1 - dx1 - dx2) >= 0
+        && (rect->y2 - rect->y1 - dy1 - dy2) >= 0) {
+      newRect = new PDFRectangle();
+      newRect->x1 = rect->x1 + dx1;
+      newRect->y1 = rect->y1 + dy1;
+      newRect->x2 = rect->x2 - dx2;
+      newRect->y2 = rect->y2 - dy2;
+    }
+  }
+  return newRect;
+}
+
 //------------------------------------------------------------------------
 // AnnotBorderEffect
 //------------------------------------------------------------------------
@@ -3380,29 +3409,8 @@ void AnnotGeometry::initialize(XRef *xrefA, Catalog *catalog, Dict* dict) {
   obj1.free();
 
   geometryRect = NULL;
-  if (dict->lookup("RD", &obj1)->isArray() && obj1.arrayGetLength() == 4) {
-    // deltas
-    Object obj2;
-    double dx1 = (obj1.arrayGet(0, &obj2)->isNum() ? obj2.getNum() : 0);
-    obj2.free();
-    double dy1 = (obj1.arrayGet(1, &obj2)->isNum() ? obj2.getNum() : 0);
-    obj2.free();
-    double dx2 = (obj1.arrayGet(2, &obj2)->isNum() ? obj2.getNum() : 0);
-    obj2.free();
-    double dy2 = (obj1.arrayGet(3, &obj2)->isNum() ? obj2.getNum() : 0);
-    obj2.free();
-
-    // checking that the numbers are valid (i.e. >= 0),
-    // and that applying the differences still give us a valid rect
-    if (dx1 >= 0 && dy1 >= 0 && dx2 >= 0 && dy2
-        && (rect->x2 - rect->x1 - dx1 - dx2) >= 0
-        && (rect->y2 - rect->y1 - dy1 - dy2) >= 0) {
-      geometryRect = new PDFRectangle();
-      geometryRect->x1 = rect->x1 + dx1;
-      geometryRect->y1 = rect->y1 + dy1;
-      geometryRect->x2 = rect->x2 - dx2;
-      geometryRect->y2 = rect->y2 - dy2;
-    }
+  if (dict->lookup("RD", &obj1)->isArray()) {
+    geometryRect = parseDiffRectangle(obj1.getArray(), rect);
   }
   obj1.free();
 
