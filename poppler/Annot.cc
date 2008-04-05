@@ -190,12 +190,17 @@ AnnotQuadrilaterals::AnnotQuadrilaterals(Array *array, PDFRectangle *rect) {
         Object obj;
         if (array->get(i * 8 + j, &obj)->isNum()) {
           quadArray[j] = obj.getNum();
-          if (quadArray[j] < rect->x1 || quadArray[j] > rect->x2 ||
-              quadArray[j] < rect->y1 || quadArray[j] < rect->y2)
-            correct = gFalse;
+          if (j % 2 == 1) {
+              if (quadArray[j] < rect->y1 || quadArray[j] > rect->y2)
+                  correct = gFalse;
+          } else {
+              if (quadArray[j] < rect->x1 || quadArray[j] > rect->x2)
+                  correct = gFalse;
+          }
         } else {
             correct = gFalse;
         }
+        obj.free();
       }
 
       if (correct)
