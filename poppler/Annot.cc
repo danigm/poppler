@@ -1671,8 +1671,29 @@ void AnnotLine::initialize(XRef *xrefA, Catalog *catalog, Dict *dict) {
 // AnnotTextMarkup
 //------------------------------------------------------------------------
 
+AnnotTextMarkup::AnnotTextMarkup(XRef *xrefA, Dict *dict, Catalog *catalog, Object *obj) :
+  AnnotMarkup(xrefA, dict, catalog, obj) {
+  // the real type will be read in initialize()
+  type = typeHighlight;
+  initialize(xrefA, catalog, dict);
+}
+
 void AnnotTextMarkup::initialize(XRef *xrefA, Catalog *catalog, Dict *dict) {
   Object obj1;
+
+  if (dict->lookup("Subtype", &obj1)->isName()) {
+    GooString typeName(obj1.getName());
+    if (!typeName.cmp("Highlight")) {
+      type = typeHighlight;
+    } else if (!typeName.cmp("Underline")) {
+      type = typeUnderline;
+    } else if (!typeName.cmp("Squiggly")) {
+      type = typeSquiggly;
+    } else if (!typeName.cmp("StrikeOut")) {
+      type = typeStrikeOut;
+    }
+  }
+  obj1.free();
 
   if(dict->lookup("QuadPoints", &obj1)->isArray()) {
     quadrilaterals = new AnnotQuadrilaterals(obj1.getArray(), rect);
@@ -3373,13 +3394,13 @@ Annot *Annots::createAnnot(XRef *xref, Dict* dict, Catalog *catalog, Object *obj
     } else if (!typeName->cmp("PolyLine")) {
       annot = new Annot(xref, dict, catalog, obj);
     } else if (!typeName->cmp("Highlight")) {
-      annot = new Annot(xref, dict, catalog, obj);
+      annot = new AnnotTextMarkup(xref, dict, catalog, obj);
     } else if (!typeName->cmp("Underline")) {
-      annot = new Annot(xref, dict, catalog, obj);
+      annot = new AnnotTextMarkup(xref, dict, catalog, obj);
     } else if (!typeName->cmp("Squiggly")) {
-      annot = new Annot(xref, dict, catalog, obj);
+      annot = new AnnotTextMarkup(xref, dict, catalog, obj);
     } else if (!typeName->cmp("StrikeOut")) {
-      annot = new Annot(xref, dict, catalog, obj);
+      annot = new AnnotTextMarkup(xref, dict, catalog, obj);
     } else if (!typeName->cmp("Stamp")) {
       annot = new AnnotStamp(xref, dict, catalog, obj);
     } else if (!typeName->cmp("Caret")) {

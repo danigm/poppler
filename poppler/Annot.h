@@ -895,7 +895,7 @@ protected:
 class AnnotTextMarkup: public AnnotMarkup {
 public:
 
-  AnnotTextMarkup(XRef *xrefA, Catalog *catalog, Dict *dict);
+  AnnotTextMarkup(XRef *xrefA, Dict *dict, Catalog *catalog, Object *obj);
   virtual ~AnnotTextMarkup();
 
   AnnotQuadrilaterals *getQuadrilaterals() const { return quadrilaterals; }
