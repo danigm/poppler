@@ -3336,6 +3336,79 @@ void AnnotStamp::initialize(XRef *xrefA, Catalog *catalog, Dict* dict) {
 }
 
 //------------------------------------------------------------------------
+// AnnotGeometry
+//------------------------------------------------------------------------
+
+AnnotGeometry::AnnotGeometry(XRef *xrefA, Dict *dict, Catalog *catalog, Object *obj) :
+  AnnotMarkup(xrefA, dict, catalog, obj) {
+  // the real type will be read in initialize()
+  type = typeSquare;
+  initialize(xrefA, catalog, dict);
+}
+
+AnnotGeometry::~AnnotGeometry() {
+  delete interiorColor;
+  delete borderEffect;
+  delete geometryRect;
+}
+
+void AnnotGeometry::initialize(XRef *xrefA, Catalog *catalog, Dict* dict) {
+  Object obj1;
+
+  if (dict->lookup("Subtype", &obj1)->isName()) {
+    GooString typeName(obj1.getName());
+    if (!typeName.cmp("Square")) {
+      type = typeSquare;
+    } else if (!typeName.cmp("Circle")) {
+      type = typeCircle;
+    }
+  }
+  obj1.free();
+
+  if (dict->lookup("IC", &obj1)->isArray()) {
+    interiorColor = new AnnotColor(obj1.getArray());
+  } else {
+    interiorColor = NULL;
+  }
+  obj1.free();
+
+  if (dict->lookup("BE", &obj1)->isDict()) {
+    borderEffect = new AnnotBorderEffect(obj1.getDict());
+  } else {
+    borderEffect = NULL;
+  }
+  obj1.free();
+
+  geometryRect = NULL;
+  if (dict->lookup("RD", &obj1)->isArray() && obj1.arrayGetLength() == 4) {
+    // deltas
+    Object obj2;
+    double dx1 = (obj1.arrayGet(0, &obj2)->isNum() ? obj2.getNum() : 0);
+    obj2.free();
+    double dy1 = (obj1.arrayGet(1, &obj2)->isNum() ? obj2.getNum() : 0);
+    obj2.free();
+    double dx2 = (obj1.arrayGet(2, &obj2)->isNum() ? obj2.getNum() : 0);
+    obj2.free();
+    double dy2 = (obj1.arrayGet(3, &obj2)->isNum() ? obj2.getNum() : 0);
+    obj2.free();
+
+    // checking that the numbers are valid (i.e. >= 0),
+    // and that applying the differences still give us a valid rect
+    if (dx1 >= 0 && dy1 >= 0 && dx2 >= 0 && dy2
+        && (rect->x2 - rect->x1 - dx1 - dx2) >= 0
+        && (rect->y2 - rect->y1 - dy1 - dy2) >= 0) {
+      geometryRect = new PDFRectangle();
+      geometryRect->x1 = rect->x1 + dx1;
+      geometryRect->y1 = rect->y1 + dy1;
+      geometryRect->x2 = rect->x2 - dx2;
+      geometryRect->y2 = rect->y2 - dy2;
+    }
+  }
+  obj1.free();
+
+}
+
+//------------------------------------------------------------------------
 // Annots
 //------------------------------------------------------------------------
 
@@ -3390,9 +3463,9 @@ Annot *Annots::createAnnot(XRef *xref, Dict* dict, Catalog *catalog, Object *obj
     } else if (!typeName->cmp("Line")) {
       annot = new AnnotLine(xref, dict, catalog, obj);
     } else if (!typeName->cmp("Square")) {
-      annot = new Annot(xref, dict, catalog, obj);
+      annot = new AnnotGeometry(xref, dict, catalog, obj);
     } else if (!typeName->cmp("Circle")) {
-      annot = new Annot(xref, dict, catalog, obj);
+      annot = new AnnotGeometry(xref, dict, catalog, obj);
     } else if (!typeName->cmp("Polygon")) {
       annot = new Annot(xref, dict, catalog, obj);
     } else if (!typeName->cmp("PolyLine")) {

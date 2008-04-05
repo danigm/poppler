@@ -928,6 +928,30 @@ private:
 };
 
 //------------------------------------------------------------------------
+// AnnotGeometry
+//------------------------------------------------------------------------
+
+class AnnotGeometry: public AnnotMarkup {
+public:
+
+  AnnotGeometry(XRef *xrefA, Dict *dict, Catalog *catalog, Object *obj);
+  ~AnnotGeometry();
+
+  // getters
+  AnnotColor *getInteriorColor() const { return interiorColor; }
+  AnnotBorderEffect *getBorderEffect() const { return borderEffect; }
+  PDFRectangle *getGeometryRect() const { return geometryRect; }
+
+private:
+
+  void initialize(XRef *xrefA, Catalog *catalog, Dict *dict);
+
+  AnnotColor *interiorColor;        // IC
+  AnnotBorderEffect *borderEffect;  // BE
+  PDFRectangle *geometryRect;       // RD (combined with Rect)
+};
+
+//------------------------------------------------------------------------
 // AnnotWidget
 //------------------------------------------------------------------------
 
