@@ -30,6 +30,7 @@
 #include "Page.h"
 #include "XRef.h"
 #include "Movie.h"
+#include <string.h>
 
 #define annotFlagHidden    0x0002
 #define annotFlagPrint     0x0004
@@ -170,7 +171,7 @@ AnnotQuadrilaterals::AnnotQuadrilaterals(Array *array, PDFRectangle *rect) {
   GBool correct = gTrue;
   int quadsLength = 0;
   AnnotQuadrilateral **quads;
-  double *quadArray;
+  double quadArray[8];
 
   // default values
   quadrilaterals = NULL;
@@ -182,7 +183,7 @@ AnnotQuadrilaterals::AnnotQuadrilaterals(Array *array, PDFRectangle *rect) {
     quadsLength = arrayLength / 8;
     quads = (AnnotQuadrilateral **) gmallocn
         ((quadsLength), sizeof(AnnotQuadrilateral *));
-    quadArray = (double *) gmallocn (8, sizeof(double));
+    memset(quads, 0, quadsLength * sizeof(AnnotQuadrilateral *));
 
     while (i < (quadsLength) && correct) {
       for (int j = 0; j < 8 && correct; j++) {
@@ -204,8 +205,6 @@ AnnotQuadrilaterals::AnnotQuadrilaterals(Array *array, PDFRectangle *rect) {
                                           quadArray[6], quadArray[7]);
       i++;
     }
-
-    gfree (quadArray);
 
     if (correct) {
       quadrilateralsLength = quadsLength;
