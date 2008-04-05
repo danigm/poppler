@@ -1723,12 +1723,12 @@ void CaretAnnotation::store( QDomNode & node, QDomDocument & document ) const
     Annotation::store( node, document );
 
     // create [caret] element
-    QDomElement stampElement = document.createElement( "caret" );
-    node.appendChild( stampElement );
+    QDomElement caretElement = document.createElement( "caret" );
+    node.appendChild( caretElement );
 
     // append the optional attributes
     if ( d->symbol != "None" )
-        stampElement.setAttribute( "symbol", d->symbol );
+        caretElement.setAttribute( "symbol", d->symbol );
 }
 
 Annotation::SubType CaretAnnotation::subType() const
