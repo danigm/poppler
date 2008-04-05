@@ -1502,39 +1502,8 @@ void AnnotFreeText::initialize(XRef *xrefA, Catalog *catalog, Dict *dict) {
   }
   obj1.free();
 
-  if (dict->lookup("RD", &obj1)->isArray() && obj1.arrayGetLength() == 4) {
-    Object obj2;
-    rectangle = new PDFRectangle();
-
-    (obj1.arrayGet(0, &obj2)->isNum() ? rectangle->x1 = obj2.getNum() :
-      rectangle->x1 = 0);
-    obj2.free();
-    (obj1.arrayGet(1, &obj2)->isNum() ? rectangle->y1 = obj2.getNum() :
-      rectangle->y1 = 0);
-    obj2.free();
-    (obj1.arrayGet(2, &obj2)->isNum() ? rectangle->x2 = obj2.getNum() :
-      rectangle->x2 = 1);
-    obj2.free();
-    (obj1.arrayGet(3, &obj2)->isNum() ? rectangle->y2 = obj2.getNum() :
-      rectangle->y2 = 1);
-    obj2.free();
-
-    if (rectangle->x1 > rectangle->x2) {
-      double t = rectangle->x1;
-      rectangle->x1 = rectangle->x2;
-      rectangle->x2 = t;
-    }
-    if (rectangle->y1 > rectangle->y2) {
-      double t = rectangle->y1;
-      rectangle->y1 = rectangle->y2;
-      rectangle->y2 = t;
-    }
-
-    if ((rectangle->x1 + rectangle->x2) > (rect->x2 - rect->x1))
-      rectangle->x1 = rectangle->x2 = 0;
-
-    if ((rectangle->y1 + rectangle->y2) > (rect->y2 - rect->y1))
-      rectangle->y1 = rectangle->y2 = 0;
+  if (dict->lookup("RD", &obj1)->isArray()) {
+    rectangle = parseDiffRectangle(obj1.getArray(), rect);
   } else {
     rectangle = NULL;
   }
