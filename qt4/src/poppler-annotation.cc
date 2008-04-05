@@ -1665,6 +1665,86 @@ void LinkAnnotation::setLinkRegionPoint( int id, const QPointF &point )
     d->linkRegion[id] = point;
 }
 
+/** CaretAnnotation [Annotation] */
+class CaretAnnotationPrivate : public AnnotationPrivate
+{
+    public:
+        CaretAnnotationPrivate();
+
+        // data fields
+        QString symbol;
+};
+
+CaretAnnotationPrivate::CaretAnnotationPrivate()
+    : AnnotationPrivate(), symbol( "None" )
+{
+}
+
+CaretAnnotation::CaretAnnotation()
+    : Annotation( *new CaretAnnotationPrivate() )
+{
+}
+
+CaretAnnotation::CaretAnnotation( const QDomNode & node )
+    : Annotation( *new CaretAnnotationPrivate(), node )
+{
+    Q_D( CaretAnnotation );
+
+    // loop through the whole children looking for a 'caret' element
+    QDomNode subNode = node.firstChild();
+    while( subNode.isElement() )
+    {
+        QDomElement e = subNode.toElement();
+        subNode = subNode.nextSibling();
+        if ( e.tagName() != "caret" )
+            continue;
+
+        // parse the attributes
+        if ( e.hasAttribute( "symbol" ) )
+            d->symbol = e.attribute( "symbol" );
+
+        // loading complete
+        break;
+    }
+}
+
+CaretAnnotation::~CaretAnnotation()
+{
+}
+
+void CaretAnnotation::store( QDomNode & node, QDomDocument & document ) const
+{
+    Q_D( const CaretAnnotation );
+
+    // recurse to parent objects storing properties
+    Annotation::store( node, document );
+
+    // create [caret] element
+    QDomElement stampElement = document.createElement( "caret" );
+    node.appendChild( stampElement );
+
+    // append the optional attributes
+    if ( d->symbol != "None" )
+        stampElement.setAttribute( "symbol", d->symbol );
+}
+
+Annotation::SubType CaretAnnotation::subType() const
+{
+    return ACaret;
+}
+
+QString CaretAnnotation::caretSymbol() const
+{
+    Q_D( const CaretAnnotation );
+    return d->symbol;
+}
+
+void CaretAnnotation::setCaretSymbol( const QString &symbol )
+{
+    Q_D( CaretAnnotation );
+    d->symbol = symbol;
+}
+
 //BEGIN utility annotation functions
 QColor convertAnnotColor( AnnotColor *color )
 {
