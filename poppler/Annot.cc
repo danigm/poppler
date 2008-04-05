@@ -3417,6 +3417,40 @@ void AnnotGeometry::initialize(XRef *xrefA, Catalog *catalog, Dict* dict) {
 }
 
 //------------------------------------------------------------------------
+// AnnotCaret
+//------------------------------------------------------------------------
+
+AnnotCaret::AnnotCaret(XRef *xrefA, Dict *dict, Catalog *catalog, Object *obj) :
+  AnnotMarkup(xrefA, dict, catalog, obj) {
+  type = typeCaret;
+  initialize(xrefA, catalog, dict);
+}
+
+AnnotCaret::~AnnotCaret() {
+  delete symbol;
+  delete caretRect;
+}
+
+void AnnotCaret::initialize(XRef *xrefA, Catalog *catalog, Dict* dict) {
+  Object obj1;
+
+  if (dict->lookup("Sy", &obj1)->isName()) {
+    symbol = new GooString(obj1.getName());
+  } else {
+    symbol = new GooString("None");
+  }
+  obj1.free();
+
+  if (dict->lookup("RD", &obj1)->isArray()) {
+    caretRect = parseDiffRectangle(obj1.getArray(), rect);
+  } else {
+    caretRect = NULL;
+  }
+  obj1.free();
+
+}
+
+//------------------------------------------------------------------------
 // Annots
 //------------------------------------------------------------------------
 
@@ -3489,7 +3523,7 @@ Annot *Annots::createAnnot(XRef *xref, Dict* dict, Catalog *catalog, Object *obj
     } else if (!typeName->cmp("Stamp")) {
       annot = new AnnotStamp(xref, dict, catalog, obj);
     } else if (!typeName->cmp("Caret")) {
-      annot = new Annot(xref, dict, catalog, obj);
+      annot = new AnnotCaret(xref, dict, catalog, obj);
     } else if (!typeName->cmp("Ink")) {
       annot = new Annot(xref, dict, catalog, obj);
     } else if (!typeName->cmp("FileAttachment")) {
