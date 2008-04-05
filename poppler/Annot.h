@@ -760,7 +760,7 @@ public:
 
   // getters
   Dict *getActionDict() const { return actionDict; }
-  // getDest
+  Object *getDest() { return &dest; }
   AnnotLinkEffect getLinkEffect() const { return linkEffect; }
   Dict *getUriAction() const { return uriAction; }
   AnnotQuadrilaterals *getQuadrilaterals() const { return quadrilaterals; }
@@ -770,7 +770,7 @@ protected:
   void initialize(XRef *xrefA, Catalog *catalog, Dict *dict);
 
   Dict *actionDict;                    // A
-  //Dest
+  Object dest;                         // Dest
   AnnotLinkEffect linkEffect;          // H          (Default I)
   Dict *uriAction;                     // PA
 

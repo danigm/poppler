@@ -1324,7 +1324,9 @@ AnnotLink::~AnnotLink() {
   /*
   if (actionDict)
     delete actionDict;
-
+  */
+  dest.free();
+  /*
   if (uriAction)
     delete uriAction;
   */
@@ -1342,6 +1344,7 @@ void AnnotLink::initialize(XRef *xrefA, Catalog *catalog, Dict *dict) {
   }
   obj1.free();
   */
+  dict->lookup("Dest", &dest);
   if (dict->lookup("H", &obj1)->isName()) {
     GooString *effect = new GooString(obj1.getName());
 
