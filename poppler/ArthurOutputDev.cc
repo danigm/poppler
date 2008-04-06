@@ -71,10 +71,13 @@ ArthurOutputDev::ArthurOutputDev(QPainter *painter):
 {
   m_currentBrush = QBrush(Qt::SolidPattern);
   m_fontEngine = 0;
+  m_font = 0;
+  m_image = 0;
 }
 
 ArthurOutputDev::~ArthurOutputDev()
 {
+  delete m_fontEngine;
 }
 
 void ArthurOutputDev::startDoc(XRef *xrefA) {
@@ -740,6 +743,8 @@ void ArthurOutputDev::drawImage(GfxState *state, Object *ref, Stream *str,
 
   m_painter->setMatrix(matrix, true);
   m_painter->drawImage( QPoint(0,0), *m_image );
+  delete m_image;
+  m_image = 0;
   free (buffer);
   delete imgStr;
 
