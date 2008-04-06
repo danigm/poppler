@@ -1675,11 +1675,32 @@ class CaretAnnotationPrivate : public AnnotationPrivate
         CaretAnnotationPrivate();
 
         // data fields
-        QString symbol;
+        CaretAnnotation::CaretSymbol symbol;
 };
 
+static QString caretSymbolToString( CaretAnnotation::CaretSymbol symbol )
+{
+    switch ( symbol )
+    {
+        case CaretAnnotation::None:
+            return QString::fromLatin1( "None" );
+        case CaretAnnotation::P:
+            return QString::fromLatin1( "P" );
+    }
+    return QString();
+}
+
+static CaretAnnotation::CaretSymbol caretSymbolFromString( const QString &symbol )
+{
+    if ( symbol == QLatin1String( "None" ) )
+        return CaretAnnotation::None;
+    else if ( symbol == QLatin1String( "P" ) )
+        return CaretAnnotation::P;
+    return CaretAnnotation::None;
+}
+
 CaretAnnotationPrivate::CaretAnnotationPrivate()
-    : AnnotationPrivate(), symbol( "None" )
+    : AnnotationPrivate(), symbol( CaretAnnotation::None )
 {
 }
 
@@ -1704,7 +1725,7 @@ CaretAnnotation::CaretAnnotation( const QDomNode & node )
 
         // parse the attributes
         if ( e.hasAttribute( "symbol" ) )
-            d->symbol = e.attribute( "symbol" );
+            d->symbol = caretSymbolFromString( e.attribute( "symbol" ) );
 
         // loading complete
         break;
@@ -1727,8 +1748,8 @@ void CaretAnnotation::store( QDomNode & node, QDomDocument & document ) const
     node.appendChild( caretElement );
 
     // append the optional attributes
-    if ( d->symbol != "None" )
-        caretElement.setAttribute( "symbol", d->symbol );
+    if ( d->symbol != CaretAnnotation::None )
+        caretElement.setAttribute( "symbol", caretSymbolToString( d->symbol ) );
 }
 
 Annotation::SubType CaretAnnotation::subType() const
@@ -1736,13 +1757,13 @@ Annotation::SubType CaretAnnotation::subType() const
     return ACaret;
 }
 
-QString CaretAnnotation::caretSymbol() const
+CaretAnnotation::CaretSymbol CaretAnnotation::caretSymbol() const
 {
     Q_D( const CaretAnnotation );
     return d->symbol;
 }
 
-void CaretAnnotation::setCaretSymbol( const QString &symbol )
+void CaretAnnotation::setCaretSymbol( CaretAnnotation::CaretSymbol symbol )
 {
     Q_D( CaretAnnotation );
     d->symbol = symbol;

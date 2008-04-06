@@ -514,8 +514,11 @@ class POPPLER_QT4_EXPORT CaretAnnotation : public Annotation
     virtual void store( QDomNode &parentNode, QDomDocument &document ) const;
     virtual SubType subType() const;
 
-    QString caretSymbol() const;
-    void setCaretSymbol( const QString &symbol );
+    // local enums
+    enum CaretSymbol { None, P };
+
+    CaretSymbol caretSymbol() const;
+    void setCaretSymbol( CaretSymbol symbol );
 
   private:
     Q_DECLARE_PRIVATE( CaretAnnotation )
