@@ -863,6 +863,10 @@ public:
   Dict *getMeasure() const { return measure; }
   double getCaptionTextHorizontal() const { return captionTextHorizontal; }
   double getCaptionTextVertical() const { return captionTextVertical; }
+  double getX1() const { return x1; }
+  double getY1() const { return y1; }
+  double getX2() const { return x2; }
+  double getY2() const { return y2; }
 
 protected:
 
