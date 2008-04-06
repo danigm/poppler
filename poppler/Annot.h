@@ -958,18 +958,23 @@ private:
 class AnnotCaret: public AnnotMarkup {
 public:
 
+  enum AnnotCaretSymbol {
+    symbolNone,     // None
+    symbolP         // P
+  };
+
   AnnotCaret(XRef *xrefA, Dict *dict, Catalog *catalog, Object *obj);
   ~AnnotCaret();
 
   // getters
-  GooString *getSymbol() const { return symbol; }
+  AnnotCaretSymbol getSymbol() const { return symbol; }
   PDFRectangle *getCaretRect() const { return caretRect; }
 
 private:
 
   void initialize(XRef *xrefA, Catalog *catalog, Dict *dict);
 
-  GooString *symbol;             // Sy         (Default None)
+  AnnotCaretSymbol symbol;       // Sy         (Default None)
   PDFRectangle *caretRect;       // RD (combined with Rect)
 };
 

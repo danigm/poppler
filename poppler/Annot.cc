@@ -3399,17 +3399,20 @@ AnnotCaret::AnnotCaret(XRef *xrefA, Dict *dict, Catalog *catalog, Object *obj) :
 }
 
 AnnotCaret::~AnnotCaret() {
-  delete symbol;
   delete caretRect;
 }
 
 void AnnotCaret::initialize(XRef *xrefA, Catalog *catalog, Dict* dict) {
   Object obj1;
 
+  symbol = symbolNone;
   if (dict->lookup("Sy", &obj1)->isName()) {
-    symbol = new GooString(obj1.getName());
-  } else {
-    symbol = new GooString("None");
+    GooString typeName(obj1.getName());
+    if (!typeName.cmp("P")) {
+      symbol = symbolP;
+    } else if (!typeName.cmp("None")) {
+      symbol = symbolNone;
+    }
   }
   obj1.free();
 
