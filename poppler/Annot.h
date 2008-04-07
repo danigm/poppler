@@ -43,6 +43,24 @@ enum AnnotExternalDataType {
 };
 
 //------------------------------------------------------------------------
+// AnnotCoord
+//------------------------------------------------------------------------
+
+class AnnotCoord {
+public:
+
+  AnnotCoord() : x(0), y(0) { }
+  AnnotCoord(double _x, double _y) : x(_x), y(_y) { }
+
+  double getX() const { return x; }
+  double getY() const { return y; }
+  
+protected:
+
+  double x, y;
+};
+
+//------------------------------------------------------------------------
 // AnnotCalloutLine
 //------------------------------------------------------------------------
 
@@ -52,14 +70,14 @@ public:
   AnnotCalloutLine(double x1, double y1, double x2, double y2);
   virtual ~AnnotCalloutLine() { }
 
-  double getX1() const { return x1; }
-  double getY1() const { return y1; }
-  double getX2() const { return x2; }
-  double getY2() const { return y2; }
+  double getX1() const { return coord1.getX(); }
+  double getY1() const { return coord1.getY(); }
+  double getX2() const { return coord2.getX(); }
+  double getY2() const { return coord2.getY(); }
   
 protected:
 
-  double x1, y1, x2, y2;
+  AnnotCoord coord1, coord2;
 };
 
 //------------------------------------------------------------------------
@@ -72,12 +90,12 @@ public:
   AnnotCalloutMultiLine(double x1, double y1, double x2, double y2,
     double x3, double y3);
 
-  double getX3() const { return x3; }
-  double getY3() const { return y3; }
+  double getX3() const { return coord3.getX(); }
+  double getY3() const { return coord3.getY(); }
 
 protected:
 
-  double x3, y3;
+  AnnotCoord coord3;
 };
 
 //------------------------------------------------------------------------
@@ -113,7 +131,7 @@ class AnnotQuadrilaterals {
     AnnotQuadrilateral(double x1, double y1, double x2, double y2, double x3,
       double y3, double x4, double y4);
 
-    double x1, y1, x2, y2, x3, y3, x4, y4;
+    AnnotCoord coord1, coord2, coord3, coord4;
   };
 
 public:
@@ -134,29 +152,6 @@ protected:
 
   AnnotQuadrilateral** quadrilaterals;
   int quadrilateralsLength;
-};
-
-//------------------------------------------------------------------------
-// AnnotQuadPoints
-//------------------------------------------------------------------------
-
-class AnnotQuadPoints {
-public:
-  
-  AnnotQuadPoints(double x1, double y1, double x2, double y2, double x3,
-      double y3, double x4, double y4);
-
-  double getX1() const { return x1; }
-  double getY1() const { return y1; }
-  double getX2() const { return x2; }
-  double getY2() const { return y2; }
-  double getX3() const { return x3; }
-  double getY3() const { return y3; }
-  double getX4() const { return x4; }
-  double getY4() const { return y4; }
-
-protected:
-  double x1, y1, x2, y2, x3, y3, x4, y4;
 };
 
 //------------------------------------------------------------------------
@@ -863,17 +858,17 @@ public:
   Dict *getMeasure() const { return measure; }
   double getCaptionTextHorizontal() const { return captionTextHorizontal; }
   double getCaptionTextVertical() const { return captionTextVertical; }
-  double getX1() const { return x1; }
-  double getY1() const { return y1; }
-  double getX2() const { return x2; }
-  double getY2() const { return y2; }
+  double getX1() const { return coord1->getX(); }
+  double getY1() const { return coord1->getY(); }
+  double getX2() const { return coord2->getX(); }
+  double getY2() const { return coord2->getY(); }
 
 protected:
 
   void initialize(XRef *xrefA, Catalog *catalog, Dict *dict);
 
   // required
-  double x1, y1, x2, y2;            // L
+  AnnotCoord *coord1, *coord2;
   
   // optional
   // inherited  from Annot

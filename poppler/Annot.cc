@@ -174,11 +174,8 @@ AnnotBorderEffect::AnnotBorderEffect(Dict *dict) {
 // AnnotCalloutLine
 //------------------------------------------------------------------------
 
-AnnotCalloutLine::AnnotCalloutLine(double x1, double y1, double x2, double y2) {
-  this->x1 = x1;
-  this->y1 = y1;
-  this->x2 = x2;
-  this->y2 = y2;
+AnnotCalloutLine::AnnotCalloutLine(double x1, double y1, double x2, double y2)
+    :  coord1(x1, y1), coord2(x2, y2) {
 }
 
 //------------------------------------------------------------------------
@@ -186,9 +183,8 @@ AnnotCalloutLine::AnnotCalloutLine(double x1, double y1, double x2, double y2) {
 //------------------------------------------------------------------------
 
 AnnotCalloutMultiLine::AnnotCalloutMultiLine(double x1, double y1, double x2,
-    double y2, double x3, double y3) : AnnotCalloutLine(x1, y1, x2, y2) {
-  this->x3 = x3;
-  this->y3 = y3;
+                                             double y2, double x3, double y3)
+    : AnnotCalloutLine(x1, y1, x2, y2), coord3(x3, y3) {
 }
 
 //------------------------------------------------------------------------
@@ -262,78 +258,55 @@ AnnotQuadrilaterals::~AnnotQuadrilaterals() {
 
 double AnnotQuadrilaterals::getX1(int quadrilateral) {
   if (quadrilateral >= 0  && quadrilateral < quadrilateralsLength)
-    return quadrilaterals[quadrilateral]->x1;
+    return quadrilaterals[quadrilateral]->coord1.getX();
   return 0;
 }
 
 double AnnotQuadrilaterals::getY1(int quadrilateral) {
   if (quadrilateral >= 0  && quadrilateral < quadrilateralsLength)
-    return quadrilaterals[quadrilateral]->y1;
+    return quadrilaterals[quadrilateral]->coord1.getY();
   return 0;
 }
 
 double AnnotQuadrilaterals::getX2(int quadrilateral) {
   if (quadrilateral >= 0  && quadrilateral < quadrilateralsLength)
-    return quadrilaterals[quadrilateral]->x2;
+    return quadrilaterals[quadrilateral]->coord2.getX();
   return 0;
 }
 
 double AnnotQuadrilaterals::getY2(int quadrilateral) {
   if (quadrilateral >= 0  && quadrilateral < quadrilateralsLength)
-    return quadrilaterals[quadrilateral]->y2;
+    return quadrilaterals[quadrilateral]->coord2.getY();
   return 0;
 }
 
 double AnnotQuadrilaterals::getX3(int quadrilateral) {
   if (quadrilateral >= 0  && quadrilateral < quadrilateralsLength)
-    return quadrilaterals[quadrilateral]->x3;
+    return quadrilaterals[quadrilateral]->coord3.getX();
   return 0;
 }
 
 double AnnotQuadrilaterals::getY3(int quadrilateral) {
   if (quadrilateral >= 0  && quadrilateral < quadrilateralsLength)
-    return quadrilaterals[quadrilateral]->y3;
+    return quadrilaterals[quadrilateral]->coord3.getY();
   return 0;
 }
 
 double AnnotQuadrilaterals::getX4(int quadrilateral) {
   if (quadrilateral >= 0  && quadrilateral < quadrilateralsLength)
-    return quadrilaterals[quadrilateral]->x4;
+    return quadrilaterals[quadrilateral]->coord4.getX();
   return 0;
 }
 
 double AnnotQuadrilaterals::getY4(int quadrilateral) {
   if (quadrilateral >= 0  && quadrilateral < quadrilateralsLength)
-    return quadrilaterals[quadrilateral]->y4;
+    return quadrilaterals[quadrilateral]->coord4.getY();
   return 0;
 }
 
 AnnotQuadrilaterals::AnnotQuadrilateral::AnnotQuadrilateral(double x1, double y1,
-        double x2, double y2, double x3, double y3, double x4, double y4) {
-  this->x1 = x1;
-  this->y1 = y1;
-  this->x2 = x2;
-  this->y2 = y2;
-  this->x3 = x3;
-  this->y3 = y3;
-  this->x4 = x4;
-  this->y4 = y4;
-}
-
-//------------------------------------------------------------------------
-// AnnotQuadPoints
-//------------------------------------------------------------------------
-
-AnnotQuadPoints::AnnotQuadPoints(double x1, double y1, double x2, double y2,
-    double x3, double y3, double x4, double y4) {
-  this->x1 = x1;
-  this->y1 = y1;
-  this->x2 = x2;
-  this->y2 = y2;
-  this->x3 = x3;
-  this->y3 = y3;
-  this->x4 = x4;
-  this->y4 = y4;
+    double x2, double y2, double x3, double y3, double x4, double y4)
+    : coord1(x1, y1), coord2(x2, y2), coord3(x3, y3), coord4(x4, y4) {
 }
 
 //------------------------------------------------------------------------
@@ -1530,6 +1503,9 @@ AnnotLine::AnnotLine(XRef *xrefA, Dict *dict, Catalog *catalog, Object *obj) :
 }
 
 AnnotLine::~AnnotLine() {
+  delete coord1;
+  delete coord2;
+
   if (interiorColor)
     delete interiorColor;
 
@@ -1542,6 +1518,7 @@ void AnnotLine::initialize(XRef *xrefA, Catalog *catalog, Dict *dict) {
 
   if (dict->lookup("L", &obj1)->isArray() && obj1.arrayGetLength() == 4) {
     Object obj2;
+    double x1, y1, x2, y2;
 
     (obj1.arrayGet(0, &obj2)->isNum() ? x1 = obj2.getNum() : x1 = 0);
     obj2.free();
@@ -1552,8 +1529,11 @@ void AnnotLine::initialize(XRef *xrefA, Catalog *catalog, Dict *dict) {
     (obj1.arrayGet(3, &obj2)->isNum() ? y2 = obj2.getNum() : y2 = 0);
     obj2.free();
 
+    coord1 = new AnnotCoord(x1, y1);
+    coord2 = new AnnotCoord(x2, y2);
   } else {
-    x1 = y1 = x2 = y2 = 0;
+    coord1 = new AnnotCoord();
+    coord2 = new AnnotCoord();
   }
   obj1.free();
 
