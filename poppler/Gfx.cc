@@ -3627,7 +3627,7 @@ void Gfx::doImage(Object *ref, Stream *str, GBool inlineImg) {
       obj1.free();
       dict->lookup("CS", &obj1);
     }
-    if (obj1.isName()) {
+    if (obj1.isName() && inlineImg) {
       res->lookupColorSpace(obj1.getName(), &obj2);
       if (!obj2.isNull()) {
 	obj1.free();
