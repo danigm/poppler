@@ -175,6 +175,11 @@ AnnotBorderEffect::AnnotBorderEffect(Dict *dict) {
 // AnnotPath
 //------------------------------------------------------------------------
 
+AnnotPath::AnnotPath() {
+  coords = NULL;
+  coordsLength = 0;
+}
+
 AnnotPath::AnnotPath(Array *array) {
   coords = NULL;
   coordsLength = 0;
@@ -3447,6 +3452,100 @@ void AnnotGeometry::initialize(XRef *xrefA, Catalog *catalog, Dict* dict) {
   }
   obj1.free();
 
+}
+
+//------------------------------------------------------------------------
+// AnnotPolygon
+//------------------------------------------------------------------------
+
+AnnotPolygon::AnnotPolygon(XRef *xrefA, Dict *dict, Catalog *catalog, Object *obj) :
+  AnnotMarkup(xrefA, dict, catalog, obj) {
+  // the real type will be read in initialize()
+  type = typePolygon;
+  initialize(xrefA, catalog, dict);
+}
+
+AnnotPolygon::~AnnotPolygon() {
+  delete vertices;
+
+  if (interiorColor)
+    delete interiorColor;
+
+  if (borderEffect)
+    delete borderEffect;
+}
+
+void AnnotPolygon::initialize(XRef *xrefA, Catalog *catalog, Dict* dict) {
+  Object obj1;
+
+  if (dict->lookup("Subtype", &obj1)->isName()) {
+    GooString typeName(obj1.getName());
+    if (!typeName.cmp("Polygon")) {
+      type = typePolygon;
+    } else if (!typeName.cmp("PolyLine")) {
+      type = typePolyLine;
+    }
+  }
+  obj1.free();
+
+  if (dict->lookup("Vertices", &obj1)->isArray()) {
+    vertices = new AnnotPath(obj1.getArray());
+  } else {
+    vertices = new AnnotPath();
+    error(-1, "Bad Annot Polygon Vertices");
+    ok = gFalse;
+  }
+  obj1.free();
+
+  if (dict->lookup("LE", &obj1)->isArray() && obj1.arrayGetLength() == 2) {
+    Object obj2;
+
+    if(obj1.arrayGet(0, &obj2)->isString())
+      startStyle = parseAnnotLineEndingStyle(obj2.getString());
+    else
+      startStyle = annotLineEndingNone;
+    obj2.free();
+
+    if(obj1.arrayGet(1, &obj2)->isString())
+      endStyle = parseAnnotLineEndingStyle(obj2.getString());
+    else
+      endStyle = annotLineEndingNone;
+    obj2.free();
+
+  } else {
+    startStyle = endStyle = annotLineEndingNone;
+  }
+  obj1.free();
+
+  if (dict->lookup("IC", &obj1)->isArray()) {
+    interiorColor = new AnnotColor(obj1.getArray());
+  } else {
+    interiorColor = NULL;
+  }
+  obj1.free();
+
+  if (dict->lookup("BE", &obj1)->isDict()) {
+    borderEffect = new AnnotBorderEffect(obj1.getDict());
+  } else {
+    borderEffect = NULL;
+  }
+  obj1.free();
+
+  if (dict->lookup("IT", &obj1)->isName()) {
+    GooString *intentName = new GooString(obj1.getName());
+
+    if(!intentName->cmp("PolygonCloud")) {
+      intent = polygonCloud;
+    } else if(!intentName->cmp("PolyLineDimension")) {
+      intent = polylineDimension;
+    } else {
+      intent = polygonDimension;
+    }
+    delete intentName;
+  } else {
+    intent = polygonCloud;
+  }
+  obj1.free();
 }
 
 //------------------------------------------------------------------------

@@ -67,6 +67,7 @@ protected:
 
 class AnnotPath {
 public:
+  AnnotPath();
   AnnotPath(Array *array);
   AnnotPath(AnnotCoord **coords, int coordLength);
   ~AnnotPath();
@@ -970,6 +971,42 @@ private:
   AnnotColor *interiorColor;        // IC
   AnnotBorderEffect *borderEffect;  // BE
   PDFRectangle *geometryRect;       // RD (combined with Rect)
+};
+
+//------------------------------------------------------------------------
+// AnnotPolygon
+//------------------------------------------------------------------------
+
+class AnnotPolygon: public AnnotMarkup {
+public:
+
+  enum AnnotPolygonIntent {
+    polygonCloud,      // PolygonCloud
+    polylineDimension, // PolyLineDimension
+    polygonDimension   // PolygonDimension
+  };
+
+  AnnotPolygon(XRef *xrefA, Dict *dict, Catalog *catalog, Object *obj);
+  ~AnnotPolygon();
+
+  // getters
+
+private:
+
+  void initialize(XRef *xrefA, Catalog *catalog, Dict *dict);
+
+  // required
+  AnnotPath *vertices;              // Vertices
+
+  // optional
+  AnnotLineEndingStyle startStyle;  // LE       (Default [/None /None])
+  AnnotLineEndingStyle endStyle;    //
+  // inherited  from Annot
+  // AnnotBorderBS border;          // BS
+  AnnotColor *interiorColor;        // IC
+  AnnotBorderEffect *borderEffect;  // BE
+  AnnotPolygonIntent intent;        // IT
+  // Measure
 };
 
 //------------------------------------------------------------------------
