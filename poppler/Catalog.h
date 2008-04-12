@@ -77,6 +77,7 @@ public:
   {
     objStr.copy(&m_objStr);
   }
+  EmbFile(Object *efDict, GooString *description = 0);
 
   ~EmbFile()
   {
