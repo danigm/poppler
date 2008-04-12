@@ -1034,7 +1034,7 @@ public:
   ~AnnotFileAttachment();
 
   // getters
-  Object *getFile(Object *obj) { return file.fetch(xref, obj); }
+  Object *getFile() { return &file; }
   GooString *getName() const { return name; }
 
 private:
