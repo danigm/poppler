@@ -549,7 +549,7 @@ public:
   double getOpacity() const { return opacity; }
   // getRC
   GooString *getDate() const { return date; }
-  Dict *getInReplyTo() const { return inReplyTo; }
+  int getInReplyToID() const { return inReplyTo.num; }
   GooString *getSubject() const { return subject; }
   AnnotMarkupReplyType getReplyTo() const { return replyTo; }
   AnnotExternalDataType getExData() const { return exData; }
@@ -560,7 +560,7 @@ protected:
   double opacity;               // CA           (Default 1.0)
   // RC
   GooString *date;              // CreationDate
-  Dict *inReplyTo;              // IRT
+  Ref inReplyTo;                // IRT
   GooString *subject;           // Subj
   AnnotMarkupReplyType replyTo; // RT           (Default R)
   // this object is overrided by the custom intent fields defined in some
