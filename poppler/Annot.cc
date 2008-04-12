@@ -1130,9 +1130,6 @@ AnnotMarkup::~AnnotMarkup() {
   if (date)
     delete date;
 
-  if (inReplyTo)
-    delete inReplyTo;
-
   if (subject)
     delete subject;
 }
@@ -1167,11 +1164,12 @@ void AnnotMarkup::initialize(XRef *xrefA, Dict *dict, Catalog *catalog, Object *
     date = NULL;
   }
   obj1.free();
-    
-  if (dict->lookup("IRT", &obj1)->isDict()) {
-    inReplyTo = obj1.getDict();
+
+  if (dict->lookupNF("IRT", &obj1)->isRef()) {
+    inReplyTo = obj1.getRef();
   } else {
-    inReplyTo = NULL;
+    inReplyTo.num = 0;
+    inReplyTo.gen = 0;
   }
   obj1.free();
 
