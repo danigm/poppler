@@ -61,6 +61,23 @@ protected:
 };
 
 //------------------------------------------------------------------------
+// AnnotPath
+//------------------------------------------------------------------------
+
+class AnnotPath {
+public:
+  AnnotPath(AnnotCoord **coords, int coordLength);
+
+  double getX(int coord);
+  double getY(int coord);
+  AnnotCoord *getCoord(int coord);
+  double getCoordsLength() const { return coordsLength; }
+protected:
+  AnnotCoord **coords;
+  int coordsLength;
+};
+  
+//------------------------------------------------------------------------
 // AnnotCalloutLine
 //------------------------------------------------------------------------
 
@@ -975,6 +992,34 @@ private:
 
   AnnotCaretSymbol symbol;       // Sy         (Default None)
   PDFRectangle *caretRect;       // RD (combined with Rect)
+};
+
+//------------------------------------------------------------------------
+// AnnotInk
+//------------------------------------------------------------------------
+
+class AnnotInk: public AnnotMarkup {
+public:
+
+  AnnotInk(XRef *xrefA, Dict *dict, Catalog *catalog, Object *obj);
+  ~AnnotInk();
+
+  // getters
+  virtual AnnotPath **getInkList() const { return inkList; }
+  virtual int getInkListLength() const { return inkListLength; }
+
+private:
+
+  void initialize(XRef *xrefA, Catalog *catalog, Dict *dict);
+  AnnotPath *parsePathArray(Array *array);
+
+  // required
+  AnnotPath **inkList;       // InkList
+  int inkListLength;
+
+  // optional
+  // inherited from Annot
+  // AnnotBorderBS border;  // BS
 };
 
 //------------------------------------------------------------------------

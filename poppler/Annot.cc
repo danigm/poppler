@@ -171,6 +171,38 @@ AnnotBorderEffect::AnnotBorderEffect(Dict *dict) {
 }
 
 //------------------------------------------------------------------------
+// AnnotPath
+//------------------------------------------------------------------------
+
+AnnotPath::AnnotPath(AnnotCoord **coords, int coordsLength) {
+  if (!coords) {
+    this->coords = coords;
+    this->coordsLength = coordsLength;
+  } else {
+    this->coords = NULL;
+    this->coordsLength = 0;
+  }
+}
+
+double AnnotPath::getX(int coord) {
+  if (coord > 0 && coord < coordsLength)
+    return coords[coord]->getX();
+  return 0;
+}
+
+double AnnotPath::getY(int coord) {
+  if (coord > 0 && coord < coordsLength)
+    return coords[coord]->getY();
+  return 0;
+}
+
+AnnotCoord *AnnotPath::getCoord(int coord) {
+  if (coord > 0 && coord < coordsLength)
+    return coords[coord];
+  return NULL;
+}
+
+//------------------------------------------------------------------------
 // AnnotCalloutLine
 //------------------------------------------------------------------------
 
@@ -3403,6 +3435,87 @@ void AnnotCaret::initialize(XRef *xrefA, Catalog *catalog, Dict* dict) {
   }
   obj1.free();
 
+}
+
+//------------------------------------------------------------------------
+// AnnotInk
+//------------------------------------------------------------------------
+
+AnnotInk::AnnotInk(XRef *xrefA, Dict *dict, Catalog *catalog, Object *obj) :
+  AnnotMarkup(xrefA, dict, catalog, obj) {
+  type = typeInk;
+  initialize(xrefA, catalog, dict);
+}
+
+AnnotInk::~AnnotInk() {
+  if (inkList)
+    delete inkList;
+}
+
+void AnnotInk::initialize(XRef *xrefA, Catalog *catalog, Dict* dict) {
+  Object obj1;
+
+  if (dict->lookup("InkList", &obj1)->isArray()) {
+    Array *array = obj1.getArray();
+    inkListLength = array->getLength();
+    inkList = (AnnotPath **) gmallocn ((inkListLength), sizeof(AnnotPath *));
+    memset(inkList, 0, inkListLength * sizeof(AnnotPath *));
+    for (int i = 0; i < inkListLength; i++) {
+      Object obj2;
+      if (array->get(i, &obj2)->isArray())
+        inkList[i] = this->parsePathArray(obj2.getArray());
+      obj2.free();
+    }
+  } else {
+    inkListLength = 0;
+    inkList = NULL;
+    error(-1, "Bad Annot Ink List");
+    ok = gFalse;
+  }
+  obj1.free();
+}
+
+AnnotPath *AnnotInk::parsePathArray(Array *array) {
+  int coordsLength;
+  AnnotCoord **coords;
+  GBool correct = gTrue;
+
+  if (!array->getLength() % 2) {
+    error(-1, "Bad Annot Ink Path");
+    return NULL;
+  }
+
+  coordsLength = array->getLength() / 2;
+  coords = (AnnotCoord **) gmallocn (coordsLength, sizeof(AnnotCoord *));
+  memset(coords, 0, coordsLength * sizeof(AnnotCoord *));
+  for (int i = 0; i < coordsLength && correct; i++) {
+    Object obj1;
+    double x = 0, y = 0;
+
+    if (array->get(coordsLength * 2, &obj1)->isNum()) {
+      x = obj1.getNum();
+    } else {
+      correct = gFalse;
+    }
+    obj1.free();
+
+    if (array->get((coordsLength * 2) + 1, &obj1)->isNum()) {
+      y = obj1.getNum();
+    } else {
+      correct = gFalse;
+    }
+    obj1.free();
+
+    if (!correct) {
+      for (int j = i - 1; j >= 0; j--)
+        delete coords[j];
+      gfree (coords);
+      return NULL;
+    }
+
+    coords[i] = new AnnotCoord(x, y);
+  }
+  return (new AnnotPath(coords, coordsLength));
 }
 
 //------------------------------------------------------------------------
