@@ -30,6 +30,7 @@
 #include "Page.h"
 #include "XRef.h"
 #include "Movie.h"
+#include "OptionalContent.h"
 #include <string.h>
 
 #define annotFlagHidden    0x0002
@@ -876,17 +877,13 @@ void Annot::initialize(XRef *xrefA, Dict *dict, Catalog *catalog) {
     treeKey = 0;
   }
   obj1.free();
-
-  /* TODO: optional content should be parsed */
-  optionalContent = NULL;
   
-  /*if (dict->lookup("OC", &obj1)->isDict()) {
-    optionalContent = NULL;
+  if (dict->lookup("OC", &obj1)->isDict()) {
+    optionalContent = new OCGs(&obj1, xrefA);
   } else {
     optionalContent = NULL;
   }
   obj1.free();
-  */
 }
 
 double Annot::getXMin() {

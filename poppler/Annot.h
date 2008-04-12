@@ -23,6 +23,7 @@ class Form;
 class FormWidget;
 class PDFRectangle;
 class Movie;
+class OCGs;
 
 enum AnnotLineEndingStyle {
   annotLineEndingSquare,        // Square
@@ -482,7 +483,7 @@ public:
   AnnotBorder *getBorder() const { return border; }
   AnnotColor *getColor() const { return color; }
   int getTreeKey() const { return treeKey; }
-  Dict *getOptionalContent() const { return optionalContent; }
+  OCGs *getOptionalContent() const { return optionalContent; }
 
   int getId() { return ref.num; }
 
@@ -515,7 +516,7 @@ protected:
                          //   for the normal appearance
   GooString *appearState;           // AS
   int treeKey;                      // Struct Parent;
-  Dict *optionalContent;            // OC
+  OCGs *optionalContent;            // OC
 
   XRef *xref;			// the xref table for this PDF file
   Ref ref;                      // object ref identifying this annotation
