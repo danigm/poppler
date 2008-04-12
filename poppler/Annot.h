@@ -1023,6 +1023,31 @@ private:
 };
 
 //------------------------------------------------------------------------
+// AnnotFileAttachment
+//------------------------------------------------------------------------
+
+class AnnotFileAttachment: public AnnotMarkup {
+public:
+
+  AnnotFileAttachment(XRef *xrefA, Dict *dict, Catalog *catalog, Object *obj);
+  ~AnnotFileAttachment();
+
+  // getters
+  virtual Object *getFile(Object *obj) { return file.fetch(xref, obj); }
+  virtual GooString *getName() const { return name; }
+
+private:
+
+  void initialize(XRef *xrefA, Catalog *catalog, Dict *dict);
+
+  // required
+  Object file;      // FS
+
+  // optional
+  GooString *name;  // Name
+};
+
+//------------------------------------------------------------------------
 // AnnotWidget
 //------------------------------------------------------------------------
 

@@ -3519,6 +3519,40 @@ AnnotPath *AnnotInk::parsePathArray(Array *array) {
 }
 
 //------------------------------------------------------------------------
+// AnnotFileAttachment
+//------------------------------------------------------------------------
+
+AnnotFileAttachment::AnnotFileAttachment(XRef *xrefA, Dict *dict, Catalog *catalog, Object *obj) :
+  AnnotMarkup(xrefA, dict, catalog, obj) {
+  type = typeFileAttachment;
+  initialize(xrefA, catalog, dict);
+}
+
+AnnotFileAttachment::~AnnotFileAttachment() {
+  file.free();
+
+  if (name)
+    delete name;
+}
+
+void AnnotFileAttachment::initialize(XRef *xrefA, Catalog *catalog, Dict* dict) {
+  Object obj1;
+
+  if (dict->lookup("FS", &obj1)->isRef()) {
+    obj1.copy(&file);
+  } else {
+    error(-1, "Bad Annot File Attachment");
+  }
+
+  if (dict->lookup("Name", &obj1)->isName()) {
+    name = new GooString(obj1.getName());
+  } else {
+    name = new GooString("PushPin");
+  }
+  obj1.free();
+}
+
+//------------------------------------------------------------------------
 // Annots
 //------------------------------------------------------------------------
 
@@ -3593,9 +3627,9 @@ Annot *Annots::createAnnot(XRef *xref, Dict* dict, Catalog *catalog, Object *obj
     } else if (!typeName->cmp("Caret")) {
       annot = new AnnotCaret(xref, dict, catalog, obj);
     } else if (!typeName->cmp("Ink")) {
-      annot = new Annot(xref, dict, catalog, obj);
+      annot = new AnnotInk(xref, dict, catalog, obj);
     } else if (!typeName->cmp("FileAttachment")) {
-      annot = new Annot(xref, dict, catalog, obj);
+      annot = new AnnotFileAttachment(xref, dict, catalog, obj);
     } else if (!typeName->cmp("Sound")) {
       annot = new Annot(xref, dict, catalog, obj);
     } else if(!typeName->cmp("Movie")) {
