@@ -71,7 +71,7 @@ public:
   double getX(int coord) const;
   double getY(int coord) const;
   AnnotCoord *getCoord(int coord) const;
-  double getCoordsLength() const { return coordsLength; }
+  int getCoordsLength() const { return coordsLength; }
 protected:
   AnnotCoord **coords;
   int coordsLength;
