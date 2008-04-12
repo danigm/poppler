@@ -67,6 +67,7 @@ protected:
 class AnnotPath {
 public:
   AnnotPath(AnnotCoord **coords, int coordLength);
+  ~AnnotPath();
 
   double getX(int coord) const;
   double getY(int coord) const;

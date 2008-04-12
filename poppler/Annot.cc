@@ -184,6 +184,14 @@ AnnotPath::AnnotPath(AnnotCoord **coords, int coordsLength) {
   }
 }
 
+AnnotPath::~AnnotPath() {
+  if (coords) {
+    for (int i = 0; i < coordsLength; ++i)
+      delete coords[i];
+    gfree(coords);
+  }
+}
+
 double AnnotPath::getX(int coord) const {
   if (coord >= 0 && coord < coordsLength)
     return coords[coord]->getX();
@@ -3446,8 +3454,11 @@ AnnotInk::AnnotInk(XRef *xrefA, Dict *dict, Catalog *catalog, Object *obj) :
 }
 
 AnnotInk::~AnnotInk() {
-  if (inkList)
+  if (inkList) {
+    for (int i = 0; i < inkListLength; ++i)
+      delete inkList[i];
     gfree(inkList);
+  }
 }
 
 void AnnotInk::initialize(XRef *xrefA, Catalog *catalog, Dict* dict) {
