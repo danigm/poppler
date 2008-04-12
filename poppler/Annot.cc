@@ -184,20 +184,20 @@ AnnotPath::AnnotPath(AnnotCoord **coords, int coordsLength) {
   }
 }
 
-double AnnotPath::getX(int coord) {
-  if (coord > 0 && coord < coordsLength)
+double AnnotPath::getX(int coord) const {
+  if (coord >= 0 && coord < coordsLength)
     return coords[coord]->getX();
   return 0;
 }
 
-double AnnotPath::getY(int coord) {
-  if (coord > 0 && coord < coordsLength)
+double AnnotPath::getY(int coord) const {
+  if (coord >= 0 && coord < coordsLength)
     return coords[coord]->getY();
   return 0;
 }
 
-AnnotCoord *AnnotPath::getCoord(int coord) {
-  if (coord > 0 && coord < coordsLength)
+AnnotCoord *AnnotPath::getCoord(int coord) const {
+  if (coord >= 0 && coord < coordsLength)
     return coords[coord];
   return NULL;
 }
@@ -1167,7 +1167,7 @@ void AnnotMarkup::initialize(XRef *xrefA, Dict *dict, Catalog *catalog, Object *
     date = NULL;
   }
   obj1.free();
-
+    
   if (dict->lookup("IRT", &obj1)->isDict()) {
     inReplyTo = obj1.getDict();
   } else {
@@ -3553,6 +3553,120 @@ void AnnotFileAttachment::initialize(XRef *xrefA, Catalog *catalog, Dict* dict) 
 }
 
 //------------------------------------------------------------------------
+// Annot3D
+//------------------------------------------------------------------------
+
+Annot3D::Annot3D(XRef *xrefA, Dict *dict, Catalog *catalog, Object *obj) :
+  Annot(xrefA, dict, catalog, obj) {
+  type = type3D;
+  initialize(xrefA, catalog, dict);
+}
+
+Annot3D::~Annot3D() {
+  if (activation)
+    delete activation;
+}
+
+void Annot3D::initialize(XRef *xrefA, Catalog *catalog, Dict* dict) {
+  Object obj1;
+
+  if (dict->lookup("3DA", &obj1)->isDict()) {
+    activation = new Activation(obj1.getDict());
+  } else {
+    activation = NULL;
+  }
+  obj1.free();
+}
+
+Annot3D::Activation::Activation(Dict *dict) {
+  Object obj1;
+
+  if (dict->lookup("A", &obj1)->isName()) {
+    GooString *name = new GooString(obj1.getName());
+
+    if(!name->cmp("PO")) {
+      aTrigger = aTriggerPageOpened;
+    } else if(!name->cmp("PV")) {
+      aTrigger = aTriggerPageVisible;
+    } else if(!name->cmp("XA")) {
+      aTrigger = aTriggerUserAction;
+    } else {
+      aTrigger = aTriggerUnknown;
+    }
+    delete name;
+  } else {
+    aTrigger = aTriggerUnknown;
+  }
+  obj1.free();
+
+  if(dict->lookup("AIS", &obj1)->isName()) {
+    GooString *name = new GooString(obj1.getName());
+
+    if(!name->cmp("I")) {
+      aState = aStateEnabled;
+    } else if(!name->cmp("L")) {
+      aState = aStateDisabled;
+    } else {
+      aState = aStateUnknown;
+    }
+    delete name;
+  } else {
+    aState = aStateUnknown;
+  }
+  obj1.free();
+
+  if(dict->lookup("D", &obj1)->isName()) {
+    GooString *name = new GooString(obj1.getName());
+
+    if(!name->cmp("PC")) {
+      dTrigger = dTriggerPageClosed;
+    } else if(!name->cmp("PI")) {
+      dTrigger = dTriggerPageInvisible;
+    } else if(!name->cmp("XD")) {
+      dTrigger = dTriggerUserAction;
+    } else {
+      dTrigger = dTriggerUnknown;
+    }
+    delete name;
+  } else {
+    dTrigger = dTriggerUnknown;
+  }
+  obj1.free();
+
+  if(dict->lookup("DIS", &obj1)->isName()) {
+    GooString *name = new GooString(obj1.getName());
+
+    if(!name->cmp("U")) {
+      dState = dStateUninstantiaded;
+    } else if(!name->cmp("I")) {
+      dState = dStateInstantiated;
+    } else if(!name->cmp("L")) {
+      dState = dStateLive;
+    } else {
+      dState = dStateUnknown;
+    }
+    delete name;
+  } else {
+    dState = dStateUnknown;
+  }
+  obj1.free();
+
+  if (dict->lookup("TB", &obj1)->isBool()) {
+    displayToolbar = obj1.getBool();
+  } else {
+    displayToolbar = gTrue;
+  }
+  obj1.free();
+
+  if (dict->lookup("NP", &obj1)->isBool()) {
+    displayNavigation = obj1.getBool();
+  } else {
+    displayNavigation = gFalse;
+  }
+  obj1.free();
+}
+
+//------------------------------------------------------------------------
 // Annots
 //------------------------------------------------------------------------
 
@@ -3645,7 +3759,7 @@ Annot *Annots::createAnnot(XRef *xref, Dict* dict, Catalog *catalog, Object *obj
     } else if (!typeName->cmp("Watermark")) {
       annot = new Annot(xref, dict, catalog, obj);
     } else if (!typeName->cmp("3D")) {
-      annot = new Annot(xref, dict, catalog, obj);
+      annot = new Annot3D(xref, dict, catalog, obj);
     } else {
       annot = new Annot(xref, dict, catalog, obj);
     }

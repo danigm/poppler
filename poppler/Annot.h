@@ -68,9 +68,9 @@ class AnnotPath {
 public:
   AnnotPath(AnnotCoord **coords, int coordLength);
 
-  double getX(int coord);
-  double getY(int coord);
-  AnnotCoord *getCoord(int coord);
+  double getX(int coord) const;
+  double getY(int coord) const;
+  AnnotCoord *getCoord(int coord) const;
   double getCoordsLength() const { return coordsLength; }
 protected:
   AnnotCoord **coords;
@@ -154,7 +154,7 @@ class AnnotQuadrilaterals {
 public:
 
   AnnotQuadrilaterals(Array *array, PDFRectangle *rect);
-  virtual ~AnnotQuadrilaterals();
+  ~AnnotQuadrilaterals();
 
   double getX1(int quadrilateral);
   double getY1(int quadrilateral);
@@ -217,8 +217,8 @@ public:
   AnnotBorderArray();
   AnnotBorderArray(Array *array);
 
-  virtual double getHorizontalCorner() const { return horizontalCorner; }
-  virtual double getVerticalCorner() const { return verticalCorner; }
+  double getHorizontalCorner() const { return horizontalCorner; }
+  double getVerticalCorner() const { return verticalCorner; }
 
 protected:
   static const int DASH_LIMIT = 10; // implementation note 82 in Appendix H.
@@ -534,7 +534,7 @@ protected:
 class AnnotPopup: public Annot {
 public:
   AnnotPopup(XRef *xrefA, Dict *dict, Catalog *catalog, Object *obj);
-  virtual ~AnnotPopup();
+  ~AnnotPopup();
 
   Dict *getParent() const { return parent; }
   GBool getOpen() const { return open; }
@@ -809,7 +809,7 @@ public:
   };
 
   AnnotFreeText(XRef *xrefA, Dict *dict, Catalog *catalog, Object *obj);
-  virtual ~AnnotFreeText();
+  ~AnnotFreeText();
 
   // getters
   GooString *getAppearanceString() const { return appearanceString; }
@@ -860,7 +860,7 @@ public:
   };
 
   AnnotLine(XRef *xrefA, Dict *dict, Catalog *catalog, Object *obj);
-  virtual ~AnnotLine();
+  ~AnnotLine();
 
   // getters
   AnnotLineEndingStyle getStartStyle() const { return startStyle; }
@@ -1005,8 +1005,8 @@ public:
   ~AnnotInk();
 
   // getters
-  virtual AnnotPath **getInkList() const { return inkList; }
-  virtual int getInkListLength() const { return inkListLength; }
+  AnnotPath **getInkList() const { return inkList; }
+  int getInkListLength() const { return inkListLength; }
 
 private:
 
@@ -1033,8 +1033,8 @@ public:
   ~AnnotFileAttachment();
 
   // getters
-  virtual Object *getFile(Object *obj) { return file.fetch(xref, obj); }
-  virtual GooString *getName() const { return name; }
+  Object *getFile(Object *obj) { return file.fetch(xref, obj); }
+  GooString *getName() const { return name; }
 
 private:
 
@@ -1100,6 +1100,64 @@ private:
   // AnnotBorderBS border;                // BS
   Dict *parent;                           // Parent
   GBool regen;
+};
+
+//------------------------------------------------------------------------
+// Annot3D
+//------------------------------------------------------------------------
+
+class Annot3D: public Annot {
+  class Activation {
+  public:
+    enum ActivationATrigger {
+      aTriggerUnknown,
+      aTriggerPageOpened,  // PO
+      aTriggerPageVisible, // PV
+      aTriggerUserAction   // XA
+    };
+
+    enum ActivationAState {
+      aStateUnknown,
+      aStateEnabled, // I
+      aStateDisabled // L
+    };
+
+    enum ActivationDTrigger {
+      dTriggerUnknown,
+      dTriggerPageClosed,    // PC
+      dTriggerPageInvisible, // PI
+      dTriggerUserAction     // XD
+    };
+
+    enum ActivationDState {
+      dStateUnknown,
+      dStateUninstantiaded, // U
+      dStateInstantiated,   // I
+      dStateLive            // L
+    };
+
+    Activation(Dict *dict);
+  private:
+    
+    ActivationATrigger aTrigger;  // A   (Default XA)
+    ActivationAState aState;      // AIS (Default L)
+    ActivationDTrigger dTrigger;  // D   (Default PI)
+    ActivationDState dState;      // DIS (Default U)
+    GBool displayToolbar;         // TB  (Default true)
+    GBool displayNavigation;      // NP  (Default false);
+  };
+public:
+
+  Annot3D(XRef *xrefA, Dict *dict, Catalog *catalog, Object *obj);
+  ~Annot3D();
+
+  // getters
+
+private:
+
+  void initialize(XRef *xrefA, Catalog *catalog, Dict *dict);
+
+  Activation *activation;  // 3DA
 };
 
 //------------------------------------------------------------------------
