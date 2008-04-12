@@ -67,6 +67,7 @@ protected:
 
 class AnnotPath {
 public:
+  AnnotPath(Array *array);
   AnnotPath(AnnotCoord **coords, int coordLength);
   ~AnnotPath();
 
@@ -77,6 +78,8 @@ public:
 protected:
   AnnotCoord **coords;
   int coordsLength;
+
+  void parsePathArray(Array *array);
 };
   
 //------------------------------------------------------------------------
@@ -1013,7 +1016,6 @@ public:
 private:
 
   void initialize(XRef *xrefA, Catalog *catalog, Dict *dict);
-  AnnotPath *parsePathArray(Array *array);
 
   // required
   AnnotPath **inkList;       // InkList
