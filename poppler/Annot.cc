@@ -175,13 +175,8 @@ AnnotBorderEffect::AnnotBorderEffect(Dict *dict) {
 //------------------------------------------------------------------------
 
 AnnotPath::AnnotPath(AnnotCoord **coords, int coordsLength) {
-  if (!coords) {
-    this->coords = coords;
-    this->coordsLength = coordsLength;
-  } else {
-    this->coords = NULL;
-    this->coordsLength = 0;
-  }
+  this->coords = coords;
+  this->coordsLength = coordsLength;
 }
 
 AnnotPath::~AnnotPath() {
