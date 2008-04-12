@@ -3447,7 +3447,7 @@ AnnotInk::AnnotInk(XRef *xrefA, Dict *dict, Catalog *catalog, Object *obj) :
 
 AnnotInk::~AnnotInk() {
   if (inkList)
-    delete inkList;
+    gfree(inkList);
 }
 
 void AnnotInk::initialize(XRef *xrefA, Catalog *catalog, Dict* dict) {
@@ -3478,7 +3478,7 @@ AnnotPath *AnnotInk::parsePathArray(Array *array) {
   AnnotCoord **coords;
   GBool correct = gTrue;
 
-  if (!array->getLength() % 2) {
+  if (array->getLength() % 2) {
     error(-1, "Bad Annot Ink Path");
     return NULL;
   }
@@ -3490,14 +3490,14 @@ AnnotPath *AnnotInk::parsePathArray(Array *array) {
     Object obj1;
     double x = 0, y = 0;
 
-    if (array->get(coordsLength * 2, &obj1)->isNum()) {
+    if (array->get(i * 2, &obj1)->isNum()) {
       x = obj1.getNum();
     } else {
       correct = gFalse;
     }
     obj1.free();
 
-    if (array->get((coordsLength * 2) + 1, &obj1)->isNum()) {
+    if (array->get((i * 2) + 1, &obj1)->isNum()) {
       y = obj1.getNum();
     } else {
       correct = gFalse;
