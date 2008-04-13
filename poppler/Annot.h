@@ -24,6 +24,7 @@ class FormWidget;
 class PDFRectangle;
 class Movie;
 class OCGs;
+class Sound;
 
 enum AnnotLineEndingStyle {
   annotLineEndingSquare,        // Square
@@ -1092,6 +1093,31 @@ private:
 
   // optional
   GooString *name;  // Name
+};
+
+//------------------------------------------------------------------------
+// AnnotSound
+//------------------------------------------------------------------------
+
+class AnnotSound: public AnnotMarkup {
+public:
+
+  AnnotSound(XRef *xrefA, Dict *dict, Catalog *catalog, Object *obj);
+  ~AnnotSound();
+
+  // getters
+  Sound *getSound() { return sound; }
+  GooString *getName() const { return name; }
+
+private:
+
+  void initialize(XRef *xrefA, Catalog *catalog, Dict *dict);
+
+  // required
+  Sound *sound;                  // Sound
+
+  // optional
+  GooString *name;               // Name
 };
 
 //------------------------------------------------------------------------

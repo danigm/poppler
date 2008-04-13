@@ -31,6 +31,7 @@
 #include "XRef.h"
 #include "Movie.h"
 #include "OptionalContent.h"
+#include "Sound.h"
 #include <string.h>
 
 #define annotFlagHidden    0x0002
@@ -3663,6 +3664,40 @@ void AnnotFileAttachment::initialize(XRef *xrefA, Catalog *catalog, Dict* dict) 
 }
 
 //------------------------------------------------------------------------
+// AnnotSound
+//------------------------------------------------------------------------
+
+AnnotSound::AnnotSound(XRef *xrefA, Dict *dict, Catalog *catalog, Object *obj) :
+  AnnotMarkup(xrefA, dict, catalog, obj) {
+  type = typeSound;
+  initialize(xrefA, catalog, dict);
+}
+
+AnnotSound::~AnnotSound() {
+  delete sound;
+
+  delete name;
+}
+
+void AnnotSound::initialize(XRef *xrefA, Catalog *catalog, Dict* dict) {
+  Object obj1;
+
+  sound = Sound::parseSound(dict->lookup("Sound", &obj1));
+  if (!sound) {
+    error(-1, "Bad Annot Sound");
+    ok = gFalse;
+  }
+  obj1.free();
+
+  if (dict->lookup("Name", &obj1)->isName()) {
+    name = new GooString(obj1.getName());
+  } else {
+    name = new GooString("Speaker");
+  }
+  obj1.free();
+}
+
+//------------------------------------------------------------------------
 // Annot3D
 //------------------------------------------------------------------------
 
@@ -3855,7 +3890,7 @@ Annot *Annots::createAnnot(XRef *xref, Dict* dict, Catalog *catalog, Object *obj
     } else if (!typeName->cmp("FileAttachment")) {
       annot = new AnnotFileAttachment(xref, dict, catalog, obj);
     } else if (!typeName->cmp("Sound")) {
-      annot = new Annot(xref, dict, catalog, obj);
+      annot = new AnnotSound(xref, dict, catalog, obj);
     } else if(!typeName->cmp("Movie")) {
       annot = new AnnotMovie(xref, dict, catalog, obj);
     } else if(!typeName->cmp("Widget")) {
