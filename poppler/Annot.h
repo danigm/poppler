@@ -990,6 +990,12 @@ public:
   ~AnnotPolygon();
 
   // getters
+  AnnotPath *getVertices() const { return vertices; }
+  AnnotLineEndingStyle getStartStyle() const { return startStyle; }
+  AnnotLineEndingStyle getEndStyle() const { return endStyle; }
+  AnnotColor *getInteriorColor() const { return interiorColor; }
+  AnnotBorderEffect *getBorderEffect() const { return borderEffect; }
+  AnnotPolygonIntent getIntent() const { return intent; }
 
 private:
 
