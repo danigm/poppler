@@ -25,6 +25,7 @@
 // local includes
 #include "poppler-annotation.h"
 #include "poppler-link.h"
+#include "poppler-qt4.h"
 #include "poppler-annotation-private.h"
 
 // poppler includes
@@ -1767,6 +1768,93 @@ void CaretAnnotation::setCaretSymbol( CaretAnnotation::CaretSymbol symbol )
 {
     Q_D( CaretAnnotation );
     d->symbol = symbol;
+}
+
+/** FileAttachmentAnnotation [Annotation] */
+class FileAttachmentAnnotationPrivate : public AnnotationPrivate
+{
+    public:
+        FileAttachmentAnnotationPrivate();
+        ~FileAttachmentAnnotationPrivate();
+
+        // data fields
+        QString icon;
+        EmbeddedFile *embfile;
+};
+
+FileAttachmentAnnotationPrivate::FileAttachmentAnnotationPrivate()
+    : AnnotationPrivate(), icon( "PushPin" ), embfile( 0 )
+{
+}
+
+FileAttachmentAnnotationPrivate::~FileAttachmentAnnotationPrivate()
+{
+    delete embfile;
+}
+
+FileAttachmentAnnotation::FileAttachmentAnnotation()
+    : Annotation( *new FileAttachmentAnnotationPrivate() )
+{
+}
+
+FileAttachmentAnnotation::FileAttachmentAnnotation( const QDomNode & node )
+    : Annotation( *new FileAttachmentAnnotationPrivate(), node )
+{
+    // loop through the whole children looking for a 'fileattachment' element
+    QDomNode subNode = node.firstChild();
+    while( subNode.isElement() )
+    {
+        QDomElement e = subNode.toElement();
+        subNode = subNode.nextSibling();
+        if ( e.tagName() != "fileattachment" )
+            continue;
+
+        // loading complete
+        break;
+    }
+}
+
+FileAttachmentAnnotation::~FileAttachmentAnnotation()
+{
+}
+
+void FileAttachmentAnnotation::store( QDomNode & node, QDomDocument & document ) const
+{
+    // recurse to parent objects storing properties
+    Annotation::store( node, document );
+
+    // create [fileattachment] element
+    QDomElement fileAttachmentElement = document.createElement( "fileattachment" );
+    node.appendChild( fileAttachmentElement );
+}
+
+Annotation::SubType FileAttachmentAnnotation::subType() const
+{
+    return AFileAttachment;
+}
+
+QString FileAttachmentAnnotation::fileIconName() const
+{
+    Q_D( const FileAttachmentAnnotation );
+    return d->icon;
+}
+
+void FileAttachmentAnnotation::setFileIconName( const QString &icon )
+{
+    Q_D( FileAttachmentAnnotation );
+    d->icon = icon;
+}
+
+EmbeddedFile* FileAttachmentAnnotation::embeddedFile() const
+{
+    Q_D( const FileAttachmentAnnotation );
+    return d->embfile;
+}
+
+void FileAttachmentAnnotation::setEmbeddedFile( EmbeddedFile *ef )
+{
+    Q_D( FileAttachmentAnnotation );
+    d->embfile = ef;
 }
 
 //BEGIN utility annotation functions
