@@ -878,6 +878,19 @@ QList<Annotation*> Page::annotations() const
                 f->setEmbeddedFile( new EmbeddedFile( embfile ) );
                 break;
             }
+            case Annot::typeSound:
+            {
+                AnnotSound * soundann = static_cast< AnnotSound * >( ann );
+                SoundAnnotation * s = new SoundAnnotation();
+                annotation = s;
+
+                // -> soundIcon
+                s->setSoundIconName( QString::fromLatin1( soundann->getName()->getCString() ) );
+                // -> sound
+                s->setSound( new SoundObject( soundann->getSound() ) );
+
+                break;
+            }
             // special case for ignoring unknwon annotations
             case Annot::typeUnknown:
                 continue;
@@ -890,7 +903,6 @@ QList<Annotation*> Page::annotations() const
                 QByteArray type;
                 switch ( subType )
                 {
-                    CASE_FOR_TYPE( Sound )
                     CASE_FOR_TYPE( Movie )
                     CASE_FOR_TYPE( Widget )
                     CASE_FOR_TYPE( Screen )
@@ -900,7 +912,7 @@ QList<Annotation*> Page::annotations() const
                     CASE_FOR_TYPE( 3D )
                     default: type = QByteArray::number( subType );
                 }
-                // MISSING: Sound, Movie, Widget,
+                // MISSING: Movie, Widget,
                 //          Screen, PrinterMark, TrapNet, Watermark, 3D
                 qDebug() << "Annotation" << type.constData() << "not supported.";
                 continue;
