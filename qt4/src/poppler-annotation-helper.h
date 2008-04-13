@@ -198,7 +198,7 @@ struct ResolveRevision
 
 struct ResolveWindow
 {
-    int           popupWindowID;    // ID of the (maybe shared) window
+    AnnotPopup *  popup;            // the (maybe shared) window
     Annotation *  annotation;       // annotation having the popup window
 };
 

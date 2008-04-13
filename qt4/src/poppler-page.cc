@@ -29,6 +29,7 @@
 #include <Form.h>
 #include <ErrorCodes.h>
 #include <TextOutputDev.h>
+#include <Annot.h>
 #if defined(HAVE_SPLASH)
 #include <SplashOutputDev.h>
 #include <splash/SplashBitmap.h>
@@ -484,18 +485,18 @@ QList<Link*> Page::links() const
 
 QList<Annotation*> Page::annotations() const
 {
-    Object annotArray;
     ::Page *pdfPage = m_page->page;
-    pdfPage->getAnnots( &annotArray );
-    if ( !annotArray.isArray() || annotArray.arrayGetLength() < 1 )
+    Annots* annots = pdfPage->getAnnots(m_page->parentDoc->doc->getCatalog());
+    const uint numAnnotations = annots->getNumAnnots();
+    if ( numAnnotations == 0 )
     {
-        annotArray.free();
+        delete annots;
         return QList<Annotation*>();
     }
 
     // ID to Annotation/PopupWindow maps
     QMap< int, Annotation * > annotationsMap;
-    QMap< int, PopupWindow * > popupsMap;
+    QMap< AnnotPopup *, PopupWindow * > popupsMap;
     // lists of Windows and Revisions that needs resolution
     QLinkedList< ResolveRevision > resolveRevList;
     QLinkedList< ResolveWindow > resolvePopList;
@@ -513,438 +514,396 @@ QList<Annotation*> Page::annotations() const
     delete gfxState;
 
     /** 1 - PARSE ALL ANNOTATIONS AND POPUPS FROM THE PAGE */
-    Object annot;
-    Object annotRef;    // no need to free this (impl. dependent!)
-    uint numAnnotations = annotArray.arrayGetLength();
     for ( uint j = 0; j < numAnnotations; j++ )
     {
         // get the j-th annotation
-        annotArray.arrayGet( j, &annot );
-        if ( !annot.isDict() )
+        Annot * ann = annots->getAnnot( j );
+        if ( !ann )
         {
-            qDebug() << "PDFGenerator: annot not dictionary.";
-            annot.free();
+            qDebug() << "Annot" << j << "is null.";
             continue;
         }
 
         Annotation * annotation = 0;
-        Dict * annotDict = annot.getDict();
-        int annotID = annotArray.arrayGetNF( j, &annotRef )->getRefNum();
-        bool parseMarkup = true,    // nearly all supported annots are markup
-             addToPage = true;      // Popup annots are added to custom queue
+        int annotID = ann->getId();
+        AnnotMarkup * markupann = dynamic_cast< AnnotMarkup * >( ann );
+        bool addToPage = true;      // Popup annots are added to custom queue
 
         /** 1.1. GET Subtype */
-        QString subType;
-        XPDFReader::lookupName( annotDict, "Subtype", subType );
-        if ( subType.isEmpty() )
-        {
-            qDebug() << "Annot has no Subtype";
-            annot.free();
-            continue;
-        }
+        Annot::AnnotSubtype subType = ann->getType();
 
         /** 1.2. CREATE Annotation / PopupWindow and PARSE specific params */
-        if ( subType == "Text" || subType == "FreeText" )
+        switch ( subType )
         {
-            // parse TextAnnotation params
-            TextAnnotation * t = new TextAnnotation();
-            annotation = t;
-
-            if ( subType == "Text" )
+            case Annot::typeText:
             {
+                // parse TextAnnotation params
+                AnnotText * textann = static_cast< AnnotText * >( ann );
+                TextAnnotation * t = new TextAnnotation();
+                annotation = t;
                 // -> textType
                 t->setTextType( TextAnnotation::Linked );
                 // -> textIcon
-                QString tmpstring;
-                XPDFReader::lookupName( annotDict, "Name", tmpstring );
-                if ( !tmpstring.isEmpty() )
-                {
-                    tmpstring = tmpstring.toLower();
-                    tmpstring.remove( ' ' );
-                    t->setTextIcon( tmpstring );
-                }
+                t->setTextIcon( QString::fromLatin1( textann->getIcon()->getCString() ) );
                 // request for postprocessing window geometry
                 PostProcessText request;
                 request.textAnnotation = t;
-                request.opened = false;
-                XPDFReader::lookupBool( annotDict, "Open", request.opened );
+                request.opened = textann->getOpen();
                 ppTextList.append( request );
+                break;
             }
-            else
+            case Annot::typeFreeText:
             {
-                // NOTE: please provide testcases for FreeText (don't have any) - Enrico
+                // parse TextAnnotation params
+                AnnotFreeText * textann = static_cast< AnnotFreeText * >( ann );
+                TextAnnotation * t = new TextAnnotation();
+                annotation = t;
                 // -> textType
                 t->setTextType( TextAnnotation::InPlace );
+#if 0
                 // -> textFont
                 QString textFormat;
                 XPDFReader::lookupString( annotDict, "DA", textFormat );
                 // TODO, fill t->textFont using textFormat if not empty
+#endif
                 // -> inplaceAlign
-                int tmpint = 0;
-                XPDFReader::lookupInt( annotDict, "Q", tmpint );
-                t->setInplaceAlign( tmpint );
+                t->setInplaceAlign( textann->getQuadding() );
                 // -> inplaceText (simple)
                 QString tmpstring;
-                XPDFReader::lookupString( annotDict, "DS", tmpstring );
+                GooString *styleString = textann->getStyleString();
+                if ( styleString )
+                    tmpstring = UnicodeParsedString( styleString );
+#if 0
                 // -> inplaceText (complex override)
                 XPDFReader::lookupString( annotDict, "RC", tmpstring );
+#endif
                 t->setInplaceText( tmpstring );
                 // -> inplaceCallout
-                double c[6];
-                int n = XPDFReader::lookupNumArray( annotDict, "CL", c, 6 );
-                if ( n >= 4 )
+                AnnotCalloutLine *callout = textann->getCalloutLine();
+                if ( callout )
                 {
                     QPointF tmppoint;
-                    XPDFReader::transform( MTX, c[0], c[1], tmppoint );
+                    XPDFReader::transform( MTX, callout->getX1(), callout->getY1(), tmppoint );
                     t->setCalloutPoint( 0, tmppoint );
-                    XPDFReader::transform( MTX, c[2], c[3], tmppoint );
+                    XPDFReader::transform( MTX, callout->getX2(), callout->getY2(), tmppoint );
                     t->setCalloutPoint( 1, tmppoint );
-                    if ( n == 6 )
+                    if ( AnnotCalloutMultiLine * callout_v6 = dynamic_cast< AnnotCalloutMultiLine * >( callout ) )
                     {
-                        XPDFReader::transform( MTX, c[4], c[5], tmppoint );
+                        XPDFReader::transform( MTX, callout_v6->getX3(), callout_v6->getY3(), tmppoint );
                         t->setCalloutPoint( 2, tmppoint );
                     }
                 }
                 // -> inplaceIntent
-                QString intentName;
-                XPDFReader::lookupString( annotDict, "IT", intentName );
-                if ( intentName == "FreeTextCallout" )
-                    t->setInplaceIntent( TextAnnotation::Callout );
-                else if ( intentName == "FreeTextTypeWriter" )
-                    t->setInplaceIntent( TextAnnotation::TypeWriter );
+                t->setInplaceIntent( (TextAnnotation::InplaceIntent)textann->getIntent() );
+                AnnotBorderEffect *border_effect = textann->getBorderEffect();
+                if ( border_effect )
+                {
+                    // -> style.effect
+                    t->style.effect = (Annotation::LineEffect)border_effect->getEffectType();
+                    // -> style.effectIntensity
+                    t->style.effectIntensity = (int)border_effect->getIntensity();
+                }
+                break;
             }
-        }
-        else if ( subType == "Line" || subType == "Polygon" || subType == "PolyLine" )
-        {
-            // parse LineAnnotation params
-            LineAnnotation * l = new LineAnnotation();
-            annotation = l;
+            case Annot::typeLine:
+            {
+                // parse LineAnnotation params
+                AnnotLine * lineann = static_cast< AnnotLine * >( ann );
+                LineAnnotation * l = new LineAnnotation();
+                annotation = l;
 
-            // -> linePoints
-            double c[100];
-            int num = XPDFReader::lookupNumArray( annotDict, (char*)((subType == "Line") ? "L" : "Vertices"), c, 100 );
-            if ( num < 4 || (num % 2) != 0 )
-            {
-                qDebug() << "L/Vertices wrong fol Line/Poly.";
-                delete annotation;
-                annot.free();
-                continue;
-            }
-            QLinkedList<QPointF> linePoints;
-            for ( int i = 0; i < num; i += 2 )
-            {
+                // -> linePoints
+                QLinkedList<QPointF> linePoints;
                 QPointF p;
-                XPDFReader::transform( MTX, c[i], c[i+1], p );
+                XPDFReader::transform( MTX, lineann->getX1(), lineann->getY1(), p );
                 linePoints.push_back( p );
-            }
-            l->setLinePoints( linePoints );
-            // -> lineStartStyle, lineEndStyle
-            Object leArray;
-            annotDict->lookup( "LE", &leArray );
-            if ( leArray.isArray() && leArray.arrayGetLength() == 2 )
-            {
+                XPDFReader::transform( MTX, lineann->getX2(), lineann->getY2(), p );
+                linePoints.push_back( p );
+                l->setLinePoints( linePoints );
                 // -> lineStartStyle
-                Object styleObj;
-                leArray.arrayGet( 0, &styleObj );
-                if ( styleObj.isName() )
-                {
-                    const char * name = styleObj.getName();
-                    if ( !strcmp( name, "Square" ) )
-                        l->setLineStartStyle( LineAnnotation::Square );
-                    else if ( !strcmp( name, "Circle" ) )
-                        l->setLineStartStyle( LineAnnotation::Circle );
-                    else if ( !strcmp( name, "Diamond" ) )
-                        l->setLineStartStyle( LineAnnotation::Diamond );
-                    else if ( !strcmp( name, "OpenArrow" ) )
-                        l->setLineStartStyle( LineAnnotation::OpenArrow );
-                    else if ( !strcmp( name, "ClosedArrow" ) )
-                        l->setLineStartStyle( LineAnnotation::ClosedArrow );
-                    else if ( !strcmp( name, "None" ) )
-                        l->setLineStartStyle( LineAnnotation::None );
-                    else if ( !strcmp( name, "Butt" ) )
-                        l->setLineStartStyle( LineAnnotation::Butt );
-                    else if ( !strcmp( name, "ROpenArrow" ) )
-                        l->setLineStartStyle( LineAnnotation::ROpenArrow );
-                    else if ( !strcmp( name, "RClosedArrow" ) )
-                        l->setLineStartStyle( LineAnnotation::RClosedArrow );
-                    else if ( !strcmp( name, "Slash" ) )
-                        l->setLineStartStyle( LineAnnotation::Slash );
-                }
-                styleObj.free();
+                l->setLineStartStyle( (LineAnnotation::TermStyle)lineann->getStartStyle() );
                 // -> lineEndStyle
-                leArray.arrayGet( 1, &styleObj );
-                if ( styleObj.isName() )
+                l->setLineEndStyle( (LineAnnotation::TermStyle)lineann->getEndStyle() );
+                // -> lineClosed
+                l->setLineClosed( false );
+                // -> lineInnerColor
+                l->setLineInnerColor( convertAnnotColor( lineann->getInteriorColor() ) );
+                // -> lineLeadingFwdPt
+                l->setLineLeadingForwardPoint( lineann->getLeaderLineLength() );
+                // -> lineLeadingBackPt
+                l->setLineLeadingBackPoint( lineann->getLeaderLineExtension() );
+                // -> lineShowCaption
+                l->setLineShowCaption( lineann->getCaption() );
+                // -> lineIntent
+                l->setLineIntent( (LineAnnotation::LineIntent)( lineann->getIntent() + 1 ) );
+                break;
+            }
+            case Annot::typePolygon:
+            case Annot::typePolyLine:
+            {
+                // parse LineAnnotation params
+                AnnotPolygon * polyann = static_cast< AnnotPolygon * >( ann );
+                LineAnnotation * l = new LineAnnotation();
+                annotation = l;
+
+                // -> polyPoints
+                QLinkedList<QPointF> polyPoints;
+                AnnotPath * vertices = polyann->getVertices();
+                for ( int i = 0; i < vertices->getCoordsLength(); ++i )
                 {
-                    const char * name = styleObj.getName();
-                    if ( !strcmp( name, "Square" ) )
-                        l->setLineEndStyle( LineAnnotation::Square );
-                    else if ( !strcmp( name, "Circle" ) )
-                        l->setLineEndStyle( LineAnnotation::Circle );
-                    else if ( !strcmp( name, "Diamond" ) )
-                        l->setLineEndStyle( LineAnnotation::Diamond );
-                    else if ( !strcmp( name, "OpenArrow" ) )
-                        l->setLineEndStyle( LineAnnotation::OpenArrow );
-                    else if ( !strcmp( name, "ClosedArrow" ) )
-                        l->setLineEndStyle( LineAnnotation::ClosedArrow );
-                    else if ( !strcmp( name, "None" ) )
-                        l->setLineEndStyle( LineAnnotation::None );
-                    else if ( !strcmp( name, "Butt" ) )
-                        l->setLineEndStyle( LineAnnotation::Butt );
-                    else if ( !strcmp( name, "ROpenArrow" ) )
-                        l->setLineEndStyle( LineAnnotation::ROpenArrow );
-                    else if ( !strcmp( name, "RClosedArrow" ) )
-                        l->setLineEndStyle( LineAnnotation::RClosedArrow );
-                    else if ( !strcmp( name, "Slash" ) )
-                        l->setLineEndStyle( LineAnnotation::Slash );
+                    QPointF p;
+                    XPDFReader::transform( MTX, vertices->getX( i ), vertices->getY( i ), p );
+                    polyPoints.push_back( p );
                 }
-                styleObj.free();
-            }
-            leArray.free();
-            // -> lineClosed
-            l->setLineClosed( subType == "Polygon" );
-            // -> lineInnerColor
-            QColor tmpcolor = l->lineInnerColor();
-            XPDFReader::lookupColor( annotDict, "IC", tmpcolor );
-            l->setLineInnerColor( tmpcolor );
-            // -> lineLeadingFwdPt
-            double tmpdouble = l->lineLeadingForwardPoint();
-            XPDFReader::lookupNum( annotDict, "LL", tmpdouble );
-            l->setLineLeadingForwardPoint( tmpdouble );
-            // -> lineLeadingBackPt
-            tmpdouble = l->lineLeadingBackPoint();
-            XPDFReader::lookupNum( annotDict, "LLE", tmpdouble );
-            l->setLineLeadingBackPoint( tmpdouble );
-            // -> lineShowCaption
-            bool tmpbool = l->lineShowCaption();
-            XPDFReader::lookupBool( annotDict, "Cap", tmpbool );
-            l->setLineShowCaption( tmpbool );
-            // -> lineIntent
-            QString intentName;
-            XPDFReader::lookupString( annotDict, "IT", intentName );
-            if ( intentName == "LineArrow" )
-                l->setLineIntent( LineAnnotation::Arrow );
-            else if ( intentName == "LineDimension" )
-                l->setLineIntent( LineAnnotation::Dimension );
-            else if ( intentName == "PolygonCloud" )
-                l->setLineIntent( LineAnnotation::PolygonCloud );
-        }
-        else if ( subType == "Square" || subType == "Circle" )
-        {
-            // parse GeomAnnotation params
-            GeomAnnotation * g = new GeomAnnotation();
-            annotation = g;
-
-            // -> geomType
-            if ( subType == "Square" )
-                g->setGeomType( GeomAnnotation::InscribedSquare );
-            else
-                g->setGeomType( GeomAnnotation::InscribedCircle );
-            // -> geomInnerColor
-            QColor tmpcolor = g->geomInnerColor();
-            XPDFReader::lookupColor( annotDict, "IC", tmpcolor );
-            g->setGeomInnerColor( tmpcolor );
-            // TODO RD
-        }
-        else if ( subType == "Highlight" || subType == "Underline" ||
-                  subType == "Squiggly" || subType == "StrikeOut" )
-        {
-            // parse HighlightAnnotation params
-            HighlightAnnotation * h = new HighlightAnnotation();
-            annotation = h;
-
-            // -> highlightType
-            if ( subType == "Highlight" )
-                h->setHighlightType( HighlightAnnotation::Highlight );
-            else if ( subType == "Underline" )
-                h->setHighlightType( HighlightAnnotation::Underline );
-            else if ( subType == "Squiggly" )
-                h->setHighlightType( HighlightAnnotation::Squiggly );
-            else if ( subType == "StrikeOut" )
-                h->setHighlightType( HighlightAnnotation::StrikeOut );
-
-            // -> highlightQuads
-            double c[80];
-            int num = XPDFReader::lookupNumArray( annotDict, "QuadPoints", c, 80 );
-            if ( num < 8 || (num % 8) != 0 )
-            {
-                qDebug() << "Wrong QuadPoints for a Highlight annotation.";
-                delete annotation;
-                annot.free();
-                continue;
-            }
-            QList< HighlightAnnotation::Quad > quads;
-            for ( int q = 0; q < num; q += 8 )
-            {
-                HighlightAnnotation::Quad quad;
-                for ( int p = 0; p < 4; p++ )
-                    XPDFReader::transform( MTX, c[ q + p*2 ], c[ q + p*2 + 1 ], quad.points[ p ] );
-                // ### PDF1.6 specs says that point are in ccw order, but in fact
-                // points 3 and 4 are swapped in every PDF around!
-                QPointF tmpPoint = quad.points[ 2 ];
-                quad.points[ 2 ] = quad.points[ 3 ];
-                quad.points[ 3 ] = tmpPoint;
-                // initialize other oroperties and append quad
-                quad.capStart = true;       // unlinked quads are always capped
-                quad.capEnd = true;         // unlinked quads are always capped
-                quad.feather = 0.1;         // default feather
-                quads.append( quad );
-            }
-            h->setHighlightQuads( quads );
-        }
-        else if ( subType == "Stamp" )
-        {
-            // parse StampAnnotation params
-            StampAnnotation * s = new StampAnnotation();
-            annotation = s;
-
-            // -> stampIconName
-            QString tmpstring = s->stampIconName();
-            XPDFReader::lookupName( annotDict, "Name", tmpstring );
-            s->setStampIconName( tmpstring );
-        }
-        else if ( subType == "Ink" )
-        {
-            // parse InkAnnotation params
-            InkAnnotation * k = new InkAnnotation();
-            annotation = k;
-
-            // -> inkPaths
-            Object pathsArray;
-            annotDict->lookup( "InkList", &pathsArray );
-            if ( !pathsArray.isArray() || pathsArray.arrayGetLength() < 1 )
-            {
-                qDebug() << "InkList not present for ink annot";
-                delete annotation;
-                annot.free();
-                continue;
-            }
-            int pathsNumber = pathsArray.arrayGetLength();
-            QList< QLinkedList<QPointF> > inkPaths;
-            for ( int m = 0; m < pathsNumber; m++ )
-            {
-                // transform each path in a list of normalized points ..
-                QLinkedList<QPointF> localList;
-                Object pointsArray;
-                pathsArray.arrayGet( m, &pointsArray );
-                if ( pointsArray.isArray() )
+                l->setLinePoints( polyPoints );
+                // -> polyStartStyle
+                l->setLineStartStyle( (LineAnnotation::TermStyle)polyann->getStartStyle() );
+                // -> polyEndStyle
+                l->setLineEndStyle( (LineAnnotation::TermStyle)polyann->getEndStyle() );
+                // -> polyClosed
+                l->setLineClosed( subType == Annot::typePolygon );
+                // -> polyInnerColor
+                l->setLineInnerColor( convertAnnotColor( polyann->getInteriorColor() ) );
+                // -> polyIntent
+                switch ( polyann->getIntent() )
                 {
-                    int pointsNumber = pointsArray.arrayGetLength();
-                    for ( int n = 0; n < pointsNumber; n+=2 )
+                    case AnnotPolygon::polygonCloud:
+                        l->setLineIntent( LineAnnotation::PolygonCloud );
+                        break;
+                    case AnnotPolygon::polylineDimension:
+                    case AnnotPolygon::polygonDimension:
+                        l->setLineIntent( LineAnnotation::Dimension );
+                        break;
+                }
+                break;
+            }
+            case Annot::typeSquare:
+            case Annot::typeCircle:
+            {
+                // parse GeomAnnotation params
+                AnnotGeometry * geomann = static_cast< AnnotGeometry * >( ann );
+                GeomAnnotation * g = new GeomAnnotation();
+                annotation = g;
+
+                // -> highlightType
+                if ( subType == Annot::typeSquare )
+                    g->setGeomType( GeomAnnotation::InscribedSquare );
+                else if ( subType == Annot::typeCircle )
+                    g->setGeomType( GeomAnnotation::InscribedCircle );
+
+                // -> geomInnerColor
+                g->setGeomInnerColor( convertAnnotColor( geomann->getInteriorColor() ) );
+
+                AnnotBorderEffect *border_effect = geomann->getBorderEffect();
+                if ( border_effect )
+                {
+                    // -> style.effect
+                    g->style.effect = (Annotation::LineEffect)border_effect->getEffectType();
+                    // -> style.effectIntensity
+                    g->style.effectIntensity = (int)border_effect->getIntensity();
+                }
+
+                // TODO RD
+
+                break;
+            }
+            case Annot::typeHighlight:
+            case Annot::typeUnderline:
+            case Annot::typeSquiggly:
+            case Annot::typeStrikeOut:
+            {
+                AnnotTextMarkup * hlann = static_cast< AnnotTextMarkup * >( ann );
+                HighlightAnnotation * h = new HighlightAnnotation();
+                annotation = h;
+
+                // -> highlightType
+                if ( subType == Annot::typeHighlight )
+                    h->setHighlightType( HighlightAnnotation::Highlight );
+                else if ( subType == Annot::typeUnderline )
+                    h->setHighlightType( HighlightAnnotation::Underline );
+                else if ( subType == Annot::typeSquiggly )
+                    h->setHighlightType( HighlightAnnotation::Squiggly );
+                else if ( subType == Annot::typeStrikeOut )
+                    h->setHighlightType( HighlightAnnotation::StrikeOut );
+
+                // -> highlightQuads
+                AnnotQuadrilaterals *hlquads = hlann->getQuadrilaterals();
+                if ( !hlquads || !hlquads->getQuadrilateralsLength() )
+                {
+                    qDebug() << "Not enough quads for a Highlight annotation.";
+                    delete annotation;
+                    continue;
+                }
+                QList< HighlightAnnotation::Quad > quads;
+                const int quadsCount = hlquads->getQuadrilateralsLength();
+                for ( int q = 0; q < quadsCount; ++q )
+                {
+                    HighlightAnnotation::Quad quad;
+                    XPDFReader::transform( MTX, hlquads->getX1( q ), hlquads->getY1( q ), quad.points[ 0 ] );
+                    XPDFReader::transform( MTX, hlquads->getX2( q ), hlquads->getY2( q ), quad.points[ 1 ] );
+                    XPDFReader::transform( MTX, hlquads->getX3( q ), hlquads->getY3( q ), quad.points[ 2 ] );
+                    XPDFReader::transform( MTX, hlquads->getX4( q ), hlquads->getY4( q ), quad.points[ 3 ] );
+                    // ### PDF1.6 specs says that point are in ccw order, but in fact
+                    // points 3 and 4 are swapped in every PDF around!
+                    QPointF tmpPoint = quad.points[ 2 ];
+                    quad.points[ 2 ] = quad.points[ 3 ];
+                    quad.points[ 3 ] = tmpPoint;
+                    // initialize other properties and append quad
+                    quad.capStart = true;       // unlinked quads are always capped
+                    quad.capEnd = true;         // unlinked quads are always capped
+                    quad.feather = 0.1;         // default feather
+                    quads.append( quad );
+                }
+                h->setHighlightQuads( quads );
+                break;
+            }
+            case Annot::typeStamp:
+            {
+                AnnotStamp * stampann = static_cast< AnnotStamp * >( ann );
+                StampAnnotation * s = new StampAnnotation();
+                annotation = s;
+                // -> stampIcon
+                s->setStampIconName( QString::fromLatin1( stampann->getIcon()->getCString() ) );
+                break;
+            }
+            case Annot::typeInk:
+            {
+                // parse InkAnnotation params
+                AnnotInk * inkann = static_cast< AnnotInk * >( ann );
+                InkAnnotation * k = new InkAnnotation();
+                annotation = k;
+
+                // -> inkPaths
+                AnnotPath ** paths = inkann->getInkList();
+                if ( !paths || !inkann->getInkListLength() )
+                {
+                    qDebug() << "InkList not present for ink annot";
+                    delete annotation;
+                    continue;
+                }
+                QList< QLinkedList<QPointF> > inkPaths;
+                const int pathsNumber = inkann->getInkListLength();
+                for ( int m = 0; m < pathsNumber; m++ )
+                {
+                    // transform each path in a list of normalized points ..
+                    QLinkedList<QPointF> localList;
+                    AnnotPath * path = paths[ m ];
+                    const int pointsNumber = path ? path->getCoordsLength() : 0;
+                    for ( int n = 0; n < pointsNumber; ++n )
                     {
                         // get the x,y numbers for current point
-                        Object numObj;
-                        double x = pointsArray.arrayGet( n, &numObj )->getNum();
-                        numObj.free();
-                        double y = pointsArray.arrayGet( n+1, &numObj )->getNum();
-                        numObj.free();
+                        double x = path->getX( n );
+                        double y = path->getY( n );
                         // add normalized point to localList
                         QPointF np;
                         XPDFReader::transform( MTX, x, y, np );
                         localList.push_back( np );
                     }
+                    // ..and add it to the annotation
+                    inkPaths.push_back( localList );
                 }
-                pointsArray.free();
-                // ..and add it to the annotation
-                inkPaths.push_back( localList );
+                k->setInkPaths( inkPaths );
+                break;
             }
-            k->setInkPaths( inkPaths );
-            pathsArray.free();
-        }
-        else if ( subType == "Popup" )
-        {
-            // create PopupWindow and add it to the popupsMap
-            PopupWindow * popup = new PopupWindow();
-            popupsMap[ annotID ] = popup;
-            parseMarkup = false;
-            addToPage = false;
-
-            // get window specific properties if any
-            popup->shown = false;
-            XPDFReader::lookupBool( annotDict, "Open", popup->shown );
-            // no need to parse parent annotation id
-            //XPDFReader::lookupIntRef( annotDict, "Parent", popup->... );
-
-            // use the 'dummy annotation' for getting other parameters
-            popup->dummyAnnotation = new DummyAnnotation();
-            annotation = popup->dummyAnnotation;
-        }
-        else if ( subType == "Link" )
-        {
-            // parse Link params
-            LinkAnnotation * l = new LinkAnnotation();
-            annotation = l;
-
-            // -> hlMode
-            QString hlModeString;
-            XPDFReader::lookupName( annotDict, "H", hlModeString );
-            if ( hlModeString == "N" )
-                l->setLinkHighlightMode( LinkAnnotation::None );
-            else if ( hlModeString == "I" )
-                l->setLinkHighlightMode( LinkAnnotation::Invert );
-            else if ( hlModeString == "O" )
-                l->setLinkHighlightMode( LinkAnnotation::Outline );
-            else if ( hlModeString == "P" )
-                l->setLinkHighlightMode( LinkAnnotation::Push );
-
-            // -> link region
-            double c[8];
-            int num = XPDFReader::lookupNumArray( annotDict, "QuadPoints", c, 8 );
-            if ( num > 0 && num != 8 )
+            case Annot::typePopup:
             {
-                qDebug() << "Wrong QuadPoints for a Link annotation.";
-                delete annotation;
-                annot.free();
-                continue;
+                AnnotPopup * popupann = static_cast< AnnotPopup * >( ann );
+
+                // create PopupWindow and add it to the popupsMap
+                PopupWindow * popup = new PopupWindow();
+                popupsMap[ popupann ] = popup;
+                addToPage = false;
+
+                // get window specific properties if any
+                popup->shown = popupann->getOpen();
+                // no need to parse parent annotation id
+                //XPDFReader::lookupIntRef( annotDict, "Parent", popup->... );
+
+                // use the 'dummy annotation' for getting other parameters
+                popup->dummyAnnotation = new DummyAnnotation();
+                annotation = popup->dummyAnnotation;
+
+                break;
             }
-            if ( num == 8 )
+            case Annot::typeLink:
             {
-                QPointF tmppoint;
-                XPDFReader::transform( MTX, c[ 0 ], c[ 1 ], tmppoint );
-                l->setLinkRegionPoint( 0, tmppoint );
-                XPDFReader::transform( MTX, c[ 2 ], c[ 3 ], tmppoint );
-                l->setLinkRegionPoint( 1, tmppoint );
-                XPDFReader::transform( MTX, c[ 4 ], c[ 5 ], tmppoint );
-                l->setLinkRegionPoint( 2, tmppoint );
-                XPDFReader::transform( MTX, c[ 6 ], c[ 7 ], tmppoint );
-                l->setLinkRegionPoint( 3, tmppoint );
-            }
+                // parse Link params
+                AnnotLink * linkann = static_cast< AnnotLink * >( ann );
+                LinkAnnotation * l = new LinkAnnotation();
+                annotation = l;
 
-            // reading link action
-            Object objPA;
-            annotDict->lookup( "PA", &objPA );
-            if (!objPA.isNull())
-            {
-                ::LinkAction * a = ::LinkAction::parseAction( &objPA, m_page->parentDoc->doc->getCatalog()->getBaseURI() );
-                Link * popplerLink = m_page->convertLinkActionToLink( a, QRectF() );
-                if ( popplerLink )
+                // -> hlMode
+                l->setLinkHighlightMode( (LinkAnnotation::HighlightMode)linkann->getLinkEffect() );
+
+                // -> link region
+                // TODO
+
+                // reading link action
+                if ( !linkann->getDest()->isNull() )
                 {
-                     l->setLinkDestination( popplerLink );
+                    ::LinkAction *act = ::LinkAction::parseDest( linkann->getDest() );
+                    Link * popplerLink = m_page->convertLinkActionToLink( act, QRectF() );
+                    delete act;
+                    if ( popplerLink )
+                    {
+                        l->setLinkDestination( popplerLink );
+                    }
                 }
-                objPA.free();
+
+                break;
             }
-        }
-        else
-        {
-            // MISSING: Caret, FileAttachment, Sound, Movie, Widget,
-            //          Screen, PrinterMark, TrapNet, Watermark, 3D
-            qDebug() << "Annotation" << subType << "not supported";
-            annot.free();
-            continue;
+            case Annot::typeCaret:
+            {
+                // parse CaretAnnotation params
+                AnnotCaret * caretann = static_cast< AnnotCaret * >( ann );
+                CaretAnnotation * c = new CaretAnnotation();
+                annotation = c;
+
+                // -> caretSymbol
+                c->setCaretSymbol( (CaretAnnotation::CaretSymbol)caretann->getSymbol() );
+
+                // TODO RD
+
+                break;
+            }
+            // special case for ignoring unknwon annotations
+            case Annot::typeUnknown:
+                continue;
+            default:
+            {
+#define CASE_FOR_TYPE( thetype ) \
+                    case Annot::type ## thetype: \
+                        type = #thetype ; \
+                        break;
+                QByteArray type;
+                switch ( subType )
+                {
+                    CASE_FOR_TYPE( FileAttachment )
+                    CASE_FOR_TYPE( Sound )
+                    CASE_FOR_TYPE( Movie )
+                    CASE_FOR_TYPE( Widget )
+                    CASE_FOR_TYPE( Screen )
+                    CASE_FOR_TYPE( PrinterMark )
+                    CASE_FOR_TYPE( TrapNet )
+                    CASE_FOR_TYPE( Watermark )
+                    CASE_FOR_TYPE( 3D )
+                    default: type = QByteArray::number( subType );
+                }
+                // MISSING: FileAttachment, Sound, Movie, Widget,
+                //          Screen, PrinterMark, TrapNet, Watermark, 3D
+                qDebug() << "Annotation" << type.constData() << "not supported.";
+                continue;
+#undef CASE_FOR_TYPE
+            }
         }
 
         /** 1.3. PARSE common parameters */
         // -> boundary
-        double r[4];
-        if ( XPDFReader::lookupNumArray( annotDict, "Rect", r, 4 ) != 4 )
-        {
-            qDebug() << "Rect is missing for annotation.";
-            annot.free();
-            continue;
-        }
+        PDFRectangle *boundary = ann->getRect();
         // transform annotation rect to uniform coords
         QPointF topLeft, bottomRight;
-        XPDFReader::transform( MTX, r[0], r[1], topLeft );
-        XPDFReader::transform( MTX, r[2], r[3], bottomRight );
+        XPDFReader::transform( MTX, boundary->x1, boundary->y1, topLeft );
+        XPDFReader::transform( MTX, boundary->x2, boundary->y2, bottomRight );
         QRectF boundaryRect;
         boundaryRect.setTopLeft(topLeft);
         boundaryRect.setBottomRight(bottomRight);
@@ -964,72 +923,56 @@ QList<Annotation*> Page::annotations() const
         }
         annotation->setBoundary( boundaryRect );
         // -> contents
-        QString tmpstring = annotation->contents();
-        XPDFReader::lookupString( annotDict, "Contents", tmpstring );
-        annotation->setContents( tmpstring );
+        annotation->setContents( UnicodeParsedString( ann->getContents() ) );
         // -> uniqueName
-        tmpstring = annotation->uniqueName();
-        XPDFReader::lookupString( annotDict, "NM", tmpstring );
-        annotation->setUniqueName( tmpstring );
+        annotation->setUniqueName( UnicodeParsedString( ann->getName() ) );
         // -> modifyDate (and -> creationDate)
-        QDateTime tmpdatetime = annotation->modificationDate();
-        XPDFReader::lookupDate( annotDict, "M", tmpdatetime );
-        annotation->setModificationDate( tmpdatetime );
+        GooString *modDate = ann->getModified();
+        if ( modDate )
+        {
+            annotation->setModificationDate( convertDate( modDate->getCString() ) );
+        }
         if ( annotation->creationDate().isNull() && !annotation->modificationDate().isNull() )
             annotation->setCreationDate( annotation->modificationDate() );
         // -> flags: set the external attribute since it's embedded on file
         int annoflags = 0;
         annoflags |= Annotation::External;
         // -> flags
-        int flags = 0;
-        XPDFReader::lookupInt( annotDict, "F", flags );
-        if ( flags & 0x2 )
+        int flags = ann->getFlags();
+        if ( flags & Annot::flagHidden )
             annoflags |= Annotation::Hidden;
-        if ( flags & 0x8 )
+        if ( flags & Annot::flagNoZoom )
             annoflags |= Annotation::FixedSize;
-        if ( flags & 0x10 )
+        if ( flags & Annot::flagNoRotate )
             annoflags |= Annotation::FixedRotation;
-        if ( !(flags & 0x4) )
+        if ( !( flags & Annot::flagPrint ) )
             annoflags |= Annotation::DenyPrint;
-        if ( flags & 0x40 )
+        if ( flags & Annot::flagReadOnly )
             annoflags |= (Annotation::DenyWrite | Annotation::DenyDelete);
-        if ( flags & 0x80 )
+        if ( flags & Annot::flagLocked )
             annoflags |= Annotation::DenyDelete;
-        if ( flags & 0x100 )
+        if ( flags & Annot::flagToggleNoView )
             annoflags |= Annotation::ToggleHidingOnMouse;
         annotation->setFlags( annoflags );
-        // -> style (Border(old spec), BS, BE)
-        double border[3];
-        int bn = XPDFReader::lookupNumArray( annotDict, "Border", border, 3 );
-        if ( bn == 3 )
+        // -> style
+        AnnotBorder *border = ann->getBorder();
+        if ( border )
         {
-            // -> style.xCorners
-            annotation->style.xCorners = border[0];
-            // -> style.yCorners
-            annotation->style.yCorners = border[1];
+            if ( border->getType() == AnnotBorder::typeArray )
+            {
+                AnnotBorderArray * border_array = static_cast< AnnotBorderArray * >( border );
+                // -> style.xCorners
+                annotation->style.xCorners = border_array->getHorizontalCorner();
+                // -> style.yCorners
+                annotation->style.yCorners = border_array->getVerticalCorner();
+            }
             // -> style.width
-            annotation->style.width = border[2];
-        }
-        Object bsObj;
-        annotDict->lookup( "BS", &bsObj );
-        if ( bsObj.isDict() )
-        {
-            // -> style.width
-            XPDFReader::lookupNum( bsObj.getDict(), "W", annotation->style.width );
+            annotation->style.width = border->getWidth();
             // -> style.style
-            QString styleName;
-            XPDFReader::lookupName( bsObj.getDict(), "S", styleName );
-            if ( styleName == "S" )
-                annotation->style.style = Annotation::Solid;
-            else if ( styleName == "D" )
-                annotation->style.style = Annotation::Dashed;
-            else if ( styleName == "B" )
-                annotation->style.style = Annotation::Beveled;
-            else if ( styleName == "I" )
-                annotation->style.style = Annotation::Inset;
-            else if ( styleName == "U" )
-                annotation->style.style = Annotation::Underline;
+            annotation->style.style = (Annotation::LineStyle)( 2 >> border->getStyle() );
+#if 0
             // -> style.marks and style.spaces
+            // TODO
             Object dashArray;
             bsObj.getDict()->lookup( "D", &dashArray );
             if ( dashArray.isArray() )
@@ -1048,59 +991,45 @@ QList<Annotation*> Page::annotations() const
                 annotation->style.marks = dashMarks;
                 annotation->style.spaces = dashSpaces;
             }
-            dashArray.free();
+#endif
         }
-        bsObj.free();
-        Object beObj;
-        annotDict->lookup( "BE", &beObj );
-        if ( beObj.isDict() )
-        {
-            // -> style.effect
-            QString effectName;
-            XPDFReader::lookupName( beObj.getDict(), "S", effectName );
-            if ( effectName == "C" )
-                annotation->style.effect = Annotation::Cloudy;
-            // -> style.effectIntensity
-            int intensityInt = -1;
-            XPDFReader::lookupInt( beObj.getDict(), "I", intensityInt );
-            if ( intensityInt != -1 )
-                annotation->style.effectIntensity = (double)intensityInt;
-        }
-        beObj.free();
         // -> style.color
-        XPDFReader::lookupColor( annotDict, "C", annotation->style.color );
+        annotation->style.color = convertAnnotColor( ann->getColor() );
 
         /** 1.4. PARSE markup { common, Popup, Revision } parameters */
-        if ( parseMarkup )
+        if ( markupann )
         {
             // -> creationDate
-            tmpdatetime = annotation->creationDate();
-            XPDFReader::lookupDate( annotDict, "CreationDate", tmpdatetime );
-            annotation->setCreationDate( tmpdatetime );
+            GooString *createDate = markupann->getDate();
+            if ( createDate )
+            {
+                annotation->setCreationDate( convertDate( createDate->getCString() ) );
+            }
             // -> style.opacity
-            XPDFReader::lookupNum( annotDict, "CA", annotation->style.opacity );
+            annotation->style.opacity = markupann->getOpacity();
             // -> window.title and author
-            XPDFReader::lookupString( annotDict, "T", annotation->window.title );
+            annotation->window.title = UnicodeParsedString( markupann->getLabel() );
             annotation->setAuthor( annotation->window.title );
             // -> window.summary
-            XPDFReader::lookupString( annotDict, "Subj", annotation->window.summary );
+            annotation->window.summary = UnicodeParsedString( markupann->getSubject() );
+#if 0
             // -> window.text
+            // TODO
             XPDFReader::lookupString( annotDict, "RC", annotation->window.text );
+#endif
 
             // if a popup is referenced, schedule for resolving it later
-            int popupID = 0;
-            XPDFReader::lookupIntRef( annotDict, "Popup", popupID );
-            if ( popupID )
+            AnnotPopup *popup = markupann->getPopup();
+            if ( popup )
             {
                 ResolveWindow request;
-                request.popupWindowID = popupID;
+                request.popup = popup;
                 request.annotation = annotation;
                 resolvePopList.append( request );
             }
 
             // if an older version is referenced, schedule for reparenting
-            int parentID = 0;
-            XPDFReader::lookupIntRef( annotDict, "IRT", parentID );
+            int parentID = markupann->getInReplyToID();
             if ( parentID )
             {
                 ResolveRevision request;
@@ -1110,47 +1039,51 @@ QList<Annotation*> Page::annotations() const
 
                 // -> request.nextScope
                 request.nextScope = Annotation::Reply;
-                Object revObj;
-                annotDict->lookup( "RT", &revObj );
-                if ( revObj.isName() )
+                switch ( markupann->getReplyTo() )
                 {
-                    const char * name = revObj.getName();
-                    if ( !strcmp( name, "R" ) )
+                    case AnnotMarkup::replyTypeR:
                         request.nextScope = Annotation::Reply;
-                    else if ( !strcmp( name, "Group" ) )
+                        break;
+                    case AnnotMarkup::replyTypeGroup:
                         request.nextScope = Annotation::Group;
+                        break;
                 }
-                revObj.free();
 
                 // -> revision.type (StateModel is deduced from type, not parsed)
                 request.nextType = Annotation::None;
-                annotDict->lookup( "State", &revObj );
-                if ( revObj.isString() )
+                if ( subType == Annot::typeText )
                 {
-                    const char * name = revObj.getString()->getCString();
-                    if ( !strcmp( name, "Marked" ) )
-                        request.nextType = Annotation::Marked;
-                    else if ( !strcmp( name, "Unmarked" ) )
-                        request.nextType = Annotation::Unmarked;
-                    else if ( !strcmp( name, "Accepted" ) )
-                        request.nextType = Annotation::Accepted;
-                    else if ( !strcmp( name, "Rejected" ) )
-                        request.nextType = Annotation::Rejected;
-                    else if ( !strcmp( name, "Cancelled" ) )
-                        request.nextType = Annotation::Cancelled;
-                    else if ( !strcmp( name, "Completed" ) )
-                        request.nextType = Annotation::Completed;
-                    else if ( !strcmp( name, "None" ) )
-                        request.nextType = Annotation::None;
+                    AnnotText * textann = static_cast< AnnotText * >( ann );
+                    switch ( textann->getState() )
+                    {
+                        case AnnotText::stateMarked:
+                            request.nextType = Annotation::Marked;
+                            break;
+                        case AnnotText::stateUnmarked:
+                            request.nextType = Annotation::Unmarked;
+                            break;
+                        case AnnotText::stateAccepted:
+                            request.nextType = Annotation::Accepted;
+                            break;
+                        case AnnotText::stateRejected:
+                            request.nextType = Annotation::Rejected;
+                            break;
+                        case AnnotText::stateCancelled:
+                            request.nextType = Annotation::Cancelled;
+                            break;
+                        case AnnotText::stateCompleted:
+                            request.nextType = Annotation::Completed;
+                            break;
+                        case AnnotText::stateNone:
+                        case AnnotText::stateUnknown:
+                            ;
+                    }
                 }
-                revObj.free();
 
                 // schedule for later reparenting
                 resolveRevList.append( request );
             }
         }
-        // free annot object
-        annot.free();
 
         /** 1.5. ADD ANNOTATION to the annotationsMap  */
         if ( addToPage )
@@ -1169,14 +1102,14 @@ QList<Annotation*> Page::annotations() const
         for ( ; it != end; ++it )
         {
             const ResolveWindow & request = *it;
-            if ( !popupsMap.contains( request.popupWindowID ) )
+            if ( !popupsMap.contains( request.popup ) )
                 // warn aboud problems in popup resolving logic
                 qDebug() << "Cannot resolve popup"
-                          << request.popupWindowID << ".";
+                          << request.popup << ".";
             else
             {
                 // set annotation's window properties taking ones from popup
-                PopupWindow * pop = popupsMap[ request.popupWindowID ];
+                PopupWindow * pop = popupsMap[ request.popup ];
                 Annotation * pa = pop->dummyAnnotation;
                 Annotation::Window & w = request.annotation->window;
 
@@ -1193,7 +1126,7 @@ QList<Annotation*> Page::annotations() const
         }
 
         // clear data
-        QMap< int, PopupWindow * >::Iterator dIt = popupsMap.begin(), dEnd = popupsMap.end();
+        QMap< AnnotPopup *, PopupWindow * >::Iterator dIt = popupsMap.begin(), dEnd = popupsMap.end();
         for ( ; dIt != dEnd; ++dIt )
         {
             PopupWindow * p = dIt.value();
@@ -1261,7 +1194,7 @@ QList<Annotation*> Page::annotations() const
         }
     }
 
-    annotArray.free();
+    delete annots;
     /** 5 - finally RETURN ANNOTATIONS */
     return annotationsMap.values();
 }
