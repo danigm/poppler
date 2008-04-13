@@ -866,6 +866,18 @@ QList<Annotation*> Page::annotations() const
 
                 break;
             }
+            case Annot::typeFileAttachment:
+            {
+                AnnotFileAttachment * attachann = static_cast< AnnotFileAttachment * >( ann );
+                FileAttachmentAnnotation * f = new FileAttachmentAnnotation();
+                annotation = f;
+                // -> fileIcon
+                f->setFileIconName( QString::fromLatin1( attachann->getName()->getCString() ) );
+                // -> embeddedFile
+                EmbFile *embfile = new EmbFile( attachann->getFile(), attachann->getContents() );
+                f->setEmbeddedFile( new EmbeddedFile( embfile ) );
+                break;
+            }
             // special case for ignoring unknwon annotations
             case Annot::typeUnknown:
                 continue;
@@ -878,7 +890,6 @@ QList<Annotation*> Page::annotations() const
                 QByteArray type;
                 switch ( subType )
                 {
-                    CASE_FOR_TYPE( FileAttachment )
                     CASE_FOR_TYPE( Sound )
                     CASE_FOR_TYPE( Movie )
                     CASE_FOR_TYPE( Widget )
@@ -889,7 +900,7 @@ QList<Annotation*> Page::annotations() const
                     CASE_FOR_TYPE( 3D )
                     default: type = QByteArray::number( subType );
                 }
-                // MISSING: FileAttachment, Sound, Movie, Widget,
+                // MISSING: Sound, Movie, Widget,
                 //          Screen, PrinterMark, TrapNet, Watermark, 3D
                 qDebug() << "Annotation" << type.constData() << "not supported.";
                 continue;
