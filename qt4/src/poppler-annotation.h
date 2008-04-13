@@ -44,8 +44,10 @@ class InkAnnotationPrivate;
 class LinkAnnotationPrivate;
 class CaretAnnotationPrivate;
 class FileAttachmentAnnotationPrivate;
+class SoundAnnotationPrivate;
 class EmbeddedFile;
 class Link;
+class SoundObject;
 
 /**
  * \short Helper class for (recursive) Annotation retrieval/storage.
@@ -90,7 +92,8 @@ class POPPLER_QT4_EXPORT Annotation
     // enum definitions
     // WARNING!!! oKular uses that very same values so if you change them notify the author!
     enum SubType { AText = 1, ALine = 2, AGeom = 3, AHighlight = 4, AStamp = 5,
-                   AInk = 6, ALink = 7, ACaret = 8, AFileAttachment = 9, A_BASE = 0 };
+                   AInk = 6, ALink = 7, ACaret = 8, AFileAttachment = 9, ASound = 10,
+                   A_BASE = 0 };
     enum Flag { Hidden = 1, FixedSize = 2, FixedRotation = 4, DenyPrint = 8,
                 DenyWrite = 16, DenyDelete = 32, ToggleHidingOnMouse = 64, External = 128 };
     enum LineStyle { Solid = 1, Dashed = 2, Beveled = 4, Inset = 8, Underline = 16 };
@@ -550,6 +553,31 @@ class POPPLER_QT4_EXPORT FileAttachmentAnnotation : public Annotation
   private:
     Q_DECLARE_PRIVATE( FileAttachmentAnnotation )
     Q_DISABLE_COPY( FileAttachmentAnnotation )
+};
+
+/**
+ * \short Sound annotation.
+ *
+ * The sound annotation represents a sound to be played when activated.
+ */
+class POPPLER_QT4_EXPORT SoundAnnotation : public Annotation
+{
+  public:
+    SoundAnnotation();
+    SoundAnnotation( const QDomNode &node );
+    virtual ~SoundAnnotation();
+    virtual void store( QDomNode &parentNode, QDomDocument &document ) const;
+    virtual SubType subType() const;
+
+    QString soundIconName() const;
+    void setSoundIconName( const QString &icon );
+
+    SoundObject* sound() const;
+    void setSound( SoundObject *ef );
+
+  private:
+    Q_DECLARE_PRIVATE( SoundAnnotation )
+    Q_DISABLE_COPY( SoundAnnotation )
 };
 
 }
