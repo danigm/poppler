@@ -992,7 +992,7 @@ QList<Annotation*> Page::annotations() const
             // -> style.width
             annotation->style.width = border->getWidth();
             // -> style.style
-            annotation->style.style = (Annotation::LineStyle)( 2 >> border->getStyle() );
+            annotation->style.style = (Annotation::LineStyle)( 1 << border->getStyle() );
 #if 0
             // -> style.marks and style.spaces
             // TODO
