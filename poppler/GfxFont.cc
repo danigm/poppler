@@ -481,7 +481,7 @@ Gfx8BitFont::Gfx8BitFont(XRef *xref, char *tagA, Ref idA, GooString *nameA,
   int len;
   FoFiType1 *ffT1;
   FoFiType1C *ffT1C;
-  int code, code2;
+  int code;
   char *charName;
   GBool missing, hex;
   Unicode toUnicode[256];
