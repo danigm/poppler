@@ -367,7 +367,7 @@ void CMap::setReverseMapVector(Guint startCode, CMapVectorEntry *vec,
       Guint cid = vec[i].cid;
 
       if (cid < rmapSize) {
-	int cand;
+	Guint cand;
 
 	for (cand = 0;cand < ncand;cand++) {
 	  Guint code = startCode+i;
