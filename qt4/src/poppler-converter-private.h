@@ -32,7 +32,7 @@ class BaseConverterPrivate
 {
 	public:
 		BaseConverterPrivate();
-		~BaseConverterPrivate();
+		virtual ~BaseConverterPrivate();
 
 		QIODevice* openDevice();
 		void closeDevice();
