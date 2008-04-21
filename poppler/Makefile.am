@@ -102,6 +102,9 @@ lib_LTLIBRARIES = libpoppler.la
 noinst_LTLIBRARIES = $(poppler_cairo)		\
 	$(poppler_arthur)
 
+CFLAGS+=$(PTHREAD_CFLAGS)
+CXXFLAGS+=$(PTHREAD_CFLAGS)
+
 libpoppler_la_LIBADD =				\
 	$(top_builddir)/goo/libgoo.la		\
 	$(top_builddir)/fofi/libfofi.la		\
@@ -111,6 +114,7 @@ libpoppler_la_LIBADD =				\
 	$(abiword_libs)				\
 	$(FREETYPE_LIBS)			\
 	$(FONTCONFIG_LIBS)			\
+	$(PTHREAD_LIBS)				\
 	$(win32_libs)
 
 libpoppler_la_LDFLAGS = -version-info 3:0:0 @create_shared_lib@

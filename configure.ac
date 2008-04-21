@@ -36,6 +36,8 @@ esac
 AC_SUBST(win32_libs)
 AC_SUBST(create_shared_lib)
 
+ACX_PTHREAD()
+
 dnl Install xpdf headers
 AC_ARG_ENABLE(xpdf-headers,
 	      AC_HELP_STRING([--enable-xpdf-headers],
