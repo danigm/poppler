@@ -1808,15 +1808,16 @@ AnnotWidget::~AnnotWidget() {
 void AnnotWidget::initialize(XRef *xrefA, Catalog *catalog, Dict *dict) {
   Object obj1;
 
-  form = catalog->getForm ();
-  widget = form->findWidgetByRef (ref);
+  if ((form = catalog->getForm ())) {
+    widget = form->findWidgetByRef (ref);
 
-  // check if field apperances need to be regenerated
-  // Only text or choice fields needs to have appearance regenerated
-  // see section 8.6.2 "Variable Text" of PDFReference
-  regen = gFalse;
-  if (widget->getType () == formText || widget->getType () == formChoice) {
-    regen = form->getNeedAppearances ();
+    // check if field apperances need to be regenerated
+    // Only text or choice fields needs to have appearance regenerated
+    // see section 8.6.2 "Variable Text" of PDFReference
+    regen = gFalse;
+    if (widget->getType () == formText || widget->getType () == formChoice) {
+      regen = form->getNeedAppearances ();
+    }
   }
 
   // If field doesn't have an AP we'll have to generate it
