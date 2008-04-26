@@ -243,7 +243,6 @@ void ArthurOutputDev::updateFont(GfxState *state)
 #ifdef __GNUC__
 #warning fix this, probably update with updated code from SplashOutputdev
 #endif
-/*
   GfxFont *gfxFont;
   GfxFontType fontType;
   SplashOutFontFileID *id;
@@ -257,7 +256,8 @@ void ArthurOutputDev::updateFont(GfxState *state)
   int tmpBufLen;
   Gushort *codeToGID;
   DisplayFontParam *dfp;
-  double m11, m12, m21, m22, w1, w2;
+  double *textMat;
+  double m11, m12, m21, m22, fontSize;
   SplashCoord mat[4];
   char *name;
   int c, substIdx, n, code;
@@ -393,20 +393,34 @@ void ArthurOutputDev::updateFont(GfxState *state)
   }
 
   // get the font matrix
-  state->getFontTransMat(&m11, &m12, &m21, &m22);
-  m11 *= state->getHorizScaling();
-  m12 *= state->getHorizScaling();
+  textMat = state->getTextMat();
+  fontSize = state->getFontSize();
+  m11 = textMat[0] * fontSize * state->getHorizScaling();
+  m12 = textMat[1] * fontSize * state->getHorizScaling();
+  m21 = textMat[2] * fontSize;
+  m22 = textMat[3] * fontSize;
+
+  SplashCoord matrix[6];
+  {
+  QMatrix painterMatrix = m_painter->worldMatrix();
+  matrix[0] = painterMatrix.m11();
+  matrix[1] = painterMatrix.m12();
+  matrix[2] = painterMatrix.m21();
+  matrix[3] = painterMatrix.m22();
+  matrix[4] = painterMatrix.dx();
+  matrix[5] = painterMatrix.dy();
+  }
 
   // create the scaled font
   mat[0] = m11;  mat[1] = -m12;
   mat[2] = m21;  mat[3] = -m22;
-  m_font = m_fontEngine->getFont(fontFile, mat);
+  m_font = m_fontEngine->getFont(fontFile, mat, matrix);
 
   return;
 
  err2:
   delete id;
- err1:*/
+ err1:
   return;
 }
 
