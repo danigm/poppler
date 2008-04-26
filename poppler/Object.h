@@ -18,6 +18,22 @@
 #include "goo/gtypes.h"
 #include "goo/gmem.h"
 #include "goo/GooString.h"
+#include "Error.h"
+
+#if defined(__GNUC__) && (__GNUC__ > 2) && defined(__OPTIMIZE__)
+# define likely(x)      __builtin_expect((x), 1)
+# define unlikely(x)    __builtin_expect((x), 0)
+#else
+# define likely(x)      (x)
+# define unlikely(x)    (x)
+#endif
+
+#define OBJECT_TYPE_CHECK(wanted_type) \
+    if (unlikely(type != wanted_type)) { \
+        error(0, "Call to Object where the object was type %d, " \
+                 "not the expected type %d", type, wanted_type); \
+        abort(); \
+    }
 
 class XRef;
 class Array;
@@ -66,17 +82,19 @@ enum ObjType {
 //------------------------------------------------------------------------
 
 #ifdef DEBUG_MEM
-#define initObj(t) ++numAlloc[type = t]
+#define initObj(t) zeroUnion(); ++numAlloc[type = t]
 #else
-#define initObj(t) type = t
+#define initObj(t) zeroUnion(); type = t
 #endif
 
 class Object {
 public:
+  // clear the anonymous union as best we can -- clear at least a pointer
+  void zeroUnion() { this->name = NULL; }
 
   // Default constructor.
   Object():
-    type(objNone) {}
+    type(objNone) { zeroUnion(); }
 
   // Initialize an object.
   Object *initBool(GBool boolnA)
@@ -223,16 +241,16 @@ private:
 #include "Array.h"
 
 inline int Object::arrayGetLength()
-  { return array->getLength(); }
+  { OBJECT_TYPE_CHECK(objArray); return array->getLength(); }
 
 inline void Object::arrayAdd(Object *elem)
-  { array->add(elem); }
+  { OBJECT_TYPE_CHECK(objArray); array->add(elem); }
 
 inline Object *Object::arrayGet(int i, Object *obj)
-  { return array->get(i, obj); }
+  { OBJECT_TYPE_CHECK(objArray); return array->get(i, obj); }
 
 inline Object *Object::arrayGetNF(int i, Object *obj)
-  { return array->getNF(i, obj); }
+  { OBJECT_TYPE_CHECK(objArray); return array->getNF(i, obj); }
 
 //------------------------------------------------------------------------
 // Dict accessors.
@@ -241,34 +259,34 @@ inline Object *Object::arrayGetNF(int i, Object *obj)
 #include "Dict.h"
 
 inline int Object::dictGetLength()
-  { return dict->getLength(); }
+  { OBJECT_TYPE_CHECK(objDict); return dict->getLength(); }
 
 inline void Object::dictAdd(char *key, Object *val)
-  { dict->add(key, val); }
+  { OBJECT_TYPE_CHECK(objDict); dict->add(key, val); }
 
 inline void Object::dictSet(char *key, Object *val)
- 	{ dict->set(key, val); }
+ 	{ OBJECT_TYPE_CHECK(objDict); dict->set(key, val); }
 
 inline GBool Object::dictIs(char *dictType)
-  { return dict->is(dictType); }
+  { OBJECT_TYPE_CHECK(objDict); return dict->is(dictType); }
 
 inline GBool Object::isDict(char *dictType)
   { return type == objDict && dictIs(dictType); }
 
 inline Object *Object::dictLookup(char *key, Object *obj)
-  { return dict->lookup(key, obj); }
+  { OBJECT_TYPE_CHECK(objDict); return dict->lookup(key, obj); }
 
 inline Object *Object::dictLookupNF(char *key, Object *obj)
-  { return dict->lookupNF(key, obj); }
+  { OBJECT_TYPE_CHECK(objDict); return dict->lookupNF(key, obj); }
 
 inline char *Object::dictGetKey(int i)
-  { return dict->getKey(i); }
+  { OBJECT_TYPE_CHECK(objDict); return dict->getKey(i); }
 
 inline Object *Object::dictGetVal(int i, Object *obj)
-  { return dict->getVal(i, obj); }
+  { OBJECT_TYPE_CHECK(objDict); return dict->getVal(i, obj); }
 
 inline Object *Object::dictGetValNF(int i, Object *obj)
-  { return dict->getValNF(i, obj); }
+  { OBJECT_TYPE_CHECK(objDict); return dict->getValNF(i, obj); }
 
 //------------------------------------------------------------------------
 // Stream accessors.
@@ -277,33 +295,33 @@ inline Object *Object::dictGetValNF(int i, Object *obj)
 #include "Stream.h"
 
 inline GBool Object::streamIs(char *dictType)
-  { return stream->getDict()->is(dictType); }
+  { OBJECT_TYPE_CHECK(objStream); stream->getDict()->is(dictType); }
 
 inline GBool Object::isStream(char *dictType)
   { return type == objStream && streamIs(dictType); }
 
 inline void Object::streamReset()
-  { stream->reset(); }
+  { OBJECT_TYPE_CHECK(objStream); stream->reset(); }
 
 inline void Object::streamClose()
-  { stream->close(); }
+  { OBJECT_TYPE_CHECK(objStream); stream->close(); }
 
 inline int Object::streamGetChar()
-  { return stream->getChar(); }
+  { OBJECT_TYPE_CHECK(objStream); return stream->getChar(); }
 
 inline int Object::streamLookChar()
-  { return stream->lookChar(); }
+  { OBJECT_TYPE_CHECK(objStream); return stream->lookChar(); }
 
 inline char *Object::streamGetLine(char *buf, int size)
-  { return stream->getLine(buf, size); }
+  { OBJECT_TYPE_CHECK(objStream); return stream->getLine(buf, size); }
 
 inline Guint Object::streamGetPos()
-  { return stream->getPos(); }
+  { OBJECT_TYPE_CHECK(objStream); return stream->getPos(); }
 
 inline void Object::streamSetPos(Guint pos, int dir)
-  { stream->setPos(pos, dir); }
+  { OBJECT_TYPE_CHECK(objStream); stream->setPos(pos, dir); }
 
 inline Dict *Object::streamGetDict()
-  { return stream->getDict(); }
+  { OBJECT_TYPE_CHECK(objStream); return stream->getDict(); }
 
 #endif
