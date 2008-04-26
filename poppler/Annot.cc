@@ -3871,9 +3871,9 @@ Annot *Annots::createAnnot(XRef *xref, Dict* dict, Catalog *catalog, Object *obj
     } else if (!typeName->cmp("Circle")) {
       annot = new AnnotGeometry(xref, dict, catalog, obj);
     } else if (!typeName->cmp("Polygon")) {
-      annot = new Annot(xref, dict, catalog, obj);
+      annot = new AnnotPolygon(xref, dict, catalog, obj);
     } else if (!typeName->cmp("PolyLine")) {
-      annot = new Annot(xref, dict, catalog, obj);
+      annot = new AnnotPolygon(xref, dict, catalog, obj);
     } else if (!typeName->cmp("Highlight")) {
       annot = new AnnotTextMarkup(xref, dict, catalog, obj);
     } else if (!typeName->cmp("Underline")) {
