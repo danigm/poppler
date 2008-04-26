@@ -58,7 +58,6 @@ void OptContentDock::fillInfo()
 
 void OptContentDock::documentClosed()
 {
-    disconnect(m_view->model(), SIGNAL(dataChanged(QModelIndex, QModelIndex)), this, SLOT(reloadImage()));
     m_view->setModel(0);
     AbstractInfoDock::documentClosed();
 }
