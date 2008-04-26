@@ -40,6 +40,7 @@ OptContentDock::~OptContentDock()
 
 void OptContentDock::documentLoaded()
 {
+    AbstractInfoDock::documentLoaded();
     if ( document()->pageMode() == Poppler::Document::UseOC ) {
         show();
     }  
