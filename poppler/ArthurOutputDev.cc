@@ -90,7 +90,7 @@ void ArthurOutputDev::startDoc(XRef *xrefA) {
 #if HAVE_FREETYPE_FREETYPE_H || HAVE_FREETYPE_H
   globalParams->getEnableFreeType(),
 #endif
-  globalParams->getAntialias());
+  m_painter->testRenderHint(QPainter::TextAntialiasing));
 }
 
 void ArthurOutputDev::startPage(int pageNum, GfxState *state)
