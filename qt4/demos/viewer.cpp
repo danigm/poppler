@@ -201,6 +201,7 @@ void PdfViewer::closeDocument()
         obs->documentClosed();
     }
 
+    m_currentPage = 0;
     delete m_doc;
     m_doc = 0;
 
