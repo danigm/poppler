@@ -231,9 +231,6 @@ void ArthurOutputDev::updateStrokeOpacity(GfxState *state)
 
 void ArthurOutputDev::updateFont(GfxState *state)
 {
-#ifdef __GNUC__
-#warning fix this, probably update with updated code from SplashOutputdev
-#endif
   GfxFont *gfxFont;
   GfxFontType fontType;
   SplashOutFontFileID *id;
@@ -242,7 +239,7 @@ void ArthurOutputDev::updateFont(GfxState *state)
   FoFiTrueType *ff;
   Ref embRef;
   Object refObj, strObj;
-  GooString *fileName, *substName;
+  GooString *fileName;
   char *tmpBuf;
   int tmpBufLen;
   Gushort *codeToGID;
@@ -250,8 +247,8 @@ void ArthurOutputDev::updateFont(GfxState *state)
   double *textMat;
   double m11, m12, m21, m22, fontSize;
   SplashCoord mat[4];
-  char *name;
-  int c, substIdx, n, code;
+  int substIdx, n;
+  int faceIndex = 0;
 
   m_needFontUpdate = false;
   m_font = NULL;
@@ -301,6 +298,7 @@ void ArthurOutputDev::updateFont(GfxState *state)
       case displayFontTT:
 	fileName = dfp->tt.fileName;
 	fontType = gfxFont->isCIDFont() ? fontCIDType2 : fontTrueType;
+	faceIndex = dfp->tt.faceIndex;
 	break;
       }
     }
@@ -335,16 +333,35 @@ void ArthurOutputDev::updateFont(GfxState *state)
 	goto err2;
       }
       break;
-    case fontTrueType:
-      if (!(ff = FoFiTrueType::load(fileName->getCString()))) {
+    case fontType1COT:
+      if (!(fontFile = m_fontEngine->loadOpenTypeT1CFont(
+			   id,
+			   fontsrc,
+			   ((Gfx8BitFont *)gfxFont)->getEncoding()))) {
+	error(-1, "Couldn't create a font for '%s'",
+	      gfxFont->getName() ? gfxFont->getName()->getCString()
+	                         : "(unnamed)");
 	goto err2;
       }
-      codeToGID = ((Gfx8BitFont *)gfxFont)->getCodeToGIDMap(ff);
-      delete ff;
+      break;
+    case fontTrueType:
+    case fontTrueTypeOT:
+	if (fileName)
+	 ff = FoFiTrueType::load(fileName->getCString());
+	else
+	ff = FoFiTrueType::make(tmpBuf, tmpBufLen);
+      if (ff) {
+	codeToGID = ((Gfx8BitFont *)gfxFont)->getCodeToGIDMap(ff);
+	n = 256;
+	delete ff;
+      } else {
+	codeToGID = NULL;
+	n = 0;
+      }
       if (!(fontFile = m_fontEngine->loadTrueTypeFont(
 			   id,
 			   fontsrc,
-			   codeToGID, 256))) {
+			   codeToGID, n))) {
 	error(-1, "Couldn't create a font for '%s'",
 	      gfxFont->getName() ? gfxFont->getName()->getCString()
 	                         : "(unnamed)");
@@ -362,15 +379,41 @@ void ArthurOutputDev::updateFont(GfxState *state)
 	goto err2;
       }
       break;
+    case fontCIDType0COT:
+      if (!(fontFile = m_fontEngine->loadOpenTypeCFFFont(
+			   id,
+			   fontsrc))) {
+	error(-1, "Couldn't create a font for '%s'",
+	      gfxFont->getName() ? gfxFont->getName()->getCString()
+	                         : "(unnamed)");
+	goto err2;
+      }
+      break;
     case fontCIDType2:
-      n = ((GfxCIDFont *)gfxFont)->getCIDToGIDLen();
-      codeToGID = (Gushort *)gmallocn(n, sizeof(Gushort));
-      memcpy(codeToGID, ((GfxCIDFont *)gfxFont)->getCIDToGID(),
-	     n * sizeof(Gushort));
+    case fontCIDType2OT:
+      codeToGID = NULL;
+      n = 0;
+      if (((GfxCIDFont *)gfxFont)->getCIDToGID()) {
+	n = ((GfxCIDFont *)gfxFont)->getCIDToGIDLen();
+	if (n) {
+	  codeToGID = (Gushort *)gmallocn(n, sizeof(Gushort));
+	  memcpy(codeToGID, ((GfxCIDFont *)gfxFont)->getCIDToGID(),
+		  n * sizeof(Gushort));
+	}
+      } else {
+	if (fileName)
+	  ff = FoFiTrueType::load(fileName->getCString());
+	else
+	  ff = FoFiTrueType::make(tmpBuf, tmpBufLen);
+	if (! ff)
+	  goto err2;
+	codeToGID = ((GfxCIDFont *)gfxFont)->getCodeToGIDMap(ff, &n);
+	delete ff;
+      }
       if (!(fontFile = m_fontEngine->loadTrueTypeFont(
 			   id,
 			   fontsrc,
-			   codeToGID, n))) {
+			   codeToGID, n, faceIndex))) {
 	error(-1, "Couldn't create a font for '%s'",
 	      gfxFont->getName() ? gfxFont->getName()->getCString()
 	                         : "(unnamed)");
