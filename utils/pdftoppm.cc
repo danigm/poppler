@@ -99,7 +99,7 @@ static const ArgDesc argDesc[] = {
   {NULL}
 };
 
-void savePageSlice(PDFDoc *doc,
+static void savePageSlice(PDFDoc *doc,
                    SplashOutputDev *splashOut, 
                    int pg, int x, int y, int w, int h, 
                    double pg_w, double pg_h, 
