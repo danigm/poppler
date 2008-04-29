@@ -429,7 +429,7 @@ static Gushort type1CISOAdobeCharset[229] = {
   220, 221, 222, 223, 224, 225, 226, 227, 228
 };
 
-static Gushort type1CExpertCharset[166] = {
+static const Gushort type1CExpertCharset[166] = {
     0,   1, 229, 230, 231, 232, 233, 234, 235, 236,
   237, 238,  13,  14,  15,  99, 239, 240, 241, 242,
   243, 244, 245, 246, 247, 248,  27,  28, 249, 250,

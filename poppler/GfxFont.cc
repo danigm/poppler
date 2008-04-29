@@ -42,7 +42,7 @@ struct StdFontMapEntry {
 // the proper Base14 names.  This table is from implementation note 44
 // in the PDF 1.4 spec, with some additions based on empirical
 // evidence.
-static StdFontMapEntry stdFontMap[] = {
+static const StdFontMapEntry stdFontMap[] = {
   { "Arial",                        "Helvetica" },
   { "Arial,Bold",                   "Helvetica-Bold" },
   { "Arial,BoldItalic",             "Helvetica-BoldOblique" },
@@ -1724,7 +1724,7 @@ Gushort GfxCIDFont::mapCodeToGID(FoFiTrueType *ff, int cmapi,
 Gushort *GfxCIDFont::getCodeToGIDMap(FoFiTrueType *ff, int *mapsizep) {
 #define N_UCS_CANDIDATES 2
   /* space characters */
-  static unsigned long spaces[] = { 
+  static const unsigned long spaces[] = { 
     0x2000,0x2001,0x2002,0x2003,0x2004,0x2005,0x2006,0x2007,
     0x2008,0x2009,0x200A,0x00A0,0x200B,0x2060,0x3000,0xFEFF,
     0
@@ -1945,7 +1945,7 @@ Gushort *GfxCIDFont::getCodeToGIDMap(FoFiTrueType *ff, int *mapsizep) {
     }
     if (gid == 0) {
       /* special handling space characters */
-      unsigned long *p;
+      const unsigned long *p;
 
       if (humap != 0) unicode = humap[code];
       if (unicode != 0) {

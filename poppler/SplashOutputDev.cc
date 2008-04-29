@@ -395,7 +395,7 @@ static void splashOutBlendLuminosity(SplashColorPtr src, SplashColorPtr dest,
 }
 
 // NB: This must match the GfxBlendMode enum defined in GfxState.h.
-static SplashBlendFunc splashOutBlendFuncs[] = {
+static const SplashBlendFunc splashOutBlendFuncs[] = {
   NULL,
   &splashOutBlendMultiply,
   &splashOutBlendScreen,

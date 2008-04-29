@@ -1735,7 +1735,7 @@ int CCITTFaxStream::lookChar() {
 
 short CCITTFaxStream::getTwoDimCode() {
   short code;
-  CCITTCode *p;
+  const CCITTCode *p;
   int n;
 
   code = 0; // make gcc happy
@@ -1765,7 +1765,7 @@ short CCITTFaxStream::getTwoDimCode() {
 
 short CCITTFaxStream::getWhiteCode() {
   short code;
-  CCITTCode *p;
+  const CCITTCode *p;
   int n;
 
   code = 0; // make gcc happy
@@ -1822,7 +1822,7 @@ short CCITTFaxStream::getWhiteCode() {
 
 short CCITTFaxStream::getBlackCode() {
   short code;
-  CCITTCode *p;
+  const CCITTCode *p;
   int n;
 
   code = 0; // make gcc happy
@@ -1984,7 +1984,7 @@ static Guchar dctClip[768];
 static int dctClipInit = 0;
 
 // zig zag decode map
-static int dctZigZag[64] = {
+static const int dctZigZag[64] = {
    0,
    1,  8,
   16,  9,  2,
@@ -4558,7 +4558,7 @@ void ASCIIHexEncoder::reset() {
 }
 
 GBool ASCIIHexEncoder::fillBuf() {
-  static char *hex = "0123456789abcdef";
+  static const char *hex = "0123456789abcdef";
   int c;
 
   if (eof) {

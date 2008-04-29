@@ -66,7 +66,7 @@ struct GfxBlendModeInfo {
   GfxBlendMode mode;
 };
 
-static GfxBlendModeInfo gfxBlendModeNames[] = {
+static const GfxBlendModeInfo gfxBlendModeNames[] = {
   { "Normal",     gfxBlendNormal },
   { "Compatible", gfxBlendNormal },
   { "Multiply",   gfxBlendMultiply },
@@ -699,7 +699,7 @@ void GfxDeviceCMYKColorSpace::getDefaultColor(GfxColor *color) {
 
 // This is the inverse of MatrixLMN in Example 4.10 from the PostScript
 // Language Reference, Third Edition.
-static double xyzrgb[3][3] = {
+static const double xyzrgb[3][3] = {
   {  3.240449, -1.537136, -0.498531 },
   { -0.969265,  1.876011,  0.041556 },
   {  0.055643, -0.204026,  1.057229 }

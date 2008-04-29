@@ -24,8 +24,8 @@
 
 //------------------------------------------------------------------------
 
-static int contextSize[4] = { 16, 13, 10, 10 };
-static int refContextSize[2] = { 13, 10 };
+static const int contextSize[4] = { 16, 13, 10, 10 };
+static const int refContextSize[2] = { 13, 10 };
 
 //------------------------------------------------------------------------
 // JBIG2HuffmanTable
@@ -471,7 +471,7 @@ void JBIG2MMRDecoder::reset() {
 }
 
 int JBIG2MMRDecoder::get2DCode() {
-  CCITTCode *p;
+  const CCITTCode *p;
 
   if (bufLen == 0) {
     buf = str->getChar() & 0xff;
@@ -498,7 +498,7 @@ int JBIG2MMRDecoder::get2DCode() {
 }
 
 int JBIG2MMRDecoder::getWhiteCode() {
-  CCITTCode *p;
+  const CCITTCode *p;
   Guint code;
 
   if (bufLen == 0) {
@@ -541,7 +541,7 @@ int JBIG2MMRDecoder::getWhiteCode() {
 }
 
 int JBIG2MMRDecoder::getBlackCode() {
-  CCITTCode *p;
+  const CCITTCode *p;
   Guint code;
 
   if (bufLen == 0) {

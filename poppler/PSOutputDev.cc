@@ -753,7 +753,7 @@ struct PSSubstFont {
   double mWidth;		// width of 'm' character
 };
 
-static char *psFonts[] = {
+static const char *psFonts[] = {
   "Courier",
   "Courier-Bold",
   "Courier-Oblique",
@@ -771,7 +771,7 @@ static char *psFonts[] = {
   NULL
 };
 
-static PSSubstFont psSubstFonts[] = {
+static const PSSubstFont psSubstFonts[] = {
   {"Helvetica",             0.833},
   {"Helvetica-Oblique",     0.833},
   {"Helvetica-Bold",        0.889},
@@ -1851,7 +1851,7 @@ void PSOutputDev::setupFont(GfxFont *font, Dict *parentResDict) {
 }
 
 void PSOutputDev::setupEmbeddedType1Font(Ref *id, GooString *psName) {
-  static char hexChar[17] = "0123456789abcdef";
+  static const char hexChar[17] = "0123456789abcdef";
   Object refObj, strObj, obj1, obj2, obj3;
   Dict *dict;
   int length1, length2, length3;
