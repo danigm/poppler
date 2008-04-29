@@ -42,7 +42,7 @@ struct JBIG2HuffmanTable {
   Guint prefix;
 };
 
-JBIG2HuffmanTable huffTableA[] = {
+static JBIG2HuffmanTable huffTableA[] = {
   {     0, 1,  4,              0x000 },
   {    16, 2,  8,              0x002 },
   {   272, 3, 16,              0x006 },
@@ -50,7 +50,7 @@ JBIG2HuffmanTable huffTableA[] = {
   {     0, 0, jbig2HuffmanEOT, 0     }
 };
 
-JBIG2HuffmanTable huffTableB[] = {
+static JBIG2HuffmanTable huffTableB[] = {
   {     0, 1,  0,              0x000 },
   {     1, 2,  0,              0x002 },
   {     2, 3,  0,              0x006 },
@@ -61,7 +61,7 @@ JBIG2HuffmanTable huffTableB[] = {
   {     0, 0, jbig2HuffmanEOT, 0     }
 };
 
-JBIG2HuffmanTable huffTableC[] = {
+static JBIG2HuffmanTable huffTableC[] = {
   {     0, 1,  0,              0x000 },
   {     1, 2,  0,              0x002 },
   {     2, 3,  0,              0x006 },
@@ -74,7 +74,7 @@ JBIG2HuffmanTable huffTableC[] = {
   {     0, 0, jbig2HuffmanEOT, 0     }
 };
 
-JBIG2HuffmanTable huffTableD[] = {
+static JBIG2HuffmanTable huffTableD[] = {
   {     1, 1,  0,              0x000 },
   {     2, 2,  0,              0x002 },
   {     3, 3,  0,              0x006 },
@@ -84,7 +84,7 @@ JBIG2HuffmanTable huffTableD[] = {
   {     0, 0, jbig2HuffmanEOT, 0     }
 };
 
-JBIG2HuffmanTable huffTableE[] = {
+static JBIG2HuffmanTable huffTableE[] = {
   {     1, 1,  0,              0x000 },
   {     2, 2,  0,              0x002 },
   {     3, 3,  0,              0x006 },
@@ -96,7 +96,7 @@ JBIG2HuffmanTable huffTableE[] = {
   {     0, 0, jbig2HuffmanEOT, 0     }
 };
 
-JBIG2HuffmanTable huffTableF[] = {
+static JBIG2HuffmanTable huffTableF[] = {
   {     0, 2,  7,              0x000 },
   {   128, 3,  7,              0x002 },
   {   256, 3,  8,              0x003 },
@@ -114,7 +114,7 @@ JBIG2HuffmanTable huffTableF[] = {
   {     0, 0, jbig2HuffmanEOT, 0     }
 };
 
-JBIG2HuffmanTable huffTableG[] = {
+static JBIG2HuffmanTable huffTableG[] = {
   {  -512, 3,  8,              0x000 },
   {   256, 3,  8,              0x001 },
   {   512, 3,  9,              0x002 },
@@ -133,7 +133,7 @@ JBIG2HuffmanTable huffTableG[] = {
   {     0, 0, jbig2HuffmanEOT, 0     }
 };
 
-JBIG2HuffmanTable huffTableH[] = {
+static JBIG2HuffmanTable huffTableH[] = {
   {     0, 2,  1,              0x000 },
   {     0, 2, jbig2HuffmanOOB, 0x001 },
   {     4, 3,  4,              0x004 },
@@ -158,7 +158,7 @@ JBIG2HuffmanTable huffTableH[] = {
   {     0, 0, jbig2HuffmanEOT, 0     }
 };
 
-JBIG2HuffmanTable huffTableI[] = {
+static JBIG2HuffmanTable huffTableI[] = {
   {     0, 2, jbig2HuffmanOOB, 0x000 },
   {    -1, 3,  1,              0x002 },
   {     1, 3,  1,              0x003 },
@@ -184,7 +184,7 @@ JBIG2HuffmanTable huffTableI[] = {
   {     0, 0, jbig2HuffmanEOT, 0     }
 };
 
-JBIG2HuffmanTable huffTableJ[] = {
+static JBIG2HuffmanTable huffTableJ[] = {
   {    -2, 2,  2,              0x000 },
   {     6, 2,  6,              0x001 },
   {     0, 2, jbig2HuffmanOOB, 0x002 },
@@ -209,7 +209,7 @@ JBIG2HuffmanTable huffTableJ[] = {
   {     0, 0, jbig2HuffmanEOT, 0     }
 };
 
-JBIG2HuffmanTable huffTableK[] = {
+static JBIG2HuffmanTable huffTableK[] = {
   {     1, 1,  0,              0x000 },
   {     2, 2,  1,              0x002 },
   {     4, 4,  0,              0x00c },
@@ -226,7 +226,7 @@ JBIG2HuffmanTable huffTableK[] = {
   {     0, 0, jbig2HuffmanEOT, 0     }
 };
 
-JBIG2HuffmanTable huffTableL[] = {
+static JBIG2HuffmanTable huffTableL[] = {
   {     1, 1,  0,              0x000 },
   {     2, 2,  0,              0x002 },
   {     3, 3,  1,              0x006 },
@@ -243,7 +243,7 @@ JBIG2HuffmanTable huffTableL[] = {
   {     0, 0, jbig2HuffmanEOT, 0     }
 };
 
-JBIG2HuffmanTable huffTableM[] = {
+static JBIG2HuffmanTable huffTableM[] = {
   {     1, 1,  0,              0x000 },
   {     2, 3,  0,              0x004 },
   {     7, 3,  3,              0x005 },
@@ -260,7 +260,7 @@ JBIG2HuffmanTable huffTableM[] = {
   {     0, 0, jbig2HuffmanEOT, 0     }
 };
 
-JBIG2HuffmanTable huffTableN[] = {
+static JBIG2HuffmanTable huffTableN[] = {
   {     0, 1,  0,              0x000 },
   {    -2, 3,  0,              0x004 },
   {    -1, 3,  0,              0x005 },
@@ -269,7 +269,7 @@ JBIG2HuffmanTable huffTableN[] = {
   {     0, 0, jbig2HuffmanEOT, 0     }
 };
 
-JBIG2HuffmanTable huffTableO[] = {
+static JBIG2HuffmanTable huffTableO[] = {
   {     0, 1,  0,              0x000 },
   {    -1, 3,  0,              0x004 },
   {     1, 3,  0,              0x005 },
