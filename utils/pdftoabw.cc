@@ -38,7 +38,7 @@
 static int firstPage = 1;
 static int lastPage = 0;
 static GBool printHelp = gFalse;
-GBool stout = gFalse;
+static GBool stout = gFalse;
 static char ownerPassword[33] = "";
 static char userPassword[33] = "";
 
