@@ -13,11 +13,11 @@
 #include <ctype.h>
 #include "parseargs.h"
 
-static ArgDesc *findArg(ArgDesc *args, char *arg);
-static GBool grabArg(ArgDesc *arg, int i, int *argc, char *argv[]);
+static const ArgDesc *findArg(const ArgDesc *args, char *arg);
+static GBool grabArg(const ArgDesc *arg, int i, int *argc, char *argv[]);
 
-GBool parseArgs(ArgDesc *args, int *argc, char *argv[]) {
-  ArgDesc *arg;
+GBool parseArgs(const ArgDesc *args, int *argc, char *argv[]) {
+  const ArgDesc *arg;
   int i, j;
   GBool ok;
 
@@ -39,8 +39,8 @@ GBool parseArgs(ArgDesc *args, int *argc, char *argv[]) {
   return ok;
 }
 
-void printUsage(char *program, char *otherArgs, ArgDesc *args) {
-  ArgDesc *arg;
+void printUsage(char *program, char *otherArgs, const ArgDesc *args) {
+  const ArgDesc *arg;
   char *typ;
   int w, w1;
 
@@ -84,8 +84,8 @@ void printUsage(char *program, char *otherArgs, ArgDesc *args) {
   }
 }
 
-static ArgDesc *findArg(ArgDesc *args, char *arg) {
-  ArgDesc *p;
+static const ArgDesc *findArg(const ArgDesc *args, char *arg) {
+  const ArgDesc *p;
 
   for (p = args; p->arg; ++p) {
     if (p->kind < argFlagDummy && !strcmp(p->arg, arg))
@@ -94,7 +94,7 @@ static ArgDesc *findArg(ArgDesc *args, char *arg) {
   return NULL;
 }
 
-static GBool grabArg(ArgDesc *arg, int i, int *argc, char *argv[]) {
+static GBool grabArg(const ArgDesc *arg, int i, int *argc, char *argv[]) {
   int n;
   int j;
   GBool ok;

@@ -65,7 +65,7 @@ static GooString* getInfoDate(Dict *infoDict, char *key);
 
 static char textEncName[128] = "";
 
-static ArgDesc argDesc[] = {
+static const ArgDesc argDesc[] = {
   {"-f",      argInt,      &firstPage,     0,
    "first page to convert"},
   {"-l",      argInt,      &lastPage,      0,

@@ -42,7 +42,7 @@ static GBool quiet = gFalse;
 static GBool printVersion = gFalse;
 static GBool printHelp = gFalse;
 
-static ArgDesc argDesc[] = {
+static const ArgDesc argDesc[] = {
   {"-f",      argInt,      &firstPage,     0,
    "first page to print"},
   {"-l",      argInt,      &lastPage,      0,

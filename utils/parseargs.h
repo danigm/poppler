@@ -51,12 +51,12 @@ typedef struct {
  * descriptor list <args>.  Stops parsing if "--" is found (and removes
  * it).  Returns gFalse if there was an error.
  */
-extern GBool parseArgs(ArgDesc *args, int *argc, char *argv[]);
+extern GBool parseArgs(const ArgDesc *args, int *argc, char *argv[]);
 
 /*
  * Print usage message, based on arg descriptor list.
  */
-extern void printUsage(char *program, char *otherArgs, ArgDesc *args);
+extern void printUsage(char *program, char *otherArgs, const ArgDesc *args);
 
 /*
  * Check if a string is a valid integer or floating point number.
