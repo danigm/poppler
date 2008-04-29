@@ -1549,7 +1549,7 @@ GBool JBIG2Stream::readSymbolDictSeg(Guint segNum, Guint length,
   inputSymbolDict = NULL;
   for (i = 0; i < nRefSegs; ++i) {
     seg = findSegment(refSegs[i]);
-    if (seg->getType() == jbig2SegSymbolDict) {
+    if (seg != NULL && seg->getType() == jbig2SegSymbolDict) {
       inputSymbolDict = (JBIG2SymbolDict *)seg;
       for (j = 0; j < inputSymbolDict->getSize(); ++j) {
 	bitmaps[k++] = inputSymbolDict->getBitmap(j);
@@ -2382,7 +2382,7 @@ void JBIG2Stream::readHalftoneRegionSeg(Guint segNum, GBool imm,
     return;
   }
   seg = findSegment(refSegs[0]);
-  if (seg->getType() != jbig2SegPatternDict) {
+  if (seg == NULL || seg->getType() != jbig2SegPatternDict) {
     error(getPos(), "Bad symbol dictionary reference in JBIG2 halftone segment");
     return;
   }
@@ -2968,7 +2968,7 @@ void JBIG2Stream::readGenericRefinementRegionSeg(Guint segNum, GBool imm,
   }
   if (nRefSegs == 1) {
     seg = findSegment(refSegs[0]);
-    if (seg->getType() != jbig2SegBitmap) {
+    if (seg == NULL || seg->getType() != jbig2SegBitmap) {
       error(getPos(), "Bad bitmap reference in JBIG2 generic refinement segment");
       return;
     }
