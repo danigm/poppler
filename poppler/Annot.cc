@@ -94,7 +94,7 @@ AnnotLineEndingStyle parseAnnotLineEndingStyle(GooString *string) {
   }  
 }
 
-AnnotExternalDataType parseAnnotExternalData(Dict* dict) {
+static AnnotExternalDataType parseAnnotExternalData(Dict* dict) {
   Object obj1;
   AnnotExternalDataType type;
 

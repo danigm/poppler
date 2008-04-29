@@ -24,7 +24,7 @@
 // Object
 //------------------------------------------------------------------------
 
-char *objTypeNames[numObjTypes] = {
+static char *objTypeNames[numObjTypes] = {
   "boolean",
   "integer",
   "real",
