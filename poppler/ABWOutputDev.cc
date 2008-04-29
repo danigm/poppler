@@ -731,7 +731,7 @@ void ABWOutputDev::cleanUpNode(xmlNodePtr N_parent, bool aggregateInfo){
   if (N_parent->children && xmlStrcasecmp(N_parent->children->name,BAD_CAST "line") == 0 && xmlGetProp(N_parent->children,BAD_CAST "alignment") != NULL)
     xmlSetProp(N_parent, BAD_CAST "alignment", xmlGetProp(N_parent->children,BAD_CAST "alignment"));
 
-   delete styles;
+   delete[] styles;
 }
 
 void ABWOutputDev::generateParagraphs() {
