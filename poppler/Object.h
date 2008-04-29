@@ -295,7 +295,7 @@ inline Object *Object::dictGetValNF(int i, Object *obj)
 #include "Stream.h"
 
 inline GBool Object::streamIs(char *dictType)
-  { OBJECT_TYPE_CHECK(objStream); stream->getDict()->is(dictType); }
+  { OBJECT_TYPE_CHECK(objStream); return stream->getDict()->is(dictType); }
 
 inline GBool Object::isStream(char *dictType)
   { return type == objStream && streamIs(dictType); }
