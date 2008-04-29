@@ -907,7 +907,7 @@ FILE *GlobalParams::findToUnicodeFile(GooString *name) {
   return NULL;
 }
 
-GBool findModifier(const char *name, const char *modifier, const char **start)
+static GBool findModifier(const char *name, const char *modifier, const char **start)
 {
   const char *match;
 
