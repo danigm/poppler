@@ -50,8 +50,8 @@ double scale=1.5;
 GBool noframes=gFalse;
 GBool stout=gFalse;
 GBool xml=gFalse;
-GBool errQuiet=gFalse;
-GBool noDrm=gFalse;
+static GBool errQuiet=gFalse;
+static GBool noDrm=gFalse;
 
 GBool showHidden = gFalse;
 GBool noMerge = gFalse;
