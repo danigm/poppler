@@ -1070,7 +1070,7 @@ Ref XRef::addIndirectObject (Object* o) {
 
 
 //used to sort the entries
-int compare (const void* a, const void* b)
+static int compare (const void* a, const void* b)
 {
   return (((XRefEntry*)a)->num - ((XRefEntry*)b)->num);
 }
