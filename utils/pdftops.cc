@@ -29,7 +29,7 @@
 #include "PSOutputDev.h"
 #include "Error.h"
 
-GBool setPSPaperSize(char *size, int &psPaperWidth, int &psPaperHeight) {
+static GBool setPSPaperSize(char *size, int &psPaperWidth, int &psPaperHeight) {
   if (!strcmp(size, "match")) {
     psPaperWidth = psPaperHeight = -1;
   } else if (!strcmp(size, "letter")) {
