@@ -784,6 +784,7 @@ void ArthurOutputDev::drawImage(GfxState *state, Object *ref, Stream *str,
 
   if (m_image == NULL || m_image->isNull()) {
     qDebug() << "Null image";
+    delete imgStr;
     return;
   }
   ctm = state->getCTM();

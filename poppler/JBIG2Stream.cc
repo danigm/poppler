@@ -1527,6 +1527,7 @@ GBool JBIG2Stream::readSymbolDictSeg(Guint segNum, Guint length,
         codeTables->append(seg);
       }
     } else {
+      delete codeTables;
       return gFalse;
     }
   }

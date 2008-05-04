@@ -2176,6 +2176,9 @@ void AnnotWidget::drawText(GooString *text, GooString *da, GfxFontDict *fontDict
     error(-1, "Missing 'Tf' operator in field's DA string");
   }
   if (!font) {
+    if (daToks) {
+      deleteGooList(daToks, GooString);
+    }
     return;
   }
 
@@ -2529,6 +2532,9 @@ void AnnotWidget::drawListBox(GooString **text, GBool *selection,
     error(-1, "Missing 'Tf' operator in field's DA string");
   }
   if (!font) {
+    if (daToks) {
+      deleteGooList(daToks, GooString);
+    }
     return;
   }
 
