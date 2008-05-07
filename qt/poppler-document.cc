@@ -78,8 +78,9 @@ bool Document::unlock(const QCString &password)
 {
   if (data->locked) {
     /* racier then it needs to be */
+    GooString *filename = new GooString(data->doc.getFileName());
     GooString *pwd = new GooString(password.data());
-    DocumentData *doc2 = new DocumentData(data->doc.getFileName(), pwd);
+    DocumentData *doc2 = new DocumentData(filename, pwd);
     delete pwd;
     if (!doc2->doc.isOk()) {
       delete doc2;
@@ -87,6 +88,7 @@ bool Document::unlock(const QCString &password)
       delete data;
       data = doc2;
       data->locked = false;
+      data->m_fontInfoScanner = new FontInfoScanner(&(data->doc));
     }
   }
   return data->locked;
