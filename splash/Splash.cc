@@ -1766,7 +1766,7 @@ void Splash::fillGlyph2(int x0, int y0, SplashGlyphBitmap *glyph, GBool noClip) 
         p += glyph->w;
       }
     } else {
-      const int widthEight = (int)ceil(glyph->w / 8.0);
+      const int widthEight = splashCeil(glyph->w / 8.0);
 
       pipeInit(&pipe, xStart, yStart,
                state->fillPattern, NULL, state->fillAlpha, gFalse, gFalse);
@@ -1812,7 +1812,7 @@ void Splash::fillGlyph2(int x0, int y0, SplashGlyphBitmap *glyph, GBool noClip) 
         p += glyph->w;
       }
     } else {
-      const int widthEight = (int)ceil(glyph->w / 8.0);
+      const int widthEight = splashCeil(glyph->w / 8.0);
 
       pipeInit(&pipe, xStart, yStart,
                state->fillPattern, NULL, state->fillAlpha, gFalse, gFalse);
