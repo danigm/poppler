@@ -87,7 +87,7 @@ class LinkDestinationData {
 
 class DocumentData {
   public:
-    DocumentData(GooString *filePath, GooString *password) : doc(filePath,password), m_outputDev(0) {}
+    DocumentData(GooString *filePath, GooString *password) : doc(filePath,password), m_fontInfoScanner(0), m_outputDev(0) {}
 
     ~DocumentData()
     {
