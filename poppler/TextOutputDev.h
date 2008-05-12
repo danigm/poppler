@@ -339,6 +339,11 @@ public:
   // Get the next TextBlock on the linked list.
   TextBlock *getNext() { return next; }
 
+  void getBBox(double *xMinA, double *yMinA, double *xMaxA, double *yMaxA)
+    { *xMinA = xMin; *yMinA = yMin; *xMaxA = xMax; *yMaxA = yMax; }
+
+  int getLineCount() { return nLines; }
+
 private:
 
   TextPage *page;		// the parent page
