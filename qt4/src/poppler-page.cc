@@ -280,11 +280,7 @@ QString Page::text(const QRectF &r) const
   }
   else
   {
-    double height, y1, y2;
-    height = m_page->page->getCropHeight();
-    y1 = height - r.top();
-    y2 = height - r.bottom();
-    s = output_dev->getText(r.left(), y1, r.right(), y2);
+    s = output_dev->getText(r.left(), r.top(), r.right(), r.bottom());
   }
 
   result = QString::fromUtf8(s->getCString());
