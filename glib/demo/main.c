@@ -147,6 +147,10 @@ gint main (gint argc, gchar **argv)
 		return 1;
 	}
 
+	if (!g_thread_supported ())
+		g_thread_init (NULL);
+	
+
 	gtk_init (&argc, &argv);
 
 	if (g_ascii_strncasecmp (argv[1], "file://", strlen ("file://")) == 0) {
