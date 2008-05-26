@@ -2611,9 +2611,9 @@ void SplashOutputDev::setSoftMask(GfxState * /*state*/, double * /*bbox*/,
   if (!alpha && colorMode != splashModeMono1) {
     //~ need to correctly handle the case where no blending color
     //~ space is given
-    tSplash = new Splash(tBitmap, vectorAntialias,
-			 transpGroupStack->origSplash->getScreen());
     if (transpGroupStack->blendingColorSpace) {
+      tSplash = new Splash(tBitmap, vectorAntialias,
+			   transpGroupStack->origSplash->getScreen());
       switch (colorMode) {
       case splashModeMono1:
 	// transparency is not supported in mono1 mode
