@@ -518,30 +518,31 @@ GBool Page::loadThumb(unsigned char **data_out,
     goto fail1;
   }
 
-  pixbufdata = (unsigned char *) gmalloc(pixbufdatasize);
-  p = pixbufdata;
-  imgstr = new ImageStream(str, width,
+  if (data_out) {
+    pixbufdata = (unsigned char *) gmalloc(pixbufdatasize);
+    p = pixbufdata;
+    imgstr = new ImageStream(str, width,
 			   colorMap->getNumPixelComps(),
 			   colorMap->getBits());
-  imgstr->reset();
-  for (row = 0; row < height; ++row) {
-    for (col = 0; col < width; ++col) {
-      Guchar pix[gfxColorMaxComps];
-      GfxRGB rgb;
+    imgstr->reset();
+    for (row = 0; row < height; ++row) {
+      for (col = 0; col < width; ++col) {
+        Guchar pix[gfxColorMaxComps];
+        GfxRGB rgb;
 
-      imgstr->getPixel(pix);
-      colorMap->getRGB(pix, &rgb);
+        imgstr->getPixel(pix);
+        colorMap->getRGB(pix, &rgb);
 
-      *p++ = colToByte(rgb.r);
-      *p++ = colToByte(rgb.g);
-      *p++ = colToByte(rgb.b);
+        *p++ = colToByte(rgb.r);
+        *p++ = colToByte(rgb.g);
+        *p++ = colToByte(rgb.b);
+      }
     }
+    *data_out = pixbufdata;
   }
 
   success = gTrue;
 
-  if (data_out)
-    *data_out = pixbufdata;
   if (width_out)
     *width_out = width;
   if (height_out)
