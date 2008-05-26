@@ -418,14 +418,14 @@ Link *Page::action( PageAction act ) const
     Object o2;
     const char *key = act == Page::Opening ? "O" : "C";
     dict->lookup((char*)key, &o2);
-    ::LinkAction *act = ::LinkAction::parseAction(&o2, m_page->parentDoc->doc->getCatalog()->getBaseURI() );
+    ::LinkAction *lact = ::LinkAction::parseAction(&o2, m_page->parentDoc->doc->getCatalog()->getBaseURI() );
     o2.free();
     o.free();
     Link *popplerLink = NULL;
-    if (act != NULL)
+    if (lact != NULL)
     {
-      popplerLink = m_page->convertLinkActionToLink(act, QRectF());
-      delete act;
+      popplerLink = m_page->convertLinkActionToLink(lact, QRectF());
+      delete lact;
     }
     return popplerLink;
   }
