@@ -455,12 +455,8 @@ GBool Page::loadThumb(unsigned char **data_out,
 		      int *width_out, int *height_out,
 		      int *rowstride_out)
 {
-  ImageStream *imgstr;
-  unsigned char *pixbufdata;
   unsigned int pixbufdatasize;
-  int row, col;
   int width, height, bits;
-  unsigned char *p;
   Object obj1, fetched_thumb;
   Dict *dict;
   GfxColorSpace *colorSpace;
@@ -519,14 +515,14 @@ GBool Page::loadThumb(unsigned char **data_out,
   }
 
   if (data_out) {
-    pixbufdata = (unsigned char *) gmalloc(pixbufdatasize);
-    p = pixbufdata;
-    imgstr = new ImageStream(str, width,
+    unsigned char *pixbufdata = (unsigned char *) gmalloc(pixbufdatasize);
+    unsigned char *p = pixbufdata;
+    ImageStream *imgstr = new ImageStream(str, width,
 			   colorMap->getNumPixelComps(),
 			   colorMap->getBits());
     imgstr->reset();
-    for (row = 0; row < height; ++row) {
-      for (col = 0; col < width; ++col) {
+    for (int row = 0; row < height; ++row) {
+      for (int col = 0; col < width; ++col) {
         Guchar pix[gfxColorMaxComps];
         GfxRGB rgb;
 
@@ -539,6 +535,7 @@ GBool Page::loadThumb(unsigned char **data_out,
       }
     }
     *data_out = pixbufdata;
+    delete imgstr;
   }
 
   success = gTrue;
@@ -550,7 +547,6 @@ GBool Page::loadThumb(unsigned char **data_out,
   if (rowstride_out)
     *rowstride_out = width * 3;
 
-  delete imgstr;
   delete colorMap;
  fail1:
   fetched_thumb.free();
