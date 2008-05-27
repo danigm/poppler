@@ -49,8 +49,9 @@ if (NOT WIN32)
   pkgconfig(gtk+-2.0 _LibGTK2IncDir _LibGTK2LinkDir GTK2LinkFlags GTK2Cflags)
   pkgconfig(gdk-pixbuf-2.0 _LibGDK2PixbufIncDir _LibGDK2PixbufLinkDir GDK2PixbufLinkFlags GDK2PixbufCflags)
   pkgconfig(libglade-2.0 _LibGLADE2IncDir _LibGLADE2LinkDir GLADE2LinkFlags GLADE2Cflags)
+  pkgconfig(gthread-2.0 _LibGThread2IncDir _LibGThread2LinkDir GThread2LinkFlags GThread2Cflags)
 
-  if (_LibGTK2IncDir AND _LibGDK2PixbufIncDir AND _LibGLADE2IncDir)
+  if (_LibGTK2IncDir AND _LibGDK2PixbufIncDir AND _LibGLADE2IncDir AND _LibGThread2IncDir)
 
     exec_program(${PKGCONFIG_EXECUTABLE} ARGS --atleast-version=2.8.0 gtk+-2.0 RETURN_VALUE _return_VALUE OUTPUT_VARIABLE _pkgconfigDevNull)
     if(_return_VALUE STREQUAL "0")
@@ -58,13 +59,13 @@ if (NOT WIN32)
     endif(_return_VALUE STREQUAL "0")
 
     if (_gtk_FOUND)
-      set (GTK2_CFLAGS ${GTK2Cflags} ${GDK2PixbufCflags} ${GLADE2Cflags})
-      set (GTK2_LIBRARIES ${GTK2LinkFlags} ${GDK2PixbufLinkFlags} ${GLADE2LinkFlags})
+      set (GTK2_CFLAGS ${GTK2Cflags} ${GDK2PixbufCflags} ${GLADE2Cflags} ${GThread2Cflags})
+      set (GTK2_LIBRARIES ${GTK2LinkFlags} ${GDK2PixbufLinkFlags} ${GLADE2LinkFlags} ${GThread2LinkFlags})
     endif (_gtk_FOUND)
 
     find_package_handle_standard_args(GTK DEFAULT_MSG GTK2_LIBRARIES GTK2_CFLAGS)
 
-  endif (_LibGTK2IncDir AND _LibGDK2PixbufIncDir AND _LibGLADE2IncDir)
+  endif (_LibGTK2IncDir AND _LibGDK2PixbufIncDir AND _LibGLADE2IncDir AND _LibGThread2IncDir)
 
 endif(NOT WIN32)
 
