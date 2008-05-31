@@ -1354,7 +1354,7 @@ GooString* HtmlOutputDev::getLinkDest(Link *link,Catalog* catalog){
 		  file->append(GooString::fromInt(page));
 	      }
 	  }
-	  if (printCommands) printf("filename %s\n",file->getCString());
+	  if (printCommands && file) printf("filename %s\n",file->getCString());
 	  return file;
 	  }
       case actionURI:
