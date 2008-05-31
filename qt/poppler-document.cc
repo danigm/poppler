@@ -142,6 +142,7 @@ bool Document::scanForFonts( int numPages, QValueList<FontInfo> *fontList ) cons
                   (Poppler::FontInfo::Type)((::FontInfo*)items->get(i))->getType());
     fontList->append(font);
   }
+  deleteGooList(items, ::FontInfo);
   return true;
 }
 
