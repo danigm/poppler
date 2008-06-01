@@ -1896,7 +1896,7 @@ void AnnotWidget::layoutText(GooString *text, GooString *outBuf, int *i,
                              int *charCount, GBool noReencode)
 {
   CharCode c;
-  Unicode uChar;
+  Unicode uChar, *uAux;
   double w = 0.0;
   int uLen, n;
   double dx, dy, ox, oy;
@@ -1995,7 +1995,7 @@ void AnnotWidget::layoutText(GooString *text, GooString *outBuf, int *i,
       dx = 0.0;
       font->getNextChar(outBuf->getCString() + last_o2,
                         outBuf->getLength() - last_o2,
-                        &c, &uChar, 1, &uLen, &dx, &dy, &ox, &oy);
+                        &c, &uAux, &uLen, &dx, &dy, &ox, &oy);
       w += dx;
     }
 
@@ -2058,7 +2058,7 @@ void AnnotWidget::layoutText(GooString *text, GooString *outBuf, int *i,
 
     while (len > 0) {
       dx = 0.0;
-      n = font->getNextChar(s, len, &c, &uChar, 1, &uLen, &dx, &dy, &ox, &oy);
+      n = font->getNextChar(s, len, &c, &uAux, &uLen, &dx, &dy, &ox, &oy);
 
       if (n == 0) {
         break;
@@ -2364,12 +2364,12 @@ void AnnotWidget::drawText(GooString *text, GooString *da, GfxFontDict *fontDict
       xPrev = w;                // so that first character is placed properly
       while (i < comb && len > 0) {
         CharCode code;
-        Unicode u;
+        Unicode *uAux;
         int uLen, n;
         double dx, dy, ox, oy;
 
         dx = 0.0;
-        n = font->getNextChar(s, len, &code, &u, 1, &uLen, &dx, &dy, &ox, &oy);
+        n = font->getNextChar(s, len, &code, &uAux, &uLen, &dx, &dy, &ox, &oy);
         dx *= fontSize;
 
         // center each character within its cell, by advancing the text

@@ -3266,7 +3266,7 @@ void Gfx::doShowText(GooString *s) {
   int wMode;
   double riseX, riseY;
   CharCode code;
-  Unicode u[8];
+  Unicode *u = NULL;
   double x, y, dx, dy, dx2, dy2, curX, curY, tdx, tdy, lineX, lineY;
   double originX, originY, tOriginX, tOriginY;
   double oldCTM[6], newCTM[6];
@@ -3316,7 +3316,7 @@ void Gfx::doShowText(GooString *s) {
     len = s->getLength();
     while (len > 0) {
       n = font->getNextChar(p, len, &code,
-			    u, (int)(sizeof(u) / sizeof(Unicode)), &uLen,
+			    &u, &uLen,
 			    &dx, &dy, &originX, &originY);
       dx = dx * state->getFontSize() + state->getCharSpace();
       if (n == 1 && *p == ' ') {
@@ -3365,7 +3365,7 @@ void Gfx::doShowText(GooString *s) {
     len = s->getLength();
     while (len > 0) {
       n = font->getNextChar(p, len, &code,
-			    u, (int)(sizeof(u) / sizeof(Unicode)), &uLen,
+			    &u, &uLen,
 			    &dx, &dy, &originX, &originY);
       if (wMode) {
 	dx *= state->getFontSize();
@@ -3399,7 +3399,7 @@ void Gfx::doShowText(GooString *s) {
     nChars = nSpaces = 0;
     while (len > 0) {
       n = font->getNextChar(p, len, &code,
-			    u, (int)(sizeof(u) / sizeof(Unicode)), &uLen,
+			    &u, &uLen,
 			    &dx2, &dy2, &originX, &originY);
       dx += dx2;
       dy += dy2;

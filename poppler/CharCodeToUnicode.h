@@ -66,7 +66,7 @@ public:
   void setMapping(CharCode c, Unicode *u, int len);
 
   // Map a CharCode to Unicode.
-  int mapToUnicode(CharCode c, Unicode *u, int size);
+  int mapToUnicode(CharCode c, Unicode **u);
 
   int mapToCharCode(Unicode* u, CharCode *c, int usize);
 

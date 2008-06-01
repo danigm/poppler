@@ -200,7 +200,7 @@ public:
   // the number actually used.  Returns the number of bytes used by
   // the char code.
   virtual int getNextChar(char *s, int len, CharCode *code,
-			  Unicode *u, int uSize, int *uLen,
+			  Unicode **u, int *uLen,
 			  double *dx, double *dy, double *ox, double *oy) = 0;
 
   /* XXX: dfp shouldn't be public, however the font finding code is currently in
@@ -249,7 +249,7 @@ public:
   virtual ~Gfx8BitFont();
 
   virtual int getNextChar(char *s, int len, CharCode *code,
-			  Unicode *u, int uSize, int *uLen,
+			  Unicode **u, int *uLen,
 			  double *dx, double *dy, double *ox, double *oy);
 
   // Return the encoding.
@@ -311,7 +311,7 @@ public:
   virtual GBool isCIDFont() { return gTrue; }
 
   virtual int getNextChar(char *s, int len, CharCode *code,
-			  Unicode *u, int uSize, int *uLen,
+			  Unicode **u, int *uLen,
 			  double *dx, double *dy, double *ox, double *oy);
 
   // Return the writing mode (0=horizontal, 1=vertical).

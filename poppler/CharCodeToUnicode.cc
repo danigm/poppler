@@ -24,11 +24,9 @@
 
 //------------------------------------------------------------------------
 
-#define maxUnicodeString 8
-
 struct CharCodeToUnicodeString {
   CharCode c;
-  Unicode u[maxUnicodeString];
+  Unicode *u;
   int len;
 };
 
@@ -104,7 +102,8 @@ CharCodeToUnicode *CharCodeToUnicode::parseUnicodeToUnicode(
   char buf[256];
   char *tok;
   Unicode u0;
-  Unicode uBuf[maxUnicodeString];
+  int uBufSize = 8;
+  Unicode *uBuf = (Unicode *)gmallocn(uBufSize, sizeof(Unicode));
   CharCodeToUnicode *ctu;
   int line, n, i;
 
@@ -131,9 +130,11 @@ CharCodeToUnicode *CharCodeToUnicode::parseUnicodeToUnicode(
       continue;
     }
     n = 0;
-    while (n < maxUnicodeString) {
-      if (!(tok = strtok(NULL, " \t\r\n"))) {
-	break;
+    while ((tok = strtok(NULL, " \t\r\n"))) {
+      if (n >= uBufSize)
+      {
+        uBufSize += 8;
+        uBuf = (Unicode *)greallocn(uBuf, uBufSize, sizeof(Unicode));
       }
       if (sscanf(tok, "%x", &uBuf[n]) != 1) {
 	error(-1, "Bad line (%d) in unicodeToUnicode file '%s'",
@@ -165,6 +166,7 @@ CharCodeToUnicode *CharCodeToUnicode::parseUnicodeToUnicode(
 	          greallocn(sMapA, sMapSizeA, sizeof(CharCodeToUnicodeString));
       }
       sMapA[sMapLenA].c = u0;
+      sMapA[sMapLenA].u = (Unicode*)gmallocn(n, sizeof(Unicode));
       for (i = 0; i < n; ++i) {
 	sMapA[sMapLenA].u[i] = uBuf[i];
       }
@@ -180,6 +182,7 @@ CharCodeToUnicode *CharCodeToUnicode::parseUnicodeToUnicode(
   ctu = new CharCodeToUnicode(fileName->copy(), mapA, len, gTrue,
 			      sMapA, sMapLenA, sMapSizeA);
   gfree(mapA);
+  gfree(uBuf);
   return ctu;
 }
 
@@ -356,7 +359,8 @@ void CharCodeToUnicode::addMapping(CharCode code, char *uStr, int n,
     map[code] = 0;
     sMap[sMapLen].c = code;
     sMap[sMapLen].len = n / 4;
-    for (j = 0; j < sMap[sMapLen].len && j < maxUnicodeString; ++j) {
+    sMap[sMapLen].u = (Unicode*)gmallocn(sMap[sMapLen].len, sizeof(Unicode));
+    for (j = 0; j < sMap[sMapLen].len; ++j) {
       strncpy(uHex, uStr + j*4, 4);
       uHex[4] = '\0';
       if (sscanf(uHex, "%x", &sMap[sMapLen].u[j]) != 1) {
@@ -412,6 +416,7 @@ CharCodeToUnicode::~CharCodeToUnicode() {
   }
   gfree(map);
   if (sMap) {
+    for (int i = 0; i < sMapLen; ++i) gfree(sMap[i].u);
     gfree(sMap);
   }
 #if MULTITHREADED
@@ -456,6 +461,7 @@ void CharCodeToUnicode::setMapping(CharCode c, Unicode *u, int len) {
   } else {
     for (i = 0; i < sMapLen; ++i) {
       if (sMap[i].c == c) {
+	gfree(sMap[i].u);
 	break;
       }
     }
@@ -470,28 +476,27 @@ void CharCodeToUnicode::setMapping(CharCode c, Unicode *u, int len) {
     map[c] = 0;
     sMap[i].c = c;
     sMap[i].len = len;
-    for (j = 0; j < len && j < maxUnicodeString; ++j) {
+    sMap[i].u = (Unicode*)gmallocn(len, sizeof(Unicode));
+    for (j = 0; j < len; ++j) {
       sMap[i].u[j] = u[j];
     }
   }
 }
 
-int CharCodeToUnicode::mapToUnicode(CharCode c, Unicode *u, int size) {
-  int i, j;
+int CharCodeToUnicode::mapToUnicode(CharCode c, Unicode **u) {
+  int i;
 
   if (c >= mapLen) {
     return 0;
   }
   if (map[c]) {
-    u[0] = map[c];
+    *u = &map[c];
     return 1;
   }
   for (i = 0; i < sMapLen; ++i) {
     if (sMap[i].c == c) {
-      for (j = 0; j < sMap[i].len && j < size; ++j) {
-	u[j] = sMap[i].u[j];
-      }
-      return j;
+      *u = sMap[i].u;
+      return sMap[i].len;
     }
   }
   return 0;

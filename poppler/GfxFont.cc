@@ -840,16 +840,17 @@ Gfx8BitFont::Gfx8BitFont(XRef *xref, char *tagA, Ref idA, GooString *nameA,
 
   // look for a Unicode-to-Unicode mapping
   if (name && (utu = globalParams->getUnicodeToUnicode(name))) {
+    Unicode *uAux;
     for (i = 0; i < 256; ++i) {
       toUnicode[i] = 0;
     }
     ctu2 = CharCodeToUnicode::make8BitToUnicode(toUnicode);
     for (i = 0; i < 256; ++i) {
-      n = ctu->mapToUnicode((CharCode)i, uBuf, 8);
+      n = ctu->mapToUnicode((CharCode)i, &uAux);
       if (n >= 1) {
-	n = utu->mapToUnicode((CharCode)uBuf[0], uBuf, 8);
+	n = utu->mapToUnicode((CharCode)uAux[0], &uAux);
 	if (n >= 1) {
-	  ctu2->setMapping((CharCode)i, uBuf, n);
+	  ctu2->setMapping((CharCode)i, uAux, n);
 	}
       }
     }
@@ -1097,12 +1098,12 @@ static int parseCharName(char *charName, Unicode *uBuf, int uLen,
 }
 
 int Gfx8BitFont::getNextChar(char *s, int len, CharCode *code,
-			     Unicode *u, int uSize, int *uLen,
+			     Unicode **u, int *uLen,
 			     double *dx, double *dy, double *ox, double *oy) {
   CharCode c;
 
   *code = c = (CharCode)(*s & 0xff);
-  *uLen = ctu->mapToUnicode(c, u, uSize);
+  *uLen = ctu->mapToUnicode(c, u);
   *dx = widths[c];
   *dy = *ox = *oy = 0;
   return 1;
@@ -1204,11 +1205,14 @@ Gushort *Gfx8BitFont::getCodeToGIDMap(FoFiTrueType *ff) {
 
   // map Unicode through the cmap
   } else if (useUnicode) {
+    Unicode *uAux;
     for (i = 0; i < 256; ++i) {
-      if (((charName = enc[i]) &&
-	   (u = globalParams->mapNameToUnicode(charName))) ||
-	  (n = ctu->mapToUnicode((CharCode)i, &u, 1))) {
+      if (((charName = enc[i]) && (u = globalParams->mapNameToUnicode(charName))))
 	map[i] = ff->mapCodeToGID(cmap, u);
+      else
+      {
+	n = ctu->mapToUnicode((CharCode)i, &uAux);
+	if (n > 0) map[i] = ff->mapCodeToGID(cmap, uAux[0]);
       }
     }
 
@@ -1273,7 +1277,7 @@ GfxCIDFont::GfxCIDFont(XRef *xref, char *tagA, Ref idA, GooString *nameA,
   Object obj1, obj2, obj3, obj4, obj5, obj6;
   CharCodeToUnicode *utu;
   CharCode c;
-  Unicode uBuf[8];
+  Unicode *uBuf;
   int c1, c2;
   int excepsSize, i, j, k, n;
 
@@ -1387,9 +1391,9 @@ GfxCIDFont::GfxCIDFont(XRef *xref, char *tagA, Ref idA, GooString *nameA,
   if (name && (utu = globalParams->getUnicodeToUnicode(name))) {
     if (ctu) {
       for (c = 0; c < ctu->getLength(); ++c) {
-	n = ctu->mapToUnicode(c, uBuf, 8);
+	n = ctu->mapToUnicode(c, &uBuf);
 	if (n >= 1) {
-	  n = utu->mapToUnicode((CharCode)uBuf[0], uBuf, 8);
+	  n = utu->mapToUnicode((CharCode)uBuf[0], &uBuf);
 	  if (n >= 1) {
 	    ctu->setMapping(c, uBuf, n);
 	  }
@@ -1621,7 +1625,7 @@ GfxCIDFont::~GfxCIDFont() {
 }
 
 int GfxCIDFont::getNextChar(char *s, int len, CharCode *code,
-			    Unicode *u, int uSize, int *uLen,
+			    Unicode **u, int *uLen,
 			    double *dx, double *dy, double *ox, double *oy) {
   CID cid;
   double w, h, vx, vy;
@@ -1636,7 +1640,7 @@ int GfxCIDFont::getNextChar(char *s, int len, CharCode *code,
 
   *code = (CharCode)(cid = cMap->getCID(s, len, &n));
   if (ctu) {
-    *uLen = ctu->mapToUnicode(cid, u, uSize);
+    *uLen = ctu->mapToUnicode(cid, u);
   } else {
     *uLen = 0;
   }
@@ -1867,9 +1871,9 @@ Gushort *GfxCIDFont::getCodeToGIDMap(FoFiTrueType *ff, int *mapsizep) {
       CharCode cid;
       for (cid = 0;cid < n ;cid++) {
 	int len;
-	Unicode ucodes[4];
+	Unicode *ucodes;
 
-	len = tctu->mapToUnicode(cid,ucodes,4);
+	len = tctu->mapToUnicode(cid,&ucodes);
 	if (len == 1) {
 	  tumap[cid] = ucodes[0];
 	} else {
@@ -1901,11 +1905,12 @@ Gushort *GfxCIDFont::getCodeToGIDMap(FoFiTrueType *ff, int *mapsizep) {
     if ((ctu = getToUnicode()) != 0) {
       CharCode cid;
       for (cid = 0;cid < n ;cid++) {
-	int len;
-	Unicode ucode = 0;
+	Unicode *ucode;
 
-	len = ctu->mapToUnicode(cid,&ucode,1);
-	humap[cid*N_UCS_CANDIDATES] = ucode;
+	if (ctu->mapToUnicode(cid, &ucode))
+	  humap[cid*N_UCS_CANDIDATES] = ucode[0];
+	else
+	  humap[cid*N_UCS_CANDIDATES] = 0;
 	for (i = 1;i < N_UCS_CANDIDATES;i++) {
 	    humap[cid*N_UCS_CANDIDATES+i] = 0;
 	}

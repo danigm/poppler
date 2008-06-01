@@ -4118,7 +4118,7 @@ void PSOutputDev::drawString(GfxState *state, GooString *s) {
   char *p;
   UnicodeMap *uMap;
   CharCode code;
-  Unicode u[8];
+  Unicode *u;
   char buf[8];
   int len, nChars, uLen, n, m, i, j;
 
@@ -4175,7 +4175,7 @@ void PSOutputDev::drawString(GfxState *state, GooString *s) {
   s2 = new GooString();
   while (len > 0) {
     n = font->getNextChar(p, len, &code,
-			  u, (int)(sizeof(u) / sizeof(Unicode)), &uLen,
+			  &u, &uLen,
 			  &dx2, &dy2, &originX, &originY);
     if (font->isCIDFont()) {
       if (uMap) {
