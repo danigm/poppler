@@ -50,6 +50,20 @@ static int mapUCS2(Unicode u, char *buf, int bufSize) {
     buf[0] = (char)((u >> 8) & 0xff);
     buf[1] = (char)(u & 0xff);
     return 2;
+  } else if (u < 0x110000) {
+    Unicode uu;
+
+    /* using surrogate pair */
+    if (bufSize < 4) {
+      return 0;
+    }
+    uu = ((u - 0x10000) >> 10) + 0xd800;
+    buf[0] = (char)((uu >> 8) & 0xff);
+    buf[1] = (char)(uu & 0xff);
+    uu = (u & 0x3ff)+0xdc00;
+    buf[2] = (char)((uu >> 8) & 0xff);
+    buf[3] = (char)(uu & 0xff);
+    return 4;
   } else {
     return 0;
   }
