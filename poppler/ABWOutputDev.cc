@@ -253,6 +253,8 @@ float ABWOutputDev::getBiggestSeperator(xmlNodePtr N_set, unsigned int direction
       endV = end[inspect];
     }
   }
+  delete[] stt;
+  delete[] end;
   return gap;
 }
 
