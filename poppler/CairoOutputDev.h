@@ -199,7 +199,7 @@ protected:
   void doPath(cairo_t *cairo, GfxState *state, GfxPath *path);
   
   GfxRGB fill_color, stroke_color;
-  cairo_pattern_t *fill_pattern, *stroke_pattern;
+  cairo_pattern_t *fill_pattern, *stroke_pattern, *old_stroke_pattern;
   double fill_opacity;
   double stroke_opacity;
   CairoFont *currentFont;
