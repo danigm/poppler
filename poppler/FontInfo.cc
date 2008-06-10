@@ -138,7 +138,6 @@ void FontInfoScanner::scanFonts(Dict *resDict, GooList *fontsList) {
 
 FontInfo::FontInfo(GfxFont *font, PDFDoc *doc) {
   GooString *origName;
-  Ref embRef;
   Object fontObj, toUnicodeObj;
   int i;
 
@@ -203,6 +202,7 @@ FontInfo::FontInfo(FontInfo& f) {
   subset = f.subset;
   hasToUnicode = f.hasToUnicode;
   fontRef = f.fontRef;
+  embRef = f.embRef;
 }
 
 FontInfo::~FontInfo() {

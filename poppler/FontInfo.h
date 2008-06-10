@@ -34,6 +34,8 @@ public:
   GBool      getEmbedded()  { return emb; };
   GBool      getSubset()    { return subset; };
   GBool      getToUnicode() { return hasToUnicode; };
+  Ref        getRef()       { return fontRef; };
+  Ref        getEmbRef()    { return embRef; };
 
 private:
   GooString *name;
@@ -43,6 +45,7 @@ private:
   GBool subset;
   GBool hasToUnicode;
   Ref fontRef;
+  Ref embRef;
 };
 
 class FontInfoScanner {
