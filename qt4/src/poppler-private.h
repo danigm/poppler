@@ -273,6 +273,7 @@ namespace Poppler {
 			isEmbedded = fid.isEmbedded;
 			isSubset = fid.isSubset;
 			type = fid.type;
+			embRef = fid.embRef;
 		}
 		
 		FontInfoData( ::FontInfo* fi )
@@ -282,6 +283,7 @@ namespace Poppler {
 			isEmbedded = fi->getEmbedded();
 			isSubset = fi->getSubset();
 			type = (Poppler::FontInfo::Type)fi->getType();
+			embRef = fi->getEmbRef();
 		}
 
 		QString fontName;
@@ -289,6 +291,7 @@ namespace Poppler {
 		bool isEmbedded : 1;
 		bool isSubset : 1;
 		FontInfo::Type type;
+		Ref embRef;
     };
 
     class TextBoxData

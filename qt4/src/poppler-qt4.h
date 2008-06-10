@@ -115,6 +115,7 @@ namespace Poppler {
        document
     */
     class POPPLER_QT4_EXPORT FontInfo {
+    friend class Document;
     public:
 	/**
 	   The type of font.
@@ -788,6 +789,10 @@ QString subject = m_doc->info("Subject");
 	*/
 	bool scanForFonts( int numPages, QList<FontInfo> *fontList ) const; 
 
+	/**
+	   The font data if the font is an embedded one.
+	*/
+	QByteArray fontData(const FontInfo &font) const;
 
 	/**
 	   The documents embedded within the PDF document.

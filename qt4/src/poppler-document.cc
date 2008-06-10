@@ -201,6 +201,29 @@ namespace Poppler {
 	return true;
     }
 
+    QByteArray Document::fontData(const FontInfo &fi) const
+    {
+	QByteArray result;
+	if (fi.isEmbedded())
+	{
+		Object refObj, strObj;
+		refObj.initRef(fi.m_data->embRef.num, fi.m_data->embRef.gen);
+		refObj.fetch(m_doc->doc->getXRef(), &strObj);
+		refObj.free();
+		if (strObj.isStream())
+		{
+			int c;
+			strObj.streamReset();
+			while ((c = strObj.streamGetChar()) != EOF)
+			{
+				result.append((char)c);
+			}
+			strObj.streamClose();
+		}
+		strObj.free();
+	}
+	return result;
+    }
 
     /* borrowed from kpdf */
     QString Document::info( const QString & type ) const
