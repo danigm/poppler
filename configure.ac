@@ -446,6 +446,9 @@ echo ""
 echo "Building poppler with support for:"
 echo "  splash output:      $enable_splash_output"
 echo "  cairo output:       $enable_cairo_output"
+if test x$enable_splash_output = xno -a x$enable_cairo_output = xno; then
+	echo "  Warning: There is no rendering backend enabled"
+fi
 echo "  abiword output:     $enable_abiword_output"
 echo "  qt wrapper:         $enable_poppler_qt"
 echo "  qt4 wrapper:        $enable_poppler_qt4"
