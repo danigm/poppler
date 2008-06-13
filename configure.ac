@@ -446,9 +446,6 @@ echo ""
 echo "Building poppler with support for:"
 echo "  splash output:      $enable_splash_output"
 echo "  cairo output:       $enable_cairo_output"
-if test x$enable_splash_output = xno -a x$enable_cairo_output = xno; then
-	echo "  Warning: There is no rendering backend enabled"
-fi
 echo "  abiword output:     $enable_abiword_output"
 echo "  qt wrapper:         $enable_poppler_qt"
 echo "  qt4 wrapper:        $enable_poppler_qt4"
@@ -459,3 +456,20 @@ echo "  use libjpeg:        $enable_libjpeg"
 echo "  use zlib:           $enable_zlib"
 echo "  use libopenjpeg:    $enable_libopenjpeg"
 echo "  command line utils: $enable_utils"
+echo ""
+
+if test x$enable_splash_output = xno -a x$enable_cairo_output = xno; then
+	echo "  Warning: There is no rendering backend enabled"
+fi
+
+if test x$enable_libjpeg != xyes; then
+	echo "  Warning: Using libjpeg is recommended"
+fi
+
+if test x$enable_zlib != xno; then
+	echo "  Warning: Using zlib is not totally safe"
+fi
+
+if test x$enable_libopenjpeg != xyes; then
+	echo "  Warning: Using libopenjpeg is recommended"
+fi
