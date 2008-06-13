@@ -21,6 +21,7 @@ option(BUILD_QT4_TESTS "Whether compile the Qt4 test programs." ON)
 option(ENABLE_SPLASH "Build the Splash graphics backend." ON)
 option(ENABLE_UTILS "Compile poppler command line utils." ON)
 option(ENABLE_ABIWORD "Build the Abiword backend." ON)
+option(ENABLE_LIBOPENJPEG "Use libopenjpeg for JPX streams." ON)
 option(ENABLE_ZLIB "TODO" OFF)
 option(USE_EXCEPTIONS "Throw exceptions to deal with not enough memory and similar problems." OFF)
 option(USE_FIXEDPOINT "Use fixed point arithmetic" OFF)
@@ -64,6 +65,10 @@ if(ENABLE_ABIWORD)
   find_package(LibXml2)
   set(ENABLE_ABIWORD ${LIBXML2_FOUND})
 endif(ENABLE_ABIWORD)
+if(ENABLE_LIBOPENJPEG)
+  find_package(LIBOPENJPEG)
+  set(ENABLE_LIBOPENJPEG ${LIBOPENJPEG_FOUND})
+endif(ENABLE_LIBOPENJPEG)
 
 add_definitions(-DHAVE_CONFIG_H=1 ${FONTCONFIG_DEFINITIONS})
 include_directories(
@@ -88,6 +93,9 @@ if(ENABLE_ABIWORD)
   include_directories(${LIBXML2_INCLUDE_DIR})
   add_definitions(${LIBXML2_DEFINITIONS})
 endif(ENABLE_ABIWORD)
+if(ENABLE_LIBOPENJPEG)
+  include_directories(${LIBOPENJPEG_INCLUDE_DIR})
+endif(ENABLE_LIBOPENJPEG)
 
 if(DEFINED COMPILE_WARNINGS)
 else(DEFINED COMPILE_WARNINGS)
@@ -144,7 +152,6 @@ set(poppler_SRCS
   poppler/GlobalParams.cc
   poppler/JArithmeticDecoder.cc
   poppler/JBIG2Stream.cc
-  poppler/JPXStream.cc
   poppler/Lexer.cc
   poppler/Link.cc
   poppler/NameToCharCode.cc
@@ -209,6 +216,16 @@ if(ENABLE_ZLIB)
   )
   set(poppler_LIBS ${poppler_LIBS} ${ZLIB_LIBRARIES})
 endif(ENABLE_ZLIB)
+if(ENABLE_LIBOPENJPEG)
+  set(poppler_SRCS ${poppler_SRCS}
+    poppler/JPEG2000Stream.cc
+  )
+  set(poppler_LIBS ${poppler_LIBS} ${LIBOPENJPEG_LIBRARIES})
+else (ENABLE_LIBOPENJPEG)
+  set(poppler_SRCS ${poppler_SRCS}
+    poppler/JPXStream.cc
+  )
+endif(ENABLE_LIBOPENJPEG)
 if(ENABLE_ABIWORD)
   set(poppler_SRCS ${poppler_SRCS}
     poppler/ABWOutputDev.cc
@@ -264,7 +281,6 @@ if(ENABLE_XPDF_HEADERS)
     poppler/GlobalParams.h
     poppler/JArithmeticDecoder.h
     poppler/JBIG2Stream.h
-    poppler/JPXStream.h
     poppler/Lexer.h
     poppler/Link.h
     poppler/NameToCharCode.h
@@ -301,6 +317,15 @@ if(ENABLE_XPDF_HEADERS)
     poppler/Movie.h
     ${CMAKE_CURRENT_BINARY_DIR}/poppler/poppler-config.h
     DESTINATION include/poppler)
+  if(ENABLE_LIBOPENJPEG)
+    install(FILES
+      poppler/JPEG2000Stream.h
+      DESTINATION include/poppler)
+  else (ENABLE_LIBOPENJPEG)
+    install(FILES
+      poppler/JPXStream.h
+      DESTINATION include/poppler)
+  endif(ENABLE_LIBOPENJPEG)
   if(ENABLE_SPLASH)
     install(FILES
       poppler/SplashOutputDev.h
@@ -389,4 +414,5 @@ show_end_message("glib wrapper" GLIB_FOUND)
 # message("  use gtk-doc:        $enable_gtk_doc") # TODO
 show_end_message("use libjpeg" ENABLE_LIBJPEG)
 show_end_message("use zlib" ENABLE_ZLIB)
+show_end_message("use libopenjpeg" ENABLE_LIBOPENJPEG)
 show_end_message("command line utils" ENABLE_UTILS)

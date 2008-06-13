@@ -30,7 +30,6 @@
 #include "GfxState.h"
 #include "Stream.h"
 #include "JBIG2Stream.h"
-#include "JPXStream.h"
 #include "Stream-CCITT.h"
 
 #ifdef ENABLE_LIBJPEG
@@ -39,6 +38,12 @@
 
 #ifdef ENABLE_ZLIB
 #include "FlateStream.h"
+#endif
+
+#ifdef ENABLE_LIBOPENJPEG
+#include "JPEG2000Stream.h"
+#else
+#include "JPXStream.h"
 #endif
 
 #ifdef __DJGPP__

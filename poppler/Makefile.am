@@ -62,6 +62,24 @@ libjpeg_libs =					\
 
 endif
 
+if BUILD_LIBOPENJPEG
+
+libjpeg2000_sources =				\
+	JPEG2000Stream.h			\
+	JPEG2000Stream.cc
+
+libjpeg2000_libs =				\
+	$(LIBOPENJPEG_LIBS)
+
+else
+
+libjpeg2000_sources =				\
+	JPXStream.h			\
+	JPXStream.cc
+
+endif
+
+
 if BUILD_ZLIB
 
 zlib_sources =					\
@@ -111,6 +129,7 @@ libpoppler_la_LIBADD =				\
 	$(splash_libs)				\
 	$(libjpeg_libs)				\
 	$(zlib_libs)				\
+	$(libjpeg2000_libs)			\
 	$(abiword_libs)				\
 	$(FREETYPE_LIBS)			\
 	$(FONTCONFIG_LIBS)			\
@@ -146,7 +165,6 @@ poppler_include_HEADERS =	\
 	GlobalParams.h		\
 	JArithmeticDecoder.h	\
 	JBIG2Stream.h		\
-	JPXStream.h		\
 	Lexer.h			\
 	Link.h			\
 	Movie.h                 \
@@ -192,6 +210,7 @@ libpoppler_la_SOURCES =		\
 	$(arthur_sources)	\
 	$(libjpeg_sources)	\
 	$(zlib_sources)		\
+	$(libjpeg2000_sources)	\
 	$(abiword_sources)	\
 	Annot.cc		\
 	Array.cc 		\
@@ -213,7 +232,6 @@ libpoppler_la_SOURCES =		\
 	GlobalParams.cc		\
 	JArithmeticDecoder.cc	\
 	JBIG2Stream.cc		\
-	JPXStream.cc		\
 	Lexer.cc 		\
 	Link.cc 		\
 	Movie.cc                \

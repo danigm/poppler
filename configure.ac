@@ -114,6 +114,38 @@ AM_CONDITIONAL(BUILD_ZLIB, test x$enable_zlib = xyes)
 AH_TEMPLATE([ENABLE_ZLIB],
 	    [Use zlib instead of builtin zlib decoder.])
 
+
+dnl Test for libopenjpeg
+AC_ARG_ENABLE(libopenjpeg,
+	      AC_HELP_STRING([--disable-libopenjpeg],
+	                     [Don't build against libopenjpeg.]),
+              enable_libopenjpeg=$enableval,
+              enable_libopenjpeg="try")
+if test x$enable_libopenjpeg = xyes; then
+  AC_CHECK_LIB([openjpeg], [opj_cio_open],,
+	       AC_MSG_ERROR("*** libopenjpeg library not found ***"))
+  AC_CHECK_HEADERS([openjpeg.h],,
+		   AC_MSG_ERROR("*** libopenjpeg headers not found ***"))
+elif test x$enable_libopenjpeg = xtry; then
+  AC_CHECK_LIB([openjpeg], [opj_cio_open],
+               [enable_libopenjpeg="yes"],
+	       [enable_libopenjpeg="no"])
+  AC_CHECK_HEADERS([openjpeg.h],,
+		   [enable_libopenjpeg="no"])
+fi
+
+if test x$enable_libopenjpeg = xyes; then
+  LIBOPENJPEG_LIBS="-lopenjpeg"
+  AC_SUBST(LIBOPENJPEG_LIBS)
+  AC_DEFINE(ENABLE_LIBOPENJPEG)
+fi
+
+AM_CONDITIONAL(BUILD_LIBOPENJPEG, test x$enable_libopenjpeg = xyes)
+AH_TEMPLATE([ENABLE_LIBOPENJPEG],
+	    [Use libopenjpeg instead of builtin jpeg2000 decoder.])
+
+
+
 dnl Test for libjpeg
 AC_ARG_ENABLE(libjpeg,
 	      AC_HELP_STRING([--disable-libjpeg],
@@ -422,4 +454,5 @@ echo "    use GDK:          $enable_gdk"
 echo "  use gtk-doc:        $enable_gtk_doc"
 echo "  use libjpeg:        $enable_libjpeg"
 echo "  use zlib:           $enable_zlib"
+echo "  use libopenjpeg:    $enable_libopenjpeg"
 echo "  command line utils: $enable_utils"
