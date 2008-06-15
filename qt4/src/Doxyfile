@@ -488,7 +488,7 @@ INPUT                  = Mainpage.dox \
                          poppler-form.h \
                          poppler-link.h \
                          poppler-qt4.h \
-                         ../../qt/poppler-page-transition.h
+                         poppler-page-transition.h
 
 # This tag can be used to specify the character encoding of the source files that 
 # doxygen parses. Internally doxygen uses the UTF-8 encoding, which is also the default 
