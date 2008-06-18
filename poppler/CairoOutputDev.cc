@@ -616,13 +616,13 @@ GBool CairoOutputDev::beginType3Char(GfxState *state, double x, double y,
     cairo_set_matrix(cairo_shape, &orig_matrix);
     cairo_transform(cairo_shape, &matrix);
   }
-  old_stroke_pattern = stroke_pattern;
+  cairo_pattern_destroy(stroke_pattern);
+  cairo_pattern_reference(fill_pattern);
   stroke_pattern = fill_pattern;
   return gFalse;
 }
 
 void CairoOutputDev::endType3Char(GfxState *state) {
-  stroke_pattern = old_stroke_pattern;
   cairo_restore (cairo);
   if (cairo_shape) {
     cairo_restore (cairo_shape);
