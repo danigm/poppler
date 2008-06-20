@@ -178,8 +178,9 @@ Catalog::Catalog(XRef *xrefA) {
   catDict.dictLookup("Outlines", &outline);
 
   // get the Optional Content dictionary
-  catDict.dictLookup("OCProperties", &optContentProps);
-  optContent = new OCGs(&optContentProps, xref);
+  if (catDict.dictLookup("OCProperties", &optContentProps)->isDict()) {
+    optContent = new OCGs(&optContentProps, xref);
+  }
   optContentProps.free();
 
   // perform form-related loading after all widgets have been loaded

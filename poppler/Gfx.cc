@@ -4129,6 +4129,10 @@ void Gfx::opEndIgnoreUndef(Object args[], int numArgs) {
 
 void Gfx::opBeginMarkedContent(Object args[], int numArgs) {
   // TODO: we really need to be adding this to the markedContentStack
+  OCGs *contentConfig = catalog->getOptContentConfig();
+  if (!contentConfig)
+    return;
+	
   char* name0 = args[0].getName();
   if ( strncmp( name0, "OC", 2) == 0 ) {
     if ( numArgs >= 2 ) {
@@ -4139,7 +4143,7 @@ void Gfx::opBeginMarkedContent(Object args[], int numArgs) {
       Object markedContent;
       if ( res->lookupMarkedContentNF( name1, &markedContent ) ) {
 	if ( markedContent.isRef() ) {
-	  bool visible = catalog->getOptContentConfig()->optContentIsVisible( &markedContent );
+	  bool visible = contentConfig->optContentIsVisible( &markedContent );
 	  ocSuppressed = !(visible);
        }
       } else {
@@ -4168,11 +4172,17 @@ void Gfx::opBeginMarkedContent(Object args[], int numArgs) {
 
 void Gfx::opEndMarkedContent(Object args[], int numArgs) {
   // TODO: we should turn this off based on the markedContentStack
+  if (!catalog->getOptContentConfig())
+    return;
+  
   ocSuppressed = false;
   out->endMarkedContent(state);
 }
 
 void Gfx::opMarkPoint(Object args[], int numArgs) {
+  if (!catalog->getOptContentConfig())
+    return;
+  
   if (printCommands) {
     printf("  mark point: %s ", args[0].getName());
     if (numArgs == 2)
