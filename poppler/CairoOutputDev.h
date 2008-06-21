@@ -206,7 +206,9 @@ protected:
   
   XRef *xref;			// xref table for current document
 
-  FT_Library ft_lib;
+  static FT_Library ft_lib;
+  static GBool ft_lib_initialized;
+
   CairoFontEngine *fontEngine;
   cairo_t *cairo;
   cairo_matrix_t orig_matrix;

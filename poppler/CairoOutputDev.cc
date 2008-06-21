@@ -74,10 +74,23 @@ void CairoImage::setImage (cairo_surface_t *image) {
 // CairoOutputDev
 //------------------------------------------------------------------------
 
+// We cannot tie the lifetime of an FT_Library object to that of
+// CairoOutputDev, since any FT_Faces created with it may end up with a
+// reference by Cairo which can be held long after the CairoOutputDev is
+// deleted.  The simplest way to avoid problems is to never tear down the
+// FT_Library instance; to avoid leaks, just use a single global instance
+// initialized the first time it is needed.
+FT_Library CairoOutputDev::ft_lib;
+GBool CairoOutputDev::ft_lib_initialized = gFalse;
+
 CairoOutputDev::CairoOutputDev() {
   xref = NULL;
 
-  FT_Init_FreeType(&ft_lib);
+  if (!ft_lib_initialized) {
+    FT_Init_FreeType(&ft_lib);
+    ft_lib_initialized = gTrue;
+  }
+
   fontEngine = NULL;
   glyphs = NULL;
   fill_pattern = NULL;
@@ -102,8 +115,7 @@ CairoOutputDev::~CairoOutputDev() {
   if (fontEngine) {
     delete fontEngine;
   }
-  FT_Done_FreeType(ft_lib);
-  
+
   if (cairo)
     cairo_destroy (cairo);
   cairo_pattern_destroy (stroke_pattern);
