@@ -46,7 +46,7 @@ QIODevice* BaseConverterPrivate::openDevice()
 	Q_ASSERT(iodev);
 	if (!iodev->isOpen())
 	{
-		if (!iodev->open(QIODevice::ReadWrite))
+		if (!iodev->open(QIODevice::WriteOnly))
 		{
 			if (ownIodev)
 			{
