@@ -427,6 +427,7 @@ GBool XRef::readXRefTable(Parser *parser, Guint *pos) {
       }
       entry.gen = obj.getInt();
       entry.obj.initNull ();
+      entry.updated = false;
       obj.free();
       parser->getObj(&obj);
       if (obj.isCmd("n")) {
