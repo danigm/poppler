@@ -93,9 +93,9 @@ if(ENABLE_ABIWORD)
   include_directories(${LIBXML2_INCLUDE_DIR})
   add_definitions(${LIBXML2_DEFINITIONS})
 endif(ENABLE_ABIWORD)
-if(ENABLE_LIBOPENJPEG)
+if(LIBOPENJPEG_FOUND)
   include_directories(${LIBOPENJPEG_INCLUDE_DIR})
-endif(ENABLE_LIBOPENJPEG)
+endif(LIBOPENJPEG_FOUND)
 
 if(DEFINED COMPILE_WARNINGS)
 else(DEFINED COMPILE_WARNINGS)
@@ -216,16 +216,16 @@ if(ENABLE_ZLIB)
   )
   set(poppler_LIBS ${poppler_LIBS} ${ZLIB_LIBRARIES})
 endif(ENABLE_ZLIB)
-if(ENABLE_LIBOPENJPEG)
+if(LIBOPENJPEG_FOUND)
   set(poppler_SRCS ${poppler_SRCS}
     poppler/JPEG2000Stream.cc
   )
   set(poppler_LIBS ${poppler_LIBS} ${LIBOPENJPEG_LIBRARIES})
-else (ENABLE_LIBOPENJPEG)
+else (LIBOPENJPEG_FOUND)
   set(poppler_SRCS ${poppler_SRCS}
     poppler/JPXStream.cc
   )
-endif(ENABLE_LIBOPENJPEG)
+endif(LIBOPENJPEG_FOUND)
 if(ENABLE_ABIWORD)
   set(poppler_SRCS ${poppler_SRCS}
     poppler/ABWOutputDev.cc
@@ -317,15 +317,15 @@ if(ENABLE_XPDF_HEADERS)
     poppler/Movie.h
     ${CMAKE_CURRENT_BINARY_DIR}/poppler/poppler-config.h
     DESTINATION include/poppler)
-  if(ENABLE_LIBOPENJPEG)
+  if(LIBOPENJPEG_FOUND)
     install(FILES
       poppler/JPEG2000Stream.h
       DESTINATION include/poppler)
-  else (ENABLE_LIBOPENJPEG)
+  else(LIBOPENJPEG_FOUND)
     install(FILES
       poppler/JPXStream.h
       DESTINATION include/poppler)
-  endif(ENABLE_LIBOPENJPEG)
+  endif(LIBOPENJPEG_FOUND)
   if(ENABLE_SPLASH)
     install(FILES
       poppler/SplashOutputDev.h
@@ -414,5 +414,5 @@ show_end_message("glib wrapper" GLIB_FOUND)
 # message("  use gtk-doc:        $enable_gtk_doc") # TODO
 show_end_message("use libjpeg" ENABLE_LIBJPEG)
 show_end_message("use zlib" ENABLE_ZLIB)
-show_end_message("use libopenjpeg" ENABLE_LIBOPENJPEG)
+show_end_message("use libopenjpeg" LIBOPENJPEG_FOUND)
 show_end_message("command line utils" ENABLE_UTILS)
