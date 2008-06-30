@@ -61,6 +61,7 @@ clean-generic:
 if BUILD_POPPLER_QT4
 TESTS = \
 	check_attachments	\
+	check_actualtext	\
 	check_dateConversion 	\
 	check_fonts		\
 	check_metadata         	\
@@ -76,6 +77,10 @@ check_PROGRAMS = $(TESTS)
 check_attachments_SOURCES = check_attachments.cpp
 check_attachments.$(OBJEXT): check_attachments.moc
 check_attachments_LDADD = $(LDADDS)
+
+check_actualtext_SOURCES = check_actualtext.cpp
+check_actualtext.$(OBJEXT): check_actualtext.moc
+check_actualtext_LDADD = $(LDADDS)
 
 check_dateConversion_SOURCES = check_dateConversion.cpp
 check_dateConversion.$(OBJEXT): check_dateConversion.moc
