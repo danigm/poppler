@@ -4130,11 +4130,9 @@ void Gfx::opEndIgnoreUndef(Object args[], int numArgs) {
 void Gfx::opBeginMarkedContent(Object args[], int numArgs) {
   // TODO: we really need to be adding this to the markedContentStack
   OCGs *contentConfig = catalog->getOptContentConfig();
-  if (!contentConfig)
-    return;
 	
   char* name0 = args[0].getName();
-  if ( strncmp( name0, "OC", 2) == 0 ) {
+  if ( strncmp( name0, "OC", 2) == 0 && contentConfig) {
     if ( numArgs >= 2 ) {
       if (!args[1].isName()) {
 	error(getPos(), "Unexpected MC Type: %i", args[1].getType());
@@ -4172,17 +4170,11 @@ void Gfx::opBeginMarkedContent(Object args[], int numArgs) {
 
 void Gfx::opEndMarkedContent(Object args[], int numArgs) {
   // TODO: we should turn this off based on the markedContentStack
-  if (!catalog->getOptContentConfig())
-    return;
-  
   ocSuppressed = false;
   out->endMarkedContent(state);
 }
 
 void Gfx::opMarkPoint(Object args[], int numArgs) {
-  if (!catalog->getOptContentConfig())
-    return;
-  
   if (printCommands) {
     printf("  mark point: %s ", args[0].getName());
     if (numArgs == 2)
