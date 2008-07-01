@@ -466,7 +466,7 @@ GBool Page::loadThumb(unsigned char **data_out,
 
   /* Get stream dict */
   thumb.fetch(xref, &fetched_thumb);
-  if (fetched_thumb.isNull()) {
+  if (!fetched_thumb.isStream()) {
     fetched_thumb.free();
     return gFalse;
   }
