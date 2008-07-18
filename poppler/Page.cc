@@ -235,6 +235,7 @@ Page::Page(XRef *xrefA, int numA, Dict *pageDict, PageAttrs *attrsA, Form *form)
   xref = xrefA;
   num = numA;
   duration = -1;
+  pageWidgets = NULL;
 
   // get attributes
   attrs = attrsA;
