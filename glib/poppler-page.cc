@@ -973,7 +973,7 @@ poppler_page_get_thumbnail_size (PopplerPage *page,
   g_return_val_if_fail (height != NULL, FALSE);
 
   page->page->getThumb (&thumb);
-  if (thumb.isNull ())
+  if (!thumb.isStream ())
     {
       thumb.free ();
       return FALSE;
