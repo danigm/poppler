@@ -18,10 +18,13 @@ FontInfoScanner::FontInfoScanner(PDFDoc *docA) {
   currentPage = 1;
   fonts = NULL;
   fontsLen = fontsSize = 0;
+  visitedXObjects = NULL;
+  visitedXObjectsLen = visitedXObjectsSize = 0;
 }
 
 FontInfoScanner::~FontInfoScanner() {
   gfree(fonts);
+  gfree(visitedXObjects);
 }
 
 GooList *FontInfoScanner::scan(int nPages) {
@@ -69,7 +72,7 @@ GooList *FontInfoScanner::scan(int nPages) {
 }
 
 void FontInfoScanner::scanFonts(Dict *resDict, GooList *fontsList) {
-  Object obj1, obj2, xObjDict, xObj, resObj;
+  Object obj1, obj2, xObjDict, xObj, xObj2, resObj;
   Ref r;
   GfxFontDict *gfxFontDict;
   GfxFont *font;
@@ -122,15 +125,40 @@ void FontInfoScanner::scanFonts(Dict *resDict, GooList *fontsList) {
   resDict->lookup("XObject", &xObjDict);
   if (xObjDict.isDict()) {
     for (i = 0; i < xObjDict.dictGetLength(); ++i) {
-      xObjDict.dictGetVal(i, &xObj);
-      if (xObj.isStream()) {
-	xObj.streamGetDict()->lookup("Resources", &resObj);
-	if (resObj.isDict() && resObj.getDict() != resDict) {
-	  scanFonts(resObj.getDict(), fontsList);
-	}
-	resObj.free();
+      xObjDict.dictGetValNF(i, &xObj);
+      if (xObj.isRef()) {
+        GBool alreadySeen = gFalse;
+        // check for an already-seen XObject
+        for (int k = 0; k < visitedXObjectsLen; ++k) {
+          if (xObj.getRef().num == visitedXObjects[k].num &&
+              xObj.getRef().gen == visitedXObjects[k].gen) {
+            alreadySeen = gTrue;
+          }
+        }
+
+        if (alreadySeen) {
+          xObj.free();
+          continue;
+        }
+
+        if (visitedXObjectsLen == visitedXObjectsSize) {
+          visitedXObjectsSize += 32;
+          visitedXObjects = (Ref *)grealloc(visitedXObjects, visitedXObjectsSize * sizeof(Ref));
+        }
+        visitedXObjects[visitedXObjectsLen++] = xObj.getRef();
+      }
+
+      xObj.fetch(doc->getXRef(), &xObj2);
+
+      if (xObj2.isStream()) {
+        xObj2.streamGetDict()->lookup("Resources", &resObj);
+        if (resObj.isDict() && resObj.getDict() != resDict) {
+          scanFonts(resObj.getDict(), fontsList);
+        }
+        resObj.free();
       }
       xObj.free();
+      xObj2.free();
     }
   }
   xObjDict.free();
