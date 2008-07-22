@@ -212,6 +212,7 @@ LinkDest::LinkDest(Array *a) {
 
   // initialize fields
   left = bottom = right = top = zoom = 0;
+  changeLeft = changeTop = changeZoom = gFalse;
   ok = gFalse;
 
   // get page
