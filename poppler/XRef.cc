@@ -1074,15 +1074,11 @@ void XRef::writeToFile(OutStream* outStr) {
     }
   }
   //write the new xref
-  int j;
   outStr->printf("xref\r\n");
+  outStr->printf("%i %i\r\n", 0, size);
   for (int i=0; i<size; i++) {
-    outStr->printf("%i %i\r\n", i, i+size);
-    for (int k=i; k<j; k++) {
-      if(entries[k].gen > 65535) entries[k].gen = 65535; //cap generation number to 65535 (required by PDFReference)
-      outStr->printf("%010i %05i %c\r\n", entries[k].offset, entries[k].gen, (entries[k].type==xrefEntryFree)?'f':'n');
-    }
-    i = j-1;
+    if(entries[i].gen > 65535) entries[i].gen = 65535; //cap generation number to 65535 (required by PDFReference)
+    outStr->printf("%010i %05i %c\r\n", entries[i].offset, entries[i].gen, (entries[i].type==xrefEntryFree)?'f':'n');
   }
 }
 
