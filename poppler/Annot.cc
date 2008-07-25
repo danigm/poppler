@@ -1902,6 +1902,7 @@ void AnnotWidget::layoutText(GooString *text, GooString *outBuf, int *i,
   double dx, dy, ox, oy;
   GBool unicode = text->hasUnicodeMarker();
   CharCodeToUnicode *ccToUnicode = font->getToUnicode();
+  ccToUnicode->decRefCnt();
   GBool spacePrev;              // previous character was a space
 
   // State for backtracking when more text has been processed than fits within
