@@ -1036,6 +1036,7 @@ void XRef::setModifiedObject (Object* o, Ref r) {
     error(-1,"XRef::setModifiedObject on unknown ref: %i, %i\n", r.num, r.gen);
     return;
   }
+  entries[r.num].obj.free();
   o->copy(&entries[r.num].obj);
   entries[r.num].updated = true;
 }
