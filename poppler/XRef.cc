@@ -413,6 +413,7 @@ GBool XRef::readXRefTable(Parser *parser, Guint *pos) {
 	entries[i].type = xrefEntryFree;
 	entries[i].obj.initNull ();
 	entries[i].updated = false;
+	entries[i].gen = 0;
       }
       size = newSize;
     }
@@ -527,6 +528,7 @@ GBool XRef::readXRefStream(Stream *xrefStr, Guint *pos) {
       entries[i].type = xrefEntryFree;
       entries[i].obj.initNull ();
       entries[i].updated = false;
+      entries[i].gen = 0;
     }
     size = newSize;
   }
@@ -623,6 +625,7 @@ GBool XRef::readXRefStreamSection(Stream *xrefStr, int *w, int first, int n) {
       entries[i].type = xrefEntryFree;
       entries[i].obj.initNull ();
       entries[i].updated = false;
+      entries[i].gen = 0;
     }
     size = newSize;
   }
@@ -1005,8 +1008,15 @@ Guint XRef::strToUnsigned(char *s) {
 
 void XRef::add(int num, int gen, Guint offs, GBool used) {
   if (num >= size) {
+    entries = (XRefEntry *)greallocn(entries, num + 1, sizeof(XRefEntry));
+    for (int i = size; i < num + 1; ++i) {
+      entries[i].offset = 0xffffffff;
+      entries[i].type = xrefEntryFree;
+      entries[i].obj.initNull ();
+      entries[i].updated = false;
+      entries[i].gen = 0;
+    }
     size = num + 1;
-    entries = (XRefEntry *)greallocn(entries, size, sizeof(XRefEntry));
   }
   XRefEntry *e = &entries[num];
   e->gen = gen;
@@ -1059,26 +1069,51 @@ Ref XRef::addIndirectObject (Object* o) {
   return r;
 }
 
-
-//used to sort the entries
-void XRef::writeToFile(OutStream* outStr) {
+void XRef::writeToFile(OutStream* outStr, GBool writeAllEntries) {
   //create free entries linked-list
   if (entries[0].gen != 65535) {
     error(-1, "XRef::writeToFile, entry 0 of the XRef is invalid (gen != 65535)\n");
   }
-  int lastFreeEntry = 0; 
+  int lastFreeEntry = 0;
   for (int i=0; i<size; i++) {
     if (entries[i].type == xrefEntryFree) {
       entries[lastFreeEntry].offset = i;
       lastFreeEntry = i;
     }
   }
-  //write the new xref
-  outStr->printf("xref\r\n");
-  outStr->printf("%i %i\r\n", 0, size);
-  for (int i=0; i<size; i++) {
-    if(entries[i].gen > 65535) entries[i].gen = 65535; //cap generation number to 65535 (required by PDFReference)
-    outStr->printf("%010i %05i %c\r\n", entries[i].offset, entries[i].gen, (entries[i].type==xrefEntryFree)?'f':'n');
+
+  if (writeAllEntries) {
+    //write the new xref
+    outStr->printf("xref\r\n");
+    outStr->printf("%i %i\r\n", 0, size);
+    for (int i=0; i<size; i++) {
+      XRefEntry &e = entries[i];
+
+      if(e.gen > 65535) e.gen = 65535; //cap generation number to 65535 (required by PDFReference)
+      outStr->printf("%010i %05i %c\r\n", e.offset, e.gen, (e.type==xrefEntryFree)?'f':'n');
+    }
+  } else {
+    //write the new xref
+    outStr->printf("xref\r\n");
+    int i = 0;
+    while (i < size) {
+      int j;
+      for(j=i; j<size; j++) { //look for consecutive entries
+        if ((entries[j].type == xrefEntryFree) && (entries[j].gen == 0))
+          break;
+      }
+      if (j-i != 0)
+      {
+        outStr->printf("%i %i\r\n", i, j-i);
+        for (int k=i; k<j; k++) {
+          XRefEntry &e = entries[k];
+          if(e.gen > 65535) e.gen = 65535; //cap generation number to 65535 (required by PDFReference)
+          outStr->printf("%010i %05i %c\r\n", e.offset, e.gen, (e.type==xrefEntryFree)?'f':'n');
+        }
+        i = j;
+      }
+      else ++i;
+    }
   }
 }
 
