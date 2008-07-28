@@ -81,8 +81,18 @@ HtmlString::HtmlString(GfxState *state, double fontSize, HtmlFontAccu* fonts) {
 
   state->transform(state->getCurX(), state->getCurY(), &x, &y);
   if ((font = state->getFont())) {
-    yMin = y - font->getAscent() * fontSize;
-    yMax = y - font->getDescent() * fontSize;
+    double ascent = font->getAscent();
+    double descent = font->getDescent();
+    if( ascent > 1.05 ){
+        //printf( "ascent=%.15g is too high, descent=%.15g\n", ascent, descent );
+        ascent = 1.05;
+    }
+    if( descent < -0.4 ){
+        //printf( "descent %.15g is too low, ascent=%.15g\n", descent, ascent );
+        descent = -0.4;
+    }
+    yMin = y - ascent * fontSize;
+    yMax = y - descent * fontSize;
     GfxRGB rgb;
     state->getFillRGB(&rgb);
     GooString *name = state->getFont()->getName();
