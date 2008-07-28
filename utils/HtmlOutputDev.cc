@@ -462,7 +462,7 @@ void HtmlPage::coalesce() {
 					str1->size * sizeof(double));
       if (addSpace) {
 		  str1->text[str1->len] = 0x20;
-		  str1->htext->append(" ");
+		  str1->htext->append(xml?" ":"&nbsp;");
 		  str1->xRight[str1->len] = str2->xMin;
 		  ++str1->len;
       }
