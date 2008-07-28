@@ -1279,10 +1279,11 @@ GooString* HtmlOutputDev::getLinkDest(Link *link,Catalog* catalog){
 	  int page=1;
 	  LinkGoTo *ha=(LinkGoTo *)link->getAction();
 	  LinkDest *dest=NULL;
-	  if (ha->getDest()==NULL) 
-	      dest=catalog->findDest(ha->getNamedDest());
-	  else 
+	  if (ha->getDest()!=NULL)
 	      dest=ha->getDest()->copy();
+	  else if (ha->getNamedDest()!=NULL)
+	      dest=catalog->findDest(ha->getNamedDest());
+	      
 	  if (dest){ 
 	      if (dest->isPageRef()){
 		  Ref pageref=dest->getPageRef();
@@ -1475,10 +1476,11 @@ GBool HtmlOutputDev::newOutlineLevel(FILE *output, Object *node, Catalog* catalo
       if (!curr.dictLookup("Dest", &dest)->isNull()) {
 		LinkGoTo *link = new LinkGoTo(&dest);
 		LinkDest *linkdest=NULL;
-		if (link->getDest()==NULL) 
-	  		linkdest=catalog->findDest(link->getNamedDest());
-		else 
-	  		linkdest=link->getDest()->copy();
+		if (link->getDest()!=NULL)
+			linkdest=link->getDest()->copy();
+		else if (link->getNamedDest()!=NULL)
+			linkdest=catalog->findDest(link->getNamedDest());
+			
 		delete link;
 		if (linkdest) { 
 	  		int page;
