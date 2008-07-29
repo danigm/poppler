@@ -4631,7 +4631,7 @@ void TextOutputDev::endMarkedContent(GfxState *state)
 	length = actualText->getLength();
       }
 
-      if (length < 2)
+      if (length < 3)
 	length = 0;
       else
 	length = length/2 - 1;
