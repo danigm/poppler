@@ -39,7 +39,7 @@ install(TARGETS pdfimages DESTINATION bin)
 
 # pdfinfo
 set(pdfinfo_SOURCES ${common_srcs}
-  pdfinfo.cc
+  pdfinfo.cc printencodings.cc
 )
 add_executable(pdfinfo ${pdfinfo_SOURCES})
 target_link_libraries(pdfinfo ${common_libs})
@@ -55,7 +55,7 @@ install(TARGETS pdftops DESTINATION bin)
 
 # pdftotext
 set(pdftotext_SOURCES ${common_srcs}
-  pdftotext.cc
+  pdftotext.cc printencodings.cc
 )
 add_executable(pdftotext ${pdftotext_SOURCES})
 target_link_libraries(pdftotext ${common_libs})
