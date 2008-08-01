@@ -14,11 +14,6 @@
 // around #undef look odd, but it's to silence warnings about
 // redefining those symbols.
 
-/* Full path for the system-wide xpdfrc file. */
-#ifndef SYSTEM_XPDFRC
-/* #undef SYSTEM_XPDFRC */
-#endif
-
 /* Include support for OPI comments. */
 #ifndef OPI_SUPPORT
 #define OPI_SUPPORT 1
@@ -66,26 +61,6 @@
 #else
 #define defPaperWidth  612    // American letter (8.5x11")
 #define defPaperHeight 792
-#endif
-
-//------------------------------------------------------------------------
-// config file (xpdfrc) path
-//------------------------------------------------------------------------
-
-// user config file name, relative to the user's home directory
-#if defined(VMS) || (defined(WIN32) && !defined(__CYGWIN32__))
-#define xpdfUserConfigFile "xpdfrc"
-#else
-#define xpdfUserConfigFile ".xpdfrc"
-#endif
-
-// system config file name (set via the configure script)
-#ifdef SYSTEM_XPDFRC
-#define xpdfSysConfigFile SYSTEM_XPDFRC
-#else
-// under Windows, we get the directory with the executable and then
-// append this file name
-#define xpdfSysConfigFile "xpdfrc"
 #endif
 
 //------------------------------------------------------------------------
