@@ -46,39 +46,9 @@
 // version
 //------------------------------------------------------------------------
 
-// supported PDF version
-#define supportedPDFVersionStr "1.5"
-#define supportedPDFVersionNum 1.5
-
 // copyright notice
 #define popplerCopyright "Copyright 2005-2008 The Poppler Developers - http://poppler.freedesktop.org"
 #define xpdfCopyright "Copyright 1996-2004 Glyph & Cog, LLC"
-
-//------------------------------------------------------------------------
-// paper size
-//------------------------------------------------------------------------
-
-// default paper size (in points) for PostScript output
-#ifdef A4_PAPER
-#define defPaperWidth  595    // ISO A4 (210x297 mm)
-#define defPaperHeight 842
-#else
-#define defPaperWidth  612    // American letter (8.5x11")
-#define defPaperHeight 792
-#endif
-
-//------------------------------------------------------------------------
-// X-related constants
-//------------------------------------------------------------------------
-
-// default maximum size of color cube to allocate
-#define defaultRGBCube 5
-
-// number of fonts (combined t1lib, FreeType, X server) to cache
-#define xOutFontCacheSize 64
-
-// number of Type 3 fonts to cache
-#define xOutT3FontCacheSize 8
 
 //------------------------------------------------------------------------
 // popen
