@@ -205,6 +205,8 @@ public:
   GBool loadPlugin(char *type, char *name);
 #endif
 
+  GooList *getEncodingNames();
+
   //----- functions to set parameters
   void setPSExpandSmaller(GBool expand);
   void setPSShrinkLarger(GBool shrink);

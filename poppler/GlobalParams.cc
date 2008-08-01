@@ -1535,6 +1535,25 @@ UnicodeMap *GlobalParams::getTextEncoding() {
   return getUnicodeMap2(textEncoding);
 }
 
+GooList *GlobalParams::getEncodingNames()
+{
+  GooList *result = new GooList;
+  GooHashIter *iter;
+  GooString *key;
+  void *val;
+  residentUnicodeMaps->startIter(&iter);
+  while (residentUnicodeMaps->getNext(&iter, &key, &val)) {
+    result->append(key);
+  }
+  residentUnicodeMaps->killIter(&iter);
+  unicodeMaps->startIter(&iter);
+  while (unicodeMaps->getNext(&iter, &key, &val)) {
+    result->append(key);
+  }
+  unicodeMaps->killIter(&iter);
+  return result;
+}
+
 //------------------------------------------------------------------------
 // functions to set parameters
 //------------------------------------------------------------------------
