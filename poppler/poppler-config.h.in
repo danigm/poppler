@@ -61,10 +61,6 @@
 // copyright notice
 #define xpdfCopyright "Copyright 1996-2004 Glyph & Cog, LLC"
 
-// Windows resource file stuff
-#define winxpdfVersion "WinXpdf 3.00"
-#define xpdfCopyrightAmp "Copyright 1996-2004 Glyph && Cog, LLC"
-
 //------------------------------------------------------------------------
 // paper size
 //------------------------------------------------------------------------
