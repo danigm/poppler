@@ -170,7 +170,8 @@ int main(int argc, char *argv[]) {
   // parse args
   ok = parseArgs(argDesc, &argc, argv);
   if (!ok || argc < 2 || argc > 3 || printVersion || printHelp) {
-    fprintf(stderr, "pdftops version %s\n", xpdfVersion);
+    fprintf(stderr, "pdftops version %s\n", PACKAGE_VERSION);
+    fprintf(stderr, "%s\n", popplerCopyright);
     fprintf(stderr, "%s\n", xpdfCopyright);
     if (!printVersion) {
       printUsage("pdftops", "<PDF-file> [<PS-file>]", argDesc);

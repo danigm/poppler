@@ -78,7 +78,8 @@ int main(int argc, char *argv[]) {
   // parse args
   ok = parseArgs(argDesc, &argc, argv);
   if (!ok || argc != 3 || printVersion || printHelp) {
-    fprintf(stderr, "pdfimages version %s\n", xpdfVersion);
+    fprintf(stderr, "pdfimages version %s\n", PACKAGE_VERSION);
+    fprintf(stderr, "%s\n", popplerCopyright);
     fprintf(stderr, "%s\n", xpdfCopyright);
     if (!printVersion) {
       printUsage("pdfimages", "<PDF-file> <image-root>", argDesc);

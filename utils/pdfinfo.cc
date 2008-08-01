@@ -99,7 +99,8 @@ int main(int argc, char *argv[]) {
   // parse args
   ok = parseArgs(argDesc, &argc, argv);
   if (!ok || (argc != 2 && !printEnc) || printVersion || printHelp) {
-    fprintf(stderr, "pdfinfo version %s\n", xpdfVersion);
+    fprintf(stderr, "pdfinfo version %s\n", PACKAGE_VERSION);
+    fprintf(stderr, "%s\n", popplerCopyright);
     fprintf(stderr, "%s\n", xpdfCopyright);
     if (!printVersion) {
       printUsage("pdfinfo", "<PDF-file>", argDesc);

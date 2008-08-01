@@ -1330,7 +1330,7 @@ void PSOutputDev::writeXpdfProcset() {
   char **p;
   char *q;
 
-  writePSFmt("%%BeginResource: procset xpdf {0:s} 0\n", xpdfVersion);
+  writePSFmt("%%BeginResource: procset xpdf {0:s} 0\n", "3.00");
   writePSFmt("%%Copyright: {0:s}\n", xpdfCopyright);
   lev1 = lev2 = lev3 = sep = nonSep = gTrue;
   for (p = prolog; *p; ++p) {

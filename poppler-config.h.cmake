@@ -46,19 +46,12 @@
 // version
 //------------------------------------------------------------------------
 
-// xpdf version
-#define xpdfVersion         "3.00"
-#define xpdfVersionNum      3.00
-#define xpdfMajorVersion    3
-#define xpdfMinorVersion    0
-#define xpdfMajorVersionStr "3"
-#define xpdfMinorVersionStr "0"
-
 // supported PDF version
 #define supportedPDFVersionStr "1.5"
 #define supportedPDFVersionNum 1.5
 
 // copyright notice
+#define popplerCopyright "Copyright 2005-2008 The Poppler Developers - http://poppler.freedesktop.org"
 #define xpdfCopyright "Copyright 1996-2004 Glyph & Cog, LLC"
 
 //------------------------------------------------------------------------

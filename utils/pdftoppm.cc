@@ -142,7 +142,8 @@ int main(int argc, char *argv[]) {
     ok = gFalse;
   }
   if (!ok || argc > 3 || printVersion || printHelp) {
-    fprintf(stderr, "pdftoppm version %s\n", xpdfVersion);
+    fprintf(stderr, "pdftoppm version %s\n", PACKAGE_VERSION);
+    fprintf(stderr, "%s\n", popplerCopyright);
     fprintf(stderr, "%s\n", xpdfCopyright);
     if (!printVersion) {
       printUsage("pdftoppm", "[PDF-file [PPM-file-prefix]]", argDesc);
