@@ -22,6 +22,11 @@
 
 namespace Poppler {
 
+FontInfo::FontInfo()
+{
+	m_data = new FontInfoData();
+}
+
 FontInfo::FontInfo( const FontInfoData &fid )
 {
 	m_data = new FontInfoData(fid);

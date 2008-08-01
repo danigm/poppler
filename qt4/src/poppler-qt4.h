@@ -139,6 +139,11 @@ namespace Poppler {
 	/**
 	   Create a new font information container.
 	*/
+	FontInfo();
+	
+	/**
+	   Create a new font information container.
+	*/
 	FontInfo( const FontInfoData &fid );
 	/// \endcond
 	

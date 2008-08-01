@@ -266,6 +266,13 @@ namespace Poppler {
     class FontInfoData
     {
 	public:
+		FontInfoData()
+		{
+			isEmbedded = false;
+			isSubset = false;
+			type = FontInfo::unknown;
+		}
+		
 		FontInfoData( const FontInfoData &fid )
 		{
 			fontName = fid.fontName;
