@@ -15,6 +15,7 @@
 #include <time.h>
 #include <math.h>
 #include "parseargs.h"
+#include "printencodings.h"
 #include "goo/GooString.h"
 #include "goo/gmem.h"
 #include "GlobalParams.h"
@@ -45,6 +46,7 @@ static char ownerPassword[33] = "\001";
 static char userPassword[33] = "\001";
 static GBool printVersion = gFalse;
 static GBool printHelp = gFalse;
+static GBool printEnc = gFalse;
 
 static const ArgDesc argDesc[] = {
   {"-f",      argInt,      &firstPage,        0,
@@ -57,6 +59,8 @@ static const ArgDesc argDesc[] = {
    "print the document metadata (XML)"},
   {"-enc",    argString,   textEncName,    sizeof(textEncName),
    "output text encoding name"},
+  {"-listenc",argFlag,     &printEnc,      0,
+   "list available encodings"},
   {"-opw",    argString,   ownerPassword,  sizeof(ownerPassword),
    "owner password (for encrypted files)"},
   {"-upw",    argString,   userPassword,   sizeof(userPassword),
@@ -94,7 +98,7 @@ int main(int argc, char *argv[]) {
 
   // parse args
   ok = parseArgs(argDesc, &argc, argv);
-  if (!ok || argc != 2 || printVersion || printHelp) {
+  if (!ok || (argc != 2 && !printEnc) || printVersion || printHelp) {
     fprintf(stderr, "pdfinfo version %s\n", xpdfVersion);
     fprintf(stderr, "%s\n", xpdfCopyright);
     if (!printVersion) {
@@ -102,10 +106,18 @@ int main(int argc, char *argv[]) {
     }
     goto err0;
   }
-  fileName = new GooString(argv[1]);
 
   // read config file
   globalParams = new GlobalParams();
+
+  if (printEnc) {
+    printEncodings();
+    delete globalParams;
+    goto err0;
+  }
+
+  fileName = new GooString(argv[1]);
+
   if (textEncName[0]) {
     globalParams->setTextEncoding(textEncName);
   }

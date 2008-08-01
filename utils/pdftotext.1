@@ -25,16 +25,7 @@ to
 If 
 .I text-file
 is \'-', the text is sent to stdout.
-.SH CONFIGURATION FILE
-Pdftotext reads a configuration file at startup.  It first tries to
-find the user's private config file, ~/.xpdfrc.  If that doesn't
-exist, it looks for a system-wide config file, /etc/xpdf/xpdfrc.  See the
-.BR xpdfrc (5)
-man page for details.
 .SH OPTIONS
-Many of the following options can be set with configuration file
-commands.  These are listed in square brackets with the description of
-the corresponding command line option.
 .TP
 .BI \-f " number"
 Specifies the first page to convert.
@@ -58,21 +49,16 @@ simply wraps the text in <pre> and </pre> and prepends the meta
 headers.
 .TP
 .BI \-enc " encoding-name"
-Sets the encoding to use for text output.  The
-.I encoding\-name
-must be defined with the unicodeMap command (see
-.BR xpdfrc (5)).
-The encoding name is case-sensitive.  This defaults to "Latin1" (which
-is a built-in encoding).
-.RB "[config file: " textEncoding ]
+Sets the encoding to use for text output. This defaults to "UTF-8".
+.TP
+.B \-listenc
+Lits the available encodings
 .TP
 .BI \-eol " unix | dos | mac"
 Sets the end-of-line convention to use for text output.
-.RB "[config file: " textEOL ]
 .TP
 .B \-nopgbrk
 Don't insert page breaks (form feed characters) between pages.
-.RB "[config file: " textPageBreaks ]
 .TP
 .BI \-opw " password"
 Specify the owner password for the PDF file.  Providing this will
@@ -83,12 +69,6 @@ Specify the user password for the PDF file.
 .TP
 .B \-q
 Don't print any messages or errors.
-.RB "[config file: " errQuiet ]
-.TP
-.BI \-cfg " config-file"
-Read
-.I config-file
-in place of ~/.xpdfrc or the system-wide config file.
 .TP
 .B \-v
 Print copyright and version information.
@@ -124,12 +104,8 @@ Other error.
 The pdftotext software and documentation are copyright 1996-2004 Glyph
 & Cog, LLC.
 .SH "SEE ALSO"
-.BR xpdf (1),
 .BR pdftops (1),
 .BR pdfinfo (1),
 .BR pdffonts (1),
 .BR pdftoppm (1),
 .BR pdfimages (1),
-.BR xpdfrc (5)
-.br
-.B http://www.foolabs.com/xpdf/

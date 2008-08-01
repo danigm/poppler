@@ -58,16 +58,7 @@ CID Type 0C -- 16-bit PostScript CFF font
 .RS
 CID TrueType -- 16-bit TrueType font
 .RE
-.SH CONFIGURATION FILE
-Pdffonts reads a configuration file at startup.  It first tries to
-find the user's private config file, ~/.xpdfrc.  If that doesn't
-exist, it looks for a system-wide config file, /etc/xpdf/xpdfrc.  See the
-.BR xpdfrc (5)
-man page for details.
 .SH OPTIONS
-Many of the following options can be set with configuration file
-commands.  These are listed in square brackets with the description of
-the corresponding command line option.
 .TP
 .BI \-f " number"
 Specifies the first page to analyze.
@@ -81,11 +72,6 @@ bypass all security restrictions.
 .TP
 .BI \-upw " password"
 Specify the user password for the PDF file.
-.TP
-.BI \-cfg " config-file"
-Read
-.I config-file
-in place of ~/.xpdfrc or the system-wide config file.
 .TP
 .B \-v
 Print copyright and version information.
@@ -117,12 +103,8 @@ Other error.
 The pdffonts software and documentation are copyright 1996-2004 Glyph
 & Cog, LLC.
 .SH "SEE ALSO"
-.BR xpdf (1),
 .BR pdftops (1),
 .BR pdftotext (1),
 .BR pdfinfo (1),
 .BR pdftoppm (1),
 .BR pdfimages (1),
-.BR xpdfrc (5)
-.br
-.B http://www.foolabs.com/xpdf/

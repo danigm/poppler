@@ -66,6 +66,7 @@ pdfimages_SOURCES =				\
 
 pdfinfo_SOURCES =				\
 	pdfinfo.cc				\
+	printencodings.cc			\
 	$(common)
 
 pdftops_SOURCES =				\
@@ -74,6 +75,7 @@ pdftops_SOURCES =				\
 
 pdftotext_SOURCES =				\
 	pdftotext.cc				\
+	printencodings.cc			\
 	$(common)
 
 pdftohtml_SOURCES =				\
