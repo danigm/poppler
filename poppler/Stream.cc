@@ -2050,7 +2050,6 @@ void DCTStream::unfilteredReset() {
   numQuantTables = 0;
   numDCHuffTables = 0;
   numACHuffTables = 0;
-  colorXform = 0;
   gotJFIFMarker = gFalse;
   gotAdobeMarker = gFalse;
   restartInterval = 0;
