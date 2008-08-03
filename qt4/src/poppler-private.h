@@ -132,9 +132,9 @@ namespace Poppler {
 			{
 #if defined(HAVE_SPLASH)
 			SplashColor bgColor;
-			bgColor[0] = paperColor.red();
+			bgColor[0] = paperColor.blue();
 			bgColor[1] = paperColor.green();
-			bgColor[2] = paperColor.blue();
+			bgColor[2] = paperColor.red();
 			GBool AA = m_hints & Document::TextAntialiasing ? gTrue : gFalse;
 			SplashOutputDev * splashOutputDev = new SplashOutputDev(splashModeXBGR8, 4, gFalse, bgColor, gTrue, AA);
 			splashOutputDev->setVectorAntialias(m_hints & Document::Antialiasing ? gTrue : gFalse);
@@ -224,9 +224,9 @@ namespace Poppler {
 #if defined(HAVE_SPLASH)
 				SplashOutputDev *splash_output = static_cast<SplashOutputDev *>( m_outputDev );
 				SplashColor bgColor;
-				bgColor[0] = paperColor.red();
+				bgColor[0] = paperColor.blue();
 				bgColor[1] = paperColor.green();
-				bgColor[2] = paperColor.blue();
+				bgColor[2] = paperColor.red();
 				splash_output->setPaperColor(bgColor);
 #endif
 				break;
