@@ -1125,7 +1125,12 @@ void SplashOutputDev::doUpdateFont(GfxState *state) {
 	else
 	  ff = FoFiTrueType::make(tmpBuf, tmpBufLen);
 	if (! ff)
+	{
+	  error(-1, "Couldn't create a font for '%s'",
+	      gfxFont->getName() ? gfxFont->getName()->getCString()
+	                         : "(unnamed)");
 	  goto err2;
+	}
 	codeToGID = ((GfxCIDFont *)gfxFont)->getCodeToGIDMap(ff, &n);
 	delete ff;
       }
