@@ -20,6 +20,7 @@
 #include "goo/GooHash.h"
 #include "FoFiType1C.h"
 #include "FoFiTrueType.h"
+#include "Error.h"
 
 //
 // Terminology
@@ -1874,6 +1875,7 @@ void FoFiTrueType::parse() {
   }
   tables = (TrueTypeTable *)gmallocn(nTables, sizeof(TrueTypeTable));
   pos += 12;
+  int wrongTables = 0;
   for (i = 0; i < nTables; ++i) {
     tables[i].tag = getU32BE(pos, &parsedOk);
     tables[i].checksum = getU32BE(pos + 4, &parsedOk);
@@ -1881,10 +1883,14 @@ void FoFiTrueType::parse() {
     tables[i].len = (int)getU32BE(pos + 12, &parsedOk);
     if (tables[i].offset + tables[i].len < tables[i].offset ||
 	tables[i].offset + tables[i].len > len) {
-      parsedOk = gFalse;
+      i--;
+      wrongTables++;
+      error(-1, "Found a bad table definition on true type definition, trying to continue...");
     }
     pos += 16;
   }
+  nTables -= wrongTables;
+  tables = (TrueTypeTable *)greallocn(tables, nTables, sizeof(TrueTypeTable));
   if (!parsedOk) {
     return;
   }
