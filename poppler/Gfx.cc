@@ -465,6 +465,7 @@ Gfx::Gfx(XRef *xrefA, OutputDev *outA, int pageNum, Dict *resDict, Catalog *cata
 	 void *abortCheckCbkDataA) {
   int i;
 
+  lastResource = NULL;
   xref = xrefA;
   catalog = catalogA;
   subPage = gFalse;
@@ -509,6 +510,7 @@ Gfx::Gfx(XRef *xrefA, OutputDev *outA, Dict *resDict, Catalog *catalogA,
 	 void *abortCheckCbkDataA) {
   int i;
 
+  lastResource = NULL;
   xref = xrefA;
   catalog = catalogA;
   subPage = gTrue;
@@ -556,6 +558,7 @@ Gfx::~Gfx() {
   if (state) {
     delete state;
   }
+  delete lastResource;
 }
 
 void Gfx::display(Object *obj, GBool topLevel) {
@@ -4379,13 +4382,20 @@ void Gfx::restoreState() {
 }
 
 void Gfx::pushResources(Dict *resDict) {
-  res = new GfxResources(xref, resDict, res);
+  if (lastResource && resDict == lastResourceDict) res = lastResource;
+  else
+  {
+    delete lastResource;
+    res = new GfxResources(xref, resDict, res);
+    lastResource = res;
+    lastResourceDict = resDict;
+  }
 }
 
 void Gfx::popResources() {
   GfxResources *resPtr;
 
   resPtr = res->getNext();
-  delete res;
+  if (resPtr == NULL) delete res;
   res = resPtr;
 }
