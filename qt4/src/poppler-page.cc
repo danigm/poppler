@@ -59,6 +59,11 @@ class DummyAnnotation : public Annotation
 
 Link* PageData::convertLinkActionToLink(::LinkAction * a, const QRectF &linkArea)
 {
+    return convertLinkActionToLink(a, parentDoc, linkArea);
+}
+
+Link* PageData::convertLinkActionToLink(::LinkAction * a, DocumentData *parentDoc, const QRectF &linkArea)
+{
   if ( !a )
     return NULL;
 

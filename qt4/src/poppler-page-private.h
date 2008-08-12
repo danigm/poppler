@@ -38,6 +38,8 @@ public:
   ::Page *page;
   int index;
   PageTransition *transition;
+
+  static Link* convertLinkActionToLink(::LinkAction * a, DocumentData *parentDoc, const QRectF &linkArea);
 };
 
 }
