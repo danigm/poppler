@@ -24,6 +24,7 @@
 #include <Object.h>
 
 #include "poppler-form.h"
+#include "poppler-page-private.h"
 #include "poppler-private.h"
 #include "poppler-annotation-helper.h"
 
@@ -123,6 +124,24 @@ bool FormField::isReadOnly() const
 bool FormField::isVisible() const
 {
   return !(m_formData->annoflags & (1 << 1));
+}
+
+Link* FormField::activationAction() const
+{
+  Object tmp;
+  Object *obj = m_formData->fm->getObj();
+  Link* action = 0;
+  if (obj->dictLookup("A", &tmp)->isDict())
+  {
+    ::LinkAction *act = ::LinkAction::parseAction(&tmp, m_formData->doc->doc->getCatalog()->getBaseURI());
+    if (act)
+    {
+      action = PageData::convertLinkActionToLink(act, m_formData->doc, QRectF());
+      delete act;
+    }
+  }
+  tmp.free();
+  return action;
 }
 
 

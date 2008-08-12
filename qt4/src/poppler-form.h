@@ -32,6 +32,7 @@ class FormWidgetChoice;
 namespace Poppler {
 
     class DocumentData;
+    class Link;
 
     class FormFieldData;
     /**
@@ -88,6 +89,13 @@ namespace Poppler {
 	  Whether this form field is visible.
 	 */
 	bool isVisible() const;
+
+	/**
+	  The activation action of this form field.
+
+	  \note It may be null.
+	 */
+	Link* activationAction() const;
 
     protected:
 	/// \cond PRIVATE
