@@ -35,17 +35,23 @@ namespace Poppler {
 FormField::FormField(FormFieldData &dd)
   : m_formData(&dd)
 {
+  const int rotation = m_formData->page->getRotate();
   // reading the coords
   double left, top, right, bottom;
   m_formData->fm->getRect(&left, &bottom, &right, &top);
   // build a normalized transform matrix for this page at 100% scale
-  GfxState gfxState( 72.0, 72.0, m_formData->page->getMediaBox(), m_formData->page->getRotate(), gTrue );
+  GfxState gfxState( 72.0, 72.0, m_formData->page->getMediaBox(), rotation, gTrue );
   double * gfxCTM = gfxState.getCTM();
   double MTX[6];
+  double pageWidth = m_formData->page->getCropWidth();
+  double pageHeight = m_formData->page->getCropHeight();
+  // landscape and seascape page rotation: be sure to use the correct (== rotated) page size
+  if (((rotation / 90) % 2) == 1)
+    qSwap(pageWidth, pageHeight);
   for ( int i = 0; i < 6; i+=2 )
   {
-    MTX[i] = gfxCTM[i] / m_formData->page->getCropWidth();
-    MTX[i+1] = gfxCTM[i+1] / m_formData->page->getCropHeight();
+    MTX[i] = gfxCTM[i] / pageWidth;
+    MTX[i+1] = gfxCTM[i+1] / pageHeight;
   }
   QPointF topLeft;
   XPDFReader::transform( MTX, qMin( left, right ), qMax( top, bottom ), topLeft );
