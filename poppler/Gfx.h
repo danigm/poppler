@@ -173,9 +173,6 @@ private:
     (*abortCheckCbk)(void *data);
   void *abortCheckCbkData;
 
-  GfxResources *lastResource;	// last used GfxResource
-  Dict *lastResourceDict;	// last used GfxResource Dict
-
   static Operator opTab[];	// table of operators
 
   void go(GBool topLevel);
