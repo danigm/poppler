@@ -13,7 +13,7 @@
 #pragma interface
 #endif
 
-#include "gtypes.h"
+#include "goo/gtypes.h"
 #include "GfxState.h"
 #include "OutputDev.h"
 

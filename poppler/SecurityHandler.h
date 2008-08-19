@@ -15,7 +15,7 @@
 #pragma interface
 #endif
 
-#include "gtypes.h"
+#include "goo/gtypes.h"
 #include "Object.h"
 
 class GooString;
