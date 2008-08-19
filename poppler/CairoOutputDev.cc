@@ -122,6 +122,8 @@ CairoOutputDev::~CairoOutputDev() {
   cairo_pattern_destroy (fill_pattern);
   if (group)
     cairo_pattern_destroy (group);
+  if (mask)
+    cairo_pattern_destroy (mask);
   if (shape)
     cairo_pattern_destroy (shape);
 }
@@ -821,6 +823,8 @@ static uint32_t luminocity(uint32_t x)
 /* XXX: do we need to deal with shape here? */
 void CairoOutputDev::setSoftMask(GfxState * state, double * bbox, GBool alpha,
                                  Function * transferFunc, GfxColor * backdropColor) {
+  cairo_pattern_destroy(mask);
+
   if (alpha == false) {
     /* We need to mask according to the luminocity of the group.
      * So we paint the group to an image surface convert it to a luminocity map
@@ -858,6 +862,9 @@ void CairoOutputDev::setSoftMask(GfxState * state, double * bbox, GBool alpha,
     cairo_set_source(maskCtx, group);
     cairo_paint(maskCtx);
 
+    /* XXX status = cairo_status(maskCtx); */
+    cairo_destroy(maskCtx);
+
     /* convert to a luminocity map */
     uint32_t *source_data = (uint32_t*)cairo_image_surface_get_data(source);
     /* get stride in units of 32 bits */
@@ -887,10 +894,8 @@ void CairoOutputDev::setSoftMask(GfxState * state, double * bbox, GBool alpha,
     cairo_pattern_set_matrix(mask, &patMatrix);
 
     cairo_surface_destroy(source);
-    cairo_surface_destroy(pats);
   } else {
-    cairo_pattern_reference(group);
-    mask = group;
+    mask = cairo_pattern_reference(group);
   }
 
   popTransparencyGroup();
