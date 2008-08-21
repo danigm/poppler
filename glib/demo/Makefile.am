@@ -11,6 +11,8 @@ poppler_glib_demo_SOURCES = 			\
 	main.c					\
 	annots.h				\
 	annots.c				\
+	attachments.c				\
+	attachments.h				\
 	fonts.h					\
 	fonts.c					\
 	forms.h					\
