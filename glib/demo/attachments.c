@@ -180,6 +180,97 @@ pgd_attachments_save_button_clicked (GtkButton   *button,
 		
 }
 
+#if GLIB_CHECK_VERSION(2, 16, 0)
+static gboolean
+attachment_save_callback (const gchar  *buf,
+			  gsize         count,
+			  gpointer      data,
+			  GError      **error)
+{
+	GChecksum *cs = (GChecksum *)data;
+
+	g_checksum_update (cs, buf, count);
+}
+
+static void
+message_dialog_run (GtkWindow   *parent,
+		    const gchar *message)
+{
+	GtkWidget *dialog;
+
+	dialog = gtk_message_dialog_new (parent,
+					 GTK_DIALOG_DESTROY_WITH_PARENT,
+					 GTK_MESSAGE_INFO,
+					 GTK_BUTTONS_CLOSE,
+					 message);
+	gtk_dialog_run (GTK_DIALOG (dialog));
+	gtk_widget_destroy (dialog);
+}
+
+static void
+pgd_attachments_validate_button_clicked (GtkButton   *button,
+					 GtkTreeView *treeview)
+{
+	GtkTreeSelection  *selection;
+	GtkTreeModel      *model;
+	GtkTreeIter        iter;
+	GChecksum         *cs;
+	guint8            *digest;
+	gsize              digest_len;
+	PopplerAttachment *attachment;
+	gboolean           valid = TRUE;
+
+	selection = gtk_tree_view_get_selection (treeview);
+	if (!gtk_tree_selection_get_selected (selection, &model, &iter))
+		return;
+
+	gtk_tree_model_get (model, &iter,
+			    ATTACHMENTS_ATTACHMENT_COLUMN, &attachment,
+			    -1);
+
+	if (!attachment)
+		return;
+
+	if (attachment->checksum->len == 0) {
+		message_dialog_run (GTK_WINDOW (gtk_widget_get_toplevel (GTK_WIDGET (treeview))),
+				    "Impossible to validate attachment: checksum is not available");
+		g_object_unref (attachment);
+
+		return;
+	}
+	
+	cs = g_checksum_new (G_CHECKSUM_MD5);
+	poppler_attachment_save_to_callback (attachment, attachment_save_callback,
+					     (gpointer)cs, NULL);
+	digest_len = g_checksum_type_get_length (G_CHECKSUM_MD5);
+	digest = (guint8 *) g_malloc (digest_len);
+	g_checksum_get_digest (cs, digest, &digest_len);
+	g_checksum_free (cs);
+
+	if (attachment->checksum->len == digest_len) {
+		gint i;
+	
+		for (i = 0; i < digest_len; i++) {
+			if (attachment->checksum->str[i] != digest[i]) {
+				valid = FALSE;
+				break;
+			}
+		}
+	}
+
+	if (valid) {
+		message_dialog_run (GTK_WINDOW (gtk_widget_get_toplevel (GTK_WIDGET (treeview))),
+				    "Attacment is valid");
+	} else {
+		message_dialog_run (GTK_WINDOW (gtk_widget_get_toplevel (GTK_WIDGET (treeview))),
+				    "Attacment is not valid: the checksum does not match");
+	}
+
+	g_free (digest);
+	g_object_unref (attachment);
+}
+#endif
+
 GtkWidget *
 pgd_attachments_create_widget (PopplerDocument *document)
 {
@@ -233,6 +324,16 @@ pgd_attachments_create_widget (PopplerDocument *document)
 
 	gtk_box_pack_start (GTK_BOX (hbox), button, FALSE, FALSE, 0);
 	gtk_widget_show (button);
+
+#if GLIB_CHECK_VERSION(2, 16, 0)
+	button = gtk_button_new_with_label ("Validate");
+	g_signal_connect (G_OBJECT (button), "clicked",
+			  G_CALLBACK (pgd_attachments_validate_button_clicked),
+			  (gpointer)treeview);
+
+	gtk_box_pack_start (GTK_BOX (hbox), button, FALSE, FALSE, 0);
+	gtk_widget_show (button);
+#endif
 	
 
 	gtk_box_pack_start (GTK_BOX (vbox), hbox, FALSE, TRUE, 6);
