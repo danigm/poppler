@@ -260,10 +260,10 @@ pgd_attachments_validate_button_clicked (GtkButton   *button,
 
 	if (valid) {
 		message_dialog_run (GTK_WINDOW (gtk_widget_get_toplevel (GTK_WIDGET (treeview))),
-				    "Attacment is valid");
+				    "Attachment is valid");
 	} else {
 		message_dialog_run (GTK_WINDOW (gtk_widget_get_toplevel (GTK_WIDGET (treeview))),
-				    "Attacment is not valid: the checksum does not match");
+				    "Attachment is not valid: the checksum does not match");
 	}
 
 	g_free (digest);
