@@ -88,9 +88,9 @@ _poppler_attachment_new (PopplerDocument *document,
   attachment = (PopplerAttachment *) g_object_new (POPPLER_TYPE_ATTACHMENT, NULL);
   
   if (emb_file->name ())
-    attachment->name = g_strdup (emb_file->name ()->getCString ());
+    attachment->name = _poppler_goo_string_to_utf8 (emb_file->name ());
   if (emb_file->description ())
-    attachment->description = g_strdup (emb_file->description ()->getCString ());
+    attachment->description = _poppler_goo_string_to_utf8 (emb_file->description ());
 
   attachment->size = emb_file->size ();
   
