@@ -39,6 +39,7 @@ libpoppler_qt4_la_SOURCES =			\
 	poppler-pdf-converter.cc		\
 	poppler-qiodeviceoutstream.cc		\
 	poppler-private.cc			\
+	poppler-movie.cc			\
 	poppler-annotation-helper.h		\
 	poppler-page-private.h			\
 	poppler-link-extractor-private.h	\

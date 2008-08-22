@@ -15,6 +15,7 @@ set(poppler_qt4_SRCS
   poppler-form.cc
   poppler-link.cc
   poppler-link-extractor.cc
+  poppler-movie.cc
   poppler-optcontent.cc
   poppler-page.cc
   poppler-base-converter.cc
