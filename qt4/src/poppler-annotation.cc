@@ -1944,6 +1944,80 @@ void SoundAnnotation::setSound( SoundObject *s )
     d->sound = s;
 }
 
+/** MovieAnnotation [Annotation] */
+class MovieAnnotationPrivate : public AnnotationPrivate
+{
+    public:
+        MovieAnnotationPrivate();
+        ~MovieAnnotationPrivate();
+
+        // data fields
+        MovieObject *movie;
+};
+
+MovieAnnotationPrivate::MovieAnnotationPrivate()
+    : AnnotationPrivate(), movie( 0 )
+{
+}
+
+MovieAnnotationPrivate::~MovieAnnotationPrivate()
+{
+    delete movie;
+}
+
+MovieAnnotation::MovieAnnotation()
+    : Annotation( *new MovieAnnotationPrivate() )
+{
+}
+
+MovieAnnotation::MovieAnnotation( const QDomNode & node )
+    : Annotation( *new MovieAnnotationPrivate(), node )
+{
+    // loop through the whole children looking for a 'movie' element
+    QDomNode subNode = node.firstChild();
+    while( subNode.isElement() )
+    {
+        QDomElement e = subNode.toElement();
+        subNode = subNode.nextSibling();
+        if ( e.tagName() != "movie" )
+            continue;
+
+        // loading complete
+        break;
+    }
+}
+
+MovieAnnotation::~MovieAnnotation()
+{
+}
+
+void MovieAnnotation::store( QDomNode & node, QDomDocument & document ) const
+{
+    // recurse to parent objects storing properties
+    Annotation::store( node, document );
+
+    // create [movie] element
+    QDomElement movieElement = document.createElement( "movie" );
+    node.appendChild( movieElement );
+}
+
+Annotation::SubType MovieAnnotation::subType() const
+{
+    return AMovie;
+}
+
+MovieObject* MovieAnnotation::movie() const
+{
+    Q_D( const MovieAnnotation );
+    return d->movie;
+}
+
+void MovieAnnotation::setMovie( MovieObject *movie )
+{
+    Q_D( MovieAnnotation );
+    d->movie = movie;
+}
+
 //BEGIN utility annotation functions
 QColor convertAnnotColor( AnnotColor *color )
 {
