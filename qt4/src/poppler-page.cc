@@ -892,6 +892,20 @@ QList<Annotation*> Page::annotations() const
 
                 break;
             }
+            case Annot::typeMovie:
+            {
+                AnnotMovie * movieann = static_cast< AnnotMovie * >( ann );
+                MovieAnnotation * m = new MovieAnnotation();
+                annotation = m;
+
+                // -> movie
+                QSize movieSize;
+                movieann->getMovieSize( movieSize.rwidth(), movieSize.rheight() );
+                MovieObject *movie = new MovieObject( movieann->getMovie(), movieSize, movieann->getRotationAngle() );
+                m->setMovie( movie );
+
+                break;
+            }
             // special case for ignoring unknwon annotations
             case Annot::typeUnknown:
                 continue;
@@ -904,7 +918,6 @@ QList<Annotation*> Page::annotations() const
                 QByteArray type;
                 switch ( subType )
                 {
-                    CASE_FOR_TYPE( Movie )
                     CASE_FOR_TYPE( Widget )
                     CASE_FOR_TYPE( Screen )
                     CASE_FOR_TYPE( PrinterMark )
@@ -913,8 +926,7 @@ QList<Annotation*> Page::annotations() const
                     CASE_FOR_TYPE( 3D )
                     default: type = QByteArray::number( subType );
                 }
-                // MISSING: Movie, Widget,
-                //          Screen, PrinterMark, TrapNet, Watermark, 3D
+                // MISSING: Widget, Screen, PrinterMark, TrapNet, Watermark, 3D
                 qDebug() << "Annotation" << type.constData() << "not supported.";
                 continue;
 #undef CASE_FOR_TYPE
