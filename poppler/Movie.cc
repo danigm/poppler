@@ -431,14 +431,16 @@ Movie* Movie::copy() {
   // call default copy constructor
   Movie* new_movie = new Movie(*this);
 
-  new_movie->contentType = contentType->copy();
-  new_movie->fileName = fileName->copy();
+  if (contentType)
+    new_movie->contentType = contentType->copy();
+  if (fileName)
+    new_movie->fileName = fileName->copy();
 
-  new_movie->embeddedStream = embeddedStream;
-  new_movie->embeddedStream->incRef();
+  if (new_movie->embeddedStream)
+    new_movie->embeddedStream->incRef();
   
-  new_movie->posterStream = posterStream;
-  new_movie->posterStream->incRef();
+  if (new_movie->posterStream)
+    new_movie->posterStream->incRef();
 
   return new_movie;
 }
