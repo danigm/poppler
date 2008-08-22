@@ -33,6 +33,7 @@
 
 class EmbFile;
 class Sound;
+class Movie;
 
 /**
    The %Poppler Qt4 binding.
@@ -1190,6 +1191,39 @@ height = dummy.height();
 	Q_DISABLE_COPY(SoundObject)
 
 	SoundData *m_soundData;
+    };
+
+    class MovieData;
+    /**
+       Container class for a movie object in a PDF document.
+    */
+    class POPPLER_QT4_EXPORT MovieObject {
+    public:
+	/// \cond PRIVATE
+	MovieObject( Movie *popplermovie, const QSize &size, int rotation );
+	/// \endcond
+	
+	~MovieObject();
+
+	/**
+	   The URL of the movie to be played
+	*/
+	QString url() const;
+
+	/**
+	   The size of the movie
+	*/
+	QSize size() const;
+
+	/**
+	   The rotation (either 0, 90, 180, or 270 degrees clockwise) for the movie,
+	*/
+	int rotation() const;
+
+    private:
+	Q_DISABLE_COPY(MovieObject)
+
+	MovieData *m_movieData;
     };
 
 }
