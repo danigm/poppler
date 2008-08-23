@@ -1953,6 +1953,7 @@ class MovieAnnotationPrivate : public AnnotationPrivate
 
         // data fields
         MovieObject *movie;
+        QString title;
 };
 
 MovieAnnotationPrivate::MovieAnnotationPrivate()
@@ -2016,6 +2017,18 @@ void MovieAnnotation::setMovie( MovieObject *movie )
 {
     Q_D( MovieAnnotation );
     d->movie = movie;
+}
+
+QString MovieAnnotation::movieTitle() const
+{
+    Q_D( const MovieAnnotation );
+    return d->title;
+}
+
+void MovieAnnotation::setMovieTitle( const QString &title )
+{
+    Q_D( MovieAnnotation );
+    d->title = title;
 }
 
 //BEGIN utility annotation functions

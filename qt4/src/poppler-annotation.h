@@ -599,6 +599,9 @@ class POPPLER_QT4_EXPORT MovieAnnotation : public Annotation
     MovieObject* movie() const;
     void setMovie( MovieObject *movie );
 
+    QString movieTitle() const;
+    void setMovieTitle( const QString &title );
+
   private:
     Q_DECLARE_PRIVATE( MovieAnnotation )
     Q_DISABLE_COPY( MovieAnnotation )
