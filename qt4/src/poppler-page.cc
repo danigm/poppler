@@ -903,6 +903,12 @@ QList<Annotation*> Page::annotations() const
                 movieann->getMovieSize( movieSize.rwidth(), movieSize.rheight() );
                 MovieObject *movie = new MovieObject( movieann->getMovie(), movieSize, movieann->getRotationAngle() );
                 m->setMovie( movie );
+                // -> movieTitle
+                GooString * movietitle = movieann->getTitle();
+                if ( movietitle )
+                {
+                    m->setMovieTitle( QString::fromLatin1( movietitle->getCString() ) );
+                }
 
                 break;
             }
