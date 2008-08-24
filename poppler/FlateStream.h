@@ -2,7 +2,7 @@
 //
 // FlateStream.h
 //
-// Copyright (C) 2005, Jeff Muizelaar
+// Copyright (C) 2005, Jeff Muizelaar <jeff@infidigm.net>
 //
 // This file is under the GPLv2 or later license
 //
