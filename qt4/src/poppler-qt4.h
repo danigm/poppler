@@ -1198,11 +1198,8 @@ height = dummy.height();
        Container class for a movie object in a PDF document.
     */
     class POPPLER_QT4_EXPORT MovieObject {
+    friend class Page;
     public:
-	/// \cond PRIVATE
-	MovieObject( AnnotMovie *ann );
-	/// \endcond
-	
 	~MovieObject();
 
 	/**
@@ -1221,6 +1218,10 @@ height = dummy.height();
 	int rotation() const;
 
     private:
+	/// \cond PRIVATE
+	MovieObject( AnnotMovie *ann );
+	/// \endcond
+	
 	Q_DISABLE_COPY(MovieObject)
 
 	MovieData *m_movieData;
