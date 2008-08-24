@@ -2,7 +2,8 @@
 //
 // ABWOutputDev.cc
 //
-// Jauco Noordzij
+// Copyright 2006-2007 Jauco Noordzij
+// Copyright 2007 Dominic Lachowicz
 //
 // Based somewhat on HtmlOutputDev.cc
 //

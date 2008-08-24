@@ -1,8 +1,11 @@
 //========================================================================
 //
-// OptionalContent.h
+// OptionalContent.cc
 //
 // Copyright 2007 Brad Hards <bradh@kde.org>
+// Copyright 2008 Pino Toscano <pino@kde.org>
+// Copyright 2008 Carlos Garcia Campos <carlosgc@gnome.org>
+// Copyright 2008 Albert Astals Cid <aacid@kde.org>
 //
 // Released under the GPL (version 2, or later, at your option)
 //

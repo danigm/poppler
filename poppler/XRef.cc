@@ -1,8 +1,23 @@
- //========================================================================
+//========================================================================
 //
 // XRef.cc
 //
 // Copyright 1996-2003 Glyph & Cog, LLC
+//
+//========================================================================
+
+//========================================================================
+//
+// Modified under the Poppler project - http://poppler.freedesktop.org
+//
+// Copyright (C) 2005 Dan Sheridan <dan.sheridan@postman.org.uk>
+// Copyright (C) 2005 Brad Hards <bradh@frogmouth.net>
+// Copyright (C) 2006, 2008 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2007-2008 Julien Rebetez <julienr@svn.gnome.org>
+// Copyright (C) 2007 Carlos Garcia Campos <carlosgc@gnome.org>
+//
+// To see a description of the changes please see the Changelog file that
+// came with your tarball or type make ChangeLog if you are building from git
 //
 //========================================================================
 

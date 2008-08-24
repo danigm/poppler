@@ -1,6 +1,5 @@
 /* poppler-qt.h: qt interface to poppler
- * Copyright (C) 2005, Net Integration Technologies, Inc.
- * Copyright (C) 2005, Tobias Koening
+ * Copyright (C) 2005, Albert Astals Cid <aacid@kde.org>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by

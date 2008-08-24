@@ -6,6 +6,19 @@
  * Copyright 1996-2003 Glyph & Cog, LLC
  */
 
+//========================================================================
+//
+// Modified under the Poppler project - http://poppler.freedesktop.org
+//
+// Copyright (C) 2005 Takashi Iwai <tiwai@suse.de>
+// Copyright (C) 2007 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2008 Jonathan Kew <jonathan_kew@sil.org>
+//
+// To see a description of the changes please see the Changelog file that
+// came with your tarball or type make ChangeLog if you are building from git
+//
+//========================================================================
+
 #include <config.h>
 #include <stdio.h>
 #include <stdlib.h>

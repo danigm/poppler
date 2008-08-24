@@ -6,8 +6,8 @@ pdftops \- Portable Document Format (PDF) to PostScript converter
 .SH SYNOPSIS
 .B pdftops
 [options]
-.RI [ PDF-file
-.RI [ PS-file ]]
+.RI <PDF-file>
+.RI [<PS-file>]
 .SH DESCRIPTION
 .B Pdftops
 converts Portable Document Format (PDF) files to PostScript so they
@@ -25,7 +25,7 @@ to
 .I file.ps
 (or
 .I file.eps
-with the -eps option).  If 
+with the \-eps option).  If
 .I PS-file
 is \'-', the PostScript is sent to stdout.
 .SH OPTIONS
@@ -40,8 +40,8 @@ Specifies the last page to print.
 Generate Level 1 PostScript.  The resulting PostScript files will be
 significantly larger (if they contain images), but will print on Level
 1 printers.  This also converts all images to black and white.  No
-more than one of the PostScript level options (-level1, -level1sep,
--level2, -level2sep, -level3, -level3Sep) may be given.
+more than one of the PostScript level options (\-level1, \-level1sep,
+\-level2, \-level2sep, \-level3, \-level3Sep) may be given.
 .TP
 .B \-level1sep
 Generate Level 1 separable PostScript.  All colors are converted to
@@ -63,19 +63,19 @@ CID font embedding.
 .TP
 .B \-level3Sep
 Generate Level 3 separable PostScript.  The separation handling is the
-same as for -level2Sep.
+same as for \-level2Sep.
 .TP
 .B \-eps
 Generate an Encapsulated PostScript (EPS) file.  An EPS file contains
 a single image, so if you use this option with a multi-page PDF file,
-you must use -f and -l to specify a single page.  No more than one of
-the mode options (-eps, -form) may be given.
+you must use \-f and \-l to specify a single page.  No more than one of
+the mode options (\-eps, \-form) may be given.
 .TP
 .B \-form
 Generate a PostScript form which can be imported by software that
 understands forms.  A form contains a single page, so if you use this
-option with a multi-page PDF file, you must use -f and -l to specify a
-single page.  The -level1 option cannot be used with -form.
+option with a multi-page PDF file, you must use \-f and \-l to specify a
+single page.  The \-level1 option cannot be used with \-form.
 .TP
 .B \-opi
 Generate OPI comments for all images and forms which have OPI

@@ -1,5 +1,5 @@
 /* poppler-form.h: qt4 interface to poppler
- * Copyright (C) 2007, Pino Toscano <pino@kde.org>
+ * Copyright (C) 2007-2008, Pino Toscano <pino@kde.org>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by

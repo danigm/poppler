@@ -2,7 +2,7 @@
 //
 // ABWOutputDev.h
 //
-// Copyright 2006 Jauco Noordzij
+// Copyright 2006-2007 Jauco Noordzij
 //
 //========================================================================
 

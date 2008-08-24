@@ -2,7 +2,10 @@
 //
 // DCTStream.cc
 //
-// Copyright 1996-2003 Glyph & Cog, LLC
+// This file is licensed under the GPLv2 or later
+//
+// Copyright 2005 Jeff Muizelaar <jeff@infidigm.net>
+// Copyright 2005-2008 Albert Astals Cid <aacid@kde.org>
 //
 //========================================================================
 
