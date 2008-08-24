@@ -1,6 +1,6 @@
 //========================================================================
 //
-// FontInfo.cc
+// FontInfo.h
 //
 // Copyright (C) 2005 Kristian Høgsberg <krh@redhat.com>
 // Copyright (C) 2005-2008 Albert Astals Cid <aacid@kde.org>
