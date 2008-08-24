@@ -39,6 +39,8 @@ public:
 	Movie *m_movieObj;
 	QSize m_size;
 	int m_rotation;
+	MovieObject::PlayMode m_playMode : 3;
+	bool m_showControls : 1;
 };
 
 MovieObject::MovieObject( AnnotMovie *ann )
@@ -47,6 +49,8 @@ MovieObject::MovieObject( AnnotMovie *ann )
 	m_movieData->m_movieObj = ann->getMovie()->copy();
 	ann->getMovieSize( m_movieData->m_size.rwidth(), m_movieData->m_size.rheight() );
 	m_movieData->m_rotation = ann->getRotationAngle();
+	m_movieData->m_showControls = ann->getShowControls();
+	m_movieData->m_playMode = (MovieObject::PlayMode)ann->getRepeatMode();
 }
 
 MovieObject::~MovieObject()
@@ -68,6 +72,16 @@ QSize MovieObject::size() const
 int MovieObject::rotation() const
 {
 	return m_movieData->m_rotation;
+}
+
+bool MovieObject::showControls() const
+{
+	return m_movieData->m_showControls;
+}
+
+MovieObject::PlayMode MovieObject::playMode() const
+{
+	return m_movieData->m_playMode;
 }
 
 }

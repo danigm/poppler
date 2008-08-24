@@ -1200,6 +1200,16 @@ height = dummy.height();
     class POPPLER_QT4_EXPORT MovieObject {
     friend class Page;
     public:
+	/**
+	   The play mode for playing the movie
+	*/
+	enum PlayMode {
+	    PlayOnce,         ///< Play the movie once, closing the movie controls at the end
+	    PlayOpen,         ///< Like PlayOnce, but leaving the controls open
+	    PlayRepeat,       ///< Play continuously until stopped
+	    PlayPalindrome    ///< Play forward, then backward, then again foward and so on until stopped
+	};
+
 	~MovieObject();
 
 	/**
@@ -1216,6 +1226,16 @@ height = dummy.height();
 	   The rotation (either 0, 90, 180, or 270 degrees clockwise) for the movie,
 	*/
 	int rotation() const;
+
+	/**
+	   Whether show a bar with movie controls
+	*/
+	bool showControls() const;
+
+	/**
+	   How to play the movie
+	*/
+	PlayMode playMode() const;
 
     private:
 	/// \cond PRIVATE
