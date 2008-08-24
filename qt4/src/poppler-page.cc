@@ -899,9 +899,7 @@ QList<Annotation*> Page::annotations() const
                 annotation = m;
 
                 // -> movie
-                QSize movieSize;
-                movieann->getMovieSize( movieSize.rwidth(), movieSize.rheight() );
-                MovieObject *movie = new MovieObject( movieann->getMovie(), movieSize, movieann->getRotationAngle() );
+                MovieObject *movie = new MovieObject( movieann );
                 m->setMovie( movie );
                 // -> movieTitle
                 GooString * movietitle = movieann->getTitle();

@@ -41,12 +41,12 @@ public:
 	int m_rotation;
 };
 
-MovieObject::MovieObject( Movie *popplermovie, const QSize &size, int rotation )
+MovieObject::MovieObject( AnnotMovie *ann )
 {
 	m_movieData = new MovieData();
-	m_movieData->m_movieObj = popplermovie->copy();
-	m_movieData->m_size = size;
-	m_movieData->m_rotation = rotation;
+	m_movieData->m_movieObj = ann->getMovie()->copy();
+	ann->getMovieSize( m_movieData->m_size.rwidth(), m_movieData->m_size.rheight() );
+	m_movieData->m_rotation = ann->getRotationAngle();
 }
 
 MovieObject::~MovieObject()

@@ -33,7 +33,7 @@
 
 class EmbFile;
 class Sound;
-class Movie;
+class AnnotMovie;
 
 /**
    The %Poppler Qt4 binding.
@@ -1200,7 +1200,7 @@ height = dummy.height();
     class POPPLER_QT4_EXPORT MovieObject {
     public:
 	/// \cond PRIVATE
-	MovieObject( Movie *popplermovie, const QSize &size, int rotation );
+	MovieObject( AnnotMovie *ann );
 	/// \endcond
 	
 	~MovieObject();
