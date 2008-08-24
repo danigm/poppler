@@ -4,6 +4,8 @@
 //
 // Copyright (C) 2005, Jeff Muizelaar
 //
+// This file is under the GPLv2 or later license
+//
 //========================================================================
 #include "FlateStream.h"
 FlateStream::FlateStream(Stream *strA, int predictor, int columns, int colors, int bits) :

@@ -1,3 +1,24 @@
+//========================================================================
+//
+// FontInfo.cc
+//
+// Copyright (C) 2005 Kristian Høgsberg <krh@redhat.com>
+// Copyright (C) 2005-2008 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2005 Brad Hards <bradh@frogmouth.net>
+//
+// To see a description of the changes please see the Changelog file that
+// came with your tarball or type make ChangeLog if you are building from git
+//
+//========================================================================
+
+//========================================================================
+//
+// Based on code from pdffonts.cc
+//
+// Copyright 2001-2007 Glyph & Cog, LLC
+//
+//========================================================================
+
 #ifndef FONT_INFO_H
 #define FONT_INFO_H
 

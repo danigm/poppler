@@ -6,6 +6,19 @@
 //
 //========================================================================
 
+//========================================================================
+//
+// Modified under the Poppler project - http://poppler.freedesktop.org
+//
+// Copyright (C) 2005 Jonathan Blandford <jrb@redhat.com>
+// Copyright (C) 2007 Iñigo Martínez <inigomartinez@gmail.com>
+// Copyright (C) 2008 Brad Hards <bradh@kde.org>
+//
+// To see a description of the changes please see the Changelog file that
+// came with your tarball or type make ChangeLog if you are building from git
+//
+//========================================================================
+
 #ifndef GFX_H
 #define GFX_H
 

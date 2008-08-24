@@ -1,3 +1,15 @@
+//========================================================================
+//
+// This file comes from pdftohtml project
+// http://pdftohtml.sourceforge.net
+//
+// Copyright from:
+// Gueorgui Ovtcharov
+// Rainer Dorsch <http://www.ra.informatik.uni-stuttgart.de/~rainer/>
+// Mikhail Kruk <meshko@cs.brandeis.edu>
+//
+//========================================================================
+
 #ifndef _HTML_FONTS_H
 #define _HTML_FONTS_H
 #include "goo/GooVector.h"

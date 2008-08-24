@@ -6,6 +6,23 @@
 //
 //========================================================================
 
+//========================================================================
+//
+// Modified under the Poppler project - http://poppler.freedesktop.org
+//
+// Copyright (C) 2006 Scott Turner <scotty1024@mac.com>
+// Copyright (C) 2007, 2008 Julien Rebetez <julienr@svn.gnome.org>
+// Copyright (C) 2007, 2008 Carlos Garcia Campos <carlosgc@gnome.org>
+// Copyright (C) 2007, 2008 Iñigo Martínez <inigomartinez@gmail.com>
+// Copyright (C) 2008 Michael Vrable <mvrable@cs.ucsd.edu>
+// Copyright (C) 2008 Hugo Mercier <hmercier31@gmail.com>
+// Copyright (C) 2008 Pino Toscano <pino@kde.org>
+//
+// To see a description of the changes please see the Changelog file that
+// came with your tarball or type make ChangeLog if you are building from git
+//
+//========================================================================
+
 #ifndef ANNOT_H
 #define ANNOT_H
 

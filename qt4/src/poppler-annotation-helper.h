@@ -1,5 +1,6 @@
 /* poppler-annotation-helper.h: qt interface to poppler
  * Copyright (C) 2006, Albert Astals Cid <aacid@kde.org>
+ * Copyright (C) 2008, Pino Toscano <pino@kde.org>
  * Adapting code from
  *   Copyright (C) 2004 by Enrico Ros <eros.kde@email.it>
  *

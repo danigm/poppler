@@ -4,6 +4,8 @@
 //
 // Copyright (C) 2005, Jeff Muizelaar
 //
+// This file is under the GPLv2 or later license
+//
 //========================================================================
 
 #ifndef FLATESTREAM_H

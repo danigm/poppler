@@ -2,7 +2,10 @@
 //
 // GooTimer.cc
 //
+// This file is licensed under GPLv2 or later
+//
 // Copyright 2005 Jonathan Blandford <jrb@redhat.com>
+// Copyright 2007 Krzysztof Kowalczyk <kkowalczyk@gmail.com>
 // Inspired by gtimer.c in glib, which is Copyright 2000 by the GLib Team
 //
 //========================================================================

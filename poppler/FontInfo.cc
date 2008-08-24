@@ -1,3 +1,25 @@
+//========================================================================
+//
+// FontInfo.cc
+//
+// Copyright (C) 2005, 2006 Kristian Høgsberg <krh@redhat.com>
+// Copyright (C) 2005-2008 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2005 Brad Hards <bradh@frogmouth.net>
+// Copyright (C) 2006 Kouhei Sutou <kou@cozmixng.org>
+//
+// To see a description of the changes please see the Changelog file that
+// came with your tarball or type make ChangeLog if you are building from git
+//
+//========================================================================
+
+//========================================================================
+//
+// Based on code from pdffonts.cc
+//
+// Copyright 2001-2007 Glyph & Cog, LLC
+//
+//========================================================================
+
 #include "config.h"
 #include <stdio.h>
 #include <stdlib.h>
