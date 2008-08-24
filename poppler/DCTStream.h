@@ -4,7 +4,7 @@
 //
 // This file is licensed under the GPLv2 or later
 //
-// Copyright 2005 Jeff Muizelaar Jeff Muizelaar <jeff@infidigm.net>
+// Copyright 2005 Jeff Muizelaar <jeff@infidigm.net>
 // Copyright 2005 Martin Kretzschmar <martink@gnome.org>
 // Copyright 2005-2007 Albert Astals Cid <aacid@kde.org>
 //
