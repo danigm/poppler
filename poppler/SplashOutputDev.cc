@@ -513,10 +513,25 @@ T3FontCache::T3FontCache(Ref *fontIDA, double m11A, double m12A,
     cacheSets = 4;
   } else if (glyphSize <= 1024) {
     cacheSets = 2;
+  } else if (glyphSize <= 2048) {
+    cacheSets = 1;
+    cacheAssoc = 4;
+  } else if (glyphSize <= 4096) {
+    cacheSets = 1;
+    cacheAssoc = 2;
   } else {
     cacheSets = 1;
+    cacheAssoc = 1;
   }
-  cacheData = (Guchar *)gmallocn_checkoverflow(cacheSets * cacheAssoc, glyphSize);
+  if (glyphSize < 10485760 / cacheAssoc / cacheSets) {
+    cacheData = (Guchar *)gmallocn_checkoverflow(cacheSets * cacheAssoc, glyphSize);
+  } else {
+    error(-1, "Not creating cacheData for T3FontCache, it asked for too much memory.\n"
+              "       This could teoretically result in wrong rendering,\n"
+              "       but most probably the document is bogus.\n"
+              "       Please report a bug if you think the rendering may be wrong because of this.");
+    cacheData = NULL;
+  }
   if (cacheData != NULL)
   {
     cacheTags = (T3FontCacheTag *)gmallocn(cacheSets * cacheAssoc,
@@ -1588,6 +1603,9 @@ void SplashOutputDev::type3D1(GfxState *state, double wx, double wy,
     }
     return;
   }
+
+  if (t3Font->cacheTags == NULL)
+    return;
 
   // allocate a cache entry
   i = (t3GlyphStack->code & (t3Font->cacheSets - 1)) * t3Font->cacheAssoc;
