@@ -29,6 +29,7 @@
 #include <ErrorCodes.h>
 #include <SplashOutputDev.h>
 #include <splash/SplashBitmap.h>
+#include <DateInfo.h>
 #include "poppler-private.h"
 
 namespace Poppler {
@@ -227,27 +228,8 @@ QDateTime Document::getDate( const QString & type ) const
   if ( infoDict->lookup( (char*)type.latin1(), &obj )->isString() )
   {
     QString s = UnicodeParsedString(obj.getString());
-    if ( s[0] == 'D' && s[1] == ':' )
-      s = s.mid(2);
-
-    /* FIXME process time zone on systems that support it */  
-    if ( !s.isEmpty() && sscanf( s.latin1(), "%4d%2d%2d%2d%2d%2d", &year, &mon, &day, &hour, &min, &sec ) == 6 )
+    if ( parseDateString( s.latin1(), &year, &mon, &day, &hour, &min, &sec ) )
     {
-      /* Workaround for y2k bug in Distiller 3 stolen from gpdf, hoping that it won't
-       *   * be used after y2.2k */
-      if ( year < 1930 && strlen (s) > 14) {
-	int century, years_since_1900;
-	if ( sscanf( s, "%2d%3d%2d%2d%2d%2d%2d",
-	    &century, &years_since_1900,
-	    &mon, &day, &hour, &min, &sec) == 7 )
-	  year = century * 100 + years_since_1900;
-	else {
-	  obj.free();
-	  info.free();
-	  return QDateTime();
-	}
-      }
-
       QDate d( year, mon, day );  //CHECK: it was mon-1, Jan->0 (??)
       QTime t( hour, min, sec );
       if ( d.isValid() && t.isValid() ) {

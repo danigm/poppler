@@ -42,6 +42,7 @@
 #include "PSOutputDev.h"
 #include "GlobalParams.h"
 #include "Error.h"
+#include "DateInfo.h"
 #include "goo/gfile.h"
 
 #ifndef GHOSTSCRIPT
@@ -410,11 +411,7 @@ static GooString* getInfoDate(Dict *infoDict, char *key) {
 
   if (infoDict->lookup(key, &obj)->isString()) {
     s = obj.getString()->getCString();
-    if (s[0] == 'D' && s[1] == ':') {
-      s += 2;
-    }
-    if (sscanf(s, "%4d%2d%2d%2d%2d%2d",
-               &year, &mon, &day, &hour, &min, &sec) == 6) {
+    if ( parseDateString( s, &year, &mon, &day, &hour, &min, &sec ) ) {
       tmStruct.tm_year = year - 1900;
       tmStruct.tm_mon = mon - 1;
       tmStruct.tm_mday = day;
@@ -426,7 +423,7 @@ static GooString* getInfoDate(Dict *infoDict, char *key) {
       tmStruct.tm_isdst = -1;
       mktime(&tmStruct); // compute the tm_wday and tm_yday fields
       if (strftime(buf, sizeof(buf), "%Y-%m-%dT%H:%M:%S+00:00", &tmStruct)) {
-	result = new GooString(buf);
+        result = new GooString(buf);
       } else {
         result = new GooString(s);
       }

@@ -28,6 +28,7 @@
 #include <Stream.h>
 #include <FontInfo.h>
 #include <PDFDocEncoding.h>
+#include <DateInfo.h>
 
 #include "poppler.h"
 #include "poppler-private.h"
@@ -1508,7 +1509,6 @@ _poppler_convert_pdf_date_to_gtime (GooString *date,
 				    GTime     *gdate) 
 {
   int year, mon, day, hour, min, sec;
-  int scanned_items;
   struct tm time;
   gchar *date_string, *ds;
   GTime result;
@@ -1523,34 +1523,11 @@ _poppler_convert_pdf_date_to_gtime (GooString *date,
   ds = date_string;
   
   /* See PDF Reference 1.3, Section 3.8.2 for PDF Date representation */
-
-  if (date_string [0] == 'D' && date_string [1] == ':')
-    date_string += 2;
-	
-  /* FIXME only year is mandatory; parse optional timezone offset */
-  scanned_items = sscanf (date_string, "%4d%2d%2d%2d%2d%2d",
-			  &year, &mon, &day, &hour, &min, &sec);
-  
-  if (scanned_items != 6) {
+  if (!parseDateString(ds, &year, &mon, &day, &hour, &min, &sec)) {
     g_free (ds);
     return FALSE;
   }
-  
-  /* Workaround for y2k bug in Distiller 3, hoping that it won't
-   * be used after y2.2k */
-  if (year < 1930 && strlen (date_string) > 14) {
-    int century, years_since_1900;
-    scanned_items = sscanf (date_string, "%2d%3d%2d%2d%2d%2d%2d",
-			    &century, &years_since_1900, &mon, &day, &hour, &min, &sec);
-						
-    if (scanned_items != 7) {
-      g_free (ds);
-      return FALSE;
-    }
-    
-    year = century * 100 + years_since_1900;
-  }
-
+	
   time.tm_year = year - 1900;
   time.tm_mon = mon - 1;
   time.tm_mday = day;

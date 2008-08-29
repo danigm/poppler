@@ -1,5 +1,5 @@
 /* poppler-annotation-helper.h: qt interface to poppler
- * Copyright (C) 2006, Albert Astals Cid <aacid@kde.org>
+ * Copyright (C) 2006, 2008, Albert Astals Cid <aacid@kde.org>
  * Copyright (C) 2008, Pino Toscano <pino@kde.org>
  * Adapting code from
  *   Copyright (C) 2004 by Enrico Ros <eros.kde@email.it>
@@ -162,19 +162,7 @@ void XPDFReader::lookupDate( Dict * dict, char * type, QDateTime & dest )
         return;
     if ( dateObj.isString() )
     {
-        char * s = dateObj.getString()->getCString();
-        if ( s[0] == 'D' && s[1] == ':' )
-            s += 2;
-        int year, mon, day, hour, min, sec;
-        if ( sscanf( s, "%4d%2d%2d%2d%2d%2d", &year, &mon, &day, &hour, &min, &sec ) == 6 )
-        {
-            QDate d( year, mon, day );
-            QTime t( hour, min, sec );
-            if ( d.isValid() && t.isValid() )
-                dest = QDateTime(d, t);
-        }
-        else
-            qDebug() << "Wrong Date format '" << s << "' for '" << type << "'." << endl;
+        dest = convertDate( dateObj.getString()->getCString() );
     }
     else
         qDebug() << type << " is not Date" << endl;

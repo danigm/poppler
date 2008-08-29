@@ -43,6 +43,7 @@
 #include "UnicodeMap.h"
 #include "PDFDocEncoding.h"
 #include "Error.h"
+#include "DateInfo.h"
 
 static void printInfoString(Dict *infoDict, char *key, char *text,
 			    UnicodeMap *uMap);
@@ -366,25 +367,14 @@ static void printInfoString(Dict *infoDict, char *key, char *text,
 static void printInfoDate(Dict *infoDict, char *key, char *text) {
   Object obj;
   char *s;
-  int year, mon, day, hour, min, sec, n;
+  int year, mon, day, hour, min, sec;
   struct tm tmStruct;
   char buf[256];
 
   if (infoDict->lookup(key, &obj)->isString()) {
     fputs(text, stdout);
     s = obj.getString()->getCString();
-    if (s[0] == 'D' && s[1] == ':') {
-      s += 2;
-    }
-    if ((n = sscanf(s, "%4d%2d%2d%2d%2d%2d",
-		    &year, &mon, &day, &hour, &min, &sec)) >= 1) {
-      switch (n) {
-      case 1: mon = 1;
-      case 2: day = 1;
-      case 3: hour = 0;
-      case 4: min = 0;
-      case 5: sec = 0;
-      }
+    if ( parseDateString( s, &year, &mon, &day, &hour, &min, &sec ) ) {
       tmStruct.tm_year = year - 1900;
       tmStruct.tm_mon = mon - 1;
       tmStruct.tm_mday = day;

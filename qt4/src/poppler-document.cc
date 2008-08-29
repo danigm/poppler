@@ -28,6 +28,7 @@
 #include <PDFDoc.h>
 #include <Stream.h>
 #include <Catalog.h>
+#include <DateInfo.h>
 
 #include <QtCore/QDebug>
 #include <QtCore/QFile>
@@ -520,57 +521,14 @@ namespace Poppler {
 
     QDateTime convertDate( char *dateString )
     {
-        int year;
-        int mon = 1;
-        int day = 1;
-        int hour = 0;
-        int min = 0;
-        int sec = 0;
-        char tz = 0x00;
-        int tzHours = 0;
-        int tzMins = 0;
+        int year, mon, day, hour, min, sec;
 
-        if ( dateString == NULL ) return QDateTime();
-        if ( strlen(dateString) < 2 ) return QDateTime();
-
-        if ( dateString[0] == 'D' && dateString[1] == ':' )
-            dateString += 2;
-        if ( dateString != NULL && sscanf( dateString,
-		     "%4d%2d%2d%2d%2d%2d%c%2d%*c%2d",
-		     &year, &mon, &day, &hour, &min, &sec,
-		     &tz, &tzHours, &tzMins ) > 0 ) {
-            /* Workaround for y2k bug in Distiller 3 stolen from gpdf, hoping that it won't
-             * be used after y2.2k */
-            if ( year < 1930 && strlen (dateString) > 14) {
-                int century, years_since_1900;
-                if ( sscanf( dateString, "%2d%3d%2d%2d%2d%2d%2d",
-                             &century, &years_since_1900,
-                             &mon, &day, &hour, &min, &sec) == 7 )
-                    year = century * 100 + years_since_1900;
-                else {
-                    return QDateTime();
-                }
-            }
-
+        if ( parseDateString( dateString, &year, &mon, &day, &hour, &min, &sec ) )
+        {
             QDate d( year, mon, day );
             QTime t( hour, min, sec );
             if ( d.isValid() && t.isValid() ) {
-                QDateTime dt( d, t, Qt::UTC );
-                if ( tz ) {
-                    // then we have some form of timezone
-                    if ( 'Z' == tz  ) {
-                        // We are already at UTC
-                    } else if ( '+' == tz ) {
-                        // local time is ahead of UTC
-                        dt = dt.addSecs(-1*((tzHours*60)+tzMins)*60);
-                    } else if ( '-' == tz ) {
-                        // local time is behind UTC
-                        dt = dt.addSecs(((tzHours*60)+tzMins)*60);
-                    } else {
-                        qWarning("unexpected tz val");
-                    }
-                }
-                return dt;
+                return QDateTime( d, t );
             }
         }
         return QDateTime();
