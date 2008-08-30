@@ -13,6 +13,7 @@
 // Copyright (C) 2005, 2007 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2006 Rainer Keller <class321@gmx.de>
 // Copyright (C) 2008 Timothy Lee <timothy.lee@siriushk.com>
+// Copyright (C) 2008 Vasile Gaburici <gaburici@cs.umd.edu>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -116,10 +117,13 @@ void ImageOutputDev::drawImage(GfxState *state, Object *ref, Stream *str,
   FILE *f;
   ImageStream *imgStr;
   Guchar *p;
+  Guchar zero = 0;
+  GfxGray gray;
   GfxRGB rgb;
   int x, y;
   int c;
   int size, i;
+  int pbm_mask = 0xff;
 
   // dump JPEG file
   if (dumpJPEG && str->getKind() == strDCT &&
@@ -162,10 +166,16 @@ void ImageOutputDev::drawImage(GfxState *state, Object *ref, Stream *str,
     // initialize stream
     str->reset();
 
+    // if 0 comes out as 0 in the color map, the we _flip_ stream bits
+    // otherwise we pass through stream bits unmolested
+    colorMap->getGray(&zero, &gray);
+    if(colToByte(gray))
+      pbm_mask = 0;
+
     // copy the stream
     size = height * ((width + 7) / 8);
     for (i = 0; i < size; ++i) {
-      fputc(str->getChar(), f);
+      fputc(str->getChar() ^ pbm_mask, f);
     }
 
     str->close();
