@@ -14,6 +14,7 @@
 // Copyright (C) 2007 Julien Rebetez <julienr@svn.gnome.org>
 // Copyright (C) 2007 Koji Otani <sho@bbr.jp>
 // Copyright (C) 2008 Michael Vrable <mvrable@cs.ucsd.edu>
+// Copyright (C) 2008 Vasile Gaburici <gaburici@cs.umd.edu>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -507,7 +508,7 @@ int CharCodeToUnicode::mapToUnicode(CharCode c, Unicode **u) {
     *u = &map[c];
     return 1;
   }
-  for (i = 0; i < sMapLen; ++i) {
+  for (i = sMapLen - 1; i >= 0; --i) { // in reverse so CMap takes precedence
     if (sMap[i].c == c) {
       *u = sMap[i].u;
       return sMap[i].len;
