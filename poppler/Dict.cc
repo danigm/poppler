@@ -85,7 +85,7 @@ void Dict::add(char *key, Object *val) {
 inline DictEntry *Dict::find(char *key) {
   int i;
 
-  for (i = 0; i < length; ++i) {
+  for (i = length - 1; i >=0; --i) {
     if (!strcmp(key, entries[i].key))
       return &entries[i];
   }
