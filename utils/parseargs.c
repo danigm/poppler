@@ -12,6 +12,9 @@
 //
 // Poppler project changes to this file are under the GPLv2 or later license
 //
+// All changes made under the Poppler project to this file are licensed
+// under GPL version 2 or later
+//
 // Copyright (C) 2008 Albert Astals Cid <aacid@kde.org>
 //
 // To see a description of the changes please see the Changelog file that
