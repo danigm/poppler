@@ -127,7 +127,7 @@ class POPPLER_QT4_EXPORT Link
 		    Action,
 		    Sound,    ///< A link representing a sound to be played
 		    Movie,
-		    JavaScript    ///< A JavaScript code to be interpreted
+		    JavaScript    ///< A JavaScript code to be interpreted \since 0.10
 		};
 
 		/**
@@ -296,7 +296,11 @@ class POPPLER_QT4_EXPORT LinkAction : public Link
 		Q_DISABLE_COPY( LinkAction )
 };
 
-/** Sound: a sound to be played **/
+/**
+ * Sound: a sound to be played.
+ *
+ * \since 0.6
+ */
 class POPPLER_QT4_EXPORT LinkSound : public Link
 {
 	public:
@@ -345,7 +349,11 @@ class POPPLER_QT4_EXPORT LinkSound : public Link
 		Q_DISABLE_COPY( LinkSound )
 };
 
-/** JavaScript: a JavaScript code to be interpreted. **/
+/**
+ * JavaScript: a JavaScript code to be interpreted.
+ *
+ * \since 0.10
+ */
 class POPPLER_QT4_EXPORT LinkJavaScript : public Link
 {
 	public:

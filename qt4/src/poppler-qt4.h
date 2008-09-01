@@ -86,6 +86,8 @@ namespace Poppler {
       /**
 	  Returns the position of the text, in point, i.e., 1/72 of
 	 an inch
+
+	 \since 0.8
       */
       QRectF boundingBox() const;
 
@@ -269,6 +271,8 @@ namespace Poppler {
 
 	/**
 	   The MIME type of the file, if known.
+	
+	   \since 0.8
 	*/
 	QString mimeType() const;
 
@@ -355,6 +359,8 @@ namespace Poppler {
 	   rather unexpected results.
 
 	   \returns a QImage of the page, or a null image on failure.
+
+	   \since 0.6
         */
 	QImage renderToImage(double xres=72.0, double yres=72.0, int x=-1, int y=-1, int w=-1, int h=-1, Rotation rotate = Rotate0) const;
 
@@ -424,15 +430,18 @@ namespace Poppler {
 	  Returns the transition of this page
 
 	  \returns a pointer to a PageTransition structure that
-	  defines how transition to this page shall be performed. The
-	  PageTransition structure is owned by this page, and will
+	  defines how transition to this page shall be performed.
+
+	  \note The PageTransition structure is owned by this page, and will
 	  automatically be destroyed when this page class is
 	  destroyed.
 	**/
 	PageTransition *transition() const;
 	
 	/**
-	  Gets the page action specified, or NULL if there is no action
+	  Gets the page action specified, or NULL if there is no action.
+
+	  \since 0.6
 	**/
 	Link *action( PageAction act ) const;
 	
@@ -468,6 +477,8 @@ namespace Poppler {
 
 	/**
 	 Returns the form fields on the page
+
+	 \since 0.6
 	*/
 	QList<FormField*> formFields() const;
 
@@ -475,11 +486,15 @@ namespace Poppler {
 	 Returns the page duration. That is the time, in seconds, that the page
 	 should be displayed before the presentation automatically advances to the next page.
 	 Returns < 0 if duration is not set.
+
+	 \since 0.6
 	*/
 	double duration() const;
 	
 	/**
 	   Returns the label of the page, or a null string is the page has no label.
+
+	 \since 0.6
 	**/
 	QString label() const;
 	
@@ -665,7 +680,6 @@ QDateTime modified = m_doc->date("ModDate");
 	   - ModDate: the date of the last change in the document
 
 	   \param data the type of date that is required
-
 	*/
 	QDateTime date( const QString & data ) const;
 
@@ -800,6 +814,8 @@ QString subject = m_doc->info("Subject");
 
 	/**
 	   The font data if the font is an embedded one.
+
+	   \since 0.10
 	*/
 	QByteArray fontData(const FontInfo &font) const;
 
@@ -817,8 +833,9 @@ QString subject = m_doc->info("Subject");
 	bool hasEmbeddedFiles() const;
 	
 	/**
-	  Gets the TOC of the Document, it is application responsabiliy to delete
-	  it when no longer needed
+	  Gets the table of contents (TOC) of the Document.
+	
+	  The caller is responsable for the returned object.
 	
 	  In the tree the tag name is the 'screen' name of the entry. A tag can have
 	  attributes. Here follows the list of tag attributes with meaning:
@@ -828,7 +845,7 @@ QString subject = m_doc->info("Subject");
 	  - ExternalFileName: A link to a external filename
 	  - Open: A bool value that tells whether the subbranch of the item is open or not
 	
-	  Returns NULL if the Document does not have TOC
+	  \returns the TOC, or NULL if the Document does not have one
 	*/
 	QDomDocument *toc() const;
 	
@@ -885,6 +902,8 @@ QString subject = m_doc->info("Subject");
 	  Gets a new PS converter for this document.
 
 	  The caller gets the ownership of the returned converter.
+
+	  \since 0.6
 	 */
 	PSConverter *psConverter() const;
 	
@@ -892,11 +911,15 @@ QString subject = m_doc->info("Subject");
 	  Gets a new PDF converter for this document.
 
 	  The caller gets the ownership of the returned converter.
+
+	  \since 0.8
 	 */
 	PDFConverter *pdfConverter() const;
 	
 	/**
 	  Gets the metadata stream contents
+
+	  \since 0.6
 	*/
 	QString metadata() const;
 
@@ -909,6 +932,8 @@ QString subject = m_doc->info("Subject");
 	   applications, but it can be used for a range of things,
 	   such as not including some content in printing, and
 	   displaying content in the appropriate language.
+
+	   \since 0.8
 	*/
 	bool hasOptionalContent() const;
 
@@ -916,6 +941,8 @@ QString subject = m_doc->info("Subject");
 	   Itemviews model for optional content.
 
 	   The model is owned by the document.
+
+	   \since 0.8
 	*/
 	OptContentModel *optionalContentModel();
 
@@ -924,6 +951,8 @@ QString subject = m_doc->info("Subject");
 
 	   Returns the list of document level JavaScript scripts to be always
 	   executed before any other script.
+
+	   \since 0.10
 	*/
 	QStringList scripts() const;
 
@@ -947,6 +976,8 @@ QString subject = m_doc->info("Subject");
        \brief Base converter.
 
        This is the base class for the converters.
+
+       \since 0.8
     */
     class POPPLER_QT4_EXPORT BaseConverter
     {
@@ -960,7 +991,11 @@ QString subject = m_doc->info("Subject");
             /** Sets the output file name. You must set this or the output device. */
             void setOutputFileName(const QString &outputFileName);
 
-            /** Sets the output device. You must set this or the output file name. */
+            /**
+             * Sets the output device. You must set this or the output file name.
+             *
+             * \since 0.8
+             */
             void setOutputDevice(QIODevice *device);
 
             /**
@@ -994,6 +1029,8 @@ dummy.setPageSize(myPageSize);
 width = dummy.width();
 height = dummy.height();
        \endcode
+
+       \since 0.6
     */
     class POPPLER_QT4_EXPORT PSConverter : public BaseConverter
     {
@@ -1080,6 +1117,8 @@ height = dummy.height();
 
     /**
        Converts a PDF to PDF (thus saves a copy of the document).
+
+       \since 0.8
     */
     class POPPLER_QT4_EXPORT PDFConverter : public BaseConverter
     {
@@ -1128,6 +1167,8 @@ height = dummy.height();
 	A sound can be either External (in that case should be loaded the file
        whose url is represented by url() ), or Embedded, and the player has to
        play the data contained in data().
+
+       \since 0.6
     */
     class POPPLER_QT4_EXPORT SoundObject {
     public:
@@ -1199,6 +1240,8 @@ height = dummy.height();
     class MovieData;
     /**
        Container class for a movie object in a PDF document.
+
+       \since 0.10
     */
     class POPPLER_QT4_EXPORT MovieObject {
     friend class Page;

@@ -37,6 +37,8 @@ namespace Poppler {
     class FormFieldData;
     /**
       The base class representing a form field.
+
+      \since 0.6
      */
     class POPPLER_QT4_EXPORT FormField {
     public:
@@ -110,6 +112,8 @@ namespace Poppler {
 
     /**
       A form field that represents a "button".
+
+      \since 0.8
      */
     class POPPLER_QT4_EXPORT FormFieldButton : public FormField {
     public:
@@ -165,6 +169,8 @@ namespace Poppler {
 
     /**
       A form field that represents a text input.
+
+      \since 0.6
      */
     class POPPLER_QT4_EXPORT FormFieldText : public FormField {
     public:
@@ -236,6 +242,8 @@ namespace Poppler {
 
     /**
       A form field that represents a choice field.
+
+      \since 0.6
      */
     class POPPLER_QT4_EXPORT FormFieldChoice : public FormField {
     public:

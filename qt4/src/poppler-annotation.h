@@ -178,6 +178,9 @@ class POPPLER_QT4_EXPORT Annotation
     const QLinkedList< Revision >& revisions() const;
 
     // methods: query annotation's type for runtime type identification
+    /**
+     * The type of the annotation.
+     */
     virtual SubType subType() const = 0;
 
     // methods: storage/retrieval from xml nodes
@@ -538,6 +541,8 @@ class POPPLER_QT4_EXPORT CaretAnnotation : public Annotation
  * \short File attachment annotation.
  *
  * The file attachment annotation represents a file embedded in the document.
+ *
+ * \since 0.10
  */
 class POPPLER_QT4_EXPORT FileAttachmentAnnotation : public Annotation
 {
@@ -563,6 +568,8 @@ class POPPLER_QT4_EXPORT FileAttachmentAnnotation : public Annotation
  * \short Sound annotation.
  *
  * The sound annotation represents a sound to be played when activated.
+ *
+ * \since 0.10
  */
 class POPPLER_QT4_EXPORT SoundAnnotation : public Annotation
 {
@@ -588,6 +595,8 @@ class POPPLER_QT4_EXPORT SoundAnnotation : public Annotation
  * \short Movie annotation.
  *
  * The movie annotation represents a movie to be played when activated.
+ *
+ * \since 0.10
  */
 class POPPLER_QT4_EXPORT MovieAnnotation : public Annotation
 {

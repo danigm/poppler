@@ -32,6 +32,17 @@ namespace Poppler
   class Document;
   class OptContentModelPrivate;
 
+  /**
+   * \brief Model for optional content
+   *
+   * OptContentModel is an item model representing the optional content items
+   * that can be found in PDF documents.
+   *
+   * The model offers a mostly read-only display of the data, allowing to
+   * enable/disable some contents setting the Qt::CheckStateRole data role.
+   *
+   * \since 0.8
+   */
   class POPPLER_QT4_EXPORT OptContentModel : public QAbstractItemModel
   {
     friend class Document;
