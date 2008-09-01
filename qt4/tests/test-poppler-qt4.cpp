@@ -193,6 +193,12 @@ int main( int argc, char **argv )
         qDebug() << "No embedded files";
     }
 
+    if (doc->numPages() <= 0)
+    {
+        delete doc;
+        qDebug() << "Doc has no pages";
+        return 0;
+    }
 
     Poppler::Page *page = doc->page(0);
     qDebug() << "Page 1 size: " << page->pageSize().width()/72 << "inches x " << page->pageSize().height()/72 << "inches";
