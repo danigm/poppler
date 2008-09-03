@@ -278,9 +278,13 @@ void FormWidgetButton::loadDefaults ()
   }
 
   if (Form::fieldLookup(dict, "V", &obj1)->isName()) {
-    if (strcmp (obj1.getName(), "Off") != 0) {
-      setState(gTrue);
+    Object obj2;
+    if (dict->lookup("AS", &obj2)->isName(obj1.getName())) {
+      if (strcmp (obj1.getName(), "Off") != 0) {
+        setState(gTrue);
+      }
     }
+    obj2.free();
   } else if (obj1.isArray()) { //handle the case where we have multiple choices
     error(-1, "FormWidgetButton:: multiple choice isn't supported yet\n");
   }
