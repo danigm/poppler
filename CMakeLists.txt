@@ -143,6 +143,7 @@ set(poppler_SRCS
   poppler/Decrypt.cc
   poppler/Dict.cc
   poppler/Error.cc
+  poppler/FileSpec.cc
   poppler/FontEncodingTables.cc
   poppler/Form.cc
   poppler/FontInfo.cc
@@ -272,6 +273,7 @@ if(ENABLE_XPDF_HEADERS)
     poppler/Decrypt.h
     poppler/Dict.h
     poppler/Error.h
+    poppler/FileSpec.h
     poppler/FontEncodingTables.h
     poppler/FontInfo.h
     poppler/Form.h

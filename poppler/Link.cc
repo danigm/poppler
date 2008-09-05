@@ -40,6 +40,7 @@
 #include "Link.h"
 #include "Sound.h"
 #include "Movie.h"
+#include "FileSpec.h"
 
 //------------------------------------------------------------------------
 // LinkAction
@@ -134,90 +135,6 @@ LinkAction *LinkAction::parseAction(Object *obj, GooString *baseURI) {
     return NULL;
   }
   return action;
-}
-
-GooString *LinkAction::getFileSpecName(Object *fileSpecObj) {
-  GooString *name;
-  Object obj1;
-
-  name = NULL;
-
-  // string
-  if (fileSpecObj->isString()) {
-    name = fileSpecObj->getString()->copy();
-
-  // dictionary
-  } else if (fileSpecObj->isDict()) {
-#ifdef WIN32
-    if (!fileSpecObj->dictLookup("DOS", &obj1)->isString()) {
-#else
-    if (!fileSpecObj->dictLookup("Unix", &obj1)->isString()) {
-#endif
-      obj1.free();
-      fileSpecObj->dictLookup("F", &obj1);
-    }
-    if (obj1.isString()) {
-      name = obj1.getString()->copy();
-    } else {
-      error(-1, "Illegal file spec in link");
-    }
-    obj1.free();
-
-  // error
-  } else {
-    error(-1, "Illegal file spec in link");
-  }
-
-  // system-dependent path manipulation
-  if (name) {
-#ifdef WIN32
-    int i, j;
-
-    // "//...."             --> "\...."
-    // "/x/...."            --> "x:\...."
-    // "/server/share/...." --> "\\server\share\...."
-    // convert escaped slashes to slashes and unescaped slashes to backslashes
-    i = 0;
-    if (name->getChar(0) == '/') {
-      if (name->getLength() >= 2 && name->getChar(1) == '/') {
-	name->del(0);
-	i = 0;
-      } else if (name->getLength() >= 2 &&
-		 ((name->getChar(1) >= 'a' && name->getChar(1) <= 'z') ||
-		  (name->getChar(1) >= 'A' && name->getChar(1) <= 'Z')) &&
-		 (name->getLength() == 2 || name->getChar(2) == '/')) {
-	name->setChar(0, name->getChar(1));
-	name->setChar(1, ':');
-	i = 2;
-      } else {
-	for (j = 2; j < name->getLength(); ++j) {
-	  if (name->getChar(j-1) != '\\' &&
-	      name->getChar(j) == '/') {
-	    break;
-	  }
-	}
-	if (j < name->getLength()) {
-	  name->setChar(0, '\\');
-	  name->insert(0, '\\');
-	  i = 2;
-	}
-      }
-    }
-    for (; i < name->getLength(); ++i) {
-      if (name->getChar(i) == '/') {
-	name->setChar(i, '\\');
-      } else if (name->getChar(i) == '\\' &&
-		 i+1 < name->getLength() &&
-		 name->getChar(i+1) == '/') {
-	name->del(i);
-      }
-    }
-#else
-    // no manipulation needed for Unix
-#endif
-  }
-
-  return name;
 }
 
 //------------------------------------------------------------------------
@@ -505,7 +422,10 @@ LinkGoToR::LinkGoToR(Object *fileSpecObj, Object *destObj) {
   namedDest = NULL;
 
   // get file name
-  fileName = getFileSpecName(fileSpecObj);
+  Object obj1;
+  getFileSpecNameForPlatform (fileSpecObj, &obj1);
+  fileName = obj1.getString()->copy();
+  obj1.free();
 
   // named destination
   if (destObj->isName()) {
@@ -542,20 +462,24 @@ LinkGoToR::~LinkGoToR() {
 //------------------------------------------------------------------------
 
 LinkLaunch::LinkLaunch(Object *actionObj) {
-  Object obj1, obj2;
+  Object obj1, obj2, obj3;
 
   fileName = NULL;
   params = NULL;
 
   if (actionObj->isDict()) {
     if (!actionObj->dictLookup("F", &obj1)->isNull()) {
-      fileName = getFileSpecName(&obj1);
+      getFileSpecNameForPlatform (&obj1, &obj3);
+      fileName = obj3.getString()->copy();
+      obj3.free();
     } else {
       obj1.free();
 #ifdef WIN32
       if (actionObj->dictLookup("Win", &obj1)->isDict()) {
 	obj1.dictLookup("F", &obj2);
-	fileName = getFileSpecName(&obj2);
+	getFileSpecNameForPlatform (&obj2, &obj3);
+	fileName = obj3.getString()->copy();
+	obj3.free();
 	obj2.free();
 	if (obj1.dictLookup("P", &obj2)->isString()) {
 	  params = obj2.getString()->copy();
@@ -569,7 +493,9 @@ LinkLaunch::LinkLaunch(Object *actionObj) {
       //~ just like the Win dictionary until they say otherwise.
       if (actionObj->dictLookup("Unix", &obj1)->isDict()) {
 	obj1.dictLookup("F", &obj2);
-	fileName = getFileSpecName(&obj2);
+	getFileSpecNameForPlatform (&obj2, &obj3);
+	fileName = obj3.getString()->copy();
+	obj3.free();
 	obj2.free();
 	if (obj1.dictLookup("P", &obj2)->isString()) {
 	  params = obj2.getString()->copy();

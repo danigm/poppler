@@ -319,7 +319,6 @@ private:
   void opiBegin13(GfxState *state, Dict *dict);
   void opiTransform(GfxState *state, double x0, double y0,
 		    double *x1, double *y1);
-  GBool getFileSpec(Object *fileSpec, Object *fileName);
 #endif
   void cvtFunction(Function *func);
   void writePSChar(char c);

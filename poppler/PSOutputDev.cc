@@ -54,6 +54,7 @@
 #include "Annot.h"
 #include "XRef.h"
 #include "PreScanOutputDev.h"
+#include "FileSpec.h"
 #if HAVE_SPLASH
 #  include "splash/Splash.h"
 #  include "splash/SplashBitmap.h"
@@ -5647,7 +5648,7 @@ void PSOutputDev::opiBegin20(GfxState *state, Dict *dict) {
   writePS("%%Distilled\n");
 
   dict->lookup("F", &obj1);
-  if (getFileSpec(&obj1, &obj2)) {
+  if (getFileSpecName(&obj1, &obj2)) {
     writePSFmt("%%ImageFileName: {0:t}\n", obj2.getString());
     obj2.free();
   }
@@ -5763,7 +5764,7 @@ void PSOutputDev::opiBegin13(GfxState *state, Dict *dict) {
   writePS("opiMatrix setmatrix\n");
 
   dict->lookup("F", &obj1);
-  if (getFileSpec(&obj1, &obj2)) {
+  if (getFileSpecName(&obj1, &obj2)) {
     writePSFmt("%ALDImageFileName: {0:t}\n", obj2.getString());
     obj2.free();
   }
@@ -6013,36 +6014,6 @@ void PSOutputDev::opiEnd(GfxState *state, Dict *opiDict) {
       dict.free();
     }
   }
-}
-
-GBool PSOutputDev::getFileSpec(Object *fileSpec, Object *fileName) {
-  if (fileSpec->isString()) {
-    fileSpec->copy(fileName);
-    return gTrue;
-  }
-  if (fileSpec->isDict()) {
-    fileSpec->dictLookup("DOS", fileName);
-    if (fileName->isString()) {
-      return gTrue;
-    }
-    fileName->free();
-    fileSpec->dictLookup("Mac", fileName);
-    if (fileName->isString()) {
-      return gTrue;
-    }
-    fileName->free();
-    fileSpec->dictLookup("Unix", fileName);
-    if (fileName->isString()) {
-      return gTrue;
-    }
-    fileName->free();
-    fileSpec->dictLookup("F", fileName);
-    if (fileName->isString()) {
-      return gTrue;
-    }
-    fileName->free();
-  }
-  return gFalse;
 }
 #endif // OPI_SUPPORT
 

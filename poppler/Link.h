@@ -70,10 +70,6 @@ public:
 
   // Parse an action dictionary.
   static LinkAction *parseAction(Object *obj, GooString *baseURI = NULL);
-
-  // Extract a file name from a file specification (string or
-  // dictionary).
-  static GooString *getFileSpecName(Object *fileSpecObj);
 };
 
 //------------------------------------------------------------------------

@@ -20,7 +20,7 @@
 #include "Object.h"
 #include "Sound.h"
 #include "Stream.h"
-#include "Link.h"
+#include "FileSpec.h"
 
 Sound *Sound::parseSound(Object *obj)
 {
@@ -65,9 +65,12 @@ Sound::Sound(Object *obj, bool readAttrs)
     Dict *dict = streamObj->getStream()->getDict();
     dict->lookup("F", &tmp);
     if (!tmp.isNull()) {
+      Object obj1;
       // valid 'F' key -> external file
       kind = soundExternal;
-      fileName = LinkAction::getFileSpecName(&tmp);
+      getFileSpecNameForPlatform (&tmp, &obj1);
+      fileName = obj1.getString()->copy();
+      obj1.free();
     } else {
       // no file specification, then the sound data have to be
       // extracted from the stream

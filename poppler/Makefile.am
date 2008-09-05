@@ -155,6 +155,7 @@ poppler_include_HEADERS =	\
 	Decrypt.h		\
 	Dict.h			\
 	Error.h			\
+	FileSpec.h		\
 	FontEncodingTables.h	\
 	FontInfo.h		\
 	Form.h 			\
@@ -224,6 +225,7 @@ libpoppler_la_SOURCES =		\
 	Decrypt.cc		\
 	Dict.cc 		\
 	Error.cc 		\
+	FileSpec.cc		\
 	FontEncodingTables.cc	\
 	Form.cc 		\
 	FontInfo.cc		\
