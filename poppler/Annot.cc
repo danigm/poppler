@@ -54,6 +54,7 @@
 #include "Movie.h"
 #include "OptionalContent.h"
 #include "Sound.h"
+#include "FileSpec.h"
 #include <string.h>
 
 #define annotFlagHidden    0x0002
@@ -3160,9 +3161,10 @@ void AnnotMovie::initialize(XRef *xrefA, Catalog *catalog, Dict* dict) {
   FWPosY = 0.5;
 
   if (dict->lookup("Movie", &movieDict)->isDict()) {
-    if (movieDict.dictLookup("F", &obj1)->isString()) {
-      fileName = obj1.getString()->copy();
-    }
+    Object obj2;
+    getFileSpecNameForPlatform(movieDict.dictLookup("F", &obj1), &obj2);
+    fileName = obj2.getString()->copy();
+    obj2.free();
     obj1.free();
 
     if (movieDict.dictLookup("Aspect", &obj1)->isArray()) {
