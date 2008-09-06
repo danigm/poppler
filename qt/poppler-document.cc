@@ -317,7 +317,7 @@ bool Document::print(const QString &file, QValueList<int> pageList, double hDPI,
   if (psOut->isOk()) {
     QValueList<int>::iterator it;
     for (it = pageList.begin(); it != pageList.end(); ++it )
-      data->doc.displayPage(psOut, *it, hDPI, vDPI, rotate, gFalse, gTrue, gFalse);
+      data->doc.displayPage(psOut, *it, hDPI, vDPI, rotate, gFalse, gTrue, gTrue);
     
     delete psOut;
     return true;
