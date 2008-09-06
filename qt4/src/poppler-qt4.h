@@ -422,7 +422,7 @@ namespace Poppler {
 	QSizeF pageSizeF() const;
 
 	/**
-	   The size of the page, in pixels
+	   \return The dimensions of the page, in points (i.e. 1/72th on an inch)
 	*/
 	QSize pageSize() const;
 
