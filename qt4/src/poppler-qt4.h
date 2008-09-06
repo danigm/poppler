@@ -542,6 +542,8 @@ namespace Poppler {
 
 	/**
 	   The render backends available
+
+	   \since 0.6
 	*/
 	enum RenderBackend {
 	    SplashBackend,   ///< Splash backend
@@ -550,6 +552,8 @@ namespace Poppler {
 
 	/**
 	   The render hints available
+
+	   \since 0.6
 	*/
 	enum RenderHint {
 	    Antialiasing = 0x00000001,      ///< Antialiasing for graphics
@@ -572,7 +576,7 @@ namespace Poppler {
 	   converting it to a QString first (QString::fromUtf8(), or similar) before
 	   converting to Latin1 encoding.
 
-	   \warning The application owns the pointer to Document, and this should
+	   \note The caller owns the pointer to Document, and this should
 	   be deleted when no longer required.
 	
 	   \warning The returning document may be locked if a password is required
@@ -597,8 +601,10 @@ namespace Poppler {
 	   converting it to a QString first (QString::fromUtf8(), or similar) before
 	   converting to Latin1 encoding.
 
-	   \warning The application owns the pointer to Document, and this should
+	   \note The caller owns the pointer to Document, and this should
 	   be deleted when no longer required.
+
+	   \since 0.6
 	*/
 	static Document *loadFromData(const QByteArray &fileContents,
 			      const QByteArray &ownerPassword=QByteArray(),
@@ -871,17 +877,23 @@ QString subject = m_doc->info("Subject");
 	 availableRenderBackends() will always result in null QImage's.
 
 	 \param backend the new rendering backend
+
+	 \since 0.6
 	 */
 	void setRenderBackend( RenderBackend backend );
 	/**
 	  The currently set render backend
 
 	  The default backend is \ref SplashBackend
+
+	  \since 0.6
 	 */
 	RenderBackend renderBackend() const;
 
 	/**
 	  The available rendering backends.
+
+	  \since 0.6
 	 */
 	static QSet<RenderBackend> availableRenderBackends();
 
@@ -891,10 +903,14 @@ QString subject = m_doc->info("Subject");
 	 \note some hints may not be supported by some rendering backends.
 
 	 \param on whether the flag should be added or removed.
+
+	 \since 0.6
 	 */
 	void setRenderHint( RenderHint hint, bool on = true );
 	/**
 	  The currently set render hints.
+
+	  \since 0.6
 	 */
 	RenderHints renderHints() const;
 	
@@ -947,7 +963,7 @@ QString subject = m_doc->info("Subject");
 	OptContentModel *optionalContentModel();
 
 	/**
-	   Document JavaScript scripts.
+	   Document-level JavaScript scripts.
 
 	   Returns the list of document level JavaScript scripts to be always
 	   executed before any other script.

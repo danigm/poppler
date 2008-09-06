@@ -122,11 +122,11 @@ class POPPLER_QT4_EXPORT Link
 		{
 		    None,     ///< Unknown link
 		    Goto,     ///< A "Go To" link
-		    Execute,
-		    Browse,
-		    Action,
+		    Execute,  ///< A command to be executed
+		    Browse,   ///< An URL to be browsed (eg "http://poppler.freedesktop.org")
+		    Action,   ///< A "standard" action to be executed in the viewer
 		    Sound,    ///< A link representing a sound to be played
-		    Movie,
+		    Movie,    ///< An action to be executed on a movie
 		    JavaScript    ///< A JavaScript code to be interpreted \since 0.10
 		};
 
@@ -204,6 +204,10 @@ class POPPLER_QT4_EXPORT LinkExecute : public Link
 		 * The file name to be executed
 		 */
 		QString fileName() const;
+		/**
+		 * If \ref fileName() represents a command, then this can hold
+		 * the various parameters for it.
+		 */
 		QString parameters() const;
 
 		/**

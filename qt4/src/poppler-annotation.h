@@ -105,13 +105,27 @@ class POPPLER_QT4_EXPORT Annotation
     enum RevScope { Reply = 1, Group = 2, Delete = 4 };
     enum RevType { None = 1,  Marked = 2, Unmarked = 4,  Accepted = 8, Rejected = 16, Cancelled = 32, Completed = 64 };
 
+    /**
+     * Returns the author of the annotation.
+     */
     QString author() const;
+    /**
+     * Sets a new author for the annotation.
+     */
     void setAuthor( const QString &author );
 
     QString contents() const;
     void setContents( const QString &contents );
 
+    /**
+     * Returns the unique name (ID) of the annotation.
+     */
     QString uniqueName() const;
+    /**
+     * Sets a new unique name for the annotation.
+     *
+     * \note no check of the new uniqueName is done
+     */
     void setUniqueName( const QString &uniqueName );
 
     QDateTime modificationDate() const;
@@ -183,10 +197,14 @@ class POPPLER_QT4_EXPORT Annotation
      */
     virtual SubType subType() const = 0;
 
-    // methods: storage/retrieval from xml nodes
+    /**
+     * Save this annotation as a child of \p parentNode.
+     */
     virtual void store( QDomNode & parentNode, QDomDocument & document ) const;
 
-    // destructor
+    /**
+     * Destructor.
+     */
     virtual ~Annotation();
 
   protected:
@@ -436,7 +454,7 @@ class POPPLER_QT4_EXPORT StampAnnotation : public Annotation
 
        Standard names for stamp annotation icons are:
        - Approved
-       - Asls
+       - AsIs
        - Confidential
        - Departmental
        - Draft (this is the default icon type)
@@ -526,7 +544,9 @@ class POPPLER_QT4_EXPORT CaretAnnotation : public Annotation
     virtual void store( QDomNode &parentNode, QDomDocument &document ) const;
     virtual SubType subType() const;
 
-    // local enums
+    /**
+     * The symbols for the caret annotation.
+     */
     enum CaretSymbol { None, P };
 
     CaretSymbol caretSymbol() const;
@@ -553,10 +573,24 @@ class POPPLER_QT4_EXPORT FileAttachmentAnnotation : public Annotation
     virtual void store( QDomNode &parentNode, QDomDocument &document ) const;
     virtual SubType subType() const;
 
+    /**
+     * Returns the name of the icon of this annotation.
+     */
     QString fileIconName() const;
+    /**
+     * Sets a new name for the icon of this annotation.
+     */
     void setFileIconName( const QString &icon );
 
+    /**
+     * Returns the EmbeddedFile of this annotation.
+     */
     EmbeddedFile* embeddedFile() const;
+    /**
+     * Sets a new EmbeddedFile for this annotation.
+     *
+     * \note FileAttachmentAnnotation takes ownership of the object
+     */
     void setEmbeddedFile( EmbeddedFile *ef );
 
   private:
@@ -580,10 +614,24 @@ class POPPLER_QT4_EXPORT SoundAnnotation : public Annotation
     virtual void store( QDomNode &parentNode, QDomDocument &document ) const;
     virtual SubType subType() const;
 
+    /**
+     * Returns the name of the icon of this annotation.
+     */
     QString soundIconName() const;
+    /**
+     * Sets a new name for the icon of this annotation.
+     */
     void setSoundIconName( const QString &icon );
 
+    /**
+     * Returns the SoundObject of this annotation.
+     */
     SoundObject* sound() const;
+    /**
+     * Sets a new SoundObject for this annotation.
+     *
+     * \note SoundAnnotation takes ownership of the object
+     */
     void setSound( SoundObject *ef );
 
   private:
@@ -607,10 +655,24 @@ class POPPLER_QT4_EXPORT MovieAnnotation : public Annotation
     virtual void store( QDomNode &parentNode, QDomDocument &document ) const;
     virtual SubType subType() const;
 
+    /**
+     * Returns the MovieObject of this annotation.
+     */
     MovieObject* movie() const;
+    /**
+     * Sets a new MovieObject for this annotation.
+     *
+     * \note MovieAnnotation takes ownership of the object
+     */
     void setMovie( MovieObject *movie );
 
+    /**
+     * Returns the title of the movie of this annotation.
+     */
     QString movieTitle() const;
+    /**
+     * Sets a new title for the movie of this annotation.
+     */
     void setMovieTitle( const QString &title );
 
   private:
