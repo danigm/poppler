@@ -193,7 +193,7 @@ bool PSConverter::convert()
 	{
 		foreach(int page, d->pageList)
 		{
-			d->document->doc->displayPage(psOut, page, d->hDPI, d->vDPI, d->rotate, gFalse, gTrue, gFalse);
+			d->document->doc->displayPage(psOut, page, d->hDPI, d->vDPI, d->rotate, gFalse, gTrue, gTrue);
 		}
 		delete psOut;
 		d->closeDevice();
