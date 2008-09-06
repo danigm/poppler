@@ -47,15 +47,14 @@ class PSConverterPrivate : public BaseConverterPrivate
 		int marginBottom;
 		int marginLeft;
 		int marginTop;
-		bool strictMargins;
-		bool forceRasterize;
+		PSConverter::PSOptions opts;
 };
 
 PSConverterPrivate::PSConverterPrivate()
 	: BaseConverterPrivate(),
 	hDPI(72), vDPI(72), rotate(0), paperWidth(-1), paperHeight(-1),
 	marginRight(0), marginBottom(0), marginLeft(0), marginTop(0),
-	strictMargins(false), forceRasterize(false)
+	opts(0)
 {
 }
 
@@ -140,13 +139,31 @@ void PSConverter::setTopMargin(int marginTop)
 void PSConverter::setStrictMargins(bool strictMargins)
 {
 	Q_D(PSConverter);
-	d->strictMargins = strictMargins;
+	if (strictMargins)
+		d->opts |= StrictMargins;
+	else
+		d->opts &= ~StrictMargins;
 }
 
 void PSConverter::setForceRasterize(bool forceRasterize)
 {
 	Q_D(PSConverter);
-	d->forceRasterize = forceRasterize;
+	if (forceRasterize)
+		d->opts |= ForceRasterization;
+	else
+		d->opts &= ~ForceRasterization;
+}
+
+void PSConverter::setPSOptions(PSConverter::PSOptions options)
+{
+	Q_D(PSConverter);
+	d->opts = options;
+}
+
+PSConverter::PSOptions PSConverter::psOptions() const
+{
+	Q_D(const PSConverter);
+	return d->opts;
 }
 
 bool PSConverter::convert()
@@ -180,9 +197,9 @@ bool PSConverter::convert()
 	                                     d->marginBottom,
 	                                     d->paperWidth - d->marginRight,
 	                                     d->paperHeight - d->marginTop,
-	                                     d->forceRasterize);
+	                                     (d->opts & ForceRasterization));
 	
-	if (d->strictMargins)
+	if (d->opts & StrictMargins)
 	{
 		double xScale = ((double)d->paperWidth - (double)d->marginLeft - (double)d->marginRight) / (double)d->paperWidth;
 		double yScale = ((double)d->paperHeight - (double)d->marginBottom - (double)d->marginTop) / (double)d->paperHeight;
@@ -191,9 +208,10 @@ bool PSConverter::convert()
 	
 	if (psOut->isOk())
 	{
+		GBool isPrinting = (d->opts & Printing) ? gTrue : gFalse;
 		foreach(int page, d->pageList)
 		{
-			d->document->doc->displayPage(psOut, page, d->hDPI, d->vDPI, d->rotate, gFalse, gTrue, gTrue);
+			d->document->doc->displayPage(psOut, page, d->hDPI, d->vDPI, d->rotate, gFalse, gTrue, isPrinting);
 		}
 		delete psOut;
 		d->closeDevice();

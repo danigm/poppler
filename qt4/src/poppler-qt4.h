@@ -1037,6 +1037,18 @@ height = dummy.height();
         friend class Document;
         public:
             /**
+              Options for the PS export.
+
+              \since 0.10
+             */
+            enum PSOption {
+                Printing = 0x00000001,              ///< The PS is generated for priting purpouses
+                StrictMargins = 0x00000002,
+                ForceRasterization = 0x00000004
+            };
+            Q_DECLARE_FLAGS( PSOptions, PSOption )
+
+            /**
               Destructor.
             */
             ~PSConverter();
@@ -1105,6 +1117,19 @@ height = dummy.height();
 
             /** Defines if the page will be rasterized to an image before printing. Defaults to false */
             void setForceRasterize(bool forceRasterize);
+
+            /**
+              Sets the options for the PS export.
+
+              \since 0.10
+             */
+            void setPSOptions(PSOptions options);
+            /**
+              The currently set options for the PS export.
+
+              \since 0.10
+             */
+            PSOptions psOptions() const;
 
             bool convert();
 
@@ -1297,5 +1322,6 @@ height = dummy.height();
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(Poppler::Document::RenderHints)
 Q_DECLARE_OPERATORS_FOR_FLAGS(Poppler::PDFConverter::PDFOptions)
+Q_DECLARE_OPERATORS_FOR_FLAGS(Poppler::PSConverter::PSOptions)
 
 #endif
