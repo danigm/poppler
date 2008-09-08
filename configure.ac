@@ -1,5 +1,5 @@
 AC_PREREQ(2.59)
-AC_INIT(poppler, 0.8.0)
+AC_INIT(poppler, 0.9.0)
 AM_INIT_AUTOMAKE([foreign])
 AM_CONFIG_HEADER(config.h)
 AM_CONFIG_HEADER(poppler/poppler-config.h)
