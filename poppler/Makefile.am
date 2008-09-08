@@ -136,7 +136,7 @@ libpoppler_la_LIBADD =				\
 	$(PTHREAD_LIBS)				\
 	$(win32_libs)
 
-libpoppler_la_LDFLAGS = -version-info 3:0:0 @create_shared_lib@
+libpoppler_la_LDFLAGS = -version-info 4:0:0 @create_shared_lib@
 
 if ENABLE_XPDF_HEADERS
 

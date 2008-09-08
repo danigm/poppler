@@ -245,7 +245,7 @@ add_library(poppler STATIC ${poppler_SRCS})
 else(MSVC)
 add_library(poppler SHARED ${poppler_SRCS})
 endif(MSVC)
-set_target_properties(poppler PROPERTIES VERSION 3.0.0 SOVERSION 3)
+set_target_properties(poppler PROPERTIES VERSION 4.0.0 SOVERSION 4)
 target_link_libraries(poppler ${poppler_LIBS})
 install(TARGETS poppler RUNTIME DESTINATION bin LIBRARY DESTINATION lib ARCHIVE DESTINATION lib)
 
