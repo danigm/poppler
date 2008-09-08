@@ -1,3 +1,118 @@
+Release 0.9.0 (0.10 Beta 1)
+
+	Core:
+	 * Initial JavaScript support
+	 * Annotation improvements
+	 * Improvements in the Arthur based renderer
+	 * Improvements in the Cairo based renderer
+	 * Added a JPEG2000 decoder based on OpenJPEG
+	 * Small fixes in ActualText implementation
+	 * Fix jpeg rendering when not using the libjpeg based decoder
+	 * Movie fixes
+	 * Do not get out of memory on documents that specify huge fonts
+	 * Emulate Adobe Reader behaviour on documents with duplicate keys in Dictionaries
+	 * Forms improvements	
+	
+	Qt4 frontend:
+	 * Annotation improvements
+	 * Forms improvements
+	 * Add the possibility of extracting embedded fonts
+	 * Initial Movie support
+	 * Documentation improvements
+	 * Small improvements in the PS exporter
+	
+	glib frontend:
+	 * Annotation improvements
+	 * Attachment fixes
+	
+	utils:
+	 * updated man pages
+	 * Added -listenc to pdfinfo and pdftotext
+
+Release 0.8.7
+
+	Core:
+	 * Fix regression in Form rendering
+	 * Fix memory leak in the cairo backend
+
+Release 0.8.6
+
+	Core:
+	 * Call error() when font loading fails
+	 * Be less strict parsing TTF tables (bug #16940)
+	 * Fix crash due to uninitialized variable
+
+	Qt 4 frontend:
+	 * Make the paper color setting working as it should
+	 * Make sure to use the correct page width/height for form widgets coordinates
+
+Release 0.8.5
+
+	Core:
+	 * Fix crash on PDF that define a page thumbnail but it's not a Stream
+	 * Fix crash when Annots object is not of the desired type
+	 * Fix crash when obtaining fonts in PDF where XObjects link themselves in loops
+	 * Fix crash on documents with an IRT object
+	 * Saving should work much better now
+	 * Plug some memory leaks in Annotation handling
+	
+	Utils:
+	 * pdftohtml: Don't crash on documents that specify an invalid named dest for a link
+	 * pdftohtml: Make html output to keep all the spaces with &nbsp;
+	 * pdftohtml: Improve a bit text layout
+	 * pdftohtml: Make xml output valid xml
+
+Release 0.8.4
+
+	Core:
+	 * Fix leak in ABWOutputDev.cc
+	 * Fix uninitialized variable that broke file saving in some cases
+	 * Use a single global FT_Library in CairoOutputDev.
+	   Fixes some crashes in CairoOutputDev.
+	
+	Qt 4 frontend:
+	 * Fix saving over existing files
+	
+	build system:
+	 * Make sure Qt4 moc is used to generate moc files in Qt4 frontend
+
+Release 0.8.3
+
+	Core:
+	 * Fix crash when reading some PDF with annotations
+	 * Fix crash on PDF that reference Optional Content elements that don't exist
+	 * Fix leaks on error conditions
+	 * Do not limit CharCodeToUnicodeString to 8 characters
+	 * Support for surrogates outside the BMP plane
+	
+	Qt 3 frontend:
+	 * Fix crash when reading PDF with password
+	 * Fix leak when calling scanForFonts()
+	
+	Qt 4 frontend:
+	 * Fix the text() method
+	
+	Splash renderer:
+	 * Fix compilation with --enable-fixedpoint
+
+Release 0.8.2
+
+	core:
+	 * Fix call broken by a fix introduced in 0.8.1
+
+Release 0.8.1
+
+	core:
+	 * Do not call FT_Done_Face on a live cairo_font_face_t as it might cause crashes
+	 * Do not take into account Colorspace resource subdictionary for image XObjects
+	 * Downsample 16 bit per component images to 8 bit per component so they render
+	
+	build system:
+	 * Link to pthread when the system needs it
+
+	windows:
+	 * Fix comparing against NULL instead against INVALID_HANDLE_VALUE when calling FindFirstFile
+
 Release 0.8.0
 
 	* Fix caching of members in the glib frontend causing issues with rendering
