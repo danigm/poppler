@@ -407,14 +407,16 @@ static GooString* getInfoString(Dict *infoDict, char *key) {
 static GooString* getInfoDate(Dict *infoDict, char *key) {
   Object obj;
   char *s;
-  int year, mon, day, hour, min, sec;
+  int year, mon, day, hour, min, sec, tz_hour, tz_minute;
+  char tz;
   struct tm tmStruct;
   GooString *result = NULL;
   char buf[256];
 
   if (infoDict->lookup(key, &obj)->isString()) {
     s = obj.getString()->getCString();
-    if ( parseDateString( s, &year, &mon, &day, &hour, &min, &sec ) ) {
+    // TODO do something with the timezone info
+    if ( parseDateString( s, &year, &mon, &day, &hour, &min, &sec, &tz, &tz_hour, &tz_minute ) ) {
       tmStruct.tm_year = year - 1900;
       tmStruct.tm_mon = mon - 1;
       tmStruct.tm_mday = day;

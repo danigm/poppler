@@ -521,14 +521,30 @@ namespace Poppler {
 
     QDateTime convertDate( char *dateString )
     {
-        int year, mon, day, hour, min, sec;
+        int year, mon, day, hour, min, sec, tzHours, tzMins;
+        char tz;
 
-        if ( parseDateString( dateString, &year, &mon, &day, &hour, &min, &sec ) )
+        if ( parseDateString( dateString, &year, &mon, &day, &hour, &min, &sec, &tz, &tzHours, &tzMins ) )
         {
             QDate d( year, mon, day );
             QTime t( hour, min, sec );
             if ( d.isValid() && t.isValid() ) {
-                return QDateTime( d, t );
+                QDateTime dt( d, t, Qt::UTC );
+                if ( tz ) {
+                    // then we have some form of timezone
+                    if ( 'Z' == tz  ) {
+                        // We are already at UTC
+                    } else if ( '+' == tz ) {
+                        // local time is ahead of UTC
+                        dt = dt.addSecs(-1*((tzHours*60)+tzMins)*60);
+                    } else if ( '-' == tz ) {
+                        // local time is behind UTC
+                        dt = dt.addSecs(((tzHours*60)+tzMins)*60);
+                    } else {
+                        qWarning("unexpected tz val");
+                    }
+                }
+		return dt;
             }
         }
         return QDateTime();

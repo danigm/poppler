@@ -221,14 +221,16 @@ QDateTime Document::getDate( const QString & type ) const
   }
 
   Object obj;
-  int year, mon, day, hour, min, sec;
+  int year, mon, day, hour, min, sec, tz_hour, tz_minute;
+  char tz;
   Dict *infoDict = info.getDict();
   QString result;
 
   if ( infoDict->lookup( (char*)type.latin1(), &obj )->isString() )
   {
     QString s = UnicodeParsedString(obj.getString());
-    if ( parseDateString( s.latin1(), &year, &mon, &day, &hour, &min, &sec ) )
+    // TODO do something with the timezone information
+    if ( parseDateString( s.latin1(), &year, &mon, &day, &hour, &min, &sec, &tz, &tz_hour, &tz_minute ) )
     {
       QDate d( year, mon, day );  //CHECK: it was mon-1, Jan->0 (??)
       QTime t( hour, min, sec );

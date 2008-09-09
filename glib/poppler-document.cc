@@ -1508,7 +1508,8 @@ gboolean
 _poppler_convert_pdf_date_to_gtime (GooString *date,
 				    GTime     *gdate) 
 {
-  int year, mon, day, hour, min, sec;
+  int year, mon, day, hour, min, sec, tz_hour, tz_minute;
+  char tz;
   struct tm time;
   gchar *date_string, *ds;
   GTime result;
@@ -1523,7 +1524,8 @@ _poppler_convert_pdf_date_to_gtime (GooString *date,
   ds = date_string;
   
   /* See PDF Reference 1.3, Section 3.8.2 for PDF Date representation */
-  if (!parseDateString(ds, &year, &mon, &day, &hour, &min, &sec)) {
+  // TODO do something with the timezone information
+  if (!parseDateString(ds, &year, &mon, &day, &hour, &min, &sec, &tz, &tz_hour, &tz_minute)) {
     g_free (ds);
     return FALSE;
   }

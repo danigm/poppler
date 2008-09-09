@@ -370,14 +370,16 @@ static void printInfoString(Dict *infoDict, char *key, char *text,
 static void printInfoDate(Dict *infoDict, char *key, char *text) {
   Object obj;
   char *s;
-  int year, mon, day, hour, min, sec;
+  int year, mon, day, hour, min, sec, tz_hour, tz_minute;
+  char tz;
   struct tm tmStruct;
   char buf[256];
 
   if (infoDict->lookup(key, &obj)->isString()) {
     fputs(text, stdout);
     s = obj.getString()->getCString();
-    if ( parseDateString( s, &year, &mon, &day, &hour, &min, &sec ) ) {
+    // TODO do something with the timezone info
+    if ( parseDateString( s, &year, &mon, &day, &hour, &min, &sec, &tz, &tz_hour, &tz_minute ) ) {
       tmStruct.tm_year = year - 1900;
       tmStruct.tm_mon = mon - 1;
       tmStruct.tm_mday = day;

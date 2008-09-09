@@ -22,6 +22,6 @@
 
 #include "goo/gtypes.h"
 
-GBool parseDateString(const char *string, int *year, int *month, int *day, int *hour, int *minute, int *second);
+GBool parseDateString(const char *string, int *year, int *month, int *day, int *hour, int *minute, int *second, char *tz, int *tzHour, int *tzMinute);
 
 #endif
