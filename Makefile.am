@@ -75,6 +75,7 @@ EXTRA_DIST +=							\
 	cmake/modules/MacroPushRequiredVars.cmake		\
 	cmake/modules/PopplerDefaults.cmake			\
 	cmake/modules/PopplerMacros.cmake			\
+	cmake/modules/FindLIBOPENJPEG.cmake			\
 	config.h.cmake						\
 	poppler-cairo.pc.cmake					\
 	poppler-config.h.cmake					\
