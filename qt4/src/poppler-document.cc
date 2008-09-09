@@ -493,7 +493,7 @@ namespace Poppler {
 
     bool Document::hasOptionalContent() const
     {
-        return ( m_doc->doc->getOptContentConfig()->hasOCGs() );
+        return ( m_doc->doc->getOptContentConfig() && m_doc->doc->getOptContentConfig()->hasOCGs() );
     }
 
     OptContentModel *Document::optionalContentModel()
