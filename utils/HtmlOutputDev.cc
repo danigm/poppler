@@ -20,6 +20,7 @@
 // Copyright (C) 2005-2008 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2008 Kjartan Maraas <kmaraas@gnome.org>
 // Copyright (C) 2008 Boris Toloknov <tlknv@yandex.ru>
+// Copyright (C) 2008 Haruyuki Kawabe <Haruyuki.Kawabe@unisys.co.jp>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -1473,7 +1474,7 @@ GBool HtmlOutputDev::dumpDocOutline(Catalog* catalog)
 		}
 		else
 		{
-			GooString *str = basename(Docname);
+			GooString *str = Docname->copy();
 			str->append("-outline.html");
 			output = fopen(str->getCString(), "w");
 			if (output == NULL)
