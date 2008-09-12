@@ -30,6 +30,7 @@
 #include <string.h>
 #include "goo/gmem.h"
 #include "Decrypt.h"
+#include "Error.h"
 
 static void rc4InitKey(Guchar *key, int keyLen, Guchar *state);
 static Guchar rc4DecryptByte(Guchar *state, Guchar *x, Guchar *y, Guchar c);
@@ -614,6 +615,11 @@ static void aesDecryptBlock(DecryptAESState *s, Guchar *in, GBool last) {
       s->buf[i] = s->buf[i-n];
     }
     s->bufIdx = n;
+    if (n > 16)
+    {
+      error(-1, "Reducing bufIdx from %d to 16 to not crash", n);
+      s->bufIdx = 16;
+    }
   }
 }
 
