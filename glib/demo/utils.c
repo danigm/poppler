@@ -82,6 +82,7 @@ static void
 pgd_action_view_add_destination (GtkWidget   *action_view,
 				 GtkTable    *table,
 				 PopplerDest *dest,
+				 gboolean     remote,
 				 gint        *row)
 {
 	PopplerDocument *document;
@@ -98,7 +99,7 @@ pgd_action_view_add_destination (GtkWidget   *action_view,
 	if (dest->type != POPPLER_DEST_NAMED) {
 		str = NULL;
 		
-		if (document) {
+		if (document && !remote) {
 			PopplerPage *poppler_page;
 			gchar       *page_label;
 			
@@ -140,7 +141,7 @@ pgd_action_view_add_destination (GtkWidget   *action_view,
 	} else {
 		pgd_table_add_property (table, "<b>Named Dest:</b>", dest->named_dest, row);
 
-		if (document) {
+		if (document && !remote) {
 			PopplerDest *new_dest;
 
 			new_dest = poppler_document_find_dest (document, dest->named_dest);
@@ -158,7 +159,7 @@ pgd_action_view_add_destination (GtkWidget   *action_view,
 				gtk_widget_show (alignment);
 				
 				pgd_action_view_add_destination (action_view, GTK_TABLE (new_table),
-								 new_dest, &new_row);
+								 new_dest, FALSE, &new_row);
 				poppler_dest_free (new_dest);
 
 				gtk_container_add (GTK_CONTAINER (alignment), new_table);
@@ -205,12 +206,12 @@ pgd_action_view_set_action (GtkWidget     *action_view,
 		pgd_table_add_property (GTK_TABLE (table), "<b>Type:</b>", "None", &row);
 		break;
 	case POPPLER_ACTION_GOTO_DEST:
-		pgd_action_view_add_destination (action_view, GTK_TABLE (table), action->goto_dest.dest, &row);
+		pgd_action_view_add_destination (action_view, GTK_TABLE (table), action->goto_dest.dest, FALSE, &row);
 		break;
 	case POPPLER_ACTION_GOTO_REMOTE:
 		pgd_table_add_property (GTK_TABLE (table), "<b>Type:</b>", "Remote Destination", &row);
 		pgd_table_add_property (GTK_TABLE (table), "<b>Filename:</b>", action->goto_remote.file_name, &row);
-		pgd_action_view_add_destination (action_view, GTK_TABLE (table), action->goto_remote.dest, &row);
+		pgd_action_view_add_destination (action_view, GTK_TABLE (table), action->goto_remote.dest, TRUE, &row);
 		break;
 	case POPPLER_ACTION_LAUNCH:
 		pgd_table_add_property (GTK_TABLE (table), "<b>Type:</b>", "Launch", &row);
