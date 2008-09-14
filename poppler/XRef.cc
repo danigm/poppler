@@ -34,6 +34,7 @@
 #include <stddef.h>
 #include <string.h>
 #include <ctype.h>
+#include <limits.h>
 #include "goo/gmem.h"
 #include "Object.h"
 #include "Stream.h"
@@ -922,6 +923,30 @@ Object *XRef::fetch(int num, int gen, Object *obj) {
     if (!obj1.isInt() || obj1.getInt() != num ||
 	!obj2.isInt() || obj2.getInt() != gen ||
 	!obj3.isCmd("obj")) {
+      // some buggy pdf have obj1234 for ints that represent 1234
+      // try to recover here
+      if (obj1.isInt() && obj1.getInt() == num &&
+	  obj2.isInt() && obj2.getInt() == gen &&
+	  obj3.isCmd()) {
+	char *cmd = obj3.getCmd();
+	if (strlen(cmd) > 3 &&
+	    cmd[0] == 'o' &&
+	    cmd[1] == 'b' &&
+	    cmd[2] == 'j') {
+	  char *end_ptr;
+	  long longNumber = strtol(cmd + 3, &end_ptr, 0);
+	  if (longNumber <= INT_MAX && longNumber >= INT_MIN && *end_ptr == '\0') {
+	    int number = longNumber;
+	    error(-1, "Cmd was not obj but %s, assuming the creator meant obj %d", cmd, number);
+	    obj->initInt(number);
+	    obj1.free();
+	    obj2.free();
+	    obj3.free();
+	    delete parser;
+	    break;
+	  }
+	}
+      }
       obj1.free();
       obj2.free();
       obj3.free();
