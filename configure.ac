@@ -221,6 +221,7 @@ if test x$enable_cairo_output = xyes; then
   AC_DEFINE(HAVE_CAIRO)
   CAIRO_FEATURE="#define POPPLER_HAS_CAIRO 1"
   CAIRO_REQ="cairo"
+  AC_CHECK_HEADERS(fcntl.h sys/mman.h sys/stat.h)
 else
   CAIRO_FEATURE="#undef POPPLER_HAS_CAIRO"
   CAIRO_REQ=""

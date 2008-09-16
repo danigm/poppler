@@ -39,6 +39,13 @@
 #include "goo/gfile.h"
 #include "Error.h"
 
+#if HAVE_FCNTL_H && HAVE_SYS_MMAN_H && HAVE_SYS_STAT_H
+#include <fcntl.h>
+#include <sys/stat.h>
+#include <sys/mman.h>
+#define CAN_CHECK_OPEN_FACES 1
+#endif
+
 #ifdef USE_GCC_PRAGMAS
 #pragma implementation
 #endif
@@ -51,11 +58,181 @@ static void fileWrite(void *stream, char *data, int len) {
 // CairoFont
 //------------------------------------------------------------------------
 
-static void _ft_done_face (void *data)
+static cairo_user_data_key_t _ft_cairo_key;
+
+static void
+_ft_done_face_uncached (void *closure)
 {
-  FT_Face face = (FT_Face) data;
-  FT_Done_Face (face);
+    FT_Face face = (FT_Face) closure;
+    FT_Done_Face (face);
 }
+
+static GBool
+_ft_new_face_uncached (FT_Library lib,
+		       const char *filename,
+		       FT_Face *face_out,
+		       cairo_font_face_t **font_face_out)
+{
+  FT_Face face;
+  cairo_font_face_t *font_face;
+
+  if (FT_New_Face (lib, filename, 0, &face))
+    return gFalse;
+
+  font_face = cairo_ft_font_face_create_for_ft_face (face,
+							  FT_LOAD_NO_HINTING |
+							  FT_LOAD_NO_BITMAP);
+  if (cairo_font_face_set_user_data (font_face,
+				     &_ft_cairo_key,
+				     face,
+				     _ft_done_face_uncached))
+  {
+    _ft_done_face_uncached (face);
+    cairo_font_face_destroy (font_face);
+    return gFalse;
+  }
+
+  *face_out = face;
+  *font_face_out = font_face;
+  return gTrue;
+}
+
+#if CAN_CHECK_OPEN_FACES
+static struct _ft_face_data {
+  struct _ft_face_data *prev, *next, **head;
+
+  int fd;
+  unsigned long hash;
+  size_t size;
+  unsigned char *bytes;
+
+  FT_Library lib;
+  FT_Face face;
+  cairo_font_face_t *font_face;
+} *_ft_open_faces;
+
+static unsigned long
+_djb_hash (const unsigned char *bytes, size_t len)
+{
+  unsigned long hash = 5381;
+  while (len--) {
+    unsigned char c = *bytes++;
+    hash *= 33;
+    hash ^= c;
+  }
+  return hash;
+}
+
+static GBool
+_ft_face_data_equal (struct _ft_face_data *a, struct _ft_face_data *b)
+{
+  if (a->lib != b->lib)
+    return gFalse;
+  if (a->size != b->size)
+    return gFalse;
+  if (a->hash != b->hash)
+    return gFalse;
+
+  return memcmp (a->bytes, b->bytes, a->size) == 0;
+}
+
+static void
+_ft_done_face (void *closure)
+{
+  struct _ft_face_data *data = (struct _ft_face_data *) closure;
+
+  if (data->next)
+    data->next->prev = data->prev;
+  if (data->prev)
+    data->prev->next = data->next;
+  else
+    _ft_open_faces = data->next;
+
+  munmap (data->bytes, data->size);
+  close (data->fd);
+
+  FT_Done_Face (data->face);
+  gfree (data);
+}
+
+static GBool
+_ft_new_face (FT_Library lib,
+	      const char *filename,
+	      FT_Face *face_out,
+	      cairo_font_face_t **font_face_out)
+{
+  struct _ft_face_data *l;
+  struct stat st;
+  struct _ft_face_data tmpl;
+
+  /* if we fail to mmap the file, just pass it to FreeType instead */
+  tmpl.fd = open (filename, O_RDONLY);
+  if (tmpl.fd == -1)
+    return _ft_new_face_uncached (lib, filename, face_out, font_face_out);
+
+  if (fstat (tmpl.fd, &st) == -1) {
+    close (tmpl.fd);
+    return _ft_new_face_uncached (lib, filename, face_out, font_face_out);
+  }
+
+  tmpl.bytes = (unsigned char *) mmap (NULL, st.st_size,
+				       PROT_READ, MAP_PRIVATE,
+				       tmpl.fd, 0);
+  if (tmpl.bytes == MAP_FAILED) {
+    close (tmpl.fd);
+    return _ft_new_face_uncached (lib, filename, face_out, font_face_out);
+  }
+
+  /* check to see if this is a duplicate of any of the currently open fonts */
+  tmpl.lib = lib;
+  tmpl.size = st.st_size;
+  tmpl.hash = _djb_hash (tmpl.bytes, tmpl.size);
+
+  for (l = _ft_open_faces; l; l = l->next) {
+    if (_ft_face_data_equal (l, &tmpl)) {
+      munmap (tmpl.bytes, tmpl.size);
+      close (tmpl.fd);
+      *face_out = l->face;
+      *font_face_out = cairo_font_face_reference (l->font_face);
+      return gTrue;
+    }
+  }
+
+  /* not a dup, open and insert into list */
+  if (FT_New_Face (lib, filename, 0, &tmpl.face)) {
+    munmap (tmpl.bytes, tmpl.size);
+    close (tmpl.fd);
+    return gFalse;
+  }
+
+  l = (struct _ft_face_data *) gmallocn (1, sizeof (struct _ft_face_data));
+  *l = tmpl;
+  l->prev = NULL;
+  l->next = _ft_open_faces;
+  if (_ft_open_faces)
+    _ft_open_faces->prev = l;
+  _ft_open_faces = l;
+
+  l->font_face = cairo_ft_font_face_create_for_ft_face (tmpl.face,
+							  FT_LOAD_NO_HINTING |
+							  FT_LOAD_NO_BITMAP);
+  if (cairo_font_face_set_user_data (l->font_face,
+				     &_ft_cairo_key,
+				     l,
+				     _ft_done_face))
+  {
+    cairo_font_face_destroy (l->font_face);
+    _ft_done_face (l);
+    return NULL;
+  }
+
+  *face_out = l->face;
+  *font_face_out = l->font_face;
+  return gTrue;
+}
+#else
+#define _ft_new_face _ft_new_face_uncached
+#endif
 
 CairoFont *CairoFont::create(GfxFont *gfxFont, XRef *xref, FT_Library lib, GBool useCIDs) {
   Ref embRef;
@@ -70,9 +247,8 @@ CairoFont *CairoFont::create(GfxFont *gfxFont, XRef *xref, FT_Library lib, GBool
   FoFiTrueType *ff;
   FoFiType1C *ff1c;
   Ref ref;
-  static cairo_user_data_key_t cairo_font_face_key;
-  cairo_font_face_t *cairo_font_face;
   FT_Face face;
+  cairo_font_face_t *font_face;
 
   Gushort *codeToGID;
   int codeToGIDLen;
@@ -80,7 +256,6 @@ CairoFont *CairoFont::create(GfxFont *gfxFont, XRef *xref, FT_Library lib, GBool
   dfp = NULL;
   codeToGID = NULL;
   codeToGIDLen = 0;
-  cairo_font_face = NULL;
 
   GBool substitute = gFalse;
   
@@ -141,7 +316,7 @@ CairoFont *CairoFont::create(GfxFont *gfxFont, XRef *xref, FT_Library lib, GBool
   switch (fontType) {
   case fontType1:
   case fontType1C:
-    if (FT_New_Face(lib, fileName->getCString(), 0, &face)) {
+    if (! _ft_new_face (lib, fileName->getCString(), &face, &font_face)) {
       error(-1, "could not create type1 face");
       goto err2;
     }
@@ -196,7 +371,7 @@ CairoFont *CairoFont::create(GfxFont *gfxFont, XRef *xref, FT_Library lib, GBool
     fclose(tmpFile);
     delete ff;
 
-    if (FT_New_Face(lib, tmpFileName2->getCString(), 0, &face)) {
+    if (! _ft_new_face (lib, tmpFileName2->getCString(), &face, &font_face)) {
       error(-1, "could not create truetype face\n");
       goto err2;
     }
@@ -218,7 +393,7 @@ CairoFont *CairoFont::create(GfxFont *gfxFont, XRef *xref, FT_Library lib, GBool
       }
     }
 
-    if (FT_New_Face(lib, fileName->getCString(), 0, &face)) {
+    if (! _ft_new_face (lib, fileName->getCString(), &face, &font_face)) {
       gfree(codeToGID);
       codeToGID = NULL;
       error(-1, "could not create cid face\n");
@@ -240,22 +415,11 @@ CairoFont *CairoFont::create(GfxFont *gfxFont, XRef *xref, FT_Library lib, GBool
     delete tmpFileName;
   }
 
-  cairo_font_face = cairo_ft_font_face_create_for_ft_face (face,
-							   FT_LOAD_NO_HINTING |
-							   FT_LOAD_NO_BITMAP);
-  if (cairo_font_face_status (cairo_font_face)) {
-    error(-1, "could not create cairo font: %s\n", cairo_status_to_string (cairo_font_face_status (cairo_font_face)));
-    goto err2; /* this doesn't do anything, but it looks like we're
-		* handling the error */
-  } {
-  CairoFont *ret = new CairoFont(ref, cairo_font_face, face, codeToGID, codeToGIDLen, substitute);
-  cairo_font_face_set_user_data (cairo_font_face,
-				 &cairo_font_face_key,
-				 face,
-				 _ft_done_face);
+  return new CairoFont(ref,
+		       font_face, face,
+		       codeToGID, codeToGIDLen,
+		       substitute);
 
-  return ret;
-  }
  err2:
   /* hmm? */
   printf ("some font thing failed\n");
