@@ -4379,6 +4379,8 @@ void PSOutputDev::doImageL1(Object *ref, GfxImageColorMap *colorMap,
       str->close();
       delete str;
     } else {
+      // make sure the image is setup, it sometimes is not like on bug #17645
+      setupImage(ref->getRef(), str);
       // set up to use the array already created by setupImages()
       writePSFmt("ImData_{0:d}_{1:d} 0\n", ref->getRefNum(), ref->getRefGen());
     }
@@ -4840,6 +4842,8 @@ void PSOutputDev::doImageL2(Object *ref, GfxImageColorMap *colorMap,
       str2->close();
       delete str2;
     } else {
+      // make sure the image is setup, it sometimes is not like on bug #17645
+      setupImage(ref->getRef(), str);
       // set up to use the array already created by setupImages()
       writePSFmt("ImData_{0:d}_{1:d} 0\n", ref->getRefNum(), ref->getRefGen());
     }
@@ -5108,6 +5112,8 @@ void PSOutputDev::doImageL3(Object *ref, GfxImageColorMap *colorMap,
       str2->close();
       delete str2;
     } else {
+      // make sure the image is setup, it sometimes is not like on bug #17645
+      setupImage(ref->getRef(), str);
       // set up to use the array already created by setupImages()
       writePSFmt("ImData_{0:d}_{1:d} 0\n", ref->getRefNum(), ref->getRefGen());
     }
