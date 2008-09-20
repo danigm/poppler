@@ -446,12 +446,20 @@ GooString *Catalog::getJS(int i)
     obj.free();
     return 0;
   }
-  if (!obj.dictLookup("JS", &obj2)->isString()) {
-    obj2.free();
-    obj.free();
-    return 0;
+  obj.dictLookup("JS", &obj2);
+  GooString *js = 0;
+  if (obj2.isString()) {
+    js = new GooString(obj2.getString());
   }
-  GooString *js = new GooString(obj2.getString());
+  else if (obj2.isStream()) {
+    Stream *stream = obj2.getStream();
+    js = new GooString();
+    stream->reset();
+    int i;
+    while ((i = stream->getChar()) != EOF) {
+      js->append((char)i);
+    }
+  }
   obj2.free();
   obj.free();
   return js;
