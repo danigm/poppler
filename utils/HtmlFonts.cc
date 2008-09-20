@@ -131,7 +131,8 @@ HtmlFont::HtmlFont(GooString* ftname,int _size, GfxRGB rgb){
 	}
     pos=i;
     delete fontname;
-  }  
+  } else
+    pos = font_num; 
   if (!DefaultFont) DefaultFont=new GooString(fonts[font_num].name);
 
 }
