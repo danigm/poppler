@@ -8,6 +8,9 @@
 //
 // Modified under the Poppler project - http://poppler.freedesktop.org
 //
+// All changes made under the Poppler project to this file are licensed
+// under GPL version 2 or later
+//
 // Copyright (C) 2007-2008 Albert Astals Cid <aacid@kde.org>
 //
 // To see a description of the changes please see the Changelog file that

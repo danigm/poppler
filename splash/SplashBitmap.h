@@ -8,6 +8,9 @@
 //
 // Modified under the Poppler project - http://poppler.freedesktop.org
 //
+// All changes made under the Poppler project to this file are licensed
+// under GPL version 2 or later
+//
 // Copyright (C) 2007 Ilmari Heikkinen <ilmari.heikkinen@gmail.com>
 //
 // To see a description of the changes please see the Changelog file that
