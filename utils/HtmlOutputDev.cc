@@ -1095,6 +1095,7 @@ void HtmlOutputDev::endPage() {
   {
       processLink(linksList->getLink(i));
   }
+  delete linksList;
 
   pages->conv();
   pages->coalesce();
