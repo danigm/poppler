@@ -1,5 +1,5 @@
 /* poppler-document.cc: qt interface to poppler
- * Copyright (C) 2005, Albert Astals Cid <aacid@kde.org>
+ * Copyright (C) 2005, 2008, Albert Astals Cid <aacid@kde.org>
  * Copyright (C) 2005, Brad Hards <bradh@frogmouth.net>
  * Copyright (C) 2008, Pino Toscano <pino@kde.org>
  *
@@ -100,6 +100,6 @@ QByteArray EmbeddedFile::data()
 	}
 	fileArray.resize(dataLen);
 	return fileArray;
-};
+}
 
 }

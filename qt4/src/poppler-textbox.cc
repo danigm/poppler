@@ -43,7 +43,7 @@ QString TextBox::text() const
 QRectF TextBox::boundingBox() const
 {
 	return m_data->bBox;
-};
+}
 
 TextBox *TextBox::nextWord() const
 {
