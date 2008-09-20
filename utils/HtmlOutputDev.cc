@@ -21,6 +21,7 @@
 // Copyright (C) 2008 Kjartan Maraas <kmaraas@gnome.org>
 // Copyright (C) 2008 Boris Toloknov <tlknv@yandex.ru>
 // Copyright (C) 2008 Haruyuki Kawabe <Haruyuki.Kawabe@unisys.co.jp>
+// Copyright (C) 2008 Tomas Are Haavet <tomasare@gmail.com>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -142,7 +143,7 @@ HtmlString::HtmlString(GfxState *state, double fontSize, HtmlFontAccu* fonts) {
 
 
 HtmlString::~HtmlString() {
-  delete text;
+  gfree(text);
   delete htext;
   gfree(xRight);
 }
