@@ -66,10 +66,10 @@ struct _PopplerAnnotFreeTextClass
   PopplerAnnotMarkupClass parent_class;
 };
 
-G_DEFINE_TYPE (PopplerAnnot, poppler_annot, G_TYPE_OBJECT);
-G_DEFINE_TYPE (PopplerAnnotMarkup, poppler_annot_markup, POPPLER_TYPE_ANNOT);
-G_DEFINE_TYPE (PopplerAnnotText, poppler_annot_text, POPPLER_TYPE_ANNOT_MARKUP);
-G_DEFINE_TYPE (PopplerAnnotFreeText, poppler_annot_free_text, POPPLER_TYPE_ANNOT_MARKUP);
+G_DEFINE_TYPE (PopplerAnnot, poppler_annot, G_TYPE_OBJECT)
+G_DEFINE_TYPE (PopplerAnnotMarkup, poppler_annot_markup, POPPLER_TYPE_ANNOT)
+G_DEFINE_TYPE (PopplerAnnotText, poppler_annot_text, POPPLER_TYPE_ANNOT_MARKUP)
+G_DEFINE_TYPE (PopplerAnnotFreeText, poppler_annot_free_text, POPPLER_TYPE_ANNOT_MARKUP)
 
 static void
 poppler_annot_finalize (GObject *object)

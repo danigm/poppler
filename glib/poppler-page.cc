@@ -44,7 +44,7 @@ struct _PopplerPageClass
   GObjectClass parent_class;
 };
 
-G_DEFINE_TYPE (PopplerPage, poppler_page, G_TYPE_OBJECT);
+G_DEFINE_TYPE (PopplerPage, poppler_page, G_TYPE_OBJECT)
 
 PopplerPage *
 _poppler_page_new (PopplerDocument *document, Page *page, int index)

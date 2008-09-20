@@ -59,7 +59,7 @@ struct _PopplerDocumentClass
   GObjectClass parent_class;
 };
 
-G_DEFINE_TYPE (PopplerDocument, poppler_document, G_TYPE_OBJECT);
+G_DEFINE_TYPE (PopplerDocument, poppler_document, G_TYPE_OBJECT)
 
 static PopplerDocument *
 _poppler_document_new_from_pdfdoc (PDFDoc  *newDoc,
@@ -1275,7 +1275,7 @@ struct _PopplerFontInfoClass
         GObjectClass parent_class;
 };
 
-G_DEFINE_TYPE (PopplerFontInfo, poppler_font_info, G_TYPE_OBJECT);
+G_DEFINE_TYPE (PopplerFontInfo, poppler_font_info, G_TYPE_OBJECT)
 
 static void poppler_font_info_finalize (GObject *object);
 
@@ -1358,7 +1358,7 @@ struct _PopplerPSFileClass
         GObjectClass parent_class;
 };
 
-G_DEFINE_TYPE (PopplerPSFile, poppler_ps_file, G_TYPE_OBJECT);
+G_DEFINE_TYPE (PopplerPSFile, poppler_ps_file, G_TYPE_OBJECT)
 
 static void poppler_ps_file_finalize (GObject *object);
 

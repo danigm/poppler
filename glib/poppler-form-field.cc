@@ -27,7 +27,7 @@ struct _PopplerFormFieldClass
   GObjectClass parent_class;
 };
 
-G_DEFINE_TYPE (PopplerFormField, poppler_form_field, G_TYPE_OBJECT);
+G_DEFINE_TYPE (PopplerFormField, poppler_form_field, G_TYPE_OBJECT)
 
 static void
 poppler_form_field_finalize (GObject *object)

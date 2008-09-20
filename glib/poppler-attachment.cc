@@ -36,7 +36,7 @@ struct _PopplerAttachmentPrivate
 
 static void poppler_attachment_finalize (GObject *obj);
 
-G_DEFINE_TYPE (PopplerAttachment, poppler_attachment, G_TYPE_OBJECT);
+G_DEFINE_TYPE (PopplerAttachment, poppler_attachment, G_TYPE_OBJECT)
 
 static void
 poppler_attachment_init (PopplerAttachment *attachment)

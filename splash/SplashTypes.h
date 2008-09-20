@@ -12,6 +12,7 @@
 // under GPL version 2 or later
 //
 // Copyright (C) 2006 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2008 Tomas Are Haavet <tomasare@gmail.com>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -52,7 +53,7 @@ enum SplashColorMode {
 				//   RGBRGB...
   splashModeBGR8,		// 1 byte per component, 3 bytes per pixel:
 				//   BGRBGR...
-  splashModeXBGR8,	// 1 byte per component, 4 bytes per pixel:
+  splashModeXBGR8		// 1 byte per component, 4 bytes per pixel:
 				//   XBGRXBGR...
 #if SPLASH_CMYK
   ,
