@@ -167,7 +167,7 @@ void FormWidget::updateField (const char *key, Object *value)
   }
   obj2.free ();
 
-  obj1->getDict ()->set ("V", value);
+  obj1->getDict ()->set (const_cast<char*>(key), value);
   //notify the xref about the update
   xref->setModifiedObject(obj1, ref1);
 }
