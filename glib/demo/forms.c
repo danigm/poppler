@@ -208,11 +208,13 @@ pgd_form_field_view_set_field (GtkWidget        *field_view,
 
 		pgd_form_field_view_add_choice_items (GTK_TABLE (table), field, &selected, &row);
 
-		item = poppler_form_field_choice_get_item (field, selected);
-		text = g_strdup_printf ("%d (%s)", selected, item);
-		g_free (item);
-		pgd_table_add_property (GTK_TABLE (table), "<b>Selected item:</b>", text, &row);
-		g_free (text);
+		if (poppler_form_field_choice_get_n_items (field) > selected) {
+			item = poppler_form_field_choice_get_item (field, selected);
+			text = g_strdup_printf ("%d (%s)", selected, item);
+			g_free (item);
+			pgd_table_add_property (GTK_TABLE (table), "<b>Selected item:</b>", text, &row);
+			g_free (text);
+		}
 
 		text = poppler_form_field_choice_get_text (field);
 		pgd_table_add_property (GTK_TABLE (table), "<b>Contents:</b>", text, &row);
