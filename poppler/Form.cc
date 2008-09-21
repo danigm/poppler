@@ -765,6 +765,9 @@ FormField::FormField(XRef* xrefA, Object *aobj, const Ref& aref, FormFieldType t
   //flags
   if (Form::fieldLookup(dict, "Ff", &obj1)->isInt()) {
     int flags = obj1.getInt();
+    if (flags & 0x1) { // 1 -> ReadOnly
+      readOnly = true;
+    }
     if (flags & 0x2) { // 2 -> Required
       //TODO
     }
@@ -1163,15 +1166,6 @@ Form::Form(XRef *xrefA, Object* acroFormA)
       }
 
       rootFields[numFields++] = createFieldFromDict (&obj2, xrefA, oref.getRef());
-
-      //Mark readonly field
-      Object obj3;
-      if (Form::fieldLookup(obj2.getDict (), "Ff", &obj3)->isInt()) {
-        int flags = obj3.getInt();
-        if (flags & 0x1)
-          rootFields[numFields-1]->setReadOnly(true);
-      }
-      obj3.free();
 
       obj2.free();
       oref.free();
