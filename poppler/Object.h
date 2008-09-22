@@ -15,6 +15,7 @@
 //
 // Copyright (C) 2007 Julien Rebetez <julienr@svn.gnome.org>
 // Copyright (C) 2008 Kees Cook <kees@outflux.net>
+// Copyright (C) 2008 Albert Astals Cid <aacid@kde.org>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -47,6 +48,13 @@
     if (unlikely(type != wanted_type)) { \
         error(0, "Call to Object where the object was type %d, " \
                  "not the expected type %d", type, wanted_type); \
+        abort(); \
+    }
+
+#define OBJECT_2TYPES_CHECK(wanted_type1, wanted_type2) \
+    if (unlikely(type != wanted_type1) && unlikely(type != wanted_type2)) { \
+        error(0, "Call to Object where the object was type %d, " \
+                 "not the expected type %d or %d", type, wanted_type1, wanted_type2); \
         abort(); \
     }
 
@@ -177,20 +185,20 @@ public:
   GBool isCmd(char *cmdA)
     { return type == objCmd && !strcmp(cmd, cmdA); }
 
-  // Accessors.  NB: these assume object is of correct type.
-  GBool getBool() { return booln; }
-  int getInt() { return intg; }
-  double getReal() { return real; }
-  double getNum() { return type == objInt ? (double)intg : real; }
-  GooString *getString() { return string; }
-  char *getName() { return name; }
-  Array *getArray() { return array; }
-  Dict *getDict() { return dict; }
-  Stream *getStream() { return stream; }
-  Ref getRef() { return ref; }
-  int getRefNum() { return ref.num; }
-  int getRefGen() { return ref.gen; }
-  char *getCmd() { return cmd; }
+  // Accessors.
+  GBool getBool() { OBJECT_TYPE_CHECK(objBool); return booln; }
+  int getInt() { OBJECT_TYPE_CHECK(objInt); return intg; }
+  double getReal() { OBJECT_TYPE_CHECK(objReal); return real; }
+  double getNum() { OBJECT_2TYPES_CHECK(objInt, objReal); return type == objInt ? (double)intg : real; }
+  GooString *getString() { OBJECT_TYPE_CHECK(objString); return string; }
+  char *getName() { OBJECT_TYPE_CHECK(objName); return name; }
+  Array *getArray() { OBJECT_TYPE_CHECK(objArray); return array; }
+  Dict *getDict() { OBJECT_TYPE_CHECK(objDict); return dict; }
+  Stream *getStream() { OBJECT_TYPE_CHECK(objStream); return stream; }
+  Ref getRef() { OBJECT_TYPE_CHECK(objRef); return ref; }
+  int getRefNum() { OBJECT_TYPE_CHECK(objRef); return ref.num; }
+  int getRefGen() { OBJECT_TYPE_CHECK(objRef); return ref.gen; }
+  char *getCmd() { OBJECT_TYPE_CHECK(objCmd); return cmd; }
 
   // Array accessors.
   int arrayGetLength();
