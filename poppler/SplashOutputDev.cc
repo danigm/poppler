@@ -1000,6 +1000,7 @@ void SplashOutputDev::doUpdateFont(GfxState *state) {
   int substIdx, n;
   int faceIndex = 0;
   GBool recreateFont = gFalse;
+  GBool doAdjustFontMatrix = gFalse;
 
   needFontUpdate = gFalse;
   font = NULL;
@@ -1054,6 +1055,7 @@ void SplashOutputDev::doUpdateFont(GfxState *state) {
 	faceIndex = dfp->tt.faceIndex;
 	break;
       }
+      doAdjustFontMatrix = gTrue;
     }
 
     fontsrc = new SplashFontSrc;
@@ -1182,7 +1184,7 @@ void SplashOutputDev::doUpdateFont(GfxState *state) {
       // this shouldn't happen
       goto err2;
     }
-    fontFile->doAdjustMatrix = gTrue;
+    fontFile->doAdjustMatrix = doAdjustFontMatrix;
   }
 
   // get the font matrix
