@@ -1,3 +1,22 @@
+Release 0.9.2 (0.10 RC 1)
+
+	core:
+	 * Fix conversion to PS some files (bug #17645)
+	 * Small Form fixes
+	 * Small JS fixes
+	 * Improve memory usage of the cairo renderer
+	
+	utils:
+	 * Fix mismatched free/delete in pdftohtml
+	 * Fix memory leak in pdftohtml
+	 * Fix crash in pdftohtml
+	
+	glib:
+	 * Fix a crash in forms demo
+	
+	misc:
+	 * Compile with -pedantic
+
 Release 0.9.1 (0.10 Beta 2)
 
 	Core:
