@@ -1392,7 +1392,7 @@ GfxCIDFont::GfxCIDFont(XRef *xref, char *tagA, Ref idA, GooString *nameA,
 	  "Adobe-Korea1",
 	};
 	for (size_t i = 0; i < sizeof(knownCollections)/sizeof(knownCollections[0]); i++) {
-	  if (collection->cmp(knownCollections[i])) {
+	  if (collection->cmp(knownCollections[i]) == 0) {
 	    error(-1, "Missing language pack for '%s' mapping", collection->getCString());
 	    delete collection;
 	    goto err2;
