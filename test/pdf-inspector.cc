@@ -23,10 +23,7 @@
 #include "GfxState.h"
 
 #include <gdk/gdk.h>
-#include <gdk/gdkx.h>
 #include "CairoOutputDev.h"
-#include <cairo-xlib.h>
-#include <X11/Xutil.h>
 
 #include "PDFDoc.h"
 #include "GlobalParams.h"

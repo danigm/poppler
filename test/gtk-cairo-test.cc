@@ -15,9 +15,6 @@
 
 #include <math.h>
 #include <gdk/gdk.h>
-#include <gdk/gdkx.h>
-#include <cairo-xlib.h>
-#include <X11/Xutil.h>
 #include <gtk/gtk.h>
 #include <poppler.h>
 
