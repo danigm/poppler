@@ -18,6 +18,7 @@
 
 #include <gtk/gtk.h>
 
+#include "config.h"
 #include "info.h"
 #include "utils.h"
 

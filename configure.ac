@@ -27,7 +27,7 @@ dnl Check for OS specific flags
 win32_libs=""
 create_shared_lib=""
 case "$host_os" in
-  mingw|mingw32)
+  mingw*)
     win32_libs="-lgdi32"
     create_shared_lib="-no-undefined"
   ;;
