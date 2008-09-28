@@ -227,6 +227,27 @@ void *greallocn(void *p, int nObjs, int objSize) GMEM_EXCEP {
   return grealloc(p, n);
 }
 
+void *greallocn_checkoverflow(void *p, int nObjs, int objSize) GMEM_EXCEP {
+  int n;
+
+  if (nObjs == 0) {
+    if (p) {
+      gfree(p);
+    }
+    return NULL;
+  }
+  n = nObjs * objSize;
+  if (objSize <= 0 || nObjs < 0 || nObjs >= INT_MAX / objSize) {
+#if USE_EXCEPTIONS
+    throw GMemException();
+#else
+    fprintf(stderr, "Bogus memory allocation size\n");
+    return NULL;
+#endif
+  }
+  return grealloc(p, n);
+}
+
 void gfree(void *p) {
 #ifdef DEBUG_MEM
   int size;

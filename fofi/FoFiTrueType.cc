@@ -1908,8 +1908,8 @@ void FoFiTrueType::parse() {
     pos += 16;
   }
   nTables -= wrongTables;
-  tables = (TrueTypeTable *)greallocn(tables, nTables, sizeof(TrueTypeTable));
-  if (!parsedOk) {
+  tables = (TrueTypeTable *)greallocn_checkoverflow(tables, nTables, sizeof(TrueTypeTable));
+  if (!parsedOk || tables == NULL) {
     return;
   }
 
