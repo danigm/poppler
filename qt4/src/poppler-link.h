@@ -42,15 +42,28 @@ class LinkDestinationPrivate;
 class SoundObject;
 
 /**
- * \short Encapsulates data that describes a link destination.
+ * \short A destination.
+ *
+ * The LinkDestination class represent a "destination" (in terms of visual
+ * viewport to be displayed) for \link Poppler::LinkGoto GoTo\endlink links,
+ * and items in the table of contents (TOC) of a document.
  *
  * Coordinates are in 0..1 range
  */
 class POPPLER_QT4_EXPORT LinkDestination
 {
 	public:
+		/**
+		 * The possible kind of "viewport destination".
+		 */
 		enum Kind
 		{
+			/**
+			 * The new viewport is specified in terms of:
+			 * - possibile new left coordinate (see isChangeLeft() )
+			 * - possibile new top coordinate (see isChangeTop() )
+			 * - possibile new zoom level (see isChangeZoom() )
+			 */
 			destXYZ = 1,
 			destFit = 2,
 			destFitH = 3,
@@ -79,14 +92,45 @@ class POPPLER_QT4_EXPORT LinkDestination
 		 * The kind of destination.
 		 */
 		Kind kind() const;
+		/**
+		 * Which page is the target of this destination.
+		 *
+		 * \note this number is 1-based, so for a 5 pages document the
+		 *       valid page numbers go from 1 to 5 (both included).
+		 */
 		int pageNumber() const;
+		/**
+		 * The new left for the viewport of the target page, in case
+		 * it is specified to be changed (see isChangeLeft() )
+		 */
 		double left() const;
 		double bottom() const;
 		double right() const;
+		/**
+		 * The new top for the viewport of the target page, in case
+		 * it is specified to be changed (see isChangeTop() )
+		 */
 		double top() const;
 		double zoom() const;
+		/**
+		 * Whether the left of the viewport on the target page should
+		 * be changed.
+		 *
+		 * \see left()
+		 */
 		bool isChangeLeft() const;
+		/**
+		 * Whether the top of the viewport on the target page should
+		 * be changed.
+		 *
+		 * \see top()
+		 */
 		bool isChangeTop() const;
+		/**
+		 * Whether the zoom level should be changed.
+		 *
+		 * \see zoom()
+		 */
 		bool isChangeZoom() const;
 
 		/**
@@ -94,6 +138,9 @@ class POPPLER_QT4_EXPORT LinkDestination
 		 */
 		QString toString() const;
 
+		/**
+		 * Assignment operator.
+		 */
 		LinkDestination& operator=(const LinkDestination &other);
 
 	private:
@@ -110,12 +157,13 @@ class POPPLER_QT4_EXPORT LinkDestination
 class POPPLER_QT4_EXPORT Link
 {
 	public:
+		/// \cond PRIVATE
 		Link( const QRectF &linkArea );
+		/// \endcond
 		
 		/**
 		 * The possible kinds of link.
 		 *
-		 * \internal
 		 * Inherited classes must return an unique identifier
 		 */
 		enum LinkType
@@ -160,7 +208,14 @@ class POPPLER_QT4_EXPORT Link
 };
 
 
-/** Goto: a viewport and maybe a reference to an external filename **/
+/**
+ * \brief Viewport reaching request.
+ *
+ * With a LinkGoto link, the document requests the specified viewport to be
+ * reached (aka, displayed in a viewer). Furthermore, if a file name is specified,
+ * then the destination refers to that document (and not to the document the
+ * current LinkGoto belongs to).
+ */
 class POPPLER_QT4_EXPORT LinkGoto : public Link
 {
 	public:
@@ -188,6 +243,9 @@ class POPPLER_QT4_EXPORT LinkGoto : public Link
 		 * or an empty string in case it refers to the current document.
 		 */
 		QString fileName() const;
+		/**
+		 * The destination to reach.
+		 */
 		LinkDestination destination() const;
 		LinkType linkType() const;
 
@@ -196,7 +254,14 @@ class POPPLER_QT4_EXPORT LinkGoto : public Link
 		Q_DISABLE_COPY( LinkGoto )
 };
 
-/** Execute: filename and parameters to execute **/
+/**
+ * \brief Generic execution request.
+ *
+ * The LinkExecute link represent a "file name" execution request. The result
+ * depends on the \link fileName() file name\endlink:
+ * - if it is a document, then it is requested to be open
+ * - otherwise, it represents an executable to be run with the specified parameters
+ */
 class POPPLER_QT4_EXPORT LinkExecute : public Link
 {
 	public:
@@ -205,8 +270,7 @@ class POPPLER_QT4_EXPORT LinkExecute : public Link
 		 */
 		QString fileName() const;
 		/**
-		 * If \ref fileName() represents a command, then this can hold
-		 * the various parameters for it.
+		 * The parameters for the command.
 		 */
 		QString parameters() const;
 
@@ -229,7 +293,14 @@ class POPPLER_QT4_EXPORT LinkExecute : public Link
 		Q_DISABLE_COPY( LinkExecute )
 };
 
-/** Browse: an URL to open, ranging from 'http://' to 'mailto:', etc. **/
+/**
+ * \brief An URL to browse.
+ *
+ * The LinkBrowse link holds a URL (eg 'http://poppler.freedesktop.org',
+ * 'mailto:john@some.org', etc) to be open.
+ *
+ * The format of the URL is specified by RFC 2396 (http://www.ietf.org/rfc/rfc2396.txt)
+ */
 class POPPLER_QT4_EXPORT LinkBrowse : public Link
 {
 	public:
@@ -256,7 +327,12 @@ class POPPLER_QT4_EXPORT LinkBrowse : public Link
 		Q_DISABLE_COPY( LinkBrowse )
 };	
 
-/** Action: contains an action to perform on document / viewer **/
+/**
+ * \brief "Standard" action request.
+ *
+ * The LinkAction class represents a link that request a "standard" action
+ * to be performed by the viewer on the displayed document.
+ */
 class POPPLER_QT4_EXPORT LinkAction : public Link
 {
 	public:

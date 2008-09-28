@@ -12,18 +12,12 @@ internals.
 
 The %Poppler Qt4 interface library is quite stable and working.
 
-It offers a dynamic way to change the render backend (see
-\ref Poppler::Document::setRenderBackend() "setRenderBackend()"). Currently
-there two backends offered by the library, but only the Splash engine works
-well and has been tested.
-
-
 @section refimpl Example Programs
 
 Examples programs can be found in the qt4/test directory. The %Poppler
 Qt4 interface library is also used in the development version of KDE's
-document viewer <a href="http://okular.kde.org">okular</a>. The source files
-for okular's PDF plugin (%Poppler-based) can be found on the subversion server
+document viewer <a href="http://okular.kde.org">Okular</a>. The source files
+for Okular's PDF plugin (%Poppler-based) can be found on the subversion server
 of the KDE project, under
 <a
 href="http://websvn.kde.org/trunk/KDE/kdegraphics/okular/generators/poppler">this

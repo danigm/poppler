@@ -294,7 +294,12 @@ namespace Poppler {
 
 
     /**
-       Page within a PDF document
+       \brief A page in a document.
+
+       The Page class represents a single page within a PDF document.
+
+       You cannot construct a Page directly, but you have to use the Document
+       functions that return a new Page out of an index or a label.
     */
     class POPPLER_QT4_EXPORT Page {
 	friend class Document;
@@ -322,8 +327,8 @@ namespace Poppler {
 	};
 
 	/** 
-	   Render the page to a QImage using the current Document renderer
-	   (see Document::renderBackend())
+	   Render the page to a QImage using the current
+	   \link Document::renderBackend() Document renderer\endlink.
 	   
 	   If \p x = \p y = \p w = \p h = -1, the method will automatically
            compute the size of the image from the horizontal and vertical
@@ -350,9 +355,6 @@ namespace Poppler {
 	   dots per inch
 	
 	   \param rotate how to rotate the page
-
-	   \note if the current Document renderer does not appear among the
-	   Document::availableRenderBackends(), the result is \em always a null QImage.
 
 	   \warning The parameter (\p x, \p y, \p w, \p h) are not
 	   well-tested. Unusual or meaningless parameters may lead to
@@ -506,9 +508,44 @@ namespace Poppler {
     };
 
 /**
-   PDF document
+   \brief PDF document.
 
-   A document potentially contains multiple Pages
+   The Document class represents a PDF document: its pages, and all the global
+   properties, metadata, etc.
+
+   \section ownership Ownership of the returned objects
+
+   All the functions that returns class pointers create new object, and the
+   responsability of those is given to the callee.
+
+   The only exception is \link Poppler::Page::transition() Page::transition()\endlink.
+
+   \section document-loading Loading
+
+   To get a Document, you have to load it via the load() & loadFromData()
+   functions.
+
+   In all the functions that have passwords as arguments, they \b must be Latin1
+   encoded. If you have a password that is a UTF-8 string, you need to use
+   QString::toLatin1() (or similar) to convert the password first.
+   If you have a UTF-8 character array, consider converting it to a QString first
+   (QString::fromUtf8(), or similar) before converting to Latin1 encoding.
+
+   \section document-rendering Rendering
+
+   To render pages of a document, you have different Document functions to set
+   various options.
+
+   \subsection document-rendering-backend Backends
+
+   %Poppler offers a different backends for rendering the pages. Currently
+   there two backends (see #RenderBackend), but only the Splash engine works
+   well and has been tested.
+
+   The available rendering backends can be discovered via availableRenderBackends().
+   The current rendering backend can be changed using setRenderBackend().
+   Please note that setting a backend not listed in the available ones
+   will always result in null QImage's.
 */
     class POPPLER_QT4_EXPORT Document {
 	friend class Page;
@@ -565,16 +602,12 @@ namespace Poppler {
 	   Load the document from a file on disk
 
 	   \param filePath the name (and path, if required) of the file to load
-	   \param ownerPassword the owner password to use in loading the file.
-	   \param userPassword the user ("open") password to use in loading the file
+	   \param ownerPassword the Latin1-encoded owner password to use in
+	   loading the file
+	   \param userPassword the Latin1-encoded user ("open") password
+	   to use in loading the file
 
-	   \return NULL on error
-
-	   \note Passwords must be Latin1 encoded. If you have a password that is
-	   a UTF8 string, you need to use QString::toLatin1() (or similar) to convert
-	   the password first. If you have a UTF8 character array, consider
-	   converting it to a QString first (QString::fromUtf8(), or similar) before
-	   converting to Latin1 encoding.
+	   \return the loaded document, or NULL on error
 
 	   \note The caller owns the pointer to Document, and this should
 	   be deleted when no longer required.
@@ -592,17 +625,18 @@ namespace Poppler {
 	   \param fileContents the file contents. They are copied so there is no need 
 	                       to keep the byte array around for the full life time of 
 	                       the document.
-	   \param ownerPassword the owner password to use in loading the file.
-	   \param userPassword the user ("open") password to use in loading the file
+	   \param ownerPassword the Latin1-encoded owner password to use in
+	   loading the file
+	   \param userPassword the Latin1-encoded user ("open") password
+	   to use in loading the file
 
-	   \note Passwords must be Latin1 encoded. If you have a password that is
-	   a UTF8 string, you need to use QString::toLatin1() (or similar) to convert
-	   the password first. If you have a UTF8 character array, consider
-	   converting it to a QString first (QString::fromUtf8(), or similar) before
-	   converting to Latin1 encoding.
+	   \return the loaded document, or NULL on error
 
 	   \note The caller owns the pointer to Document, and this should
 	   be deleted when no longer required.
+	
+	   \warning The returning document may be locked if a password is required
+	   to open the file, and one is not provided (as the userPassword).
 
 	   \since 0.6
 	*/
@@ -624,9 +658,9 @@ namespace Poppler {
 	   \overload
 
 
-	   The intent is that you can pass in a label like "ix" and
+	   The intent is that you can pass in a label like \c "ix" and
 	   get the page with that label (which might be in the table of
-	   contents), or pass in "1" and get the page that the user
+	   contents), or pass in \c "1" and get the page that the user
 	   expects (which might not be the first page, if there is a
 	   title page and a table of contents).
 
@@ -656,14 +690,10 @@ namespace Poppler {
 	/**
 	   Provide the passwords required to unlock the document
 
-	   \param ownerPassword the owner password to use in loading the file.
-	   \param userPassword the user ("open") password to use in loading the file
-
-	   \note Passwords must be Latin1 encoded. If you have a password that is
-	   a UTF8 string, you need to use QString::toLatin1() (or similar) to convert
-	   the password first. If you have a UTF8 character array, consider
-	   converting it to a QString first (QString::fromUtf8(), or similar) before
-	   converting to Latin1 encoding.
+	   \param ownerPassword the Latin1-encoded owner password to use in
+	   loading the file
+	   \param userPassword the Latin1-encoded user ("open") password
+	   to use in loading the file
 	*/
 	bool unlock(const QByteArray &ownerPassword, const QByteArray &userPassword);
 
@@ -846,15 +876,31 @@ QString subject = m_doc->info("Subject");
 	  In the tree the tag name is the 'screen' name of the entry. A tag can have
 	  attributes. Here follows the list of tag attributes with meaning:
 	  - Destination: A string description of the referred destination
-	  - DestinationName: A 'named reference' to the viewport that must be converted
-	       using \p linkDestination( \em destination_name )
+	  - DestinationName: A 'named reference' to the viewport
 	  - ExternalFileName: A link to a external filename
 	  - Open: A bool value that tells whether the subbranch of the item is open or not
+	
+	  Resolving the final destination for each item can be done in the following way:
+	  - first, checking for 'Destination': if not empty, then a LinkDestination
+	    can be constructed straight with it
+	  - as second step, if the 'DestinationName' is not empty, then the destination
+	    can be resolved using linkDestination()
+	
+	  Note also that if 'ExternalFileName' is not emtpy, then the destination refers
+	  to that document (and not to the current one).
 	
 	  \returns the TOC, or NULL if the Document does not have one
 	*/
 	QDomDocument *toc() const;
 	
+	/**
+	   Tries to resolve the named destination \p name.
+	
+	   \note this operation starts a search through the whole document
+	
+	   \returns a new LinkDestination object if the named destination was
+	   actually found, or NULL otherwise
+	*/
 	LinkDestination *linkDestination( const QString &name );
 	
 	/**
@@ -872,9 +918,6 @@ QString subject = m_doc->info("Subject");
 
 	/**
 	 Sets the backend used to render the pages.
-
-	 \note setting a rendering backend that does not appear in the
-	 availableRenderBackends() will always result in null QImage's.
 
 	 \param backend the new rendering backend
 
