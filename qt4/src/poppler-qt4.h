@@ -1143,6 +1143,8 @@ height = dummy.height();
             /**
               The currently set options for the PS export.
 
+              The default flags are: Printing.
+
               \since 0.10
              */
             PSOptions psOptions() const;
