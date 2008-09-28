@@ -19,6 +19,7 @@ static boolean str_fill_input_buffer(j_decompress_ptr cinfo)
 {
   int c;
   struct str_src_mgr * src = (struct str_src_mgr *)cinfo->src;
+  if (src->abort) return FALSE;
   if (src->index == 0) {
     c = 0xFF;
     src->index++;
