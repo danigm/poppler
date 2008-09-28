@@ -902,6 +902,10 @@ void FoFiTrueType::writeTTF(FoFiOutputFunc outputFunc,
     return;
   }
 
+  if (tables == NULL) {
+    return;
+  }
+
   // check for missing tables
   // (Note: if the OS/2 table is missing, the Microsoft PCL5 driver
   // will embed a PCL TrueType font with the pitch field set to zero,
@@ -1908,8 +1912,8 @@ void FoFiTrueType::parse() {
     pos += 16;
   }
   nTables -= wrongTables;
-  tables = (TrueTypeTable *)greallocn(tables, nTables, sizeof(TrueTypeTable));
-  if (!parsedOk) {
+  tables = (TrueTypeTable *)greallocn_checkoverflow(tables, nTables, sizeof(TrueTypeTable));
+  if (!parsedOk || tables == NULL) {
     return;
   }
 
