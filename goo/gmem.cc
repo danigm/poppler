@@ -14,7 +14,7 @@
 // under GPL version 2 or later
 //
 // Copyright (C) 2005 Takashi Iwai <tiwai@suse.de>
-// Copyright (C) 2007 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2007, 2008 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2008 Jonathan Kew <jonathan_kew@sil.org>
 //
 // To see a description of the changes please see the Changelog file that
