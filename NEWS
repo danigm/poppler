@@ -1,3 +1,20 @@
+Release 0.9.3 (0.10 RC 2)
+
+	core:
+	 * Fix rendering regression on some embedded fonts
+	 * Fix rendering regression of some special fonts
+	 * Fix crash on documents with bogus jpeg data
+	
+	Qt4:
+	 * The printing flag defaults to true on PSConverter
+	 * Documentation improvement
+	
+	utils:
+	 * Fix regression that made HmtlOutputDev ignore jpeg images
+	
+	misc:
+	 * Improve compilation on mingw
+
 Release 0.9.2 (0.10 RC 1)
 
 	core:
