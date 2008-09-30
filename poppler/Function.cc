@@ -665,6 +665,8 @@ StitchingFunction::StitchingFunction(Object *funcObj, Dict *dict) {
 StitchingFunction::StitchingFunction(StitchingFunction *func) {
   int i;
 
+  memcpy(this, func, sizeof(StitchingFunction));
+
   k = func->k;
   funcs = (Function **)gmallocn(k, sizeof(Function *));
   for (i = 0; i < k; ++i) {

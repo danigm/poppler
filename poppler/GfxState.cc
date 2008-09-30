@@ -2110,7 +2110,7 @@ GfxAxialShading::GfxAxialShading(GfxAxialShading *shading):
   x1 = shading->x1;
   y1 = shading->y1;
   t0 = shading->t0;
-  y1 = shading->t1;
+  t1 = shading->t1;
   nFuncs = shading->nFuncs;
   for (i = 0; i < nFuncs; ++i) {
     funcs[i] = shading->funcs[i]->copy();
