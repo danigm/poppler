@@ -13,7 +13,7 @@
 // All changes made under the Poppler project to this file are licensed
 // under GPL version 2 or later
 //
-// Copyright (C) 2005 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2005, 2008 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2005 Kristian Høgsberg <krh@redhat.com>
 //
 // To see a description of the changes please see the Changelog file that
@@ -32,6 +32,7 @@
 #include "goo/gmem.h"
 #include "FoFiEncodings.h"
 #include "FoFiType1.h"
+#include "poppler/Error.h"
 
 //------------------------------------------------------------------------
 // FoFiType1
@@ -220,6 +221,7 @@ void FoFiType1::parse() {
 	   j < 300 && line && (line1 = getNextLine(line));
 	   ++j, line = line1) {
 	if ((n = line1 - line) > 255) {
+	  error(-1, "FoFiType1::parse a line has more than 255 characters, we don't support this");
 	  n = 255;
 	}
 	strncpy(buf, line, n);
@@ -229,8 +231,8 @@ void FoFiType1::parse() {
 	  for (p += 3; *p == ' ' || *p == '\t'; ++p) ;
 	  for (p2 = p; *p2 >= '0' && *p2 <= '9'; ++p2) ;
 	  if (*p2) {
-	    c = *p2;
-	    *p2 = '\0';
+	    c = *p2; // store it so we can recover it after atoi
+	    *p2 = '\0'; // terminate p so atoi works
 	    code = atoi(p);
 	    *p2 = c;
 	    if (code == 8 && *p2 == '#') {
@@ -244,8 +246,26 @@ void FoFiType1::parse() {
 	      if (*p == '/') {
 		++p;
 		for (p2 = p; *p2 && *p2 != ' ' && *p2 != '\t'; ++p2) ;
-		*p2 = '\0';
+		c = *p2; // store it so we can recover it after copyString
+		*p2 = '\0'; // terminate p so copyString works
 		encoding[code] = copyString(p);
+		*p2 = c;
+		p = p2;
+		for (; *p == ' ' || *p == '\t'; ++p); // eat spaces between string and put
+		if (!strncmp(p, "put", 3)) {
+		  // eat put and spaces and newlines after put
+		  for (p += 3; *p == ' ' || *p == '\t' || *p == '\n' || *p == '\r'; ++p); // 
+		  if (*p)
+		  {
+		    // there is still something after the definition
+		    // there might be another definition in this line
+		    // so move line1 to the end of our parsing
+		    // so we start in the potential next definition in the next loop
+		    line1 = &line[p - buf];
+		  }
+		} else {
+		  error(-1, "FoFiType1::parse no put after dup");
+		}
 	      }
 	    }
 	  }
