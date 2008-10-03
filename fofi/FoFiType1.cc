@@ -254,7 +254,7 @@ void FoFiType1::parse() {
 		for (; *p == ' ' || *p == '\t'; ++p); // eat spaces between string and put
 		if (!strncmp(p, "put", 3)) {
 		  // eat put and spaces and newlines after put
-		  for (p += 3; *p == ' ' || *p == '\t' || *p == '\n' || *p == '\r'; ++p); // 
+		  for (p += 3; *p == ' ' || *p == '\t' || *p == '\n' || *p == '\r'; ++p);
 		  if (*p)
 		  {
 		    // there is still something after the definition
