@@ -1,5 +1,6 @@
 /* poppler-link-extractor_p.h: qt interface to poppler
  * Copyright (C) 2007-2008, Pino Toscano <pino@kde.org>
+ * Copyright (C) 2008, Albert Astals Cid <aacid@kde.org>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -36,6 +37,8 @@ LinkExtractorOutputDev::LinkExtractorOutputDev(PageData *data)
   ::Page *popplerPage = m_data->page;
   m_pageCropWidth = popplerPage->getCropWidth();
   m_pageCropHeight = popplerPage->getCropHeight();
+  if (popplerPage->getRotate() == 90 || popplerPage->getRotate() == 270)
+    qSwap(m_pageCropWidth, m_pageCropHeight);
   GfxState gfxState(72.0, 72.0, popplerPage->getCropBox(), popplerPage->getRotate(), gTrue);
   setDefaultCTM(gfxState.getCTM());
 }
