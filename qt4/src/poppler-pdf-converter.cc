@@ -1,5 +1,6 @@
 /* poppler-pdf-converter.cc: qt4 interface to poppler
  * Copyright (C) 2008, Pino Toscano <pino@kde.org>
+ * Copyright (C) 2008, Albert Astals Cid <aacid@kde.org>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -72,18 +73,19 @@ bool PDFConverter::convert()
 	if (!dev)
 		return false;
 
+	bool success;
 	QIODeviceOutStream stream(dev);
 	if (d->opts & WithChanges)
 	{
-		d->document->doc->saveAs(&stream);
+		success = d->document->doc->saveAs(&stream);
 	}
 	else
 	{
-		d->document->doc->saveWithoutChangesAs(&stream);
+		success = d->document->doc->saveWithoutChangesAs(&stream);
 	}
 	d->closeDevice();
 
-	return true;
+	return success;
 }
 
 }
