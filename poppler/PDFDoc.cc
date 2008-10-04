@@ -484,7 +484,11 @@ GBool PDFDoc::saveAs(OutStream *outStr, PDFWriteMode mode) {
   Object obj;
   xref->getTrailerDict()->getDict()->lookupNF("Encrypt", &obj);
   if (!obj.isNull())
+  {
+    obj.free();
     return gFalse;
+  }
+  obj.free();
 
   if (mode == writeForceRewrite) {
     saveCompleteRewrite(outStr);
