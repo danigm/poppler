@@ -479,6 +479,13 @@ GBool PDFDoc::saveAs(GooString *name, PDFWriteMode mode) {
 }
 
 GBool PDFDoc::saveAs(OutStream *outStr, PDFWriteMode mode) {
+
+  // we don't support files with Encrypt at the moment
+  Object obj;
+  xref->getTrailerDict()->getDict()->lookupNF("Encrypt", &obj);
+  if (!obj.isNull())
+    return gFalse;
+
   if (mode == writeForceRewrite) {
     saveCompleteRewrite(outStr);
   } else if (mode == writeForceIncremental) {
