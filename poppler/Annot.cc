@@ -814,7 +814,7 @@ Annot::Annot(XRef *xrefA, Dict *dict, Catalog* catalog, Object *obj) {
 }
 
 void Annot::initialize(XRef *xrefA, Dict *dict, Catalog *catalog) {
-  Object apObj, asObj, obj1, obj2, obj3;
+  Object asObj, obj1, obj2, obj3;
 
   appRef.num = 0;
   appRef.gen = 65535;
