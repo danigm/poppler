@@ -23,6 +23,8 @@
 #include "poppler-converter-private.h"
 #include "poppler-qiodeviceoutstream-private.h"
 
+#include <QtCore/QFile>
+
 namespace Poppler {
 
 class PDFConverterPrivate : public BaseConverterPrivate
@@ -73,6 +75,10 @@ bool PDFConverter::convert()
 	if (!dev)
 		return false;
 
+	bool deleteFile = false;
+	if (QFile *file = qobject_cast<QFile*>(dev))
+		deleteFile = !file->exists();
+
 	bool success;
 	QIODeviceOutStream stream(dev);
 	if (d->opts & WithChanges)
@@ -84,6 +90,13 @@ bool PDFConverter::convert()
 		success = d->document->doc->saveWithoutChangesAs(&stream);
 	}
 	d->closeDevice();
+	if (!success)
+	{
+		if (deleteFile)
+		{
+			qobject_cast<QFile*>(dev)->remove();
+		}
+	}
 
 	return success;
 }
