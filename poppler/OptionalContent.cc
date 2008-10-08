@@ -6,6 +6,7 @@
 // Copyright 2008 Pino Toscano <pino@kde.org>
 // Copyright 2008 Carlos Garcia Campos <carlosgc@gnome.org>
 // Copyright 2008 Albert Astals Cid <aacid@kde.org>
+// Copyright 2008 Mark Kaplan <mkaplan@finjan.com>
 //
 // Released under the GPL (version 2, or later, at your option)
 //
@@ -284,7 +285,7 @@ bool OCGs::anyOff( Array *ocgArray )
 
 //------------------------------------------------------------------------
 
-OptionalContentGroup::OptionalContentGroup(Dict *ocgDict, XRef *xrefA)
+OptionalContentGroup::OptionalContentGroup(Dict *ocgDict, XRef *xrefA) : m_name(NULL)
 {
   Object ocgName;
   ocgDict->lookupNF("Name", &ocgName);
