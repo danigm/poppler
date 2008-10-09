@@ -1,3 +1,19 @@
+Release 0.10.0
+
+	core:
+	 * Fix crashes on PDF using Stitching or Axial Shading painting
+	 * Fix rendering of PDF with Type1 fonts that have more than
+	   one encoding definition per line
+	 * Do not try to save documents that have Encryption as we
+	   do not support that and the user ended with a broken file
+	 * Fix crash on files with OptionalContentGroup but no Name
+	
+	Qt4:
+	 * Fix the area of the links to be correctly reported on rotated documents
+	
+	misc:
+	 * Mingw+Msys should work
+
 Release 0.9.3 (0.10 RC 2)
 
 	core:
