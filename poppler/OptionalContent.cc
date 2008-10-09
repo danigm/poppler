@@ -288,7 +288,7 @@ bool OCGs::anyOff( Array *ocgArray )
 OptionalContentGroup::OptionalContentGroup(Dict *ocgDict, XRef *xrefA) : m_name(NULL)
 {
   Object ocgName;
-  ocgDict->lookupNF("Name", &ocgName);
+  ocgDict->lookup("Name", &ocgName);
   if (!ocgName.isString()) {
     error(-1, "Expected the name of the OCG, but wasn't able to find it, or it isn't a String");
   } else {
