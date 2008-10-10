@@ -452,7 +452,7 @@ void FormWidgetChoice::loadDefaults ()
           continue;
         }
         obj2.arrayGet(0, &obj3);
-        obj2.arrayGet(0, &obj4);
+        obj2.arrayGet(1, &obj4);
         parent->_setChoiceExportVal(i, obj3.getString()->copy());
         parent->_setChoiceOptionName(i, obj4.getString()->copy());
         obj3.free();
