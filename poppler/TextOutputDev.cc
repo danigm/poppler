@@ -1941,6 +1941,7 @@ void TextPage::updateFont(GfxState *state) {
 }
 
 void TextPage::beginWord(GfxState *state, double x0, double y0) {
+  GfxFont *gfxFont;
   double *fontm;
   double m[4], m2[4];
   int rot;
@@ -1955,7 +1956,8 @@ void TextPage::beginWord(GfxState *state, double x0, double y0) {
 
   // compute the rotation
   state->getFontTransMat(&m[0], &m[1], &m[2], &m[3]);
-  if (state->getFont()->getType() == fontType3) {
+  gfxFont = state->getFont();
+  if (gfxFont && gfxFont->getType() == fontType3) {
     fontm = state->getFont()->getFontMatrix();
     m2[0] = fontm[0] * m[0] + fontm[1] * m[2];
     m2[1] = fontm[0] * m[1] + fontm[1] * m[3];
