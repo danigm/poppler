@@ -31,6 +31,7 @@ OCGs::OCGs(Object *ocgObject, XRef *xref) :
   m_orderArray(0), m_rBGroupsArray(), m_xref(xref)
 {
   // we need to parse the dictionary here, and build optionalContentGroups
+  ok = gTrue;
   optionalContentGroups = new GooList();
 
   Object ocgList;
@@ -38,6 +39,7 @@ OCGs::OCGs(Object *ocgObject, XRef *xref) :
   if (!ocgList.isArray()) {
     error(-1, "Expected the optional content group list, but wasn't able to find it, or it isn't an Array");
     ocgList.free();
+    ok = gFalse;
     return;
   }
 
@@ -66,6 +68,7 @@ OCGs::OCGs(Object *ocgObject, XRef *xref) :
     error(-1, "Expected the default config, but wasn't able to find it, or it isn't a Dictionary");
     defaultOcgConfig.free();
     ocgList.free();
+    ok = gFalse;
     return;
   }
 #if 0

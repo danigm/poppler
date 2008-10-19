@@ -202,6 +202,10 @@ Catalog::Catalog(XRef *xrefA) {
   // get the Optional Content dictionary
   if (catDict.dictLookup("OCProperties", &optContentProps)->isDict()) {
     optContent = new OCGs(&optContentProps, xref);
+    if (!optContent->isOk ()) {
+      delete optContent;
+      optContent = NULL;
+    }
   }
   optContentProps.free();
 

@@ -32,6 +32,9 @@ public:
   OCGs(Object *ocgObject, XRef *xref);
   ~OCGs();
 
+  // Is OCGS valid?
+  GBool isOk() { return ok; }
+  
   bool hasOCGs();
   GooList *getOCGs() const { return optionalContentGroups; }
 
@@ -43,6 +46,8 @@ public:
   bool optContentIsVisible( Object *dictRef );
 
 private:
+  GBool ok;
+  
   bool allOn( Array *ocgArray );
   bool allOff( Array *ocgArray );
   bool anyOn( Array *ocgArray );
