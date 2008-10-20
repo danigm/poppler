@@ -31,19 +31,22 @@ poppler_format_date (GTime utime)
 }
 
 static void
-print_index (PopplerIndexIter *iter)
+print_index (PopplerIndexIter *iter, gint deph)
 {
   do
     {
-      PopplerAction *action;
+      PopplerAction    *action;
       PopplerIndexIter *child;
+      int               i;
 
       action = poppler_index_iter_get_action (iter);
-      g_print ("Action: %d\n", action->type);
+      for (i = 0; i < deph; i++)
+        g_print (" ");
+      g_print ("+ %s\n", action->any.title);
       poppler_action_free (action);
       child = poppler_index_iter_get_child (iter);
       if (child)
-	print_index (child);
+	      print_index (child, deph + 1);
       poppler_index_iter_free (child);
     }
   while (poppler_index_iter_next (iter));
@@ -127,7 +130,7 @@ print_document_info (PopplerDocument *document)
   if (index_iter)
     {
       g_print ("\tindex:\n");
-      print_index (index_iter);
+      print_index (index_iter, 0);
       poppler_index_iter_free (index_iter);
     }
 
