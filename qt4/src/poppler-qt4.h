@@ -414,6 +414,9 @@ namespace Poppler {
 	   up-to-down), the QList contains the text in the proper
 	   order.
 
+	   \note The caller owns the text boxes and they should
+	         be deleted when no longer required.
+
 	   \warning This method is not tested with Asian scripts
 	*/
 	QList<TextBox*> textList(Rotation rotate = Rotate0) const;
