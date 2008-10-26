@@ -957,13 +957,12 @@ void Annot::initialize(XRef *xrefA, Dict *dict, Catalog *catalog) {
     treeKey = 0;
   }
   obj1.free();
-  
-  if (dict->lookup("OC", &obj1)->isDict()) {
-    optionalContent = new OCGs(&obj1, xrefA);
-  } else {
-    optionalContent = NULL;
+
+  optContentConfig = catalog->getOptContentConfig();
+  dict->lookupNF("OC", &oc);
+  if (!oc.isRef() && !oc.isNull()) {
+    error (-1, "Annotation OC value not null or dict: %i", oc.getType());
   }
-  obj1.free();
 }
 
 double Annot::getXMin() {
@@ -1013,8 +1012,7 @@ Annot::~Annot() {
   if (color)
     delete color;
 
-  if (optionalContent)
-    delete optionalContent;
+  oc.free();
 }
 
 // Set the current fill or stroke color, based on <a> (which should
@@ -1147,6 +1145,12 @@ void Annot::draw(Gfx *gfx, GBool printing) {
       (printing && !(flags & annotFlagPrint)) ||
       (!printing && (flags & annotFlagNoView))) {
     return;
+  }
+
+  // check the OC
+  if (optContentConfig && oc.isRef()) {
+    if (! optContentConfig->optContentIsVisible(&oc))
+      return;
   }
 
   // draw the appearance stream
