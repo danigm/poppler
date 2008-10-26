@@ -10,6 +10,7 @@
 #include <FontInfo.h>
 #include <TextOutputDev.h>
 #include <Catalog.h>
+#include <OptionalContent.h>
 
 #if defined (HAVE_CAIRO)
 #include <CairoOutputDev.h>
@@ -22,6 +23,8 @@ struct _PopplerDocument
   GObject parent_instance;
   PDFDoc *doc;
 
+  GList *layers;
+  GList *layers_rbgroups;
 #if defined (HAVE_CAIRO)
   CairoOutputDev *output_dev;
 #elif defined (HAVE_SPLASH)
@@ -68,12 +71,30 @@ struct _PopplerFormField
   FormWidget *widget;
 };
 
+typedef struct _Layer {
+  GList *kids;
+  gchar *label;
+  OptionalContentGroup *oc;
+} Layer;
+
+struct _PopplerLayer
+{
+  GObject parent_instance;
+  PopplerDocument *document;
+  Layer *layer;
+  GList *rbgroup;
+  gchar *title;
+};
+
 PopplerPage   *_poppler_page_new   (PopplerDocument *document,
 				    Page            *page,
 				    int              index);
 PopplerAction *_poppler_action_new (PopplerDocument *document,
 				    LinkAction      *link,
 				    const gchar     *title);
+PopplerLayer  *_poppler_layer_new (PopplerDocument  *document,
+				   Layer            *layer,
+				   GList            *rbgroup);
 PopplerDest   *_poppler_dest_new_goto (PopplerDocument *document,
 				       LinkDest        *link_dest);
 PopplerFormField *_poppler_form_field_new (PopplerDocument *document,

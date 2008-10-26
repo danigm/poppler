@@ -82,6 +82,7 @@ typedef enum
 typedef struct _PopplerDocument         PopplerDocument;
 typedef struct _PopplerIndexIter        PopplerIndexIter;
 typedef struct _PopplerFontsIter        PopplerFontsIter;
+typedef struct _PopplerLayersIter       PopplerLayersIter;
 typedef struct _PopplerRectangle        PopplerRectangle;
 typedef struct _PopplerColor            PopplerColor;
 typedef struct _PopplerLinkMapping      PopplerLinkMapping;
@@ -91,6 +92,7 @@ typedef struct _PopplerFormFieldMapping PopplerFormFieldMapping;
 typedef struct _PopplerAnnotMapping     PopplerAnnotMapping;
 typedef struct _PopplerPage             PopplerPage;
 typedef struct _PopplerFontInfo         PopplerFontInfo;
+typedef struct _PopplerLayer            PopplerLayer;
 typedef struct _PopplerPSFile           PopplerPSFile;
 typedef union  _PopplerAction           PopplerAction;
 typedef struct _PopplerDest             PopplerDest;
@@ -117,6 +119,7 @@ G_END_DECLS
 #include "poppler-features.h"
 #include "poppler-document.h"
 #include "poppler-page.h"
+#include "poppler-layer.h"
 #include "poppler-action.h"
 #include "poppler-form-field.h"
 #include "poppler-enums.h"

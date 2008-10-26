@@ -157,6 +157,18 @@ gboolean	  poppler_fonts_iter_is_embedded   (PopplerFontsIter  *iter);
 gboolean	  poppler_fonts_iter_is_subset     (PopplerFontsIter  *iter);
 gboolean          poppler_fonts_iter_next          (PopplerFontsIter  *iter);
 
+/* Interface for getting the Layers of a poppler_document */
+#define POPPLER_TYPE_LAYERS_ITER                   (poppler_layers_iter_get_type ())
+GType              poppler_layers_iter_get_type    (void) G_GNUC_CONST;
+PopplerLayersIter *poppler_layers_iter_new         (PopplerDocument   *document);
+PopplerLayersIter *poppler_layers_iter_copy        (PopplerLayersIter *iter);
+void               poppler_layers_iter_free        (PopplerLayersIter *iter);
+
+PopplerLayersIter *poppler_layers_iter_get_child   (PopplerLayersIter *parent);
+gchar             *poppler_layers_iter_get_title   (PopplerLayersIter *iter);
+PopplerLayer      *poppler_layers_iter_get_layer   (PopplerLayersIter *iter);
+gboolean           poppler_layers_iter_next        (PopplerLayersIter *iter);
+
 /* Export to ps */
 #define POPPLER_TYPE_PS_FILE             (poppler_ps_file_get_type ())
 #define POPPLER_PS_FILE(obj)             (G_TYPE_CHECK_INSTANCE_CAST ((obj), POPPLER_TYPE_PS_FILE, PopplerPSFile))

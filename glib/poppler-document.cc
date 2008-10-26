@@ -29,6 +29,7 @@
 #include <FontInfo.h>
 #include <PDFDocEncoding.h>
 #include <DateInfo.h>
+#include <OptionalContent.h>
 
 #include "poppler.h"
 #include "poppler-private.h"
@@ -52,6 +53,8 @@ enum {
 	PROP_PERMISSIONS,
 	PROP_METADATA
 };
+
+static void poppler_document_layers_free (PopplerDocument *document);
 
 typedef struct _PopplerDocumentClass PopplerDocumentClass;
 struct _PopplerDocumentClass
@@ -294,6 +297,7 @@ poppler_document_finalize (GObject *object)
 {
   PopplerDocument *document = POPPLER_DOCUMENT (object);
 
+  poppler_document_layers_free (document);
   delete document->output_dev;
   delete document->doc;
 }
@@ -1352,6 +1356,379 @@ poppler_font_info_free (PopplerFontInfo *font_info)
 	g_object_unref (font_info);
 }
 
+
+/* Optional content (layers) */
+static Layer *
+layer_new (OptionalContentGroup *oc)
+{
+  Layer *layer;
+
+  layer = g_new0 (Layer, 1);
+  layer->oc = oc;
+
+  return layer;
+}
+
+static void
+layer_free (Layer *layer)
+{
+  if (!layer)
+    return;
+
+  if (layer->kids) {
+	  g_list_foreach (layer->kids, (GFunc)layer_free, NULL);
+	  g_list_free (layer->kids);
+  }
+
+  if (layer->label) {
+	  g_free (layer->label);
+  }
+
+  g_free (layer);
+}
+
+static GList *
+get_optional_content_rbgroups (OCGs *ocg)
+{
+  Array *rb;
+  GList *groups = NULL;
+  
+  rb = ocg->getRBGroupsArray ();
+  
+  if (rb) {
+    int i, j;
+
+    for (i = 0; i < rb->getLength (); ++i) {
+      Object obj;
+      Array *rb_array;
+      GList *group = NULL;
+
+      rb->get (i, &obj);
+      if (!obj.isArray ()) {
+        obj.free ();
+	continue;
+      }
+
+      rb_array = obj.getArray ();
+      for (j = 0; j < rb_array->getLength (); ++j) {
+        Object ref;
+	OptionalContentGroup *oc;
+
+	rb_array->getNF (j, &ref);
+	if (!ref.isRef ()) {
+	  ref.free ();
+	  continue;
+	}
+
+	oc = ocg->findOcgByRef (ref.getRef ());
+	group = g_list_prepend (group, oc);
+	ref.free ();
+      }
+      obj.free ();
+
+      groups = g_list_prepend (groups, group);
+    }
+  }
+
+  return groups;
+}
+
+static GList *
+poppler_document_get_layer_rbgroup (PopplerDocument *document,
+				    Layer           *layer)
+{
+  GList *l;
+
+  for (l = document->layers_rbgroups; l && l->data; l = g_list_next (l)) {
+    GList *group = (GList *)l->data;
+
+    if (g_list_find (group, layer->oc))
+      return group;
+  }
+
+  return NULL;
+}
+
+static GList *
+get_optional_content_items_sorted (OCGs *ocg, Layer *parent, Array *order)
+{
+  GList *items = NULL;
+  Layer *last_item = parent;
+  int i;
+
+  for (i = 0; i < order->getLength (); ++i) {
+    Object orderItem;
+      
+    order->get (i, &orderItem);
+
+    if (orderItem.isDict ()) {
+      Object ref;
+      
+      order->getNF (i, &ref);
+      if (ref.isRef ()) {
+        OptionalContentGroup *oc = ocg->findOcgByRef (ref.getRef ());
+	Layer *layer = layer_new (oc);
+
+	items = g_list_prepend (items, layer);
+	last_item = layer;
+      }
+      ref.free ();
+    } else if (orderItem.isArray () && orderItem.arrayGetLength () > 0) {
+      if (!last_item) {
+        last_item = layer_new (NULL);
+	items = g_list_prepend (items, last_item);
+      }
+      last_item->kids = get_optional_content_items_sorted (ocg, last_item, orderItem.getArray ());
+    } else if (orderItem.isString ()) {
+      last_item->label = _poppler_goo_string_to_utf8 (orderItem.getString ());
+    }
+    orderItem.free ();
+  }
+  
+  return g_list_reverse (items);
+}
+		
+static GList *
+get_optional_content_items (OCGs *ocg)
+{
+  Array *order;
+  GList *items = NULL;
+  
+  order = ocg->getOrderArray ();
+
+  if (order) {
+    items = get_optional_content_items_sorted (ocg, NULL, order);
+  } else {
+    GooList *ocgs;
+    int i;
+
+    ocgs = ocg->getOCGs ();
+    
+    for (i = 0; i < ocgs->getLength (); ++i) {
+      OptionalContentGroup *oc = (OptionalContentGroup *) ocgs->get (i);
+      Layer *layer = layer_new (oc);
+      
+      items = g_list_prepend (items, layer);
+    }
+    
+    items = g_list_reverse (items);
+  }
+
+  return items;
+}
+
+static GList *
+poppler_document_get_layers (PopplerDocument *document)
+{
+  if (!document->layers) {
+    Catalog *catalog = document->doc->getCatalog ();
+    OCGs *ocg = catalog->getOptContentConfig ();
+
+    if (!ocg)
+      return NULL;
+    
+    document->layers = get_optional_content_items (ocg);
+    document->layers_rbgroups = get_optional_content_rbgroups (ocg);
+  }
+
+  return document->layers;
+}
+
+static void
+poppler_document_layers_free (PopplerDocument *document)
+{
+  if (!document->layers)
+	  return;
+
+  g_list_foreach (document->layers, (GFunc)layer_free, NULL);
+  g_list_free (document->layers);
+
+  g_list_foreach (document->layers_rbgroups, (GFunc)g_list_free, NULL);
+  g_list_free (document->layers_rbgroups);
+
+  document->layers = NULL;
+  document->layers_rbgroups = NULL;
+}
+
+/* PopplerLayersIter */
+struct _PopplerLayersIter {
+  PopplerDocument *document;
+  GList *items;
+  int index;
+};
+
+GType
+poppler_layers_iter_get_type (void)
+{
+  static GType our_type = 0;
+
+  if (our_type == 0)
+    our_type = g_boxed_type_register_static ("PopplerLayersIter",
+					     (GBoxedCopyFunc) poppler_layers_iter_copy,
+					     (GBoxedFreeFunc) poppler_layers_iter_free);
+  return our_type;
+}
+
+/**
+ * poppler_layers_iter_copy:
+ * @iter: a #PopplerLayersIter
+ * 
+ * Creates a new #PopplerLayersIter as a copy of @iter.  This must be freed with
+ * poppler_layers_iter_free().
+ * 
+ * Return value: a new #PopplerLayersIter
+ **/
+PopplerLayersIter *
+poppler_layers_iter_copy (PopplerLayersIter *iter)
+{
+  PopplerLayersIter *new_iter;
+
+  g_return_val_if_fail (iter != NULL, NULL);
+  
+  new_iter = g_new0 (PopplerLayersIter, 1);
+  *new_iter = *iter;
+  new_iter->document = (PopplerDocument *) g_object_ref (new_iter->document);
+  
+  return new_iter;
+}
+
+/**
+ * poppler_layers_iter_free:
+ * @iter: a #PopplerLayersIter
+ * 
+ * Frees @iter.
+ **/
+void
+poppler_layers_iter_free (PopplerLayersIter *iter)
+{
+  if (iter == NULL)
+    return;
+
+  g_object_unref (iter->document);
+  g_free (iter);
+}
+
+/**
+ * poppler_layers_iter_new:
+ **/
+PopplerLayersIter *
+poppler_layers_iter_new (PopplerDocument *document)
+{
+  PopplerLayersIter *iter;
+  GList *items;
+
+  items = poppler_document_get_layers (document);
+
+  if (!items)
+    return NULL;
+
+  iter = g_new0 (PopplerLayersIter, 1);
+  iter->document = (PopplerDocument *)g_object_ref (document);
+  iter->items = items;
+
+  return iter;
+}
+
+/**
+ * poppler_layers_iter_get_child:
+ * @parent: a #PopplerLayersIter
+ * 
+ * Returns a newly created child of @parent, or %NULL if the iter has no child.
+ * See poppler_layers_iter_new() for more information on this function.
+ * 
+ * Return value: a new #PopplerLayersIter, or %NULL
+ **/
+PopplerLayersIter *
+poppler_layers_iter_get_child (PopplerLayersIter *parent)
+{
+  PopplerLayersIter *child;
+  Layer *layer;
+
+  g_return_val_if_fail (parent != NULL, NULL);
+	
+  layer = (Layer *) g_list_nth_data (parent->items, parent->index);
+  if (!layer || !layer->kids)
+    return NULL;
+
+  child = g_new0 (PopplerLayersIter, 1);
+  child->document = (PopplerDocument *)g_object_ref (parent->document);
+  child->items = layer->kids;
+
+  g_assert (child->items);
+
+  return child;
+}
+
+/**
+ * poppler_layers_iter_get_title:
+ * @iter: a #PopplerLayersIter
+ * 
+ * Returns the title associated with @iter.  It must be freed with
+ * g_free().
+ * 
+ * Return value: a new string containing the @iter's title or %NULL if @iter doesn't have a title.
+ * The returned string should be freed with g_free() when no longer needed. 
+ **/
+gchar *
+poppler_layers_iter_get_title (PopplerLayersIter *iter)
+{
+  Layer *layer;
+  
+  g_return_val_if_fail (iter != NULL, NULL);
+  
+  layer = (Layer *)g_list_nth_data (iter->items, iter->index);
+
+  return layer->label ? g_strdup (layer->label) : NULL;
+}
+
+/**
+ * poppler_layers_iter_get_layer:
+ * @iter: a #PopplerLayersIter
+ * 
+ * Returns the #PopplerLayer associated with @iter.  It must be freed with
+ * poppler_layer_free().
+ * 
+ * Return value: a new #PopplerLayer, or %NULL if there isn't any layer associated with @iter
+ **/
+PopplerLayer *
+poppler_layers_iter_get_layer (PopplerLayersIter *iter)
+{
+  Layer *layer;
+  PopplerLayer *poppler_layer = NULL;
+  
+  g_return_val_if_fail (iter != NULL, NULL);
+  
+  layer = (Layer *)g_list_nth_data (iter->items, iter->index);
+  if (layer->oc) {
+    GList *rb_group = NULL;
+
+    rb_group = poppler_document_get_layer_rbgroup (iter->document, layer);
+    poppler_layer = _poppler_layer_new (iter->document, layer, rb_group);
+  }
+  
+  return poppler_layer;
+}
+
+/**
+ * poppler_layers_iter_next:
+ * @iter: a #PopplerLayersIter
+ * 
+ * Sets @iter to point to the next action at the current level, if valid.  See
+ * poppler_layers_iter_new() for more information.
+ * 
+ * Return value: %TRUE, if @iter was set to the next action
+ **/
+gboolean
+poppler_layers_iter_next (PopplerLayersIter *iter)
+{
+  g_return_val_if_fail (iter != NULL, FALSE);
+
+  iter->index++;
+  if (iter->index >= (gint)g_list_length (iter->items))
+    return FALSE;
+  
+  return TRUE;
+}
 
 typedef struct _PopplerPSFileClass PopplerPSFileClass;
 struct _PopplerPSFileClass
