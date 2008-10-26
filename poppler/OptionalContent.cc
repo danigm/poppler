@@ -28,7 +28,7 @@
 //------------------------------------------------------------------------
 
 OCGs::OCGs(Object *ocgObject, XRef *xref) :
-  m_orderArray(0), m_rBGroupsArray(), m_xref(xref)
+  m_xref(xref)
 {
   // we need to parse the dictionary here, and build optionalContentGroups
   ok = gTrue;
@@ -126,17 +126,8 @@ OCGs::OCGs(Object *ocgObject, XRef *xref) :
   }
   off.free();
 
-  Object order;
   defaultOcgConfig.dictLookup("Order", &order);
-  if ( (order.isArray()) && (order.arrayGetLength() > 0) ) {
-    m_orderArray = order.getArray();
-  }
-
-  Object rbgroups;
   defaultOcgConfig.dictLookup("RBGroups", &rbgroups);
-  if ( (rbgroups.isArray()) && (rbgroups.arrayGetLength() > 0) ) {
-    m_rBGroupsArray = rbgroups.getArray();
-  }
 
   ocgList.free();
   defaultOcgConfig.free();
@@ -145,6 +136,8 @@ OCGs::OCGs(Object *ocgObject, XRef *xref) :
 OCGs::~OCGs()
 {
   deleteGooList(optionalContentGroups, OptionalContentGroup);
+  order.free();
+  rbgroups.free();
 }
 
 
