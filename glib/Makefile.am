@@ -20,7 +20,8 @@ INCLUDES =					\
 	$(FREETYPE_CFLAGS)			\
 	$(FONTCONFIG_CFLAGS)                    \
 	$(cairo_includes)			\
-	$(POPPLER_GLIB_DISABLE_DEPRECATED)
+	$(POPPLER_GLIB_DISABLE_DEPRECATED)	\
+	$(POPPLER_GLIB_DISABLE_SINGLE_INCLUDES)
 
 stamp_files = stamp-poppler-enums.h
 

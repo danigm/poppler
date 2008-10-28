@@ -16,7 +16,7 @@
  * Foundation, Inc., 51 Franklin Street - Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
-#include <gtk/gtkwidget.h>
+#include <gtk/gtk.h>
 #include <poppler.h>
 
 #ifndef _ATTACHMENTS_H_
