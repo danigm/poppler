@@ -19,7 +19,8 @@ INCLUDES =					\
 	$(GDK_CFLAGS)				\
 	$(FREETYPE_CFLAGS)			\
 	$(FONTCONFIG_CFLAGS)                    \
-	$(cairo_includes)			
+	$(cairo_includes)			\
+	$(POPPLER_GLIB_DISABLE_DEPRECATED)
 
 stamp_files = stamp-poppler-enums.h
 

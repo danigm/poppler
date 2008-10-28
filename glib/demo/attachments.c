@@ -136,7 +136,7 @@ pgd_attachments_save_dialog_response (GtkFileChooser    *file_chooser,
 
 	filename = gtk_file_chooser_get_filename (file_chooser);
 	if (!poppler_attachment_save (attachment, filename, &error)) {
-		g_warning (error->message);
+		g_warning ("%s", error->message);
 		g_error_free (error);
 	}
 	g_free (filename);
@@ -201,7 +201,7 @@ message_dialog_run (GtkWindow   *parent,
 					 GTK_DIALOG_DESTROY_WITH_PARENT,
 					 GTK_MESSAGE_INFO,
 					 GTK_BUTTONS_CLOSE,
-					 message);
+					 "%s", message);
 	gtk_dialog_run (GTK_DIALOG (dialog));
 	gtk_widget_destroy (dialog);
 }

@@ -1,7 +1,9 @@
 INCLUDES = 					\
 	-I$(top_srcdir)/glib			\
 	-I$(top_builddir)/glib			\
-	$(GTK_TEST_CFLAGS)
+	$(GTK_TEST_CFLAGS)			\
+	$(POPPLER_GLIB_DISABLE_DEPRECATED)	\
+	-DGTK_DISABLE_DEPRECATED
 
 if BUILD_GTK_TEST
 noinst_PROGRAMS = poppler-glib-demo

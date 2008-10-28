@@ -229,6 +229,8 @@ fi
 AC_SUBST(CAIRO_FEATURE)
 AC_SUBST(CAIRO_REQ)
 
+POPPLER_GLIB_DISABLE_DEPRECATED=""
+
 GLIB_REQUIRED=2.6
 AC_ARG_ENABLE(poppler-glib,
               AC_HELP_STRING([--disable-poppler-glib],
@@ -244,6 +246,7 @@ elif test x$enable_poppler_glib = xtry; then
 fi
 if test x$enable_poppler_glib = xyes; then
   AC_PATH_PROG([GLIB_MKENUMS],[glib-mkenums])
+  POPPLER_GLIB_DISABLE_DEPRECATED="$POPPLER_GLIB_DISABLE_DEPRECATED -DG_DISABLE_DEPRECATED"
 fi
 AM_CONDITIONAL(BUILD_POPPLER_GLIB, test x$enable_poppler_glib = xyes)
 
@@ -280,6 +283,7 @@ if test x$enable_poppler_glib = xyes; then
   if test x$enable_gdk = xyes; then
     AC_DEFINE(POPPLER_WITH_GDK,[1], [Have GDK])
     GDK_FEATURE="#define POPPLER_WITH_GDK 1"
+    POPPLER_GLIB_DISABLE_DEPRECATED="$POPPLER_GLIB_DISABLE_DEPRECATED -DGDK_DISABLE_DEPRECATED -DGDK_PIXBUF_DISABLE_DEPRECATED"
   else
     GDK_FEATURE=""
   fi
@@ -288,6 +292,8 @@ AM_CONDITIONAL(BUILD_WITH_GDK, test x$enable_gdk = xyes)
 AC_SUBST(GDK_CFLAGS)
 AC_SUBST(GDK_LIBS)
 AC_SUBST(GDK_FEATURE)
+
+AC_SUBST(POPPLER_GLIB_DISABLE_DEPRECATED)
 
 AC_ARG_ENABLE(poppler-qt,
 	      AC_HELP_STRING([--disable-poppler-qt],
