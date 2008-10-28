@@ -24,8 +24,7 @@
 #include "poppler.h"
 
 #ifdef POPPLER_WITH_GDK
-#include <gdk/gdkregion.h>
-#include <gdk/gdkcolor.h>
+#include <gdk/gdk.h>
 #include <gdk-pixbuf/gdk-pixbuf.h>
 #endif
 
