@@ -107,6 +107,7 @@ GBool CairoOutputDev::ft_lib_initialized = gFalse;
 
 CairoOutputDev::CairoOutputDev() {
   xref = NULL;
+  catalog = NULL;
 
   if (!ft_lib_initialized) {
     FT_Init_FreeType(&ft_lib);
@@ -172,8 +173,10 @@ void CairoOutputDev::setCairo(cairo_t *cairo)
   }
 }
 
-void CairoOutputDev::startDoc(XRef *xrefA, CairoFontEngine *parentFontEngine) {
+void CairoOutputDev::startDoc(XRef *xrefA, Catalog *catalogA,
+			      CairoFontEngine *parentFontEngine) {
   xref = xrefA;
+  catalog = catalogA;
   if (parentFontEngine) {
     fontEngine = parentFontEngine;
   } else {
@@ -414,7 +417,7 @@ void CairoOutputDev::updateFont(GfxState *state) {
   if (state->getFont()->getType() == fontType3)	 
     return;
 
-  currentFont = fontEngine->getFont (state->getFont(), xref);
+  currentFont = fontEngine->getFont (state->getFont(), xref, catalog);
 
   if (!currentFont)
     return;

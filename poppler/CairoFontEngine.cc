@@ -561,7 +561,7 @@ CairoFontEngine::~CairoFontEngine() {
 }
 
 CairoFont *
-CairoFontEngine::getFont(GfxFont *gfxFont, XRef *xref) {
+CairoFontEngine::getFont(GfxFont *gfxFont, XRef *xref, Catalog *catalog) {
   int i, j;
   Ref ref;
   CairoFont *font;

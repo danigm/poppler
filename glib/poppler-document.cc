@@ -106,14 +106,15 @@ _poppler_document_new_from_pdfdoc (PDFDoc  *newDoc,
 
 #if defined (HAVE_CAIRO)
   document->output_dev = new CairoOutputDev ();
+  document->output_dev->startDoc(document->doc->getXRef (), document->doc->getCatalog ());
 #elif defined (HAVE_SPLASH)
   SplashColor white;
   white[0] = 255;
   white[1] = 255;
   white[2] = 255;
   document->output_dev = new SplashOutputDev(splashModeRGB8, 4, gFalse, white);
-#endif
   document->output_dev->startDoc(document->doc->getXRef ());
+#endif
 
   return document;
 }

@@ -292,7 +292,7 @@ PdfInspector::load(const char *file_name)
       gtk_spin_button_set_range (GTK_SPIN_BUTTON (spin), 0, doc->getNumPages()-1);
       gtk_spin_button_set_value (GTK_SPIN_BUTTON (spin), 0);
 
-      output->startDoc (doc->getXRef());
+      output->startDoc (doc->getXRef(), doc->getCatalog());
     }
   else
     {      

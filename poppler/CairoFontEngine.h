@@ -35,6 +35,7 @@
 #include <cairo-ft.h>
 
 #include "GfxFont.h"
+#include "Catalog.h"
 
 class CairoFont {
 public:
@@ -89,7 +90,7 @@ public:
   CairoFontEngine(FT_Library libA);
   ~CairoFontEngine();
 
-  CairoFont *getFont(GfxFont *gfxFont, XRef *xref);
+  CairoFont *getFont(GfxFont *gfxFont, XRef *xref, Catalog *catalog);
 
 private:
   CairoFont *fontCache[cairoFontCacheSize];
