@@ -313,7 +313,7 @@ _ft_new_face (FT_Library lib,
   {
     cairo_font_face_destroy (l->font_face);
     _ft_done_face (l);
-    return NULL;
+    return gFalse;
   }
 
   *face_out = l->face;
