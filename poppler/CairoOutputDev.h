@@ -99,7 +99,7 @@ public:
 
   // Does this device use beginType3Char/endType3Char?  Otherwise,
   // text in Type 3 fonts will be drawn with drawChar/drawString.
-  virtual GBool interpretType3Chars() { return gTrue; }
+  virtual GBool interpretType3Chars() { return gFalse; }
 
   //----- initialization and control
 
@@ -214,6 +214,7 @@ public:
   void setCairo (cairo_t *cr);
   void setPrinting (GBool printing) { this->printing = printing; }
 
+  void setInType3Char(GBool inType3Char) { this->inType3Char = inType3Char; }
   void getType3GlyphWidth (double *wx, double *wy) { *wx = t3_glyph_wx; *wy = t3_glyph_wy; }
   GBool hasType3GlyphBBox () { return t3_glyph_has_bbox; }
   double *getType3GlyphBBox () { return t3_glyph_bbox; }
@@ -244,6 +245,7 @@ protected:
   cairo_glyph_t *glyphs;
   int glyphCount;
   cairo_path_t *textClipPath;
+  GBool inType3Char;		// inside a Type 3 CharProc
   double t3_glyph_wx, t3_glyph_wy;
   GBool t3_glyph_has_bbox;
   double t3_glyph_bbox[4];

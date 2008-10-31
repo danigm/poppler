@@ -37,6 +37,8 @@
 #include "GfxFont.h"
 #include "Catalog.h"
 
+class CairoFontEngine;
+
 class CairoFont {
 public:
   CairoFont(Ref ref,
@@ -73,6 +75,22 @@ private:
   CairoFreeTypeFont(Ref ref, cairo_font_face_t *cairo_font_face, FT_Face face,
 	    Gushort *codeToGID, int codeToGIDLen, GBool substitute);
   FT_Face face;
+};
+
+//------------------------------------------------------------------------
+
+class CairoType3Font : public CairoFont {
+public:
+  static CairoType3Font *create(GfxFont *gfxFont, XRef *xref,
+				Catalog *catalog, CairoFontEngine *fontEngine);
+  virtual ~CairoType3Font();
+
+private:
+  CairoType3Font(Ref ref, XRef *xref, Catalog *catalog,
+		 cairo_font_face_t *cairo_font_face,
+		 Gushort *codeToGID, int codeToGIDLen);
+  XRef *xref;
+  Catalog *catalog;
 };
 
 //------------------------------------------------------------------------
