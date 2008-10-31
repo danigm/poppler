@@ -114,6 +114,7 @@ CairoOutputDev::CairoOutputDev() {
   }
 
   fontEngine = NULL;
+  fontEngine_owner = gFalse;
   glyphs = NULL;
   fill_pattern = NULL;
   stroke_pattern = NULL;
@@ -134,7 +135,7 @@ CairoOutputDev::CairoOutputDev() {
 }
 
 CairoOutputDev::~CairoOutputDev() {
-  if (fontEngine) {
+  if (fontEngine_owner && fontEngine) {
     delete fontEngine;
   }
 
@@ -171,12 +172,17 @@ void CairoOutputDev::setCairo(cairo_t *cairo)
   }
 }
 
-void CairoOutputDev::startDoc(XRef *xrefA) {
+void CairoOutputDev::startDoc(XRef *xrefA, CairoFontEngine *parentFontEngine) {
   xref = xrefA;
-  if (fontEngine) {
-    delete fontEngine;
+  if (parentFontEngine) {
+    fontEngine = parentFontEngine;
+  } else {
+    if (fontEngine) {
+      delete fontEngine;
+    }
+    fontEngine = new CairoFontEngine(ft_lib);
+    fontEngine_owner = gTrue;
   }
-  fontEngine = new CairoFontEngine(ft_lib);
 }
 
 void CairoOutputDev::startPage(int pageNum, GfxState *state) {

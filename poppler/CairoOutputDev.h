@@ -207,7 +207,7 @@ public:
   //----- special access
 
   // Called to indicate that a new PDF document has been loaded.
-  void startDoc(XRef *xrefA);
+  void startDoc(XRef *xrefA, CairoFontEngine *fontEngine = NULL);
  
   GBool isReverseVideo() { return gFalse; }
   
@@ -229,6 +229,8 @@ protected:
   static GBool ft_lib_initialized;
 
   CairoFontEngine *fontEngine;
+  GBool fontEngine_owner;
+
   cairo_t *cairo;
   cairo_matrix_t orig_matrix;
   GBool needFontUpdate;                // set when the font needs to be updated
