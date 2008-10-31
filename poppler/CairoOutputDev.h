@@ -214,6 +214,10 @@ public:
   void setCairo (cairo_t *cr);
   void setPrinting (GBool printing) { this->printing = printing; }
 
+  void getType3GlyphWidth (double *wx, double *wy) { *wx = t3_glyph_wx; *wy = t3_glyph_wy; }
+  GBool hasType3GlyphBBox () { return t3_glyph_has_bbox; }
+  double *getType3GlyphBBox () { return t3_glyph_bbox; }
+
 protected:
   void doPath(cairo_t *cairo, GfxState *state, GfxPath *path);
   
@@ -240,6 +244,9 @@ protected:
   cairo_glyph_t *glyphs;
   int glyphCount;
   cairo_path_t *textClipPath;
+  double t3_glyph_wx, t3_glyph_wy;
+  GBool t3_glyph_has_bbox;
+  double t3_glyph_bbox[4];
 
   GBool prescaleImages;
 
