@@ -38,8 +38,12 @@
 
 class CairoFont {
 public:
-  static CairoFont *create(GfxFont *gfxFont, XRef *xref, FT_Library lib, GBool useCIDs);
-  ~CairoFont();
+  CairoFont(Ref ref,
+	      cairo_font_face_t *face,
+	      Gushort *codeToGID,
+	      int codeToGIDLen,
+	      GBool substitute);
+  virtual ~CairoFont();
 
   GBool matches(Ref &other);
   cairo_font_face_t *getFontFace(void);
@@ -47,17 +51,27 @@ public:
   double getSubstitutionCorrection(GfxFont *gfxFont);
 
   GBool isSubstitute() { return substitute; }
-private:
-  CairoFont(Ref ref, cairo_font_face_t *cairo_font_face, FT_Face face,
-      Gushort *codeToGID, int codeToGIDLen, GBool substitute);
+protected:
   Ref ref;
   cairo_font_face_t *cairo_font_face;
-  FT_Face face;
 
   Gushort *codeToGID;
   int codeToGIDLen;
 
   GBool substitute;
+};
+
+//------------------------------------------------------------------------
+
+class CairoFreeTypeFont : public CairoFont {
+public:
+  static CairoFreeTypeFont *create(GfxFont *gfxFont, XRef *xref, FT_Library lib, GBool useCIDs);
+  virtual ~CairoFreeTypeFont();
+
+private:
+  CairoFreeTypeFont(Ref ref, cairo_font_face_t *cairo_font_face, FT_Face face,
+	    Gushort *codeToGID, int codeToGIDLen, GBool substitute);
+  FT_Face face;
 };
 
 //------------------------------------------------------------------------
