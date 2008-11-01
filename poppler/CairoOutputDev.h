@@ -212,7 +212,7 @@ public:
   GBool isReverseVideo() { return gFalse; }
   
   void setCairo (cairo_t *cr);
-  void setPrinting (GBool printing) { this->printing = printing; }
+  void setPrinting (GBool printing) { this->printing = printing; needFontUpdate = gTrue; }
 
   void setInType3Char(GBool inType3Char) { this->inType3Char = inType3Char; }
   void getType3GlyphWidth (double *wx, double *wy) { *wx = t3_glyph_wx; *wy = t3_glyph_wy; }

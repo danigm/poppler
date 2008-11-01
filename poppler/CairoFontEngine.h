@@ -42,13 +42,14 @@ class CairoFontEngine;
 class CairoFont {
 public:
   CairoFont(Ref ref,
-	      cairo_font_face_t *face,
-	      Gushort *codeToGID,
-	      int codeToGIDLen,
-	      GBool substitute);
+	    cairo_font_face_t *face,
+	    Gushort *codeToGID,
+	    int codeToGIDLen,
+	    GBool substitute,
+	    GBool printing);
   virtual ~CairoFont();
 
-  GBool matches(Ref &other);
+  GBool matches(Ref &other, GBool printing);
   cairo_font_face_t *getFontFace(void);
   unsigned long getGlyph(CharCode code, Unicode *u, int uLen);
   double getSubstitutionCorrection(GfxFont *gfxFont);
@@ -62,6 +63,7 @@ protected:
   int codeToGIDLen;
 
   GBool substitute;
+  GBool printing;
 };
 
 //------------------------------------------------------------------------
@@ -82,13 +84,15 @@ private:
 class CairoType3Font : public CairoFont {
 public:
   static CairoType3Font *create(GfxFont *gfxFont, XRef *xref,
-				Catalog *catalog, CairoFontEngine *fontEngine);
+				Catalog *catalog, CairoFontEngine *fontEngine,
+				GBool printing);
   virtual ~CairoType3Font();
 
 private:
   CairoType3Font(Ref ref, XRef *xref, Catalog *catalog,
 		 cairo_font_face_t *cairo_font_face,
-		 Gushort *codeToGID, int codeToGIDLen);
+		 Gushort *codeToGID, int codeToGIDLen,
+		 GBool printing);
   XRef *xref;
   Catalog *catalog;
 };
@@ -108,7 +112,7 @@ public:
   CairoFontEngine(FT_Library libA);
   ~CairoFontEngine();
 
-  CairoFont *getFont(GfxFont *gfxFont, XRef *xref, Catalog *catalog);
+  CairoFont *getFont(GfxFont *gfxFont, XRef *xref, Catalog *catalog, GBool printing);
 
 private:
   CairoFont *fontCache[cairoFontCacheSize];

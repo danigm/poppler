@@ -416,7 +416,7 @@ void CairoOutputDev::updateFont(GfxState *state) {
 
   needFontUpdate = gFalse;
 
-  currentFont = fontEngine->getFont (state->getFont(), xref, catalog);
+  currentFont = fontEngine->getFont (state->getFont(), xref, catalog, printing);
 
   if (!currentFont)
     return;

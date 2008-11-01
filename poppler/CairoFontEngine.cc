@@ -63,11 +63,13 @@ CairoFont::CairoFont(Ref ref,
 		     cairo_font_face_t *cairo_font_face,
 		     Gushort *codeToGID,
 		     int codeToGIDLen,
-		     GBool substitute) : ref(ref),
-					 cairo_font_face(cairo_font_face),
-					 codeToGID(codeToGID),
-					 codeToGIDLen(codeToGIDLen),
-					 substitute(substitute)  { }
+		     GBool substitute,
+		     GBool printing) : ref(ref),
+				       cairo_font_face(cairo_font_face),
+				       codeToGID(codeToGID),
+				       codeToGIDLen(codeToGIDLen),
+				       substitute(substitute),
+				       printing(printing)      { }
 
 CairoFont::~CairoFont() {
   cairo_font_face_destroy (cairo_font_face);
@@ -75,8 +77,8 @@ CairoFont::~CairoFont() {
 }
 
 GBool
-CairoFont::matches(Ref &other) {
-  return (other.num == ref.num && other.gen == ref.gen);
+CairoFont::matches(Ref &other, GBool printingA) {
+  return (other.num == ref.num && other.gen == ref.gen && printing == printingA);
 }
 
 cairo_font_face_t *
@@ -337,7 +339,8 @@ CairoFreeTypeFont::CairoFreeTypeFont(Ref ref,
 								   cairo_font_face,
 								   codeToGID,
 								   codeToGIDLen,
-								   substitute),
+								   substitute,
+								   gTrue),
 							 face(face) { }
 
 CairoFreeTypeFont::~CairoFreeTypeFont() { }
@@ -546,6 +549,7 @@ typedef struct _type3_font_info {
   XRef *xref;
   Catalog *catalog;
   CairoFontEngine *fontEngine;
+  GBool printing;
 } type3_font_info_t;
 
 static void
@@ -601,6 +605,7 @@ _render_type3_glyph (cairo_scaled_font_t  *scaled_font,
 
   output_dev = new CairoOutputDev();
   output_dev->setCairo(cr);
+  output_dev->setPrinting(info->printing);
 
   mat = font->getFontBBox();
   box.x1 = mat[0];
@@ -637,7 +642,8 @@ _render_type3_glyph (cairo_scaled_font_t  *scaled_font,
 
 
 CairoType3Font *CairoType3Font::create(GfxFont *gfxFont, XRef *xref,
-				       Catalog *catalog, CairoFontEngine *fontEngine) {
+				       Catalog *catalog, CairoFontEngine *fontEngine,
+				       GBool printing) {
   Object refObj, strObj;
   type3_font_info_t *info;
   cairo_font_face_t *font_face;
@@ -659,6 +665,7 @@ CairoType3Font *CairoType3Font::create(GfxFont *gfxFont, XRef *xref,
   info->xref = xref;
   info->catalog = catalog;
   info->fontEngine = fontEngine;
+  info->printing = printing;
 
   cairo_font_face_set_user_data (font_face, &type3_font_key, (void *) info, _free_type3_font_info);
 
@@ -676,7 +683,7 @@ CairoType3Font *CairoType3Font::create(GfxFont *gfxFont, XRef *xref,
     }
   }
 
-  return new CairoType3Font(ref, xref, catalog, font_face, codeToGID, codeToGIDLen);
+  return new CairoType3Font(ref, xref, catalog, font_face, codeToGID, codeToGIDLen, printing);
 }
 
 CairoType3Font::CairoType3Font(Ref ref,
@@ -684,13 +691,15 @@ CairoType3Font::CairoType3Font(Ref ref,
 			       Catalog *cat,
 			       cairo_font_face_t *cairo_font_face,
 			       Gushort *codeToGID,
-			       int codeToGIDLen) : CairoFont(ref,
-							     cairo_font_face,
-							     codeToGID,
-							     codeToGIDLen,
-							     gFalse),
-						   xref(xref),
-						   catalog(catalog) { }
+			       int codeToGIDLen,
+			       GBool printing) : CairoFont(ref,
+							   cairo_font_face,
+							   codeToGID,
+							   codeToGIDLen,
+							   gFalse,
+							   printing),
+						 xref(xref),
+						 catalog(catalog) { }
 
 CairoType3Font::~CairoType3Font() { }
 
@@ -724,7 +733,7 @@ CairoFontEngine::~CairoFontEngine() {
 }
 
 CairoFont *
-CairoFontEngine::getFont(GfxFont *gfxFont, XRef *xref, Catalog *catalog) {
+CairoFontEngine::getFont(GfxFont *gfxFont, XRef *xref, Catalog *catalog, GBool printing) {
   int i, j;
   Ref ref;
   CairoFont *font;
@@ -734,7 +743,7 @@ CairoFontEngine::getFont(GfxFont *gfxFont, XRef *xref, Catalog *catalog) {
 
   for (i = 0; i < cairoFontCacheSize; ++i) {
     font = fontCache[i];
-    if (font && font->matches(ref)) {
+    if (font && font->matches(ref, printing)) {
       for (j = i; j > 0; --j) {
 	fontCache[j] = fontCache[j-1];
       }
@@ -745,7 +754,7 @@ CairoFontEngine::getFont(GfxFont *gfxFont, XRef *xref, Catalog *catalog) {
   
   fontType = gfxFont->getType();
   if (fontType == fontType3)
-    font = CairoType3Font::create (gfxFont, xref, catalog, this);
+    font = CairoType3Font::create (gfxFont, xref, catalog, this, printing);
   else
     font = CairoFreeTypeFont::create (gfxFont, xref, lib, useCIDs);
 
