@@ -566,7 +566,7 @@ _render_type3_glyph (cairo_scaled_font_t  *scaled_font,
   Dict *charProcs;
   Object charProc;
   CairoOutputDev *output_dev;
-  cairo_matrix_t matrix;
+  cairo_matrix_t matrix, invert_y_axis;
   double *mat;
   double wx, wy;
   PDFRectangle box;
@@ -595,8 +595,8 @@ _render_type3_glyph (cairo_scaled_font_t  *scaled_font,
   matrix.yy = mat[3];
   matrix.x0 = mat[4];
   matrix.y0 = mat[5];
-  cairo_transform (cr, &matrix);
-  cairo_matrix_init_scale (&matrix, 1, -1);
+  cairo_matrix_init_scale (&invert_y_axis, 1, -1);
+  cairo_matrix_multiply (&matrix, &matrix, &invert_y_axis);
   cairo_transform (cr, &matrix);
 
   output_dev = new CairoOutputDev();
