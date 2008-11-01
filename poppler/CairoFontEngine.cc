@@ -614,6 +614,7 @@ _render_type3_glyph (cairo_scaled_font_t  *scaled_font,
   gfx->display(charProcs->getVal(glyph, &charProc));
 
   output_dev->getType3GlyphWidth (&wx, &wy);
+  cairo_matrix_transform_distance (&matrix, &wx, &wy);
   metrics->x_advance = wx;
   metrics->y_advance = wy;
   if (output_dev->hasType3GlyphBBox()) {
