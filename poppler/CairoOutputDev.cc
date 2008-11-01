@@ -438,11 +438,6 @@ void CairoOutputDev::updateFont(GfxState *state) {
   matrix.yy = -m[3] * fontSize;
   matrix.x0 = 0;
   matrix.y0 = 0;
-  if (inType3Char) {
-    cairo_matrix_t m;
-    cairo_matrix_init_scale (&m, 1, -1);
-    cairo_matrix_multiply (&matrix, &m, &matrix);
-  }
   cairo_set_font_matrix (cairo, &matrix);
 }
 
