@@ -602,6 +602,7 @@ _render_type3_glyph (cairo_scaled_font_t  *scaled_font,
   output_dev = new CairoOutputDev();
   output_dev->setCairo(cr);
 
+  mat = font->getFontBBox();
   box.x1 = mat[0];
   box.y1 = mat[1];
   box.x2 = mat[2];
