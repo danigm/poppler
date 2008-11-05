@@ -236,6 +236,7 @@ void PdfViewer::slotSaveCopy()
         QMessageBox msgbox(QMessageBox::Critical, tr("Save Error"), tr("Cannot export to:\n%1").arg(fileName),
                            QMessageBox::Ok, this);
     }
+    delete converter;
 }
 
 void PdfViewer::slotAbout()
