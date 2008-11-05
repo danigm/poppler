@@ -1122,9 +1122,10 @@ GfxColorSpace *GfxIndexedColorSpace::parse(Array *arr) {
     // values larger than 255 creates a security hole: if nComps *
     // indexHigh is greater than 2^31, the loop below may overwrite
     // past the end of the array
-    error(-1, "Bad Indexed color space (invalid indexHigh value)");
-    delete baseA;
-    goto err2;
+    int previousValue = indexHighA;
+    if (indexHighA < 0) indexHighA = 0;
+    else indexHighA = 255;
+    error(-1, "Bad Indexed color space (invalid indexHigh value, was %d using %d to try to recover)", previousValue, indexHighA);
   }
   obj1.free();
   cs = new GfxIndexedColorSpace(baseA, indexHighA);
