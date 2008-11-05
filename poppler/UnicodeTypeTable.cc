@@ -1167,8 +1167,11 @@ Unicode *unicodeNormalizeNFKC(Unicode *in, int len,
 	    break;
 	  u = out[r]; out[r] = out[r - 1]; out[r - 1] = u;
 	  swap = classes[r]; classes[r] = classes[r - 1]; classes[r - 1] = swap;
-	  if (indices)
-	    swap = idx[r]; idx[r] = idx[r - 1]; idx[r - 1] = swap;
+	  if (indices) {
+	    swap = idx[r]; 
+	    idx[r] = idx[r - 1];
+	    idx[r - 1] = swap;
+	  }
 	}
       // canonical compose out[o, p)
       for (q = o + 1; q < p; ++q)
