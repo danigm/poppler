@@ -14,7 +14,7 @@
 // under GPL version 2 or later
 //
 // Copyright (C) 2005 Kristian Høgsberg <krh@redhat.com>
-// Copyright (C) 2005-2007 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2005-2008 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2005 Jeff Muizelaar <jrmuizel@nit.ca>
 // Copyright (C) 2005 Jonathan Blandford <jrb@redhat.com>
 // Copyright (C) 2005 Marco Pesenti Gritti <mpg@redhat.com>
@@ -458,9 +458,9 @@ GooString *Catalog::getJS(int i)
     Stream *stream = obj2.getStream();
     js = new GooString();
     stream->reset();
-    int i;
-    while ((i = stream->getChar()) != EOF) {
-      js->append((char)i);
+    int j;
+    while ((j = stream->getChar()) != EOF) {
+      js->append((char)j);
     }
   }
   obj2.free();
