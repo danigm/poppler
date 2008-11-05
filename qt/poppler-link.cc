@@ -1,5 +1,5 @@
 /* poppler-link.cc: qt interface to poppler
- * Copyright (C) 2006, Albert Astals Cid
+ * Copyright (C) 2006, 2008 Albert Astals Cid
  * Adapting code from
  *   Copyright (C) 2004 by Enrico Ros <eros.kde@email.it>
  *
@@ -29,10 +29,14 @@ namespace Poppler {
 
 	LinkDestination::LinkDestination(const LinkDestinationData &data)
 	{
+		bool deleteDest = false;
 		LinkDest *ld = data.ld;
 		
 		if ( data.namedDest && !ld )
+		{
+			deleteDest = true;
 			ld = data.doc->doc.findDest( data.namedDest );
+		}
 		
 		if (!ld) return;
 		
@@ -72,6 +76,8 @@ namespace Poppler {
 		m_top = topAux;
 		m_right = rightAux;
 		m_bottom = bottomAux;
+		
+		if (deleteDest) delete ld;
 	}
 	
 	LinkDestination::LinkDestination(const QString &description)
