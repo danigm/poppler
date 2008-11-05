@@ -126,6 +126,7 @@ CharCodeToUnicode *CharCodeToUnicode::parseUnicodeToUnicode(
   int line, n, i;
 
   if (!(f = fopen(fileName->getCString(), "r"))) {
+    gfree(uBuf);
     error(-1, "Couldn't open unicodeToUnicode file '%s'",
 	  fileName->getCString());
     return NULL;
