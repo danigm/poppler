@@ -496,6 +496,7 @@ Gfx::Gfx(XRef *xrefA, OutputDev *outA, int pageNum, Dict *resDict, Catalog *cata
   subPage = gFalse;
   printCommands = globalParams->getPrintCommands();
   profileCommands = globalParams->getProfileCommands();
+  mcStack = NULL;
 
   // start the resource stack
   res = new GfxResources(xref, resDict, NULL);
@@ -539,6 +540,7 @@ Gfx::Gfx(XRef *xrefA, OutputDev *outA, Dict *resDict, Catalog *catalogA,
   catalog = catalogA;
   subPage = gTrue;
   printCommands = globalParams->getPrintCommands();
+  mcStack = NULL;
 
   // start the resource stack
   res = new GfxResources(xref, resDict, NULL);
@@ -581,6 +583,9 @@ Gfx::~Gfx() {
   }
   if (state) {
     delete state;
+  }
+  while (mcStack) {
+    popMarkedContent();
   }
 }
 
@@ -1562,7 +1567,7 @@ void Gfx::opStroke(Object args[], int numArgs) {
     //error(getPos(), "No path in stroke");
     return;
   }
-  if (state->isPath()) {
+  if (state->isPath() && !contentIsHidden()) {
     if (state->getStrokeColorSpace()->getMode() == csPattern) {
       doPatternStroke();
     } else {
@@ -1578,7 +1583,7 @@ void Gfx::opCloseStroke(Object * /*args[]*/, int /*numArgs*/) {
     return;
   }
   state->closePath();
-  if (state->isPath()) {
+  if (state->isPath() && !contentIsHidden()) {
     if (state->getStrokeColorSpace()->getMode() == csPattern) {
       doPatternStroke();
     } else {
@@ -1593,7 +1598,7 @@ void Gfx::opFill(Object args[], int numArgs) {
     //error(getPos(), "No path in fill");
     return;
   }
-  if (state->isPath()) {
+  if (state->isPath() && !contentIsHidden()) {
     if (state->getFillColorSpace()->getMode() == csPattern) {
       doPatternFill(gFalse);
     } else {
@@ -1608,7 +1613,7 @@ void Gfx::opEOFill(Object args[], int numArgs) {
     //error(getPos(), "No path in eofill");
     return;
   }
-  if (state->isPath()) {
+  if (state->isPath() && !contentIsHidden()) {
     if (state->getFillColorSpace()->getMode() == csPattern) {
       doPatternFill(gTrue);
     } else {
@@ -1623,7 +1628,7 @@ void Gfx::opFillStroke(Object args[], int numArgs) {
     //error(getPos(), "No path in fill/stroke");
     return;
   }
-  if (state->isPath()) {
+  if (state->isPath() && !contentIsHidden()) {
     if (state->getFillColorSpace()->getMode() == csPattern) {
       doPatternFill(gFalse);
     } else {
@@ -1643,7 +1648,7 @@ void Gfx::opCloseFillStroke(Object args[], int numArgs) {
     //error(getPos(), "No path in closepath/fill/stroke");
     return;
   }
-  if (state->isPath()) {
+  if (state->isPath() && !contentIsHidden()) {
     state->closePath();
     if (state->getFillColorSpace()->getMode() == csPattern) {
       doPatternFill(gFalse);
@@ -1664,7 +1669,7 @@ void Gfx::opEOFillStroke(Object args[], int numArgs) {
     //error(getPos(), "No path in eofill/stroke");
     return;
   }
-  if (state->isPath()) {
+  if (state->isPath() && !contentIsHidden()) {
     if (state->getFillColorSpace()->getMode() == csPattern) {
       doPatternFill(gTrue);
     } else {
@@ -1684,7 +1689,7 @@ void Gfx::opCloseEOFillStroke(Object args[], int numArgs) {
     //error(getPos(), "No path in closepath/eofill/stroke");
     return;
   }
-  if (state->isPath()) {
+  if (state->isPath() && !contentIsHidden()) {
     state->closePath();
     if (state->getFillColorSpace()->getMode() == csPattern) {
       doPatternFill(gTrue);
@@ -1911,10 +1916,12 @@ void Gfx::doTilingPatternFill(GfxTilingPattern *tPat,
   if (out->useTilingPatternFill()) {
     m1[4] = m[4];
     m1[5] = m[5];
-    out->tilingPatternFill(state, tPat->getContentStream(),
-			   tPat->getPaintType(), tPat->getResDict(),
-			   m1, tPat->getBBox(),
-			   xi0, yi0, xi1, yi1, xstep, ystep);
+    if (!contentIsHidden()) {
+      out->tilingPatternFill(state, tPat->getContentStream(),
+			     tPat->getPaintType(), tPat->getResDict(),
+			     m1, tPat->getBBox(),
+			     xi0, yi0, xi1, yi1, xstep, ystep);
+    }
   } else {
     for (yi = yi0; yi < yi1; ++yi) {
       for (xi = xi0; xi < xi1; ++xi) {
@@ -1983,7 +1990,8 @@ void Gfx::doShadingPatternFill(GfxShadingPattern *sPat,
   if (shading->getHasBackground()) {
     state->setFillColor(shading->getBackground());
     out->updateFillColor(state);
-    out->fill(state);
+    if (!contentIsHidden())
+      out->fill(state);
   }
   state->clearPath();
 
@@ -2196,7 +2204,8 @@ void Gfx::doFunctionShFill1(GfxFunctionShading *shading,
     state->lineTo(x0 * matrix[0] + y1 * matrix[2] + matrix[4],
 		  x0 * matrix[1] + y1 * matrix[3] + matrix[5]);
     state->closePath();
-    out->fill(state);
+    if (!contentIsHidden())
+      out->fill(state);
     state->clearPath();
 
   // the four corner colors are not close enough -- subdivide the
@@ -2485,7 +2494,8 @@ void Gfx::doAxialShFill(GfxAxialShading *shading) {
     state->lineTo(vx1, vy1);
     state->lineTo(ux1, uy1);
     state->closePath();
-    out->fill(state);
+    if (!contentIsHidden())
+      out->fill(state);
     state->clearPath();
 
     // set up for next region
@@ -2761,7 +2771,8 @@ void Gfx::doRadialShFill(GfxRadialShading *shading) {
     }
 
     // fill the path
-    out->fill(state);
+    if (!contentIsHidden())
+      out->fill(state);
     state->clearPath();
 
     // step to the next value of t
@@ -2798,7 +2809,8 @@ void Gfx::doRadialShFill(GfxRadialShading *shading) {
 	state->lineTo(xa + ra * cos(angle), ya + ra * sin(angle));
       }
       state->closePath();
-      out->fill(state);
+      if (!contentIsHidden())
+        out->fill(state);
       state->clearPath();
     }
 
@@ -2830,7 +2842,8 @@ void Gfx::doRadialShFill(GfxRadialShading *shading) {
 	state->lineTo(xa + ra * cos(angle), ya + ra * sin(angle));
       }
       state->closePath();
-      out->fill(state);
+      if (!contentIsHidden())
+        out->fill(state);
       state->clearPath();
     }
   }
@@ -2871,7 +2884,8 @@ void Gfx::gouraudFillTriangle(double x0, double y0, GfxColor *color0,
     state->lineTo(x1, y1);
     state->lineTo(x2, y2);
     state->closePath();
-    out->fill(state);
+    if (!contentIsHidden())
+      out->fill(state);
     state->clearPath();
   } else {
     x01 = 0.5 * (x0 + x1);
@@ -2951,7 +2965,8 @@ void Gfx::fillPatch(GfxPatch *patch, int nComps, int depth) {
 		   patch->x[1][0], patch->y[1][0],
 		   patch->x[0][0], patch->y[0][0]);
     state->closePath();
-    out->fill(state);
+    if (!contentIsHidden())
+      out->fill(state);
     state->clearPath();
   } else {
     for (i = 0; i < 4; ++i) {
@@ -3411,8 +3426,10 @@ void Gfx::doShowText(GooString *s) {
       originX *= state->getFontSize();
       originY *= state->getFontSize();
       state->textTransformDelta(originX, originY, &tOriginX, &tOriginY);
-      out->drawChar(state, state->getCurX() + riseX, state->getCurY() + riseY,
-		    tdx, tdy, tOriginX, tOriginY, code, n, u, uLen);
+      if (!contentIsHidden()) {
+        out->drawChar(state, state->getCurX() + riseX, state->getCurY() + riseY,
+		      tdx, tdy, tOriginX, tOriginY, code, n, u, uLen);
+      }
       state->shift(tdx, tdy);
       p += n;
       len -= n;
@@ -3449,7 +3466,8 @@ void Gfx::doShowText(GooString *s) {
       dy *= state->getFontSize();
     }
     state->textTransformDelta(dx, dy, &tdx, &tdy);
-    out->drawString(state, s);
+    if (!contentIsHidden())
+      out->drawString(state, s);
     state->shift(tdx, tdy);
   }
 
@@ -3643,7 +3661,8 @@ void Gfx::doImage(Object *ref, Stream *str, GBool inlineImg) {
     obj1.free();
 
     // draw it
-    out->drawImageMask(state, ref, str, width, height, invert, inlineImg);
+    if (!contentIsHidden())
+      out->drawImageMask(state, ref, str, width, height, invert, inlineImg);
 
   } else {
 
@@ -3833,13 +3852,15 @@ void Gfx::doImage(Object *ref, Stream *str, GBool inlineImg) {
 
     // draw it
     if (haveSoftMask) {
-      out->drawSoftMaskedImage(state, ref, str, width, height, colorMap,
-			       maskStr, maskWidth, maskHeight, maskColorMap);
+      if (!contentIsHidden()) {
+        out->drawSoftMaskedImage(state, ref, str, width, height, colorMap,
+				 maskStr, maskWidth, maskHeight, maskColorMap);
+      }
       delete maskColorMap;
-    } else if (haveExplicitMask) {
+    } else if (haveExplicitMask && !contentIsHidden ()) {
       out->drawMaskedImage(state, ref, str, width, height, colorMap,
 			   maskStr, maskWidth, maskHeight, maskInvert);
-    } else {
+    } else if (!contentIsHidden()) {
       out->drawImage(state, ref, str, width, height, colorMap,
 		     haveColorKeyMask ? maskColors : (int *)NULL, inlineImg);
     }
@@ -4153,10 +4174,33 @@ void Gfx::opEndIgnoreUndef(Object args[], int numArgs) {
 // marked content operators
 //------------------------------------------------------------------------
 
+struct MarkedContentStack {
+  GBool ocSuppressed;       // are we ignoring content based on OptionalContent?
+  MarkedContentStack *next; // next object on stack
+};
+
+void Gfx::popMarkedContent() {
+  MarkedContentStack *mc = mcStack;
+  mcStack = mc->next;
+  delete mc;
+}
+
+void Gfx::pushMarkedContent() {
+  MarkedContentStack *mc = new MarkedContentStack();
+  mc->ocSuppressed = gFalse;
+  mc->next = mcStack;
+  mcStack = mc;
+}
+
+GBool Gfx::contentIsHidden() {
+  return mcStack && mcStack->ocSuppressed;
+}
+
 void Gfx::opBeginMarkedContent(Object args[], int numArgs) {
-  // TODO: we really need to be adding this to the markedContentStack
+  // push a new stack entry
+  pushMarkedContent();
+  
   OCGs *contentConfig = catalog->getOptContentConfig();
-	
   char* name0 = args[0].getName();
   if ( strncmp( name0, "OC", 2) == 0 && contentConfig) {
     if ( numArgs >= 2 ) {
@@ -4168,7 +4212,8 @@ void Gfx::opBeginMarkedContent(Object args[], int numArgs) {
       if ( res->lookupMarkedContentNF( name1, &markedContent ) ) {
 	if ( markedContent.isRef() ) {
 	  bool visible = contentConfig->optContentIsVisible( &markedContent );
-	  ocSuppressed = !(visible);
+	  MarkedContentStack *mc = mcStack;
+	  mc->ocSuppressed = !(visible);
        }
       } else {
 	error(getPos(), "DID NOT find %s", name1);
@@ -4177,7 +4222,6 @@ void Gfx::opBeginMarkedContent(Object args[], int numArgs) {
       error(getPos(), "insufficient arguments for Marked Content");
     }
   }
-
 
   if (printCommands) {
     printf("  marked content: %s ", args[0].getName());
@@ -4195,8 +4239,9 @@ void Gfx::opBeginMarkedContent(Object args[], int numArgs) {
 }
 
 void Gfx::opEndMarkedContent(Object args[], int numArgs) {
-  // TODO: we should turn this off based on the markedContentStack
-  ocSuppressed = false;
+  // pop the stack
+  if (mcStack)
+    popMarkedContent();
   out->endMarkedContent(state);
 }
 

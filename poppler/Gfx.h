@@ -61,6 +61,7 @@ class PDFRectangle;
 class AnnotBorder;
 class AnnotColor;
 class Catalog;
+struct MarkedContentStack;
 
 //------------------------------------------------------------------------
 
@@ -171,7 +172,6 @@ private:
   GBool profileCommands;	// profile the drawing commands (for debugging)
   GfxResources *res;		// resource stack
   int updateLevel;
-  GBool ocSuppressed;		// are we ignoring content based on OptionalContent?
 
   GfxState *state;		// current graphics state
   GBool fontChanged;		// set if font or text matrix has changed
@@ -181,7 +181,7 @@ private:
 				//   page/form/pattern
   int formDepth;
 
-  GooList *markedContentStack;	// current BMC/EMC stack
+  MarkedContentStack *mcStack;	// current BMC/EMC stack
 
   Parser *parser;		// parser for page content stream(s)
 
@@ -329,6 +329,9 @@ private:
   void opBeginMarkedContent(Object args[], int numArgs);
   void opEndMarkedContent(Object args[], int numArgs);
   void opMarkPoint(Object args[], int numArgs);
+  GBool contentIsHidden();
+  void pushMarkedContent();
+  void popMarkedContent();
 
   void pushResources(Dict *resDict);
   void popResources();
