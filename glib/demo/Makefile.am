@@ -24,6 +24,8 @@ poppler_glib_demo_SOURCES = 			\
 	images.c				\
 	info.h					\
 	info.cc					\
+	layers.h				\
+	layers.c				\
 	links.h					\
 	links.c					\
 	outline.h				\
