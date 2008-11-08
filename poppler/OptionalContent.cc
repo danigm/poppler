@@ -51,7 +51,7 @@ OCGs::OCGs(Object *ocgObject, XRef *xref) :
       ocg.free();
       break;
     }
-    OptionalContentGroup *thisOptionalContentGroup = new OptionalContentGroup(ocg.getDict(), xref);
+    OptionalContentGroup *thisOptionalContentGroup = new OptionalContentGroup(ocg.getDict());
     ocg.free();
     ocgList.arrayGetNF(i, &ocg);
     // TODO: we should create a lookup map from Ref to the OptionalContentGroup
@@ -159,7 +159,7 @@ OptionalContentGroup* OCGs::findOcgByRef( const Ref &ref)
   OptionalContentGroup *ocg = NULL;
   for (int i=0; i < optionalContentGroups->getLength(); ++i) {
     ocg = (OptionalContentGroup*)optionalContentGroups->get(i);
-    if ( (ocg->ref().num == ref.num) && (ocg->ref().gen == ref.gen) ) {
+    if ( (ocg->getRef().num == ref.num) && (ocg->getRef().gen == ref.gen) ) {
       return ocg;
     }
   }
@@ -206,7 +206,7 @@ bool OCGs::optContentIsVisible( Object *dictRef )
       }
     } else if (ocg.isRef()) {
       OptionalContentGroup* oc = findOcgByRef( ocg.getRef() );      
-      if ( !oc || oc->state() == OptionalContentGroup::Off ) {
+      if ( !oc || oc->getState() == OptionalContentGroup::Off ) {
 	result = false;
       } else {
 	result = true ;
@@ -216,7 +216,7 @@ bool OCGs::optContentIsVisible( Object *dictRef )
     policy.free();
   } else if ( dictType.isName("OCG") ) {
     OptionalContentGroup* oc = findOcgByRef( dictRef->getRef() );
-    if ( !oc || oc->state() == OptionalContentGroup::Off ) {
+    if ( !oc || oc->getState() == OptionalContentGroup::Off ) {
       result=false;
     }
   }
@@ -233,7 +233,7 @@ bool OCGs::allOn( Array *ocgArray )
     ocgArray->getNF(i, &ocgItem);
     if (ocgItem.isRef()) {
       OptionalContentGroup* oc = findOcgByRef( ocgItem.getRef() );      
-      if ( oc && oc->state() == OptionalContentGroup::Off ) {
+      if ( oc && oc->getState() == OptionalContentGroup::Off ) {
 	return false;
       }
     }
@@ -248,7 +248,7 @@ bool OCGs::allOff( Array *ocgArray )
     ocgArray->getNF(i, &ocgItem);
     if (ocgItem.isRef()) {
       OptionalContentGroup* oc = findOcgByRef( ocgItem.getRef() );      
-      if ( oc && oc->state() == OptionalContentGroup::On ) {
+      if ( oc && oc->getState() == OptionalContentGroup::On ) {
 	return false;
       }
     }
@@ -263,7 +263,7 @@ bool OCGs::anyOn( Array *ocgArray )
     ocgArray->getNF(i, &ocgItem);
     if (ocgItem.isRef()) {
       OptionalContentGroup* oc = findOcgByRef( ocgItem.getRef() );      
-      if ( oc && oc->state() == OptionalContentGroup::On ) {
+      if ( oc && oc->getState() == OptionalContentGroup::On ) {
 	return true;
       }
     }
@@ -278,7 +278,7 @@ bool OCGs::anyOff( Array *ocgArray )
     ocgArray->getNF(i, &ocgItem);
     if (ocgItem.isRef()) {
       OptionalContentGroup* oc = findOcgByRef( ocgItem.getRef() );      
-      if ( oc && oc->state() == OptionalContentGroup::Off ) {
+      if ( oc && oc->getState() == OptionalContentGroup::Off ) {
 	return true;
       }
     }
@@ -288,7 +288,7 @@ bool OCGs::anyOff( Array *ocgArray )
 
 //------------------------------------------------------------------------
 
-OptionalContentGroup::OptionalContentGroup(Dict *ocgDict, XRef *xrefA) : m_name(NULL)
+OptionalContentGroup::OptionalContentGroup(Dict *ocgDict) : m_name(NULL)
 {
   Object ocgName;
   ocgDict->lookup("Name", &ocgName);
@@ -306,7 +306,7 @@ OptionalContentGroup::OptionalContentGroup(GooString *label)
   m_state = On;
 }
 
-GooString* OptionalContentGroup::name() const
+GooString* OptionalContentGroup::getName() const
 {
   return m_name;
 }
@@ -316,7 +316,7 @@ void OptionalContentGroup::setRef(const Ref ref)
   m_ref = ref;
 }
 
-Ref OptionalContentGroup::ref() const
+Ref OptionalContentGroup::getRef() const
 {
   return m_ref;
 }

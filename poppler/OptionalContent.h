@@ -66,18 +66,18 @@ class OptionalContentGroup {
 public:
   enum State { On, Off };
 
-  OptionalContentGroup(Dict *dict, XRef *xrefA);
+  OptionalContentGroup(Dict *dict);
 
   OptionalContentGroup(GooString *label);
 
   ~OptionalContentGroup();
 
-  GooString* name() const;
+  GooString* getName() const;
 
-  Ref ref() const;
+  Ref getRef() const;
   void setRef(const Ref ref);
 
-  State state() { return m_state; };
+  State getState() { return m_state; };
   void setState(State state) { m_state = state; };
 
 private:

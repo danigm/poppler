@@ -73,8 +73,8 @@ namespace Poppler
   {
     m_group = group;
     m_parent = 0;
-    m_name = UnicodeParsedString( group->name() );
-    if ( group->state() == OptionalContentGroup::On ) {
+    m_name = UnicodeParsedString( group->getName() );
+    if ( group->getState() == OptionalContentGroup::On ) {
       m_state = OptContentItem::On;
     } else {
       m_state = OptContentItem::Off;
@@ -162,7 +162,7 @@ namespace Poppler
     for (int i = 0; i < ocgs->getLength(); ++i) {
       OptionalContentGroup *ocg = static_cast<OptionalContentGroup*>(ocgs->get(i));
       OptContentItem *node = new OptContentItem( ocg );
-      m_optContentItems.insert( QString::number(ocg->ref().num), node);
+      m_optContentItems.insert( QString::number(ocg->getRef().num), node);
     }
 
     if ( optContent->getOrderArray() == 0 ) {
