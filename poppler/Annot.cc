@@ -958,7 +958,7 @@ void Annot::initialize(XRef *xrefA, Dict *dict, Catalog *catalog) {
   }
   obj1.free();
 
-  optContentConfig = catalog->getOptContentConfig();
+  optContentConfig = catalog ? catalog->getOptContentConfig() : NULL;
   dict->lookupNF("OC", &oc);
   if (!oc.isRef() && !oc.isNull()) {
     error (-1, "Annotation OC value not null or dict: %i", oc.getType());
