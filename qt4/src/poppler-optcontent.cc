@@ -2,6 +2,7 @@
  *
  * Copyright (C) 2007, Brad Hards <bradh@kde.org>
  * Copyright (C) 2008, Pino Toscano <pino@kde.org>
+ * Copyright (C) 2008, Carlos Garcia Campos <carlosgc@gnome.org>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by

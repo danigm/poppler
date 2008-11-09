@@ -21,6 +21,7 @@
 // Copyright (C) 2006, 2007 Carlos Garcia Campos <carlosgc@gnome.org>
 // Copyright (C) 2007 Koji Otani <sho@bbr.jp>
 // Copyright (C) 2008 Chris Wilson <chris@chris-wilson.co.uk>
+// Copyright (C) 2008 Adrian Johnson <ajohnson@redneon.com>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git

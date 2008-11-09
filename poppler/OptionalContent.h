@@ -3,6 +3,7 @@
 // OptionalContent.h
 //
 // Copyright 2007 Brad Hards <bradh@kde.org>
+// Copyright 2008 Carlos Garcia Campos <carlosgc@gnome.org>
 //
 // Released under the GPL (version 2, or later, at your option)
 //
