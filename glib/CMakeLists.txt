@@ -80,6 +80,7 @@ set(poppler_glib_SRCS
   poppler-attachment.cc
   poppler-form-field.cc
   poppler-annot.cc
+  poppler-layer.cc
   poppler.cc
   ${CMAKE_CURRENT_BINARY_DIR}/poppler-enums.c
 )
