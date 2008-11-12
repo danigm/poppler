@@ -410,7 +410,7 @@ void CairoOutputDev::updateStrokeOpacity(GfxState *state) {
 
 void CairoOutputDev::updateFont(GfxState *state) {
   cairo_font_face_t *font_face;
-  cairo_matrix_t matrix;
+  cairo_matrix_t matrix, invert_matrix;
 
   LOG(printf ("updateFont() font=%s\n", state->getFont()->getName()->getCString()));
 
@@ -438,6 +438,19 @@ void CairoOutputDev::updateFont(GfxState *state) {
   matrix.yy = -m[3] * fontSize;
   matrix.x0 = 0;
   matrix.y0 = 0;
+
+ /* Make sure the font matrix is invertible before setting it.  cairo
+  * will blow up if we give it a matrix that's not invertible, so we
+  * need to check before passing it to cairo_set_font_matrix. Ignoring it
+  * is likely to give better results than not rendering anything at
+  * all. See #18254.
+  */
+  invert_matrix = matrix;
+  if (cairo_matrix_invert(&invert_matrix)) {
+    warning("font matrix not invertible\n");
+    return;
+  }
+
   cairo_set_font_matrix (cairo, &matrix);
 }
 
