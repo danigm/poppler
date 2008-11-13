@@ -71,6 +71,20 @@ if test $ac_cv_func_gethostbyname = no; then
   AC_CHECK_LIB(bsd, gethostbyname, X_EXTRA_LIBS="$X_EXTRA_LIBS -lbsd")
 fi
 
+AC_CHECK_FUNC(nanosleep,,)
+dnl try in librt if not found in current LIBS
+if test x$ac_cv_func_nanosleep = xno
+then
+   AC_CHECK_LIB(rt,nanosleep, X_EXTRA_LIBS="$X_EXTRA_LIBS -lrt")
+fi
+
+dnl try in libposix4, if not found so far
+if test x$ac_cv_func_nanosleep = xno && test x$ac_cv_lib_rt_nanosleep = xno
+then
+   AC_CHECK_LIB(posix4,nanosleep, X_EXTRA_LIBS="$X_EXTRA_LIBS -lposix4")
+fi
+
+
 dnl ##### Checks for library functions.
 AC_CHECK_FUNCS(popen mkstemp mkstemps)
 

@@ -72,7 +72,8 @@ pdf_inspector_LDADD =					\
 	$(top_builddir)/poppler/libpoppler.la		\
 	$(CAIRO_LIBS)					\
 	$(FREETYPE_LIBS)				\
-	$(GTK_TEST_LIBS)
+	$(GTK_TEST_LIBS)				\
+	$(X_EXTRA_LIBS)
 
 perf_test_SOURCES =			\
        perf-test.cc                     \
@@ -80,7 +81,8 @@ perf_test_SOURCES =			\
 
 perf_test_LDADD =				\
 	$(top_builddir)/poppler/libpoppler.la	\
-	$(FREETYPE_LIBS)
+	$(FREETYPE_LIBS)					\
+	$(X_EXTRA_LIBS)
 
 pdf_fullrewrite_SOURCES = \
 	pdf-fullrewrite.cc
