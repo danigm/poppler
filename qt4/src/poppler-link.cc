@@ -250,11 +250,12 @@ class LinkMoviePrivate : public LinkPrivate
 		d->pageNum = tokens.at(1).toInt();
 		d->left = tokens.at(2).toDouble();
 		d->bottom = tokens.at(3).toDouble();
-		d->top = tokens.at(4).toDouble();
-		d->zoom = tokens.at(5).toDouble();
-		d->changeLeft = static_cast<bool>(tokens.at(6).toInt());
-		d->changeTop = static_cast<bool>(tokens.at(7).toInt());
-		d->changeZoom = static_cast<bool>(tokens.at(8).toInt());
+		d->right = tokens.at(4).toDouble();
+		d->top = tokens.at(5).toDouble();
+		d->zoom = tokens.at(6).toDouble();
+		d->changeLeft = static_cast<bool>(tokens.at(7).toInt());
+		d->changeTop = static_cast<bool>(tokens.at(8).toInt());
+		d->changeZoom = static_cast<bool>(tokens.at(9).toInt());
 	}
 	
 	LinkDestination::LinkDestination(const LinkDestination &other)
