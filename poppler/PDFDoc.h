@@ -235,7 +235,6 @@ private:
 #ifndef DISABLE_OUTLINE
   Outline *outline;
 #endif
-  OCGs *optContentConfig;
 
   GBool ok;
   int errCode;
