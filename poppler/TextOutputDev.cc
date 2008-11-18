@@ -3812,7 +3812,7 @@ void TextLine::visitSelection(TextSelectionVisitor *visitor,
   
   child_selection = *selection;
   if (style == selectionStyleWord) {
-    child_selection.x1 = begin->xMin;
+    child_selection.x1 = begin ? begin->xMin : xMin;
     if (end && end->xMax != -1) {
       child_selection.x2 = current->xMax;
     } else {
