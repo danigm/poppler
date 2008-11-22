@@ -50,7 +50,7 @@ public:
 	    GBool printing);
   virtual ~CairoFont();
 
-  GBool matches(Ref &other, GBool printing);
+  virtual GBool matches(Ref &other, GBool printing);
   cairo_font_face_t *getFontFace(void);
   unsigned long getGlyph(CharCode code, Unicode *u, int uLen);
   double getSubstitutionCorrection(GfxFont *gfxFont);
@@ -88,6 +88,8 @@ public:
 				Catalog *catalog, CairoFontEngine *fontEngine,
 				GBool printing);
   virtual ~CairoType3Font();
+
+  virtual GBool matches(Ref &other, GBool printing);
 
 private:
   CairoType3Font(Ref ref, XRef *xref, Catalog *catalog,

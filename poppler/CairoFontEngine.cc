@@ -79,7 +79,7 @@ CairoFont::~CairoFont() {
 
 GBool
 CairoFont::matches(Ref &other, GBool printingA) {
-  return (other.num == ref.num && other.gen == ref.gen && printing == printingA);
+  return (other.num == ref.num && other.gen == ref.gen);
 }
 
 cairo_font_face_t *
@@ -703,6 +703,11 @@ CairoType3Font::CairoType3Font(Ref ref,
 						 catalog(catalog) { }
 
 CairoType3Font::~CairoType3Font() { }
+
+GBool
+CairoType3Font::matches(Ref &other, GBool printingA) {
+  return (other.num == ref.num && other.gen == ref.gen && printing == printingA);
+}
 
 
 //------------------------------------------------------------------------
