@@ -41,7 +41,7 @@ enum {
   OP_TOTAL,
   OP_MIN,
   OP_MAX,
-  N_COLUMNS,
+  N_COLUMNS
 };
 
 class PdfInspector {
