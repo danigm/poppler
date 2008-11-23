@@ -4254,7 +4254,7 @@ void Gfx::opMarkPoint(Object args[], int numArgs) {
     fflush(stdout);
   }
 
-  if(numArgs == 2) {
+  if(numArgs == 2 && args[1].isDict()) {
     out->markPoint(args[0].getName(),args[1].getDict());
   } else {
     out->markPoint(args[0].getName());
