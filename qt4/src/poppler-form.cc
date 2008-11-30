@@ -22,6 +22,7 @@
 
 #include <Form.h>
 #include <Object.h>
+#include <Link.h>
 
 #include "poppler-form.h"
 #include "poppler-page-private.h"

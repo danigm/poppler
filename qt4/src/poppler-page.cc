@@ -34,6 +34,7 @@
 #include <ErrorCodes.h>
 #include <TextOutputDev.h>
 #include <Annot.h>
+#include <Link.h>
 #if defined(HAVE_SPLASH)
 #include <SplashOutputDev.h>
 #include <splash/SplashBitmap.h>
