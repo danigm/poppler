@@ -118,6 +118,66 @@ namespace Poppler {
         return ret;
     }
 
+    void linkActionToTocItem( ::LinkAction * a, DocumentData * doc, QDomElement * e )
+    {
+        if ( !a || !e )
+            return;
+
+        switch ( a->getKind() )
+        {
+            case actionGoTo:
+            {
+                // page number is contained/referenced in a LinkGoTo
+                LinkGoTo * g = static_cast< LinkGoTo * >( a );
+                LinkDest * destination = g->getDest();
+                if ( !destination && g->getNamedDest() )
+                {
+                    // no 'destination' but an internal 'named reference'. we could
+                    // get the destination for the page now, but it's VERY time consuming,
+                    // so better storing the reference and provide the viewport on demand
+                    GooString *s = g->getNamedDest();
+                    QChar *charArray = new QChar[s->getLength()];
+                    for (int i = 0; i < s->getLength(); ++i) charArray[i] = QChar(s->getCString()[i]);
+                    QString aux(charArray, s->getLength());
+                    e->setAttribute( "DestinationName", aux );
+                    delete[] charArray;
+                }
+                else if ( destination && destination->isOk() )
+                {
+                    LinkDestinationData ldd(destination, NULL, doc);
+                    e->setAttribute( "Destination", LinkDestination(ldd).toString() );
+                }
+                break;
+            }
+            case actionGoToR:
+            {
+                // page number is contained/referenced in a LinkGoToR
+                LinkGoToR * g = static_cast< LinkGoToR * >( a );
+                LinkDest * destination = g->getDest();
+                if ( !destination && g->getNamedDest() )
+                {
+                    // no 'destination' but an internal 'named reference'. we could
+                    // get the destination for the page now, but it's VERY time consuming,
+                    // so better storing the reference and provide the viewport on demand
+                    GooString *s = g->getNamedDest();
+                    QChar *charArray = new QChar[s->getLength()];
+                    for (int i = 0; i < s->getLength(); ++i) charArray[i] = QChar(s->getCString()[i]);
+                    QString aux(charArray, s->getLength());
+                    e->setAttribute( "DestinationName", aux );
+                    delete[] charArray;
+                }
+                else if ( destination && destination->isOk() )
+                {
+                    LinkDestinationData ldd(destination, NULL, doc);
+                    e->setAttribute( "Destination", LinkDestination(ldd).toString() );
+                }
+                e->setAttribute( "ExternalFileName", g->getFileName()->getCString() );
+                break;
+            }
+            default: ;
+        }
+    }
+
     void DocumentData::addTocChildren( QDomDocument * docSyn, QDomNode * parent, GooList * items )
     {
         int numItems = items->getLength();
@@ -139,34 +199,7 @@ namespace Poppler {
 
             // 2. find the page the link refers to
             ::LinkAction * a = outlineItem->getAction();
-            if ( a && ( a->getKind() == actionGoTo || a->getKind() == actionGoToR ) )
-            {
-                // page number is contained/referenced in a LinkGoTo
-                LinkGoTo * g = static_cast< LinkGoTo * >( a );
-                LinkDest * destination = g->getDest();
-                if ( !destination && g->getNamedDest() )
-                {
-                    // no 'destination' but an internal 'named reference'. we could
-                    // get the destination for the page now, but it's VERY time consuming,
-                    // so better storing the reference and provide the viewport on demand
-                    GooString *s = g->getNamedDest();
-                    QChar *charArray = new QChar[s->getLength()];
-                    for (int i = 0; i < s->getLength(); ++i) charArray[i] = QChar(s->getCString()[i]);
-                    QString aux(charArray, s->getLength());
-                    item.setAttribute( "DestinationName", aux );
-                    delete[] charArray;
-                }
-                else if ( destination && destination->isOk() )
-                {
-                    LinkDestinationData ldd(destination, NULL, this);
-                    item.setAttribute( "Destination", LinkDestination(ldd).toString() );
-                }
-                if ( a->getKind() == actionGoToR )
-                {
-                    LinkGoToR * g2 = static_cast< LinkGoToR * >( a );
-                    item.setAttribute( "ExternalFileName", g2->getFileName()->getCString() );
-                }
-            }
+            linkActionToTocItem( a, this, &item );
 
             item.setAttribute( "Open", QVariant( (bool)outlineItem->isOpen() ).toString() );
 
