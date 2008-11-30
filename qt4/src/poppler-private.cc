@@ -1,6 +1,7 @@
 /* poppler-private.cc: qt interface to poppler
  * Copyright (C) 2005, Net Integration Technologies, Inc.
  * Copyright (C) 2006 by Albert Astals Cid <aacid@kde.org>
+ * Copyright (C) 2008 by Pino Toscano <pino@kde.org>
  * Inspired on code by
  * Copyright (C) 2004 by Albert Astals Cid <tsdgeos@terra.es>
  * Copyright (C) 2004 by Enrico Ros <eros.kde@email.it>
