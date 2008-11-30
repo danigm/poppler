@@ -174,6 +174,11 @@ namespace Poppler {
                 e->setAttribute( "ExternalFileName", g->getFileName()->getCString() );
                 break;
             }
+            case actionURI:
+            {
+                LinkURI * u = static_cast< LinkURI * >( a );
+                e->setAttribute( "DestinationURI", u->getURI()->getCString() );
+            }
             default: ;
         }
     }
