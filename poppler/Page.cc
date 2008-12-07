@@ -23,6 +23,7 @@
 // Copyright (C) 2007 Julien Rebetez <julienr@svn.gnome.org>
 // Copyright (C) 2008 Iñigo Martínez <inigomartinez@gmail.com>
 // Copyright (C) 2008 Brad Hards <bradh@kde.org>
+// Copyright (C) 2008 Ilya Gorenbein <igorenbein@finjan.com>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -335,6 +336,9 @@ Page::~Page() {
   delete attrs;
   annots.free();
   contents.free();
+  trans.free();
+  thumb.free();
+  actions.free();
 }
 
 Annots *Page::getAnnots(Catalog *catalog) {
