@@ -159,7 +159,6 @@ poppler_include_HEADERS =	\
 	FontEncodingTables.h	\
 	FontInfo.h		\
 	Form.h 			\
-	Function.cc		\
 	Function.h		\
 	Gfx.h			\
 	GfxFont.h		\
