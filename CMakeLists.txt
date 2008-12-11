@@ -251,16 +251,6 @@ install(TARGETS poppler RUNTIME DESTINATION bin LIBRARY DESTINATION lib ARCHIVE 
 
 if(ENABLE_XPDF_HEADERS)
   install(FILES
-    goo/GooHash.h
-    goo/GooList.h
-    goo/GooTimer.h
-    goo/GooMutex.h
-    goo/GooString.h
-    goo/GooVector.h
-    goo/gtypes.h
-    goo/gmem.h
-    goo/gfile.h
-    goo/FixedPoint.h
     poppler/Annot.h
     poppler/Array.h
     poppler/BaseFile.h
@@ -287,8 +277,10 @@ if(ENABLE_XPDF_HEADERS)
     poppler/JBIG2Stream.h
     poppler/Lexer.h
     poppler/Link.h
+    poppler/Movie.h
     poppler/NameToCharCode.h
     poppler/Object.h
+    poppler/OptionalContent.h
     poppler/Outline.h
     poppler/OutputDev.h
     poppler/Page.h
@@ -318,9 +310,27 @@ if(ENABLE_XPDF_HEADERS)
     poppler/UTF8.h
     poppler/XpdfPluginAPI.h
     poppler/Sound.h
-    poppler/Movie.h
     ${CMAKE_CURRENT_BINARY_DIR}/poppler/poppler-config.h
     DESTINATION include/poppler)
+  install(FILES
+    goo/GooHash.h
+    goo/GooList.h
+    goo/GooTimer.h
+    goo/GooMutex.h
+    goo/GooString.h
+    goo/GooVector.h
+    goo/gtypes.h
+    goo/gmem.h
+    goo/gfile.h
+    goo/FixedPoint.h
+    DESTINATION include/poppler/goo)
+  install(FILES
+    fofi/FoFiBase.h
+    fofi/FoFiEncodings.h
+    fofi/FoFiTrueType.h
+    fofi/FoFiType1.h
+    fofi/FoFiType1C.h
+    DESTINATION include/poppler/fofi)
   if(LIBOPENJPEG_FOUND)
     install(FILES
       poppler/JPEG2000Stream.h
