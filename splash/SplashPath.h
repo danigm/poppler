@@ -96,7 +96,7 @@ public:
   // Get the current point.
   GBool getCurPt(SplashCoord *x, SplashCoord *y);
 
-private:
+protected:
 
   SplashPath(SplashPath *path);
   void grow(int nPts);

@@ -88,7 +88,7 @@ public:
   // Get the number of arbitrary paths used by the clip region.
   int getNumPaths() { return length; }
 
-private:
+protected:
 
   SplashClip(SplashClip *clip);
   void grow(int nPaths);

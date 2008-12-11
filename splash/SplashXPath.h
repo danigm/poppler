@@ -68,7 +68,7 @@ public:
   // Sort by upper coordinate (lower y), in y-major order.
   void sort();
 
-private:
+protected:
 
   SplashXPath();
   SplashXPath(SplashXPath *xPath);
