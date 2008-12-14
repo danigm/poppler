@@ -34,6 +34,8 @@ poppler_glib_demo_SOURCES = 			\
 	page.c					\
 	render.h				\
 	render.c				\
+	text.h					\
+	text.c					\
 	transitions.h				\
 	transitions.c				\
 	utils.h					\
