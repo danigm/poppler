@@ -59,8 +59,12 @@ struct _PopplerPage
   PopplerDocument *document;
   Page *page;
   int index;
+#if defined (HAVE_CAIRO)
+  TextPage *text;
+#else
   TextOutputDev *text_dev;
   Gfx *gfx;
+#endif
   Annots *annots;
 };
 
