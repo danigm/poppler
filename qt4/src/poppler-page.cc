@@ -335,7 +335,7 @@ bool Page::search(const QString &text, QRectF &rect, SearchDirection direction, 
     found = textPage->findText( u.data(), len, 
             gTrue, gFalse, gFalse, gTrue, sCase, gFalse, &sLeft, &sTop, &sRight, &sBottom );
 
-  delete textPage;
+  textPage->decRefCnt();
 
   rect.setLeft( sLeft );
   rect.setTop( sTop );

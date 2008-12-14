@@ -1772,6 +1772,7 @@ TextWord *TextWordList::get(int idx) {
 TextPage::TextPage(GBool rawOrderA) {
   int rot;
 
+  refCnt = 1;
   rawOrder = rawOrderA;
   curWord = NULL;
   charPos = 0;
@@ -1808,6 +1809,15 @@ TextPage::~TextPage() {
   delete fonts;
   deleteGooList(underlines, TextUnderline);
   deleteGooList(links, TextLink);
+}
+
+void TextPage::incRefCnt() {
+  refCnt++;
+}
+
+void TextPage::decRefCnt() {
+  if (--refCnt == 0)
+    delete this;
 }
 
 void TextPage::startPage(GfxState *state) {
@@ -4546,7 +4556,7 @@ TextOutputDev::~TextOutputDev() {
     fclose((FILE *)outputStream);
   }
   if (text) {
-    delete text;
+    text->decRefCnt();
   }
 }
 

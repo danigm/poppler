@@ -469,6 +469,9 @@ public:
   // Destructor.
   ~TextPage();
 
+  void incRefCnt();
+  void decRefCnt();
+
   // Start a new page.
   void startPage(GfxState *state);
 
@@ -598,6 +601,8 @@ private:
 
   GooList *underlines;		// [TextUnderline]
   GooList *links;		// [TextLink]
+
+  int refCnt;
 
   friend class TextLine;
   friend class TextLineFrag;
