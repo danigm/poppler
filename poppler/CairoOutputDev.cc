@@ -49,6 +49,7 @@
 #include "Link.h"
 #include "CharCodeToUnicode.h"
 #include "FontEncodingTables.h"
+#include "PDFDocEncoding.h"
 #include <fofi/FoFiTrueType.h>
 #include <splash/SplashBitmap.h>
 #include "CairoOutputDev.h"
@@ -135,6 +136,9 @@ CairoOutputDev::CairoOutputDev() {
   shape = NULL;
   cairo_shape = NULL;
   knockoutCount = 0;
+
+  text = NULL;
+  actualTextBMCLevel = 0;
 }
 
 CairoOutputDev::~CairoOutputDev() {
@@ -152,6 +156,8 @@ CairoOutputDev::~CairoOutputDev() {
     cairo_pattern_destroy (mask);
   if (shape)
     cairo_pattern_destroy (shape);
+  if (text) 
+    text->decRefCnt();  
 }
 
 void CairoOutputDev::setCairo(cairo_t *cairo)
@@ -172,6 +178,18 @@ void CairoOutputDev::setCairo(cairo_t *cairo)
   } else {
     this->cairo = NULL;
     this->cairo_shape = NULL;
+  }
+}
+
+void CairoOutputDev::setTextPage(TextPage *text)
+{
+  if (this->text) 
+    this->text->decRefCnt();
+  if (text) {
+    this->text = text;
+    this->text->incRefCnt();
+  } else {
+    this->text = NULL;
   }
 }
 
@@ -197,6 +215,16 @@ void CairoOutputDev::startPage(int pageNum, GfxState *state) {
 
   cairo_pattern_destroy(stroke_pattern);
   stroke_pattern = cairo_pattern_create_rgb(0., 0., 0.);
+
+  if (text)
+    text->startPage(state);
+}
+
+void CairoOutputDev::endPage() {
+  if (text) {
+    text->endPage();
+    text->coalesce(gTrue, gFalse);
+  }
 }
 
 void CairoOutputDev::drawLink(Link *link, Catalog *catalog) {
@@ -416,6 +444,10 @@ void CairoOutputDev::updateFont(GfxState *state) {
 
   needFontUpdate = gFalse;
 
+  //FIXME: use cairo font engine?
+  if (text)
+    text->updateFont(state);
+  
   currentFont = fontEngine->getFont (state->getFont(), xref, catalog, printing);
 
   if (!currentFont)
@@ -567,13 +599,37 @@ void CairoOutputDev::drawChar(GfxState *state, double x, double y,
 			      double originX, double originY,
 			      CharCode code, int nBytes, Unicode *u, int uLen)
 {
-  if (!currentFont)
+  if (currentFont) {
+    glyphs[glyphCount].index = currentFont->getGlyph (code, u, uLen);
+    glyphs[glyphCount].x = x - originX;
+    glyphs[glyphCount].y = y - originY;
+    glyphCount++;
+  }
+
+  if (!text)
     return;
   
-  glyphs[glyphCount].index = currentFont->getGlyph (code, u, uLen);
-  glyphs[glyphCount].x = x - originX;
-  glyphs[glyphCount].y = y - originY;
-  glyphCount++;
+  if (actualTextBMCLevel == 0) {
+    text->addChar(state, x, y, dx, dy, code, nBytes, u, uLen);
+  } else {
+    // Inside ActualText span.
+    if (newActualTextSpan) {
+      actualText_x = x;
+      actualText_y = y;
+      actualText_dx = dx;
+      actualText_dy = dy;
+      newActualTextSpan = gFalse;
+    } else {
+      if (x < actualText_x)
+	actualText_x = x;
+      if (y < actualText_y)
+	actualText_y = y;
+      if (x + dx > actualText_x + actualText_dx)
+	actualText_dx = x + dx - actualText_x;
+      if (y + dy > actualText_y + actualText_dy)
+	actualText_dy = y + dy - actualText_y;
+    }
+  }
 }
 
 void CairoOutputDev::endString(GfxState *state)
@@ -714,7 +770,85 @@ void CairoOutputDev::endTextObject(GfxState *state) {
     cairo_path_destroy (textClipPath);
     textClipPath = NULL;
   }
+}
 
+void CairoOutputDev::beginMarkedContent(char *name, Dict *properties)
+{
+  Object obj;
+
+  if (!text)
+    return;
+  
+  if (actualTextBMCLevel > 0) {
+    // Already inside a ActualText span.
+    actualTextBMCLevel++;
+    return;
+  }
+
+  if (properties->lookup("ActualText", &obj)) {
+    if (obj.isString()) {
+      actualText = obj.getString();
+      actualTextBMCLevel = 1;
+      newActualTextSpan = gTrue;
+    }
+  }
+}
+
+void CairoOutputDev::endMarkedContent(GfxState *state)
+{
+  char *uniString = NULL;
+  Unicode *uni;
+  int length, i;
+
+  if (!text)
+    return;
+  
+  if (actualTextBMCLevel > 0) {
+    actualTextBMCLevel--;
+    if (actualTextBMCLevel == 0) {
+      // ActualText span closed. Output the span text and the
+      // extents of all the glyphs inside the span
+
+      if (newActualTextSpan) {
+	// No content inside span.
+	actualText_x = state->getCurX();
+	actualText_y = state->getCurY();
+	actualText_dx = 0;
+	actualText_dy = 0;
+      }
+
+      if (!actualText->hasUnicodeMarker()) {
+	if (actualText->getLength() > 0) {
+	  //non-unicode string -- assume pdfDocEncoding and
+	  //try to convert to UTF16BE
+	  uniString = pdfDocEncodingToUTF16(actualText, &length);
+	} else {
+	  length = 0;
+	}
+      } else {
+	uniString = actualText->getCString();
+	length = actualText->getLength();
+      }
+
+      if (length < 3)
+	length = 0;
+      else
+	length = length/2 - 1;
+      uni = new Unicode[length];
+      for (i = 0 ; i < length; i++)
+	uni[i] = (uniString[2 + i*2]<<8) + uniString[2 + i*2+1];
+
+      text->addChar(state,
+		    actualText_x, actualText_y,
+		    actualText_dx, actualText_dy,
+		    0, 1, uni, length);
+
+      delete [] uni;
+      if (!actualText->hasUnicodeMarker())
+	delete [] uniString;
+      delete actualText;
+    }
+  }
 }
 
 static inline int splashRound(SplashCoord x) {

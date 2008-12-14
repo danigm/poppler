@@ -36,6 +36,7 @@
 #include "goo/gtypes.h"
 #include <cairo-ft.h>
 #include "OutputDev.h"
+#include "TextOutputDev.h"
 #include "GfxState.h"
 
 class GfxState;
@@ -107,7 +108,7 @@ public:
   virtual void startPage(int pageNum, GfxState *state);
 
   // End a page.
-  virtual void endPage() { }
+  virtual void endPage();
 
   //----- link borders
   virtual void drawLink(Link *link, Catalog *catalog);
@@ -158,6 +159,10 @@ public:
   virtual void endType3Char(GfxState *state);
   virtual void endTextObject(GfxState *state);
 
+  //----- grouping operators
+  virtual void beginMarkedContent(char *name, Dict *properties);
+  virtual void endMarkedContent(GfxState *state);  
+
   //----- image drawing
   virtual void drawImageMask(GfxState *state, Object *ref, Stream *str,
 			     int width, int height, GBool invert,
@@ -186,7 +191,6 @@ public:
 				int maskWidth, int maskHeight,
 				GBool maskInvert);
 
-
   //----- transparency groups and soft masks
   virtual void beginTransparencyGroup(GfxState * /*state*/, double * /*bbox*/,
                                       GfxColorSpace * /*blendingColorSpace*/,
@@ -205,13 +209,14 @@ public:
       double llx, double lly, double urx, double ury);
 
   //----- special access
-
+  
   // Called to indicate that a new PDF document has been loaded.
   void startDoc(XRef *xrefA, Catalog *catalogA, CairoFontEngine *fontEngine = NULL);
  
   GBool isReverseVideo() { return gFalse; }
   
   void setCairo (cairo_t *cr);
+  void setTextPage (TextPage *text);
   void setPrinting (GBool printing) { this->printing = printing; needFontUpdate = gTrue; }
 
   void setInType3Char(GBool inType3Char) { this->inType3Char = inType3Char; }
@@ -251,6 +256,14 @@ protected:
   double t3_glyph_bbox[4];
 
   GBool prescaleImages;
+
+  TextPage *text;		// text for the current page
+  int actualTextBMCLevel;       // > 0 when inside ActualText span. Incremented
+                                // for each nested BMC inside the span.
+  GooString *actualText;        // replacement text for the span
+  GBool newActualTextSpan;      // true at start of span. used to init the extent
+  double actualText_x, actualText_y; // extent of the text inside the span
+  double actualText_dx, actualText_dy;  
 
   cairo_pattern_t *group;
   cairo_pattern_t *shape;
