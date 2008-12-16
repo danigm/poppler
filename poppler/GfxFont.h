@@ -135,8 +135,6 @@ public:
 
   GfxFont(char *tagA, Ref idA, GooString *nameA);
 
-  virtual ~GfxFont();
-
   GBool isOk() { return ok; }
 
   void incRefCnt();
@@ -229,6 +227,8 @@ public:
   DisplayFontParam *dfp;
 protected:
 
+  virtual ~GfxFont();
+
   void readFontDescriptor(XRef *xref, Dict *fontDict);
   CharCodeToUnicode *readToUnicodeCMap(Dict *fontDict, int nBits,
 				       CharCodeToUnicode *ctu);
@@ -264,8 +264,6 @@ public:
 
   Gfx8BitFont(XRef *xref, char *tagA, Ref idA, GooString *nameA,
 	      GfxFontType typeA, Dict *fontDict);
-
-  virtual ~Gfx8BitFont();
 
   virtual int getNextChar(char *s, int len, CharCode *code,
 			  Unicode **u, int *uLen,
@@ -303,6 +301,7 @@ public:
   Dict *getResources();
 
 private:
+  virtual ~Gfx8BitFont();
 
   char *enc[256];		// char code --> char name
   char encFree[256];		// boolean for each char name: if set,
@@ -324,8 +323,6 @@ public:
 
   GfxCIDFont(XRef *xref, char *tagA, Ref idA, GooString *nameA,
 	     Dict *fontDict);
-
-  virtual ~GfxCIDFont();
 
   virtual GBool isCIDFont() { return gTrue; }
 
@@ -352,6 +349,8 @@ public:
   double getWidth(char* s, int len);
 
 private:
+  virtual ~GfxCIDFont();
+
   Gushort mapCodeToGID(FoFiTrueType *ff, int cmapi,
     Unicode unicode, GBool wmode);
 

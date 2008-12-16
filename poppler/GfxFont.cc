@@ -2054,7 +2054,7 @@ GfxFontDict::GfxFontDict(XRef *xref, Ref *fontDictRef, Dict *fontDict) {
 	// NULL and !isOk() so that when we do lookups
 	// we can tell the difference between a missing font
 	// and a font that is just !isOk()
-	delete fonts[i];
+	fonts[i]->decRefCnt();
 	fonts[i] = NULL;
       }
     } else {
