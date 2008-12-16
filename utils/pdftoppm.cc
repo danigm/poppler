@@ -14,6 +14,7 @@
 // under GPL version 2 or later
 //
 // Copyright (C) 2007 Ilmari Heikkinen <ilmari.heikkinen@gmail.com>
+// Copyright (C) 2008 Richard Airlie <richard.airlie@maglabs.net>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -45,6 +46,7 @@ static int y = 0;
 static int w = 0;
 static int h = 0;
 static int sz = 0;
+static GBool useCropBox = gFalse;
 static GBool mono = gFalse;
 static GBool gray = gFalse;
 static char enableFreeTypeStr[16] = "";
@@ -77,6 +79,8 @@ static const ArgDesc argDesc[] = {
    "height of crop area in pixels (default is 0)"},
   {"-sz",     argInt,      &sz,            0,
    "size of crop square in pixels (sets W and H)"},
+  {"-cropbox",argFlag,     &useCropBox,    0,
+   "use the crop box rather than media box"},
 
   {"-mono",   argFlag,     &mono,          0,
    "generate a monochrome PBM file"},
@@ -125,7 +129,7 @@ static void savePageSlice(PDFDoc *doc,
   doc->displayPageSlice(splashOut, 
     pg, resolution, resolution, 
     0,
-    gTrue, gFalse, gFalse,
+    !useCropBox, gFalse, gFalse,
     x, y, w, h
   );
   if (ppmFile != NULL) {
@@ -236,8 +240,14 @@ int main(int argc, char *argv[]) {
   if (sz != 0) w = h = sz;
   pg_num_len = (int)ceil(log((double)doc->getNumPages()) / log((double)10));
   for (pg = firstPage; pg <= lastPage; ++pg) {
-    pg_w = doc->getPageMediaWidth(pg);
-    pg_h = doc->getPageMediaHeight(pg);
+    if (useCropBox) {
+      pg_w = doc->getPageCropWidth(pg);
+      pg_h = doc->getPageCropHeight(pg);
+    } else {
+      pg_w = doc->getPageMediaWidth(pg);
+      pg_h = doc->getPageMediaHeight(pg);
+    }
+
     if (scaleTo != 0) {
       resolution = (72.0 * scaleTo) / (pg_w > pg_h ? pg_w : pg_h);
     }
