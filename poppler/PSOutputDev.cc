@@ -18,6 +18,7 @@
 // Copyright (C) 2006-2008 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2006 Jeff Muizelaar <jeff@infidigm.net>
 // Copyright (C) 2007, 2008 Brad Hards <bradh@kde.org>
+// Copyright (C) 2008 Koji Otani <sho@bbr.jp>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -2610,6 +2611,7 @@ void PSOutputDev::setupImage(Ref id, Stream *str) {
   GooString *s;
   int c;
   int size, line, col, i;
+  int outerSize, outer;
 
   // check if image is already setup
   for (i = 0; i < imgIDLen; ++i) {
@@ -2696,56 +2698,72 @@ void PSOutputDev::setupImage(Ref id, Stream *str) {
   if (useRLE) {
     ++size;
   }
+  outerSize = size/65535 + 1;
+
   writePSFmt("{0:d} array dup /ImData_{1:d}_{2:d} exch def\n",
-	     size, id.num, id.gen);
+	     outerSize, id.num, id.gen);
   str->close();
 
   // write the data into the array
   str->reset();
-  line = col = 0;
-  writePS((char *)(useASCIIHex ? "dup 0 <" : "dup 0 <~"));
-  do {
-    do {
-      c = str->getChar();
-    } while (c == '\n' || c == '\r');
-    if (c == (useASCIIHex ? '>' : '~') || c == EOF) {
-      break;
-    }
-    if (c == 'z') {
-      writePSChar(c);
-      ++col;
-    } else {
-      writePSChar(c);
-      ++col;
-      for (i = 1; i <= (useASCIIHex ? 1 : 4); ++i) {
-	do {
-	  c = str->getChar();
-	} while (c == '\n' || c == '\r');
-	if (c == (useASCIIHex ? '>' : '~') || c == EOF) {
-	  break;
-	}
+  for (outer = 0;outer < outerSize;outer++) {
+    int innerSize = size > 65535 ? 65535 : size;
+
+    // put the inner array into the outer array
+    writePSFmt("{0:d} array 1 index {1:d} 2 index put\n",
+	       innerSize, outer);
+    line = col = 0;
+    writePS((char *)(useASCIIHex ? "dup 0 <" : "dup 0 <~"));
+    for (;;) {
+      do {
+	c = str->getChar();
+      } while (c == '\n' || c == '\r');
+      if (c == (useASCIIHex ? '>' : '~') || c == EOF) {
+	break;
+      }
+      if (c == 'z') {
 	writePSChar(c);
 	++col;
+      } else {
+	writePSChar(c);
+	++col;
+	for (i = 1; i <= (useASCIIHex ? 1 : 4); ++i) {
+	  do {
+	    c = str->getChar();
+	  } while (c == '\n' || c == '\r');
+	  if (c == (useASCIIHex ? '>' : '~') || c == EOF) {
+	    break;
+	  }
+	  writePSChar(c);
+	  ++col;
+	}
+      }
+      // each line is: "dup nnnnn <~...data...~> put<eol>"
+      // so max data length = 255 - 20 = 235
+      // chunks are 1 or 4 bytes each, so we have to stop at 232
+      // but make it 225 just to be safe
+      if (col > 225) {
+	writePS((char *)(useASCIIHex ? "> put\n" : "~> put\n"));
+	++line;
+	if (line >= innerSize) break;
+	writePSFmt((char *)(useASCIIHex ? "dup {0:d} <" : "dup {0:d} <~"), line);
+	col = 0;
       }
     }
-    // each line is: "dup nnnnn <~...data...~> put<eol>"
-    // so max data length = 255 - 20 = 235
-    // chunks are 1 or 4 bytes each, so we have to stop at 232
-    // but make it 225 just to be safe
-    if (col > 225) {
+    if (c == (useASCIIHex ? '>' : '~') || c == EOF) {
       writePS((char *)(useASCIIHex ? "> put\n" : "~> put\n"));
-      ++line;
-      writePSFmt((char *)(useASCIIHex ? "dup {0:d} <" : "dup {0:d} <~"), line);
-      col = 0;
+      if (useRLE) {
+	++line;
+	writePSFmt("{0:d} <> put\n", line);
+      } else {
+	writePS("pop\n");
+      }
+      break;
     }
-  } while (c != (useASCIIHex ? '>' : '~') && c != EOF);
-  writePS((char *)(useASCIIHex ? "> put\n" : "~> put\n"));
-  if (useRLE) {
-    ++line;
-    writePSFmt("{0:d} <> put\n", line);
-  } else {
     writePS("pop\n");
+    size -= innerSize;
   }
+  writePS("pop\n");
   str->close();
 
   delete str;
@@ -4382,7 +4400,7 @@ void PSOutputDev::doImageL1(Object *ref, GfxImageColorMap *colorMap,
       // make sure the image is setup, it sometimes is not like on bug #17645
       setupImage(ref->getRef(), str);
       // set up to use the array already created by setupImages()
-      writePSFmt("ImData_{0:d}_{1:d} 0\n", ref->getRefNum(), ref->getRefGen());
+      writePSFmt("ImData_{0:d}_{1:d} 0 0\n", ref->getRefNum(), ref->getRefGen());
     }
   }
 
@@ -4845,7 +4863,7 @@ void PSOutputDev::doImageL2(Object *ref, GfxImageColorMap *colorMap,
       // make sure the image is setup, it sometimes is not like on bug #17645
       setupImage(ref->getRef(), str);
       // set up to use the array already created by setupImages()
-      writePSFmt("ImData_{0:d}_{1:d} 0\n", ref->getRefNum(), ref->getRefGen());
+      writePSFmt("ImData_{0:d}_{1:d} 0 0\n",ref->getRefNum(), ref->getRefGen());
     }
   }
 
@@ -4899,7 +4917,12 @@ void PSOutputDev::doImageL2(Object *ref, GfxImageColorMap *colorMap,
 
   // data source
   if (mode == psModeForm || inType3Char || preload) {
-    writePS("  /DataSource { 2 copy get exch 1 add exch }\n");
+    if (inlineImg) {
+      writePS("  /DataSource { 2 copy get exch 1 add exch }\n");
+    } else {
+      writePS("  /DataSource { dup 65535 ge { pop 1 add 0 } if 2 index 2"
+	" index get 1 index get exch 1 add exch }\n");
+    }
   } else {
     writePS("  /DataSource currentfile\n");
   }
@@ -4938,6 +4961,7 @@ void PSOutputDev::doImageL2(Object *ref, GfxImageColorMap *colorMap,
     writePSFmt(">>\n{0:s}\n", colorMap ? "image" : "imagemask");
 
     // get rid of the array and index
+    if (!inlineImg) writePS("pop ");
     writePS("pop pop\n");
 
   } else {
@@ -5115,7 +5139,7 @@ void PSOutputDev::doImageL3(Object *ref, GfxImageColorMap *colorMap,
       // make sure the image is setup, it sometimes is not like on bug #17645
       setupImage(ref->getRef(), str);
       // set up to use the array already created by setupImages()
-      writePSFmt("ImData_{0:d}_{1:d} 0\n", ref->getRefNum(), ref->getRefGen());
+      writePSFmt("ImData_{0:d}_{1:d} 0 0\n", ref->getRefNum(), ref->getRefGen());
     }
   }
 
@@ -5186,7 +5210,12 @@ void PSOutputDev::doImageL3(Object *ref, GfxImageColorMap *colorMap,
 
   // data source
   if (mode == psModeForm || inType3Char || preload) {
-    writePS("  /DataSource { 2 copy get exch 1 add exch }\n");
+    if (inlineImg) {
+	writePS("  /DataSource { 2 copy get exch 1 add exch }\n");
+    } else {
+	writePS("  /DataSource { dup 65535 ge { pop 1 add 0 } if 2 index 2"
+	  " index get 1 index get exch 1 add exch }\n");
+    }
   } else {
     writePS("  /DataSource currentfile\n");
   }
@@ -5322,6 +5351,7 @@ void PSOutputDev::doImageL3(Object *ref, GfxImageColorMap *colorMap,
 
   // get rid of the array and index
   if (mode == psModeForm || inType3Char || preload) {
+    if (!inlineImg) writePS("pop ");
     writePS("pop pop\n");
 
   // image data
