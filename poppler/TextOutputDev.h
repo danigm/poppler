@@ -614,6 +614,33 @@ private:
 };
 
 //------------------------------------------------------------------------
+// ActualText
+//------------------------------------------------------------------------
+
+class ActualText {
+public:
+  // Create an ActualText
+  ActualText(TextPage *out);
+  ~ActualText();
+
+  void addChar(GfxState *state, double x, double y,
+	       double dx, double dy,
+	       CharCode c, int nBytes, Unicode *u, int uLen);
+  void beginMC(Dict *properties);
+  void endMC(GfxState *state);
+
+private:
+  TextPage *text;
+  int actualTextBMCLevel;       // > 0 when inside ActualText span. Incremented
+                                // for each nested BMC inside the span.
+  GooString *actualText;        // replacement text for the span
+  GBool newActualTextSpan;      // true at start of span. used to init the extent
+  double actualText_x, actualText_y; // extent of the text inside the span
+  double actualText_dx, actualText_dy;
+};
+  
+
+//------------------------------------------------------------------------
 // TextOutputDev
 //------------------------------------------------------------------------
 
@@ -755,12 +782,7 @@ private:
   GBool doHTML;			// extra processing for HTML conversion
   GBool ok;			// set up ok?
 
-  int actualTextBMCLevel;       // > 0 when inside ActualText span. Incremented
-                                // for each nested BMC inside the span.
-  GooString *actualText;        // replacement text for the span
-  GBool newActualTextSpan;      // true at start of span. used to init the extent
-  double actualText_x, actualText_y; // extent of the text inside the span
-  double actualText_dx, actualText_dy;
+  ActualText *actualText;
 };
 
 #endif

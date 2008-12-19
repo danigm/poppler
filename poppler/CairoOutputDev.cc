@@ -138,7 +138,7 @@ CairoOutputDev::CairoOutputDev() {
   knockoutCount = 0;
 
   text = NULL;
-  actualTextBMCLevel = 0;
+  actualText = NULL;
 }
 
 CairoOutputDev::~CairoOutputDev() {
@@ -157,7 +157,9 @@ CairoOutputDev::~CairoOutputDev() {
   if (shape)
     cairo_pattern_destroy (shape);
   if (text) 
-    text->decRefCnt();  
+    text->decRefCnt();
+  if (actualText)
+    delete actualText;  
 }
 
 void CairoOutputDev::setCairo(cairo_t *cairo)
@@ -185,11 +187,15 @@ void CairoOutputDev::setTextPage(TextPage *text)
 {
   if (this->text) 
     this->text->decRefCnt();
+  if (actualText)
+    delete actualText;
   if (text) {
     this->text = text;
     this->text->incRefCnt();
+    actualText = new ActualText(text);
   } else {
     this->text = NULL;
+    actualText = NULL;
   }
 }
 
@@ -608,28 +614,7 @@ void CairoOutputDev::drawChar(GfxState *state, double x, double y,
 
   if (!text)
     return;
-  
-  if (actualTextBMCLevel == 0) {
-    text->addChar(state, x, y, dx, dy, code, nBytes, u, uLen);
-  } else {
-    // Inside ActualText span.
-    if (newActualTextSpan) {
-      actualText_x = x;
-      actualText_y = y;
-      actualText_dx = dx;
-      actualText_dy = dy;
-      newActualTextSpan = gFalse;
-    } else {
-      if (x < actualText_x)
-	actualText_x = x;
-      if (y < actualText_y)
-	actualText_y = y;
-      if (x + dx > actualText_x + actualText_dx)
-	actualText_dx = x + dx - actualText_x;
-      if (y + dy > actualText_y + actualText_dy)
-	actualText_dy = y + dy - actualText_y;
-    }
-  }
+  actualText->addChar (state, x, y, dx, dy, code, nBytes, u, uLen);
 }
 
 void CairoOutputDev::endString(GfxState *state)
@@ -774,81 +759,14 @@ void CairoOutputDev::endTextObject(GfxState *state) {
 
 void CairoOutputDev::beginMarkedContent(char *name, Dict *properties)
 {
-  Object obj;
-
-  if (!text)
-    return;
-  
-  if (actualTextBMCLevel > 0) {
-    // Already inside a ActualText span.
-    actualTextBMCLevel++;
-    return;
-  }
-
-  if (properties->lookup("ActualText", &obj)) {
-    if (obj.isString()) {
-      actualText = obj.getString();
-      actualTextBMCLevel = 1;
-      newActualTextSpan = gTrue;
-    }
-  }
+  if (text)
+    actualText->beginMC(properties);
 }
 
 void CairoOutputDev::endMarkedContent(GfxState *state)
 {
-  char *uniString = NULL;
-  Unicode *uni;
-  int length, i;
-
-  if (!text)
-    return;
-  
-  if (actualTextBMCLevel > 0) {
-    actualTextBMCLevel--;
-    if (actualTextBMCLevel == 0) {
-      // ActualText span closed. Output the span text and the
-      // extents of all the glyphs inside the span
-
-      if (newActualTextSpan) {
-	// No content inside span.
-	actualText_x = state->getCurX();
-	actualText_y = state->getCurY();
-	actualText_dx = 0;
-	actualText_dy = 0;
-      }
-
-      if (!actualText->hasUnicodeMarker()) {
-	if (actualText->getLength() > 0) {
-	  //non-unicode string -- assume pdfDocEncoding and
-	  //try to convert to UTF16BE
-	  uniString = pdfDocEncodingToUTF16(actualText, &length);
-	} else {
-	  length = 0;
-	}
-      } else {
-	uniString = actualText->getCString();
-	length = actualText->getLength();
-      }
-
-      if (length < 3)
-	length = 0;
-      else
-	length = length/2 - 1;
-      uni = new Unicode[length];
-      for (i = 0 ; i < length; i++)
-	uni[i] = (uniString[2 + i*2]<<8) + uniString[2 + i*2+1];
-
-      text->addChar(state,
-		    actualText_x, actualText_y,
-		    actualText_dx, actualText_dy,
-		    0, 1, uni, length);
-
-      delete [] uni;
-      if (!actualText->hasUnicodeMarker())
-	delete [] uniString;
-      delete actualText;
-    }
-  }
+  if (text)
+    actualText->endMC(state);
 }
 
 static inline int splashRound(SplashCoord x) {

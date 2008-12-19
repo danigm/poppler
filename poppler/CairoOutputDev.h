@@ -258,12 +258,7 @@ protected:
   GBool prescaleImages;
 
   TextPage *text;		// text for the current page
-  int actualTextBMCLevel;       // > 0 when inside ActualText span. Incremented
-                                // for each nested BMC inside the span.
-  GooString *actualText;        // replacement text for the span
-  GBool newActualTextSpan;      // true at start of span. used to init the extent
-  double actualText_x, actualText_y; // extent of the text inside the span
-  double actualText_dx, actualText_dy;  
+  ActualText *actualText;
 
   cairo_pattern_t *group;
   cairo_pattern_t *shape;

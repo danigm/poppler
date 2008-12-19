@@ -4494,98 +4494,24 @@ TextWordList *TextPage::makeWordList(GBool physLayout) {
 #endif
 
 //------------------------------------------------------------------------
-// TextOutputDev
+// ActualText
 //------------------------------------------------------------------------
-
-static void TextOutputDev_outputToFile(void *stream, char *text, int len) {
-  fwrite(text, 1, len, (FILE *)stream);
-}
-
-TextOutputDev::TextOutputDev(char *fileName, GBool physLayoutA,
-			     GBool rawOrderA, GBool append) {
-  text = NULL;
-  physLayout = physLayoutA;
-  rawOrder = rawOrderA;
-  doHTML = gFalse;
-  ok = gTrue;
-
-  // open file
-  needClose = gFalse;
-  if (fileName) {
-    if (!strcmp(fileName, "-")) {
-      outputStream = stdout;
-#ifdef WIN32
-      // keep DOS from munging the end-of-line characters
-      setmode(fileno(stdout), O_BINARY);
-#endif
-    } else if ((outputStream = fopen(fileName, append ? "ab" : "wb"))) {
-      needClose = gTrue;
-    } else {
-      error(-1, "Couldn't open text file '%s'", fileName);
-      ok = gFalse;
-      return;
-    }
-    outputFunc = &TextOutputDev_outputToFile;
-  } else {
-    outputStream = NULL;
-  }
-
-  // set up text object
-  text = new TextPage(rawOrderA);
+ActualText::ActualText(TextPage *out) {
+  out->incRefCnt();
+  text = out;
+  actualText = NULL;
   actualTextBMCLevel = 0;
 }
 
-TextOutputDev::TextOutputDev(TextOutputFunc func, void *stream,
-			     GBool physLayoutA, GBool rawOrderA) {
-  outputFunc = func;
-  outputStream = stream;
-  needClose = gFalse;
-  physLayout = physLayoutA;
-  rawOrder = rawOrderA;
-  doHTML = gFalse;
-  text = new TextPage(rawOrderA);
-  ok = gTrue;
-  actualTextBMCLevel = 0;
+ActualText::~ActualText() {
+  if (actualText)
+    delete actualText;
+  text->decRefCnt();
 }
 
-TextOutputDev::~TextOutputDev() {
-  if (needClose) {
-#ifdef MACOS
-    ICS_MapRefNumAndAssign((short)((FILE *)outputStream)->handle);
-#endif
-    fclose((FILE *)outputStream);
-  }
-  if (text) {
-    text->decRefCnt();
-  }
-}
-
-void TextOutputDev::startPage(int pageNum, GfxState *state) {
-  text->startPage(state);
-}
-
-void TextOutputDev::endPage() {
-  text->endPage();
-  text->coalesce(physLayout, doHTML);
-  if (outputStream) {
-    text->dump(outputStream, outputFunc, physLayout);
-  }
-}
-
-void TextOutputDev::updateFont(GfxState *state) {
-  text->updateFont(state);
-}
-
-void TextOutputDev::beginString(GfxState *state, GooString *s) {
-}
-
-void TextOutputDev::endString(GfxState *state) {
-}
-
-void TextOutputDev::drawChar(GfxState *state, double x, double y,
-			     double dx, double dy,
-			     double originX, double originY,
-			     CharCode c, int nBytes, Unicode *u, int uLen) {
+void ActualText::addChar(GfxState *state, double x, double y,
+			 double dx, double dy,
+			 CharCode c, int nBytes, Unicode *u, int uLen) {
   if (actualTextBMCLevel == 0) {
     text->addChar(state, x, y, dx, dy, c, nBytes, u, uLen);
   } else {
@@ -4609,16 +4535,14 @@ void TextOutputDev::drawChar(GfxState *state, double x, double y,
   }
 }
 
-void TextOutputDev::beginMarkedContent(char *name, Dict *properties)
-{
-  Object obj;
-
+void ActualText::beginMC(Dict *properties) {
   if (actualTextBMCLevel > 0) {
     // Already inside a ActualText span.
     actualTextBMCLevel++;
     return;
   }
 
+  Object obj;
   if (properties->lookup("ActualText", &obj)) {
     if (obj.isString()) {
       actualText = obj.getString();
@@ -4628,8 +4552,7 @@ void TextOutputDev::beginMarkedContent(char *name, Dict *properties)
   }
 }
 
-void TextOutputDev::endMarkedContent(GfxState *state)
-{
+void ActualText::endMC(GfxState *state) {
   char *uniString = NULL;
   Unicode *uni;
   int length, i;
@@ -4680,6 +4603,113 @@ void TextOutputDev::endMarkedContent(GfxState *state)
       delete actualText;
     }
   }
+}
+
+//------------------------------------------------------------------------
+// TextOutputDev
+//------------------------------------------------------------------------
+
+static void TextOutputDev_outputToFile(void *stream, char *text, int len) {
+  fwrite(text, 1, len, (FILE *)stream);
+}
+
+TextOutputDev::TextOutputDev(char *fileName, GBool physLayoutA,
+			     GBool rawOrderA, GBool append) {
+  text = NULL;
+  physLayout = physLayoutA;
+  rawOrder = rawOrderA;
+  doHTML = gFalse;
+  ok = gTrue;
+
+  // open file
+  needClose = gFalse;
+  if (fileName) {
+    if (!strcmp(fileName, "-")) {
+      outputStream = stdout;
+#ifdef WIN32
+      // keep DOS from munging the end-of-line characters
+      setmode(fileno(stdout), O_BINARY);
+#endif
+    } else if ((outputStream = fopen(fileName, append ? "ab" : "wb"))) {
+      needClose = gTrue;
+    } else {
+      error(-1, "Couldn't open text file '%s'", fileName);
+      ok = gFalse;
+      return;
+    }
+    outputFunc = &TextOutputDev_outputToFile;
+  } else {
+    outputStream = NULL;
+  }
+
+  // set up text object
+  text = new TextPage(rawOrderA);
+  actualText = new ActualText(text);
+}
+
+TextOutputDev::TextOutputDev(TextOutputFunc func, void *stream,
+			     GBool physLayoutA, GBool rawOrderA) {
+  outputFunc = func;
+  outputStream = stream;
+  needClose = gFalse;
+  physLayout = physLayoutA;
+  rawOrder = rawOrderA;
+  doHTML = gFalse;
+  text = new TextPage(rawOrderA);
+  actualText = new ActualText(text);
+  ok = gTrue;
+}
+
+TextOutputDev::~TextOutputDev() {
+  if (needClose) {
+#ifdef MACOS
+    ICS_MapRefNumAndAssign((short)((FILE *)outputStream)->handle);
+#endif
+    fclose((FILE *)outputStream);
+  }
+  if (text) {
+    text->decRefCnt();
+  }
+  delete actualText;
+}
+
+void TextOutputDev::startPage(int pageNum, GfxState *state) {
+  text->startPage(state);
+}
+
+void TextOutputDev::endPage() {
+  text->endPage();
+  text->coalesce(physLayout, doHTML);
+  if (outputStream) {
+    text->dump(outputStream, outputFunc, physLayout);
+  }
+}
+
+void TextOutputDev::updateFont(GfxState *state) {
+  text->updateFont(state);
+}
+
+void TextOutputDev::beginString(GfxState *state, GooString *s) {
+}
+
+void TextOutputDev::endString(GfxState *state) {
+}
+
+void TextOutputDev::drawChar(GfxState *state, double x, double y,
+			     double dx, double dy,
+			     double originX, double originY,
+			     CharCode c, int nBytes, Unicode *u, int uLen) {
+  actualText->addChar(state, x, y, dx, dy, c, nBytes, u, uLen);
+}
+
+void TextOutputDev::beginMarkedContent(char *name, Dict *properties)
+{
+  actualText->beginMC(properties);
+}
+
+void TextOutputDev::endMarkedContent(GfxState *state)
+{
+  actualText->endMC(state);
 }
 
 void TextOutputDev::stroke(GfxState *state) {
