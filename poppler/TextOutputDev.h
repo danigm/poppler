@@ -466,9 +466,6 @@ public:
   // Constructor.
   TextPage(GBool rawOrderA);
 
-  // Destructor.
-  ~TextPage();
-
   void incRefCnt();
   void decRefCnt();
 
@@ -563,7 +560,10 @@ public:
 #endif
 
 private:
-
+  
+  // Destructor.
+  ~TextPage();
+  
   void clear();
   void assignColumns(TextLineFrag *frags, int nFrags, int rot);
   int dumpFragment(Unicode *text, int len, UnicodeMap *uMap, GooString *s);
