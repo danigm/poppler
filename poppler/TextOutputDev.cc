@@ -4601,6 +4601,7 @@ void ActualText::endMC(GfxState *state) {
       if (!actualText->hasUnicodeMarker())
 	delete [] uniString;
       delete actualText;
+      actualText = NULL;
     }
   }
 }
