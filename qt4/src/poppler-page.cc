@@ -22,6 +22,7 @@
 
 #include <poppler-qt4.h>
 
+#include <QtCore/QHash>
 #include <QtCore/QMap>
 #include <QtCore/QVarLengthArray>
 #include <QtGui/QImage>
@@ -365,7 +366,7 @@ QList<TextBox*> Page::textList(Rotation rotate) const
     return output_list;
   }
   
-  QMap<TextWord *, TextBox*> wordBoxMap;
+  QHash<TextWord *, TextBox*> wordBoxMap;
   
   for (int i = 0; i < word_list->getLength(); i++) {
     TextWord *word = word_list->get(i);
@@ -502,7 +503,7 @@ QList<Annotation*> Page::annotations() const
 
     // ID to Annotation/PopupWindow maps
     QMap< int, Annotation * > annotationsMap;
-    QMap< AnnotPopup *, PopupWindow * > popupsMap;
+    QHash< AnnotPopup *, PopupWindow * > popupsMap;
     // lists of Windows and Revisions that needs resolution
     QLinkedList< ResolveRevision > resolveRevList;
     QLinkedList< ResolveWindow > resolvePopList;
@@ -1171,7 +1172,7 @@ QList<Annotation*> Page::annotations() const
         }
 
         // clear data
-        QMap< AnnotPopup *, PopupWindow * >::Iterator dIt = popupsMap.begin(), dEnd = popupsMap.end();
+        QHash< AnnotPopup *, PopupWindow * >::Iterator dIt = popupsMap.begin(), dEnd = popupsMap.end();
         for ( ; dIt != dEnd; ++dIt )
         {
             PopupWindow * p = dIt.value();
