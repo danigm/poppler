@@ -26,6 +26,7 @@
 // Copyright (C) 2007 Krzysztof Kowalczyk <kkowalczyk@gmail.com>
 // Copyright (C) 2008 Pino Toscano <pino@kde.org>
 // Copyright (C) 2008 Michael Vrable <mvrable@cs.ucsd.edu>
+// Copyright (C) 2008 Hib Eris <hib@hiberis.nl>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -110,7 +111,7 @@
 // Operator table
 //------------------------------------------------------------------------
 
-#ifdef WIN32 // this works around a bug in the VC7 compiler
+#ifdef _MSC_VER // this works around a bug in the VC7 compiler
 #  pragma optimize("",off)
 #endif
 
@@ -283,7 +284,7 @@ Operator Gfx::opTab[] = {
           &Gfx::opCurveTo2},
 };
 
-#ifdef WIN32 // this works around a bug in the VC7 compiler
+#ifdef _MSC_VER // this works around a bug in the VC7 compiler
 #  pragma optimize("",on)
 #endif
 
