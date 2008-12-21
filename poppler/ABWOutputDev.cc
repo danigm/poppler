@@ -4,6 +4,7 @@
 //
 // Copyright 2006-2007 Jauco Noordzij <jauco@jauco.nl>
 // Copyright 2007 Dominic Lachowicz <cinamod@hotmail.com>
+// Copyright 2008 Hib Eris <hib@hiberis.nl>
 //
 // Based somewhat on HtmlOutputDev.cc
 //
@@ -455,7 +456,7 @@ void ABWOutputDev::interpretXYTree(){
 }
 
 void ABWOutputDev::ATP_recursive(xmlNodePtr N_parent){
-  xmlNodePtr N_first, N_second, N_line, N_tempCol, N_tempColset;
+  xmlNodePtr N_first, N_second, N_line, N_tempCol, N_tempColset = NULL;
 
   N_first  = N_parent->children;
   if (!N_first)
