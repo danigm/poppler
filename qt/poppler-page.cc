@@ -31,6 +31,7 @@
 #include <Catalog.h>
 #include <ErrorCodes.h>
 #include <TextOutputDev.h>
+#include <Link.h>
 #if defined(HAVE_SPLASH)
 #include <SplashOutputDev.h>
 #include <splash/SplashBitmap.h>

@@ -11,6 +11,7 @@ set(poppler_qt_SRCS
   poppler-link.cc
   poppler-page.cc
   poppler-page-transition.cc
+  poppler-private.cc
 )
 add_library(poppler-qt SHARED ${poppler_qt_SRCS})
 set_target_properties(poppler-qt PROPERTIES VERSION 2.0.0 SOVERSION 2)

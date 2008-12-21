@@ -21,6 +21,7 @@ libpoppler_qt_la_SOURCES =			\
 	poppler-page.cc				\
 	poppler-page-transition.cc		\
 	poppler-page-transition-private.h	\
+	poppler-private.cc			\
 	poppler-private.h
 
 libpoppler_qt_la_LIBADD = 			\

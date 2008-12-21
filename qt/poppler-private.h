@@ -24,8 +24,6 @@
 
 #include <config.h>
 #include <Object.h>
-#include <Outline.h>
-#include <Link.h>
 #include <PDFDoc.h>
 #include <FontInfo.h>
 #if defined(HAVE_SPLASH)
@@ -36,47 +34,13 @@ class SplashOutputDev;
 
 namespace Poppler {
     
-/* borrowed from kpdf */
-static QString unicodeToQString(Unicode* u, int len) {
-    QString ret;
-    ret.setLength(len);
-    QChar* qch = (QChar*) ret.unicode();
-    for (;len;--len)
-      *qch++ = (QChar) *u++;
-    return ret;
-}
+class DocumentData;
 
-static QString UnicodeParsedString(GooString *s1) {
-    GBool isUnicode;
-    int i;
-    Unicode u;
-    QString result;
-    if ( ( s1->getChar(0) & 0xff ) == 0xfe && ( s1->getChar(1) & 0xff ) == 0xff )
-    {
-        isUnicode = gTrue;
-        i = 2;
-    }
-    else
-    {
-        isUnicode = gFalse;
-        i = 0;
-    }
-    while ( i < s1->getLength() )
-    {
-        if ( isUnicode )
-        {
-            u = ( ( s1->getChar(i) & 0xff ) << 8 ) | ( s1->getChar(i+1) & 0xff );
-            i += 2;
-        }
-        else
-        {
-            u = s1->getChar(i) & 0xff;
-            ++i;
-        }
-        result += unicodeToQString( &u, 1 );
-    }
-    return result;
-}
+QString unicodeToQString(Unicode* u, int len);
+
+QString UnicodeParsedString(GooString *s1);
+
+GooString *QStringToGooString(const QString &s);
 
 class LinkDestinationData {
   public:
@@ -117,63 +81,7 @@ class DocumentData {
         return m_outputDev;
     }
 
-    void addTocChildren( QDomDocument * docSyn, QDomNode * parent, GooList * items )
-    {
-        int numItems = items->getLength();
-        for ( int i = 0; i < numItems; ++i )
-        {
-            // iterate over every object in 'items'
-            OutlineItem * outlineItem = (OutlineItem *)items->get( i );
-
-            // 1. create element using outlineItem's title as tagName
-            QString name;
-            Unicode * uniChar = outlineItem->getTitle();
-            int titleLength = outlineItem->getTitleLength();
-            name = unicodeToQString(uniChar, titleLength);
-            if ( name.isEmpty() )
-                continue;
-
-            QDomElement item = docSyn->createElement( name );
-            parent->appendChild( item );
-
-            // 2. find the page the link refers to
-            ::LinkAction * a = outlineItem->getAction();
-            if ( a && ( a->getKind() == actionGoTo || a->getKind() == actionGoToR ) )
-            {
-                // page number is contained/referenced in a LinkGoTo
-                LinkGoTo * g = static_cast< LinkGoTo * >( a );
-                LinkDest * destination = g->getDest();
-                if ( !destination && g->getNamedDest() )
-                {
-                    // no 'destination' but an internal 'named reference'. we could
-                    // get the destination for the page now, but it's VERY time consuming,
-                    // so better storing the reference and provide the viewport on demand
-                    GooString *s = g->getNamedDest();
-                    QChar *charArray = new QChar[s->getLength()];
-                    for (int i = 0; i < s->getLength(); ++i) charArray[i] = QChar(s->getCString()[i]);
-                    QString aux(charArray, s->getLength());
-                    item.setAttribute( "DestinationName", aux );
-                    delete[] charArray;
-                }
-                else if ( destination && destination->isOk() )
-                {
-                    LinkDestinationData ldd(destination, NULL, this);
-                    item.setAttribute( "Destination", LinkDestination(ldd).toString() );
-                }
-                if ( a->getKind() == actionGoToR )
-                {
-                    LinkGoToR * g2 = static_cast< LinkGoToR * >( a );
-                    item.setAttribute( "ExternalFileName", g2->getFileName()->getCString() );
-                }
-            }
-
-            // 3. recursively descend over children
-            outlineItem->open();
-            GooList * children = outlineItem->getKids();
-            if ( children )
-                addTocChildren( docSyn, &item, children );
-        }
-    }
+    void addTocChildren( QDomDocument * docSyn, QDomNode * parent, GooList * items );
 
   class PDFDoc doc;
   bool locked;
