@@ -762,8 +762,8 @@ void ArthurOutputDev::drawImage(GfxState *state, Object *ref, Stream *str,
   /* ICCBased color space doesn't do any color correction
    * so check its underlying color space as well */
   is_identity_transform = colorMap->getColorSpace()->getMode() == csDeviceRGB ||
-		  colorMap->getColorSpace()->getMode() == csICCBased && 
-		  ((GfxICCBasedColorSpace*)colorMap->getColorSpace())->getAlt()->getMode() == csDeviceRGB;
+		  (colorMap->getColorSpace()->getMode() == csICCBased && 
+		  ((GfxICCBasedColorSpace*)colorMap->getColorSpace())->getAlt()->getMode() == csDeviceRGB);
 
   if (maskColors) {
     for (y = 0; y < height; y++) {
