@@ -87,11 +87,12 @@ namespace Poppler {
 		m_pageNum = tokens[1].toInt();
 		m_left = tokens[2].toDouble();
 		m_bottom = tokens[3].toDouble();
-		m_top = tokens[4].toDouble();
-		m_zoom = tokens[5].toDouble();
-		m_changeLeft = static_cast<bool>(tokens[6].toInt());
-		m_changeTop = static_cast<bool>(tokens[7].toInt());
-		m_changeZoom = static_cast<bool>(tokens[8].toInt());
+		m_right = tokens[4].toDouble();
+		m_top = tokens[5].toDouble();
+		m_zoom = tokens[6].toDouble();
+		m_changeLeft = static_cast<bool>(tokens[7].toInt());
+		m_changeTop = static_cast<bool>(tokens[8].toInt());
+		m_changeZoom = static_cast<bool>(tokens[9].toInt());
 	}
 	
 	LinkDestination::Kind LinkDestination::kind() const
