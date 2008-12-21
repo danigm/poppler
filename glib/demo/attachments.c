@@ -45,7 +45,7 @@ pgd_attachments_fill_model (GtkListStore    *model,
 		gchar             *size;
 		gchar             *ctime, *mtime;
 
-		size = g_strdup_printf ("%d", attachment->size);
+		size = g_strdup_printf ("%" G_GSIZE_FORMAT, attachment->size);
 		ctime = pgd_format_date (attachment->ctime);
 		mtime = pgd_format_date (attachment->mtime);
 
