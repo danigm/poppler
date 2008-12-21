@@ -19,6 +19,7 @@
 // Copyright (C) 2006 Jeff Muizelaar <jeff@infidigm.net>
 // Copyright (C) 2007, 2008 Brad Hards <bradh@kde.org>
 // Copyright (C) 2008 Koji Otani <sho@bbr.jp>
+// Copyright (C) 2008 Hib Eris <hib@hiberis.nl>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -6171,7 +6172,7 @@ void PSOutputDev::cvtFunction(Function *func) {
 	  writePSFmt("{0:d} index {1:d} get dup\n",
 		     i + k/2 + (1 << (m-j)) - k, j);
 	  writePS("3 2 roll mul exch 1 exch sub 3 2 roll mul add\n");
-	  writePSFmt("{0:d} 1 roll\n", k/2 + (1 << m-j) - k - 1);
+	  writePSFmt("{0:d} 1 roll\n", k/2 + (1 << (m-j)) - k - 1);
 	}
 	// [e01] [efrac] s'(0) s'(1) ... s(2^(m-j-1)-1)
       }
