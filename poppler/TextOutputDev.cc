@@ -18,6 +18,7 @@
 // Copyright (C) 2007, 2008 Adrian Johnson <ajohnson@redneon.com>
 // Copyright (C) 2008 Koji Otani <sho@bbr.jp>
 // Copyright (C) 2008 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2008 Hib Eris <hib@hiberis.nl>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -3810,8 +3811,8 @@ void TextLine::visitSelection(TextSelectionVisitor *visitor,
 	(selection->x2 < p->xMax && selection->y2 < p->yMax))
       if (begin == NULL) 
 	begin = p;
-    if ((selection->x1 > p->xMin && selection->y1 > p->yMin ||
-	 selection->x2 > p->xMin && selection->y2 > p->yMin) && (begin != NULL)) {
+    if (((selection->x1 > p->xMin && selection->y1 > p->yMin) ||
+	 (selection->x2 > p->xMin && selection->y2 > p->yMin)) && (begin != NULL)) {
       end = p->next;
       current = p;
     }
@@ -3895,8 +3896,9 @@ void TextBlock::visitSelection(TextSelectionVisitor *visitor,
       stop_y = selection->y1;
     }
 
-    if ((selection->x1 > p->xMin && selection->y1 > p->yMin ||
-	selection->x2 > p->xMin && selection->y2 > p->yMin) && (begin != NULL))
+    if (((selection->x1 > p->xMin && selection->y1 > p->yMin) ||
+	 (selection->x2 > p->xMin && selection->y2 > p->yMin))
+	&& (begin != NULL))
       end = p->next;
   }
 
@@ -3973,8 +3975,8 @@ void TextPage::visitSelection(TextSelectionVisitor *visitor,
       stop_y = selection->y1;
     }
 
-    if (selection->x1 > b->xMin && selection->y1 > b->yMin ||
-	selection->x2 > b->xMin && selection->y2 > b->yMin)
+    if ((selection->x1 > b->xMin && selection->y1 > b->yMin) ||
+	(selection->x2 > b->xMin && selection->y2 > b->yMin))
       end = i + 1;
   }
 
