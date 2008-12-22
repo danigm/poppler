@@ -556,7 +556,7 @@ int main (int argc, char *argv[])
 	  attachment = (PopplerAttachment *)l->data;
 	  g_print ("\tname: %s\n", attachment->name);
 	  g_print ("\tdescription: %s\n", attachment->description);
-	  g_print ("\tsize: %lu\n", attachment->size);
+	  g_print ("\tsize: %" G_GSIZE_FORMAT "\n", attachment->size);
 	  strdate = poppler_format_date (attachment->ctime);
 	  if (strdate)
 	    {
