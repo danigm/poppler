@@ -36,8 +36,6 @@ drawing_area_expose (GtkWidget      *drawing_area,
                      void           *data)
 {
   View *v = (View*) data;
-  GdkRectangle document;
-  GdkRectangle draw;
   cairo_t *cr;
 
   gdk_window_clear (drawing_area->window);
@@ -51,7 +49,6 @@ drawing_area_expose (GtkWidget      *drawing_area,
 static void
 view_set_page (View *v, int page)
 {
-  int err;
   int w, h;
   double width, height;
   cairo_t *cr;
@@ -68,14 +65,6 @@ view_set_page (View *v, int page)
   gtk_widget_set_size_request (v->drawing_area, w, h);
   gtk_widget_queue_draw (v->drawing_area);
   gtk_spin_button_set_value (GTK_SPIN_BUTTON (v->spin_button), page);
-}
-
-static void
-redraw_callback (void *data)
-{
-  View *v = (View*) data;
-
-  gtk_widget_queue_draw (v->drawing_area);
 }
 
 static void

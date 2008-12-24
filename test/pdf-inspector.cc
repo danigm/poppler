@@ -156,7 +156,7 @@ void
 PdfInspector::on_selection_changed (GtkTreeSelection *selection, PdfInspector *inspector)
 {
   GtkWidget *label;
-  int i;
+  size_t i;
   GtkTreeModel *model;
   GtkTreeIter iter;
   gchar *op = NULL;
@@ -211,7 +211,7 @@ PdfInspector::analyze_page (int page)
   GooHashIter *iter;
   GooHash *hash;
   GooString *key;
-  ProfileData *data_p;
+  void *p;
   GtkWidget *label;
   char *text;
 
@@ -231,10 +231,11 @@ PdfInspector::analyze_page (int page)
   // Individual times;
   hash = output->endProfile ();
   hash->startIter(&iter);
-  while (hash->getNext(&iter, &key, (void**) &data_p))
+  while (hash->getNext(&iter, &key, &p))
     {
       GtkTreeIter tree_iter;
-      
+      ProfileData *data_p = (ProfileData *) p;
+
       gtk_list_store_append (GTK_LIST_STORE (model), &tree_iter);
       gtk_list_store_set (GTK_LIST_STORE (model), &tree_iter,
 			  OP_STRING, key->getCString(),
