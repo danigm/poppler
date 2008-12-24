@@ -306,7 +306,7 @@ PdfInspector::load(const char *file_name)
 void
 PdfInspector::error_dialog (const char *error_message)
 {
-  g_warning (error_message);
+  g_warning ("%s", error_message);
 }
 
 void
