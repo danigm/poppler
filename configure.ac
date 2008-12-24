@@ -4,8 +4,11 @@ AM_INIT_AUTOMAKE([foreign])
 AM_CONFIG_HEADER(config.h)
 AM_CONFIG_HEADER(poppler/poppler-config.h)
 
-dnl ##### Checks for programs.
+dnl ##### Initialize libtool.
+AC_LIBTOOL_WIN32_DLL
 AC_PROG_LIBTOOL
+
+dnl ##### Checks for programs.
 AC_PROG_CC
 AC_PROG_CXX
 AC_ISC_POSIX
