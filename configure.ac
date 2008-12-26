@@ -29,15 +29,18 @@ AC_DEFINE([TEXTOUT_WORD_LIST], [1], [Enable word list support.])
 dnl Check for OS specific flags
 win32_libs=""
 create_shared_lib=""
+auto_import_flags=""
 case "$host_os" in
   mingw*)
     win32_libs="-lgdi32"
     create_shared_lib="-no-undefined"
+    auto_import_flags="-Wl,--enable-auto-import"
   ;;
 esac
 
 AC_SUBST(win32_libs)
 AC_SUBST(create_shared_lib)
+AC_SUBST(auto_import_flags)
 
 ACX_PTHREAD()
 

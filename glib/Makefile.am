@@ -98,7 +98,7 @@ libpoppler_glib_la_LIBADD =				\
 	$(FONTCONFIG_LIBS)				\
 	$(cairo_libs)
 
-libpoppler_glib_la_LDFLAGS = -version-info 4:0:0 @create_shared_lib@
+libpoppler_glib_la_LDFLAGS = -version-info 4:0:0 @create_shared_lib@ @auto_import_flags@
 
 if BUILD_WITH_GDK
 noinst_PROGRAMS = test-poppler-glib

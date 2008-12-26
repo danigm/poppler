@@ -33,6 +33,8 @@ LDADD =						\
 	$(UTILS_LIBS)				\
 	$(FONTCONFIG_LIBS)
 
+AM_LDFLAGS = @auto_import_flags@
+
 bin_PROGRAMS =					\
 	pdffonts				\
 	pdfimages				\

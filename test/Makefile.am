@@ -47,6 +47,8 @@ INCLUDES =					\
 
 noinst_PROGRAMS = $(gtk_splash_test) $(gtk_cairo_test) $(pdf_inspector) $(perf_test) $(pdf_fullrewrite)
 
+AM_LDFLAGS = @auto_import_flags@
+
 gtk_splash_test_SOURCES =			\
        gtk-splash-test.cc
 
