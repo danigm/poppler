@@ -253,7 +253,6 @@ if(ENABLE_XPDF_HEADERS)
   install(FILES
     poppler/Annot.h
     poppler/Array.h
-    poppler/BaseFile.h
     poppler/BuiltinFont.h
     poppler/BuiltinFontTables.h
     poppler/Catalog.h

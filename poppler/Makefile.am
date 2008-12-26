@@ -145,7 +145,6 @@ poppler_include_HEADERS =	\
 	$(splash_headers)	\
 	Annot.h			\
 	Array.h			\
-	BaseFile.h		\
 	BuiltinFont.h		\
 	BuiltinFontTables.h	\
 	Catalog.h		\
