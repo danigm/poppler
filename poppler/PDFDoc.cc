@@ -727,8 +727,13 @@ Guint PDFDoc::writeObject (Object* obj, Ref* ref, OutStream* outStr)
       writeString(obj->getString(), outStr);
       break;
     case objName:
-      outStr->printf("/%s ", obj->getName());
+    {
+      GooString name(obj->getName());
+      GooString *nameToPrint = name.sanitizedName(gFalse /* non ps mode */);
+      outStr->printf("/%s ", nameToPrint->getCString());
+      delete nameToPrint;
       break;
+    }
     case objNull:
       outStr->printf( "null");
       break;

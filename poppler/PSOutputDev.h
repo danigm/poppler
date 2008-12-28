@@ -15,7 +15,7 @@
 //
 // Copyright (C) 2005 Martin Kretzschmar <martink@gnome.org>
 // Copyright (C) 2005 Kristian Høgsberg <krh@redhat.com>
-// Copyright (C) 2006, 2007 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2006-2008 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2007 Brad Hards <bradh@kde.org>
 //
 // To see a description of the changes please see the Changelog file that
@@ -326,7 +326,6 @@ private:
   void writePSFmt(const char *fmt, ...);
   void writePSString(GooString *s);
   void writePSName(char *s);
-  GooString *filterPSName(GooString *name);
   GooString *filterPSLabel(GooString *label, GBool *needParens=0);
   void writePSTextLine(GooString *s);
 

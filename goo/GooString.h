@@ -17,6 +17,7 @@
 //
 // Copyright (C) 2006 Kristian Høgsberg <krh@redhat.com>
 // Copyright (C) 2006 Krzysztof Kowalczyk <kkowalczyk@gmail.com>
+// Copyright (C) 2008 Albert Astals Cid <aacid@kde.org>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -136,6 +137,12 @@ public:
   int cmpN(const char *sA, int n);
 
   GBool hasUnicodeMarker(void);
+
+  // Sanitizes the string so that it does
+  // not contain any ( ) < > [ ] { } / %
+  // The postscript mode also has some more strict checks
+  // The caller owns the return value
+  GooString *sanitizedName(GBool psmode) const;
 
 private:
   // you can tweak this number for a different speed/memory usage tradeoffs.

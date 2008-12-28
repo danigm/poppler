@@ -18,6 +18,7 @@
 // Copyright (C) 2006 Kristian Høgsberg <krh@redhat.com>
 // Copyright (C) 2006 Krzysztof Kowalczyk <kkowalczyk@gmail.com>
 // Copyright (C) 2007 Jeff Muizelaar <jeff@infidigm.net>
+// Copyright (C) 2008 Albert Astals Cid <aacid@kde.org>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -741,4 +742,39 @@ int GooString::cmpN(const char *sA, int n) {
 GBool GooString::hasUnicodeMarker(void)
 {
     return (s[0] & 0xff) == 0xfe && (s[1] & 0xff) == 0xff;
+}
+
+GooString *GooString::sanitizedName(GBool psmode) const
+{
+  GooString *name;
+  char buf[8];
+  int i;
+  char c;
+
+  name = new GooString();
+
+  if (psmode)
+  {
+    // ghostscript chokes on names that begin with out-of-limits
+    // numbers, e.g., 1e4foo is handled correctly (as a name), but
+    // 1e999foo generates a limitcheck error
+    c = name->getChar(0);
+    if (c >= '0' && c <= '9') {
+      name->append('f');
+    }
+  }
+
+  for (i = 0; i < name->getLength(); ++i) {
+    c = name->getChar(i);
+    if ((psmode && (c <= (char)0x20 || c >= (char)0x7f)) ||
+	c == '(' || c == ')' || c == '<' || c == '>' ||
+	c == '[' || c == ']' || c == '{' || c == '}' ||
+	c == '/' || c == '%') {
+      sprintf(buf, "#%02x", c & 0xff);
+      name->append(buf);
+    } else {
+      name->append(c);
+    }
+  }
+  return name;
 }

@@ -1648,7 +1648,7 @@ void PSOutputDev::setupFont(GfxFont *font, Dict *parentResDict) {
   } else if (globalParams->getPSEmbedType1() &&
 	     font->getType() == fontType1 &&
 	     font->getEmbeddedFontID(&fontFileID)) {
-    psName = filterPSName(font->getEmbeddedFontName());
+    psName = font->getEmbeddedFontName()->sanitizedName(gTrue /* ps mode */);
     setupEmbeddedType1Font(&fontFileID, psName);
 
   // check for embedded Type 1C font
@@ -1657,7 +1657,7 @@ void PSOutputDev::setupFont(GfxFont *font, Dict *parentResDict) {
 	     font->getEmbeddedFontID(&fontFileID)) {
     // use the PDF font name because the embedded font name might
     // not include the subset prefix
-    psName = filterPSName(font->getOrigName());
+    psName = font->getOrigName()->sanitizedName(gTrue /* ps mode */);
     setupEmbeddedType1CFont(font, &fontFileID, psName);
 
   // check for embedded OpenType - Type 1C font
@@ -1666,7 +1666,7 @@ void PSOutputDev::setupFont(GfxFont *font, Dict *parentResDict) {
 	     font->getEmbeddedFontID(&fontFileID)) {
     // use the PDF font name because the embedded font name might
     // not include the subset prefix
-    psName = filterPSName(font->getOrigName());
+    psName = font->getOrigName()->sanitizedName(gTrue /* ps mode */);
     setupEmbeddedOpenTypeT1CFont(font, &fontFileID, psName);
 
   // check for external Type 1 font file
@@ -1682,7 +1682,7 @@ void PSOutputDev::setupFont(GfxFont *font, Dict *parentResDict) {
 	     (font->getType() == fontTrueType ||
 	      font->getType() == fontTrueTypeOT) &&
 	     font->getEmbeddedFontID(&fontFileID)) {
-    psName = filterPSName(font->getEmbeddedFontName());
+    psName = font->getEmbeddedFontName()->sanitizedName(gTrue /* ps mode */);
     setupEmbeddedTrueTypeFont(font, &fontFileID, psName);
 
   // check for external TrueType font file
@@ -1695,7 +1695,7 @@ void PSOutputDev::setupFont(GfxFont *font, Dict *parentResDict) {
   } else if (globalParams->getPSEmbedCIDPostScript() &&
 	     font->getType() == fontCIDType0C &&
 	     font->getEmbeddedFontID(&fontFileID)) {
-    psName = filterPSName(font->getEmbeddedFontName());
+    psName = font->getEmbeddedFontName()->sanitizedName(gTrue /* ps mode */);
     setupEmbeddedCIDType0Font(font, &fontFileID, psName);
 
   // check for embedded CID TrueType font
@@ -1703,14 +1703,14 @@ void PSOutputDev::setupFont(GfxFont *font, Dict *parentResDict) {
 	     (font->getType() == fontCIDType2 ||
 	      font->getType() == fontCIDType2OT) &&
 	     font->getEmbeddedFontID(&fontFileID)) {
-    psName = filterPSName(font->getEmbeddedFontName());
+    psName = font->getEmbeddedFontName()->sanitizedName(gTrue /* ps mode */);
     setupEmbeddedCIDTrueTypeFont(font, &fontFileID, psName, gTrue);
 
   // check for embedded OpenType - CID CFF font
   } else if (globalParams->getPSEmbedCIDPostScript() &&
 	     font->getType() == fontCIDType0COT &&
 	     font->getEmbeddedFontID(&fontFileID)) {
-    psName = filterPSName(font->getEmbeddedFontName());
+    psName = font->getEmbeddedFontName()->sanitizedName(gTrue /* ps mode */);
     setupEmbeddedOpenTypeCFFFont(font, &fontFileID, psName);
 
   // check for Type 3 font
@@ -2208,7 +2208,7 @@ GooString *PSOutputDev::setupExternalTrueTypeFont(GfxFont *font) {
     }
   }
 
-  psName = filterPSName(font->getName());
+  psName = font->getName()->sanitizedName(gTrue /* ps mode */);
   // add entry to fontFileNames list
   if (i == fontFileNameLen) {
     if (fontFileNameLen >= fontFileNameSize) {
@@ -2281,7 +2281,7 @@ GooString *PSOutputDev::setupExternalCIDTrueTypeFont(GfxFont *font, GooString *f
     }
   }
 
-  psName = filterPSName(font->getName());
+  psName = font->getName()->sanitizedName(gTrue /* ps mode */);
   // add entry to fontFileNames list
   if (i == fontFileNameLen) {
     if (fontFileNameLen >= fontFileNameSize) {
@@ -6323,37 +6323,6 @@ void PSOutputDev::writePSName(char *s) {
       writePSChar(c);
     }
   }
-}
-
-GooString *PSOutputDev::filterPSName(GooString *name) {
-  GooString *name2;
-  char buf[8];
-  int i;
-  char c;
-
-  name2 = new GooString();
-
-  // ghostscript chokes on names that begin with out-of-limits
-  // numbers, e.g., 1e4foo is handled correctly (as a name), but
-  // 1e999foo generates a limitcheck error
-  c = name->getChar(0);
-  if (c >= '0' && c <= '9') {
-    name2->append('f');
-  }
-
-  for (i = 0; i < name->getLength(); ++i) {
-    c = name->getChar(i);
-    if (c <= (char)0x20 || c >= (char)0x7f ||
-	c == '(' || c == ')' || c == '<' || c == '>' ||
-	c == '[' || c == ']' || c == '{' || c == '}' ||
-	c == '/' || c == '%') {
-      sprintf(buf, "#%02x", c & 0xff);
-      name2->append(buf);
-    } else {
-      name2->append(c);
-    }
-  }
-  return name2;
 }
 
 // Convert GooString to GooString, with appropriate escaping
