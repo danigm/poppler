@@ -142,7 +142,7 @@ public:
   // not contain any ( ) < > [ ] { } / %
   // The postscript mode also has some more strict checks
   // The caller owns the return value
-  GooString *sanitizedName(GBool psmode) const;
+  GooString *sanitizedName(GBool psmode);
 
 private:
   // you can tweak this number for a different speed/memory usage tradeoffs.

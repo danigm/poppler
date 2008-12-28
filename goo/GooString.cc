@@ -744,7 +744,7 @@ GBool GooString::hasUnicodeMarker(void)
     return (s[0] & 0xff) == 0xfe && (s[1] & 0xff) == 0xff;
 }
 
-GooString *GooString::sanitizedName(GBool psmode) const
+GooString *GooString::sanitizedName(GBool psmode)
 {
   GooString *name;
   char buf[8];
@@ -758,15 +758,16 @@ GooString *GooString::sanitizedName(GBool psmode) const
     // ghostscript chokes on names that begin with out-of-limits
     // numbers, e.g., 1e4foo is handled correctly (as a name), but
     // 1e999foo generates a limitcheck error
-    c = name->getChar(0);
+    c = getChar(0);
     if (c >= '0' && c <= '9') {
       name->append('f');
     }
   }
 
-  for (i = 0; i < name->getLength(); ++i) {
-    c = name->getChar(i);
+  for (i = 0; i < getLength(); ++i) {
+    c = getChar(i);
     if ((psmode && (c <= (char)0x20 || c >= (char)0x7f)) ||
+	c == ' ' ||
 	c == '(' || c == ')' || c == '<' || c == '>' ||
 	c == '[' || c == ']' || c == '{' || c == '}' ||
 	c == '/' || c == '%') {
