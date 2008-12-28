@@ -69,12 +69,8 @@
 // Win32 stuff
 //------------------------------------------------------------------------
 
-#ifdef CDECL
-#undef CDECL
-#endif
-
-#if defined(_MSC_VER) || defined(__BORLANDC__)
-#define CDECL __cdecl
+#ifdef WIN32
+#include <windef.h>
 #else
 #define CDECL
 #endif
