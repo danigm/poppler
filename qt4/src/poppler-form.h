@@ -62,7 +62,7 @@ namespace Poppler {
 
 	/**
 	   \return The size of the field, in normalized coordinates, i.e.
-	   [0..1] wrt the size of the page
+	   [0..1] with regard to the dimensions (cropbox) of the page
 	*/
 	QRectF rect() const;
 
