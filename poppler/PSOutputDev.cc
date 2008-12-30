@@ -37,6 +37,7 @@
 #include <stdarg.h>
 #include <signal.h>
 #include <math.h>
+#include <limits.h>
 #include "goo/GooString.h"
 #include "goo/GooList.h"
 #include "poppler-config.h"
@@ -1879,6 +1880,7 @@ void PSOutputDev::setupEmbeddedType1Font(Ref *id, GooString *psName) {
   int c;
   int start[4];
   GBool binMode;
+  GBool writePadding = gTrue;
   int i;
 
   // check if font is already embedded
@@ -1950,6 +1952,17 @@ void PSOutputDev::setupEmbeddedType1Font(Ref *id, GooString *psName) {
       binMode = gTrue;
   }
 
+  if (length2 == 0)
+  {
+    // length2 == 0 is an error
+    // trying to solve it by just piping all
+    // the stream data
+    error(-1, "Font has length2 as 0, trying to overcome the problem reading the stream until the end");
+    length2 = INT_MAX;
+    writePadding = gFalse;
+  }
+
+
   // convert binary data to ASCII
   if (binMode) {
     for (i = 0; i < 4; ++i) {
@@ -1988,12 +2001,15 @@ void PSOutputDev::setupEmbeddedType1Font(Ref *id, GooString *psName) {
     }
   }
 
-  // write padding and "cleartomark"
-  for (i = 0; i < 8; ++i) {
-    writePS("00000000000000000000000000000000"
-	    "00000000000000000000000000000000\n");
+  if (writePadding)
+  {
+    // write padding and "cleartomark"
+    for (i = 0; i < 8; ++i) {
+      writePS("00000000000000000000000000000000"
+	      "00000000000000000000000000000000\n");
+    }
+    writePS("cleartomark\n");
   }
-  writePS("cleartomark\n");
 
   // ending comment
   writePS("%%EndResource\n");
