@@ -642,7 +642,7 @@ void PDFDoc::writeDictionnary (Dict* dict, OutStream* outStr)
     writeObject(dict->getValNF(i, &obj1), NULL, outStr);
     obj1.free();
   }
-  outStr->printf(">>");
+  outStr->printf(">> ");
 }
 
 void PDFDoc::writeStream (Stream* str, OutStream* outStr)
@@ -747,7 +747,7 @@ Guint PDFDoc::writeObject (Object* obj, Ref* ref, OutStream* outStr)
         writeObject(array->getNF(i, &obj1), NULL,outStr);
         obj1.free();
       }
-      outStr->printf("]");
+      outStr->printf("] ");
       break;
     case objDict:
       writeDictionnary (obj->getDict(),outStr);
