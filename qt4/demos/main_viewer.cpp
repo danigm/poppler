@@ -23,7 +23,11 @@
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
+    const QStringList args = QCoreApplication::arguments();
     PdfViewer *viewer = new PdfViewer();
     viewer->show();
+    if (args.count() > 1) {
+        viewer->loadDocument(args.at(1));
+    }
     return app.exec();
 }
