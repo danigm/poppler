@@ -118,17 +118,6 @@ FormWidget::FormWidget(XRef *xrefA, Object *aobj, unsigned num, Ref aref, FormFi
     obj1.free();
 }
 
-FormWidget::FormWidget(FormWidget *dest)
-{
-  x1 = dest->x1;
-  y1 = dest->y1;
-  x2 = dest->x2;
-  y2 = dest->x2;
-
-  type = dest->type;
-  field = dest->field;
-}
-
 FormWidget::~FormWidget()
 {
   obj.free ();
