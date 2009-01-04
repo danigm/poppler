@@ -15,7 +15,7 @@
 //
 // Copyright (C) 2006 Scott Turner <scotty1024@mac.com>
 // Copyright (C) 2007, 2008 Julien Rebetez <julienr@svn.gnome.org>
-// Copyright (C) 2007, 2008 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2007-2009 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2007, 2008 Carlos Garcia Campos <carlosgc@gnome.org>
 // Copyright (C) 2007, 2008 Iñigo Martínez <inigomartinez@gmail.com>
 // Copyright (C) 2007 Jeff Muizelaar <jeff@infidigm.net>
@@ -3056,6 +3056,9 @@ void AnnotWidget::generateFieldAppearance() {
         obj1.dictLookupNF("N", &obj2)->isRef()) {
       appRef = obj2.getRef();
     }
+
+    obj2.free();
+    obj1.free();
 
     // this annot doesn't have an AP yet, create one
     if (appRef.num == 0)
