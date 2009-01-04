@@ -21,6 +21,7 @@
 // Copyright (C) 2008 Hugo Mercier <hmercier31@gmail.com>
 // Copyright (C) 2008 Pino Toscano <pino@kde.org>
 // Copyright (C) 2008 Tomas Are Haavet <tomasare@gmail.com>
+// Copyright (C) 2009 Albert Astals Cid <aacid@kde.org>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -1194,6 +1195,7 @@ private:
   // AnnotBorderBS border;                // BS
   Dict *parent;                           // Parent
   GBool regen;
+  GBool addDingbatsResource;
 };
 
 //------------------------------------------------------------------------

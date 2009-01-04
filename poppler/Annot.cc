@@ -2140,6 +2140,7 @@ void AnnotWidget::drawText(GooString *text, GooString *da, GfxFontDict *fontDict
   double fontSize, fontSize2, borderWidth, x, xPrev, y, w, wMax;
   int tfPos, tmPos, i, j;
   GBool freeText = gFalse;      // true if text should be freed before return
+  GBool freeFont = gFalse;
 
   //~ if there is no MK entry, this should use the existing content stream,
   //~ and only replace the marked content portion of it
@@ -2174,7 +2175,6 @@ void AnnotWidget::drawText(GooString *text, GooString *da, GfxFontDict *fontDict
   }
 
   // force ZapfDingbats
-  //~ this should create the font if needed (?)
   if (forceZapfDingbats) {
     if (tfPos >= 0) {
       tok = (GooString *)daToks->get(tfPos);
@@ -2191,7 +2191,20 @@ void AnnotWidget::drawText(GooString *text, GooString *da, GfxFontDict *fontDict
     tok = (GooString *)daToks->get(tfPos);
     if (tok->getLength() >= 1 && tok->getChar(0) == '/') {
       if (!fontDict || !(font = fontDict->lookup(tok->getCString() + 1))) {
-        error(-1, "Unknown font in field's DA string");
+        if (forceZapfDingbats) {
+          // We are forcing ZaDb but the font does not exist
+          // so create a fake one
+          Ref r; // dummy Ref, it's not used at all in this codepath
+          r.num = 0;
+          r.gen = 0;
+          Dict *d = new Dict(xref);
+          font = new Gfx8BitFont(xref, "ZaDb", r, new GooString("ZapfDingbats"), fontType1, d);
+          delete d;
+          freeFont = gTrue;
+          addDingbatsResource = gTrue;
+        } else {
+          error(-1, "Unknown font in field's DA string");
+        }
       }
     } else {
       error(-1, "Invalid font name in 'Tf' operator in field's DA string");
@@ -2496,6 +2509,9 @@ void AnnotWidget::drawText(GooString *text, GooString *da, GfxFontDict *fontDict
     delete text;
   }
   delete convertedText;
+  if (freeFont) {
+    font->decRefCnt();
+  }
 }
 
 // Draw the variable text or caption for a field.
@@ -3102,12 +3118,41 @@ void AnnotWidget::draw(Gfx *gfx, GBool printing) {
     return;
   }
 
+  addDingbatsResource = gFalse;
   generateFieldAppearance ();
 
   // draw the appearance stream
   appearance.fetch(xref, &obj);
+  if (addDingbatsResource) {
+    // We are forcing ZaDb but the font does not exist
+    // so create a fake one
+    Object baseFontObj, subtypeObj;
+    baseFontObj.initName("ZapfDingbats");
+    subtypeObj.initName("Type1");
+
+    Object fontDictObj;
+    Dict *fontDict = new Dict(xref);
+    fontDict->decRef();
+    fontDict->add(copyString("BaseFont"), &baseFontObj);
+    fontDict->add(copyString("Subtype"), &subtypeObj);
+    fontDictObj.initDict(fontDict);
+
+    Object fontsDictObj;
+    Dict *fontsDict = new Dict(xref);
+    fontsDict->decRef();
+    fontsDict->add(copyString("ZaDb"), &fontDictObj);
+    fontsDictObj.initDict(fontsDict);
+
+    Dict *dict = new Dict(xref);
+    dict->add(copyString("Font"), &fontsDictObj);
+    gfx->pushResources(dict);
+    delete dict;
+  }
   gfx->drawAnnot(&obj, (AnnotBorder *)NULL, color,
 		 rect->x1, rect->y1, rect->x2, rect->y2);
+  if (addDingbatsResource) {
+    gfx->popResources();
+  }
   obj.free();
 }
 

@@ -17,6 +17,7 @@
 // Copyright (C) 2007 Iñigo Martínez <inigomartinez@gmail.com>
 // Copyright (C) 2008 Brad Hards <bradh@kde.org>
 // Copyright (C) 2008 Carlos Garcia Campos <carlosgc@gnome.org>
+// Copyright (C) 2009 Albert Astals Cid <aacid@kde.org>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -162,6 +163,9 @@ public:
 
   // Get the current graphics state object.
   GfxState *getState() { return state; }
+
+  void pushResources(Dict *resDict);
+  void popResources();
 
 private:
 
@@ -333,9 +337,6 @@ private:
   GBool contentIsHidden();
   void pushMarkedContent();
   void popMarkedContent();
-
-  void pushResources(Dict *resDict);
-  void popResources();
 };
 
 #endif
