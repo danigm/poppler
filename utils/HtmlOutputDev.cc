@@ -22,6 +22,7 @@
 // Copyright (C) 2008 Boris Toloknov <tlknv@yandex.ru>
 // Copyright (C) 2008 Haruyuki Kawabe <Haruyuki.Kawabe@unisys.co.jp>
 // Copyright (C) 2008 Tomas Are Haavet <tomasare@gmail.com>
+// Copyright (C) 2009 Warren Toomey <wkt@tuhs.org>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -49,12 +50,16 @@
 #ifdef ENABLE_LIBJPEG
 #include "DCTStream.h"
 #endif
+#ifdef ENABLE_LIBPNG
+#include "png.h"
+#endif
 #include "GlobalParams.h"
 #include "HtmlOutputDev.h"
 #include "HtmlFonts.h"
 
 int HtmlPage::pgNum=0;
 int HtmlOutputDev::imgNum=1;
+GooList *HtmlOutputDev::imgList=new GooList();
 
 extern double scale;
 extern GBool complexMode;
@@ -759,11 +764,14 @@ void HtmlPage::dump(FILE *f, int pageNum)
   else
   {
     fprintf(f,"<A name=%d></a>",pageNum);
-    GooString* fName=basename(DocName); 
-    for (int i=1;i<HtmlOutputDev::imgNum;i++)
-      fprintf(f,"<IMG src=\"%s-%d_%d.jpg\"><br>\n",fName->getCString(),pageNum,i);
+    // Loop over the list of image names on this page
+    int listlen=HtmlOutputDev::imgList->getLength();
+    for (int i = 0; i < listlen; i++) {
+      GooString *fName= (GooString *)HtmlOutputDev::imgList->del(0);
+      fprintf(f,"<IMG src=\"%s\"><br>\n",fName->getCString());
+      delete fName;
+    }
     HtmlOutputDev::imgNum=1;
-    delete fName;
 
     GooString* str;
     for(HtmlString *tmp=yxStrings;tmp;tmp=tmp->yxNext){
@@ -1208,7 +1216,7 @@ void HtmlOutputDev::drawImageMask(GfxState *state, Object *ref, Stream *str,
    
   if (pgNum) delete pgNum;
   if (imgnum) delete imgnum;
-  if (fName) delete fName;
+  if (fName) imgList->append(fName);
   }
   else {
     OutputDev::drawImageMask(state, ref, str, width, height, invert, inlineImg);
@@ -1293,13 +1301,119 @@ void HtmlOutputDev::drawImage(GfxState *state, Object *ref, Stream *str,
     
     fclose(f1);
   
-    delete fName;
+    if (fName) imgList->append(fName);
     delete pgNum;
     delete imgnum;
   }
   else {
+#ifdef ENABLE_LIBPNG
+    // Dump the image as a PNG file. Much of the PNG code
+    // comes from an example by Guillaume Cottenceau.
+    Guchar *p;
+    GfxRGB rgb;
+    png_structp png_ptr;
+    png_infop info_ptr;
+    png_byte color_type= PNG_COLOR_TYPE_RGB;
+    png_byte bit_depth= 8;
+    png_byte *row = (png_byte *) malloc(3 * width);   // 3 bytes/pixel: RGB
+    png_bytep *row_pointer= &row;
+
+    // Create the image filename
+    GooString *fName=new GooString(Docname);
+    fName->append("-");
+    GooString *pgNum= GooString::fromInt(pageNum);
+    GooString *imgnum= GooString::fromInt(imgNum);  
+    fName->append(pgNum)->append("_")->append(imgnum)->append(".png");
+
+    // Open the image file
+    if (!(f1 = fopen(fName->getCString(), "wb"))) {
+      error(-1, "Couldn't open image file '%s'", fName->getCString());
+      return;
+    }
+
+    // Initialize the PNG stuff
+    png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
+    if (!png_ptr) {
+      error(-1, "png_create_write_struct failed");
+      return;
+    }
+
+    info_ptr = png_create_info_struct(png_ptr);
+    if (!info_ptr) {
+      error(-1, "png_create_info_struct failed");
+      return;
+    }
+    if (setjmp(png_jmpbuf(png_ptr))) {
+      error(-1, "error during init_io");
+      return;
+    }
+
+    // Write the PNG header
+    png_init_io(png_ptr, f1);
+    if (setjmp(png_jmpbuf(png_ptr))) {
+      error(-1, "error during writing png header");
+      return;
+    }
+
+    // Set up the type of PNG image and the compression level
+    png_set_compression_level(png_ptr, Z_BEST_COMPRESSION);
+
+    png_set_IHDR(png_ptr, info_ptr, width, height,
+                     bit_depth, color_type, PNG_INTERLACE_NONE,
+                     PNG_COMPRESSION_TYPE_BASE, PNG_FILTER_TYPE_BASE);
+
+    // Write the image info bytes
+    png_write_info(png_ptr, info_ptr);
+    if (setjmp(png_jmpbuf(png_ptr))) {
+      error(-1, "error during writing png info bytes");
+      return;
+    }
+
+    // Initialize the image stream
+    ImageStream *imgStr = new ImageStream(str, width,
+                        colorMap->getNumPixelComps(), colorMap->getBits());
+    imgStr->reset();
+
+    // For each line...
+    for (int y = 0; y < height; y++) {
+
+      // Convert into a PNG row
+      p = imgStr->getLine();
+      for (int x = 0; x < width; x++) {
+        colorMap->getRGB(p, &rgb);
+	// Write the RGB pixels into the row
+	row[3*x]= colToByte(rgb.r);
+	row[3*x+1]= colToByte(rgb.g);
+	row[3*x+2]= colToByte(rgb.b);
+         p += colorMap->getNumPixelComps();
+      }
+
+      // Write the row to the file
+      png_write_rows(png_ptr, row_pointer, 1);
+      if (setjmp(png_jmpbuf(png_ptr))) {
+        error(-1, "error during png row write");
+        return;
+      }
+    }
+
+    // Finish off the PNG file
+    png_write_end(png_ptr, info_ptr);
+    if (setjmp(png_jmpbuf(png_ptr))) {
+      error(-1, "error during png end of write");
+      return;
+    }
+
+    fclose(f1);
+    free(row);
+    imgList->append(fName);
+    ++imgNum;
+    delete pgNum;
+    delete imgnum;
+    delete imgStr;
+#else
     OutputDev::drawImage(state, ref, str, width, height, colorMap,
 			 maskColors, inlineImg);
+#endif
   }
 }
 

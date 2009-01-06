@@ -15,7 +15,7 @@
 // under GPL version 2 or later
 //
 // Copyright (C) 2006-2007 Albert Astals Cid <aacid@kde.org>
-// Copyright (C) 2008 Warren Toomey <wkt@tuhs.org>
+// Copyright (C) 2008-2009 Warren Toomey <wkt@tuhs.org>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -316,6 +316,7 @@ private:
   int maxPageWidth;
   int maxPageHeight;
   static int imgNum;
+  static GooList *imgList;
   GooString *Docname;
   GooString *docTitle;
   GooList *glMetaVars;

@@ -180,6 +180,19 @@ AM_CONDITIONAL(BUILD_LIBJPEG, test x$enable_libjpeg = xyes)
 AH_TEMPLATE([ENABLE_LIBJPEG],
             [Use libjpeg instead of builtin jpeg decoder.])
 
+dnl Test for libpng
+AC_ARG_ENABLE(libpng,
+	      AC_HELP_STRING([--disable-libpng],
+	                     [Don't build against libpng.]),
+              enable_libpng=$enableval,
+              enable_libpng="try")
+if test x$enable_libpng != xno; then
+  POPPLER_FIND_PNG
+fi
+
+AM_CONDITIONAL(BUILD_LIBPNG, test x$enable_libpng = xyes)
+AH_TEMPLATE([ENABLE_LIBPNG],
+            [Build against libpng.])
 
 dnl Check for freetype headers
 FREETYPE_LIBS=
@@ -493,6 +506,7 @@ echo "  glib wrapper:       $enable_poppler_glib"
 echo "    use GDK:          $enable_gdk"
 echo "  use gtk-doc:        $enable_gtk_doc"
 echo "  use libjpeg:        $enable_libjpeg"
+echo "  use libpng:         $enable_libpng"
 echo "  use zlib:           $enable_zlib"
 echo "  use libopenjpeg:    $enable_libopenjpeg"
 echo "  command line utils: $enable_utils"
