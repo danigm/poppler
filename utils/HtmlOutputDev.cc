@@ -1204,6 +1204,7 @@ void HtmlOutputDev::drawImageMask(GfxState *state, Object *ref, Stream *str,
     ++imgNum;
     if (!(f1 = fopen(fName->getCString(), "wb"))) {
       error(-1, "Couldn't open image file '%s'", fName->getCString());
+      delete fName;
       return;
     }
 
@@ -1292,6 +1293,7 @@ void HtmlOutputDev::drawImage(GfxState *state, Object *ref, Stream *str,
     
     if (!(f1 = fopen(fName->getCString(), "wb"))) {
       error(-1, "Couldn't open image file '%s'", fName->getCString());
+      delete fName;
       return;
     }
 
@@ -1332,6 +1334,7 @@ void HtmlOutputDev::drawImage(GfxState *state, Object *ref, Stream *str,
     // Open the image file
     if (!(f1 = fopen(fName->getCString(), "wb"))) {
       error(-1, "Couldn't open image file '%s'", fName->getCString());
+      delete fName;
       return;
     }
 
