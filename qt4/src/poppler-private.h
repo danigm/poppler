@@ -90,7 +90,7 @@ namespace Poppler {
 	
 	void init(GooString *ownerPassword, GooString *userPassword)
 	    {
-		m_fontInfoScanner = 0;
+		m_fontInfoIterator = 0;
 		m_backend = Document::SplashBackend;
 		m_outputDev = 0;
 		paperColor = Qt::white;
@@ -114,7 +114,7 @@ namespace Poppler {
 		delete (OptContentModel *)m_optContentModel;
 		delete doc;
 		delete m_outputDev;
-		delete m_fontInfoScanner;
+		delete m_fontInfoIterator;
 		
 		count --;
 		if ( count == 0 ) delete globalParams;
@@ -179,7 +179,7 @@ namespace Poppler {
 	
 	void fillMembers()
 	{
-		m_fontInfoScanner = new FontInfoScanner(doc);
+		m_fontInfoIterator = new FontIterator(0, this);
 		int numEmb = doc->getCatalog()->numEmbeddedFiles();
 		if (!(0 == numEmb)) {
 			// we have some embedded documents, build the list
@@ -195,7 +195,7 @@ namespace Poppler {
 	PDFDoc *doc;
 	QByteArray fileContents;
 	bool locked;
-	FontInfoScanner *m_fontInfoScanner;
+	FontIterator *m_fontInfoIterator;
 	Document::RenderBackend m_backend;
 	OutputDev *m_outputDev;
 	QList<EmbeddedFile*> m_embeddedFiles;
@@ -241,6 +241,25 @@ namespace Poppler {
 		bool isSubset : 1;
 		FontInfo::Type type;
 		Ref embRef;
+    };
+
+    class FontIteratorData
+    {
+	public:
+		FontIteratorData( int startPage, DocumentData *dd )
+		  : fontInfoScanner( dd->doc, startPage )
+		  , totalPages( dd->doc->getNumPages() )
+		  , currentPage( qMax( startPage, 0 ) - 1 )
+		{
+		}
+
+		~FontIteratorData()
+		{
+		}
+
+		FontInfoScanner fontInfoScanner;
+		int totalPages;
+		int currentPage;
     };
 
     class TextBoxData

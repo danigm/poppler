@@ -218,6 +218,56 @@ namespace Poppler {
     };
 
 
+    class FontIteratorData;
+    /**
+       Iterator for reading the fonts in a document.
+
+       FontIterator provides a Java-style iterator for reading the fonts in a
+       document.
+
+       You can use it in the following way:
+       \code
+Poppler::FontIterator* it = doc->newFontIterator();
+while (it->hasNext()) {
+  QList<Poppler::FontInfo> fonts = it->next();
+  // do something with the fonts
+}
+       \endcode
+    */
+    class POPPLER_QT4_EXPORT FontIterator {
+    friend class Document;
+    friend class DocumentData;
+    public:
+	/**
+	   Destructor.
+	*/
+	~FontIterator();
+
+	/**
+	   Returns the fonts of the current page and then advances the iterator
+	   to the next page.
+	*/
+	QList<FontInfo> next();
+
+	/**
+	   Checks whether there is at least one more page to iterate, ie returns
+	   false when the iterator is beyond the last page.
+	*/
+	bool hasNext() const;
+
+	/**
+	   Returns the current page where the iterator is.
+	*/
+	int currentPage() const;
+
+    private:
+	Q_DISABLE_COPY( FontIterator )
+	FontIterator( int, DocumentData *dd );
+
+	FontIteratorData *d;
+    };
+
+
     class EmbeddedFileData;
     /**
        Container class for an embedded file with a PDF document
@@ -850,6 +900,21 @@ QString subject = m_doc->info("Subject");
 	   \return false if the end of the document has been reached
 	*/
 	bool scanForFonts( int numPages, QList<FontInfo> *fontList ) const; 
+
+	/**
+	   Creates a new FontIterator object for font scanning.
+
+	   The new iterator can be used for reading the font information of the
+	   document, reading page by page.
+
+	   The caller is responsible for the returned object, ie it should freed
+	   it when no more useful.
+
+	   \param startPage the initial page from which start reading fonts
+
+	   \since 0.12
+	*/
+	FontIterator* newFontIterator( int startPage = 0 ) const;
 
 	/**
 	   The font data if the font is an embedded one.

@@ -110,4 +110,40 @@ FontInfo& FontInfo::operator=( const FontInfo &fi )
 	return *this;
 }
 
+
+FontIterator::FontIterator( int startPage, DocumentData *dd )
+	: d( new FontIteratorData( startPage, dd ) )
+{
+}
+
+FontIterator::~FontIterator()
+{
+	delete d;
+}
+
+QList<FontInfo> FontIterator::next()
+{
+	++d->currentPage;
+
+	QList<FontInfo> fonts;
+	GooList *items = d->fontInfoScanner.scan( 1 );
+	if ( !items )
+		return fonts;
+	for ( int i = 0; i < items->getLength(); ++i ) {
+		fonts.append( FontInfo( FontInfoData( ( ::FontInfo* )items->get( i ) ) ) );
+	}
+	deleteGooList( items, ::FontInfo );
+	return fonts;
+}
+
+bool FontIterator::hasNext() const
+{
+	return ( d->currentPage + 1 ) < d->totalPages;
+}
+
+int FontIterator::currentPage() const
+{
+	return d->currentPage;
+}
+
 }
