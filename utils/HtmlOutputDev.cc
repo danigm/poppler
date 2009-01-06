@@ -17,7 +17,7 @@
 // All changes made under the Poppler project to this file are licensed
 // under GPL version 2 or later
 //
-// Copyright (C) 2005-2008 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2005-2009 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2008 Kjartan Maraas <kmaraas@gnome.org>
 // Copyright (C) 2008 Boris Toloknov <tlknv@yandex.ru>
 // Copyright (C) 2008 Haruyuki Kawabe <Haruyuki.Kawabe@unisys.co.jp>
@@ -1198,6 +1198,9 @@ void HtmlOutputDev::drawImageMask(GfxState *state, Object *ref, Stream *str,
     GooString *imgnum=GooString::fromInt(imgNum);
     // open the image file
     fName->append(pgNum)->append("_")->append(imgnum)->append(".jpg");
+    delete pgNum;
+    delete imgnum;
+
     ++imgNum;
     if (!(f1 = fopen(fName->getCString(), "wb"))) {
       error(-1, "Couldn't open image file '%s'", fName->getCString());
@@ -1214,8 +1217,6 @@ void HtmlOutputDev::drawImageMask(GfxState *state, Object *ref, Stream *str,
 
     fclose(f1);
    
-  if (pgNum) delete pgNum;
-  if (imgnum) delete imgnum;
   if (fName) imgList->append(fName);
   }
   else {
@@ -1284,6 +1285,9 @@ void HtmlOutputDev::drawImage(GfxState *state, Object *ref, Stream *str,
     
     // open the image file
     fName->append(pgNum)->append("_")->append(imgnum)->append(".jpg");
+    delete pgNum;
+    delete imgnum;
+
     ++imgNum;
     
     if (!(f1 = fopen(fName->getCString(), "wb"))) {
@@ -1302,8 +1306,6 @@ void HtmlOutputDev::drawImage(GfxState *state, Object *ref, Stream *str,
     fclose(f1);
   
     if (fName) imgList->append(fName);
-    delete pgNum;
-    delete imgnum;
   }
   else {
 #ifdef ENABLE_LIBPNG
@@ -1324,6 +1326,8 @@ void HtmlOutputDev::drawImage(GfxState *state, Object *ref, Stream *str,
     GooString *pgNum= GooString::fromInt(pageNum);
     GooString *imgnum= GooString::fromInt(imgNum);  
     fName->append(pgNum)->append("_")->append(imgnum)->append(".png");
+    delete pgNum;
+    delete imgnum;
 
     // Open the image file
     if (!(f1 = fopen(fName->getCString(), "wb"))) {
@@ -1407,8 +1411,6 @@ void HtmlOutputDev::drawImage(GfxState *state, Object *ref, Stream *str,
     free(row);
     imgList->append(fName);
     ++imgNum;
-    delete pgNum;
-    delete imgnum;
     delete imgStr;
 #else
     OutputDev::drawImage(state, ref, str, width, height, colorMap,
