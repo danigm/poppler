@@ -6,6 +6,9 @@
 /* Use zlib instead of builtin zlib decoder. */
 #cmakedefine ENABLE_ZLIB 1
 
+/* Use libpng to export images in pdftohtml. */
+#cmakedefine ENABLE_LIBPNG 1
+
 /* Use cairo for rendering. */
 #cmakedefine HAVE_CAIRO 1
 

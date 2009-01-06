@@ -69,7 +69,11 @@ set(pdftohtml_SOURCES ${common_srcs}
   HtmlOutputDev.cc
 )
 add_executable(pdftohtml ${pdftohtml_SOURCES})
+if (ENABLE_LIBPNG)
+target_link_libraries(pdftohtml ${common_libs} ${PNG_LIBRARIES})
+else (ENABLE_LIBPNG)
 target_link_libraries(pdftohtml ${common_libs})
+endif (ENABLE_LIBPNG)
 install(TARGETS pdftohtml DESTINATION bin)
 
 if (ENABLE_ABIWORD)
