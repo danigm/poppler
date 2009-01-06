@@ -883,23 +883,35 @@ QString subject = m_doc->info("Subject");
 	/**
 	   The fonts within the PDF document.
 
+	   This is a shorthand for getting all the fonts at once.
+
 	   \note this can take a very long time to run with a large
-	   document. You may wish to use the call below if you have more
+	   document. You may wish to use a FontIterator if you have more
 	   than say 20 pages
+
+	   \see newFontIterator()
 	*/
 	QList<FontInfo> fonts() const;
 
 	/**
-	   \overload
-
+	   Scans for fonts within the PDF document.
 
 	   \param numPages the number of pages to scan
 	   \param fontList pointer to the list where the font information
 	   should be placed
 
+	   \note with this method you can scan for fonts only \em once for each
+	   document; once the end is reached, no more scanning with this method
+	   can be done
+
 	   \return false if the end of the document has been reached
+
+	   \deprecated this function is quite limited in its job (see note),
+	   better use fonts() or newFontIterator()
+
+	   \see fonts(), newFontIterator()
 	*/
-	bool scanForFonts( int numPages, QList<FontInfo> *fontList ) const; 
+	Q_DECL_DEPRECATED bool scanForFonts( int numPages, QList<FontInfo> *fontList ) const;
 
 	/**
 	   Creates a new FontIterator object for font scanning.
@@ -911,6 +923,8 @@ QString subject = m_doc->info("Subject");
 	   it when no more useful.
 
 	   \param startPage the initial page from which start reading fonts
+
+	   \see fonts()
 
 	   \since 0.12
 	*/
