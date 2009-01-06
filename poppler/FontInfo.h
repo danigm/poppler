@@ -73,7 +73,7 @@ class FontInfoScanner {
 public:
 
   // Constructor.
-  FontInfoScanner(PDFDoc *doc);
+  FontInfoScanner(PDFDoc *doc, int firstPage = 0);
   // Destructor.
   ~FontInfoScanner();
 

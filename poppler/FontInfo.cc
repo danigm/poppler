@@ -35,9 +35,9 @@
 #include "PDFDoc.h"
 #include "FontInfo.h"
 
-FontInfoScanner::FontInfoScanner(PDFDoc *docA) {
+FontInfoScanner::FontInfoScanner(PDFDoc *docA, int firstPage) {
   doc = docA;
-  currentPage = 1;
+  currentPage = firstPage + 1;
   fonts = NULL;
   fontsLen = fontsSize = 0;
   visitedXObjects = NULL;
