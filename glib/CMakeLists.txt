@@ -1,4 +1,4 @@
-add_definitions(-DG_LOG_DOMAIN=\\"Poppler\\" ${GLIB2_CFLAGS})
+add_definitions(-DG_LOG_DOMAIN=\"Poppler\" ${GLIB2_CFLAGS})
 
 include_directories(
   ${CMAKE_CURRENT_SOURCE_DIR}

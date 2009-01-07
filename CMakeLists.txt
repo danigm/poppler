@@ -1,6 +1,6 @@
 project(poppler)
 
-cmake_minimum_required(VERSION 2.4.0 FATAL_ERROR)
+cmake_minimum_required(VERSION 2.6.0 FATAL_ERROR)
 
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/modules)
 
@@ -84,7 +84,7 @@ include_directories(
   ${CMAKE_CURRENT_SOURCE_DIR}/poppler
   ${CMAKE_CURRENT_BINARY_DIR}
   ${CMAKE_CURRENT_BINARY_DIR}/poppler
-  ${FREETYPE_INCLUDE_DIR}
+  ${FREETYPE_INCLUDE_DIRS}
 )
 set(HAVE_FREETYPE_H ON)
 
