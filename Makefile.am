@@ -64,9 +64,8 @@ EXTRA_DIST +=							\
 	cmake/modules/COPYING-CMAKE-SCRIPTS			\
 	cmake/modules/FindCairo.cmake				\
 	cmake/modules/FindFontconfig.cmake			\
-	cmake/modules/FindFreetype.cmake			\
 	cmake/modules/FindGTK.cmake				\
-	cmake/modules/FindPackageHandleStandardArgs.cmake	\
+	cmake/modules/FindLCMS.cmake				\
 	cmake/modules/FindQt3.cmake				\
 	cmake/modules/FindQt4.cmake				\
 	cmake/modules/MacroBoolTo01.cmake			\
