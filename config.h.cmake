@@ -9,6 +9,9 @@
 /* Use libpng to export images in pdftohtml. */
 #cmakedefine ENABLE_LIBPNG 1
 
+/* Use liblcms for color management. */
+#cmakedefine USE_CMS 1
+
 /* Use cairo for rendering. */
 #cmakedefine HAVE_CAIRO 1
 
