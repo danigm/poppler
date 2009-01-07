@@ -444,6 +444,24 @@ AC_ARG_ENABLE(compile-warnings,
                              [Turn on compiler warnings.]),,
               [enable_compile_warnings="yes"])
 
+dnl
+dnl   Color Management
+dnl
+
+AC_ARG_ENABLE(cms,
+	      AC_HELP_STRING([--disable-cms],
+	                     [Don't use color management system.]),
+              enable_cms=$enableval,
+              enable_cms="yes")
+if test x$enable_cms = xyes; then
+  AC_CHECK_LIB([lcms],cmsOpenProfileFromFile,,
+	       AC_MSG_ERROR("*** lcms library not found ***"))
+  AC_CHECK_HEADERS([lcms.h],,
+		   AC_MSG_ERROR("*** lcms headers not found ***"))
+  AC_DEFINE(USE_CMS, 1, [Defines if use cms])
+fi
+AM_CONDITIONAL(USE_CMS, test x$enable_cms = xyes)
+
 if test "x$GCC" != xyes; then
   enable_compile_warnings=no
 fi
@@ -509,6 +527,7 @@ echo "  use libjpeg:        $enable_libjpeg"
 echo "  use libpng:         $enable_libpng"
 echo "  use zlib:           $enable_zlib"
 echo "  use libopenjpeg:    $enable_libopenjpeg"
+echo "  use cms:            $enable_cms"
 echo "  command line utils: $enable_utils"
 echo ""
 

@@ -105,6 +105,10 @@ abiword_libs =					\
 
 endif
 
+if USE_CMS
+cms_libs = -llcms
+endif
+
 INCLUDES =					\
 	-I$(top_srcdir)				\
 	-I$(top_srcdir)/goo			\
@@ -126,6 +130,7 @@ CXXFLAGS+=$(PTHREAD_CFLAGS)
 libpoppler_la_LIBADD =				\
 	$(top_builddir)/goo/libgoo.la		\
 	$(top_builddir)/fofi/libfofi.la		\
+	$(cms_libs)				\
 	$(splash_libs)				\
 	$(libjpeg_libs)				\
 	$(zlib_libs)				\

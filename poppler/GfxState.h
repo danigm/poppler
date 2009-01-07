@@ -16,6 +16,7 @@
 // Copyright (C) 2005 Kristian Høgsberg <krh@redhat.com>
 // Copyright (C) 2006, 2007 Jeff Muizelaar <jeff@infidigm.net>
 // Copyright (C) 2006 Carlos Garcia Campos <carlosgc@gnome.org>
+// Copyright (C) 2009 Koji Otani <sho@bbr.jp>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -32,6 +33,9 @@
 #include "goo/gtypes.h"
 #include "Object.h"
 #include "Function.h"
+#ifdef USE_CMS
+#include "lcms.h"
+#endif
 
 class Array;
 class GfxFont;
@@ -151,6 +155,37 @@ enum GfxColorSpaceMode {
   csPattern
 };
 
+#ifdef USE_CMS
+
+#define COLOR_PROFILE_DIR "/ColorProfiles/"
+#define GLOBAL_COLOR_PROFILE_DIR POPPLER_DATADIR COLOR_PROFILE_DIR
+
+// wrapper of cmsHTRANSFORM to copy
+class GfxColorTransform {
+public:
+  void doTransform(void *in, void *out, unsigned int size) {
+    cmsDoTransform(transform, in, out, size);
+  }
+  GfxColorTransform(cmsHTRANSFORM transformA) {
+    transform = transformA;
+    refCount = 1;
+  }
+  ~GfxColorTransform() {
+    cmsDeleteTransform(transform);
+  }
+  void ref() {
+    refCount++;
+  }
+  unsigned int unref() {
+    return --refCount;
+  }
+private:
+  GfxColorTransform() {}
+  cmsHTRANSFORM transform;
+  unsigned int refCount;
+};
+#endif
+
 class GfxColorSpace {
 public:
 
@@ -191,6 +226,32 @@ public:
   static char *getColorSpaceModeName(int idx);
 
 private:
+#ifdef USE_CMS
+protected:
+  static cmsHPROFILE RGBProfile;
+  static GooString *displayProfileName; // display profile file Name
+  static cmsHPROFILE displayProfile; // display profile
+  static unsigned int displayPixelType;
+  static GfxColorTransform *XYZ2DisplayTransform;
+  // convert color space signature to cmsColor type 
+  static unsigned int getCMSColorSpaceType(icColorSpaceSignature cs);
+  static unsigned int getCMSNChannels(icColorSpaceSignature cs);
+  static cmsHPROFILE loadColorProfile(const char *fileName);
+public:
+  static int setupColorProfiles();
+  static void setDisplayProfile(cmsHPROFILE displayProfileA) {
+    displayProfile = displayProfileA;
+  }
+  static void setDisplayProfileName(GooString *name) {
+    displayProfileName = name->copy();
+  }
+  static cmsHPROFILE getRGBProfile() {
+    return RGBProfile;
+  }
+  static cmsHPROFILE getDisplayProfile() {
+    return displayProfile;
+  }
+#endif
 };
 
 //------------------------------------------------------------------------
@@ -235,8 +296,6 @@ public:
   virtual void getGray(GfxColor *color, GfxGray *gray);
   virtual void getRGB(GfxColor *color, GfxRGB *rgb);
   virtual void getCMYK(GfxColor *color, GfxCMYK *cmyk);
-  virtual void getGrayLine(Guchar *in, Guchar *out, int length);
-  virtual void getRGBLine(Guchar *in, unsigned int *out, int length);
 
   virtual int getNComps() { return 1; }
   virtual void getDefaultColor(GfxColor *color);
@@ -255,6 +314,8 @@ private:
   double whiteX, whiteY, whiteZ;    // white point
   double blackX, blackY, blackZ;    // black point
   double gamma;			    // gamma value
+  double kr, kg, kb;		    // gamut mapping mulitpliers
+  void getXYZ(GfxColor *color, double *pX, double *pY, double *pZ);
 };
 
 //------------------------------------------------------------------------
@@ -299,8 +360,6 @@ public:
   virtual void getGray(GfxColor *color, GfxGray *gray);
   virtual void getRGB(GfxColor *color, GfxRGB *rgb);
   virtual void getCMYK(GfxColor *color, GfxCMYK *cmyk);
-  virtual void getGrayLine(Guchar *in, Guchar *out, int length);
-  virtual void getRGBLine(Guchar *in, unsigned int *out, int length);
 
   virtual int getNComps() { return 3; }
   virtual void getDefaultColor(GfxColor *color);
@@ -323,6 +382,8 @@ private:
   double blackX, blackY, blackZ;    // black point
   double gammaR, gammaG, gammaB;    // gamma values
   double mat[9];		    // ABC -> XYZ transform matrix
+  double kr, kg, kb;		    // gamut mapping mulitpliers
+  void getXYZ(GfxColor *color, double *pX, double *pY, double *pZ);
 };
 
 //------------------------------------------------------------------------
@@ -390,6 +451,7 @@ private:
   double blackX, blackY, blackZ;    // black point
   double aMin, aMax, bMin, bMax;    // range for the a and b components
   double kr, kg, kb;		    // gamut mapping mulitpliers
+  void getXYZ(GfxColor *color, double *pX, double *pY, double *pZ);
 };
 
 //------------------------------------------------------------------------
@@ -429,6 +491,10 @@ private:
   double rangeMin[4];		// min values for each component
   double rangeMax[4];		// max values for each component
   Ref iccProfileStream;		// the ICC profile
+#ifdef USE_CMS
+  GfxColorTransform *transform;
+  GfxColorTransform *lineTransform; // color transform for line
+#endif
 };
 
 //------------------------------------------------------------------------
