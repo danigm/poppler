@@ -313,7 +313,7 @@ int GfxColorSpace::setupColorProfiles()
     if ((transform = cmsCreateTransform(XYZProfile, TYPE_XYZ_DBL,
 	   displayProfile, 
 	   COLORSPACE_SH(displayPixelType) |
-	     CHANNELS_SH(nChannels) | BYTES_SH(0),
+	     CHANNELS_SH(nChannels) | BYTES_SH(1),
 	  INTENT_RELATIVE_COLORIMETRIC,0)) == 0) {
       error(-1, "Can't create Lab transform");
     } else {
@@ -613,7 +613,7 @@ void GfxCalGrayColorSpace::getGray(GfxColor *color, GfxGray *gray) {
 
 #ifdef USE_CMS
   if (XYZ2DisplayTransform != NULL && displayPixelType == PT_GRAY) {
-    double out[gfxColorMaxComps];
+    Guchar out[gfxColorMaxComps];
     double in[gfxColorMaxComps];
     double X, Y, Z;
     
@@ -622,7 +622,7 @@ void GfxCalGrayColorSpace::getGray(GfxColor *color, GfxGray *gray) {
     in[1] = clip01(Y);
     in[2] = clip01(Z);
     XYZ2DisplayTransform->doTransform(in,out,1);
-    *gray = dblToCol(out[0]);
+    *gray = byteToCol(out[0]);
     return;
   }
 #endif
@@ -639,16 +639,16 @@ void GfxCalGrayColorSpace::getRGB(GfxColor *color, GfxRGB *rgb) {
   getXYZ(color,&X,&Y,&Z);
 #ifdef USE_CMS
   if (XYZ2DisplayTransform != NULL && displayPixelType == PT_RGB) {
-    double out[gfxColorMaxComps];
+    Guchar out[gfxColorMaxComps];
     double in[gfxColorMaxComps];
     
     in[0] = clip01(X);
     in[1] = clip01(Y);
     in[2] = clip01(Z);
     XYZ2DisplayTransform->doTransform(in,out,1);
-    rgb->r = dblToCol(out[0]);
-    rgb->g = dblToCol(out[1]);
-    rgb->b = dblToCol(out[2]);
+    rgb->r = byteToCol(out[0]);
+    rgb->g = byteToCol(out[1]);
+    rgb->b = byteToCol(out[2]);
     return;
   }
 #endif
@@ -672,7 +672,7 @@ void GfxCalGrayColorSpace::getCMYK(GfxColor *color, GfxCMYK *cmyk) {
 #ifdef USE_CMS
   if (XYZ2DisplayTransform != NULL && displayPixelType == PT_CMYK) {
     double in[gfxColorMaxComps];
-    double out[gfxColorMaxComps];
+    Guchar out[gfxColorMaxComps];
     double X, Y, Z;
     
     getXYZ(color,&X,&Y,&Z);
@@ -681,10 +681,10 @@ void GfxCalGrayColorSpace::getCMYK(GfxColor *color, GfxCMYK *cmyk) {
     in[2] = clip01(Z);
     
     XYZ2DisplayTransform->doTransform(in,out,1);
-    cmyk->c = dblToCol(out[0]);
-    cmyk->m = dblToCol(out[1]);
-    cmyk->y = dblToCol(out[2]);
-    cmyk->k = dblToCol(out[3]);
+    cmyk->c = byteToCol(out[0]);
+    cmyk->m = byteToCol(out[1]);
+    cmyk->y = byteToCol(out[2]);
+    cmyk->k = byteToCol(out[3]);
     return;
   }
 #endif
@@ -909,7 +909,7 @@ void GfxCalRGBColorSpace::getGray(GfxColor *color, GfxGray *gray) {
 
 #ifdef USE_CMS
   if (XYZ2DisplayTransform != NULL && displayPixelType == PT_GRAY) {
-    double out[gfxColorMaxComps];
+    Guchar out[gfxColorMaxComps];
     double in[gfxColorMaxComps];
     double X, Y, Z;
     
@@ -918,7 +918,7 @@ void GfxCalRGBColorSpace::getGray(GfxColor *color, GfxGray *gray) {
     in[1] = clip01(Y);
     in[2] = clip01(Z);
     XYZ2DisplayTransform->doTransform(in,out,1);
-    *gray = dblToCol(out[0]);
+    *gray = byteToCol(out[0]);
     return;
   }
 #endif
@@ -935,16 +935,16 @@ void GfxCalRGBColorSpace::getRGB(GfxColor *color, GfxRGB *rgb) {
   getXYZ(color,&X,&Y,&Z);
 #ifdef USE_CMS
   if (XYZ2DisplayTransform != NULL && displayPixelType == PT_RGB) {
-    double out[gfxColorMaxComps];
+    Guchar out[gfxColorMaxComps];
     double in[gfxColorMaxComps];
     
     in[0] = clip01(X/whiteX);
     in[1] = clip01(Y/whiteY);
     in[2] = clip01(Z/whiteZ);
     XYZ2DisplayTransform->doTransform(in,out,1);
-    rgb->r = dblToCol(out[0]);
-    rgb->g = dblToCol(out[1]);
-    rgb->b = dblToCol(out[2]);
+    rgb->r = byteToCol(out[0]);
+    rgb->g = byteToCol(out[1]);
+    rgb->b = byteToCol(out[2]);
     return;
   }
 #endif
@@ -964,7 +964,7 @@ void GfxCalRGBColorSpace::getCMYK(GfxColor *color, GfxCMYK *cmyk) {
 #ifdef USE_CMS
   if (XYZ2DisplayTransform != NULL && displayPixelType == PT_CMYK) {
     double in[gfxColorMaxComps];
-    double out[gfxColorMaxComps];
+    Guchar out[gfxColorMaxComps];
     double X, Y, Z;
     
     getXYZ(color,&X,&Y,&Z);
@@ -972,10 +972,10 @@ void GfxCalRGBColorSpace::getCMYK(GfxColor *color, GfxCMYK *cmyk) {
     in[1] = clip01(Y);
     in[2] = clip01(Z);
     XYZ2DisplayTransform->doTransform(in,out,1);
-    cmyk->c = dblToCol(out[0]);
-    cmyk->m = dblToCol(out[1]);
-    cmyk->y = dblToCol(out[2]);
-    cmyk->k = dblToCol(out[3]);
+    cmyk->c = byteToCol(out[0]);
+    cmyk->m = byteToCol(out[1]);
+    cmyk->y = byteToCol(out[2]);
+    cmyk->k = byteToCol(out[3]);
     return;
   }
 #endif
@@ -1206,12 +1206,12 @@ void GfxLabColorSpace::getGray(GfxColor *color, GfxGray *gray) {
 
 #ifdef USE_CMS
   if (XYZ2DisplayTransform != NULL && displayPixelType == PT_GRAY) {
-    double out[gfxColorMaxComps];
+    Guchar out[gfxColorMaxComps];
     double in[gfxColorMaxComps];
     
     getXYZ(color, &in[0], &in[1], &in[2]);
     XYZ2DisplayTransform->doTransform(in,out,1);
-    *gray = dblToCol(out[0]);
+    *gray = byteToCol(out[0]);
     return;
   }
 #endif
@@ -1258,16 +1258,16 @@ void GfxLabColorSpace::getRGB(GfxColor *color, GfxRGB *rgb) {
   getXYZ(color, &X, &Y, &Z);
 #ifdef USE_CMS
   if (XYZ2DisplayTransform != NULL && displayPixelType == PT_RGB) {
-    double out[gfxColorMaxComps];
+    Guchar out[gfxColorMaxComps];
     double in[gfxColorMaxComps];
     
     in[0] = clip01(X);
     in[1] = clip01(Y);
     in[2] = clip01(Z);
     XYZ2DisplayTransform->doTransform(in,out,1);
-    rgb->r = dblToCol(out[0]);
-    rgb->g = dblToCol(out[1]);
-    rgb->b = dblToCol(out[2]);
+    rgb->r = byteToCol(out[0]);
+    rgb->g = byteToCol(out[1]);
+    rgb->b = byteToCol(out[2]);
     return;
   }
 #endif
@@ -1290,14 +1290,14 @@ void GfxLabColorSpace::getCMYK(GfxColor *color, GfxCMYK *cmyk) {
 #ifdef USE_CMS
   if (XYZ2DisplayTransform != NULL && displayPixelType == PT_CMYK) {
     double in[gfxColorMaxComps];
-    double out[gfxColorMaxComps];
+    Guchar out[gfxColorMaxComps];
     
     getXYZ(color, &in[0], &in[1], &in[2]);
     XYZ2DisplayTransform->doTransform(in,out,1);
-    cmyk->c = dblToCol(out[0]);
-    cmyk->m = dblToCol(out[1]);
-    cmyk->y = dblToCol(out[2]);
-    cmyk->k = dblToCol(out[3]);
+    cmyk->c = byteToCol(out[0]);
+    cmyk->m = byteToCol(out[1]);
+    cmyk->y = byteToCol(out[2]);
+    cmyk->k = byteToCol(out[3]);
     return;
   }
 #endif
@@ -1496,10 +1496,10 @@ GfxColorSpace *GfxICCBasedColorSpace::parse(Array *arr) {
     unsigned int dcst = getCMSColorSpaceType(cmsGetColorSpace(dhp));
     cmsHTRANSFORM transform;
     if ((transform = cmsCreateTransform(hp,
-	   COLORSPACE_SH(cst) |CHANNELS_SH(nCompsA) | BYTES_SH(0),
+	   COLORSPACE_SH(cst) |CHANNELS_SH(nCompsA) | BYTES_SH(1),
 	   dhp,
 	   COLORSPACE_SH(dcst) |
-	     CHANNELS_SH(dNChannels) | BYTES_SH(0),
+	     CHANNELS_SH(dNChannels) | BYTES_SH(1),
 	  INTENT_RELATIVE_COLORIMETRIC,0)) == 0) {
       error(-1, "Can't create transform");
     }
@@ -1523,14 +1523,14 @@ GfxColorSpace *GfxICCBasedColorSpace::parse(Array *arr) {
 void GfxICCBasedColorSpace::getGray(GfxColor *color, GfxGray *gray) {
 #ifdef USE_CMS
   if (transform != 0 && displayPixelType == PT_GRAY) {
-    double in[gfxColorMaxComps];
-    double out[gfxColorMaxComps];
+    Guchar in[gfxColorMaxComps];
+    Guchar out[gfxColorMaxComps];
     
     for (int i = 0;i < nComps;i++) {
-	in[i] = colToDbl(color->c[i]);
+	in[i] = colToByte(color->c[i]);
     }
     transform->doTransform(in,out,1);
-    *gray = dblToCol(out[0]);
+    *gray = byteToCol(out[0]);
   } else {
     GfxRGB rgb;
     getRGB(color,&rgb);
@@ -1547,16 +1547,16 @@ void GfxICCBasedColorSpace::getRGB(GfxColor *color, GfxRGB *rgb) {
 #ifdef USE_CMS
   if (transform != 0
        && (displayProfile == NULL || displayPixelType == PT_RGB)) {
-    double in[gfxColorMaxComps];
-    double out[gfxColorMaxComps];
+    Guchar in[gfxColorMaxComps];
+    Guchar out[gfxColorMaxComps];
     
     for (int i = 0;i < nComps;i++) {
-	in[i] = colToDbl(color->c[i]);
+	in[i] = colToByte(color->c[i]);
     }
     transform->doTransform(in,out,1);
-    rgb->r = dblToCol(out[0]);
-    rgb->g = dblToCol(out[1]);
-    rgb->b = dblToCol(out[2]);
+    rgb->r = byteToCol(out[0]);
+    rgb->g = byteToCol(out[1]);
+    rgb->b = byteToCol(out[2]);
   } else {
     alt->getRGB(color, rgb);
   }
@@ -1587,17 +1587,17 @@ void GfxICCBasedColorSpace::getRGBLine(Guchar *in, unsigned int *out,
 void GfxICCBasedColorSpace::getCMYK(GfxColor *color, GfxCMYK *cmyk) {
 #ifdef USE_CMS
   if (transform != NULL && displayPixelType == PT_CMYK) {
-    double in[gfxColorMaxComps];
-    double out[gfxColorMaxComps];
+    Guchar in[gfxColorMaxComps];
+    Guchar out[gfxColorMaxComps];
     
     for (int i = 0;i < nComps;i++) {
-	in[i] = colToDbl(color->c[i]);
+	in[i] = colToByte(color->c[i]);
     }
     transform->doTransform(in,out,1);
-    cmyk->c = dblToCol(out[0]);
-    cmyk->m = dblToCol(out[1]);
-    cmyk->y = dblToCol(out[2]);
-    cmyk->k = dblToCol(out[3]);
+    cmyk->c = byteToCol(out[0]);
+    cmyk->m = byteToCol(out[1]);
+    cmyk->y = byteToCol(out[2]);
+    cmyk->k = byteToCol(out[3]);
   } else {
     GfxRGB rgb;
     GfxColorComp c, m, y, k;
