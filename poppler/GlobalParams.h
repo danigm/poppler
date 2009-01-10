@@ -18,6 +18,7 @@
 // Copyright (C) 2006 Takashi Iwai <tiwai@suse.de>
 // Copyright (C) 2006 Kristian Høgsberg <krh@redhat.com>
 // Copyright (C) 2007 Krzysztof Kowalczyk <kkowalczyk@gmail.com>
+// Copyright (C) 2009 Jonathan Kew <jonathan_kew@sil.org>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -159,7 +160,7 @@ public:
 
   // Initialize the global parameters by attempting to read a config
   // file.
-  GlobalParams();
+  GlobalParams(const char *customPopplerDataDir = NULL);
 
   ~GlobalParams();
 
@@ -359,6 +360,8 @@ private:
   GooMutex unicodeMapCacheMutex;
   GooMutex cMapCacheMutex;
 #endif
+
+  const char *popplerDataDir;
 };
 
 #endif

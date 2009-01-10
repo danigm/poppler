@@ -18,7 +18,7 @@
 // Copyright (C) 2006 Takashi Iwai <tiwai@suse.de>
 // Copyright (C) 2006 Ed Catmur <ed@catmur.co.uk>
 // Copyright (C) 2007 Krzysztof Kowalczyk <kkowalczyk@gmail.com>
-// Copyright (C) 2007 Jonathan Kew <jonathan_kew@sil.org>
+// Copyright (C) 2007, 2009 Jonathan Kew <jonathan_kew@sil.org>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -548,7 +548,9 @@ Plugin::~Plugin() {
 // parsing
 //------------------------------------------------------------------------
 
-GlobalParams::GlobalParams() {
+GlobalParams::GlobalParams(const char *customPopplerDataDir)
+  : popplerDataDir(customPopplerDataDir)
+{
   UnicodeMap *map;
   int i;
 
@@ -673,8 +675,14 @@ GlobalParams::GlobalParams() {
 void GlobalParams::scanEncodingDirs() {
   GDir *dir;
   GDirEntry *entry;
-
-  dir = new GDir(POPPLER_DATADIR "/nameToUnicode", gTrue);
+  const char *dataRoot = popplerDataDir ? popplerDataDir : POPPLER_DATADIR;
+  
+  // allocate buffer large enough to append "/nameToUnicode"
+  size_t bufSize = strlen(dataRoot) + strlen("/nameToUnicode") + 1;
+  char *dataPathBuffer = new char[bufSize];
+  
+  snprintf(dataPathBuffer, bufSize, "%s/nameToUnicode", dataRoot);
+  dir = new GDir(dataPathBuffer, gTrue);
   while (entry = dir->getNextEntry(), entry != NULL) {
     if (!entry->isDir()) {
       parseNameToUnicode(entry->getFullPath());
@@ -683,27 +691,32 @@ void GlobalParams::scanEncodingDirs() {
   }
   delete dir;
 
-  dir = new GDir(POPPLER_DATADIR "/cidToUnicode", gFalse);
+  snprintf(dataPathBuffer, bufSize, "%s/cidToUnicode", dataRoot);
+  dir = new GDir(dataPathBuffer, gFalse);
   while (entry = dir->getNextEntry(), entry != NULL) {
     addCIDToUnicode(entry->getName(), entry->getFullPath());
     delete entry;
   }
   delete dir;
 
-  dir = new GDir(POPPLER_DATADIR "/unicodeMap", gFalse);
+  snprintf(dataPathBuffer, bufSize, "%s/unicodeMap", dataRoot);
+  dir = new GDir(dataPathBuffer, gFalse);
   while (entry = dir->getNextEntry(), entry != NULL) {
     addUnicodeMap(entry->getName(), entry->getFullPath());
     delete entry;
   }
   delete dir;
 
-  dir = new GDir(POPPLER_DATADIR "/cMap", gFalse);
+  snprintf(dataPathBuffer, bufSize, "%s/cMap", dataRoot);
+  dir = new GDir(dataPathBuffer, gFalse);
   while (entry = dir->getNextEntry(), entry != NULL) {
     addCMapDir(entry->getName(), entry->getFullPath());
     toUnicodeDirs->append(entry->getFullPath()->copy());
     delete entry;
   }
   delete dir;
+  
+  delete[] dataPathBuffer;
 }
 
 void GlobalParams::parseNameToUnicode(GooString *name) {
