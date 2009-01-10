@@ -453,6 +453,7 @@ GooString *Catalog::getJS(int i)
     obj.free();
     return 0;
   }
+  obj2.free();
   obj.dictLookup("JS", &obj2);
   GooString *js = 0;
   if (obj2.isString()) {
