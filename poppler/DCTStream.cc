@@ -156,7 +156,7 @@ int DCTStream::getChar() {
     {
       if (!jpeg_read_scanlines(&cinfo, row_buffer, 1)) return EOF;
       current = &row_buffer[0][0];
-      limit = &row_buffer[0][cinfo.output_width * cinfo.output_components];
+      limit = &row_buffer[0][(cinfo.output_width - 1) * cinfo.output_components] + cinfo.output_components;
     }
     else return EOF;
   }
