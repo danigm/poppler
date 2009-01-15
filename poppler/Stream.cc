@@ -447,8 +447,9 @@ Guchar *ImageStream::getLine() {
       imgLine[i+7] = (Guchar)(c & 1);
     }
   } else if (nBits == 8) {
+    Guchar *line = imgLine;
     for (i = 0; i < nVals; ++i) {
-      imgLine[i] = str->getChar();
+      *line++ = str->getChar();
     }
   } else if (nBits == 16) {
     // this is a hack to support 16 bits images, everywhere

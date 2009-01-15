@@ -68,7 +68,8 @@ public:
 private:
   void init();
 
-  unsigned int x;
+  JSAMPLE *current;
+  JSAMPLE *limit;
   struct jpeg_decompress_struct cinfo;
   struct jpeg_error_mgr jerr;
   struct str_src_mgr src;
