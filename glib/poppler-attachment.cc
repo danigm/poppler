@@ -187,7 +187,7 @@ poppler_attachment_save (PopplerAttachment  *attachment,
 
 /**
  * poppler_attachment_save_to_callback:
- * @attachment: A #GdkPixbuf.
+ * @attachment: A #PopplerAttachment.
  * @save_func: a function that is called to save each block of data that the save routine generates.
  * @user_data: user data to pass to the save function.
  * @error: return location for error, or %NULL.

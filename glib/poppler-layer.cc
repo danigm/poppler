@@ -171,6 +171,7 @@ poppler_layer_hide (PopplerLayer *poppler_layer)
 
 /**
  * poppler_layer_is_parent
+ * @layer: a #PopplerLayer
  *
  * Returns whether @layer is parent of other nested layers.
  *
@@ -186,6 +187,7 @@ poppler_layer_is_parent (PopplerLayer *poppler_layer)
 
 /**
  * poppler_layer_get_radio_button_group_id
+ * @layer: a #PopplerLayer
  *
  * Returns the numeric ID the radio button group associated with @layer.
  *
