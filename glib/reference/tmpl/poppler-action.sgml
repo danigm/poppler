@@ -1,8 +1,8 @@
 <!-- ##### SECTION Title ##### -->
-poppler-action
+PopplerAction
 
 <!-- ##### SECTION Short_Description ##### -->
-
+Action links
 
 <!-- ##### SECTION Long_Description ##### -->
 <para>
@@ -109,6 +109,11 @@ poppler-action
 
 @type: 
 @title: 
+@operation: 
+@has_annotation_ref: 
+@has_annotation_title: 
+@annotation_title: 
+@annotation_id: 
 
 <!-- ##### STRUCT PopplerDest ##### -->
 <para>
