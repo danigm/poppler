@@ -1573,7 +1573,7 @@ void GfxICCBasedColorSpace::getRGBLine(Guchar *in, unsigned int *out,
 	Guchar tmp[gfxColorMaxComps];
 
 	lineTransform->doTransform(in,tmp,1);
-	in += 3;
+	in += nComps;
 	out[i] = (tmp[0] << 16) | (tmp[1] << 8) | tmp[2];
     }
   } else {
