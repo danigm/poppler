@@ -1410,6 +1410,12 @@ GfxColorSpace *GfxICCBasedColorSpace::parse(Array *arr) {
     iccProfileStreamA.gen = 0;
   }
   obj1.free();
+#ifdef USE_CMS
+  // check cache
+  if (iccProfileStreamA.num > 0
+     && (cs = GfxICCBasedCache::lookup(iccProfileStreamA.num,
+          iccProfileStreamA.gen)) != NULL) return cs;
+#endif
   arr->get(1, &obj1);
   if (!obj1.isStream()) {
     error(-1, "Bad ICCBased color space (stream)");
@@ -1516,6 +1522,10 @@ GfxColorSpace *GfxICCBasedColorSpace::parse(Array *arr) {
     cmsCloseProfile(hp);
   }
   obj1.free();
+  // put this colorSpace into cache
+  if (iccProfileStreamA.num > 0) {
+    GfxICCBasedCache::put(iccProfileStreamA.num,iccProfileStreamA.gen,cs);
+  }
 #endif
   return cs;
 }
@@ -1653,6 +1663,56 @@ void GfxICCBasedColorSpace::getDefaultRanges(double *decodeLow,
   }
 #endif
 }
+
+#ifdef USE_CMS
+GfxICCBasedCache
+   GfxICCBasedCache::cache[GFX_ICCBASED_CACHE_SIZE];
+
+GfxICCBasedCache::GfxICCBasedCache()
+{
+  num = 0;
+  gen = 0;
+  colorSpace = 0;
+}
+
+GfxICCBasedColorSpace *GfxICCBasedCache::lookup(int numA, int genA)
+{
+  int i;
+
+  if (cache[0].num == numA && cache[0].gen == genA) {
+    return (GfxICCBasedColorSpace *)cache[0].colorSpace->copy();
+  }
+  for (i = 1;i < GFX_ICCBASED_CACHE_SIZE && cache[i].num > 0;i++) {
+    if (cache[i].num == numA && cache[i].gen == genA) {
+      int j;
+      GfxICCBasedCache hit = cache[i];
+
+      for (j = 0;j < i;j++) {
+	cache[j+1] = cache[j];
+      }
+      cache[0] = hit;
+      return (GfxICCBasedColorSpace *)hit.colorSpace->copy();
+    }
+  }
+  return NULL;
+}
+
+void GfxICCBasedCache::put(int numA, int genA,
+  GfxICCBasedColorSpace *cs)
+{
+  int i;
+
+  if (cache[GFX_ICCBASED_CACHE_SIZE-1].num > 0) {
+    delete cache[GFX_ICCBASED_CACHE_SIZE-1].colorSpace;
+  }
+  for (i = 0;i < GFX_ICCBASED_CACHE_SIZE-1 && cache[i].num > 0;i++) {
+    cache[i+1] = cache[i];
+  }
+  cache[0].num = numA;
+  cache[0].gen = genA;
+  cache[0].colorSpace = (GfxICCBasedColorSpace *)cs->copy();
+}
+#endif
 
 //------------------------------------------------------------------------
 // GfxIndexedColorSpace

@@ -497,6 +497,21 @@ private:
 #endif
 };
 
+#ifdef USE_CMS
+#define GFX_ICCBASED_CACHE_SIZE 5
+class GfxICCBasedCache {
+public:
+  static GfxICCBasedColorSpace *lookup(int numA, int genA);
+  static void put(int numA, int genA, GfxICCBasedColorSpace *cs);
+private:
+  GfxICCBasedCache();
+  int num;
+  int gen;
+  GfxICCBasedColorSpace *colorSpace;
+  static GfxICCBasedCache cache[GFX_ICCBASED_CACHE_SIZE];
+};
+#endif
+
 //------------------------------------------------------------------------
 // GfxIndexedColorSpace
 //------------------------------------------------------------------------
