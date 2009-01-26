@@ -13,7 +13,7 @@
 // All changes made under the Poppler project to this file are licensed
 // under GPL version 2 or later
 //
-// Copyright (C) 2006, 2008 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2006, 2008, 2009 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2006 Jeff Muizelaar <jeff@infidigm.net>
 //
 // To see a description of the changes please see the Changelog file that
@@ -862,6 +862,7 @@ class PSStack {
 public:
 
   PSStack() { sp = psStackSize; }
+  void clear() { sp = psStackSize; }
   void pushBool(GBool booln);
   void pushInt(int intg);
   void pushReal(double real);
@@ -1063,6 +1064,8 @@ PostScriptFunction::PostScriptFunction(Object *funcObj, Dict *dict) {
   str->close();
 
   ok = gTrue;
+  
+  stack = new PSStack();
 
  err2:
   str->close();
@@ -1075,18 +1078,20 @@ PostScriptFunction::PostScriptFunction(PostScriptFunction *func) {
   code = (PSObject *)gmallocn(codeSize, sizeof(PSObject));
   memcpy(code, func->code, codeSize * sizeof(PSObject));
   codeString = func->codeString->copy();
+  stack = new PSStack();
+  memcpy(stack, func->stack, sizeof(PSStack));
 }
 
 PostScriptFunction::~PostScriptFunction() {
   gfree(code);
   delete codeString;
+  delete stack;
 }
 
 void PostScriptFunction::transform(double *in, double *out) {
-  PSStack *stack;
   int i;
 
-  stack = new PSStack();
+  stack->clear();
   for (i = 0; i < m; ++i) {
     //~ may need to check for integers here
     stack->pushReal(in[i]);
@@ -1103,7 +1108,6 @@ void PostScriptFunction::transform(double *in, double *out) {
   // if (!stack->empty()) {
   //   error(-1, "Extra values on stack at end of PostScript function");
   // }
-  delete stack;
 }
 
 GBool PostScriptFunction::parseCode(Stream *str, int *codePtr) {
