@@ -130,7 +130,8 @@ void ImageOutputDev::drawImage(GfxState *state, Object *ref, Stream *str,
 
   // dump JPEG file
   if (dumpJPEG && str->getKind() == strDCT &&
-      colorMap->getNumPixelComps() == 3 &&
+      (colorMap->getNumPixelComps() == 1 ||
+       colorMap->getNumPixelComps() == 3) &&
       !inlineImg) {
 
     // open the image file
