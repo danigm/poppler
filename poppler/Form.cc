@@ -449,7 +449,9 @@ void FormWidgetChoice::loadDefaults ()
         obj3.free();
         obj4.free();
       } else {
-        error(-1, "FormWidgetChoice:: invalid Opt entry\n");
+        error(-1, "FormWidgetChoice:: invalid %d Opt entry\n", i);
+        parent->_setChoiceExportVal(i, new GooString(""));
+        parent->_setChoiceOptionName(i, new GooString(""));
       }
       obj2.free();
     }
