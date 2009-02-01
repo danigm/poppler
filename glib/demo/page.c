@@ -148,7 +148,7 @@ pgd_page_set_page (PgdPageDemo *demo,
 		gdouble width, height;
 
 		poppler_page_get_size (page, &width, &height);
-		str = g_strdup_printf ("%.f2 x %.f2", width, height);
+		str = g_strdup_printf ("%.2f x %.2f", width, height);
 		gtk_label_set_text (GTK_LABEL (demo->size), str);
 		g_free (str);
 	} else {
