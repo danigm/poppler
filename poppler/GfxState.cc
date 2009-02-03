@@ -16,7 +16,7 @@
 // Copyright (C) 2005 Kristian Høgsberg <krh@redhat.com>
 // Copyright (C) 2006, 2007 Jeff Muizelaar <jeff@infidigm.net>
 // Copyright (C) 2006 Carlos Garcia Campos <carlosgc@gnome.org>
-// Copyright (C) 2006-2008 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2006-2009 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2009 Koji Otani <sho@bbr.jp>
 //
 // To see a description of the changes please see the Changelog file that
@@ -1687,8 +1687,8 @@ GfxICCBasedColorSpace *GfxICCBasedCache::lookup(int numA, int genA)
       int j;
       GfxICCBasedCache hit = cache[i];
 
-      for (j = 0;j < i;j++) {
-	cache[j+1] = cache[j];
+      for (j = i;j > 0;j--) {
+	if (cache[j - 1].num > 0) cache[j] = cache[j-1];
       }
       cache[0] = hit;
       return (GfxICCBasedColorSpace *)hit.colorSpace->copy();
@@ -1705,8 +1705,8 @@ void GfxICCBasedCache::put(int numA, int genA,
   if (cache[GFX_ICCBASED_CACHE_SIZE-1].num > 0) {
     delete cache[GFX_ICCBASED_CACHE_SIZE-1].colorSpace;
   }
-  for (i = 0;i < GFX_ICCBASED_CACHE_SIZE-1 && cache[i].num > 0;i++) {
-    cache[i+1] = cache[i];
+  for (i = GFX_ICCBASED_CACHE_SIZE; i > 0; i--) {
+    if (cache[i - 1].num > 0) cache[i] = cache[i - 1];
   }
   cache[0].num = numA;
   cache[0].gen = genA;
