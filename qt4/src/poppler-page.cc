@@ -89,9 +89,9 @@ Link* PageData::convertLinkActionToLink(::LinkAction * a, DocumentData *parentDo
     {
       LinkGoToR * g = (LinkGoToR *) a;
       // copy link file
-      const char * fileName = g->getFileName()->getCString();
+      const QString fileName = UnicodeParsedString( g->getFileName() );
       // ceate link: fileName, namedDest, object pointer
-      popplerLink = new LinkGoto( linkArea, (QString)fileName, LinkDestination( LinkDestinationData(g->getDest(), g->getNamedDest(), parentDoc ) ) );
+      popplerLink = new LinkGoto( linkArea, fileName, LinkDestination( LinkDestinationData(g->getDest(), g->getNamedDest(), parentDoc ) ) );
     }
     break;
 
