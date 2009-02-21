@@ -1771,18 +1771,9 @@ poppler_page_free_annot_mapping (GList *list)
 
 /* PopplerRectangle type */
 
-GType
-poppler_rectangle_get_type (void)
-{
-  static GType our_type = 0;
-
-  if (G_UNLIKELY (our_type == 0))
-    our_type = g_boxed_type_register_static ("PopplerRectangle",
-					     (GBoxedCopyFunc) poppler_rectangle_copy,
-					     (GBoxedFreeFunc) poppler_rectangle_free);
-
-  return our_type;
-}
+POPPLER_DEFINE_BOXED_TYPE (PopplerRectangle, poppler_rectangle,
+			   poppler_rectangle_copy,
+			   poppler_rectangle_free)
 
 PopplerRectangle *
 poppler_rectangle_new (void)
@@ -1810,18 +1801,7 @@ poppler_rectangle_free (PopplerRectangle *rectangle)
 }
 
 /* PopplerColor type */
-GType
-poppler_color_get_type (void)
-{
-  static GType our_type = 0;
-
-  if (G_UNLIKELY (our_type == 0))
-    our_type = g_boxed_type_register_static ("PopplerColor",
-					     (GBoxedCopyFunc) poppler_color_copy,
-					     (GBoxedFreeFunc) poppler_color_free);
-
-  return our_type;
-}
+POPPLER_DEFINE_BOXED_TYPE (PopplerColor, poppler_color, poppler_color_copy, poppler_color_free)
 
 PopplerColor *
 poppler_color_new (void)
@@ -1847,18 +1827,9 @@ poppler_color_free (PopplerColor *color)
 }
 
 /* PopplerLinkMapping type */
-GType
-poppler_link_mapping_get_type (void)
-{
-  static GType our_type = 0;
-
-  if (G_UNLIKELY (our_type == 0))
-    our_type = g_boxed_type_register_static ("PopplerLinkMapping",
-					     (GBoxedCopyFunc) poppler_link_mapping_copy,
-					     (GBoxedFreeFunc) poppler_link_mapping_free);
-
-  return our_type;
-}
+POPPLER_DEFINE_BOXED_TYPE (PopplerLinkMapping, poppler_link_mapping,
+			   poppler_link_mapping_copy,
+			   poppler_link_mapping_free)
 
 PopplerLinkMapping *
 poppler_link_mapping_new (void)
@@ -1890,18 +1861,9 @@ poppler_link_mapping_free (PopplerLinkMapping *mapping)
 }
 
 /* Poppler Image mapping type */
-GType
-poppler_image_mapping_get_type (void)
-{
-  static GType our_type = 0;
-
-  if (G_UNLIKELY (our_type == 0))
-    our_type = g_boxed_type_register_static ("PopplerImageMapping",
-					     (GBoxedCopyFunc) poppler_image_mapping_copy,
-					     (GBoxedFreeFunc) poppler_image_mapping_free);
-
-  return our_type;
-}
+POPPLER_DEFINE_BOXED_TYPE (PopplerImageMapping, poppler_image_mapping,
+			   poppler_image_mapping_copy,
+			   poppler_image_mapping_free)
 
 PopplerImageMapping *
 poppler_image_mapping_new (void)
@@ -1928,16 +1890,9 @@ poppler_image_mapping_free (PopplerImageMapping *mapping)
 }
 
 /* Page Transition */
-GType
-poppler_page_transition_get_type (void)
-{
-  static GType our_type = 0;
-  if (G_UNLIKELY (our_type == 0))
-    our_type = g_boxed_type_register_static("PopplerPageTransition",
-					    (GBoxedCopyFunc) poppler_page_transition_copy,
-					    (GBoxedFreeFunc) poppler_page_transition_free);
-  return our_type;
-}
+POPPLER_DEFINE_BOXED_TYPE (PopplerPageTransition, poppler_page_transition,
+			   poppler_page_transition_copy,
+			   poppler_page_transition_free)
 
 PopplerPageTransition *
 poppler_page_transition_new (void)
@@ -1963,16 +1918,9 @@ poppler_page_transition_free (PopplerPageTransition *transition)
 }
 
 /* Form Field Mapping Type */
-GType
-poppler_form_field_mapping_get_type (void)
-{
-  static GType our_type = 0;
-  if (G_UNLIKELY (our_type == 0))
-    our_type = g_boxed_type_register_static("PopplerFormFieldMapping",
-					    (GBoxedCopyFunc) poppler_form_field_mapping_copy,
-					    (GBoxedFreeFunc) poppler_form_field_mapping_free);
-  return our_type;
-}
+POPPLER_DEFINE_BOXED_TYPE (PopplerFormFieldMapping, poppler_form_field_mapping,
+			   poppler_form_field_mapping_copy,
+			   poppler_form_field_mapping_free)
 
 PopplerFormFieldMapping *
 poppler_form_field_mapping_new (void)
@@ -2007,18 +1955,9 @@ poppler_form_field_mapping_free (PopplerFormFieldMapping *mapping)
 }
 
 /* PopplerAnnot Mapping Type */
-GType
-poppler_annot_mapping_get_type (void)
-{
-  static GType our_type = 0;
-
-  if (our_type == 0)
-    our_type = g_boxed_type_register_static ("PopplerAnnotMapping",
-					     (GBoxedCopyFunc) poppler_annot_mapping_copy,
-					     (GBoxedFreeFunc) poppler_annot_mapping_free);
-
-  return our_type;
-}
+POPPLER_DEFINE_BOXED_TYPE (PopplerAnnotMapping, poppler_annot_mapping,
+			   poppler_annot_mapping_copy,
+			   poppler_annot_mapping_free)
 
 PopplerAnnotMapping *
 poppler_annot_mapping_new (void)

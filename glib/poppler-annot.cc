@@ -697,18 +697,9 @@ poppler_annot_free_text_get_callout_line (PopplerAnnotFreeText *poppler_annot)
 }
 
 /* PopplerAnnotCalloutLine */
-GType
-poppler_annot_callout_line_get_type (void)
-{
-  static GType our_type = 0;
-
-  if (our_type == 0)
-    our_type = g_boxed_type_register_static ("PopplerAnnotCalloutLine",
-                                             (GBoxedCopyFunc) poppler_annot_callout_line_copy,
-                                             (GBoxedFreeFunc) poppler_annot_callout_line_free);
-
-  return our_type;
-}
+POPPLER_DEFINE_BOXED_TYPE (PopplerAnnotCalloutLine, poppler_annot_callout_line,
+			   poppler_annot_callout_line_copy,
+			   poppler_annot_callout_line_free)
 
 /**
  * poppler_annot_callout_line_new:

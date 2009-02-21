@@ -874,18 +874,9 @@ struct _PopplerIndexIter
 };
 
 
-GType
-poppler_index_iter_get_type (void)
-{
-  static GType our_type = 0;
-
-  if (our_type == 0)
-    our_type = g_boxed_type_register_static ("PopplerIndexIter",
-					     (GBoxedCopyFunc) poppler_index_iter_copy,
-					     (GBoxedFreeFunc) poppler_index_iter_free);
-
-  return our_type;
-}
+POPPLER_DEFINE_BOXED_TYPE (PopplerIndexIter, poppler_index_iter,
+			   poppler_index_iter_copy,
+			   poppler_index_iter_free)
 
 /**
  * poppler_index_iter_copy:
@@ -1122,18 +1113,9 @@ struct _PopplerFontsIter
 	int index;
 };
 
-GType
-poppler_fonts_iter_get_type (void)
-{
-  static GType our_type = 0;
-
-  if (our_type == 0)
-    our_type = g_boxed_type_register_static ("PopplerFontsIter",
-					     (GBoxedCopyFunc) poppler_fonts_iter_copy,
-					     (GBoxedFreeFunc) poppler_fonts_iter_free);
-
-  return our_type;
-}
+POPPLER_DEFINE_BOXED_TYPE (PopplerFontsIter, poppler_fonts_iter,
+			   poppler_fonts_iter_copy,
+			   poppler_fonts_iter_free)
 
 const char *
 poppler_fonts_iter_get_full_name (PopplerFontsIter *iter)
@@ -1557,17 +1539,9 @@ struct _PopplerLayersIter {
   int index;
 };
 
-GType
-poppler_layers_iter_get_type (void)
-{
-  static GType our_type = 0;
-
-  if (our_type == 0)
-    our_type = g_boxed_type_register_static ("PopplerLayersIter",
-					     (GBoxedCopyFunc) poppler_layers_iter_copy,
-					     (GBoxedFreeFunc) poppler_layers_iter_free);
-  return our_type;
-}
+POPPLER_DEFINE_BOXED_TYPE (PopplerLayersIter, poppler_layers_iter,
+			   poppler_layers_iter_copy,
+			   poppler_layers_iter_free)
 
 /**
  * poppler_layers_iter_copy:
