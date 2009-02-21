@@ -27,38 +27,21 @@ stamp_files = stamp-poppler-enums.h
 
 poppler-enums.h: stamp-poppler-enums.h
 	@true
-stamp-poppler-enums.h: $(poppler_glib_public_headers)
-	( cd $(srcdir) && $(GLIB_MKENUMS) \
-		--fhead "#ifndef __POPPLER_TYPE_ENUMS_H__\n" \
-		--fhead "#define __POPPLER_TYPE_ENUMS_H__ 1\n\n" \
-		--fhead "#include <glib-object.h>\n\n" \
-		--fhead "G_BEGIN_DECLS\n\n" \
-		--ftail "G_END_DECLS\n\n" \
-		--ftail "#endif /* __POPPLER_TYPE_ENUMS_H__ */\n" \
-		--fprod "\n/* --- @filename@ --- */" \
-		--eprod "#define POPPLER_TYPE_@ENUMSHORT@ (@enum_name@_get_type())\n" \
-		--eprod "GType @enum_name@_get_type (void) G_GNUC_CONST;\n" \
-		$(poppler_glib_public_headers) ) > xgen-$(@F) \
-	&& ( cmp -s xgen-$(@F) $(@F:stamp-%=%) || cp xgen-$(@F) $(@F:stamp-%=%) ) \
-	&& rm -f xgen-$(@F) \
+
+stamp-poppler-enums.h: poppler-enums.h.template $(poppler_glib_public_headers)
+	$(GLIB_MKENUMS) --template $< $(filter-out $<,$^) > xgen-etbh \
+	&& (cmp -s xgen-etbh poppler-enums.h || cp xgen-etbh poppler-enums.h ) \
+	&& rm -f xgen-etbh \
 	&& echo timestamp > $(@F)
 
-poppler-enums.c: $(poppler_glib_public_headers)
-	( cd $(srcdir) && $(GLIB_MKENUMS) \
-		--fhead "#include \"poppler-enums.h\"\n\n" \
-		--fprod "\n/* enumerations from \"@filename@\" */" \
-		--fprod "\n#include \"@filename@\"" \
-		--vhead "static const G@Type@Value _@enum_name@_values[] = {" \
-		--vprod "  { @VALUENAME@, \"@VALUENAME@\", \"@valuenick@\" }," \
-		--vtail "  { 0, NULL, NULL }\n};\n\n" \
-		--vtail "GType\n@enum_name@_get_type (void)\n{\n" \
-		--vtail "  static GType type = 0;\n\n" \
-		--vtail "  if (G_UNLIKELY (type == 0))\n" \
-		--vtail "    type = g_@type@_register_static (\"@EnumName@\", _@enum_name@_values);\n\n" \
-		--vtail "  return type;\n}\n\n" \
-		$(poppler_glib_public_headers) ) > xgen-$(@F) \
-	&& ( cmp -s xgen-$(@F) $(@F) || cp xgen-$(@F) $(@F) ) \
-	&& rm -f xgen-$(@F)
+poppler-enums.c: poppler-enums.c.template $(poppler_glib_public_headers)
+	$(GLIB_MKENUMS) --template $< $(filter-out $<,$^) > xgen-etbc \
+	&& (cmp -s xgen-etbc poppler-enums.c || cp xgen-etbc poppler-enums.c ) \
+	&& rm -f xgen-etbc
+
+EXTRA_DIST = \
+	poppler-enums.h.template	\
+	poppler-enums.c.template
 
 poppler_glib_public_headers =			\
 	poppler-action.h			\
