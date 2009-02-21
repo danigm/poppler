@@ -299,8 +299,7 @@ build_goto_remote (PopplerAction *action,
 		return;
 	}
 
-	if (link->getFileName()->getCString ())
-		action->goto_remote.file_name = g_strdup (link->getFileName()->getCString ());
+	action->goto_remote.file_name = _poppler_goo_string_to_utf8 (link->getFileName());
 
 	link_dest = link->getDest ();
 	named_dest = link->getNamedDest ();
