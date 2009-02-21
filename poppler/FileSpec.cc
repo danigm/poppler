@@ -75,13 +75,13 @@ GBool getFileSpecNameForPlatform (Object *fileSpec, Object *fileName)
     if (!fileSpec->dictLookup("Unix", &obj1)->isString()) {
 #endif
       obj1.free();
-      fileSpec->dictLookup("F", &obj1);
-    }
-    
-    if (obj1.isString()) {
-       name = obj1.getString()->copy();
-    } else {
-      error(-1, "Illegal file spec in link");
+      if (fileSpec->dictLookup("UF", &obj1)->isString ()) {
+        name = obj1.getString()->copy();
+      } else if (fileSpec->dictLookup("F", &obj1)->isString ()) {
+        name = obj1.getString()->copy();
+      } else {
+        error(-1, "Illegal file spec in link");
+      }
     }
     obj1.free();
 
