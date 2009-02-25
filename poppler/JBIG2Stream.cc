@@ -684,6 +684,7 @@ public:
   void combine(JBIG2Bitmap *bitmap, int x, int y, Guint combOp);
   Guchar *getDataPtr() { return data; }
   int getDataSize() { return h * line; }
+  GBool isOk() { return data != NULL; }
 
 private:
 
@@ -2074,18 +2075,20 @@ void JBIG2Stream::readTextRegionSeg(Guint segNum, GBool imm,
 
   gfree(syms);
 
-  // combine the region bitmap into the page bitmap
-  if (imm) {
-    if (pageH == 0xffffffff && y + h > curPageH) {
-      pageBitmap->expand(y + h, pageDefPixel);
-    }
-    pageBitmap->combine(bitmap, x, y, extCombOp);
-    delete bitmap;
+  if (bitmap) {
+    // combine the region bitmap into the page bitmap
+    if (imm) {
+      if (pageH == 0xffffffff && y + h > curPageH) {
+        pageBitmap->expand(y + h, pageDefPixel);
+      }
+      pageBitmap->combine(bitmap, x, y, extCombOp);
+      delete bitmap;
 
-  // store the region bitmap
-  } else {
-    bitmap->setSegNum(segNum);
-    segments->append(bitmap);
+    // store the region bitmap
+    } else {
+      bitmap->setSegNum(segNum);
+      segments->append(bitmap);
+    }
   }
 
   // clean up the Huffman decoder
@@ -2207,73 +2210,84 @@ JBIG2Bitmap *JBIG2Stream::readTextRegion(GBool huff, GBool refine,
 	  ri = 0;
 	}
 	if (ri) {
+	  GBool decodeSuccess;
 	  if (huff) {
-	    huffDecoder->decodeInt(&rdw, huffRDWTable);
-	    huffDecoder->decodeInt(&rdh, huffRDHTable);
-	    huffDecoder->decodeInt(&rdx, huffRDXTable);
-	    huffDecoder->decodeInt(&rdy, huffRDYTable);
-	    huffDecoder->decodeInt(&bmSize, huffRSizeTable);
+	    decodeSuccess = huffDecoder->decodeInt(&rdw, huffRDWTable);
+	    decodeSuccess = decodeSuccess && huffDecoder->decodeInt(&rdh, huffRDHTable);
+	    decodeSuccess = decodeSuccess && huffDecoder->decodeInt(&rdx, huffRDXTable);
+	    decodeSuccess = decodeSuccess && huffDecoder->decodeInt(&rdy, huffRDYTable);
+	    decodeSuccess = decodeSuccess && huffDecoder->decodeInt(&bmSize, huffRSizeTable);
 	    huffDecoder->reset();
 	    arithDecoder->start();
 	  } else {
-	    arithDecoder->decodeInt(&rdw, iardwStats);
-	    arithDecoder->decodeInt(&rdh, iardhStats);
-	    arithDecoder->decodeInt(&rdx, iardxStats);
-	    arithDecoder->decodeInt(&rdy, iardyStats);
+	    decodeSuccess = arithDecoder->decodeInt(&rdw, iardwStats);
+	    decodeSuccess = decodeSuccess && arithDecoder->decodeInt(&rdh, iardhStats);
+	    decodeSuccess = decodeSuccess && arithDecoder->decodeInt(&rdx, iardxStats);
+	    decodeSuccess = decodeSuccess && arithDecoder->decodeInt(&rdy, iardyStats);
 	  }
-	  refDX = ((rdw >= 0) ? rdw : rdw - 1) / 2 + rdx;
-	  refDY = ((rdh >= 0) ? rdh : rdh - 1) / 2 + rdy;
+	  
+	  if (decodeSuccess)
+	  {
+	    refDX = ((rdw >= 0) ? rdw : rdw - 1) / 2 + rdx;
+	    refDY = ((rdh >= 0) ? rdh : rdh - 1) / 2 + rdy;
 
-	  symbolBitmap =
-	    readGenericRefinementRegion(rdw + syms[symID]->getWidth(),
-					rdh + syms[symID]->getHeight(),
-					templ, gFalse, syms[symID],
-					refDX, refDY, atx, aty);
+	    symbolBitmap =
+	      readGenericRefinementRegion(rdw + syms[symID]->getWidth(),
+					  rdh + syms[symID]->getHeight(),
+					  templ, gFalse, syms[symID],
+					  refDX, refDY, atx, aty);
+	  }
 	  //~ do we need to use the bmSize value here (in Huffman mode)?
 	} else {
 	  symbolBitmap = syms[symID];
 	}
 
-	// combine the symbol bitmap into the region bitmap
-	//~ something is wrong here - refCorner shouldn't degenerate into
-	//~   two cases
-	bw = symbolBitmap->getWidth() - 1;
-	bh = symbolBitmap->getHeight() - 1;
-	if (transposed) {
-	  switch (refCorner) {
-	  case 0: // bottom left
-	    bitmap->combine(symbolBitmap, tt, s, combOp);
-	    break;
-	  case 1: // top left
-	    bitmap->combine(symbolBitmap, tt, s, combOp);
-	    break;
-	  case 2: // bottom right
-	    bitmap->combine(symbolBitmap, tt - bw, s, combOp);
-	    break;
-	  case 3: // top right
-	    bitmap->combine(symbolBitmap, tt - bw, s, combOp);
-	    break;
+	if (symbolBitmap) {
+	  // combine the symbol bitmap into the region bitmap
+	  //~ something is wrong here - refCorner shouldn't degenerate into
+	  //~   two cases
+	  bw = symbolBitmap->getWidth() - 1;
+	  bh = symbolBitmap->getHeight() - 1;
+	  if (transposed) {
+	    switch (refCorner) {
+	    case 0: // bottom left
+	      bitmap->combine(symbolBitmap, tt, s, combOp);
+	      break;
+	    case 1: // top left
+	      bitmap->combine(symbolBitmap, tt, s, combOp);
+	      break;
+	    case 2: // bottom right
+	      bitmap->combine(symbolBitmap, tt - bw, s, combOp);
+	      break;
+	    case 3: // top right
+	      bitmap->combine(symbolBitmap, tt - bw, s, combOp);
+	      break;
+	    }
+	    s += bh;
+	  } else {
+	    switch (refCorner) {
+	    case 0: // bottom left
+	      bitmap->combine(symbolBitmap, s, tt - bh, combOp);
+	      break;
+	    case 1: // top left
+	      bitmap->combine(symbolBitmap, s, tt, combOp);
+	      break;
+	    case 2: // bottom right
+	      bitmap->combine(symbolBitmap, s, tt - bh, combOp);
+	      break;
+	    case 3: // top right
+	      bitmap->combine(symbolBitmap, s, tt, combOp);
+	      break;
+	    }
+	    s += bw;
 	  }
-	  s += bh;
+	  if (ri) {
+	    delete symbolBitmap;
+	  }
 	} else {
-	  switch (refCorner) {
-	  case 0: // bottom left
-	    bitmap->combine(symbolBitmap, s, tt - bh, combOp);
-	    break;
-	  case 1: // top left
-	    bitmap->combine(symbolBitmap, s, tt, combOp);
-	    break;
-	  case 2: // bottom right
-	    bitmap->combine(symbolBitmap, s, tt - bh, combOp);
-	    break;
-	  case 3: // top right
-	    bitmap->combine(symbolBitmap, s, tt, combOp);
-	    break;
-	  }
-	  s += bw;
-	}
-	if (ri) {
-	  delete symbolBitmap;
+	  // NULL symbolBitmap only happens on error
+	  delete bitmap;
+	  return NULL;
 	}
       }
 
@@ -3052,6 +3066,11 @@ JBIG2Bitmap *JBIG2Stream::readGenericRefinementRegion(int w, int h,
   int x, y, pix;
 
   bitmap = new JBIG2Bitmap(0, w, h);
+  if (!bitmap->isOk())
+  {
+    delete bitmap;
+    return NULL;
+  }
   bitmap->clearToZero();
 
   // set up the typical row context
