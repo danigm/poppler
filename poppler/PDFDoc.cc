@@ -462,14 +462,14 @@ GBool PDFDoc::isLinearized() {
   return lin;
 }
 
-GBool PDFDoc::saveAs(GooString *name, PDFWriteMode mode) {
+int PDFDoc::saveAs(GooString *name, PDFWriteMode mode) {
   FILE *f;
   OutStream *outStr;
-  GBool res;
+  int res;
 
   if (!(f = fopen(name->getCString(), "wb"))) {
     error(-1, "Couldn't open file '%s'", name->getCString());
-    return gFalse;
+    return errOpenFile;
   }
   outStr = new FileOutStream(f,0);
   res = saveAs(outStr, mode);
@@ -478,7 +478,7 @@ GBool PDFDoc::saveAs(GooString *name, PDFWriteMode mode) {
   return res;
 }
 
-GBool PDFDoc::saveAs(OutStream *outStr, PDFWriteMode mode) {
+int PDFDoc::saveAs(OutStream *outStr, PDFWriteMode mode) {
 
   // we don't support files with Encrypt at the moment
   Object obj;
@@ -486,7 +486,7 @@ GBool PDFDoc::saveAs(OutStream *outStr, PDFWriteMode mode) {
   if (!obj.isNull())
   {
     obj.free();
-    return gFalse;
+    return errEncrypted;
   }
   obj.free();
 
@@ -511,17 +511,17 @@ GBool PDFDoc::saveAs(OutStream *outStr, PDFWriteMode mode) {
     }
   }
 
-  return gTrue;
+  return errNone;
 }
 
-GBool PDFDoc::saveWithoutChangesAs(GooString *name) {
+int PDFDoc::saveWithoutChangesAs(GooString *name) {
   FILE *f;
   OutStream *outStr;
-  GBool res;
+  int res;
 
   if (!(f = fopen(name->getCString(), "wb"))) {
     error(-1, "Couldn't open file '%s'", name->getCString());
-    return gFalse;
+    return errOpenFile;
   }
   
   outStr = new FileOutStream(f,0);
@@ -533,7 +533,7 @@ GBool PDFDoc::saveWithoutChangesAs(GooString *name) {
   return res;
 }
 
-GBool PDFDoc::saveWithoutChangesAs(OutStream *outStr) {
+int PDFDoc::saveWithoutChangesAs(OutStream *outStr) {
   int c;
   
   str->reset();
@@ -542,7 +542,7 @@ GBool PDFDoc::saveWithoutChangesAs(OutStream *outStr) {
   }
   str->close();
 
-  return gTrue;
+  return errNone;
 }
 
 void PDFDoc::saveIncrementalUpdate (OutStream* outStr)

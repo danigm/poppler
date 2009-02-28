@@ -197,13 +197,13 @@ public:
   double getPDFVersion() { return pdfVersion; }
 
   // Save this file with another name.
-  GBool saveAs(GooString *name, PDFWriteMode mode=writeStandard);
+  int saveAs(GooString *name, PDFWriteMode mode=writeStandard);
   // Save this file in the given output stream.
-  GBool saveAs(OutStream *outStr, PDFWriteMode mode=writeStandard);
+  int saveAs(OutStream *outStr, PDFWriteMode mode=writeStandard);
   // Save this file with another name without saving changes
-  GBool saveWithoutChangesAs(GooString *name);
+  int saveWithoutChangesAs(GooString *name);
   // Save this file in the given output stream without saving changes
-  GBool saveWithoutChangesAs(OutStream *outStr);
+  int saveWithoutChangesAs(OutStream *outStr);
 
   // Return a pointer to the GUI (XPDFCore or WinPDFCore object).
   void *getGUIData() { return guiData; }
