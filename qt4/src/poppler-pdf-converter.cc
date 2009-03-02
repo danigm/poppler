@@ -25,6 +25,8 @@
 
 #include <QtCore/QFile>
 
+#include <ErrorCodes.h>
+
 namespace Poppler {
 
 class PDFConverterPrivate : public BaseConverterPrivate
@@ -79,18 +81,18 @@ bool PDFConverter::convert()
 	if (QFile *file = qobject_cast<QFile*>(dev))
 		deleteFile = !file->exists();
 
-	bool success;
+	int errorCode = errNone;
 	QIODeviceOutStream stream(dev);
 	if (d->opts & WithChanges)
 	{
-		success = d->document->doc->saveAs(&stream);
+		errorCode = d->document->doc->saveAs(&stream);
 	}
 	else
 	{
-		success = d->document->doc->saveWithoutChangesAs(&stream);
+		errorCode = d->document->doc->saveWithoutChangesAs(&stream);
 	}
 	d->closeDevice();
-	if (!success)
+	if (errorCode != errNone)
 	{
 		if (deleteFile)
 		{
@@ -98,7 +100,7 @@ bool PDFConverter::convert()
 		}
 	}
 
-	return success;
+	return (errorCode == errNone);
 }
 
 }
