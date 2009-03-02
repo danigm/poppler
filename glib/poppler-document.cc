@@ -219,6 +219,33 @@ poppler_document_new_from_data (char        *data,
   return _poppler_document_new_from_pdfdoc (newDoc, error);
 }
 
+static gboolean
+handle_save_error (int      err_code,
+		   GError **error)
+{
+  switch (err_code)
+    {
+    case errNone:
+      break;
+    case errOpenFile:
+      g_set_error (error, POPPLER_ERROR,
+		   POPPLER_ERROR_OPEN_FILE,
+		   "Failed to open file for writing");
+      break;
+    case errEncrypted:
+      g_set_error (error, POPPLER_ERROR,
+		   POPPLER_ERROR_ENCRYPTED,
+		   "Document is encrypted");
+      break;
+    default:
+      g_set_error (error, POPPLER_ERROR,
+		   POPPLER_ERROR_INVALID,
+		   "Failed to save document");
+    }
+
+  return err_code == errNone;
+}
+
 /**
  * poppler_document_save:
  * @document: a #PopplerDocument
@@ -245,10 +272,11 @@ poppler_document_save (PopplerDocument  *document,
   filename = g_filename_from_uri (uri, NULL, error);
   if (filename != NULL) {
     GooString *fname = new GooString (filename);
+    int err_code;
     g_free (filename);
 
-    retval = document->doc->saveAs (fname);
-
+    err_code = document->doc->saveAs (fname);
+    retval = handle_save_error (err_code, error);
     delete fname;
   }
 
@@ -282,10 +310,11 @@ poppler_document_save_a_copy (PopplerDocument  *document,
   filename = g_filename_from_uri (uri, NULL, error);
   if (filename != NULL) {
     GooString *fname = new GooString (filename);
+    int err_code;
     g_free (filename);
 
-    retval = document->doc->saveWithoutChangesAs (fname);
-
+    err_code = document->doc->saveWithoutChangesAs (fname);
+    retval = handle_save_error (err_code, error);
     delete fname;
   }
 
