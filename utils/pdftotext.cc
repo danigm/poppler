@@ -17,6 +17,7 @@
 //
 // Copyright (C) 2006 Dominic Lachowicz <cinamod@hotmail.com>
 // Copyright (C) 2007-2008 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2009 Jan Jockusch <jan@jockusch.de>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -53,6 +54,11 @@ static void printInfoDate(FILE *f, Dict *infoDict, char *key, char *fmt);
 
 static int firstPage = 1;
 static int lastPage = 0;
+static double resolution = 72.0;
+static int x = 0;
+static int y = 0;
+static int w = 0;
+static int h = 0;
 static GBool physLayout = gFalse;
 static GBool rawOrder = gFalse;
 static GBool htmlMeta = gFalse;
@@ -71,6 +77,16 @@ static const ArgDesc argDesc[] = {
    "first page to convert"},
   {"-l",       argInt,      &lastPage,      0,
    "last page to convert"},
+  {"-r",      argFP,       &resolution,    0,
+   "resolution, in DPI (default is 72)"},
+  {"-x",      argInt,      &x,             0,
+   "x-coordinate of the crop area top left corner"},
+  {"-y",      argInt,      &y,             0,
+   "y-coordinate of the crop area top left corner"},
+  {"-W",      argInt,      &w,             0,
+   "width of crop area in pixels (default is 0)"},
+  {"-H",      argInt,      &h,             0,
+   "height of crop area in pixels (default is 0)"},
   {"-layout",  argFlag,     &physLayout,    0,
    "maintain original physical layout"},
   {"-raw",     argFlag,     &rawOrder,      0,
@@ -272,8 +288,19 @@ int main(int argc, char *argv[]) {
   textOut = new TextOutputDev(textFileName->getCString(),
 			      physLayout, rawOrder, htmlMeta);
   if (textOut->isOk()) {
-      doc->displayPages(textOut, firstPage, lastPage, 72, 72, 0,
+    if ((w==0) && (h==0) && (x==0) && (y==0)) {
+      doc->displayPages(textOut, firstPage, lastPage, resolution, resolution, 0,
 			gTrue, gFalse, gFalse);
+    } else {
+      int page;
+      
+      for (page = firstPage; page <= lastPage; ++page) {
+	doc->displayPageSlice(textOut, page, resolution, resolution, 0,
+			      gTrue, gFalse, gFalse, 
+			      x, y, w, h);
+      }	
+    }	
+
   } else {
     delete textOut;
     exitCode = 2;
