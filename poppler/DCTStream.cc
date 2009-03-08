@@ -93,7 +93,6 @@ void DCTStream::init()
   limit = NULL;
   
   jpeg_create_decompress(&cinfo);
-  x = 0;
   row_buffer = NULL;
 }
 
