@@ -77,7 +77,6 @@ void DCTStream::init()
 {
   jpeg_std_error(&jerr);
   jerr.error_exit = &exitErrorHandler;
-  cinfo.err = &jerr;
   src.pub.init_source = str_init_source;
   src.pub.fill_input_buffer = str_fill_input_buffer;
   src.pub.skip_input_data = str_skip_input_data;
@@ -88,11 +87,12 @@ void DCTStream::init()
   src.str = str;
   src.index = 0;
   src.abort = false;
-  cinfo.src = (jpeg_source_mgr *)&src;
   current = NULL;
   limit = NULL;
   
   jpeg_create_decompress(&cinfo);
+  cinfo.err = &jerr;
+  cinfo.src = (jpeg_source_mgr *)&src;
   row_buffer = NULL;
 }
 
