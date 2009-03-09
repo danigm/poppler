@@ -21,6 +21,12 @@ AC_PROG_INSTALL
 AC_CHECK_FUNC(gettimeofday, AC_DEFINE(HAVE_GETTIMEOFDAY, 1, [Defines if gettimeofday is available on your system]))
 AC_CHECK_FUNC(localtime_r, AC_DEFINE(HAVE_LOCALTIME_R, 1, [Defines if localtime_r is available on your system]))
 
+dnl ##### Check for pkgconfig
+AC_CHECK_PROG(HAVE_PKGCONFIG, pkg-config, yes, no)
+if test "x$HAVE_PKGCONFIG" = "xno"; then
+  AC_MSG_ERROR("*** pkg-config not found ***")
+fi
+
 dnl Enable these unconditionally.
 AC_DEFINE([OPI_SUPPORT], [1], [Generate OPI comments in PS output.])
 AC_DEFINE([MULTITHREADED], [1], [Enable multithreading support.])
