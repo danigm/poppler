@@ -7,6 +7,7 @@ AM_CONFIG_HEADER(poppler/poppler-config.h)
 
 dnl ##### Initialize libtool.
 AC_LIBTOOL_WIN32_DLL
+define([AC_LIBTOOL_LANG_F77_CONFIG], [:])
 AC_PROG_LIBTOOL
 
 dnl ##### Checks for programs.
