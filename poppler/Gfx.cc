@@ -14,7 +14,7 @@
 // under GPL version 2 or later
 //
 // Copyright (C) 2005 Jonathan Blandford <jrb@redhat.com>
-// Copyright (C) 2005-2008 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2005-2009 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2006 Thorkild Stray <thorkild@ifi.uio.no>
 // Copyright (C) 2006 Kristian Høgsberg <krh@redhat.com>
 // Copyright (C) 2006-2008 Carlos Garcia Campos <carlosgc@gnome.org>
@@ -3504,7 +3504,7 @@ void Gfx::opXObject(Object args[], int numArgs) {
   if (obj2.isNull()) {
     // No OC entry - so we proceed as normal
   } else if (obj2.isRef()) {
-    if ( ! catalog->getOptContentConfig()->optContentIsVisible( &obj2 ) ) {
+    if ( catalog->getOptContentConfig() && ! catalog->getOptContentConfig()->optContentIsVisible( &obj2 ) ) {
       obj2.free();
       obj1.free();
       return;
