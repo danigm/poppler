@@ -90,8 +90,8 @@ void DCTStream::init()
   current = NULL;
   limit = NULL;
   
-  jpeg_create_decompress(&cinfo);
   cinfo.err = &jerr;
+  jpeg_create_decompress(&cinfo);
   cinfo.src = (jpeg_source_mgr *)&src;
   row_buffer = NULL;
 }
