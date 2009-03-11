@@ -10,7 +10,7 @@
 //
 // Modified under the Poppler project - http://poppler.freedesktop.org
 //
-// Copyright (C) 2005, 2006, 2008 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2005, 2006, 2008, 2009 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2005, 2006 Kristian Høgsberg <krh@redhat.com>
 // Copyright (C) 2006 Takashi Iwai <tiwai@suse.de>
 // Copyright (C) 2007 Julien Rebetez <julienr@svn.gnome.org>
@@ -1447,7 +1447,7 @@ GfxCIDFont::GfxCIDFont(XRef *xref, char *tagA, Ref idA, GooString *nameA,
   delete cMapName;
 
   // CIDToGIDMap (for embedded TrueType fonts)
-  if (type == fontCIDType2) {
+  if (type == fontCIDType2 || type == fontCIDType2OT) {
     desFontDict->lookup("CIDToGIDMap", &obj1);
     if (obj1.isStream()) {
       cidToGIDLen = 0;
