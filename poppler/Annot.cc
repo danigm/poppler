@@ -456,49 +456,67 @@ AnnotBorderArray::AnnotBorderArray(Array *array) {
   Object obj1;
   int arrayLength = array->getLength();
 
-  if (arrayLength >= 3) {
+  GBool correct = gTrue;
+  if (arrayLength == 3 || arrayLength == 4) {
     // implementation note 81 in Appendix H.
 
     if (array->get(0, &obj1)->isNum())
       horizontalCorner = obj1.getNum();
+    else
+      correct = gFalse;
     obj1.free();
 
     if (array->get(1, &obj1)->isNum())
       verticalCorner = obj1.getNum();
+    else
+      correct = gFalse;
     obj1.free();
 
     if (array->get(2, &obj1)->isNum())
       width = obj1.getNum();
+    else
+      correct = gFalse;
     obj1.free();
 
     // TODO: check not all zero ? (Line Dash Pattern Page 217 PDF 8.1)
-    if (arrayLength > 3) {
-      GBool correct = gTrue;
-      int tempLength = array->getLength() - 3;
-      double *tempDash = (double *) gmallocn (tempLength, sizeof (double));
+    if (arrayLength == 4) {
+      if (array->get(3, &obj1)->isArray()) {
+        Array *dashPattern = obj1.getArray();
+        int tempLength = dashPattern->getLength();
+        double *tempDash = (double *) gmallocn (tempLength, sizeof (double));
 
-      for(int i = 0; i < tempLength && i < DASH_LIMIT && correct; i++) {
+        for(int i = 0; i < tempLength && i < DASH_LIMIT && correct; i++) {
 
-        if (array->get((i + 3), &obj1)->isNum()) {
-          tempDash[i] = obj1.getNum();
+          if (dashPattern->get(i, &obj1)->isNum()) {
+            tempDash[i] = obj1.getNum();
 
-          if (tempDash[i] < 0)
+            if (tempDash[i] < 0)
+              correct = gFalse;
+
+          } else {
             correct = gFalse;
-
-        } else {
-          correct = gFalse;
+          }
+          obj1.free();
         }
-        obj1.free();
-      }
 
-      if (correct) {
-        dashLength = tempLength;
-        dash = tempDash;
-        style = borderDashed;
+        if (correct) {
+          dashLength = tempLength;
+          dash = tempDash;
+          style = borderDashed;
+        } else {
+          gfree (tempDash);
+        }
       } else {
-        gfree (tempDash);
+        correct = gFalse;
       }
+      obj1.free();
     }
+  } else {
+    correct = gFalse;
+  }
+  
+  if (!correct) {
+    width = 0;
   }
 }
 
