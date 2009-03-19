@@ -132,6 +132,7 @@ CairoOutputDev::CairoOutputDev() {
   t3_glyph_has_bbox = gFalse;
 
   groupColorSpaceStack = NULL;
+  maskStack = NULL;
   group = NULL;
   mask = NULL;
   shape = NULL;
@@ -242,6 +243,11 @@ void CairoOutputDev::saveState(GfxState *state) {
   cairo_save (cairo);
   if (cairo_shape)
       cairo_save (cairo_shape);
+
+  MaskStack *ms = new MaskStack;
+  ms->mask = cairo_pattern_reference(mask);
+  ms->next = maskStack;
+  maskStack = ms;
 }
 
 void CairoOutputDev::restoreState(GfxState *state) {
@@ -256,6 +262,14 @@ void CairoOutputDev::restoreState(GfxState *state) {
   updateStrokeColor(state);
   updateFillOpacity(state);
   updateStrokeOpacity(state);
+
+  MaskStack* ms = maskStack;
+  if (mask)
+    cairo_pattern_destroy(mask);
+
+  mask = ms->mask;
+  maskStack = ms->next;
+  delete ms;
 }
 
 void CairoOutputDev::updateAll(GfxState *state) {
@@ -1024,7 +1038,9 @@ void CairoOutputDev::popTransparencyGroup() {
 
 
 void CairoOutputDev::clearSoftMask(GfxState * /*state*/) {
-  //XXX: should we be doing anything here?
+  if (mask)
+    cairo_pattern_destroy(mask);
+  mask = NULL;
 }
 
 void CairoOutputDev::drawImageMask(GfxState *state, Object *ref, Stream *str,

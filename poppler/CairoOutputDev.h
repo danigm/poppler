@@ -271,6 +271,11 @@ protected:
     GfxColorSpace *cs;
     struct ColorSpaceStack *next;
   } * groupColorSpaceStack;
+
+  struct MaskStack {
+      cairo_pattern_t *mask;
+      struct MaskStack *next;
+  } *maskStack;
 };
 
 //------------------------------------------------------------------------
