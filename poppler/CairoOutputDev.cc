@@ -949,8 +949,22 @@ void CairoOutputDev::setSoftMask(GfxState * state, double * bbox, GBool alpha,
      * So we paint the group to an image surface convert it to a luminocity map
      * and then use that as the mask. */
 
-    double x1, y1, x2, y2;
+    double x1, y1, x2, y2, tmp;
     cairo_clip_extents(cairo, &x1, &y1, &x2, &y2);
+    cairo_user_to_device(cairo, &x1, &y1);
+    cairo_user_to_device(cairo, &x2, &y2);
+    if (x1 > x2) {
+      tmp = x1;
+      x1 = x2;
+      x2 = tmp;
+    }
+
+    if (y1 > y2) {
+      tmp = y1;
+      y1 = y2;
+      y2 = tmp;
+    }
+
     int width = (int)(ceil(x2) - floor(x1));
     int height = (int)(ceil(y2) - floor(y1));
 
