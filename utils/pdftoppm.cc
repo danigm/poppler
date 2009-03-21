@@ -15,6 +15,7 @@
 //
 // Copyright (C) 2007 Ilmari Heikkinen <ilmari.heikkinen@gmail.com>
 // Copyright (C) 2008 Richard Airlie <richard.airlie@maglabs.net>
+// Copyright (C) 2009 Michael K. Johnson <a1237@danlj.org>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -39,8 +40,12 @@
 
 static int firstPage = 1;
 static int lastPage = 0;
-static double resolution = 150.0;
+static double resolution = 0.0;
+static double x_resolution = 150.0;
+static double y_resolution = 150.0;
 static int scaleTo = 0;
+static int x_scaleTo = 0;
+static int y_scaleTo = 0;
 static int x = 0;
 static int y = 0;
 static int w = 0;
@@ -66,8 +71,16 @@ static const ArgDesc argDesc[] = {
 
   {"-r",      argFP,       &resolution,    0,
    "resolution, in DPI (default is 150)"},
+  {"-rx",      argFP,       &x_resolution,    0,
+   "X resolution, in DPI (default is 150)"},
+  {"-ry",      argFP,       &y_resolution,    0,
+   "Y resolution, in DPI (default is 150)"},
   {"-scale-to",      argInt,       &scaleTo,    0,
-   "scales each page to fit in scale-to*scale-to box"},
+   "scales each page to fit within scale-to*scale-to pixel box"},
+  {"-scale-to-x",      argInt,       &x_scaleTo,    0,
+   "scales each page horizontally to fit in scale-to-x pixels"},
+  {"-scale-to-y",      argInt,       &y_scaleTo,    0,
+   "scales each page vertically to fit in scale-to-y pixels"},
 
   {"-x",      argInt,      &x,             0,
    "x-coordinate of the crop area top left corner"},
@@ -127,7 +140,7 @@ static void savePageSlice(PDFDoc *doc,
   w = (x+w > pg_w ? (int)ceil(pg_w-x) : w);
   h = (y+h > pg_h ? (int)ceil(pg_h-y) : h);
   doc->displayPageSlice(splashOut, 
-    pg, resolution, resolution, 
+    pg, x_resolution, y_resolution, 
     0,
     !useCropBox, gFalse, gFalse,
     x, y, w, h
@@ -158,6 +171,12 @@ int main(int argc, char *argv[]) {
   ok = parseArgs(argDesc, &argc, argv);
   if (mono && gray) {
     ok = gFalse;
+  }
+  if ( resolution != 0.0 &&
+       (x_resolution == 150.0 ||
+        y_resolution == 150.0)) {
+    x_resolution = resolution;
+    y_resolution = resolution;
   }
   if (!ok || argc > 3 || printVersion || printHelp) {
     fprintf(stderr, "pdftoppm version %s\n", PACKAGE_VERSION);
@@ -250,9 +269,17 @@ int main(int argc, char *argv[]) {
 
     if (scaleTo != 0) {
       resolution = (72.0 * scaleTo) / (pg_w > pg_h ? pg_w : pg_h);
+      x_resolution = y_resolution = resolution;
+    } else {
+      if (x_scaleTo != 0) {
+        x_resolution = (72.0 * x_scaleTo) / pg_w;
+      }
+      if (y_scaleTo != 0) {
+        y_resolution = (72.0 * y_scaleTo) / pg_h;
+      }
     }
-    pg_w = pg_w * (resolution / 72.0);
-    pg_h = pg_h * (resolution / 72.0);
+    pg_w = pg_w * (x_resolution / 72.0);
+    pg_h = pg_h * (y_resolution / 72.0);
     if (doc->getPageRotate(pg)) {
       tmp = pg_w;
       pg_w = pg_h;
