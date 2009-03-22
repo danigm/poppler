@@ -18,6 +18,7 @@
 // Copyright (C) 2008 Julien Rebetez <julienr@svn.gnome.org>
 // Copyright (C) 2008 Pino Toscano <pino@kde.org>
 // Copyright (C) 2008 Carlos Garcia Campos <carlosgc@gnome.org>
+// Copyright (C) 2009 Eric Toombs <ewtoombs@uwaterloo.ca>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -76,6 +77,10 @@ public:
 
   // Get the error code (if isOk() returns false).
   int getErrorCode() { return errCode; }
+
+  // Get the error code returned by fopen() (if getErrorCode() == 
+  // errOpenFile).
+  int getFopenErrno() { return fopenErrno; }
 
   // Get file name.
   GooString *getFileName() { return fileName; }
@@ -238,6 +243,9 @@ private:
 
   GBool ok;
   int errCode;
+  //If there is an error opening the PDF file with fopen() in the constructor, 
+  //then the POSIX errno will be here.
+  int fopenErrno;
 };
 
 #endif

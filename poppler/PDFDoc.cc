@@ -18,6 +18,7 @@
 // Copyright (C) 2008 Julien Rebetez <julienr@svn.gnome.org>
 // Copyright (C) 2008 Pino Toscano <pino@kde.org>
 // Copyright (C) 2008 Carlos Garcia Campos <carlosgc@gnome.org>
+// Copyright (C) 2009 Eric Toombs <ewtoombs@uwaterloo.ca>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -32,6 +33,7 @@
 
 #include <locale.h>
 #include <stdio.h>
+#include <errno.h>
 #include <stdlib.h>
 #include <stddef.h>
 #include <string.h>
@@ -71,7 +73,6 @@
 PDFDoc::PDFDoc(GooString *fileNameA, GooString *ownerPassword,
 	       GooString *userPassword, void *guiDataA) {
   Object obj;
-  GooString *fileName1, *fileName2;
 
   ok = gFalse;
   errCode = errNone;
@@ -87,33 +88,42 @@ PDFDoc::PDFDoc(GooString *fileNameA, GooString *ownerPassword,
 #endif
 
   fileName = fileNameA;
-  fileName1 = fileName;
-
 
   // try to open file
-  fileName2 = NULL;
+  GooString *fn = fileName->copy(); //a modifiable copy of fileName
+  for (int trial = 1; trial <= 3; trial++) {
 #ifdef VMS
-  if (!(file = fopen(fileName1->getCString(), "rb", "ctx=stm"))) {
-    error(-1, "Couldn't open file '%s'", fileName1->getCString());
-    errCode = errOpenFile;
-    return;
-  }
+    file = fopen(fn->getCString(), "rb", "ctx=stm");
 #else
-  if (!(file = fopen(fileName1->getCString(), "rb"))) {
-    fileName2 = fileName->copy();
-    fileName2->lowerCase();
-    if (!(file = fopen(fileName2->getCString(), "rb"))) {
-      fileName2->upperCase();
-      if (!(file = fopen(fileName2->getCString(), "rb"))) {
-	error(-1, "Couldn't open file '%s'", fileName->getCString());
-	delete fileName2;
-	errCode = errOpenFile;
-	return;
-      }
-    }
-    delete fileName2;
-  }
+    file = fopen(fn->getCString(), "rb");
 #endif
+    if (file != NULL)
+      // fopen() has succeeded!
+      break;
+
+    // fopen() has failed.
+    if (errno != ENOENT || trial == 3) {
+      /*
+       * Either an error has occurred other than "No such file or 
+       * directory", or we are on trial 3 and we are out of alternative file 
+       * names.
+       */
+      error(-1, "Couldn't open file '%s': %s.", fileName->getCString(),
+                                                strerror(errno));
+      errCode = errOpenFile;
+      // Keep a copy of the errno returned by fopen so that it can be 
+      // referred to later.
+      fopenErrno = errno;
+      return;
+    }
+
+    // fn wasn't found.
+    if (trial == 1)
+      fn->lowerCase();
+    else //if (trial == 2) implicit; 3 and 1 have already been checked for.
+      fn->upperCase();
+  }
+  delete fn;
 
   // create stream
   obj.initNull();

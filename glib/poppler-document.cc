@@ -16,6 +16,8 @@
  * Foundation, Inc., 51 Franklin Street - Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
+#include <string.h>
+
 #include <goo/GooList.h>
 #include <splash/SplashBitmap.h>
 #include <GlobalParams.h>
@@ -73,12 +75,18 @@ _poppler_document_new_from_pdfdoc (PDFDoc  *newDoc,
   document = (PopplerDocument *) g_object_new (POPPLER_TYPE_DOCUMENT, NULL, NULL);
 
   if (!newDoc->isOk()) {
+    int fopen_errno;
     switch (newDoc->getErrorCode())
       {
       case errOpenFile:
-        g_set_error (error, POPPLER_ERROR,
-		     POPPLER_ERROR_OPEN_FILE,
-		     "Failed to open the PDF file");
+        // If there was an error opening the file, count it as a G_FILE_ERROR 
+        // and set the GError parameters accordingly. (this assumes that the 
+        // only way to get an errOpenFile error is if newDoc was created using 
+        // a filename and thus fopen was called, which right now is true.
+        fopen_errno = newDoc->getFopenErrno();
+        g_set_error (error, G_FILE_ERROR,
+		     g_file_error_from_errno (fopen_errno),
+		     strerror(fopen_errno));
 	break;
       case errBadCatalog:
         g_set_error (error, POPPLER_ERROR,
