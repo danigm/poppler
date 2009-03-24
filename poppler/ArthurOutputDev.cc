@@ -264,6 +264,7 @@ void ArthurOutputDev::updateFont(GfxState *state)
   SplashCoord mat[4];
   int substIdx, n;
   int faceIndex = 0;
+  SplashCoord matrix[6];
 
   m_needFontUpdate = false;
   m_font = NULL;
@@ -449,7 +450,6 @@ void ArthurOutputDev::updateFont(GfxState *state)
   m21 = textMat[2] * fontSize;
   m22 = textMat[3] * fontSize;
 
-  SplashCoord matrix[6];
   {
   QMatrix painterMatrix = m_painter->worldMatrix();
   matrix[0] = painterMatrix.m11();
