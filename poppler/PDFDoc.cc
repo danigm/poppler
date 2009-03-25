@@ -90,40 +90,21 @@ PDFDoc::PDFDoc(GooString *fileNameA, GooString *ownerPassword,
   fileName = fileNameA;
 
   // try to open file
-  GooString *fn = fileName->copy(); //a modifiable copy of fileName
-  for (int trial = 1; trial <= 3; trial++) {
 #ifdef VMS
-    file = fopen(fn->getCString(), "rb", "ctx=stm");
+  file = fopen(fileName->getCString(), "rb", "ctx=stm");
 #else
-    file = fopen(fn->getCString(), "rb");
+  file = fopen(fileName->getCString(), "rb");
 #endif
-    if (file != NULL)
-      // fopen() has succeeded!
-      break;
-
+  if (file == NULL) {
     // fopen() has failed.
-    if (errno != ENOENT || trial == 3) {
-      /*
-       * Either an error has occurred other than "No such file or 
-       * directory", or we are on trial 3 and we are out of alternative file 
-       * names.
-       */
-      error(-1, "Couldn't open file '%s': %s.", fileName->getCString(),
-                                                strerror(errno));
-      errCode = errOpenFile;
-      // Keep a copy of the errno returned by fopen so that it can be 
-      // referred to later.
-      fopenErrno = errno;
-      return;
-    }
-
-    // fn wasn't found.
-    if (trial == 1)
-      fn->lowerCase();
-    else //if (trial == 2) implicit; 3 and 1 have already been checked for.
-      fn->upperCase();
+    // Keep a copy of the errno returned by fopen so that it can be 
+    // referred to later.
+    fopenErrno = errno;
+    error(-1, "Couldn't open file '%s': %s.", fileName->getCString(),
+                                              strerror(errno));
+    errCode = errOpenFile;
+    return;
   }
-  delete fn;
 
   // create stream
   obj.initNull();
