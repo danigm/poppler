@@ -11,7 +11,7 @@
 // All changes made under the Poppler project to this file are licensed
 // under GPL version 2 or later
 //
-// Copyright (C) 2005, 2007-2008 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2005, 2007-2009 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2006 Kristian Høgsberg <krh@bitplanet.net>
 //
 // To see a description of the changes please see the Changelog file that
@@ -273,6 +273,7 @@ double SplashFTFont::getGlyphAdvance(int c)
   offset.x = 0;
   offset.y = 0;
 
+  ff->face->size = sizeObj;
   FT_Set_Transform(ff->face, &identityMatrix, &offset);
 
   if (ff->codeToGID && c < ff->codeToGIDLen) {
