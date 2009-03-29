@@ -20,6 +20,7 @@
 // Copyright (C) 2008 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2008 Pino Toscano <pino@kde.org>
 // Copyright (C) 2008 Hib Eris <hib@hiberis.nl>
+// Copyright (C) 2009 Ross Moore <ross@maths.mq.edu.au>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
