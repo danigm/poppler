@@ -221,8 +221,8 @@ GBool SplashFTFont::makeGlyph(int c, int xFrac, int yFrac,
 
   *clipRes = clip->testRect(x0 - bitmap->x,
                             y0 - bitmap->y,
-                            x0 - bitmap->x + bitmap->w - 1,
-                            y0 - bitmap->y + bitmap->h - 1);
+                            x0 - bitmap->x + bitmap->w,
+                            y0 - bitmap->y + bitmap->h);
   if (*clipRes == splashClipAllOutside) {
     bitmap->freeData = gFalse;
     return gTrue;
