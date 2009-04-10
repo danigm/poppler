@@ -15,7 +15,7 @@
 //
 // Copyright (C) 2005 Takashi Iwai <tiwai@suse.de>
 // Copyright (C) 2006 Stefan Schweizer <genstef@gentoo.org>
-// Copyright (C) 2006-2008 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2006-2009 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2006 Krzysztof Kowalczyk <kkowalczyk@gmail.com>
 // Copyright (C) 2006 Scott Turner <scotty1024@mac.com>
 // Copyright (C) 2007 Koji Otani <sho@bbr.jp>
@@ -2013,7 +2013,7 @@ void SplashOutputDev::drawImage(GfxState *state, Object *ref, Stream *str,
       break;
     case splashModeRGB8:
     case splashModeBGR8:
-      imgData.lookup = (SplashColorPtr)gmalloc(3 * n);
+      imgData.lookup = (SplashColorPtr)gmallocn(n, 3);
       for (i = 0; i < n; ++i) {
 	pix = (Guchar)i;
 	colorMap->getRGB(&pix, &rgb);
@@ -2023,7 +2023,7 @@ void SplashOutputDev::drawImage(GfxState *state, Object *ref, Stream *str,
       }
       break;
     case splashModeXBGR8:
-      imgData.lookup = (SplashColorPtr)gmalloc(4 * n);
+      imgData.lookup = (SplashColorPtr)gmallocn(n, 3);
       for (i = 0; i < n; ++i) {
 	pix = (Guchar)i;
 	colorMap->getRGB(&pix, &rgb);
@@ -2035,7 +2035,7 @@ void SplashOutputDev::drawImage(GfxState *state, Object *ref, Stream *str,
       break;
 #if SPLASH_CMYK
     case splashModeCMYK8:
-      imgData.lookup = (SplashColorPtr)gmalloc(4 * n);
+      imgData.lookup = (SplashColorPtr)gmallocn(n, 4);
       for (i = 0; i < n; ++i) {
 	pix = (Guchar)i;
 	colorMap->getCMYK(&pix, &cmyk);
@@ -2278,7 +2278,7 @@ void SplashOutputDev::drawMaskedImage(GfxState *state, Object *ref,
 	break;
       case splashModeRGB8:
       case splashModeBGR8:
-	imgData.lookup = (SplashColorPtr)gmalloc(3 * n);
+	imgData.lookup = (SplashColorPtr)gmallocn(n, 3);
 	for (i = 0; i < n; ++i) {
 	  pix = (Guchar)i;
 	  colorMap->getRGB(&pix, &rgb);
@@ -2288,7 +2288,7 @@ void SplashOutputDev::drawMaskedImage(GfxState *state, Object *ref,
 	}
 	break;
       case splashModeXBGR8:
-	imgData.lookup = (SplashColorPtr)gmalloc(4 * n);
+	imgData.lookup = (SplashColorPtr)gmallocn(n, 4);
 	for (i = 0; i < n; ++i) {
 	  pix = (Guchar)i;
 	  colorMap->getRGB(&pix, &rgb);
@@ -2300,7 +2300,7 @@ void SplashOutputDev::drawMaskedImage(GfxState *state, Object *ref,
 	break;
 #if SPLASH_CMYK
       case splashModeCMYK8:
-	imgData.lookup = (SplashColorPtr)gmalloc(4 * n);
+	imgData.lookup = (SplashColorPtr)gmallocn(n, 4);
 	for (i = 0; i < n; ++i) {
 	  pix = (Guchar)i;
 	  colorMap->getCMYK(&pix, &cmyk);
@@ -2421,7 +2421,7 @@ void SplashOutputDev::drawSoftMaskedImage(GfxState *state, Object *ref,
       break;
     case splashModeRGB8:
     case splashModeBGR8:
-      imgData.lookup = (SplashColorPtr)gmalloc(3 * n);
+      imgData.lookup = (SplashColorPtr)gmallocn(n, 3);
       for (i = 0; i < n; ++i) {
 	pix = (Guchar)i;
 	colorMap->getRGB(&pix, &rgb);
@@ -2431,7 +2431,7 @@ void SplashOutputDev::drawSoftMaskedImage(GfxState *state, Object *ref,
       }
       break;
     case splashModeXBGR8:
-      imgData.lookup = (SplashColorPtr)gmalloc(4 * n);
+      imgData.lookup = (SplashColorPtr)gmallocn(n, 4);
       for (i = 0; i < n; ++i) {
 	pix = (Guchar)i;
 	colorMap->getRGB(&pix, &rgb);
@@ -2443,7 +2443,7 @@ void SplashOutputDev::drawSoftMaskedImage(GfxState *state, Object *ref,
       break;
 #if SPLASH_CMYK
     case splashModeCMYK8:
-      imgData.lookup = (SplashColorPtr)gmalloc(4 * n);
+      imgData.lookup = (SplashColorPtr)gmallocn(n, 4);
       for (i = 0; i < n; ++i) {
 	pix = (Guchar)i;
 	colorMap->getCMYK(&pix, &cmyk);

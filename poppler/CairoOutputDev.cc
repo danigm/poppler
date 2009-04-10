@@ -16,7 +16,7 @@
 //
 // Copyright (C) 2005-2008 Jeff Muizelaar <jeff@infidigm.net>
 // Copyright (C) 2005, 2006 Kristian Høgsberg <krh@redhat.com>
-// Copyright (C) 2005 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2005, 2009 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2005 Nickolay V. Shmyrev <nshmyrev@yandex.ru>
 // Copyright (C) 2006-2008 Carlos Garcia Campos <carlosgc@gnome.org>
 // Copyright (C) 2008 Carl Worth <cworth@cworth.org>
@@ -611,7 +611,7 @@ void CairoOutputDev::beginString(GfxState *state, GooString *s)
   if (!currentFont)
     return;
 
-  glyphs = (cairo_glyph_t *) gmalloc (len * sizeof (cairo_glyph_t));
+  glyphs = (cairo_glyph_t *) gmallocn (len, sizeof (cairo_glyph_t));
   glyphCount = 0;
 }
 
@@ -1461,7 +1461,7 @@ void CairoOutputDev::drawMaskedImage(GfxState *state, Object *ref,
 
   int row_stride = (maskWidth + 3) & ~3;
   unsigned char *maskBuffer;
-  maskBuffer = (unsigned char *)gmalloc (row_stride * maskHeight);
+  maskBuffer = (unsigned char *)gmallocn (row_stride, maskHeight);
   unsigned char *maskDest;
   cairo_surface_t *maskImage;
   cairo_pattern_t *maskPattern;
@@ -1497,7 +1497,7 @@ void CairoOutputDev::drawMaskedImage(GfxState *state, Object *ref,
   cairo_matrix_t matrix;
   int is_identity_transform;
 
-  buffer = (unsigned char *)gmalloc (width * height * 4);
+  buffer = (unsigned char *)gmallocn3 (width, height, 4);
 
   /* TODO: Do we want to cache these? */
   imgStr = new ImageStream(str, width,
@@ -1586,7 +1586,7 @@ void CairoOutputDev::drawSoftMaskedImage(GfxState *state, Object *ref, Stream *s
 
   int row_stride = (maskWidth + 3) & ~3;
   unsigned char *maskBuffer;
-  maskBuffer = (unsigned char *)gmalloc (row_stride * maskHeight);
+  maskBuffer = (unsigned char *)gmallocn (row_stride, maskHeight);
   unsigned char *maskDest;
   cairo_surface_t *maskImage;
   cairo_pattern_t *maskPattern;
@@ -1613,7 +1613,7 @@ void CairoOutputDev::drawSoftMaskedImage(GfxState *state, Object *ref, Stream *s
   cairo_matrix_t maskMatrix;
   int is_identity_transform;
 
-  buffer = (unsigned char *)gmalloc (width * height * 4);
+  buffer = (unsigned char *)gmallocn3 (width, height, 4);
 
   /* TODO: Do we want to cache these? */
   imgStr = new ImageStream(str, width,
@@ -1705,7 +1705,7 @@ void CairoOutputDev::drawImage(GfxState *state, Object *ref, Stream *str,
   cairo_matrix_t matrix;
   int is_identity_transform;
   
-  buffer = (unsigned char *)gmalloc (width * height * 4);
+  buffer = (unsigned char *)gmallocn3 (width, height, 4);
 
   /* TODO: Do we want to cache these? */
   imgStr = new ImageStream(str, width,

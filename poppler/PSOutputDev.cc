@@ -15,7 +15,7 @@
 //
 // Copyright (C) 2005 Martin Kretzschmar <martink@gnome.org>
 // Copyright (C) 2005, 2006 Kristian Høgsberg <krh@redhat.com>
-// Copyright (C) 2006-2008 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2006-2009 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2006 Jeff Muizelaar <jeff@infidigm.net>
 // Copyright (C) 2007, 2008 Brad Hards <bradh@kde.org>
 // Copyright (C) 2008 Koji Otani <sho@bbr.jp>
@@ -2324,7 +2324,7 @@ GooString *PSOutputDev::setupExternalCIDTrueTypeFont(GfxFont *font, GooString *f
   if ((ffTT = FoFiTrueType::load(fileName->getCString(), faceIndex))) {
       int n = ((GfxCIDFont *)font)->getCIDToGIDLen();
       if (n) {
-	codeToGID = (Gushort *)gmalloc(n * sizeof(Gushort));
+	codeToGID = (Gushort *)gmallocn(n, sizeof(Gushort));
 	memcpy(codeToGID, ((GfxCIDFont *)font)->getCIDToGID(), n * sizeof(Gushort));
       } else {
 	codeToGID = ((GfxCIDFont *)font)->getCodeToGIDMap(ffTT, &n);
@@ -4503,7 +4503,7 @@ void PSOutputDev::doImageL1Sep(GfxImageColorMap *colorMap,
 	     width, -height, height);
 
   // allocate a line buffer
-  lineBuf = (Guchar *)gmalloc(4 * width);
+  lineBuf = (Guchar *)gmallocn(width, 4);
 
   // set up to process the data stream
   imgStr = new ImageStream(str, width, colorMap->getNumPixelComps(),

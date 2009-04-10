@@ -1849,7 +1849,7 @@ void GfxIndexedColorSpace::getRGBLine(Guchar *in, unsigned int *out, int length)
   int i, j, n;
 
   n = base->getNComps();
-  line = (Guchar *) gmalloc (length * n);
+  line = (Guchar *) gmallocn (length, n);
   for (i = 0; i < length; i++)
     for (j = 0; j < n; j++)
       line[i * n + j] = lookup[in[i] * n + j];
@@ -4072,7 +4072,7 @@ GfxImageColorMap::GfxImageColorMap(int bitsA, Object *decode,
     nComps2 = colorSpace2->getNComps();
     lookup2 = indexedCS->getLookup();
     colorSpace2->getDefaultRanges(x, y, indexHigh);
-    byte_lookup = (Guchar *)gmalloc ((maxPixel + 1) * nComps2);
+    byte_lookup = (Guchar *)gmallocn ((maxPixel + 1), nComps2);
     for (k = 0; k < nComps2; ++k) {
       lookup[k] = (GfxColorComp *)gmallocn(maxPixel + 1,
 					   sizeof(GfxColorComp));
@@ -4220,7 +4220,7 @@ void GfxImageColorMap::getGrayLine(Guchar *in, Guchar *out, int length) {
   switch (colorSpace->getMode()) {
   case csIndexed:
   case csSeparation:
-    tmp_line = (Guchar *) gmalloc (length * nComps2);
+    tmp_line = (Guchar *) gmallocn (length, nComps2);
     for (i = 0; i < length; i++) {
       for (j = 0; j < nComps2; j++) {
 	tmp_line[i * nComps2 + j] = byte_lookup[in[i] * nComps2 + j];
@@ -4250,7 +4250,7 @@ void GfxImageColorMap::getRGBLine(Guchar *in, unsigned int *out, int length) {
   switch (colorSpace->getMode()) {
   case csIndexed:
   case csSeparation:
-    tmp_line = (Guchar *) gmalloc (length * nComps2);
+    tmp_line = (Guchar *) gmallocn (length, nComps2);
     for (i = 0; i < length; i++) {
       for (j = 0; j < nComps2; j++) {
 	tmp_line[i * nComps2 + j] = byte_lookup[in[i] * nComps2 + j];

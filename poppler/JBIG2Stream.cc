@@ -707,7 +707,7 @@ JBIG2Bitmap::JBIG2Bitmap(Guint segNumA, int wA, int hA):
     return;
   }
   // need to allocate one extra guard byte for use in combine()
-  data = (Guchar *)gmalloc(h * line + 1);
+  data = (Guchar *)gmallocn(h, line + 1);
   data[h * line] = 0;
 }
 
@@ -724,7 +724,7 @@ JBIG2Bitmap::JBIG2Bitmap(Guint segNumA, JBIG2Bitmap *bitmap):
     return;
   }
   // need to allocate one extra guard byte for use in combine()
-  data = (Guchar *)gmalloc(h * line + 1);
+  data = (Guchar *)gmallocn(h, line + 1);
   memcpy(data, bitmap->data, h * line);
   data[h * line] = 0;
 }
