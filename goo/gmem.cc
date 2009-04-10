@@ -216,6 +216,28 @@ void *gmallocn_checkoverflow(int nObjs, int objSize) GMEM_EXCEP {
   return gmallocn(nObjs, objSize, true);
 }
 
+inline static void *gmallocn3(int a, int b, int c, bool checkoverflow) GMEM_EXCEP {
+  int n = a * b;
+  if (b <= 0 || a < 0 || a >= INT_MAX / b) {
+#if USE_EXCEPTIONS
+    throw GMemException();
+#else
+    fprintf(stderr, "Bogus memory allocation size\n");
+    if (checkoverflow) return NULL;
+    else exit(1);
+#endif
+  }
+  return gmallocn(n, c, checkoverflow);
+}
+
+void *gmallocn3(int a, int b, int c) GMEM_EXCEP {
+  return gmallocn3(a, b, c, false);
+}
+
+void *gmallocn3_checkoverflow(int a, int b, int c) GMEM_EXCEP {
+  return gmallocn3(a, b, c, true);
+}
+
 inline static void *greallocn(void *p, int nObjs, int objSize, bool checkoverflow) GMEM_EXCEP {
   int n;
 

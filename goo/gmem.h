@@ -72,6 +72,8 @@ extern void *grealloc_checkoverflow(size_t size) GMEM_EXCEP;
  */
 extern void *gmallocn(int nObjs, int objSize) GMEM_EXCEP;
 extern void *gmallocn_checkoverflow(int nObjs, int objSize) GMEM_EXCEP;
+extern void *gmallocn3(int a, int b, int c) GMEM_EXCEP;
+extern void *gmallocn3_checkoverflow(int a, int b, int c) GMEM_EXCEP;
 extern void *greallocn(void *p, int nObjs, int objSize) GMEM_EXCEP;
 extern void *greallocn_checkoverflow(void *p, int nObjs, int objSize) GMEM_EXCEP;
 
