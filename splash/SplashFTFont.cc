@@ -243,7 +243,7 @@ GBool SplashFTFont::makeGlyph(int c, int xFrac, int yFrac,
   } else {
     rowSize = (bitmap->w + 7) >> 3;
   }
-  bitmap->data = (Guchar *)gmalloc(rowSize * bitmap->h);
+  bitmap->data = (Guchar *)gmallocn(rowSize, bitmap->h);
   bitmap->freeData = gTrue;
   for (i = 0, p = bitmap->data, q = slot->bitmap.buffer;
        i < bitmap->h;

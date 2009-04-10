@@ -11,7 +11,7 @@
 // All changes made under the Poppler project to this file are licensed
 // under GPL version 2 or later
 //
-// Copyright (C) 2005-2008 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2005-2009 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2005 Marco Pesenti Gritti <mpg@redhat.com>
 //
 // To see a description of the changes please see the Changelog file that
@@ -2001,7 +2001,7 @@ SplashError Splash::fillImageMask(SplashImageMaskSource src, void *srcData,
   xq = w % scaledWidth;
 
   // allocate pixel buffer
-  pixBuf = (SplashColorPtr)gmalloc((yp + 1) * w);
+  pixBuf = (SplashColorPtr)gmallocn((yp + 1), w);
 
   // initialize the pixel pipe
   pipeInit(&pipe, 0, 0, state->fillPattern, NULL, state->fillAlpha,
@@ -2301,9 +2301,9 @@ SplashError Splash::drawImage(SplashImageSource src, void *srcData,
   xq = w % scaledWidth;
 
   // allocate pixel buffers
-  colorBuf = (SplashColorPtr)gmalloc((yp + 1) * w * nComps);
+  colorBuf = (SplashColorPtr)gmallocn3((yp + 1), w, nComps);
   if (srcAlpha) {
-    alphaBuf = (Guchar *)gmalloc((yp + 1) * w);
+    alphaBuf = (Guchar *)gmallocn((yp + 1), w);
   } else {
     alphaBuf = NULL;
   }

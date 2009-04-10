@@ -11,7 +11,7 @@
 // All changes made under the Poppler project to this file are licensed
 // under GPL version 2 or later
 //
-// Copyright (C) 2006 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2006, 2009 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2007 Ilmari Heikkinen <ilmari.heikkinen@gmail.com>
 //
 // To see a description of the changes please see the Changelog file that
@@ -62,13 +62,13 @@ SplashBitmap::SplashBitmap(int widthA, int heightA, int rowPad,
   }
   rowSize += rowPad - 1;
   rowSize -= rowSize % rowPad;
-  data = (SplashColorPtr)gmalloc(rowSize * height);
+  data = (SplashColorPtr)gmallocn(rowSize, height);
   if (!topDown) {
     data += (height - 1) * rowSize;
     rowSize = -rowSize;
   }
   if (alphaA) {
-    alpha = (Guchar *)gmalloc(width * height);
+    alpha = (Guchar *)gmallocn(width, height);
   } else {
     alpha = NULL;
   }

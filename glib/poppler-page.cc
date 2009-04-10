@@ -316,7 +316,7 @@ poppler_page_prepare_output_dev (PopplerPage *page,
 
   output_dev = page->document->output_dev;
   cairo_rowstride = cairo_width * 4;
-  cairo_data = (guchar *) gmalloc (cairo_height * cairo_rowstride);
+  cairo_data = (guchar *) gmallocn (cairo_height, cairo_rowstride);
   if (transparent)
       memset (cairo_data, 0x00, cairo_height * cairo_rowstride);
   else
