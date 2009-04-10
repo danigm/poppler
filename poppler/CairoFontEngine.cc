@@ -22,6 +22,7 @@
 // Copyright (C) 2007 Koji Otani <sho@bbr.jp>
 // Copyright (C) 2008 Chris Wilson <chris@chris-wilson.co.uk>
 // Copyright (C) 2008 Adrian Johnson <ajohnson@redneon.com>
+// Copyright (C) 2009 Darren Kenny <darren.kenny@sun.com>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -245,7 +246,11 @@ _ft_done_face (void *closure)
   else
     _ft_open_faces = data->next;
 
+#if defined(__SUNPRO_CC) && defined(__sun) && defined(__SVR4)
+  munmap ((char*)data->bytes, data->size);
+#else
   munmap (data->bytes, data->size);
+#endif
   close (data->fd);
 
   FT_Done_Face (data->face);
@@ -287,7 +292,11 @@ _ft_new_face (FT_Library lib,
 
   for (l = _ft_open_faces; l; l = l->next) {
     if (_ft_face_data_equal (l, &tmpl)) {
+#if defined(__SUNPRO_CC) && defined(__sun) && defined(__SVR4)
+      munmap ((char*)tmpl.bytes, tmpl.size);
+#else
       munmap (tmpl.bytes, tmpl.size);
+#endif
       close (tmpl.fd);
       *face_out = l->face;
       *font_face_out = cairo_font_face_reference (l->font_face);
@@ -297,7 +306,12 @@ _ft_new_face (FT_Library lib,
 
   /* not a dup, open and insert into list */
   if (FT_New_Face (lib, filename, 0, &tmpl.face)) {
+#if defined(__SUNPRO_CC) && defined(__sun) && defined(__SVR4)
+    munmap ((char*)tmpl.bytes, tmpl.size);
+#else
     munmap (tmpl.bytes, tmpl.size);
+#endif
+
     close (tmpl.fd);
     return gFalse;
   }
