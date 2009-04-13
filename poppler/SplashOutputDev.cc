@@ -2023,7 +2023,7 @@ void SplashOutputDev::drawImage(GfxState *state, Object *ref, Stream *str,
       }
       break;
     case splashModeXBGR8:
-      imgData.lookup = (SplashColorPtr)gmallocn(n, 3);
+      imgData.lookup = (SplashColorPtr)gmallocn(n, 4);
       for (i = 0; i < n; ++i) {
 	pix = (Guchar)i;
 	colorMap->getRGB(&pix, &rgb);
