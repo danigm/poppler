@@ -2263,12 +2263,28 @@ void Gfx::doFunctionShFill1(GfxFunctionShading *shading,
   }
 }
 
+static void bubbleSort(double array[])
+{
+  for (int j = 0; j < 3; ++j) {
+    int kk = j;
+    for (int k = j + 1; k < 4; ++k) {
+      if (array[k] < array[kk]) {
+        kk = k;
+      }
+    }
+    double tmp = array[j];
+    array[j] = array[kk];
+    array[kk] = tmp;
+  }
+}
+
 void Gfx::doAxialShFill(GfxAxialShading *shading) {
   double xMin, yMin, xMax, yMax;
   double x0, y0, x1, y1;
   double dx, dy, mul;
   GBool dxZero, dyZero;
-  double tMin, tMax, t, tx, ty;
+  double bboxIntersections[4];
+  double tMin, tMax, tx, ty;
   double s[4], sMin, sMax, tmp;
   double ux0, uy0, ux1, uy1, vx0, vy0, vx1, vy1;
   double t0, t1, tt;
@@ -2276,7 +2292,7 @@ void Gfx::doAxialShFill(GfxAxialShading *shading) {
   int next[axialMaxSplits + 1];
   GfxColor color0, color1;
   int nComps;
-  int i, j, k, kk;
+  int i, j, k;
 
   if (out->useShadedFills() &&
       out->axialShadedFill(state, shading)) {
@@ -2297,25 +2313,13 @@ void Gfx::doAxialShFill(GfxAxialShading *shading) {
     tMin = tMax = 0;
   } else {
     mul = 1 / (dx * dx + dy * dy);
-    tMin = tMax = ((xMin - x0) * dx + (yMin - y0) * dy) * mul;
-    t = ((xMin - x0) * dx + (yMax - y0) * dy) * mul;
-    if (t < tMin) {
-      tMin = t;
-    } else if (t > tMax) {
-      tMax = t;
-    }
-    t = ((xMax - x0) * dx + (yMin - y0) * dy) * mul;
-    if (t < tMin) {
-      tMin = t;
-    } else if (t > tMax) {
-      tMax = t;
-    }
-    t = ((xMax - x0) * dx + (yMax - y0) * dy) * mul;
-    if (t < tMin) {
-      tMin = t;
-    } else if (t > tMax) {
-      tMax = t;
-    }
+    bboxIntersections[0] = ((xMin - x0) * dx + (yMin - y0) * dy) * mul;
+    bboxIntersections[1] = ((xMin - x0) * dx + (yMax - y0) * dy) * mul;
+    bboxIntersections[2] = ((xMax - x0) * dx + (yMin - y0) * dy) * mul;
+    bboxIntersections[3] = ((xMax - x0) * dx + (yMax - y0) * dy) * mul;
+    bubbleSort(bboxIntersections);
+    tMin = bboxIntersections[0];
+    tMax = bboxIntersections[3];
     if (tMin < 0 && !shading->getExtend0()) {
       tMin = 0;
     }
@@ -2396,15 +2400,7 @@ void Gfx::doAxialShFill(GfxAxialShading *shading) {
     s[1] = (yMax - ty) / dx;
     s[2] = (xMin - tx) / -dy;
     s[3] = (xMax - tx) / -dy;
-    for (j = 0; j < 3; ++j) {
-      kk = j;
-      for (k = j + 1; k < 4; ++k) {
-	if (s[k] < s[kk]) {
-	  kk = k;
-	}
-      }
-      tmp = s[j]; s[j] = s[kk]; s[kk] = tmp;
-    }
+    bubbleSort(s);
     sMin = s[1];
     sMax = s[2];
   }
@@ -2414,6 +2410,13 @@ void Gfx::doAxialShFill(GfxAxialShading *shading) {
   vy0 = ty + sMax * dx;
 
   i = 0;
+  bool doneBBox1, doneBBox2;
+  if (dxZero && dyZero) {
+    doneBBox1 = doneBBox2 = true;
+  } else {
+    doneBBox1 = bboxIntersections[1] < tMin;
+    doneBBox2 = bboxIntersections[2] > tMax;
+  }
   while (i < axialMaxSplits) {
 
     // bisect until color difference is small enough or we hit the
@@ -2434,7 +2437,34 @@ void Gfx::doAxialShFill(GfxAxialShading *shading) {
 	}
       }
       if (k == nComps) {
-	break;
+         // in these two if what we guarantee is that if we are skipping lots of 
+         // positions because the colors are the same, we still create a region
+         // with vertexs passing by bboxIntersections[1] and bboxIntersections[2]
+         // otherwise we can have empty regions that should really be painted 
+         // like happened in bug 19896
+         // What we do to ensure that we pass a line through this points
+         // is making sure use the exact bboxIntersections[] value as one of the used ta[] values
+         if (!doneBBox1 && ta[i] < bboxIntersections[1] && ta[j] > bboxIntersections[1]) {
+           int teoricalj = (bboxIntersections[1] - tMin) * axialMaxSplits / (tMax - tMin);
+           if (teoricalj <= i) teoricalj = i + 1;
+           if (j == teoricalj) j = teoricalj + 1;
+           next[i] = teoricalj;
+           next[teoricalj] = j;
+           ta[teoricalj] = bboxIntersections[1];
+           j = teoricalj;
+           doneBBox1 = true;
+         }
+         if (!doneBBox2 && ta[i] < bboxIntersections[2] && ta[j] > bboxIntersections[2]) {
+           int teoricalj = (bboxIntersections[2] - tMin) * axialMaxSplits / (tMax - tMin);
+           if (teoricalj <= i) teoricalj = i + 1;
+           if (j == teoricalj) j = teoricalj + 1;
+           next[i] = teoricalj;
+           next[teoricalj] = j;
+           ta[teoricalj] = bboxIntersections[2];
+           j = teoricalj;
+           doneBBox2 = true;
+         }
+        break;
       }
       k = (i + j) / 2;
       ta[k] = 0.5 * (ta[i] + ta[j]);
@@ -2468,15 +2498,7 @@ void Gfx::doAxialShFill(GfxAxialShading *shading) {
       s[1] = (yMax - ty) / dx;
       s[2] = (xMin - tx) / -dy;
       s[3] = (xMax - tx) / -dy;
-      for (j = 0; j < 3; ++j) {
-	kk = j;
-	for (k = j + 1; k < 4; ++k) {
-	  if (s[k] < s[kk]) {
-	    kk = k;
-	  }
-	}
-	tmp = s[j]; s[j] = s[kk]; s[kk] = tmp;
-      }
+      bubbleSort(s);
       sMin = s[1];
       sMax = s[2];
     }
