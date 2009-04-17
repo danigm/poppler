@@ -20,6 +20,7 @@
 // Copyright (C) 2008 Jonathan Kew <jonathan_kew@sil.org>
 // Copyright (C) 2008 Ed Avis <eda@waniasset.com>
 // Copyright (C) 2008 Hib Eris <hib@hiberis.nl>
+// Copyright (C) 2009 Peter Kerzum <kerzum@yandex-team.ru>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -1590,11 +1591,11 @@ GfxCIDFont::GfxCIDFont(XRef *xref, char *tagA, Ref idA, GooString *nameA,
 	  if (obj3.arrayGet(k, &obj4)->isNum() &&
 	      obj3.arrayGet(k+1, &obj5)->isNum() &&
 	      obj3.arrayGet(k+2, &obj6)->isNum()) {
-	    widths.excepsV[widths.nExceps].first = j;
-	    widths.excepsV[widths.nExceps].last = j;
-	    widths.excepsV[widths.nExceps].height = obj4.getNum() * 0.001;
-	    widths.excepsV[widths.nExceps].vx = obj5.getNum() * 0.001;
-	    widths.excepsV[widths.nExceps].vy = obj6.getNum() * 0.001;
+	    widths.excepsV[widths.nExcepsV].first = j;
+	    widths.excepsV[widths.nExcepsV].last = j;
+	    widths.excepsV[widths.nExcepsV].height = obj4.getNum() * 0.001;
+	    widths.excepsV[widths.nExcepsV].vx = obj5.getNum() * 0.001;
+	    widths.excepsV[widths.nExcepsV].vy = obj6.getNum() * 0.001;
 	    ++j;
 	    ++widths.nExcepsV;
 	  } else {
