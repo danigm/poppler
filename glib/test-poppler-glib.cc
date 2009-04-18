@@ -364,6 +364,21 @@ form_field_print (PopplerFormField *field)
   printf ("\n");
 }
 
+static void
+annot_print (PopplerAnnot *annot)
+{
+  GEnumValue *enum_value;
+  gchar *text;
+  
+  enum_value = g_enum_get_value ((GEnumClass *) g_type_class_ref (POPPLER_TYPE_ANNOT_TYPE),
+				 poppler_annot_get_annot_type (annot));
+  g_print ("\t\tType: %s\n", enum_value->value_name);
+  text = poppler_annot_get_contents (annot);
+  g_print ("\t\tContents: %s\n", text);
+  g_free (text);
+  printf ("\n");
+}
+
 int main (int argc, char *argv[])
 {
   PopplerDocument *document;
@@ -382,6 +397,8 @@ int main (int argc, char *argv[])
   PopplerRectangle area;
   gint num_images;
   gint num_forms;
+  gint num_links;
+  gint num_annots;
   gint form_id = 0;
   PopplerLayersIter *layers_iter;
 
@@ -453,6 +470,37 @@ int main (int argc, char *argv[])
 
   g_object_unref (G_OBJECT (pixbuf));
 
+  list = poppler_page_get_link_mapping (page);
+  num_links = g_list_length (list);
+  if (num_links > 0)
+    printf ("\tFound %d links at positions:\n", num_links);
+  else
+    printf ("\tNo links found\n");
+  
+  for (l = list; l != NULL; l = l->next)
+    {
+      PopplerLinkMapping *mapping = (PopplerLinkMapping *)l->data;
+      
+      printf ("\t\t(%f, %f) - (%f, %f)\n",
+	      mapping->area.x1,
+	      mapping->area.y1,
+	      mapping->area.x2,
+	      mapping->area.y2);
+      enum_value = g_enum_get_value ((GEnumClass *) g_type_class_ref (POPPLER_TYPE_ACTION_TYPE),
+				     mapping->action->type);
+      g_print ("\t\t\tAction: %s (%d)\n", enum_value->value_name, mapping->action->type);
+      switch (mapping->action->type)
+        {
+	  case POPPLER_ACTION_GOTO_DEST:
+	    printf("\t\t\tDest title: %s\n", mapping->action->goto_dest.title);
+	    printf("\t\t\tNamed dest: %s\n", mapping->action->goto_dest.dest->named_dest);
+	    break;
+	  default:
+	    printf("\t\t\tDetails unimplemented for this action type\n");
+	}
+    }
+  poppler_page_free_link_mapping (list); 
+  
   area.x1 = 0;
   area.y1 = 0;
   area.x2 = width;
@@ -538,7 +586,27 @@ int main (int argc, char *argv[])
       printf ("\tForm field for id %d\n", form_id);
       form_field_print (field);
       g_object_unref (field);
+    }  
+
+  list = poppler_page_get_annot_mapping (page);
+  num_annots = g_list_length (list);
+  if (num_annots > 0)
+    printf ("\tFound %d annotations at positions:\n", num_annots);
+  else
+    printf ("\tNo annotations found\n");
+  for (l = list; l != NULL; l = l->next)
+    {
+      PopplerAnnotMapping *mapping = (PopplerAnnotMapping *)l->data;
+	    
+      printf ("\t\t(%f, %f) - (%f, %f)\n",
+	      mapping->area.x1,
+	      mapping->area.y1,
+	      mapping->area.x2,
+	      mapping->area.y2);
+
+      annot_print (mapping->annot);
     }
+  poppler_page_free_annot_mapping (list);
   
   if (poppler_document_has_attachments (document))
     {
