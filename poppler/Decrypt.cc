@@ -15,6 +15,7 @@
 //
 // Copyright (C) 2008 Julien Rebetez <julien@fhtagn.net>
 // Copyright (C) 2008 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2009 Matthias Franz <matthias@ktug.or.kr>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -75,7 +76,7 @@ GBool Decrypt::makeFileKey(int encVersion, int encRevision, int keyLength,
     md5(test, 32, test);
     if (encRevision == 3) {
       for (i = 0; i < 50; ++i) {
-	md5(test, 16, test);
+	md5(test, keyLength, test);
       }
     }
     if (encRevision == 2) {
