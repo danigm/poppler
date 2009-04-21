@@ -27,7 +27,7 @@
  * @timet: an uninitialized #time_t
  *
  * Parses a PDF format date string and converts it to a #time_t. Returns #FALSE
- * if the parsing file or the input string is not a valid PDF format date string
+ * if the parsing fails or the input string is not a valid PDF format date string
  *
  * Return value: #TRUE, if @timet was set
  **/
