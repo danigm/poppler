@@ -36,7 +36,7 @@ void       pgd_table_add_property_with_value_widget (GtkTable        *table,
 GtkWidget *pgd_action_view_new                      (PopplerDocument *document);
 void       pgd_action_view_set_action               (GtkWidget       *action_view,
 						     PopplerAction   *action);
-gchar     *pgd_format_date                          (GTime            utime);
+gchar     *pgd_format_date                          (time_t           utime);
 
 G_END_DECLS
 

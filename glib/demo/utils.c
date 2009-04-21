@@ -238,7 +238,7 @@ pgd_action_view_set_action (GtkWidget     *action_view,
 }
 
 gchar *
-pgd_format_date (GTime utime)
+pgd_format_date (time_t utime)
 {
 	time_t time = (time_t) utime;
 	char s[256];
