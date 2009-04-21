@@ -187,64 +187,18 @@ gchar *
 get_markup_date (PopplerAnnotMarkup *poppler_annot)
 {
     GDate *date;
+    struct tm t;
+    time_t timet;
 
-    if ((date = poppler_annot_markup_get_date (poppler_annot))) {
-        gchar *text;
-        
-        text = g_strdup_printf ("D: %d:", g_date_get_day (date));
-        
-        switch (g_date_get_month (date))
-        {
-          case G_DATE_BAD_MONTH:
-            text = g_strdup_printf ("%s,M: Bad", text);
-            break;
-          case G_DATE_JANUARY:
-            text = g_strdup_printf ("%s,M: January", text);
-            break;
-          case G_DATE_FEBRUARY:
-            text = g_strdup_printf ("%s,M: February", text);
-            break;
-          case G_DATE_MARCH:
-            text = g_strdup_printf ("%s,M: March", text);
-            break;
-          case G_DATE_APRIL:
-            text = g_strdup_printf ("%s,M: April", text);
-            break;
-          case G_DATE_MAY:
-            text = g_strdup_printf ("%s,M: May", text);
-            break;
-          case G_DATE_JUNE:
-            text = g_strdup_printf ("%s,M: June", text);
-            break;
-          case G_DATE_JULY:
-            text = g_strdup_printf ("%s,M: July", text);
-            break;
-          case G_DATE_AUGUST:
-            text = g_strdup_printf ("%s,M: August", text);
-            break;
-          case G_DATE_SEPTEMBER:
-            text = g_strdup_printf ("%s,M: September", text);
-            break;
-          case G_DATE_OCTOBER:
-            text = g_strdup_printf ("%s,M: October", text);
-            break;
-          case G_DATE_NOVEMBER:
-            text = g_strdup_printf ("%s,M: November", text);
-            break;
-          case G_DATE_DECEMBER:
-            text = g_strdup_printf ("%s,M: December", text);
-            break;
-          default:
-            text = g_strdup_printf ("%s,M: Unknown", text);
-            break;
-        }
-        text = g_strdup_printf ("%s,Y: %d", text, g_date_get_year (date));
+    date = poppler_annot_markup_get_date (poppler_annot);
+    if (!date)
+	    return NULL;
 
-        g_free (date);
-        return text;
-    }
+    g_date_to_struct_tm (date, &t);
+    g_date_free (date);
 
-    return NULL;
+    timet = mktime (&t);
+    return timet == (time_t) - 1 ? NULL : pgd_format_date (timet);
 }
 
 const gchar *
@@ -417,6 +371,7 @@ pgd_annot_view_set_annot (GtkWidget    *annot_view,
     GEnumValue *enum_value;
     gint        row = 0;
     gchar      *text, *warning;
+    time_t      timet;
 
     alignment = gtk_bin_get_child (GTK_BIN (annot_view));
     if (alignment) {
@@ -444,6 +399,10 @@ pgd_annot_view_set_annot (GtkWidget    *annot_view,
     g_free (text);
 
     text = poppler_annot_get_modified (annot);
+    if (poppler_date_parse (text, &timet)) {
+	    g_free (text);
+	    text = pgd_format_date (timet);
+    }
     pgd_table_add_property (GTK_TABLE (table), "<b>Modified:</b>", text, &row);
     g_free (text);
 
