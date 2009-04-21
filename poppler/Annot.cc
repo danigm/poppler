@@ -841,6 +841,7 @@ void Annot::initialize(XRef *xrefA, Dict *dict, Catalog *catalog) {
   xref = xrefA;
   appearBuf = NULL;
   fontSize = 0;
+  annotObj.initDict (dict);
 
   //----- parse the rectangle
   rect = new PDFRectangle();
@@ -984,6 +985,27 @@ void Annot::initialize(XRef *xrefA, Dict *dict, Catalog *catalog) {
   }
 }
 
+void Annot::setContents(GooString *new_content) {
+  delete contents;
+
+  if (new_content) {
+    contents = new GooString(new_content);
+    //append the unicode marker <FE FF> if needed	
+    if (!contents->hasUnicodeMarker()) {
+      contents->insert(0, 0xff);
+      contents->insert(0, 0xfe);
+    }
+  } else {
+    contents = new GooString();
+  }
+  
+  Object obj1;
+  obj1.initString(contents->copy());
+
+  annotObj.dictSet("Contents", &obj1);
+  xref->setModifiedObject(&annotObj, ref);
+}
+	
 double Annot::getXMin() {
   return rect->x1;
 }
@@ -1006,8 +1028,10 @@ void Annot::readArrayNum(Object *pdfArray, int key, double *value) {
 }
 
 Annot::~Annot() {
+  annotObj.free();
+  
   delete rect;
-
+  
   if (contents)
     delete contents;
 

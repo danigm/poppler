@@ -497,6 +497,8 @@ public:
 
   double getFontSize() { return fontSize; }
 
+  void setContents(GooString *new_content);
+  
   // getters
   AnnotSubtype getType() const { return type; }
   PDFRectangle *getRect() const { return rect; }
@@ -525,6 +527,8 @@ protected:
   void drawCircle(double cx, double cy, double r, GBool fill);
   void drawCircleTopLeft(double cx, double cy, double r);
   void drawCircleBottomRight(double cx, double cy, double r);
+
+  Object annotObj;
   
   // required data
   AnnotSubtype type;                // Annotation type
