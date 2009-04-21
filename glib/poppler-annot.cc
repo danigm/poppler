@@ -455,22 +455,22 @@ poppler_annot_markup_get_date (PopplerAnnotMarkup *poppler_annot)
 {
   AnnotMarkup *annot;
   GooString *annot_date;
+  time_t timet;
 
   g_return_val_if_fail (POPPLER_IS_ANNOT_MARKUP (poppler_annot), NULL);
 
   annot = static_cast<AnnotMarkup *>(POPPLER_ANNOT (poppler_annot)->annot);
+  annot_date = annot->getDate ();
+  if (!annot_date)
+    return NULL;
 
-  if ((annot_date = annot->getDate ())) {
-    GDateYear year = g_ascii_digit_value (annot_date->getChar(2)) * 1000 +
-                     g_ascii_digit_value (annot_date->getChar(3)) * 100 +
-                     g_ascii_digit_value (annot_date->getChar(4)) * 10 +
-                     g_ascii_digit_value (annot_date->getChar(5));
-    GDateMonth month = (GDateMonth) (g_ascii_digit_value (annot_date->getChar(6)) * 10 +
-                                     g_ascii_digit_value (annot_date->getChar(7)));
-    GDateDay day = g_ascii_digit_value (annot_date->getChar(8)) * 10 +
-                   g_ascii_digit_value (annot_date->getChar(9));
+  if (_poppler_convert_pdf_date_to_gtime (annot_date, &timet)) {
+    GDate *date;
 
-    return g_date_new_dmy (day, month, year);
+    date = g_date_new ();
+    g_date_set_time_t (date, timet);
+
+    return date;
   }
 
   return NULL;
