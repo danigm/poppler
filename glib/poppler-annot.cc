@@ -301,7 +301,9 @@ poppler_annot_get_name (PopplerAnnot *poppler_annot)
  * poppler_annot_get_modified:
  * @poppler_annot: a #PopplerAnnot
  *
- * Retrieves the last modification data of @poppler_annot.
+ * Retrieves the last modification data of @poppler_annot. The returned
+ * string will be either a PDF format date or a text string.
+ * See also #poppler_date_parse()
  *
  * Return value: a new allocated string with the last modification data of
  *               @poppler_annot. It must be freed with g_free() when done.
