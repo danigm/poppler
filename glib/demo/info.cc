@@ -22,29 +22,6 @@
 #include "info.h"
 #include "utils.h"
 
-static gchar *
-poppler_format_date (GTime utime)
-{
-	time_t time = (time_t) utime;
-	char s[256];
-	const char *fmt_hack = "%c";
-	size_t len;
-
-#ifdef HAVE_LOCALTIME_R
-	struct tm t;
-	if (time == 0 || !localtime_r (&time, &t)) return NULL;
-	len = strftime (s, sizeof (s), fmt_hack, &t);
-#else
-	struct tm *t;
-	if (time == 0 || !(t = localtime (&time)) ) return NULL;
-	len = strftime (s, sizeof (s), fmt_hack, t);
-#endif
-
-	if (len == 0 || s[0] == '\0') return NULL;
-
-	return g_locale_to_utf8 (s, -1, NULL, NULL, NULL);
-}
-
 static void
 pgd_info_add_permissions (GtkTable           *table,
 			  PopplerPermissions  permissions,
@@ -220,11 +197,11 @@ pgd_info_create_widget (PopplerDocument *document)
 	pgd_table_add_property (GTK_TABLE (table), "<b>Linearized:</b>", linearized, &row);
 	g_free (linearized);
 	
-	str = poppler_format_date (creation_date);
+	str = pgd_format_date (creation_date);
 	pgd_table_add_property (GTK_TABLE (table), "<b>Creation Date:</b>", str, &row);
 	g_free (str);
 
-	str = poppler_format_date (mod_date);
+	str = pgd_format_date (mod_date);
 	pgd_table_add_property (GTK_TABLE (table), "<b>Modification Date:</b>", str, &row);
 	g_free (str);
 
