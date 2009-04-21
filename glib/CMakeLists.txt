@@ -24,6 +24,7 @@ endif (GTK_FOUND)
 
 set(poppler_glib_public_headers
   poppler-action.h
+  poppler-date.h
   poppler-document.h
   poppler-page.h
   poppler-attachment.h
@@ -75,6 +76,7 @@ add_custom_command(
 
 set(poppler_glib_SRCS
   poppler-action.cc
+  poppler-date.cc
   poppler-document.cc
   poppler-page.cc
   poppler-attachment.cc
