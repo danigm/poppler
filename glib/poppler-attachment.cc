@@ -94,8 +94,8 @@ _poppler_attachment_new (PopplerDocument *document,
 
   attachment->size = emb_file->size ();
   
-  _poppler_convert_pdf_date_to_gtime (emb_file->createDate (), &attachment->ctime);
-  _poppler_convert_pdf_date_to_gtime (emb_file->modDate (), &attachment->mtime);
+  _poppler_convert_pdf_date_to_gtime (emb_file->createDate (), (time_t *)&attachment->ctime);
+  _poppler_convert_pdf_date_to_gtime (emb_file->modDate (), (time_t *)&attachment->mtime);
 
   attachment->checksum = g_string_new_len (emb_file->checksum ()->getCString (),
 					   emb_file->checksum ()->getLength ());

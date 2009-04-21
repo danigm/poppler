@@ -45,6 +45,7 @@ EXTRA_DIST = \
 
 poppler_glib_public_headers =			\
 	poppler-action.h			\
+	poppler-date.h				\
 	poppler-document.h			\
 	poppler-page.h				\
 	poppler-attachment.h			\
@@ -64,6 +65,7 @@ lib_LTLIBRARIES = libpoppler-glib.la
 libpoppler_glib_la_SOURCES =			\
 	$(BUILT_SOURCES)			\
 	poppler-action.cc			\
+	poppler-date.cc				\
 	poppler-document.cc			\
 	poppler-page.cc				\
 	poppler-attachment.cc			\

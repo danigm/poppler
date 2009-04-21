@@ -111,7 +111,7 @@ PopplerAnnot      *_poppler_annot_free_text_new (Annot *annot);
 
 char *_poppler_goo_string_to_utf8(GooString *s);
 gboolean _poppler_convert_pdf_date_to_gtime (GooString *date,
-					     GTime     *gdate);
+					     time_t    *gdate);
 
 /*
  * A convenience macro for boxed type implementations, which defines a

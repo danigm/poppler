@@ -30,7 +30,6 @@
 #include <Stream.h>
 #include <FontInfo.h>
 #include <PDFDocEncoding.h>
-#include <DateInfo.h>
 #include <OptionalContent.h>
 
 #include "poppler.h"
@@ -567,7 +566,7 @@ static void
 info_dict_get_date (Dict *info_dict, const gchar *key, GValue *value) 
 {
   Object obj;
-  GTime result;
+  time_t result;
 
   if (!info_dict->lookup ((gchar *)key, &obj)->isString ()) {
     obj.free ();
@@ -1895,13 +1894,10 @@ poppler_document_get_form_field (PopplerDocument *document,
 
 gboolean
 _poppler_convert_pdf_date_to_gtime (GooString *date,
-				    GTime     *gdate) 
+				    time_t    *gdate) 
 {
-  int year, mon, day, hour, min, sec, tz_hour, tz_minute;
-  char tz;
-  struct tm time;
-  gchar *date_string, *ds;
-  GTime result;
+  gchar *date_string;
+  gboolean retval;
 
   if (date->hasUnicodeMarker()) {
     date_string = g_convert (date->getCString () + 2,
@@ -1910,34 +1906,9 @@ _poppler_convert_pdf_date_to_gtime (GooString *date,
   } else {
     date_string = g_strndup (date->getCString (), date->getLength ());
   }
-  ds = date_string;
-  
-  /* See PDF Reference 1.3, Section 3.8.2 for PDF Date representation */
-  // TODO do something with the timezone information
-  if (!parseDateString(ds, &year, &mon, &day, &hour, &min, &sec, &tz, &tz_hour, &tz_minute)) {
-    g_free (ds);
-    return FALSE;
-  }
-	
-  time.tm_year = year - 1900;
-  time.tm_mon = mon - 1;
-  time.tm_mday = day;
-  time.tm_hour = hour;
-  time.tm_min = min;
-  time.tm_sec = sec;
-  time.tm_wday = -1;
-  time.tm_yday = -1;
-  time.tm_isdst = -1; /* 0 = DST off, 1 = DST on, -1 = don't know */
- 
-  /* compute tm_wday and tm_yday and check date */
-  result = mktime (&time);
-  if (result == (time_t) - 1) {
-    g_free (ds);
-    return FALSE;
-  }
-    
-  g_free (ds);
-  *gdate = result;
 
-  return TRUE;
+  retval = poppler_date_parse (date_string, gdate);
+  g_free (date_string);
+
+  return retval;
 }

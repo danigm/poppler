@@ -125,5 +125,6 @@ G_END_DECLS
 #include "poppler-enums.h"
 #include "poppler-attachment.h"
 #include "poppler-annot.h"
+#include "poppler-date.h"
 
 #endif /* __POPPLER_GLIB_H__ */
