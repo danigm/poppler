@@ -528,6 +528,10 @@ protected:
   void drawCircleTopLeft(double cx, double cy, double r);
   void drawCircleBottomRight(double cx, double cy, double r);
 
+  // Updates the field key of the annotation dictionary
+  // and sets M to the current time
+  void update(const char *key, Object *value);
+
   Object annotObj;
   
   // required data
@@ -648,9 +652,6 @@ public:
   GBool getOpen() const { return open; }
   GooString *getIcon() const { return icon; }
   AnnotTextState getState() const { return state; }
-
-  // setters
-  void setModified(GooString *date);
 
 private:
 

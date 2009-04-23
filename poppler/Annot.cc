@@ -56,6 +56,7 @@
 #include "OptionalContent.h"
 #include "Sound.h"
 #include "FileSpec.h"
+#include "DateInfo.h"
 #include <string.h>
 
 #define annotFlagHidden    0x0002
@@ -985,6 +986,20 @@ void Annot::initialize(XRef *xrefA, Dict *dict, Catalog *catalog) {
   }
 }
 
+void Annot::update(const char *key, Object *value) {
+  /* Set M to current time */
+  delete modified;
+  modified = timeToDateString(NULL);
+
+  Object obj1;
+  obj1.initString (modified->copy());
+  annotObj.dictSet("M", &obj1);
+
+  annotObj.dictSet(const_cast<char*>(key), value);
+  
+  xref->setModifiedObject(&annotObj, ref);
+}
+
 void Annot::setContents(GooString *new_content) {
   delete contents;
 
@@ -1001,9 +1016,7 @@ void Annot::setContents(GooString *new_content) {
   
   Object obj1;
   obj1.initString(contents->copy());
-
-  annotObj.dictSet("Contents", &obj1);
-  xref->setModifiedObject(&annotObj, ref);
+  update ("Contents", &obj1);
 }
 	
 double Annot::getXMin() {
@@ -1345,13 +1358,6 @@ AnnotText::AnnotText(XRef *xrefA, Dict *dict, Catalog *catalog, Object *obj) :
 
 AnnotText::~AnnotText() {
   delete icon;
-}
-
-void AnnotText::setModified(GooString *date) {
-  if (date) {
-    delete modified;
-    modified = new GooString(date);
-  }
 }
 
 void AnnotText::initialize(XRef *xrefA, Catalog *catalog, Dict *dict) {
