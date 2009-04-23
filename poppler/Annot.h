@@ -497,6 +497,8 @@ public:
 
   double getFontSize() { return fontSize; }
 
+  // Sets the annotn contents to new_conten
+  // new_content should never be NULL
   void setContents(GooString *new_content);
   
   // getters
