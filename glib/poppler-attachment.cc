@@ -29,11 +29,13 @@
 typedef struct _PopplerAttachmentPrivate PopplerAttachmentPrivate;
 struct _PopplerAttachmentPrivate
 {
-  Object obj_stream;
+  Object *obj_stream;
+  PopplerDocument *document;
 };
 
 #define POPPLER_ATTACHMENT_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), POPPLER_TYPE_ATTACHMENT, PopplerAttachmentPrivate))
 
+static void poppler_attachment_dispose (GObject *obj);
 static void poppler_attachment_finalize (GObject *obj);
 
 G_DEFINE_TYPE (PopplerAttachment, poppler_attachment, G_TYPE_OBJECT)
@@ -46,8 +48,32 @@ poppler_attachment_init (PopplerAttachment *attachment)
 static void
 poppler_attachment_class_init (PopplerAttachmentClass *klass)
 {
+  G_OBJECT_CLASS (klass)->dispose = poppler_attachment_dispose;
   G_OBJECT_CLASS (klass)->finalize = poppler_attachment_finalize;
   g_type_class_add_private (klass, sizeof (PopplerAttachmentPrivate));
+}
+
+static void
+poppler_attachment_dispose (GObject *obj)
+{
+  PopplerAttachmentPrivate *priv;
+
+  priv = POPPLER_ATTACHMENT_GET_PRIVATE (obj);
+
+  if (priv->obj_stream)
+    {
+      priv->obj_stream->free();
+      delete priv->obj_stream;
+      priv->obj_stream = NULL;
+    }
+
+  if (priv->document)
+    {
+      g_object_unref (priv->document);
+      priv->document = NULL;
+    }
+
+  G_OBJECT_CLASS (poppler_attachment_parent_class)->dispose (obj);
 }
 
 static void
@@ -69,8 +95,6 @@ poppler_attachment_finalize (GObject *obj)
     g_string_free (attachment->checksum, TRUE);
   attachment->checksum = NULL;
   
-  POPPLER_ATTACHMENT_GET_PRIVATE (attachment)->obj_stream.free();
-
   G_OBJECT_CLASS (poppler_attachment_parent_class)->finalize (obj);
 }
 
@@ -81,12 +105,16 @@ _poppler_attachment_new (PopplerDocument *document,
 			 EmbFile         *emb_file)
 {
   PopplerAttachment *attachment;
+  PopplerAttachmentPrivate *priv;
 
   g_assert (document != NULL);
   g_assert (emb_file != NULL);
 
   attachment = (PopplerAttachment *) g_object_new (POPPLER_TYPE_ATTACHMENT, NULL);
-  
+  priv = POPPLER_ATTACHMENT_GET_PRIVATE (attachment);
+
+  priv->document = (PopplerDocument *) g_object_ref (document);
+
   if (emb_file->name ())
     attachment->name = _poppler_goo_string_to_utf8 (emb_file->name ());
   if (emb_file->description ())
@@ -101,7 +129,8 @@ _poppler_attachment_new (PopplerDocument *document,
 	  attachment->checksum = g_string_new_len (emb_file->checksum ()->getCString (),
 						   emb_file->checksum ()->getLength ());
   
-  emb_file->streamObject().copy(&POPPLER_ATTACHMENT_GET_PRIVATE (attachment)->obj_stream);
+  priv->obj_stream = new Object();
+  emb_file->streamObject().copy(priv->obj_stream);
 
   return attachment;
 }
@@ -214,7 +243,7 @@ poppler_attachment_save_to_callback (PopplerAttachment          *attachment,
 
   g_return_val_if_fail (POPPLER_IS_ATTACHMENT (attachment), FALSE);
 
-  stream = POPPLER_ATTACHMENT_GET_PRIVATE (attachment)->obj_stream.getStream();
+  stream = POPPLER_ATTACHMENT_GET_PRIVATE (attachment)->obj_stream->getStream();
   stream->reset();
 
   do
