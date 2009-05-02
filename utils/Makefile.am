@@ -10,16 +10,6 @@ pdftoppm_manpage = pdftoppm.1
 
 endif
 
-if BUILD_ABIWORD_OUTPUT
-
-pdftoabw_SOURCES =				\
-	pdftoabw.cc				\
-	$(common)
-
-pdftoabw_binary = pdftoabw
-
-endif
-
 INCLUDES =					\
 	-I$(top_srcdir)				\
 	-I$(top_srcdir)/utils			\
@@ -32,6 +22,18 @@ LDADD =						\
 	$(top_builddir)/poppler/libpoppler.la	\
 	$(UTILS_LIBS)				\
 	$(FONTCONFIG_LIBS)
+
+if BUILD_ABIWORD_OUTPUT
+
+pdftoabw_SOURCES =				\
+	pdftoabw.cc				\
+	$(common)
+
+pdftoabw_LDADD = $(LDADD) $(ABIWORD_LIBS)
+
+pdftoabw_binary = pdftoabw
+
+endif
 
 if BUILD_LIBPNG
 pdftohtml_LDADD = $(LDADD) $(LIBPNG_LIBS)
