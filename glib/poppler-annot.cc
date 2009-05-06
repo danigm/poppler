@@ -345,41 +345,47 @@ poppler_annot_get_flags (PopplerAnnot *poppler_annot)
  * Retrieves the color of @poppler_annot.
  *
  * Return value: a new allocated #PopplerColor with the color values of
- *               @poppler_annot. It must be freed with g_free() when done.
+ *               @poppler_annot, or %NULL. It must be freed with g_free() when done.
  **/
 PopplerColor *
 poppler_annot_get_color (PopplerAnnot *poppler_annot)
 {
   AnnotColor *color;
+  PopplerColor *poppler_color = NULL;
 
   g_return_val_if_fail (POPPLER_IS_ANNOT (poppler_annot), NULL);
 
-  if ((color = poppler_annot->annot->getColor ())) {
-    PopplerColor *poppler_color;
+  color = poppler_annot->annot->getColor ();
+
+  if (color) {
     double *values = color->getValues ();
 
     switch (color->getSpace ())
       {
       case AnnotColor::colorGray:
         poppler_color = g_new (PopplerColor, 1);
-        poppler_color->red = (guint16) values[0];
-        poppler_color->green = (guint16) values[0];
-        poppler_color->blue = (guint16) values[0];
-        return poppler_color;
+	
+        poppler_color->red = (guint16) (values[0] * 65535);
+        poppler_color->green = poppler_color->red;
+        poppler_color->blue = poppler_color->red;
+
+	break;
       case AnnotColor::colorRGB:
         poppler_color = g_new (PopplerColor, 1);
-        poppler_color->red = (guint16) values[0];
-        poppler_color->green = (guint16) values[1];
-        poppler_color->blue = (guint16) values[2];
-        return poppler_color;
-      case AnnotColor::colorTransparent:
+	
+        poppler_color->red = (guint16) (values[0] * 65535);
+        poppler_color->green = (guint16) (values[1] * 65535);
+        poppler_color->blue = (guint16) (values[2] * 65535);
+
+	break;
       case AnnotColor::colorCMYK:
-      default:
-        g_warning ("Unsupported Annot Color");
+        g_warning ("Unsupported Annot Color: colorCMYK");
+      case AnnotColor::colorTransparent:
+        break;
       }
   }
 
-  return NULL;
+  return poppler_color;
 }
 
 /* PopplerAnnotMarkup */

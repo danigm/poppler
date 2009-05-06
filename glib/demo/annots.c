@@ -152,28 +152,25 @@ get_annot_color (PopplerAnnot *poppler_annot)
 
     if ((poppler_color = poppler_annot_get_color (poppler_annot))) {
         GdkPixbuf *pixbuf;
+	gint rowstride, num, x;
+	guchar *pixels;
 
         pixbuf = gdk_pixbuf_new (GDK_COLORSPACE_RGB,
                                  FALSE, 8,
                                  64, 16);
 
-        if (pixbuf) {
-            gint rowstride, num, x;
-            guchar *pixels;
-
-            rowstride = gdk_pixbuf_get_rowstride (pixbuf);
-            pixels = gdk_pixbuf_get_pixels (pixbuf);
+	rowstride = gdk_pixbuf_get_rowstride (pixbuf);
+	pixels = gdk_pixbuf_get_pixels (pixbuf);
             
-            num = gdk_pixbuf_get_width (pixbuf) *
+	num = gdk_pixbuf_get_width (pixbuf) *
                 gdk_pixbuf_get_height (pixbuf);
 
-            for (x = 0; x < num; x++) {
-                pixels[0] = poppler_color->red * 255;
-                pixels[1] = poppler_color->green * 255;
-                pixels[2] = poppler_color->blue * 255;
-                pixels += 3;
-            }
-        }
+	for (x = 0; x < num; x++) {
+          pixels[0] = poppler_color->red;
+	  pixels[1] = poppler_color->green;
+	  pixels[2] = poppler_color->blue;
+	  pixels += 3;
+	}
 
         g_free (poppler_color);
 
