@@ -303,6 +303,7 @@ pgd_annot_view_set_annot_markup (GtkWidget          *table,
                                  gint               *row)
 {
     gchar *text;
+    PopplerRectangle rect;
 
     text = poppler_annot_markup_get_label (markup);
     pgd_table_add_property (GTK_TABLE (table), "<b>Label:</b>", text, row);
@@ -310,6 +311,13 @@ pgd_annot_view_set_annot_markup (GtkWidget          *table,
 
     pgd_table_add_property (GTK_TABLE (table), "<b>Popup is open:</b>",
                             poppler_annot_markup_get_popup_is_open (markup) ? "Yes" : "No", row);
+
+    if (poppler_annot_markup_get_popup_rectangle (markup, &rect)) {
+	    text = g_strdup_printf ("X1: %.2f, Y1: %.2f, X2: %.2f, Y2: %.2f",
+				    rect.x1, rect.y1, rect.x2, rect.y2);
+	    pgd_table_add_property (GTK_TABLE (table), "<b>Popup Rectangle:</b>", text, row);
+	    g_free (text);
+    }
 
     text = g_strdup_printf ("%f", poppler_annot_markup_get_opacity (markup));
     pgd_table_add_property (GTK_TABLE (table), "<b>Opacity:</b>", text, row);

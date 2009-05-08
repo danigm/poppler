@@ -438,6 +438,41 @@ poppler_annot_markup_get_popup_is_open (PopplerAnnotMarkup *poppler_annot)
 }
 
 /**
+ * poppler_annot_markup_get_popup_rectangle:
+ * @poppler_annot: a #PopplerAnnotMarkup
+ * @poppler_rect: a #PopplerRectangle to store the popup rectangle
+ *
+ * Retrieves the rectangle of the popup annot related to @poppler_annot.
+ *
+ * Return value: %TRUE if #PopplerRectangle was correctly filled,
+ *               %FALSE otherwise
+ **/
+gboolean
+poppler_annot_markup_get_popup_rectangle (PopplerAnnotMarkup *poppler_annot,
+					  PopplerRectangle   *poppler_rect)
+{
+  AnnotMarkup *annot;
+  Annot *annot_popup;
+  PDFRectangle *annot_rect;
+
+  g_return_val_if_fail (POPPLER_IS_ANNOT_MARKUP (poppler_annot), FALSE);
+  g_return_val_if_fail (poppler_rect != NULL, FALSE);
+
+  annot = static_cast<AnnotMarkup *>(POPPLER_ANNOT (poppler_annot)->annot);
+  annot_popup = annot->getPopup ();
+  if (!annot_popup)
+    return FALSE;
+
+  annot_rect = annot_popup->getRect ();
+  poppler_rect->x1 = annot_rect->x1;
+  poppler_rect->x2 = annot_rect->x2;
+  poppler_rect->y1 = annot_rect->y1;
+  poppler_rect->y2 = annot_rect->y2;
+
+  return TRUE;
+}
+
+/**
 * poppler_annot_markup_get_opacity:
 * @poppler_annot: a #PopplerAnnotMarkup
 *
