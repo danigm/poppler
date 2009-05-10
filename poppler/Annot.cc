@@ -4039,6 +4039,19 @@ Annot *Annots::createAnnot(XRef *xref, Dict* dict, Catalog *catalog, Object *obj
       annot = new Annot(xref, dict, catalog, obj);
     } else if (!typeName->cmp("3D")) {
       annot = new Annot3D(xref, dict, catalog, obj);
+    } else if (!typeName->cmp("Popup")) {
+      /* Popup annots are already handled by markup annots
+       * Here we only care about popup annots without a
+       * markup annotation associated
+       */
+      Object obj2;
+
+      if (dict->lookup("Parent", &obj2)->isNull())
+        annot = new AnnotPopup(xref, dict, catalog, obj);
+      else
+        annot = NULL;
+      
+      obj2.free();
     } else {
       annot = new Annot(xref, dict, catalog, obj);
     }
