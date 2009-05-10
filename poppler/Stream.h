@@ -291,6 +291,9 @@ public:
   // Reset the stream.
   void reset();
 
+  // Close the stream previously reset
+  void close();
+
   // Gets the next pixel from the stream.  <pix> should be able to hold
   // at least nComps elements.  Returns false at end of file.
   GBool getPixel(Guchar *pix);

@@ -731,6 +731,7 @@ void ArthurOutputDev::drawImageMask(GfxState *state, Object *ref, Stream *str,
   cairo_pattern_destroy (pattern);
   cairo_surface_destroy (image);
   free (buffer);
+  imgStr->close ();
   delete imgStr;
 #endif
 }

@@ -415,6 +415,10 @@ void ImageStream::reset() {
   str->reset();
 }
 
+void ImageStream::close() {
+  str->close();
+}
+
 GBool ImageStream::getPixel(Guchar *pix) {
   int i;
 

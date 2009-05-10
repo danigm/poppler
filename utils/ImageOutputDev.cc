@@ -217,6 +217,7 @@ void ImageOutputDev::drawImage(GfxState *state, Object *ref, Stream *str,
 	p += colorMap->getNumPixelComps();
       }
     }
+    imgStr->close();
     delete imgStr;
 
     fclose(f);

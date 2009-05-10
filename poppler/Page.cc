@@ -563,6 +563,7 @@ GBool Page::loadThumb(unsigned char **data_out,
       }
     }
     *data_out = pixbufdata;
+    imgstr->close();
     delete imgstr;
   }
 

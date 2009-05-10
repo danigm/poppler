@@ -1414,6 +1414,7 @@ void HtmlOutputDev::drawImage(GfxState *state, Object *ref, Stream *str,
     free(row);
     imgList->append(fName);
     ++imgNum;
+    imgStr->close();
     delete imgStr;
 #else
     OutputDev::drawImage(state, ref, str, width, height, colorMap,
