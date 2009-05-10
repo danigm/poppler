@@ -27,6 +27,7 @@
 // Copyright (C) 2008 Pino Toscano <pino@kde.org>
 // Copyright (C) 2008 Michael Vrable <mvrable@cs.ucsd.edu>
 // Copyright (C) 2008 Hib Eris <hib@hiberis.nl>
+// Copyright (C) 2009 M Joonas Pihlaja <jpihlaja@cc.helsinki.fi>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -2447,9 +2448,13 @@ void Gfx::doAxialShFill(GfxAxialShading *shading) {
          if (!doneBBox1 && ta[i] < bboxIntersections[1] && ta[j] > bboxIntersections[1]) {
            int teoricalj = (bboxIntersections[1] - tMin) * axialMaxSplits / (tMax - tMin);
            if (teoricalj <= i) teoricalj = i + 1;
-           if (j == teoricalj) j = teoricalj + 1;
-           next[i] = teoricalj;
-           next[teoricalj] = j;
+           if (teoricalj < j) {
+             next[i] = teoricalj;
+             next[teoricalj] = j;
+           }
+           else {
+             teoricalj = j;
+           }
            ta[teoricalj] = bboxIntersections[1];
            j = teoricalj;
            doneBBox1 = true;
@@ -2457,14 +2462,18 @@ void Gfx::doAxialShFill(GfxAxialShading *shading) {
          if (!doneBBox2 && ta[i] < bboxIntersections[2] && ta[j] > bboxIntersections[2]) {
            int teoricalj = (bboxIntersections[2] - tMin) * axialMaxSplits / (tMax - tMin);
            if (teoricalj <= i) teoricalj = i + 1;
-           if (j == teoricalj) j = teoricalj + 1;
-           next[i] = teoricalj;
-           next[teoricalj] = j;
+           if (teoricalj < j) {
+             next[i] = teoricalj;
+             next[teoricalj] = j;
+           }
+           else {
+             teoricalj = j;
+           }
            ta[teoricalj] = bboxIntersections[2];
            j = teoricalj;
            doneBBox2 = true;
          }
-        break;
+         break;
       }
       k = (i + j) / 2;
       ta[k] = 0.5 * (ta[i] + ta[j]);
