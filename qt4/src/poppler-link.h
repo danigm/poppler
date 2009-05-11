@@ -139,6 +139,13 @@ class POPPLER_QT4_EXPORT LinkDestination
 		QString toString() const;
 
 		/**
+		 * Return the name of this destination.
+		 *
+		 * \since 0.12
+		 */
+		QString destinationName() const;
+
+		/**
 		 * Assignment operator.
 		 */
 		LinkDestination& operator=(const LinkDestination &other);
