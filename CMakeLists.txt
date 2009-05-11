@@ -11,7 +11,7 @@ find_package(PkgConfig)
 include(MacroEnsureVersion)
 include(MacroBoolTo01)
 
-set(POPPLER_VERSION "0.10.0")
+set(POPPLER_VERSION "0.11.0")
 
 # command line switches
 option(ENABLE_XPDF_HEADERS "Install unsupported xpdf headers." OFF)
@@ -258,7 +258,7 @@ add_library(poppler STATIC ${poppler_SRCS})
 else(MSVC)
 add_library(poppler SHARED ${poppler_SRCS})
 endif(MSVC)
-set_target_properties(poppler PROPERTIES VERSION 4.0.0 SOVERSION 4)
+set_target_properties(poppler PROPERTIES VERSION 5.0.0 SOVERSION 5)
 target_link_libraries(poppler ${poppler_LIBS})
 install(TARGETS poppler RUNTIME DESTINATION bin LIBRARY DESTINATION lib ARCHIVE DESTINATION lib)
 

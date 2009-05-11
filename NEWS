@@ -1,3 +1,145 @@
+Release 0.11.0 (0.10 Alpha)
+
+	core:
+	 * Add initial support for color management
+	 * Remove case-insensitive matching of filenames in PDFDoc constructor
+	 * Fix extraction of some ActualText content
+	 * More work on Annotations support
+	 * Improve font rendering in Cairo output device
+	 * Fix bug in cairo backend with nested masks
+	 * Fix cairo luminosity smask rendering
+	 * Add optionally text support to Cairo output device
+	 * Add the possibility of setting the datadir on runtime
+	 * Return an error code instead of a boolean when saving
+	 * Make the font scanner more versatile
+	 * Small opimization in documents that use PostScriptFunction transforms
+	 * Minor optimization to Stream handling
+	 * Fix some compile warnings
+
+	glib:
+	 * Optional content support
+	 * More work on Annotations support
+	 * Improvements to the demo
+	 * Documentation improvements
+	 * Fix build when compiling with GTK_DISABLE_SINGLE_INCLUDES
+	
+	Qt4:
+	 * Support URI actions for Table Of Contents items
+	 * Documentation improvements
+	 * Improvements to the demo
+	 * Add a FontIterator for iterating through the fonts of the document
+	
+	utils:
+	 * Allow the use of cropbox in pdftoppm
+	 * Make pdftohtml output png images when the image stream is not a jpeg
+	 * Make pdftotext accept cropping options like pdftoppm
+	 * Support rendering non-square pixels in pdftoppm
+	
+	build system:
+	 * Require Cairo 1.8.4 for the Cairo output device
+	 * Require CMake 2.6 when using the CMake build system
+	 * Optionally require libpng for pdftohtml
+	 * Optionally require libcms for color management
+
+Release 0.10.6
+
+	core:
+	 * Fix problems that happen when parsing broken JBIG2 files.
+	   CVE-2009-0799, CVE-2009-0800, CVE-2009-1179, CVE-2009-1180
+	   CVE-2009-1181, CVE-2009-1182, CVE-2009-1183, CVE-2009-1187, CVE-2009-1188
+	 * Fix parsing of incorrect border arrays. Bug #19761
+	 * Fix clip test for fonts. Bug #20950
+	 * Fix getGlyphAdvance to behave correctly on font size changes. Bug #20769
+	 * Misc build fixes
+	 
+	build system:
+	 * Fix the Qt4 version we need
+
+Release 0.10.5
+
+	core:
+	 * Read the UF entry if present and prefer it over F in Filespec dictionary
+	 * Fix typo that was making CairoOutputDev crash on some files. Bug #17337
+	 * Make JBIG2Stream more robust to corrupt input data
+	 * Do not blindly follow loops parsing OutlineItem. Bug #18364
+	 * Set up the error manager before calling jpeg_create_decompress. Bug #20484
+	 * Check there is an optional content config before using it. Bug #20587
+	 * Fix rendering of some PDF with OpenType fonts. Bug #20605
+
+	build system:
+	 * Yet more support for build on windows
+	 * Use AC_CHECK_HEADER to find headers. Bug #20538
+	 * Check for pkgconfig before using it
+	 * General autotools improvements
+
+Release 0.10.4
+
+	core:
+	 * Fix a memory leak when asking for a document-level JS
+	 * Do not crash in some PDF we do not parse correctly. Bug #19702
+	 * Fix crash on unexepcted form Opt value. Bug #19790
+	
+	utils:
+	 * Fix pdfimages to extract i color components per pixel jpeg images. Bug #19789
+
+Release 0.10.3
+
+	core:
+	 * Fix a crash on documents with malformed outline. Bug #19024
+	 * Fix leak on AnnotScreen destructor. Bug #19095
+	 * Fix wrong PS generation when a large image is in Patterns. Bug #18908
+	 * Remove BaseFile.h it was never used. Bug #19298
+	 * Improve document saving
+	 * Fix PS generation of PDF with malformed font Length2 definition
+	 * Fix a leak while parsing annotations
+	 * Fix rendering of some checkboxes
+	
+	Qt4:
+	 * Fix positioning of Form rects on PDF with cropbox
+	 * Fix positioning of Annotation rects on PDF with cropbox. Bug #18558.
+	 * Small documentation improvements
+	 * Make Document::fonts() work when called more than once. Bug #19405
+	
+	build system:
+	 * CMake: look harder for openjpeg
+	 * CMake: update the poppler core headers installation
+	 * Autotools: do not install Function.cc as it's not a header
+	
+	Qt:
+	 * Fix deserialization of links right coordinate
+
+Release 0.10.2
+
+	core:
+	 * Fix a crash when selecting text in word mode
+	 * Fix a crash in some malformed documents (second argument of opMarkPoint is not a dictionary)
+	 * Ensure cairo font matrix is invertable. Fixes bugs #18254 and #18429
+	 * Fix a memory leak (Bug #18924)
+	
+	Qt4:
+	 * Fix deserization of links right coordinate
+	
+	misc:
+	 * Fix build on Solaris 10 + Sun Studio 12
+	 * Compile with -pedantic
+
+Release 0.10.1
+
+	core:
+	 * Improvements in Optional Content support
+	 * Small fix in Form support
+	 * Fix memory leak in case of error
+	 * Fix potential crash on text search
+	 * Try render documents with invalid indexed color space parameters. Bug #18374
+	 * Fix crash on text extraction when poppler-data is not installed. Bug #18023
+	
+	Qt:
+	 * Fix two memory leaks
+	
+	Qt4:
+	 * Small documentation improvement
+	 * Fix memory leak in the demo code
+
 Release 0.10.0
 
 	core:
