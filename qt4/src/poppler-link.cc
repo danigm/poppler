@@ -193,14 +193,15 @@ class LinkMoviePrivate : public LinkPrivate
 		bool deleteDest = false;
 		LinkDest *ld = data.ld;
 		
-		if ( data.namedDest )
-		{
-			d->name = QString::fromLatin1( data.namedDest->getCString() );
-		}
 		if ( data.namedDest && !ld )
 		{
 			deleteDest = true;
 			ld = data.doc->doc->findDest( data.namedDest );
+		}
+		// in case this destination was named one, and it was not resolved
+		if ( data.namedDest && !ld )
+		{
+			d->name = QString::fromLatin1( data.namedDest->getCString() );
 		}
 		
 		if (!ld) return;
