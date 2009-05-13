@@ -145,7 +145,7 @@ namespace Poppler {
                 }
                 else if ( destination && destination->isOk() )
                 {
-                    LinkDestinationData ldd(destination, NULL, doc);
+                    LinkDestinationData ldd(destination, NULL, doc, false);
                     e->setAttribute( "Destination", LinkDestination(ldd).toString() );
                 }
                 break;
@@ -169,7 +169,7 @@ namespace Poppler {
                 }
                 else if ( destination && destination->isOk() )
                 {
-                    LinkDestinationData ldd(destination, NULL, doc);
+                    LinkDestinationData ldd(destination, NULL, doc, g->getFileName() != 0);
                     e->setAttribute( "Destination", LinkDestination(ldd).toString() );
                 }
                 e->setAttribute( "ExternalFileName", g->getFileName()->getCString() );

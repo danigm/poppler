@@ -193,7 +193,7 @@ class LinkMoviePrivate : public LinkPrivate
 		bool deleteDest = false;
 		LinkDest *ld = data.ld;
 		
-		if ( data.namedDest && !ld )
+		if ( data.namedDest && !ld && !data.externalDest )
 		{
 			deleteDest = true;
 			ld = data.doc->doc->findDest( data.namedDest );

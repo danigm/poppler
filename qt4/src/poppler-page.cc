@@ -80,8 +80,9 @@ Link* PageData::convertLinkActionToLink(::LinkAction * a, DocumentData *parentDo
     case actionGoTo:
     {
       LinkGoTo * g = (LinkGoTo *) a;
+      const LinkDestinationData ldd( g->getDest(), g->getNamedDest(), parentDoc, false );
       // create link: no ext file, namedDest, object pointer
-      popplerLink = new LinkGoto( linkArea, QString::null, LinkDestination( LinkDestinationData(g->getDest(), g->getNamedDest(), parentDoc ) ) );
+      popplerLink = new LinkGoto( linkArea, QString::null, LinkDestination( ldd ) );
     }
     break;
 
@@ -90,8 +91,9 @@ Link* PageData::convertLinkActionToLink(::LinkAction * a, DocumentData *parentDo
       LinkGoToR * g = (LinkGoToR *) a;
       // copy link file
       const QString fileName = UnicodeParsedString( g->getFileName() );
+      const LinkDestinationData ldd( g->getDest(), g->getNamedDest(), parentDoc, !fileName.isEmpty() );
       // ceate link: fileName, namedDest, object pointer
-      popplerLink = new LinkGoto( linkArea, fileName, LinkDestination( LinkDestinationData(g->getDest(), g->getNamedDest(), parentDoc ) ) );
+      popplerLink = new LinkGoto( linkArea, fileName, LinkDestination( ldd ) );
     }
     break;
 

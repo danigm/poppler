@@ -416,7 +416,7 @@ namespace Poppler {
             return NULL;
 
         GooString * namedDest = QStringToGooString( name );
-        LinkDestinationData ldd(NULL, namedDest, m_doc);
+        LinkDestinationData ldd(NULL, namedDest, m_doc, false);
         LinkDestination *ld = new LinkDestination(ldd);
         delete namedDest;
         return ld;
