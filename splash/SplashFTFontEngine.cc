@@ -12,6 +12,7 @@
 // under GPL version 2 or later
 //
 // Copyright (C) 2006 Takashi Iwai <tiwai@suse.de>
+// Copyright (C) 2009 Albert Astals Cid <aacid@kde.org>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -178,7 +179,7 @@ SplashFontFile *SplashFTFontEngine::loadTrueTypeFont(SplashFontFileID *idA,
     return NULL;
   }
   tmpFileName = NULL;
-  if (!openTempFile(&tmpFileName, &tmpFile, "wb", NULL)) {
+  if (!openTempFile(&tmpFileName, &tmpFile, "wb")) {
     delete ff;
     return NULL;
   }

@@ -19,6 +19,7 @@
 // Copyright (C) 2006 Kristian Høgsberg <krh@redhat.com>
 // Copyright (C) 2008 Adam Batkin <adam@batkin.net>
 // Copyright (C) 2008 Hib Eris <hib@hiberis.nl>
+// Copyright (C) 2009 Albert Astals Cid <aacid@kde.org>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -456,7 +457,7 @@ time_t getModTime(char *fileName) {
 #endif
 }
 
-GBool openTempFile(GooString **name, FILE **f, char *mode, char *ext) {
+GBool openTempFile(GooString **name, FILE **f, char *mode) {
 #if defined(WIN32)
   //---------- Win32 ----------
   char *tempDir;
@@ -479,9 +480,6 @@ GBool openTempFile(GooString **name, FILE **f, char *mode, char *ext) {
   for (i = 0; i < 1000; ++i) {
     sprintf(buf, "%d", t + i);
     s2 = s->copy()->append(buf);
-    if (ext) {
-      s2->append(ext);
-    }
     if (!(f2 = fopen(s2->getCString(), "r"))) {
       if (!(f2 = fopen(s2->getCString(), mode))) {
 	delete s2;
@@ -510,9 +508,6 @@ GBool openTempFile(GooString **name, FILE **f, char *mode, char *ext) {
     return gFalse;
   }
   *name = new GooString(s);
-  if (ext) {
-    (*name)->append(ext);
-  }
   if (!(*f = fopen((*name)->getCString(), mode))) {
     delete (*name);
     return gFalse;
@@ -523,48 +518,21 @@ GBool openTempFile(GooString **name, FILE **f, char *mode, char *ext) {
   char *s;
   int fd;
 
-  if (ext) {
-#if HAVE_MKSTEMPS
-    if ((s = getenv("TMPDIR"))) {
-      *name = new GooString(s);
-    } else {
-      *name = new GooString("/tmp");
-    }
-    (*name)->append("/XXXXXX")->append(ext);
-    fd = mkstemps((*name)->getCString(), strlen(ext));
-#elif defined(HAVE_MKSTEMP)
-    if ((s = getenv("TMPDIR"))) {
-      *name = new GooString(s);
-    } else {
-      *name = new GooString("/tmp");
-    }
-    (*name)->append("/XXXXXX")->append(ext);
-    fd = mkstemp((*name)->getCString());
-#else
-    if (!(s = tmpnam(NULL))) {
-      return gFalse;
-    }
-    *name = new GooString(s);
-    (*name)->append(ext);
-    fd = open((*name)->getCString(), O_WRONLY | O_CREAT | O_EXCL, 0600);
-#endif
-  } else {
 #if HAVE_MKSTEMP
-    if ((s = getenv("TMPDIR"))) {
-      *name = new GooString(s);
-    } else {
-      *name = new GooString("/tmp");
-    }
-    (*name)->append("/XXXXXX");
-    fd = mkstemp((*name)->getCString());
-#else // HAVE_MKSTEMP
-    if (!(s = tmpnam(NULL))) {
-      return gFalse;
-    }
+  if ((s = getenv("TMPDIR"))) {
     *name = new GooString(s);
-    fd = open((*name)->getCString(), O_WRONLY | O_CREAT | O_EXCL, 0600);
-#endif // HAVE_MKSTEMP
+  } else {
+    *name = new GooString("/tmp");
   }
+  (*name)->append("/XXXXXX");
+  fd = mkstemp((*name)->getCString());
+#else // HAVE_MKSTEMP
+  if (!(s = tmpnam(NULL))) {
+    return gFalse;
+  }
+  *name = new GooString(s);
+  fd = open((*name)->getCString(), O_WRONLY | O_CREAT | O_EXCL, 0600);
+#endif // HAVE_MKSTEMP
   if (fd < 0 || !(*f = fdopen(fd, mode))) {
     delete *name;
     return gFalse;

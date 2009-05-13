@@ -16,6 +16,7 @@
 // under GPL version 2 or later
 //
 // Copyright (C) 2006 Kristian Høgsberg <krh@redhat.com>
+// Copyright (C) 2009 Albert Astals Cid <aacid@kde.org>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -99,7 +100,7 @@ extern time_t getModTime(char *fileName);
 // should be done to the returned file pointer; the file may be
 // reopened later for reading, but not for writing.  The <mode> string
 // should be "w" or "wb".  Returns true on success.
-extern GBool openTempFile(GooString **name, FILE **f, char *mode, char *ext);
+extern GBool openTempFile(GooString **name, FILE **f, char *mode);
 
 // Execute <command>.  Returns true on success.
 extern GBool executeCommand(char *cmd);

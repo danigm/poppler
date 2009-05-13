@@ -17,7 +17,7 @@
 // Copyright (C) 2005-2007 Jeff Muizelaar <jeff@infidigm.net>
 // Copyright (C) 2005, 2006 Kristian Høgsberg <krh@redhat.com>
 // Copyright (C) 2005 Martin Kretzschmar <martink@gnome.org>
-// Copyright (C) 2005 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2005, 2009 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2006, 2007 Carlos Garcia Campos <carlosgc@gnome.org>
 // Copyright (C) 2007 Koji Otani <sho@bbr.jp>
 // Copyright (C) 2008 Chris Wilson <chris@chris-wilson.co.uk>
@@ -392,7 +392,7 @@ CairoFreeTypeFont *CairoFreeTypeFont::create(GfxFont *gfxFont, XRef *xref,
   tmpFileName = NULL;
 
   if (gfxFont->getEmbeddedFontID(&embRef)) {
-    if (!openTempFile(&tmpFileName, &tmpFile, "wb", NULL)) {
+    if (!openTempFile(&tmpFileName, &tmpFile, "wb")) {
       error(-1, "Couldn't create temporary font file");
       goto err2;
     }
@@ -489,7 +489,7 @@ CairoFreeTypeFont *CairoFreeTypeFont::create(GfxFont *gfxFont, XRef *xref,
       codeToGID = ((Gfx8BitFont *)gfxFont)->getCodeToGIDMap(ff);
       codeToGIDLen = 256;
     }
-    if (!openTempFile(&tmpFileName2, &tmpFile, "wb", NULL)) {
+    if (!openTempFile(&tmpFileName2, &tmpFile, "wb")) {
       delete ff;
       error(-1, "failed to open truetype tempfile\n");
       goto err2;
