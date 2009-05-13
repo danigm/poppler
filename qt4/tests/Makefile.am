@@ -64,6 +64,7 @@ TESTS = \
 	check_actualtext	\
 	check_dateConversion 	\
 	check_fonts		\
+	check_links		\
 	check_metadata         	\
 	check_optcontent	\
 	check_permissions      	\
@@ -89,6 +90,10 @@ check_dateConversion_LDADD = $(LDADDS) $(POPPLER_QT4_TEST_LIBS)
 check_fonts_SOURCES = check_fonts.cpp
 check_fonts.$(OBJEXT): check_fonts.moc
 check_fonts_LDADD = $(LDADDS) $(POPPLER_QT4_TEST_LIBS)
+
+check_links_SOURCES = check_links.cpp
+check_links.$(OBJEXT): check_links.moc
+check_links_LDADD = $(LDADDS) $(POPPLER_QT4_TEST_LIBS)
 
 check_metadata_SOURCES = check_metadata.cpp
 check_metadata.$(OBJEXT): check_metadata.moc
