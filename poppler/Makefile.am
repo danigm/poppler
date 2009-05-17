@@ -106,12 +106,14 @@ abiword_libs =					\
 endif
 
 if USE_CMS
+cms_includes = $(LCMS_CFLAGS)
 cms_libs = $(LCMS_LIBS)
 endif
 
 INCLUDES =					\
 	-I$(top_srcdir)				\
 	-I$(top_srcdir)/goo			\
+	$(cms_includes)				\
 	$(splash_includes)			\
 	$(cairo_includes)			\
 	$(arthur_includes)			\
