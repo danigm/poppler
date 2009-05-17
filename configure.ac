@@ -458,12 +458,14 @@ AC_ARG_ENABLE(cms,
 	      AC_HELP_STRING([--disable-cms],
 	                     [Don't use color management system.]),
               enable_cms=$enableval,
-              enable_cms="yes")
+              enable_cms="try")
 if test x$enable_cms = xyes; then
-  AC_CHECK_LIB([lcms],cmsOpenProfileFromFile,,
-	       AC_MSG_ERROR("*** lcms library not found ***"))
-  AC_CHECK_HEADERS([lcms.h],,
-		   AC_MSG_ERROR("*** lcms headers not found ***"))
+  PKG_CHECK_MODULES(LCMS, lcms)
+elif test x$enable_cms = xtry; then
+  PKG_CHECK_MODULES(LCMS, lcms, [enable_cms=yes], [enable_cms=no])
+fi
+
+if test "x$enable_cms" = "xyes"; then
   AC_DEFINE(USE_CMS, 1, [Defines if use cms])
 fi
 AM_CONDITIONAL(USE_CMS, test x$enable_cms = xyes)

@@ -106,7 +106,7 @@ abiword_libs =					\
 endif
 
 if USE_CMS
-cms_libs = -llcms
+cms_libs = $(LCMS_LIBS)
 endif
 
 INCLUDES =					\
