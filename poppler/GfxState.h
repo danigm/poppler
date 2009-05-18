@@ -33,9 +33,6 @@
 #include "goo/gtypes.h"
 #include "Object.h"
 #include "Function.h"
-#ifdef USE_CMS
-#include "lcms.h"
-#endif
 
 class Array;
 class GfxFont;
@@ -155,36 +152,20 @@ enum GfxColorSpaceMode {
   csPattern
 };
 
-#ifdef USE_CMS
-
-#define COLOR_PROFILE_DIR "/ColorProfiles/"
-#define GLOBAL_COLOR_PROFILE_DIR POPPLER_DATADIR COLOR_PROFILE_DIR
-
 // wrapper of cmsHTRANSFORM to copy
 class GfxColorTransform {
 public:
-  void doTransform(void *in, void *out, unsigned int size) {
-    cmsDoTransform(transform, in, out, size);
-  }
-  GfxColorTransform(cmsHTRANSFORM transformA) {
-    transform = transformA;
-    refCount = 1;
-  }
-  ~GfxColorTransform() {
-    cmsDeleteTransform(transform);
-  }
-  void ref() {
-    refCount++;
-  }
-  unsigned int unref() {
-    return --refCount;
-  }
+  void doTransform(void *in, void *out, unsigned int size);
+  // transformA should be a cmsHTRANSFORM
+  GfxColorTransform(void *transformA);
+  ~GfxColorTransform();
+  void ref();
+  unsigned int unref();
 private:
   GfxColorTransform() {}
-  cmsHTRANSFORM transform;
+  void *transform;
   unsigned int refCount;
 };
-#endif
 
 class GfxColorSpace {
 public:
@@ -225,32 +206,15 @@ public:
   // Return the name of the <idx>th color space mode.
   static char *getColorSpaceModeName(int idx);
 
-private:
 #ifdef USE_CMS
-protected:
-  static cmsHPROFILE RGBProfile;
-  static GooString *displayProfileName; // display profile file Name
-  static cmsHPROFILE displayProfile; // display profile
-  static unsigned int displayPixelType;
-  static GfxColorTransform *XYZ2DisplayTransform;
-  // convert color space signature to cmsColor type 
-  static unsigned int getCMSColorSpaceType(icColorSpaceSignature cs);
-  static unsigned int getCMSNChannels(icColorSpaceSignature cs);
-  static cmsHPROFILE loadColorProfile(const char *fileName);
-public:
   static int setupColorProfiles();
-  static void setDisplayProfile(cmsHPROFILE displayProfileA) {
-    displayProfile = displayProfileA;
-  }
-  static void setDisplayProfileName(GooString *name) {
-    displayProfileName = name->copy();
-  }
-  static cmsHPROFILE getRGBProfile() {
-    return RGBProfile;
-  }
-  static cmsHPROFILE getDisplayProfile() {
-    return displayProfile;
-  }
+  // displayProfileA should be a cmsHPROFILE 
+  static void setDisplayProfile(void *displayProfileA);
+  static void setDisplayProfileName(GooString *name);
+  // result will be a cmsHPROFILE 
+  static void *getRGBProfile();
+  // result will be a cmsHPROFILE 
+  static void *getDisplayProfile();
 #endif
 };
 

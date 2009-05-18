@@ -128,6 +128,64 @@ static char *gfxColorSpaceModeNames[] = {
 
 #define nGfxColorSpaceModes ((sizeof(gfxColorSpaceModeNames) / sizeof(char *)))
 
+#ifdef USE_CMS
+
+#include <lcms.h>
+
+#define COLOR_PROFILE_DIR "/ColorProfiles/"
+#define GLOBAL_COLOR_PROFILE_DIR POPPLER_DATADIR COLOR_PROFILE_DIR
+
+void GfxColorTransform::doTransform(void *in, void *out, unsigned int size) {
+  cmsDoTransform(transform, in, out, size);
+}
+
+// transformA should be a cmsHTRANSFORM
+GfxColorTransform::GfxColorTransform(void *transformA) {
+  transform = transformA;
+  refCount = 1;
+}
+
+GfxColorTransform::~GfxColorTransform() {
+  cmsDeleteTransform(transform);
+}
+
+void GfxColorTransform::ref() {
+  refCount++;
+}
+
+unsigned int GfxColorTransform::unref() {
+  return --refCount;
+}
+
+static cmsHPROFILE RGBProfile = NULL;
+static GooString *displayProfileName = NULL; // display profile file Name
+static cmsHPROFILE displayProfile = NULL; // display profile
+static unsigned int displayPixelType = 0;
+static GfxColorTransform *XYZ2DisplayTransform = NULL;
+
+// convert color space signature to cmsColor type 
+static unsigned int getCMSColorSpaceType(icColorSpaceSignature cs);
+static unsigned int getCMSNChannels(icColorSpaceSignature cs);
+static cmsHPROFILE loadColorProfile(const char *fileName);
+
+void GfxColorSpace::setDisplayProfile(void *displayProfileA) {
+  displayProfile = displayProfileA;
+}
+
+void GfxColorSpace::setDisplayProfileName(GooString *name) {
+  displayProfileName = name->copy();
+}
+
+cmsHPROFILE GfxColorSpace::getRGBProfile() {
+  return RGBProfile;
+}
+
+cmsHPROFILE GfxColorSpace::getDisplayProfile() {
+  return displayProfile;
+}
+
+#endif
+
 //------------------------------------------------------------------------
 // GfxColorSpace
 //------------------------------------------------------------------------
@@ -227,13 +285,7 @@ void GfxColorSpace::getRGBLine(Guchar *in, unsigned int *out, int length) {
 }
 
 #ifdef USE_CMS
-cmsHPROFILE GfxColorSpace::RGBProfile = NULL;
-cmsHPROFILE GfxColorSpace::displayProfile = NULL;
-GooString *GfxColorSpace::displayProfileName = NULL;
-unsigned int GfxColorSpace::displayPixelType = 0;
-GfxColorTransform *GfxColorSpace::XYZ2DisplayTransform = NULL;
-
-cmsHPROFILE GfxColorSpace::loadColorProfile(const char *fileName)
+cmsHPROFILE loadColorProfile(const char *fileName)
 {
   cmsHPROFILE hp = NULL;
   FILE *fp;
@@ -324,7 +376,7 @@ int GfxColorSpace::setupColorProfiles()
   return 0;
 }
 
-unsigned int GfxColorSpace::getCMSColorSpaceType(icColorSpaceSignature cs)
+unsigned int getCMSColorSpaceType(icColorSpaceSignature cs)
 {
     switch (cs) {
     case icSigXYZData:
@@ -380,7 +432,7 @@ unsigned int GfxColorSpace::getCMSColorSpaceType(icColorSpaceSignature cs)
     return PT_RGB;
 }
 
-unsigned int GfxColorSpace::getCMSNChannels(icColorSpaceSignature cs)
+unsigned int getCMSNChannels(icColorSpaceSignature cs)
 {
     switch (cs) {
     case icSigXYZData:
