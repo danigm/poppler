@@ -12,6 +12,7 @@
 // under GPL version 2 or later
 //
 // Copyright (C) 2006 Takashi Iwai <tiwai@suse.de>
+// Copyright (C) 2009 Petr Gajdos <pgajdos@novell.com>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -54,6 +55,7 @@ public:
 #endif
 #if HAVE_FREETYPE_FREETYPE_H || HAVE_FREETYPE_H
 		   GBool enableFreeType,
+		   GBool noah,
 #endif
 		   GBool aa);
 

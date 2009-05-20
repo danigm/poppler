@@ -13,6 +13,7 @@
 //
 // Copyright (C) 2006 Takashi Iwai <tiwai@suse.de>
 // Copyright (C) 2009 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2009 Petr Gajdos <pgajdos@novell.com>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -57,10 +58,11 @@ static void fileWrite(void *stream, char *data, int len) {
 // SplashFTFontEngine
 //------------------------------------------------------------------------
 
-SplashFTFontEngine::SplashFTFontEngine(GBool aaA, FT_Library libA) {
+SplashFTFontEngine::SplashFTFontEngine(GBool aaA, GBool noahA, FT_Library libA) {
   FT_Int major, minor, patch;
 
   aa = aaA;
+  noah = noahA;
   lib = libA;
 
   // as of FT 2.1.8, CID fonts are indexed by CID instead of GID
@@ -69,13 +71,13 @@ SplashFTFontEngine::SplashFTFontEngine(GBool aaA, FT_Library libA) {
             (major == 2 && (minor > 1 || (minor == 1 && patch > 7)));
 }
 
-SplashFTFontEngine *SplashFTFontEngine::init(GBool aaA) {
+SplashFTFontEngine *SplashFTFontEngine::init(GBool aaA, GBool noahA) {
   FT_Library libA;
 
   if (FT_Init_FreeType(&libA)) {
     return NULL;
   }
-  return new SplashFTFontEngine(aaA, libA);
+  return new SplashFTFontEngine(aaA, noahA, libA);
 }
 
 SplashFTFontEngine::~SplashFTFontEngine() {

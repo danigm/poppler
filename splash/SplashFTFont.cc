@@ -13,6 +13,7 @@
 //
 // Copyright (C) 2005, 2007-2009 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2006 Kristian Høgsberg <krh@bitplanet.net>
+// Copyright (C) 2009 Petr Gajdos <pgajdos@novell.com>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -54,7 +55,8 @@ static int glyphPathCubicTo(const FT_Vector *ctrl1, const FT_Vector *ctrl2,
 
 SplashFTFont::SplashFTFont(SplashFTFontFile *fontFileA, SplashCoord *matA,
 			   SplashCoord *textMatA):
-  SplashFont(fontFileA, matA, textMatA, fontFileA->engine->aa)
+  SplashFont(fontFileA, matA, textMatA, fontFileA->engine->aa), 
+  noah(fontFileA->engine->noah)
 {
   FT_Face face;
   double div;
@@ -194,23 +196,31 @@ GBool SplashFTFont::makeGlyph(int c, int xFrac, int yFrac,
     return gFalse;
   }
 
-  // if we have the FT2 bytecode interpreter, autohinting won't be used
+  if (noah) {
+    if (FT_Load_Glyph(ff->face, gid,
+                      aa ? FT_LOAD_NO_HINTING | FT_LOAD_NO_BITMAP
+                         : FT_LOAD_DEFAULT)) {
+      return gFalse;
+    }
+  } else {
+    // if we have the FT2 bytecode interpreter, autohinting won't be used
 #ifdef TT_CONFIG_OPTION_BYTECODE_INTERPRETER
-  if (FT_Load_Glyph(ff->face, gid,
-		    aa ? FT_LOAD_NO_BITMAP : FT_LOAD_DEFAULT)) {
-    return gFalse;
-  }
+    if (FT_Load_Glyph(ff->face, gid,
+                      aa ? FT_LOAD_NO_BITMAP : FT_LOAD_DEFAULT)) {
+      return gFalse;
+    }
 #else
-  // FT2's autohinting doesn't always work very well (especially with
-  // font subsets), so turn it off if anti-aliasing is enabled; if
-  // anti-aliasing is disabled, this seems to be a tossup - some fonts
-  // look better with hinting, some without, so leave hinting on
-  if (FT_Load_Glyph(ff->face, gid,
-		    aa ? FT_LOAD_NO_HINTING | FT_LOAD_NO_BITMAP
-                       : FT_LOAD_DEFAULT)) {
-    return gFalse;
-  }
+    // FT2's autohinting doesn't always work very well (especially with
+    // font subsets), so turn it off if anti-aliasing is enabled; if
+    // anti-aliasing is disabled, this seems to be a tossup - some fonts
+    // look better with hinting, some without, so leave hinting on
+    if (FT_Load_Glyph(ff->face, gid,
+		      aa ? FT_LOAD_NO_HINTING | FT_LOAD_NO_BITMAP
+                         : FT_LOAD_DEFAULT)) {
+      return gFalse;
+    }
 #endif
+  }
 
   FT_Glyph_Metrics *glyphMetrics = &(ff->face->glyph->metrics);
   // prelimirary values from FT_Glyph_Metrics
@@ -286,23 +296,31 @@ double SplashFTFont::getGlyphAdvance(int c)
     return -1;
   }
 
-  // if we have the FT2 bytecode interpreter, autohinting won't be used
+  if (noah) {
+    if (FT_Load_Glyph(ff->face, gid,
+                      aa ? FT_LOAD_NO_HINTING | FT_LOAD_NO_BITMAP
+                         : FT_LOAD_DEFAULT)) {
+      return -1;
+    }
+  } else {
+    // if we have the FT2 bytecode interpreter, autohinting won't be used
 #ifdef TT_CONFIG_OPTION_BYTECODE_INTERPRETER
-  if (FT_Load_Glyph(ff->face, gid,
-		    aa ? FT_LOAD_NO_BITMAP : FT_LOAD_DEFAULT)) {
-    return -1;
-  }
+    if (FT_Load_Glyph(ff->face, gid,
+		      aa ? FT_LOAD_NO_BITMAP : FT_LOAD_DEFAULT)) {
+      return -1;
+    }
 #else
-  // FT2's autohinting doesn't always work very well (especially with
-  // font subsets), so turn it off if anti-aliasing is enabled; if
-  // anti-aliasing is disabled, this seems to be a tossup - some fonts
-  // look better with hinting, some without, so leave hinting on
-  if (FT_Load_Glyph(ff->face, gid,
-		    aa ? FT_LOAD_NO_HINTING | FT_LOAD_NO_BITMAP
-                       : FT_LOAD_DEFAULT)) {
-    return -1;
-  }
+    // FT2's autohinting doesn't always work very well (especially with
+    // font subsets), so turn it off if anti-aliasing is enabled; if
+    // anti-aliasing is disabled, this seems to be a tossup - some fonts
+    // look better with hinting, some without, so leave hinting on
+    if (FT_Load_Glyph(ff->face, gid,
+		      aa ? FT_LOAD_NO_HINTING | FT_LOAD_NO_BITMAP
+                         : FT_LOAD_DEFAULT)) {
+      return -1;
+    }
 #endif
+  }
 
   // 64.0 is 1 in 26.6 format
   return ff->face->glyph->metrics.horiAdvance / 64.0 / size;

@@ -19,6 +19,7 @@
 // Copyright (C) 2006 Ed Catmur <ed@catmur.co.uk>
 // Copyright (C) 2007 Krzysztof Kowalczyk <kkowalczyk@gmail.com>
 // Copyright (C) 2007, 2009 Jonathan Kew <jonathan_kew@sil.org>
+// Copyright (C) 2009 Petr Gajdos <pgajdos@novell.com>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -618,6 +619,7 @@ GlobalParams::GlobalParams(const char *customPopplerDataDir)
   enableFreeType = gTrue;
   antialias = gTrue;
   vectorAntialias = gTrue;
+  forceNoFTAutoHinting = gFalse;
   strokeAdjust = gTrue;
   screenType = screenUnset;
   screenSize = -1;
@@ -1393,6 +1395,15 @@ GBool GlobalParams::getVectorAntialias() {
   return f;
 }
 
+GBool GlobalParams::getForceNoFTAutoHinting() {
+  GBool f;
+
+  lockGlobalParams;
+  f = forceNoFTAutoHinting;
+  unlockGlobalParams;
+  return f;
+}
+
 GBool GlobalParams::getStrokeAdjust() {
   GBool f;
 
@@ -1715,6 +1726,15 @@ GBool GlobalParams::setVectorAntialias(char *s) {
 
   lockGlobalParams;
   ok = parseYesNo2(s, &vectorAntialias);
+  unlockGlobalParams;
+  return ok;
+}
+
+GBool GlobalParams::setForceNoFTAutoHinting(char *s) {
+  GBool ok;
+
+  lockGlobalParams;
+  ok = parseYesNo2(s, &forceNoFTAutoHinting);
   unlockGlobalParams;
   return ok;
 }

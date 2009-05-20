@@ -12,6 +12,7 @@
 // under GPL version 2 or later
 //
 // Copyright (C) 2007-2008 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2009 Petr Gajdos <pgajdos@novell.com>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -67,6 +68,7 @@ private:
   FT_Matrix textMatrix;
   SplashCoord textScale;
   double size;
+  GBool noah;
 };
 
 #endif // HAVE_FREETYPE_FREETYPE_H || HAVE_FREETYPE_H

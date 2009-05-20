@@ -19,6 +19,7 @@
 // Copyright (C) 2006 Kristian Høgsberg <krh@redhat.com>
 // Copyright (C) 2007 Krzysztof Kowalczyk <kkowalczyk@gmail.com>
 // Copyright (C) 2009 Jonathan Kew <jonathan_kew@sil.org>
+// Copyright (C) 2009 Petr Gajdos <pgajdos@novell.com>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -202,6 +203,7 @@ public:
   GBool getEnableFreeType();
   GBool getAntialias();
   GBool getVectorAntialias();
+  GBool getForceNoFTAutoHinting();
   GBool getStrokeAdjust();
   ScreenType getScreenType();
   int getScreenSize();
@@ -245,6 +247,7 @@ public:
   GBool setEnableFreeType(char *s);
   GBool setAntialias(char *s);
   GBool setVectorAntialias(char *s);
+  GBool setForceNoFTAutoHinting(char *s);
   void setStrokeAdjust(GBool strokeAdjust);
   void setScreenType(ScreenType st);
   void setScreenSize(int size);
@@ -327,6 +330,7 @@ private:
   GBool enableFreeType;		// FreeType enable flag
   GBool antialias;		// anti-aliasing enable flag
   GBool vectorAntialias;	// vector anti-aliasing enable flag
+  GBool forceNoFTAutoHinting;  // force to disable FT autohinting
   GBool strokeAdjust;		// stroke adjustment enable flag
   ScreenType screenType;	// halftone screen type
   int screenSize;		// screen matrix size
