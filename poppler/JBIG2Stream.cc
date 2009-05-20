@@ -1024,6 +1024,7 @@ public:
   Guint getSize() { return size; }
   void setBitmap(Guint idx, JBIG2Bitmap *bitmap) { bitmaps[idx] = bitmap; }
   JBIG2Bitmap *getBitmap(Guint idx) { return bitmaps[idx]; }
+  GBool isOk() { return bitmaps != NULL; }
   void setGenericRegionStats(JArithmeticDecoderStats *stats)
     { genericRegionStats = stats; }
   void setRefinementRegionStats(JArithmeticDecoderStats *stats)
@@ -1045,7 +1046,8 @@ JBIG2SymbolDict::JBIG2SymbolDict(Guint segNumA, Guint sizeA):
   JBIG2Segment(segNumA)
 {
   size = sizeA;
-  bitmaps = (JBIG2Bitmap **)gmallocn(size, sizeof(JBIG2Bitmap *));
+  bitmaps = (JBIG2Bitmap **)gmallocn_checkoverflow(size, sizeof(JBIG2Bitmap *));
+  if (!bitmaps) size = 0;
   genericRegionStats = NULL;
   refinementRegionStats = NULL;
 }
@@ -1816,6 +1818,10 @@ GBool JBIG2Stream::readSymbolDictSeg(Guint segNum, Guint length,
 
   // create the symbol dict object
   symbolDict = new JBIG2SymbolDict(segNum, numExSyms);
+  if (!symbolDict->isOk()) {
+    delete symbolDict;
+    goto syntaxError;
+  }
 
   // exported symbol list
   i = j = 0;
