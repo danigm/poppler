@@ -1560,16 +1560,20 @@ GfxColorSpace *GfxICCBasedColorSpace::parse(Array *arr) {
 	     CHANNELS_SH(dNChannels) | BYTES_SH(1),
 	  INTENT_RELATIVE_COLORIMETRIC,0)) == 0) {
       error(-1, "Can't create transform");
+      cs->transform = NULL;
+    } else {
+      cs->transform = new GfxColorTransform(transform);
     }
-    cs->transform = new GfxColorTransform(transform);
     if (dcst == PT_RGB) {
        // create line transform only when the display is RGB type color space 
       if ((transform = cmsCreateTransform(hp,
 	    CHANNELS_SH(nCompsA) | BYTES_SH(1),dhp,
 	    TYPE_RGB_8,INTENT_RELATIVE_COLORIMETRIC,0)) == 0) {
 	error(-1, "Can't create transform");
+	cs->lineTransform = NULL;
+      } else {
+	cs->lineTransform = new GfxColorTransform(transform);
       }
-      cs->lineTransform = new GfxColorTransform(transform);
     }
     cmsCloseProfile(hp);
   }
