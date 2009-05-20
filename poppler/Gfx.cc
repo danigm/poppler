@@ -3823,7 +3823,16 @@ void Gfx::doImage(Object *ref, Stream *str, GBool inlineImg) {
 	   i < maskObj.arrayGetLength() && i < 2*gfxColorMaxComps;
 	   ++i) {
 	maskObj.arrayGet(i, &obj1);
-	maskColors[i] = obj1.getInt();
+	if (obj1.isInt()) {
+	  maskColors[i] = obj1.getInt();
+	} else if (obj1.isReal()) {
+	  error(-1, "Mask entry should be an integer but it's a real, trying to use it");
+	  maskColors[i] = obj1.getReal();
+	} else {
+	  error(-1, "Mask entry should be an integer but it's of type %d", obj1.getType());
+	  obj1.free();
+	  goto err1;
+	}
 	obj1.free();
       }
       haveColorKeyMask = gTrue;
