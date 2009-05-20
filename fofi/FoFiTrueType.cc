@@ -16,7 +16,7 @@
 // Copyright (C) 2006 Takashi Iwai <tiwai@suse.de>
 // Copyright (C) 2007 Koji Otani <sho@bbr.jp>
 // Copyright (C) 2007 Carlos Garcia Campos <carlosgc@gnome.org>
-// Copyright (C) 2008 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2008, 2009 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2008 Tomas Are Haavet <tomasare@gmail.com>
 //
 // To see a description of the changes please see the Changelog file that
@@ -1539,6 +1539,9 @@ void FoFiTrueType::cvtSfnts(FoFiOutputFunc outputFunc,
 
   // construct the 'head' table, zero out the font checksum
   i = seekTable("head");
+  if (i < 0 || i >= nTables) {
+    return;
+  }
   pos = tables[i].offset;
   if (!checkRegion(pos, 54)) {
     return;
