@@ -37,6 +37,7 @@
 
 #include <stdlib.h>
 #include <math.h>
+#include <assert.h>
 #include "goo/gmem.h"
 #include "GooList.h"
 #include "Error.h"
@@ -814,10 +815,35 @@ AnnotAppearanceCharacs::~AnnotAppearanceCharacs() {
 // Annot
 //------------------------------------------------------------------------
 
+Annot::Annot(XRef *xrefA, PDFRectangle *rectA, Catalog *catalog) {
+  Object obj1;
+
+  flags = flagUnknown;
+  type = typeUnknown;
+
+  obj1.initArray (xrefA);
+  Object obj2;
+  obj1.arrayAdd (obj2.initReal (rectA->x1));
+  obj1.arrayAdd (obj2.initReal (rectA->y1));
+  obj1.arrayAdd (obj2.initReal (rectA->x2));
+  obj1.arrayAdd (obj2.initReal (rectA->y2));
+  obj2.free ();
+
+  annotObj.initDict (xrefA);
+  annotObj.dictSet ("Type", obj2.initName ("Annot"));
+  annotObj.dictSet ("Rect", &obj1);
+  // obj1 is owned by the dict
+
+  ref = xrefA->addIndirectObject (&annotObj);
+
+  initialize (xrefA, annotObj.getDict(), catalog);
+}
+
 Annot::Annot(XRef *xrefA, Dict *dict, Catalog* catalog) {
   hasRef = false;
   flags = flagUnknown;
   type = typeUnknown;
+  annotObj.initDict (dict);
   initialize (xrefA, dict, catalog);
 }
 
@@ -830,6 +856,7 @@ Annot::Annot(XRef *xrefA, Dict *dict, Catalog* catalog, Object *obj) {
   }
   flags = flagUnknown;
   type = typeUnknown;
+  annotObj.initDict (dict);
   initialize (xrefA, dict, catalog);
 }
 
@@ -842,7 +869,6 @@ void Annot::initialize(XRef *xrefA, Dict *dict, Catalog *catalog) {
   xref = xrefA;
   appearBuf = NULL;
   fontSize = 0;
-  annotObj.initDict (dict);
 
   //----- parse the rectangle
   rect = new PDFRectangle();
@@ -1220,6 +1246,16 @@ void Annot::draw(Gfx *gfx, GBool printing) {
 // AnnotPopup
 //------------------------------------------------------------------------
 
+AnnotPopup::AnnotPopup(XRef *xrefA, PDFRectangle *rect, Catalog *catalog) :
+    Annot(xrefA, rect, catalog) {
+  Object obj1;
+
+  type = typePopup;
+
+  annotObj.dictSet ("Subtype", obj1.initName ("Popup"));
+  initialize (xrefA, annotObj.getDict(), catalog);
+}
+
 AnnotPopup::AnnotPopup(XRef *xrefA, Dict *dict, Catalog *catalog, Object *obj) :
     Annot(xrefA, dict, catalog, obj) {
   type = typePopup;
@@ -1254,7 +1290,11 @@ void AnnotPopup::initialize(XRef *xrefA, Dict *dict, Catalog *catalog) {
 //------------------------------------------------------------------------
 // AnnotMarkup
 //------------------------------------------------------------------------
- 
+AnnotMarkup::AnnotMarkup(XRef *xrefA, PDFRectangle *rect, Catalog *catalog) :
+    Annot(xrefA, rect, catalog) {
+  initialize(xrefA, annotObj.getDict(), catalog, &annotObj);
+}
+
 AnnotMarkup::AnnotMarkup(XRef *xrefA, Dict *dict, Catalog *catalog, Object *obj) :
     Annot(xrefA, dict, catalog, obj) {
   initialize(xrefA, dict, catalog, obj);
@@ -1347,6 +1387,17 @@ void AnnotMarkup::initialize(XRef *xrefA, Dict *dict, Catalog *catalog, Object *
 //------------------------------------------------------------------------
 // AnnotText
 //------------------------------------------------------------------------
+
+AnnotText::AnnotText(XRef *xrefA, PDFRectangle *rect, Catalog *catalog) :
+    AnnotMarkup(xrefA, rect, catalog) {
+  Object obj1;
+
+  type = typeText;
+  flags |= flagNoZoom | flagNoRotate;
+
+  annotObj.dictSet ("Subtype", obj1.initName ("Text"));
+  initialize (xrefA, catalog, annotObj.getDict());
+}
 
 AnnotText::AnnotText(XRef *xrefA, Dict *dict, Catalog *catalog, Object *obj) :
     AnnotMarkup(xrefA, dict, catalog, obj) {
@@ -1444,6 +1495,14 @@ void AnnotText::initialize(XRef *xrefA, Catalog *catalog, Dict *dict) {
 //------------------------------------------------------------------------
 // AnnotLink
 //------------------------------------------------------------------------
+AnnotLink::AnnotLink(XRef *xrefA, PDFRectangle *rect, Catalog *catalog) :
+    Annot(xrefA, rect, catalog) {
+  Object obj1;
+
+  type = typeLink;
+  annotObj.dictSet ("Subtype", obj1.initName ("Link"));
+  initialize (xrefA, catalog, annotObj.getDict());
+}
 
 AnnotLink::AnnotLink(XRef *xrefA, Dict *dict, Catalog *catalog, Object *obj) :
     Annot(xrefA, dict, catalog, obj) {
@@ -1532,6 +1591,20 @@ void AnnotLink::draw(Gfx *gfx, GBool printing) {
 //------------------------------------------------------------------------
 // AnnotFreeText
 //------------------------------------------------------------------------
+AnnotFreeText::AnnotFreeText(XRef *xrefA, PDFRectangle *rect, GooString *da, Catalog *catalog) :
+    AnnotMarkup(xrefA, rect, catalog) {
+  Object obj1;
+
+  type = typeFreeText;
+
+  annotObj.dictSet ("Subtype", obj1.initName ("FreeText"));
+
+  Object obj2;
+  obj2.initString (da->copy());
+  annotObj.dictSet("DA", &obj2);
+
+  initialize (xrefA, catalog, annotObj.getDict());
+}
 
 AnnotFreeText::AnnotFreeText(XRef *xrefA, Dict *dict, Catalog *catalog, Object *obj) :
     AnnotMarkup(xrefA, dict, catalog, obj) {
@@ -1654,6 +1727,24 @@ void AnnotFreeText::initialize(XRef *xrefA, Catalog *catalog, Dict *dict) {
 //------------------------------------------------------------------------
 // AnnotLine
 //------------------------------------------------------------------------
+
+AnnotLine::AnnotLine(XRef *xrefA, PDFRectangle *rect, PDFRectangle *lRect, Catalog *catalog) :
+    AnnotMarkup(xrefA, rect, catalog) {
+  Object obj1;
+
+  type = typeLine;
+  annotObj.dictSet ("Subtype", obj1.initName ("Line"));
+
+  Object obj2, obj3;
+  obj2.initArray (xrefA);
+  obj2.arrayAdd (obj3.initReal (lRect->x1));
+  obj2.arrayAdd (obj3.initReal (lRect->y1));
+  obj2.arrayAdd (obj3.initReal (lRect->x2));
+  obj2.arrayAdd (obj3.initReal (lRect->y2));
+  annotObj.dictSet ("L", &obj2);
+
+  initialize (xrefA, catalog, annotObj.getDict());
+}
 
 AnnotLine::AnnotLine(XRef *xrefA, Dict *dict, Catalog *catalog, Object *obj) :
     AnnotMarkup(xrefA, dict, catalog, obj) {
@@ -1814,6 +1905,48 @@ void AnnotLine::initialize(XRef *xrefA, Catalog *catalog, Dict *dict) {
 //------------------------------------------------------------------------
 // AnnotTextMarkup
 //------------------------------------------------------------------------
+AnnotTextMarkup::AnnotTextMarkup(XRef *xrefA, PDFRectangle *rect, AnnotSubtype subType,
+				 AnnotQuadrilaterals *quadPoints, Catalog *catalog) :
+    AnnotMarkup(xrefA, rect, catalog) {
+  Object obj1;
+
+  switch (subType) {
+    case typeHighlight:
+      annotObj.dictSet ("Subtype", obj1.initName ("Highlight"));
+      break;
+    case typeUnderline:
+      annotObj.dictSet ("Subtype", obj1.initName ("Underline"));
+      break;
+    case typeSquiggly:
+      annotObj.dictSet ("Subtype", obj1.initName ("Squiggly"));
+      break;
+    case typeStrikeOut:
+      annotObj.dictSet ("Subtype", obj1.initName ("StrikeOut"));
+      break;
+    default:
+      assert (0 && "Invalid subtype for AnnotTextMarkup\n");
+  }
+
+  Object obj2;
+  obj2.initArray (xrefA);
+
+  for (int i = 0; i < quadPoints->getQuadrilateralsLength(); ++i) {
+    Object obj3;
+
+    obj2.arrayAdd (obj3.initReal (quadPoints->getX1(i)));
+    obj2.arrayAdd (obj3.initReal (quadPoints->getY1(i)));
+    obj2.arrayAdd (obj3.initReal (quadPoints->getX2(i)));
+    obj2.arrayAdd (obj3.initReal (quadPoints->getY2(i)));
+    obj2.arrayAdd (obj3.initReal (quadPoints->getX3(i)));
+    obj2.arrayAdd (obj3.initReal (quadPoints->getY3(i)));
+    obj2.arrayAdd (obj3.initReal (quadPoints->getX4(i)));
+    obj2.arrayAdd (obj3.initReal (quadPoints->getY4(i)));
+  }
+
+  annotObj.dictSet ("QuadPoints", &obj2);
+
+  initialize(xrefA, catalog, annotObj.getDict());
+}
 
 AnnotTextMarkup::AnnotTextMarkup(XRef *xrefA, Dict *dict, Catalog *catalog, Object *obj) :
   AnnotMarkup(xrefA, dict, catalog, obj) {
@@ -3208,7 +3341,19 @@ void AnnotWidget::draw(Gfx *gfx, GBool printing) {
 //------------------------------------------------------------------------
 // AnnotMovie
 //------------------------------------------------------------------------
- 
+AnnotMovie::AnnotMovie(XRef *xrefA, PDFRectangle *rect, Movie *movieA, Catalog *catalog) :
+    Annot(xrefA, rect, catalog) {
+  Object obj1;
+
+  type = typeMovie;
+  annotObj.dictSet ("Subtype", obj1.initName ("Movie"));
+
+  movie = movieA->copy();
+  // TODO: create movie dict from movieA
+
+  initialize(xrefA, catalog, annotObj.getDict());
+}
+
 AnnotMovie::AnnotMovie(XRef *xrefA, Dict *dict, Catalog *catalog, Object *obj) :
   Annot(xrefA, dict, catalog, obj) {
   type = typeMovie;
@@ -3473,7 +3618,16 @@ void AnnotMovie::getZoomFactor(int& num, int& denum) {
 //------------------------------------------------------------------------
 // AnnotScreen
 //------------------------------------------------------------------------
- 
+AnnotScreen::AnnotScreen(XRef *xrefA, PDFRectangle *rect, Catalog *catalog) :
+    Annot(xrefA, rect, catalog) {
+  Object obj1;
+
+  type = typeScreen;
+
+  annotObj.dictSet ("Subtype", obj1.initName ("Screen"));
+  initialize(xrefA, catalog, annotObj.getDict());
+}
+
 AnnotScreen::AnnotScreen(XRef *xrefA, Dict *dict, Catalog *catalog, Object *obj) :
   Annot(xrefA, dict, catalog, obj) {
   type = typeScreen;
@@ -3514,7 +3668,15 @@ void AnnotScreen::initialize(XRef *xrefA, Catalog *catalog, Dict* dict) {
 //------------------------------------------------------------------------
 // AnnotStamp
 //------------------------------------------------------------------------
- 
+AnnotStamp::AnnotStamp(XRef *xrefA, PDFRectangle *rect, Catalog *catalog) :
+  AnnotMarkup(xrefA, rect, catalog) {
+  Object obj1;
+
+  type = typeStamp;
+  annotObj.dictSet ("Subtype", obj1.initName ("Stamp"));
+  initialize(xrefA, catalog, annotObj.getDict());
+}
+
 AnnotStamp::AnnotStamp(XRef *xrefA, Dict *dict, Catalog *catalog, Object *obj) :
   AnnotMarkup(xrefA, dict, catalog, obj) {
   type = typeStamp;
@@ -3540,6 +3702,23 @@ void AnnotStamp::initialize(XRef *xrefA, Catalog *catalog, Dict* dict) {
 //------------------------------------------------------------------------
 // AnnotGeometry
 //------------------------------------------------------------------------
+AnnotGeometry::AnnotGeometry(XRef *xrefA, PDFRectangle *rect, AnnotSubtype subType, Catalog *catalog) :
+    AnnotMarkup(xrefA, rect, catalog) {
+  Object obj1;
+
+  switch (subType) {
+    case typeSquare:
+      annotObj.dictSet ("Subtype", obj1.initName ("Square"));
+      break;
+    case typeCircle:
+      annotObj.dictSet ("Subtype", obj1.initName ("Circle"));
+      break;
+    default:
+      assert (0 && "Invalid subtype for AnnotGeometry\n");
+  }
+
+  initialize(xrefA, catalog, annotObj.getDict());
+}
 
 AnnotGeometry::AnnotGeometry(XRef *xrefA, Dict *dict, Catalog *catalog, Object *obj) :
   AnnotMarkup(xrefA, dict, catalog, obj) {
@@ -3592,6 +3771,36 @@ void AnnotGeometry::initialize(XRef *xrefA, Catalog *catalog, Dict* dict) {
 //------------------------------------------------------------------------
 // AnnotPolygon
 //------------------------------------------------------------------------
+AnnotPolygon::AnnotPolygon(XRef *xrefA, PDFRectangle *rect, AnnotSubtype subType,
+			   AnnotPath *path, Catalog *catalog) :
+    AnnotMarkup(xrefA, rect, catalog) {
+  Object obj1;
+
+  switch (subType) {
+    case typePolygon:
+      annotObj.dictSet ("Subtype", obj1.initName ("Polygon"));
+      break;
+    case typePolyLine:
+      annotObj.dictSet ("Subtype", obj1.initName ("PolyLine"));
+      break;
+    default:
+      assert (0 && "Invalid subtype for AnnotGeometry\n");
+  }
+
+  Object obj2;
+  obj2.initArray (xrefA);
+
+  for (int i = 0; i < path->getCoordsLength(); ++i) {
+    Object obj3;
+
+    obj2.arrayAdd (obj3.initReal (path->getX(i)));
+    obj2.arrayAdd (obj3.initReal (path->getY(i)));
+  }
+
+  annotObj.dictSet ("Vertices", &obj2);
+
+  initialize(xrefA, catalog, annotObj.getDict());
+}
 
 AnnotPolygon::AnnotPolygon(XRef *xrefA, Dict *dict, Catalog *catalog, Object *obj) :
   AnnotMarkup(xrefA, dict, catalog, obj) {
@@ -3686,6 +3895,15 @@ void AnnotPolygon::initialize(XRef *xrefA, Catalog *catalog, Dict* dict) {
 //------------------------------------------------------------------------
 // AnnotCaret
 //------------------------------------------------------------------------
+AnnotCaret::AnnotCaret(XRef *xrefA, PDFRectangle *rect, Catalog *catalog) :
+    AnnotMarkup(xrefA, rect, catalog) {
+  Object obj1;
+
+  type = typeCaret;
+
+  annotObj.dictSet ("Subtype", obj1.initName ("Caret"));
+  initialize(xrefA, catalog, annotObj.getDict());
+}
 
 AnnotCaret::AnnotCaret(XRef *xrefA, Dict *dict, Catalog *catalog, Object *obj) :
   AnnotMarkup(xrefA, dict, catalog, obj) {
@@ -3723,6 +3941,36 @@ void AnnotCaret::initialize(XRef *xrefA, Catalog *catalog, Dict* dict) {
 //------------------------------------------------------------------------
 // AnnotInk
 //------------------------------------------------------------------------
+AnnotInk::AnnotInk(XRef *xrefA, PDFRectangle *rect, AnnotPath **paths, int n_paths, Catalog *catalog) :
+    AnnotMarkup(xrefA, rect, catalog) {
+  Object obj1;
+
+  type = typeInk;
+
+  annotObj.dictSet ("Subtype", obj1.initName ("Ink"));
+
+  Object obj2;
+  obj2.initArray (xrefA);
+
+  for (int i = 0; i < n_paths; ++i) {
+    AnnotPath *path = paths[i];
+    Object obj3;
+    obj3.initArray (xrefA);
+
+    for (int j = 0; j < path->getCoordsLength(); ++j) {
+      Object obj4;
+
+      obj3.arrayAdd (obj4.initReal (path->getX(j)));
+      obj3.arrayAdd (obj4.initReal (path->getY(j)));
+    }
+
+    obj2.arrayAdd (&obj3);
+  }
+
+  annotObj.dictSet ("InkList", &obj2);
+
+  initialize(xrefA, catalog, annotObj.getDict());
+}
 
 AnnotInk::AnnotInk(XRef *xrefA, Dict *dict, Catalog *catalog, Object *obj) :
   AnnotMarkup(xrefA, dict, catalog, obj) {
@@ -3764,6 +4012,20 @@ void AnnotInk::initialize(XRef *xrefA, Catalog *catalog, Dict* dict) {
 //------------------------------------------------------------------------
 // AnnotFileAttachment
 //------------------------------------------------------------------------
+AnnotFileAttachment::AnnotFileAttachment(XRef *xrefA, PDFRectangle *rect, GooString *filename, Catalog *catalog) :
+    AnnotMarkup(xrefA, rect, catalog) {
+  Object obj1;
+
+  type = typeFileAttachment;
+
+  annotObj.dictSet ("Subtype", obj1.initName ("FileAttachment"));
+
+  Object obj2;
+  obj2.initString(filename->copy());
+  annotObj.dictSet ("FS", &obj2);
+
+  initialize(xrefA, catalog, annotObj.getDict());
+}
 
 AnnotFileAttachment::AnnotFileAttachment(XRef *xrefA, Dict *dict, Catalog *catalog, Object *obj) :
   AnnotMarkup(xrefA, dict, catalog, obj) {
@@ -3781,7 +4043,7 @@ AnnotFileAttachment::~AnnotFileAttachment() {
 void AnnotFileAttachment::initialize(XRef *xrefA, Catalog *catalog, Dict* dict) {
   Object obj1;
 
-  if (dict->lookup("FS", &obj1)->isDict()) {
+  if (dict->lookup("FS", &obj1)->isDict() || dict->lookup("FS", &obj1)->isString()) {
     obj1.copy(&file);
   } else {
     error(-1, "Bad Annot File Attachment");
@@ -3800,6 +4062,22 @@ void AnnotFileAttachment::initialize(XRef *xrefA, Catalog *catalog, Dict* dict) 
 //------------------------------------------------------------------------
 // AnnotSound
 //------------------------------------------------------------------------
+AnnotSound::AnnotSound(XRef *xrefA, PDFRectangle *rect, Sound *soundA, Catalog *catalog) :
+    AnnotMarkup(xrefA, rect, catalog) {
+  Object obj1;
+
+  type = typeSound;
+
+  annotObj.dictSet ("Subtype", obj1.initName ("Sound"));
+
+  Object obj2;
+  Stream *str = soundA->getStream();
+  obj2.initStream (str);
+  str->incRef(); //FIXME: initStream should do this?
+  annotObj.dictSet ("Sound", &obj2);
+
+  initialize(xrefA, catalog, annotObj.getDict());
+}
 
 AnnotSound::AnnotSound(XRef *xrefA, Dict *dict, Catalog *catalog, Object *obj) :
   AnnotMarkup(xrefA, dict, catalog, obj) {
@@ -3834,6 +4112,16 @@ void AnnotSound::initialize(XRef *xrefA, Catalog *catalog, Dict* dict) {
 //------------------------------------------------------------------------
 // Annot3D
 //------------------------------------------------------------------------
+Annot3D::Annot3D(XRef *xrefA, PDFRectangle *rect, Catalog *catalog) :
+    Annot(xrefA, rect, catalog) {
+  Object obj1;
+
+  type = type3D;
+
+  annotObj.dictSet ("Subtype", obj1.initName ("3D"));
+
+  initialize(xrefA, catalog, annotObj.getDict());
+}
 
 Annot3D::Annot3D(XRef *xrefA, Dict *dict, Catalog *catalog, Object *obj) :
   Annot(xrefA, dict, catalog, obj) {
