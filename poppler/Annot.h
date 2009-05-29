@@ -503,6 +503,7 @@ public:
   void setContents(GooString *new_content);
   
   // getters
+  Ref getRef() const { return ref; }
   AnnotSubtype getType() const { return type; }
   PDFRectangle *getRect() const { return rect; }
   GooString *getContents() const { return contents; }
