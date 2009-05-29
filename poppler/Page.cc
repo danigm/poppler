@@ -252,7 +252,7 @@ GBool PageAttrs::readBox(Dict *dict, char *key, PDFRectangle *box) {
 // Page
 //------------------------------------------------------------------------
 
-Page::Page(XRef *xrefA, int numA, Dict *pageDict, PageAttrs *attrsA, Form *form) {
+Page::Page(XRef *xrefA, int numA, Dict *pageDict, Ref pageRefA, PageAttrs *attrsA, Form *form) {
   Object tmp;
 	
   ok = gTrue;
@@ -260,6 +260,9 @@ Page::Page(XRef *xrefA, int numA, Dict *pageDict, PageAttrs *attrsA, Form *form)
   num = numA;
   duration = -1;
   pageWidgets = NULL;
+
+  pageObj.initDict(pageDict);
+  pageRef = pageRefA;
 
   // get attributes
   attrs = attrsA;
@@ -334,6 +337,7 @@ Page::Page(XRef *xrefA, int numA, Dict *pageDict, PageAttrs *attrsA, Form *form)
 Page::~Page() {
   delete pageWidgets;
   delete attrs;
+  pageObj.free();
   annots.free();
   contents.free();
   trans.free();

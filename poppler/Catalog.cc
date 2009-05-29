@@ -309,7 +309,7 @@ int Catalog::readPageTree(Dict *pagesDict, PageAttrs *attrs, int start,
     kids.arrayGet(i, &kid);
     if (kid.isDict("Page")) {
       attrs2 = new PageAttrs(attrs1, kid.getDict());
-      page = new Page(xref, start+1, kid.getDict(), attrs2, form);
+      page = new Page(xref, start+1, kid.getDict(), kidRef.getRef(), attrs2, form);
       if (!page->isOk()) {
 	++start;
 	goto err3;

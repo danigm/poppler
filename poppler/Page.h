@@ -126,7 +126,7 @@ class Page {
 public:
 
   // Constructor.
-  Page(XRef *xrefA, int numA, Dict *pageDict, PageAttrs *attrsA, Form *form);
+  Page(XRef *xrefA, int numA, Dict *pageDict, Ref pageRefA, PageAttrs *attrsA, Form *form);
 
   // Destructor.
   ~Page();
@@ -235,6 +235,8 @@ public:
 private:
 
   XRef *xref;			// the xref table for this PDF file
+  Object pageObj;               // page dictionary
+  Ref pageRef;                  // page reference
   int num;			// page number
   PageAttrs *attrs;		// page attributes
   Object annots;		// annotations array
