@@ -613,6 +613,32 @@ AnnotColor::AnnotColor() {
   values = NULL;
 }
 
+AnnotColor::AnnotColor(double gray) {
+  length = 1;
+  values = (double *) gmallocn (length, sizeof(double));
+
+  values[0] = gray;
+}
+
+AnnotColor::AnnotColor(double r, double g, double b) {
+  length = 3;
+  values = (double *) gmallocn (length, sizeof(double));
+
+  values[0] = r;
+  values[1] = g;
+  values[2] = b;
+}
+
+AnnotColor::AnnotColor(double c, double m, double y, double k) {
+  length = 4;
+  values = (double *) gmallocn (length, sizeof(double));
+
+  values[0] = c;
+  values[1] = m;
+  values[2] = y;
+  values[3] = k;
+}
+
 AnnotColor::AnnotColor(Array *array) {
   // TODO: check what Acrobat does in the case of having more than 5 numbers.
   if (array->getLength() < 5) {

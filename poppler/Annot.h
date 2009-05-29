@@ -287,6 +287,9 @@ public:
   };
 
   AnnotColor();
+  AnnotColor(double gray);
+  AnnotColor(double r, double g, double b);
+  AnnotColor(double c, double m, double y, double k);
   AnnotColor(Array *array);
   ~AnnotColor();
 
