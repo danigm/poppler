@@ -504,7 +504,11 @@ public:
   // Sets the annot contents to new_content
   // new_content should never be NULL
   void setContents(GooString *new_content);
-  
+
+  // The annotation takes the ownership of
+  // new_color. 
+  void setColor(AnnotColor *new_color);
+
   // getters
   Ref getRef() const { return ref; }
   AnnotSubtype getType() const { return type; }

@@ -1070,7 +1070,24 @@ void Annot::setContents(GooString *new_content) {
   obj1.initString(contents->copy());
   update ("Contents", &obj1);
 }
-	
+
+void Annot::setColor(AnnotColor *new_color) {
+  delete color;
+
+  if (new_color) {
+    Object obj1, obj2;
+    double *values = new_color->getValues();
+
+    obj1.initArray(xref);
+    for (int i = 0; i < (int)new_color->getSpace(); i++)
+      obj1.arrayAdd(obj2.initReal (values[i]));
+    update ("C", &obj1);
+    color = new_color;
+  } else {
+    color = NULL;
+  }
+}
+
 double Annot::getXMin() {
   return rect->x1;
 }
