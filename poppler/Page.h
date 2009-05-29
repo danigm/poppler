@@ -163,6 +163,8 @@ public:
 
   // Get annotations array.
   Object *getAnnots(Object *obj) { return annots.fetch(xref, obj); }
+  // Add a new annotation to the page
+  void addAnnot(Annot *annot);
 
   // Return a list of links.
   Links *getLinks(Catalog *catalog);
