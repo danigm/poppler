@@ -4,6 +4,20 @@
 //
 //========================================================================
 
+//========================================================================
+//
+// Modified under the Poppler project - http://poppler.freedesktop.org
+//
+// All changes made under the Poppler project to this file are licensed
+// under GPL version 2 or later
+//
+// Copyright (C) 2009 Thomas Freitag <Thomas.Freitag@alfa.de>
+//
+// To see a description of the changes please see the Changelog file that
+// came with your tarball or type make ChangeLog if you are building from git
+//
+//========================================================================
+
 #include <config.h>
 
 #ifdef USE_GCC_PRAGMAS
@@ -25,6 +39,9 @@
 // number of components in each color mode
 int splashColorModeNComps[] = {
   1, 1, 3, 3, 4
+#if SPLASH_CMYK
+  ,4
+#endif
 };
 
 SplashState::SplashState(int width, int height, GBool vectorAntialias,
