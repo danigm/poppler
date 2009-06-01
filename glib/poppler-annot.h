@@ -144,6 +144,7 @@ PopplerColor                 *poppler_annot_get_color                          (
 /* PopplerAnnotMarkup */
 GType                         poppler_annot_markup_get_type                    (void) G_GNUC_CONST;
 gchar                        *poppler_annot_markup_get_label                   (PopplerAnnotMarkup *poppler_annot);
+gboolean                      poppler_annot_markup_has_popup                   (PopplerAnnotMarkup *poppler_annot);
 gboolean                      poppler_annot_markup_get_popup_is_open           (PopplerAnnotMarkup *poppler_annot);
 gboolean                      poppler_annot_markup_get_popup_rectangle         (PopplerAnnotMarkup *poppler_annot,
 										PopplerRectangle   *poppler_rect);

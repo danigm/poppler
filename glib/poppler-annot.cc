@@ -413,6 +413,26 @@ poppler_annot_markup_get_label (PopplerAnnotMarkup *poppler_annot)
 }
 
 /**
+ * poppler_annot_markup_has_popup:
+ * @poppler_annot: a #PopplerAnnotMarkup
+ *
+ * Return %TRUE if the markup annotation has a popup window associated
+ *
+ * Return value: %TRUE, if @poppler_annot has popup, %FALSE otherwise
+ **/
+gboolean
+poppler_annot_markup_has_popup (PopplerAnnotMarkup *poppler_annot)
+{
+  AnnotMarkup *annot;
+
+  g_return_val_if_fail (POPPLER_IS_ANNOT_MARKUP (poppler_annot), FALSE);
+
+  annot = static_cast<AnnotMarkup *>(POPPLER_ANNOT (poppler_annot)->annot);
+
+  return annot->getPopup () != NULL;
+}
+
+/**
  * poppler_annot_markup_get_popup_is_open:
  * @poppler_annot: a #PopplerAnnotMarkup
  *
