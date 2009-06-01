@@ -214,6 +214,8 @@ PdfInspector::analyze_page (int page)
   void *p;
   GtkWidget *label;
   char *text;
+  cairo_t *cr;
+  cairo_surface_t *surface;
 
   label = glade_xml_get_widget (xml, "pdf_total_label");
 
@@ -221,7 +223,15 @@ PdfInspector::analyze_page (int page)
   gtk_list_store_clear (GTK_LIST_STORE (model));
 
   GooTimer timer;
+  surface = cairo_image_surface_create (CAIRO_FORMAT_RGB24,
+					doc->getPageCropWidth(page + 1),
+					doc->getPageCropHeight(page + 1));
+  cr = cairo_create (surface);
+  cairo_surface_destroy (surface);
+  output->setCairo (cr);
+  cairo_destroy (cr);
   doc->displayPage (output, page + 1, 72, 72, 0, gFalse, gTrue, gTrue);
+  output->setCairo (NULL);
 
   // Total time;
   text = g_strdup_printf ("%g", timer.getElapsed ());
@@ -331,6 +341,7 @@ main (int argc, char *argv [])
   
   globalParams = new GlobalParams();
   globalParams->setProfileCommands (true);
+  globalParams->setPrintCommands (true);
 
   if (argc == 2)
     file_name = argv[1];
