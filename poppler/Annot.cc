@@ -1324,6 +1324,25 @@ void AnnotPopup::initialize(XRef *xrefA, Dict *dict, Catalog *catalog) {
   obj1.free();
 }
 
+void AnnotPopup::setParent(Object *parentA) {
+  parentA->copy(&parent);
+  update ("Parent", &parent);
+}
+
+void AnnotPopup::setParent(Annot *parentA) {
+  Ref parentRef = parentA->getRef();
+  parent.initRef(parentRef.num, parentRef.gen);
+  update ("Parent", &parent);
+}
+
+void AnnotPopup::setOpen(GBool openA) {
+  Object obj1;
+
+  open = openA;
+  obj1.initBool(open);
+  update ("Open", &obj1);
+}
+
 //------------------------------------------------------------------------
 // AnnotMarkup
 //------------------------------------------------------------------------

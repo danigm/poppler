@@ -586,7 +586,11 @@ public:
   ~AnnotPopup();
 
   Object *getParent(Object *obj) { return parent.fetch (xref, obj); }
+  Object *getParentNF(Object *obj) { return &parent; }
+  void setParent(Object *parentA);
+  void setParent(Annot *parentA);
   GBool getOpen() const { return open; }
+  void setOpen(GBool openA);
 
 protected:
   void initialize(XRef *xrefA, Dict *dict, Catalog *catalog);
