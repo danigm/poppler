@@ -287,6 +287,7 @@ if(ENABLE_XPDF_HEADERS)
     poppler/Gfx.h
     poppler/GfxFont.h
     poppler/GfxState.h
+    poppler/GfxState_helpers.h
     poppler/GlobalParams.h
     poppler/JArithmeticDecoder.h
     poppler/JBIG2Stream.h

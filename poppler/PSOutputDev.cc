@@ -20,6 +20,7 @@
 // Copyright (C) 2007, 2008 Brad Hards <bradh@kde.org>
 // Copyright (C) 2008 Koji Otani <sho@bbr.jp>
 // Copyright (C) 2008 Hib Eris <hib@hiberis.nl>
+// Copyright (C) 2009 Thomas Freitag <Thomas.Freitag@alfa.de>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -492,6 +493,8 @@ static char *prolog[] = {
   "/TJmV { pdfFontSize 0.001 mul mul neg 0 exch",
   "        pdfTextMat dtransform rmoveto } def",
   "/Tclip { pdfTextClipPath cvx exec clip newpath",
+  "         /pdfTextClipPath [] def } def",
+  "/Tclip* { pdfTextClipPath cvx exec eoclip newpath",
   "         /pdfTextClipPath [] def } def",
   "~1ns",
   "% Level 1 image operators",
@@ -990,6 +993,7 @@ PSOutputDev::PSOutputDev(const char *fileName, XRef *xrefA, Catalog *catalog,
   embFontList = NULL;
   customColors = NULL;
   haveTextClip = gFalse;
+  haveCSPattern = gFalse;
   t3String = NULL;
 
   forceRasterize = forceRasterizeA;
@@ -1053,6 +1057,7 @@ PSOutputDev::PSOutputDev(PSOutputFunc outputFuncA, void *outputStreamA,
   embFontList = NULL;
   customColors = NULL;
   haveTextClip = gFalse;
+  haveCSPattern = gFalse;
   t3String = NULL;
 
   forceRasterize = forceRasterizeA;
@@ -2755,6 +2760,9 @@ void PSOutputDev::setupImage(Ref id, Stream *str) {
 	  ++col;
 	}
       }
+      if (c == (useASCIIHex ? '>' : '~') || c == EOF) {
+	break;
+      }
       // each line is: "dup nnnnn <~...data...~> put<eol>"
       // so max data length = 255 - 20 = 235
       // chunks are 1 or 4 bytes each, so we have to stop at 232
@@ -3632,6 +3640,10 @@ void PSOutputDev::updateRender(GfxState *state) {
   int rm;
 
   rm = state->getRender();
+  if (rm == 7 && haveCSPattern) {
+    haveCSPattern = gFalse;
+    restoreState(state);
+  }
   writePSFmt("{0:d} Tr\n", rm);
   rm &= 3;
   if (rm != 0 && rm != 3) {
@@ -4283,11 +4295,44 @@ void PSOutputDev::drawString(GfxState *state, GooString *s) {
   }
 }
 
+void PSOutputDev::beginTextObject(GfxState *state) {
+  if (state->getFillColorSpace()->getMode() == csPattern) {
+    saveState(state);
+    haveCSPattern = gTrue;
+    savedRender = state->getRender();
+    state->setRender(7);
+    writePSFmt("{0:d} Tr\n", 7);
+  }
+}
+
 void PSOutputDev::endTextObject(GfxState *state) {
-  if (haveTextClip) {
+  if (haveCSPattern) {
+    if (haveTextClip) {
+      writePS("Tclip*\n");
+      haveTextClip = gFalse;
+      state->setRender(savedRender);
+      if (state->getFillColorSpace()->getMode() != csPattern) {
+        double cxMin, cyMin, cxMax, cyMax;
+        state->getClipBBox(&cxMin, &cyMin, &cxMax, &cyMax);
+        writePSFmt("{0:.4g} {1:.4g} {2:.4g} {3:.4g} re\n",
+                   cxMin, cyMin,
+                   cxMax, cyMax);
+        writePS("f*\n");
+        restoreState(state);
+        updateFillColor(state);
+      }
+    } else {
+      state->setRender(savedRender);
+    }
+    haveCSPattern = gFalse;
+  } else if (haveTextClip) {
     writePS("Tclip\n");
     haveTextClip = gFalse;
   }
+}
+
+void PSOutputDev::endMaskClip(GfxState * state) {
+  writePS("pdfImClipEnd\n");
 }
 
 void PSOutputDev::drawImageMask(GfxState *state, Object *ref, Stream *str,
@@ -4296,21 +4341,25 @@ void PSOutputDev::drawImageMask(GfxState *state, Object *ref, Stream *str,
   int len;
 
   len = height * ((width + 7) / 8);
-  switch (level) {
-  case psLevel1:
-  case psLevel1Sep:
-    doImageL1(ref, NULL, invert, inlineImg, str, width, height, len);
-    break;
-  case psLevel2:
-  case psLevel2Sep:
-    doImageL2(ref, NULL, invert, inlineImg, str, width, height, len,
-	      NULL, NULL, 0, 0, gFalse);
-    break;
-  case psLevel3:
-  case psLevel3Sep:
-    doImageL3(ref, NULL, invert, inlineImg, str, width, height, len,
-	      NULL, NULL, 0, 0, gFalse);
-    break;
+  if (state->getFillColorSpace()->getMode() == csPattern && (level != psLevel1 && level != psLevel1Sep)) {
+    maskToClippingPath(str, width, height, invert);
+  } else {
+    switch (level) {
+      case psLevel1:
+      case psLevel1Sep:
+        doImageL1(ref, NULL, invert, inlineImg, str, width, height, len);
+      break;
+      case psLevel2:
+      case psLevel2Sep:
+        doImageL2(ref, NULL, invert, inlineImg, str, width, height, len,
+                  NULL, NULL, 0, 0, gFalse);
+      break;
+      case psLevel3:
+      case psLevel3Sep:
+        doImageL3(ref, NULL, invert, inlineImg, str, width, height, len,
+                  NULL, NULL, 0, 0, gFalse);
+      break;
+    }
   }
 }
 
@@ -4547,6 +4596,110 @@ void PSOutputDev::doImageL1Sep(GfxImageColorMap *colorMap,
   gfree(lineBuf);
 }
 
+void PSOutputDev::maskToClippingPath(Stream *maskStr, int maskWidth, int maskHeight, GBool maskInvert) {
+  ImageStream *imgStr;
+  Guchar *line;
+  PSOutImgClipRect *rects0, *rects1, *rectsTmp, *rectsOut;
+  int rects0Len, rects1Len, rectsSize, rectsOutLen, rectsOutSize;
+  GBool emitRect, addRect, extendRect;
+  int i, x0, x1, y, maskXor;
+
+  imgStr = new ImageStream(maskStr, maskWidth, 1, 1);
+  imgStr->reset();
+  rects0Len = rects1Len = rectsOutLen = 0;
+  rectsSize = rectsOutSize = 64;
+  rects0 = (PSOutImgClipRect *)gmallocn(rectsSize, sizeof(PSOutImgClipRect));
+  rects1 = (PSOutImgClipRect *)gmallocn(rectsSize, sizeof(PSOutImgClipRect));
+  rectsOut = (PSOutImgClipRect *)gmallocn(rectsOutSize, sizeof(PSOutImgClipRect));
+  maskXor = maskInvert ? 1 : 0;
+  for (y = 0; y < maskHeight; ++y) {
+    if (!(line = imgStr->getLine())) {
+      break;
+    }
+    i = 0;
+    rects1Len = 0;
+    for (x0 = 0; x0 < maskWidth && (line[x0] ^ maskXor); ++x0) ;
+    for (x1 = x0; x1 < maskWidth && !(line[x1] ^ maskXor); ++x1) ;
+    while (x0 < maskWidth || i < rects0Len) {
+      emitRect = addRect = extendRect = gFalse;
+      if (x0 >= maskWidth) {
+        emitRect = gTrue;
+      } else if (i >= rects0Len) {
+        addRect = gTrue;
+      } else if (rects0[i].x0 < x0) {
+        emitRect = gTrue;
+      } else if (x0 < rects0[i].x0) {
+        addRect = gTrue;
+      } else if (rects0[i].x1 == x1) {
+        extendRect = gTrue;
+      } else {
+        emitRect = addRect = gTrue;
+      }
+      if (emitRect) {
+        if (rectsOutLen == rectsOutSize) {
+          rectsOutSize *= 2;
+          rectsOut = (PSOutImgClipRect *)greallocn(rectsOut, rectsOutSize, sizeof(PSOutImgClipRect));
+        }
+        rectsOut[rectsOutLen].x0 = rects0[i].x0;
+        rectsOut[rectsOutLen].x1 = rects0[i].x1;
+        rectsOut[rectsOutLen].y0 = maskHeight - y - 1;
+        rectsOut[rectsOutLen].y1 = maskHeight - rects0[i].y0 - 1;
+        ++rectsOutLen;
+        ++i;
+      }
+      if (addRect || extendRect) {
+        if (rects1Len == rectsSize) {
+          rectsSize *= 2;
+          rects0 = (PSOutImgClipRect *)greallocn(rects0, rectsSize, sizeof(PSOutImgClipRect));
+          rects1 = (PSOutImgClipRect *)greallocn(rects1, rectsSize, sizeof(PSOutImgClipRect));
+        }
+        rects1[rects1Len].x0 = x0;
+        rects1[rects1Len].x1 = x1;
+        if (addRect) {
+          rects1[rects1Len].y0 = y;
+        }
+        if (extendRect) {
+          rects1[rects1Len].y0 = rects0[i].y0;
+          ++i;
+        }
+        ++rects1Len;
+        for (x0 = x1; x0 < maskWidth && (line[x0] ^ maskXor); ++x0) ;
+        for (x1 = x0; x1 < maskWidth && !(line[x1] ^ maskXor); ++x1) ;
+      }
+    }
+    rectsTmp = rects0;
+    rects0 = rects1;
+    rects1 = rectsTmp;
+    i = rects0Len;
+    rects0Len = rects1Len;
+    rects1Len = i;
+  }
+  for (i = 0; i < rects0Len; ++i) {
+    if (rectsOutLen == rectsOutSize) {
+      rectsOutSize *= 2;
+      rectsOut = (PSOutImgClipRect *)greallocn(rectsOut, rectsOutSize, sizeof(PSOutImgClipRect));
+    }
+    rectsOut[rectsOutLen].x0 = rects0[i].x0;
+    rectsOut[rectsOutLen].x1 = rects0[i].x1;
+    rectsOut[rectsOutLen].y0 = maskHeight - y - 1;
+    rectsOut[rectsOutLen].y1 = maskHeight - rects0[i].y0 - 1;
+    ++rectsOutLen;
+  }
+  writePSFmt("{0:d} array 0\n", rectsOutLen * 4);
+  for (i = 0; i < rectsOutLen; ++i) {
+    writePSFmt("[{0:d} {1:d} {2:d} {3:d}] pr\n",
+               rectsOut[i].x0, rectsOut[i].y0,
+               rectsOut[i].x1 - rectsOut[i].x0,
+               rectsOut[i].y1 - rectsOut[i].y0);
+  }
+  writePSFmt("pop {0:d} {1:d} pdfImClip\n", maskWidth, maskHeight);
+  gfree(rectsOut);
+  gfree(rects0);
+  gfree(rects1);
+  delete imgStr;
+  maskStr->close();
+}
+
 void PSOutputDev::doImageL2(Object *ref, GfxImageColorMap *colorMap,
 			    GBool invert, GBool inlineImg,
 			    Stream *str, int width, int height, int len,
@@ -4713,105 +4866,7 @@ void PSOutputDev::doImageL2(Object *ref, GfxImageColorMap *colorMap,
 
   // explicit masking
   } else if (maskStr) {
-    imgStr = new ImageStream(maskStr, maskWidth, 1, 1);
-    imgStr->reset();
-    rects0Len = rects1Len = rectsOutLen = 0;
-    rectsSize = rectsOutSize = 64;
-    rects0 = (PSOutImgClipRect *)gmallocn(rectsSize, sizeof(PSOutImgClipRect));
-    rects1 = (PSOutImgClipRect *)gmallocn(rectsSize, sizeof(PSOutImgClipRect));
-    rectsOut = (PSOutImgClipRect *)gmallocn(rectsOutSize,
-					    sizeof(PSOutImgClipRect));
-    maskXor = maskInvert ? 1 : 0;
-    for (y = 0; y < maskHeight; ++y) {
-      if (!(line = imgStr->getLine())) {
-	break;
-      }
-      i = 0;
-      rects1Len = 0;
-      for (x0 = 0; x0 < maskWidth && (line[x0] ^ maskXor); ++x0) ;
-      for (x1 = x0; x1 < maskWidth && !(line[x1] ^ maskXor); ++x1) ;
-      while (x0 < maskWidth || i < rects0Len) {
-	emitRect = addRect = extendRect = gFalse;
-	if (x0 >= maskWidth) {
-	  emitRect = gTrue;
-	} else if (i >= rects0Len) {
-	  addRect = gTrue;
-	} else if (rects0[i].x0 < x0) {
-	  emitRect = gTrue;
-	} else if (x0 < rects0[i].x0) {
-	  addRect = gTrue;
-	} else if (rects0[i].x1 == x1) {
-	  extendRect = gTrue;
-	} else {
-	  emitRect = addRect = gTrue;
-	}
-	if (emitRect) {
-	  if (rectsOutLen == rectsOutSize) {
-	    rectsOutSize *= 2;
-	    rectsOut = (PSOutImgClipRect *)greallocn(rectsOut, rectsOutSize,
-						     sizeof(PSOutImgClipRect));
-	  }
-	  rectsOut[rectsOutLen].x0 = rects0[i].x0;
-	  rectsOut[rectsOutLen].x1 = rects0[i].x1;
-	  rectsOut[rectsOutLen].y0 = maskHeight - y - 1;
-	  rectsOut[rectsOutLen].y1 = maskHeight - rects0[i].y0 - 1;
-	  ++rectsOutLen;
-	  ++i;
-	}
-	if (addRect || extendRect) {
-	  if (rects1Len == rectsSize) {
-	    rectsSize *= 2;
-	    rects0 = (PSOutImgClipRect *)greallocn(rects0, rectsSize,
-						   sizeof(PSOutImgClipRect));
-	    rects1 = (PSOutImgClipRect *)greallocn(rects1, rectsSize,
-						   sizeof(PSOutImgClipRect));
-	  }
-	  rects1[rects1Len].x0 = x0;
-	  rects1[rects1Len].x1 = x1;
-	  if (addRect) {
-	    rects1[rects1Len].y0 = y;
-	  }
-	  if (extendRect) {
-	    rects1[rects1Len].y0 = rects0[i].y0;
-	    ++i;
-	  }
-	  ++rects1Len;
-	  for (x0 = x1; x0 < maskWidth && (line[x0] ^ maskXor); ++x0) ;
-	  for (x1 = x0; x1 < maskWidth && !(line[x1] ^ maskXor); ++x1) ;
-	}
-      }
-      rectsTmp = rects0;
-      rects0 = rects1;
-      rects1 = rectsTmp;
-      i = rects0Len;
-      rects0Len = rects1Len;
-      rects1Len = i;
-    }
-    for (i = 0; i < rects0Len; ++i) {
-      if (rectsOutLen == rectsOutSize) {
-	rectsOutSize *= 2;
-	rectsOut = (PSOutImgClipRect *)greallocn(rectsOut, rectsOutSize,
-						 sizeof(PSOutImgClipRect));
-      }
-      rectsOut[rectsOutLen].x0 = rects0[i].x0;
-      rectsOut[rectsOutLen].x1 = rects0[i].x1;
-      rectsOut[rectsOutLen].y0 = maskHeight - y - 1;
-      rectsOut[rectsOutLen].y1 = maskHeight - rects0[i].y0 - 1;
-      ++rectsOutLen;
-    }
-    writePSFmt("{0:d} array 0\n", rectsOutLen * 4);
-    for (i = 0; i < rectsOutLen; ++i) {
-      writePSFmt("[{0:d} {1:d} {2:d} {3:d}] pr\n",
-		 rectsOut[i].x0, rectsOut[i].y0,
-		 rectsOut[i].x1 - rectsOut[i].x0,
-		 rectsOut[i].y1 - rectsOut[i].y0);
-    }
-    writePSFmt("pop {0:d} {1:d} pdfImClip\n", maskWidth, maskHeight);
-    gfree(rectsOut);
-    gfree(rects0);
-    gfree(rects1);
-    delete imgStr;
-    maskStr->close();
+    maskToClippingPath(maskStr, maskWidth, maskHeight, maskInvert);
   }
 
   // color space

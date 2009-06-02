@@ -17,6 +17,7 @@
 // Copyright (C) 2005 Kristian Høgsberg <krh@redhat.com>
 // Copyright (C) 2006-2008 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2007 Brad Hards <bradh@kde.org>
+// Copyright (C) 2009 Thomas Freitag <Thomas.Freitag@alfa.de>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -33,6 +34,7 @@
 #include <poppler-config.h>
 #include <stddef.h>
 #include "Object.h"
+#include "GfxState.h"
 #include "GlobalParams.h"
 #include "OutputDev.h"
 
@@ -125,6 +127,10 @@ public:
   // text in Type 3 fonts will be drawn with drawChar/drawString.
   virtual GBool interpretType3Chars() { return gFalse; }
 
+  // This device now supports text in pattern colorspace!
+  virtual GBool supportTextCSPattern(GfxState *state)
+  	{ return state->getFillColorSpace()->getMode() == csPattern; }
+
   //----- header/trailer (used only if manualCtrl is true)
 
   // Write the document-level header.
@@ -216,6 +222,8 @@ public:
 
   //----- text drawing
   virtual void drawString(GfxState *state, GooString *s);
+  virtual void beginTextObject(GfxState *state);
+  virtual GBool deviceHasTextClip(GfxState *state) { return haveTextClip && haveCSPattern; }
   virtual void endTextObject(GfxState *state);
 
   //----- image drawing
@@ -230,6 +238,12 @@ public:
 			       GfxImageColorMap *colorMap,
 			       Stream *maskStr, int maskWidth, int maskHeight,
 			       GBool maskInvert);
+  // If current colorspace ist pattern,
+  // need this device special handling for masks in pattern colorspace?
+  // Default is false
+  virtual GBool fillMaskCSPattern(GfxState * state)
+  	{ return state->getFillColorSpace()->getMode() == csPattern && (level != psLevel1 && level != psLevel1Sep); }
+  virtual void endMaskClip(GfxState * /*state*/);
 
 #if OPI_SUPPORT
   //----- OPI functions
@@ -295,6 +309,7 @@ private:
   void addProcessColor(double c, double m, double y, double k);
   void addCustomColor(GfxSeparationColorSpace *sepCS);
   void doPath(GfxPath *path);
+  void maskToClippingPath(Stream *maskStr, int maskWidth, int maskHeight, GBool maskInvert);
   void doImageL1(Object *ref, GfxImageColorMap *colorMap,
 		 GBool invert, GBool inlineImg,
 		 Stream *str, int width, int height, int len);
@@ -400,6 +415,9 @@ private:
 
   GBool haveTextClip;		// set if text has been drawn with a
 				//   clipping render mode
+  GBool haveCSPattern;		// set if text has been drawn with a
+				//   clipping render mode because of pattern colorspace
+  int savedRender;		// use if pattern colorspace
 
   GBool inType3Char;		// inside a Type 3 CharProc
   GooString *t3String;		// Type 3 content string

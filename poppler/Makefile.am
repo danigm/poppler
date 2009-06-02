@@ -169,6 +169,7 @@ poppler_include_HEADERS =	\
 	Gfx.h			\
 	GfxFont.h		\
 	GfxState.h		\
+	GfxState_helpers.h	\
 	GlobalParams.h		\
 	JArithmeticDecoder.h	\
 	JBIG2Stream.h		\

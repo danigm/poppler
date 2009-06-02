@@ -17,6 +17,7 @@
 // Copyright (C) 2006 Thorkild Stray <thorkild@ifi.uio.no>
 // Copyright (C) 2007 Jeff Muizelaar <jeff@infidigm.net>
 // Copyright (C) 2007 Adrian Johnson <ajohnson@redneon.com>
+// Copyright (C) 2009 Thomas Freitag <Thomas.Freitag@alfa.de>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -93,6 +94,17 @@ public:
 
   // Does this device need non-text content?
   virtual GBool needNonText() { return gTrue; }
+
+  // If current colorspace ist pattern,
+  // does this device support text in pattern colorspace?
+  // Default is false
+  virtual GBool supportTextCSPattern(GfxState * /*state*/) { return gFalse; }
+
+  // If current colorspace ist pattern,
+  // need this device special handling for masks in pattern colorspace?
+  // Default is false
+  virtual GBool fillMaskCSPattern(GfxState * /*state*/) { return gFalse; }
+  virtual void endMaskClip(GfxState * /*state*/) {}
 
   //----- initialization and control
 
@@ -204,6 +216,8 @@ public:
 			       double /*dx*/, double /*dy*/,
 			       CharCode /*code*/, Unicode * /*u*/, int /*uLen*/);
   virtual void endType3Char(GfxState * /*state*/) {}
+  virtual void beginTextObject(GfxState * /*state*/) {}
+  virtual GBool deviceHasTextClip(GfxState * /*state*/) { return gFalse; }
   virtual void endTextObject(GfxState * /*state*/) {}
 
   //----- image drawing

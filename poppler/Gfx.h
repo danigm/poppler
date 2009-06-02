@@ -18,6 +18,7 @@
 // Copyright (C) 2008 Brad Hards <bradh@kde.org>
 // Copyright (C) 2008 Carlos Garcia Campos <carlosgc@gnome.org>
 // Copyright (C) 2009 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2009 Thomas Freitag <Thomas.Freitag@alfa.de>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -33,6 +34,7 @@
 
 #include "goo/gtypes.h"
 #include "goo/GooList.h"
+#include "GfxState.h"
 #include "Object.h"
 
 class GooString;
@@ -175,6 +177,11 @@ private:
   GBool subPage;		// is this a sub-page object?
   GBool printCommands;		// print the drawing commands (for debugging)
   GBool profileCommands;	// profile the drawing commands (for debugging)
+  GBool textHaveCSPattern;	// in text drawing and text has pattern colorspace
+  GBool drawText;		// in text drawing
+  GBool maskHaveCSPattern;	// in mask drawing and mask has pattern colorspace
+  GfxColorSpace *colorSpaceText;// colorspace after text has filled with pattern
+  GfxColor colorText;		// fill color after after text has filled with pattern
   GfxResources *res;		// resource stack
   int updateLevel;
 
