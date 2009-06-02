@@ -393,11 +393,15 @@ static void splashOutBlendDifference(SplashColorPtr src, SplashColorPtr dest,
 
   for (i = 0; i < splashColorModeNComps[cm]; ++i) {
 #ifdef SPLASH_CMYK
-    if (cm == splashModeCMYK8) {
+    if (cm == splashModeCMYK8)
+    {
       blend[i] = dest[i] < src[i] ? 255 - (src[i] - dest[i]) : 255 - (dest[i] - src[i]);
-    } else {
+    }
+    else
 #endif
+    {
       blend[i] = dest[i] < src[i] ? src[i] - dest[i] : dest[i] - src[i];
+    }
   }
 }
 
