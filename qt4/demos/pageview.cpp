@@ -60,4 +60,9 @@ void PageView::pageChanged(int page)
     delete popplerPage;
 }
 
+void PageView::setPage(int page)
+{
+    DocumentObserver::setPage(page);
+}
+
 #include "pageview.moc"
