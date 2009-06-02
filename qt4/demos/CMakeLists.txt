@@ -19,6 +19,7 @@ set(poppler_qt4viewer_SRCS
   optcontent.cpp
   pageview.cpp
   permissions.cpp
+  thumbnails.cpp
   toc.cpp
   viewer.cpp
 )

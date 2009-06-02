@@ -1,6 +1,7 @@
 /*
- * Copyright (C) 2008, Pino Toscano <pino@kde.org>
+ * Copyright (C) 2008-2009, Pino Toscano <pino@kde.org>
  * Copyright (C) 2008, Albert Astals Cid <aacid@kde.org>
+ * Copyright (C) 2009, Shawn Rutledge <shawn.t.rutledge@gmail.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,6 +28,7 @@
 #include "optcontent.h"
 #include "pageview.h"
 #include "permissions.h"
+#include "thumbnails.h"
 #include "toc.h"
 
 #include <poppler-qt4.h>
@@ -116,6 +118,13 @@ PdfViewer::PdfViewer()
     permissionsDock->hide();
     viewMenu->addAction(permissionsDock->toggleViewAction());
     m_observers.append(permissionsDock);
+
+    ThumbnailsDock *thumbnailsDock = new ThumbnailsDock(this);
+    addDockWidget(Qt::LeftDockWidgetArea, thumbnailsDock);
+    thumbnailsDock->hide();
+    viewMenu->addAction(thumbnailsDock->toggleViewAction());
+    m_observers.append(thumbnailsDock);
+    connect(thumbnailsDock, SIGNAL(pageClicked(int)), view, SLOT(setPage(int)));
 
     EmbeddedFilesDock *embfilesDock = new EmbeddedFilesDock(this);
     addDockWidget(Qt::BottomDockWidgetArea, embfilesDock);
