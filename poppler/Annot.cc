@@ -1584,6 +1584,31 @@ void AnnotText::initialize(XRef *xrefA, Catalog *catalog, Dict *dict) {
   obj1.free();
 }
 
+void AnnotText::setOpen(GBool openA) {
+  Object obj1;
+
+  open = openA;
+  obj1.initBool(open);
+  update ("Open", &obj1);
+}
+
+void AnnotText::setIcon(GooString *new_icon) {
+  if (new_icon && icon->cmp(new_icon) == 0)
+    return;
+
+  delete icon;
+
+  if (new_icon) {
+    icon = new GooString (new_icon);
+  } else {
+    icon = new GooString("Note");
+  }
+
+  Object obj1;
+  obj1.initName (icon->getCString());
+  update("Name", &obj1);
+}
+
 //------------------------------------------------------------------------
 // AnnotLink
 //------------------------------------------------------------------------

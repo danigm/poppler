@@ -675,6 +675,9 @@ public:
   GooString *getIcon() const { return icon; }
   AnnotTextState getState() const { return state; }
 
+  void setOpen(GBool openA);
+  void setIcon(GooString *new_icon);
+
 private:
 
   void initialize(XRef *xrefA, Catalog *catalog, Dict *dict);
