@@ -625,6 +625,10 @@ public:
   AnnotMarkupReplyType getReplyTo() const { return replyTo; }
   AnnotExternalDataType getExData() const { return exData; }
 
+  // The annotation takes the ownership of new_popup
+  void setPopup(AnnotPopup *new_popup);
+  void setLabel(GooString *new_label);
+
 protected:
   GooString *label;             // T            (Default autor)
   AnnotPopup *popup;            // Popup

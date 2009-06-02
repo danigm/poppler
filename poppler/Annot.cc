@@ -1440,6 +1440,42 @@ void AnnotMarkup::initialize(XRef *xrefA, Dict *dict, Catalog *catalog, Object *
   obj1.free();
 }
 
+void AnnotMarkup::setLabel(GooString *new_label) {
+  delete label;
+
+  if (new_label) {
+    label = new GooString(new_label);
+    //append the unicode marker <FE FF> if needed
+    if (!label->hasUnicodeMarker()) {
+      label->insert(0, 0xff);
+      label->insert(0, 0xfe);
+    }
+  } else {
+    label = new GooString();
+  }
+
+  Object obj1;
+  obj1.initString(label->copy());
+  update ("T", &obj1);
+}
+
+void AnnotMarkup::setPopup(AnnotPopup *new_popup) {
+  delete popup;
+
+  if (new_popup) {
+    Object obj1;
+    Ref popupRef = new_popup->getRef();
+
+    obj1.initRef (popupRef.num, popupRef.gen);
+    update ("Popup", &obj1);
+
+    new_popup->setParent(this);
+    popup = new_popup;
+  } else {
+    popup = NULL;
+  }
+}
+
 //------------------------------------------------------------------------
 // AnnotText
 //------------------------------------------------------------------------
