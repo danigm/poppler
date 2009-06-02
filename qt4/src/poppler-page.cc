@@ -3,8 +3,9 @@
  * Copyright (C) 2005, Brad Hards <bradh@frogmouth.net>
  * Copyright (C) 2005-2008, Albert Astals Cid <aacid@kde.org>
  * Copyright (C) 2005, Stefan Kebekus <stefan.kebekus@math.uni-koeln.de>
- * Copyright (C) 2006-2008, Pino Toscano <pino@kde.org>
+ * Copyright (C) 2006-2009, Pino Toscano <pino@kde.org>
  * Copyright (C) 2008 Carlos Garcia Campos <carlosgc@gnome.org>
+ * Copyright (C) 2009 Shawn Rutledge <shawn.t.rutledge@gmail.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -275,6 +276,24 @@ QImage Page::renderToImage(double xres, double yres, int x, int y, int w, int h,
   }
 
   return img;
+}
+
+QImage Page::thumbnail() const
+{
+  unsigned char* data = 0;
+  int w = 0;
+  int h = 0;
+  int rowstride = 0;
+  GBool r = m_page->page->loadThumb(&data, &w, &h, &rowstride);
+  QImage ret;
+  if (r)
+  {
+    // first construct a temporary image with the data got,
+    // then force a copy of it so we can free the raw thumbnail data
+    ret = QImage(data, w, h, rowstride, QImage::Format_RGB888).copy();
+    gfree(data);
+  }
+  return ret;
 }
 
 QString Page::text(const QRectF &r) const

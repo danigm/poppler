@@ -4,6 +4,7 @@
  * Copyright (C) 2005-2008, Albert Astals Cid <aacid@kde.org>
  * Copyright (C) 2005, Stefan Kebekus <stefan.kebekus@math.uni-koeln.de>
  * Copyright (C) 2006-2009, Pino Toscano <pino@kde.org>
+ * Copyright (C) 2009 Shawn Rutledge <shawn.t.rutledge@gmail.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -415,6 +416,16 @@ while (it->hasNext()) {
 	   \since 0.6
         */
 	QImage renderToImage(double xres=72.0, double yres=72.0, int x=-1, int y=-1, int w=-1, int h=-1, Rotation rotate = Rotate0) const;
+
+	/**
+	   Get the page thumbnail if it exists.
+
+	   \return a QImage of the thumbnail, or a null image
+	   if the PDF does not contain one for this page
+
+	   \since 0.12
+	*/
+	QImage thumbnail() const;
 
 	/**
 	   Returns the text that is inside a specified rectangle
