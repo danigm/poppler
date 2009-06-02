@@ -565,9 +565,6 @@ static void splashOutBlendSaturation(SplashColorPtr src, SplashColorPtr dest,
 static void splashOutBlendColor(SplashColorPtr src, SplashColorPtr dest,
 				SplashColorPtr blend, SplashColorMode cm) {
   int hs, ss, vs, hd, sd, vd;
-#if SPLASH_CMYK
-  Guchar r, g, b;
-#endif
 
   switch (cm) {
   case splashModeMono1:
