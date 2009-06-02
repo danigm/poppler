@@ -1306,22 +1306,16 @@ AnnotPopup::AnnotPopup(XRef *xrefA, Dict *dict, Catalog *catalog, Object *obj) :
 }
 
 AnnotPopup::~AnnotPopup() {
-  /*
-  if (parent)
-    delete parent;
-  */
+  parent.free();
 }
 
 void AnnotPopup::initialize(XRef *xrefA, Dict *dict, Catalog *catalog) {
   Object obj1;
-  /*
-  if (dict->lookup("Parent", &obj1)->isDict()) {
-    parent = NULL;
-  } else {
-    parent = NULL;
+
+  if (!dict->lookupNF("Parent", &parent)->isRef()) {
+    parent.initNull();
   }
-  obj1.free();
-  */
+
   if (dict->lookup("Open", &obj1)->isBool()) {
     open = obj1.getBool();
   } else {

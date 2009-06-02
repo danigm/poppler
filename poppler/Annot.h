@@ -585,13 +585,13 @@ public:
   AnnotPopup(XRef *xrefA, Dict *dict, Catalog *catalog, Object *obj);
   ~AnnotPopup();
 
-  Dict *getParent() const { return parent; }
+  Object *getParent(Object *obj) { return parent.fetch (xref, obj); }
   GBool getOpen() const { return open; }
 
 protected:
   void initialize(XRef *xrefA, Dict *dict, Catalog *catalog);
 
-  Dict *parent; // Parent
+  Object parent; // Parent
   GBool open;   // Open
 };
 
