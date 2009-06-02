@@ -3,19 +3,19 @@ This is poppler, a PDF rendering library.
 Poppler is a fork of the xpdf PDF viewer developed by Derek Noonburg
 of Glyph and Cog, LLC.  The purpose of forking xpdf is twofold.
 First, we want to provide PDF rendering functionality as a shared
-library, to centralize the maintenence effort.  Today a number of
+library, to centralize the maintanence effort.  Today a number of
 applications incorporate the xpdf code base, and whenever a security
 issue is discovered, all these applications exchange patches and put
 out new releases.  In turn, all distributions must package and release
 new version of these xpdf based viewers.  It's safe to say that
-there's a lot of duplicated effort with the current situaion.  Even if
+there's a lot of duplicated effort with the current situation.  Even if
 poppler in the short term introduces yet another xpdf derived code
 base to the world, we hope that over time these applications will
 adopt poppler.  After all, we only need one application to use poppler
 to break even.
 
 Second, we would like to move libpoppler forward in a number of areas
-that doesn't fit within the goals of xpdf.  By design, xpdf depends on
+that don't fit within the goals of xpdf.  By design, xpdf depends on
 very few libraries and runs a wide range of X based platforms.  This
 is a strong feature and reasonable design goal.  However, with poppler
 we would like to replace parts of xpdf that are now available as
