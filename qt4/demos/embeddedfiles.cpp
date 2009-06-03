@@ -58,7 +58,9 @@ void EmbeddedFilesDock::fillInfo()
         m_table->setItem(i, 2, new QTableWidgetItem(QString::number(file->size())));
         m_table->setItem(i, 3, new QTableWidgetItem(file->createDate().toString(Qt::SystemLocaleDate)));
         m_table->setItem(i, 4, new QTableWidgetItem(file->modDate().toString(Qt::SystemLocaleDate)));
-        m_table->setItem(i, 5, new QTableWidgetItem("n/a")); // ### FIXME pretty display of the HEX checksum
+        const QByteArray checksum = file->checksum();
+        const QString checksumString = !checksum.isEmpty() ? QString::fromAscii(checksum.toHex()) : QString::fromLatin1("n/a");
+        m_table->setItem(i, 5, new QTableWidgetItem(checksumString));
         ++i;
     }
 }
