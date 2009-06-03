@@ -2951,6 +2951,10 @@ GBool PSOutputDev::checkPageSlice(Page *page, double /*hDPI*/, double /*vDPI*/,
     paperColor[0] = paperColor[1] = paperColor[2] = paperColor[3] = 0;
     splashOut = new SplashOutputDev(splashModeCMYK8, 1, gFalse,
 				    paperColor, gTrue, gFalse);
+#else
+  } else if (level == psLevel1Sep) {
+    error(-1, "pdftops was built without CMYK support, level1sep needs it to work in this file");
+    return gFalse;
 #endif
   } else {
     paperColor[0] = paperColor[1] = paperColor[2] = 0xff;
