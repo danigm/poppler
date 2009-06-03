@@ -135,6 +135,7 @@ public:
 
   //----- update text state
   virtual void updateFont(GfxState *state);
+  virtual void updateRender(GfxState *state);
 
   //----- path painting
   virtual void stroke(GfxState *state);
@@ -157,7 +158,21 @@ public:
 			       double dx, double dy,
 			       CharCode code, Unicode *u, int uLen);
   virtual void endType3Char(GfxState *state);
+  virtual void beginTextObject(GfxState *state);
+  virtual GBool deviceHasTextClip(GfxState *state) { return textClipPath && haveCSPattern; }
   virtual void endTextObject(GfxState *state);
+
+  // If current colorspace is pattern,
+  // does this device support text in pattern colorspace?
+  virtual GBool supportTextCSPattern(GfxState *state) {
+      return state->getFillColorSpace()->getMode() == csPattern; }
+
+  // If current colorspace is pattern,
+  // need this device special handling for masks in pattern colorspace?
+  virtual GBool fillMaskCSPattern(GfxState * state) {
+      return state->getFillColorSpace()->getMode() == csPattern; }
+
+  virtual void endMaskClip(GfxState *state);
 
   //----- grouping operators
   virtual void beginMarkedContent(char *name, Dict *properties);
@@ -276,6 +291,10 @@ protected:
       cairo_pattern_t *mask;
       struct MaskStack *next;
   } *maskStack;
+
+  GBool haveCSPattern;	// set if text has been drawn with a
+                        //   clipping render mode because of pattern colorspace
+  int savedRender;	// use if pattern colorspace
 };
 
 //------------------------------------------------------------------------

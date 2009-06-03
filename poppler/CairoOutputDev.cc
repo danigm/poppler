@@ -124,6 +124,7 @@ CairoOutputDev::CairoOutputDev() {
   stroke_opacity = 1.0;
   fill_opacity = 1.0;
   textClipPath = NULL;
+  haveCSPattern = gFalse;
   cairo = NULL;
   currentFont = NULL;
   prescaleImages = gTrue;
@@ -507,6 +508,15 @@ void CairoOutputDev::updateFont(GfxState *state) {
   cairo_set_font_matrix (cairo, &matrix);
 }
 
+void CairoOutputDev::updateRender(GfxState *state) {
+  int rm;
+  rm = state->getRender();
+  if (rm == 7 && haveCSPattern) {
+    haveCSPattern = gFalse;
+    restoreState(state);
+  }
+}
+
 void CairoOutputDev::doPath(cairo_t *cairo, GfxState *state, GfxPath *path) {
   GfxSubpath *subpath;
   int i, j;
@@ -758,7 +768,40 @@ void CairoOutputDev::type3D1(GfxState *state, double wx, double wy,
   t3_glyph_has_bbox = gTrue;
 }
 
+void CairoOutputDev::beginTextObject(GfxState *state) {
+  if (state->getFillColorSpace()->getMode() == csPattern) {
+    haveCSPattern = gTrue;
+    saveState(state);
+    savedRender = state->getRender();
+    state->setRender(7); // Set clip to text path
+  }
+}
+
 void CairoOutputDev::endTextObject(GfxState *state) {
+  if (haveCSPattern) {
+    state->setRender(savedRender);
+    haveCSPattern = gFalse;
+    if (state->getFillColorSpace()->getMode() != csPattern) {
+      if (textClipPath) {
+	cairo_new_path (cairo);
+	cairo_append_path (cairo, textClipPath);
+	cairo_set_fill_rule (cairo, CAIRO_FILL_RULE_WINDING);
+	cairo_set_source (cairo, fill_pattern);
+	cairo_fill (cairo);
+	if (cairo_shape) {
+	  cairo_new_path (cairo_shape);
+	  cairo_append_path (cairo_shape, textClipPath);
+	  cairo_set_fill_rule (cairo_shape, CAIRO_FILL_RULE_WINDING);
+	  cairo_fill (cairo_shape);
+	}
+	cairo_path_destroy (textClipPath);
+	textClipPath = NULL;
+      }
+      restoreState(state);
+      updateFillColor(state);
+    }
+  }
+
   if (textClipPath) {
     // clip the accumulated text path
     cairo_append_path (cairo, textClipPath);
@@ -1055,6 +1098,10 @@ void CairoOutputDev::clearSoftMask(GfxState * /*state*/) {
   if (mask)
     cairo_pattern_destroy(mask);
   mask = NULL;
+}
+
+void CairoOutputDev::endMaskClip(GfxState *state) {
+  clearSoftMask(state);
 }
 
 void CairoOutputDev::drawImageMask(GfxState *state, Object *ref, Stream *str,
