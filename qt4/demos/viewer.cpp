@@ -124,7 +124,6 @@ PdfViewer::PdfViewer()
     thumbnailsDock->hide();
     viewMenu->addAction(thumbnailsDock->toggleViewAction());
     m_observers.append(thumbnailsDock);
-    connect(thumbnailsDock, SIGNAL(pageClicked(int)), view, SLOT(setPage(int)));
 
     EmbeddedFilesDock *embfilesDock = new EmbeddedFilesDock(this);
     addDockWidget(Qt::BottomDockWidgetArea, embfilesDock);

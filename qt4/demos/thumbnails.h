@@ -35,9 +35,6 @@ public:
 
     /*virtual*/ void documentClosed();
 
-Q_SIGNALS:
-    void pageClicked(int page);
-
 protected:
     /*virtual*/ void fillInfo();
 

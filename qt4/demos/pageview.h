@@ -37,9 +37,6 @@ public:
     /*virtual*/ void documentClosed();
     /*virtual*/ void pageChanged(int page);
 
-public Q_SLOTS:
-    void setPage(int page);
-
 private:
     QLabel *m_imageLabel;
 };
