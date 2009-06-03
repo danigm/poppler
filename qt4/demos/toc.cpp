@@ -59,9 +59,7 @@ TocDock::TocDock(QWidget *parent)
     m_tree->setAlternatingRowColors(true);
     m_tree->header()->hide();
     setWindowTitle(tr("TOC"));
-#if QT_VERSION >= 0x040200
     m_tree->setHorizontalScrollMode(QAbstractItemView::ScrollPerPixel);
-#endif
 }
 
 TocDock::~TocDock()

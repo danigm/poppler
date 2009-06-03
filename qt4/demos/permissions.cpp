@@ -35,9 +35,7 @@ PermissionsDock::PermissionsDock(QWidget *parent)
     setWindowTitle(tr("Permissions"));
     m_table->setColumnCount(2);
     m_table->setHorizontalHeaderLabels(QStringList() << tr("Permission") << tr("Value"));
-#if QT_VERSION >= 0x040200
     m_table->setHorizontalScrollMode(QAbstractItemView::ScrollPerPixel);
-#endif
 }
 
 PermissionsDock::~PermissionsDock()

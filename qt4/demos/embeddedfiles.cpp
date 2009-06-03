@@ -32,9 +32,7 @@ EmbeddedFilesDock::EmbeddedFilesDock(QWidget *parent)
     m_table->setHorizontalHeaderLabels(
         QStringList() << tr("Name") << tr("Description") << tr("Size") << tr("Creation date")
                       << tr("Modification date") << tr("Checksum"));
-#if QT_VERSION >= 0x040200
     m_table->setHorizontalScrollMode(QAbstractItemView::ScrollPerPixel);
-#endif
 }
 
 EmbeddedFilesDock::~EmbeddedFilesDock()

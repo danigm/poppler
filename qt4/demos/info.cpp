@@ -30,9 +30,7 @@ InfoDock::InfoDock(QWidget *parent)
     setWindowTitle(tr("Information"));
     m_table->setColumnCount(2);
     m_table->setHorizontalHeaderLabels(QStringList() << tr("Key") << tr("Value"));
-#if QT_VERSION >= 0x040200
     m_table->setHorizontalScrollMode(QAbstractItemView::ScrollPerPixel);
-#endif
 }
 
 InfoDock::~InfoDock()

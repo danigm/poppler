@@ -35,9 +35,7 @@ FontsDock::FontsDock(QWidget *parent)
     setWindowTitle(tr("Fonts"));
     m_table->setColumnCount(5);
     m_table->setHorizontalHeaderLabels(QStringList() << tr("Name") << tr("Type") << tr("Embedded") << tr("Subset") << tr("File"));
-#if QT_VERSION >= 0x040200
     m_table->setHorizontalScrollMode(QAbstractItemView::ScrollPerPixel);
-#endif
 }
 
 FontsDock::~FontsDock()

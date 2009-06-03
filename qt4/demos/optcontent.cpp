@@ -28,9 +28,7 @@ OptContentDock::OptContentDock(QWidget *parent)
     m_view = new QTreeView(this);
     setWidget(m_view);
     setWindowTitle(tr("Optional content"));
-#if QT_VERSION >= 0x040200
     m_view->setHorizontalScrollMode(QAbstractItemView::ScrollPerPixel);
-#endif
 }
 
 OptContentDock::~OptContentDock()
