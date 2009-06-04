@@ -3778,7 +3778,7 @@ void Gfx::doImage(Object *ref, Stream *str, GBool inlineImg) {
     obj1.free();
 
     // draw it
-    if (!contentIsHidden())
+    if (!contentIsHidden()) {
       out->drawImageMask(state, ref, str, width, height, invert, inlineImg);
       if (out->fillMaskCSPattern(state)) {
         maskHaveCSPattern = gTrue;
@@ -3786,7 +3786,7 @@ void Gfx::doImage(Object *ref, Stream *str, GBool inlineImg) {
         out->endMaskClip(state);
         maskHaveCSPattern = gFalse;
       }
-
+    }
   } else {
 
     // get color space and color map
