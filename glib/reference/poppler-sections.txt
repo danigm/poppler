@@ -308,3 +308,13 @@ poppler_layer_hide
 poppler_layer_is_parent
 poppler_layer_get_radio_button_group_id
 </SECTION>
+
+<SECTION>
+<FILE>poppler-features</FILE>
+POPPLER_HAS_CAIRO
+POPPLER_WITH_GDK
+POPPLER_MAJOR_VERSION
+POPPLER_MINOR_VERSION
+POPPLER_MICRO_VERSION
+POPPLER_CHECK_VERSION
+</SECTION>

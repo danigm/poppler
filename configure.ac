@@ -1,5 +1,10 @@
+m4_define([poppler_version_major],[0])
+m4_define([poppler_version_minor],[11])
+m4_define([poppler_version_micro],[0])
+m4_define([poppler_version],[poppler_version_major.poppler_version_minor.poppler_version_micro])
+
 AC_PREREQ(2.59)
-AC_INIT(poppler, 0.11.0)
+AC_INIT([poppler],[poppler_version],[https://bugs.freedesktop.org/enter_bug.cgi?product=poppler])
 AC_CONFIG_MACRO_DIR([m4])
 AM_INIT_AUTOMAKE([foreign])
 AM_CONFIG_HEADER(config.h)
@@ -495,6 +500,10 @@ esac
 
 AC_SUBST(PC_REQUIRES)
 AC_SUBST(PC_REQUIRES_PRIVATE)
+
+AC_SUBST([POPPLER_MAJOR_VERSION],[poppler_version_major])
+AC_SUBST([POPPLER_MINOR_VERSION],[poppler_version_minor])
+AC_SUBST([POPPLER_MICRO_VERSION],[poppler_version_micro])
 
 AC_OUTPUT([
 Makefile
