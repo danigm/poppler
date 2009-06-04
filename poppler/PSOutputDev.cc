@@ -2711,6 +2711,9 @@ void PSOutputDev::setupImage(Ref id, Stream *str) {
 	}
 	++col;
       }
+      if (c == (useASCIIHex ? '>' : '~') || c == EOF) {
+	break;
+      }
     }
     if (col > 225) {
       ++size;
