@@ -21,6 +21,7 @@
 // Copyright (C) 2008 Koji Otani <sho@bbr.jp>
 // Copyright (C) 2008 Hib Eris <hib@hiberis.nl>
 // Copyright (C) 2009 Thomas Freitag <Thomas.Freitag@alfa.de>
+// Copyright (C) 2009 Till Kamppeter <till.kamppeter@gmail.com>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -1274,6 +1275,7 @@ void PSOutputDev::writeHeader(int firstPage, int lastPage,
   Object info, obj1;
 
   switch (mode) {
+  case psModePSOrigPageSizes:
   case psModePS:
     writePS("%!PS-Adobe-3.0\n");
     break;
@@ -1304,6 +1306,7 @@ void PSOutputDev::writeHeader(int firstPage, int lastPage,
   writePS("%%DocumentSuppliedResources: (atend)\n");
 
   switch (mode) {
+  case psModePSOrigPageSizes:
   case psModePS:
     writePSFmt("%%DocumentMedia: plain {0:d} {1:d} 0 () ()\n",
 	       paperWidth, paperHeight);
@@ -3134,7 +3137,7 @@ void PSOutputDev::startPage(int pageNum, GfxState *state) {
   GBool landscape;
 
 
-  if (mode == psModePS) {
+  if (mode == psModePS || mode == psModePSOrigPageSizes) {
     GooString pageLabel;
     const GBool gotLabel = m_catalog->indexToLabel(pageNum -1, &pageLabel);
     if (gotLabel) {
@@ -3149,7 +3152,8 @@ void PSOutputDev::startPage(int pageNum, GfxState *state) {
     } else {
       writePSFmt("%%Page: {0:d} {1:d}\n", pageNum, seqPage);
     }
-    writePS("%%BeginPageSetup\n");
+    if (mode != psModePSOrigPageSizes)
+      writePS("%%BeginPageSetup\n");
   }
 
   // underlays
@@ -3161,6 +3165,29 @@ void PSOutputDev::startPage(int pageNum, GfxState *state) {
   }
 
   switch (mode) {
+
+  case psModePSOrigPageSizes:
+    x1 = (int)floor(state->getX1());
+    y1 = (int)floor(state->getY1());
+    x2 = (int)ceil(state->getX2());
+    y2 = (int)ceil(state->getY2());
+    width = x2 - x1;
+    height = y2 - y1;
+    if (width > height) {
+      landscape = gTrue;
+    } else {
+      landscape = gFalse;
+    }
+    writePSFmt("%%PageBoundingBox: {0:d} {1:d} {2:d} {3:d}\n", x1, y1, x2 - x1, y2 - y1);
+    writePS("%%BeginPageSetup\n");
+    writePSFmt("%%PageOrientation: {0:s}\n",
+	       landscape ? "Landscape" : "Portrait");
+    writePSFmt("<</PageSize [{0:d} {1:d}]>> setpagedevice\n", width, height);
+    writePS("pdfStartPage\n");
+    writePSFmt("{0:d} {1:d} {2:d} {3:d} re W\n", x1, y1, x2 - x1, y2 - y1);
+    writePS("%%EndPageSetup\n");
+    ++seqPage;
+    break;
 
   case psModePS:
     // rotate, translate, and scale page

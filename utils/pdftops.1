@@ -65,17 +65,30 @@ CID font embedding.
 Generate Level 3 separable PostScript.  The separation handling is the
 same as for \-level2Sep.
 .TP
+.B \-origpagesizes
+Generate a PostScript file with variable page sizes and orientations,
+taking for each page the size of the original page in the PDF file. 
+The PostScript file contains "<</PageSize [WIDTH HEIGHT]>> setpagedevice"
+lines in each page header, so that the paper input tray gets correctly
+changed on the printer. This option should be used when pdftops is used
+as a print filter. Any specification of the page size via \-paper,
+\-paperw, or \-paperh will get overridden as long as each page of the
+PDF file has a defined paper size.  No more than one of the mode options
+(\-origpagesizes, \-eps, \-form) may be given.
+.TP
 .B \-eps
 Generate an Encapsulated PostScript (EPS) file.  An EPS file contains
 a single image, so if you use this option with a multi-page PDF file,
 you must use \-f and \-l to specify a single page.  No more than one of
-the mode options (\-eps, \-form) may be given.
+the mode options (\-origpagesizes, \-eps, \-form) may be given.
 .TP
 .B \-form
 Generate a PostScript form which can be imported by software that
 understands forms.  A form contains a single page, so if you use this
 option with a multi-page PDF file, you must use \-f and \-l to specify a
-single page.  The \-level1 option cannot be used with \-form.
+single page.  The \-level1 option cannot be used with \-form.  No more
+than one of the mode options (\-origpagesizes, \-eps, \-form) may be
+given.
 .TP
 .B \-opi
 Generate OPI comments for all images and forms which have OPI
@@ -113,13 +126,16 @@ preload images and forms
 .BI \-paper " size"
 Set the paper size to one of "letter", "legal", "A4", or "A3".  This
 can also be set to "match", which will set the paper size to match the
-size specified in the PDF file.
+size specified in the PDF file. \-origpagesizes overrides this setting
+if the PDF file has defined page sizes.
 .TP
 .BI \-paperw " size"
-Set the paper width, in points.
+Set the paper width, in points. \-origpagesizes overrides this setting
+if the PDF file has defined page sizes.
 .TP
 .BI \-paperh " size"
-Set the paper height, in points.
+Set the paper height, in points. \-origpagesizes overrides this setting
+if the PDF file has defined page sizes.
 .TP
 .B \-nocrop
 By default, output is cropped to the CropBox specified in the PDF

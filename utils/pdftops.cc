@@ -17,6 +17,7 @@
 //
 // Copyright (C) 2006 Kristian Høgsberg <krh@redhat.com>
 // Copyright (C) 2007-2008 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2009 Till Kamppeter <till.kamppeter@gmail.com>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -74,6 +75,7 @@ static GBool level2 = gFalse;
 static GBool level2Sep = gFalse;
 static GBool level3 = gFalse;
 static GBool level3Sep = gFalse;
+static GBool doOrigPageSizes = gFalse;
 static GBool doEPS = gFalse;
 static GBool doForm = gFalse;
 #if OPI_SUPPORT
@@ -115,6 +117,8 @@ static const ArgDesc argDesc[] = {
    "generate Level 3 PostScript"},
   {"-level3sep",  argFlag,     &level3Sep,      0,
    "generate Level 3 separable PostScript"},
+  {"-origpagesizes",argFlag,   &doOrigPageSizes,0,
+   "conserve original page sizes"},
   {"-eps",        argFlag,     &doEPS,          0,
    "generate Encapsulated PostScript (EPS)"},
   {"-form",       argFlag,     &doForm,         0,
@@ -202,8 +206,10 @@ int main(int argc, char *argv[]) {
     fprintf(stderr, "Error: use only one of the 'level' options.\n");
     exit(1);
   }
-  if (doEPS && doForm) {
-    fprintf(stderr, "Error: use only one of -eps and -form\n");
+  if ((doOrigPageSizes ? 1 : 0) +
+      (doEPS ? 1 : 0) +
+      (doForm ? 1 : 0) > 1) {
+    fprintf(stderr, "Error: use only one of -origpagesizes, -eps, and -form\n");
     exit(1);
   }
   if (level1) {
@@ -223,9 +229,10 @@ int main(int argc, char *argv[]) {
     fprintf(stderr, "Error: forms are only available with Level 2 output.\n");
     exit(1);
   }
-  mode = doEPS ? psModeEPS
-               : doForm ? psModeForm
-                        : psModePS;
+  mode = doOrigPageSizes ? psModePSOrigPageSizes
+                         : doEPS ? psModeEPS
+                                 : doForm ? psModeForm
+                                          : psModePS;
   fileName = new GooString(argv[1]);
 
   // read config file

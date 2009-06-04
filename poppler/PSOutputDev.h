@@ -18,6 +18,7 @@
 // Copyright (C) 2006-2008 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2007 Brad Hards <bradh@kde.org>
 // Copyright (C) 2009 Thomas Freitag <Thomas.Freitag@alfa.de>
+// Copyright (C) 2009 Till Kamppeter <till.kamppeter@gmail.com>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -55,7 +56,8 @@ class Function;
 enum PSOutMode {
   psModePS,
   psModeEPS,
-  psModeForm
+  psModeForm,
+  psModePSOrigPageSizes
 };
 
 enum PSFileType {
