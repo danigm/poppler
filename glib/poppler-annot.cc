@@ -270,7 +270,7 @@ poppler_annot_set_contents (PopplerAnnot *poppler_annot,
   
   g_return_if_fail (POPPLER_IS_ANNOT (poppler_annot));
 
-  tmp = contents ? g_convert (contents, -1, "UTF16BE", "UTF8", NULL, &length, NULL) : NULL;
+  tmp = contents ? g_convert (contents, -1, "UTF-16BE", "UTF-8", NULL, &length, NULL) : NULL;
   goo_tmp = new GooString (tmp, length);
   g_free (tmp);
   poppler_annot->annot->setContents (goo_tmp);
