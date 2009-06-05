@@ -16,7 +16,7 @@ if (GDK_FOUND)
   add_definitions(${GDK2_CFLAGS})
 endif (GDK_FOUND)
 
-configure_file(poppler-features.h.cmake ${CMAKE_CURRENT_BINARY_DIR}/poppler-features.h)
+configure_file(poppler-features.h.cmake ${CMAKE_CURRENT_BINARY_DIR}/poppler-features.h @ONLY)
 
 if (GTK_FOUND)
   add_subdirectory(demo)

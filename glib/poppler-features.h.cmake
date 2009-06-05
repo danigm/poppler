@@ -19,6 +19,6 @@
 #ifndef __POPPLER_FEATURES_H__
 #define __POPPLER_FEATURES_H__
 
-${CAIRO_FEATURE}
+@CAIRO_FEATURE@
 
 #endif /* __POPPLER_FEATURES_H__ */
