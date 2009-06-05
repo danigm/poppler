@@ -85,7 +85,7 @@ _poppler_document_new_from_pdfdoc (PDFDoc  *newDoc,
         fopen_errno = newDoc->getFopenErrno();
         g_set_error (error, G_FILE_ERROR,
 		     g_file_error_from_errno (fopen_errno),
-		     strerror(fopen_errno));
+		     "%s", g_strerror (fopen_errno));
 	break;
       case errBadCatalog:
         g_set_error (error, POPPLER_ERROR,
