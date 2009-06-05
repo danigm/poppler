@@ -234,6 +234,8 @@ while (it->hasNext()) {
   // do something with the fonts
 }
        \endcode
+
+       \since 0.12
     */
     class POPPLER_QT4_EXPORT FontIterator {
     friend class Document;
