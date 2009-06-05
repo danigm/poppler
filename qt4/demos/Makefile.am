@@ -42,6 +42,8 @@ poppler_qt4viewer_SOURCES =			\
 	pageview.h				\
 	permissions.cpp				\
 	permissions.h				\
+	thumbnails.cpp				\
+	thumbnails.h				\
 	toc.cpp					\
 	toc.h					\
 	viewer.cpp				\
@@ -56,6 +58,7 @@ navigationtoolbar.$(OBJEXT): navigationtoolbar.moc
 optcontent.$(OBJEXT): optcontent.moc
 pageview.$(OBJEXT): pageview.moc
 permissions.$(OBJEXT): permissions.moc
+thumbnails.$(OBJEXT): thumbnails.moc
 toc.$(OBJEXT): toc.moc
 viewer.$(OBJEXT): viewer.moc
 
