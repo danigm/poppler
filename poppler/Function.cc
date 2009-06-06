@@ -861,14 +861,54 @@ struct PSObject {
 class PSStack {
 public:
 
-  PSStack() { sp = psStackSize; }
+  PSStack() {sp = psStackSize; }
   void clear() { sp = psStackSize; }
-  void pushBool(GBool booln);
-  void pushInt(int intg);
-  void pushReal(double real);
-  GBool popBool();
-  int popInt();
-  double popNum();
+  void pushBool(GBool booln)
+  {
+    if (checkOverflow()) {
+      stack[--sp].type = psBool;
+      stack[sp].booln = booln;
+    }
+  }
+  void pushInt(int intg)
+  {
+    if (checkOverflow()) {
+      stack[--sp].type = psInt;
+      stack[sp].intg = intg;
+    }
+  }
+  void pushReal(double real)
+  {
+    if (checkOverflow()) {
+      stack[--sp].type = psReal;
+      stack[sp].real = real;
+    }
+  }
+  GBool popBool()
+  {
+    if (checkUnderflow() && checkType(psBool, psBool)) {
+      return stack[sp++].booln;
+    }
+    return gFalse;
+  }
+  int popInt()
+  {
+    if (checkUnderflow() && checkType(psInt, psInt)) {
+      return stack[sp++].intg;
+    }
+    return 0;
+  }
+  double popNum()
+  {
+    double ret;
+
+    if (checkUnderflow() && checkType(psInt, psReal)) {
+      ret = (stack[sp].type == psInt) ? (double)stack[sp].intg : stack[sp].real;
+      ++sp;
+      return ret;
+    }
+    return 0;
+  }
   GBool empty() { return sp == psStackSize; }
   GBool topIsInt() { return sp < psStackSize && stack[sp].type == psInt; }
   GBool topTwoAreInts()
@@ -887,83 +927,34 @@ public:
 
 private:
 
-  GBool checkOverflow(int n = 1);
-  GBool checkUnderflow();
-  GBool checkType(PSObjectType t1, PSObjectType t2);
-
+  GBool checkOverflow(int n = 1)
+  {
+    if (sp - n < 0) {
+      error(-1, "Stack overflow in PostScript function");
+      return gFalse;
+    }
+    return gTrue;
+  }
+  GBool checkUnderflow()
+  {
+    if (sp == psStackSize) {
+      error(-1, "Stack underflow in PostScript function");
+      return gFalse;
+    }
+    return gTrue;
+  }
+  GBool checkType(PSObjectType t1, PSObjectType t2)
+  {
+    if (stack[sp].type != t1 && stack[sp].type != t2) {
+      error(-1, "Type mismatch in PostScript function");
+      return gFalse;
+    }
+    return gTrue;
+  }
   PSObject stack[psStackSize];
   int sp;
 };
 
-GBool PSStack::checkOverflow(int n) {
-  if (sp - n < 0) {
-    error(-1, "Stack overflow in PostScript function");
-    return gFalse;
-  }
-  return gTrue;
-}
-
-GBool PSStack::checkUnderflow() {
-  if (sp == psStackSize) {
-    error(-1, "Stack underflow in PostScript function");
-    return gFalse;
-  }
-  return gTrue;
-}
-
-GBool PSStack::checkType(PSObjectType t1, PSObjectType t2) {
-  if (stack[sp].type != t1 && stack[sp].type != t2) {
-    error(-1, "Type mismatch in PostScript function");
-    return gFalse;
-  }
-  return gTrue;
-}
-
-void PSStack::pushBool(GBool booln) {
-  if (checkOverflow()) {
-    stack[--sp].type = psBool;
-    stack[sp].booln = booln;
-  }
-}
-
-void PSStack::pushInt(int intg) {
-  if (checkOverflow()) {
-    stack[--sp].type = psInt;
-    stack[sp].intg = intg;
-  }
-}
-
-void PSStack::pushReal(double real) {
-  if (checkOverflow()) {
-    stack[--sp].type = psReal;
-    stack[sp].real = real;
-  }
-}
-
-GBool PSStack::popBool() {
-  if (checkUnderflow() && checkType(psBool, psBool)) {
-    return stack[sp++].booln;
-  }
-  return gFalse;
-}
-
-int PSStack::popInt() {
-  if (checkUnderflow() && checkType(psInt, psInt)) {
-    return stack[sp++].intg;
-  }
-  return 0;
-}
-
-double PSStack::popNum() {
-  double ret;
-
-  if (checkUnderflow() && checkType(psInt, psReal)) {
-    ret = (stack[sp].type == psInt) ? (double)stack[sp].intg : stack[sp].real;
-    ++sp;
-    return ret;
-  }
-  return 0;
-}
 
 void PSStack::copy(int n) {
   int i;
