@@ -296,7 +296,7 @@ if test x$enable_poppler_glib = xyes; then
 fi
 AM_CONDITIONAL(BUILD_POPPLER_GLIB, test x$enable_poppler_glib = xyes)
 
-GTK_DOC_CHECK([1.0])
+m4_ifdef([GTK_DOC_CHECK],[GTK_DOC_CHECK([1.0])])
 
 dnl
 dnl GDK
