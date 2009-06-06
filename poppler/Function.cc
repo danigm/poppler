@@ -922,8 +922,21 @@ public:
 	     (stack[sp+1].type == psInt || stack[sp+1].type == psReal); }
   void copy(int n);
   void roll(int n, int j);
-  void index(int i);
-  void pop();
+  void index(int i)
+  {
+    if (!checkOverflow()) {
+      return;
+    }
+    --sp;
+    stack[sp] = stack[sp + 1 + i];
+  }
+  void pop()
+  {
+    if (!checkUnderflow()) {
+      return;
+    }
+    ++sp;
+  }
 
 private:
 
@@ -994,21 +1007,6 @@ void PSStack::roll(int n, int j) {
     }
     stack[sp + n - 1] = obj;
   }
-}
-
-void PSStack::index(int i) {
-  if (!checkOverflow()) {
-    return;
-  }
-  --sp;
-  stack[sp] = stack[sp + 1 + i];
-}
-
-void PSStack::pop() {
-  if (!checkUnderflow()) {
-    return;
-  }
-  ++sp;
 }
 
 PostScriptFunction::PostScriptFunction(Object *funcObj, Dict *dict) {
