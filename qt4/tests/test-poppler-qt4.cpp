@@ -61,7 +61,9 @@ void PDFDisplay::display()
         Poppler::Page *page = doc->page(m_currentPage);
         if (page) {
             qDebug() << "Displaying page using" << backendString << "backend: " << m_currentPage;
+            QTime t = QTime::currentTime();
             image = page->renderToImage();
+            qDebug() << "Rendering took" << t.msecsTo(QTime::currentTime()) << "msecs";
             qDeleteAll(textRects);
             if (showTextRects)
             {
