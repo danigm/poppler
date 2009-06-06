@@ -165,7 +165,9 @@ main (int argc, char *argv [])
    
   if (argc == 1)
     {
-      fprintf (stderr, "usage: %s PDF-FILES...\n", g_basename (argv[0]));
+      char *basename = g_path_get_basename (argv[0]);
+      fprintf (stderr, "usage: %s PDF-FILES...\n", basename);
+      g_free (basename);
       return -1;
     }
       
