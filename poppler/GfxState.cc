@@ -43,6 +43,7 @@
 #include "GfxState_helpers.h"
 #include "GfxFont.h"
 #include "GlobalParams.h"
+#include "PopplerCache.h"
 
 //------------------------------------------------------------------------
 
@@ -1351,6 +1352,38 @@ void GfxLabColorSpace::getDefaultRanges(double *decodeLow, double *decodeRange,
 // GfxICCBasedColorSpace
 //------------------------------------------------------------------------
 
+class GfxICCBasedColorSpaceKey : public PopplerCacheKey
+{
+  public:
+    GfxICCBasedColorSpaceKey(int numA, int genA) : num(numA), gen(genA)
+    {
+    }
+    
+    bool operator==(const PopplerCacheKey &key) const
+    {
+      const GfxICCBasedColorSpaceKey *k = static_cast<const GfxICCBasedColorSpaceKey*>(&key);
+      return k->num == num && k->gen == gen;
+    }
+    
+    int num, gen;
+};
+
+class GfxICCBasedColorSpaceItem : public PopplerCacheItem
+{
+  public:
+    GfxICCBasedColorSpaceItem(GfxICCBasedColorSpace *csA)
+    {
+      cs = static_cast<GfxICCBasedColorSpace*>(csA->copy());
+    }
+    
+    ~GfxICCBasedColorSpaceItem()
+    {
+      delete cs;
+    }
+    
+    GfxICCBasedColorSpace *cs;
+};
+
 GfxICCBasedColorSpace::GfxICCBasedColorSpace(int nCompsA, GfxColorSpace *altA,
 					     Ref *iccProfileStreamA) {
   nComps = nCompsA;
@@ -1413,9 +1446,15 @@ GfxColorSpace *GfxICCBasedColorSpace::parse(Array *arr) {
   obj1.free();
 #ifdef USE_CMS
   // check cache
-  if (iccProfileStreamA.num > 0
-     && (cs = GfxICCBasedCache::lookup(iccProfileStreamA.num,
-          iccProfileStreamA.gen)) != NULL) return cs;
+  if (iccProfileStreamA.num > 0) {
+    GfxICCBasedColorSpaceKey k(iccProfileStreamA.num, iccProfileStreamA.gen);
+    GfxICCBasedColorSpaceItem *item = static_cast<GfxICCBasedColorSpaceItem *>(cache->lookup(k));
+    if (item != NULL)
+    {
+      cs = static_cast<GfxICCBasedColorSpace*>(item->cs->copy());
+      return cs;
+    }
+  }
 #endif
   arr->get(1, &obj1);
   if (!obj1.isStream()) {
@@ -1529,7 +1568,9 @@ GfxColorSpace *GfxICCBasedColorSpace::parse(Array *arr) {
   obj1.free();
   // put this colorSpace into cache
   if (iccProfileStreamA.num > 0) {
-    GfxICCBasedCache::put(iccProfileStreamA.num,iccProfileStreamA.gen,cs);
+    GfxICCBasedColorSpaceKey *k = new GfxICCBasedColorSpaceKey(iccProfileStreamA.num, iccProfileStreamA.gen);
+    GfxICCBasedColorSpaceItem *item = new GfxICCBasedColorSpaceItem(cs);
+    cache->put(k, item);
   }
 #endif
   return cs;
@@ -1670,53 +1711,7 @@ void GfxICCBasedColorSpace::getDefaultRanges(double *decodeLow,
 }
 
 #ifdef USE_CMS
-GfxICCBasedCache
-   GfxICCBasedCache::cache[GFX_ICCBASED_CACHE_SIZE];
-
-GfxICCBasedCache::GfxICCBasedCache()
-{
-  num = 0;
-  gen = 0;
-  colorSpace = 0;
-}
-
-GfxICCBasedColorSpace *GfxICCBasedCache::lookup(int numA, int genA)
-{
-  int i;
-
-  if (cache[0].num == numA && cache[0].gen == genA) {
-    return (GfxICCBasedColorSpace *)cache[0].colorSpace->copy();
-  }
-  for (i = 1;i < GFX_ICCBASED_CACHE_SIZE && cache[i].num > 0;i++) {
-    if (cache[i].num == numA && cache[i].gen == genA) {
-      int j;
-      GfxICCBasedCache hit = cache[i];
-
-      for (j = i;j > 0;j--) {
-	if (cache[j - 1].num > 0) cache[j] = cache[j-1];
-      }
-      cache[0] = hit;
-      return (GfxICCBasedColorSpace *)hit.colorSpace->copy();
-    }
-  }
-  return NULL;
-}
-
-void GfxICCBasedCache::put(int numA, int genA,
-  GfxICCBasedColorSpace *cs)
-{
-  int i;
-
-  if (cache[GFX_ICCBASED_CACHE_SIZE-1].num > 0) {
-    delete cache[GFX_ICCBASED_CACHE_SIZE-1].colorSpace;
-  }
-  for (i = GFX_ICCBASED_CACHE_SIZE-1; i > 0; i--) {
-    if (cache[i - 1].num > 0) cache[i] = cache[i - 1];
-  }
-  cache[0].num = numA;
-  cache[0].gen = genA;
-  cache[0].colorSpace = (GfxICCBasedColorSpace *)cs->copy();
-}
+PopplerCache *GfxICCBasedColorSpace::cache = new PopplerCache(5);
 #endif
 
 //------------------------------------------------------------------------
