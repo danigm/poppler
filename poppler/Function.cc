@@ -1001,12 +1001,21 @@ void PSStack::roll(int n, int j) {
   if (n <= 0 || j == 0) {
     return;
   }
-  for (i = 0; i < j; ++i) {
-    obj = stack[sp];
-    for (k = sp; k < sp + n - 1; ++k) {
-      stack[k] = stack[k+1];
+  if (j <= n / 2) {
+    for (i = 0; i < j; ++i) {
+      obj = stack[sp];
+      for (k = sp; k < sp + n - 1; ++k) {
+        stack[k] = stack[k+1];
+      }
+      stack[sp + n - 1] = obj;
     }
-    stack[sp + n - 1] = obj;
+  } else {
+    j = n - j;
+    obj = stack[sp + n - 1];
+    for (k = sp + n - 1; k > sp; --k) {
+      stack[k] = stack[k-1];
+    }
+    stack[sp] = obj;
   }
 }
 
