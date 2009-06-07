@@ -34,6 +34,7 @@ class Dict;
 class Stream;
 struct PSObject;
 class PSStack;
+class PopplerCache;
 
 //------------------------------------------------------------------------
 // Function
@@ -237,6 +238,7 @@ private:
   PSStack *stack;
   int codeSize;
   GBool ok;
+  PopplerCache *cache;
 };
 
 #endif

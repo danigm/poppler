@@ -37,6 +37,7 @@
 #include "Stream.h"
 #include "Error.h"
 #include "Function.h"
+#include "PopplerCache.h"
 
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
@@ -1009,6 +1010,64 @@ void PSStack::roll(int n, int j) {
   }
 }
 
+class PostScriptFunctionKey : public PopplerCacheKey
+{
+  public:
+    PostScriptFunctionKey(int sizeA, double *inA, bool copyA)
+    {
+      copied = copyA;
+      size = sizeA;
+      if (copied) {
+        in = new double[size];
+        for (int i = 0; i < size; ++i) in[i] = inA[i];
+      } else {
+        in = inA;
+      }
+    }
+    
+    ~PostScriptFunctionKey()
+    {
+      if (copied) delete[] in;
+    }
+       
+    bool operator==(const PopplerCacheKey &key) const
+    {
+      const PostScriptFunctionKey *k = static_cast<const PostScriptFunctionKey*>(&key);
+      if (size == k->size) {
+        bool equal = true;
+        for (int i = 0; equal && i < size; ++i) {
+          equal = in[i] == k->in[i];
+        }
+        return equal;
+      } else {
+        return false;
+      }
+    }
+  
+    bool copied;
+    int size;
+    double *in;
+};
+
+class PostScriptFunctionItem : public PopplerCacheItem
+{
+  public:
+    PostScriptFunctionItem(int sizeA, double *outA)
+    {
+      size = sizeA;
+      out = new double[size];
+      for (int i = 0; i < size; ++i) out[i] = outA[i];
+    }
+    
+    ~PostScriptFunctionItem()
+    {
+      delete[] out;
+    }
+    
+    int size;
+    double *out;
+};
+
 PostScriptFunction::PostScriptFunction(Object *funcObj, Dict *dict) {
   Stream *str;
   int codePtr;
@@ -1018,6 +1077,7 @@ PostScriptFunction::PostScriptFunction(Object *funcObj, Dict *dict) {
   codeString = NULL;
   codeSize = 0;
   ok = gFalse;
+  cache = new PopplerCache(5);
 
   //----- initialize the generic stuff
   if (!init(dict)) {
@@ -1075,10 +1135,21 @@ PostScriptFunction::~PostScriptFunction() {
   gfree(code);
   delete codeString;
   delete stack;
+  delete cache;
 }
 
 void PostScriptFunction::transform(double *in, double *out) {
   int i;
+  
+  PostScriptFunctionKey key(m, in, false);
+  PopplerCacheItem *item = cache->lookup(key);
+  if (item) {
+    PostScriptFunctionItem *it = static_cast<PostScriptFunctionItem *>(item);
+    for (int i = 0; i < n; ++i) {
+      out[i] = it->out[i];
+    }
+    return;
+  }
 
   stack->clear();
   for (i = 0; i < m; ++i) {
@@ -1094,6 +1165,11 @@ void PostScriptFunction::transform(double *in, double *out) {
       out[i] = range[i][1];
     }
   }
+
+  PostScriptFunctionKey *newKey = new PostScriptFunctionKey(m, in, true);
+  PostScriptFunctionItem *newItem = new PostScriptFunctionItem(n, out);
+  cache->put(newKey, newItem);
+  
   // if (!stack->empty()) {
   //   error(-1, "Extra values on stack at end of PostScript function");
   // }
