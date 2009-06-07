@@ -255,6 +255,7 @@ libpoppler_la_SOURCES =		\
 	Parser.cc 		\
 	PDFDoc.cc 		\
 	PDFDocEncoding.cc	\
+	PopplerCache.cc		\
 	ProfileData.cc		\
 	PreScanOutputDev.cc \
 	PSTokenizer.cc		\

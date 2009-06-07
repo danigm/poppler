@@ -182,6 +182,7 @@ set(poppler_SRCS
   poppler/Parser.cc
   poppler/PDFDoc.cc
   poppler/PDFDocEncoding.cc
+  poppler/PopplerCache.cc
   poppler/ProfileData.cc
   poppler/PreScanOutputDev.cc
   poppler/PSTokenizer.cc
