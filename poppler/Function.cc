@@ -1024,6 +1024,16 @@ class PostScriptFunctionKey : public PopplerCacheKey
   public:
     PostScriptFunctionKey(int sizeA, double *inA, bool copyA)
     {
+      init(sizeA, inA, copyA);
+    }
+    
+    PostScriptFunctionKey(const PostScriptFunctionKey &key)
+    {
+      init(key.size, key.in, key.copied);
+    }
+    
+    void init(int sizeA, double *inA, bool copyA)
+    {
       copied = copyA;
       size = sizeA;
       if (copied) {
@@ -1062,6 +1072,16 @@ class PostScriptFunctionItem : public PopplerCacheItem
 {
   public:
     PostScriptFunctionItem(int sizeA, double *outA)
+    {
+      init(sizeA, outA);
+    }
+    
+    PostScriptFunctionItem(const PostScriptFunctionItem &item)
+    {
+      init(item.size, item.out);
+    }
+    
+    void init(int sizeA, double *outA)
     {
       size = sizeA;
       out = new double[size];
@@ -1138,6 +1158,14 @@ PostScriptFunction::PostScriptFunction(PostScriptFunction *func) {
   codeString = func->codeString->copy();
   stack = new PSStack();
   memcpy(stack, func->stack, sizeof(PSStack));
+  
+  cache = new PopplerCache(func->cache->size());
+  for (int i = 0; i < func->cache->numberOfItems(); ++i)
+  {
+    PostScriptFunctionKey *key = new PostScriptFunctionKey(*(PostScriptFunctionKey*)func->cache->key(i));
+    PostScriptFunctionItem *item = new PostScriptFunctionItem(*(PostScriptFunctionItem*)func->cache->item(i));
+    cache->put(key, item);
+  }
 }
 
 PostScriptFunction::~PostScriptFunction() {

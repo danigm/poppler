@@ -80,3 +80,23 @@ void PopplerCache::put(PopplerCacheKey *key, PopplerCacheItem *item)
   keys[0] = key;
   items[0] = item;
 }
+
+int PopplerCache::size()
+{
+  return cacheSize;
+}
+
+int PopplerCache::numberOfItems()
+{
+  return lastValidCacheIndex + 1;
+}
+    
+PopplerCacheItem *PopplerCache::item(int index)
+{
+  return items[index];
+}
+    
+PopplerCacheKey *PopplerCache::key(int index)
+{
+  return keys[index];
+}

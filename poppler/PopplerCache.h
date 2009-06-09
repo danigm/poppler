@@ -36,8 +36,22 @@ class PopplerCache
     
     /* The key and item pointers ownership is taken by the cache */
     void put(PopplerCacheKey *key, PopplerCacheItem *item);
+    
+    /* The max size of the cache */
+    int size();
+    
+    /* The number of items in the cache */
+    int numberOfItems();
+    
+    /* The n-th item in the cache */
+    PopplerCacheItem *item(int index);
+    
+    /* The n-th key in the cache */
+    PopplerCacheKey *key(int index);
   
   private:
+    PopplerCache(const PopplerCache &cache); // not allowed
+  
     PopplerCacheKey **keys;
     PopplerCacheItem **items;
     int lastValidCacheIndex;
