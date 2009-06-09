@@ -228,15 +228,20 @@ dest_new_goto (PopplerDocument *document,
 	
 	if (document && dest->page_num > 0) {
 		PopplerPage *page;
-		
+
 		page = poppler_document_get_page (document, dest->page_num - 1);
-		
-		dest->left -= page->page->getCropBox ()->x1;
-		dest->bottom -= page->page->getCropBox ()->x1;
-		dest->right -= page->page->getCropBox ()->y1;
-		dest->top -= page->page->getCropBox ()->y1;
-		
-		g_object_unref (page);
+
+		if (page) {
+			dest->left -= page->page->getCropBox ()->x1;
+			dest->bottom -= page->page->getCropBox ()->x1;
+			dest->right -= page->page->getCropBox ()->y1;
+			dest->top -= page->page->getCropBox ()->y1;
+
+			g_object_unref (page);
+		} else {
+			g_warning ("Invalid page %d in Link Destination\n", dest->page_num);
+			dest->page_num = 0;
+		}
 	}
 	
 	return dest;
