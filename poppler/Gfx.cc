@@ -1906,10 +1906,6 @@ void Gfx::doTilingPatternFill(GfxTilingPattern *tPat,
   out->updateFillColor(state);
   state->setStrokePattern(NULL);
   out->updateStrokeColor(state);
-  if (!stroke) {
-    state->setLineWidth(0);
-    out->updateLineWidth(state);
-  }
 
   // clip to current path
   if (stroke) {
@@ -1924,6 +1920,8 @@ void Gfx::doTilingPatternFill(GfxTilingPattern *tPat,
     }
   }
   state->clearPath();
+  state->setLineWidth(0);
+  out->updateLineWidth(state);
 
   // get the clip region, check for empty
   state->getClipBBox(&cxMin, &cyMin, &cxMax, &cyMax);
