@@ -259,6 +259,9 @@ elif test x$enable_cairo_output = xtry; then
                     [enable_cairo_output="no"])
 fi
 
+AC_SUBST(CAIRO_CFLAGS)
+AC_SUBST(CAIRO_LIBS)
+
 AM_CONDITIONAL(BUILD_CAIRO_OUTPUT, test x$enable_cairo_output = xyes)
 AH_TEMPLATE([HAVE_CAIRO], [Use cairo for rendering.])
 if test x$enable_cairo_output = xyes; then
@@ -266,6 +269,30 @@ if test x$enable_cairo_output = xyes; then
   CAIRO_FEATURE="#define POPPLER_HAS_CAIRO 1"
   CAIRO_REQ="cairo"
   AC_CHECK_HEADERS(fcntl.h sys/mman.h sys/stat.h)
+  AC_LANG_PUSH([C])
+  _SAVE_CFLAGS=$CFLAGS
+  _SAVE_LIBS=$LIBS
+  CFLAGS="$CFLAGS $CAIRO_CFLAGS"
+  LIBS="$LIBS $CAIRO_LIBS"
+  AC_CACHE_CHECK([for cairo blend modes support],
+                 ac_cv_cairo_has_blend_modes,
+		 [AC_COMPILE_IFELSE(
+		   [AC_LANG_SOURCE([[
+#include <cairo.h>
+int main() {
+  cairo_t *cr;
+  cairo_set_operator(cr, CAIRO_OPERATOR_MULTIPLY);
+  return 0;
+}
+                   ]])],
+		   [ac_cv_cairo_has_blend_modes="yes"],
+                   [ac_cv_cairo_has_blend_modes="no"])])
+  CFLAGS=$_SAVE_CFLAGS
+  LIBS=$_SAVE_LIBS
+  AC_LANG_POP([C])
+  if test "$ac_cv_cairo_has_blend_modes" = "yes"; then
+    AC_DEFINE(CAIRO_HAS_BLEND_MODES, [1], [Whether cairo has blend modes support])
+  fi
 else
   CAIRO_FEATURE="#undef POPPLER_HAS_CAIRO"
   CAIRO_REQ=""

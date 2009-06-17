@@ -263,6 +263,7 @@ void CairoOutputDev::restoreState(GfxState *state) {
   updateStrokeColor(state);
   updateFillOpacity(state);
   updateStrokeOpacity(state);
+  updateBlendMode(state);
 
   MaskStack* ms = maskStack;
   if (mask)
@@ -284,6 +285,7 @@ void CairoOutputDev::updateAll(GfxState *state) {
   updateStrokeColor(state);
   updateFillOpacity(state);
   updateStrokeOpacity(state);
+  updateBlendMode(state);
   needFontUpdate = gTrue;
 }
 
@@ -468,6 +470,63 @@ void CairoOutputDev::updateFillColorStop(GfxState *state, double offset) {
 				    fill_opacity);
   LOG(printf ("fill color stop: %f (%d, %d, %d)\n",
 	      offset, fill_color.r, fill_color.g, fill_color.b));
+}
+
+void CairoOutputDev::updateBlendMode(GfxState *state) {
+#ifdef CAIRO_HAS_BLEND_MODES
+  switch (state->getBlendMode()) {
+  default:
+  case gfxBlendNormal:
+    cairo_set_operator (cairo, CAIRO_OPERATOR_OVER);
+    break;
+  case gfxBlendMultiply:
+    cairo_set_operator (cairo, CAIRO_OPERATOR_MULTIPLY);
+    break;
+  case gfxBlendScreen:
+    cairo_set_operator (cairo, CAIRO_OPERATOR_SCREEN);
+    break;
+  case gfxBlendOverlay:
+    cairo_set_operator (cairo, CAIRO_OPERATOR_OVERLAY);
+    break;
+  case gfxBlendDarken:
+    cairo_set_operator (cairo, CAIRO_OPERATOR_DARKEN);
+    break;
+  case gfxBlendLighten:
+    cairo_set_operator (cairo, CAIRO_OPERATOR_LIGHTEN);
+    break;
+  case gfxBlendColorDodge:
+    cairo_set_operator (cairo, CAIRO_OPERATOR_COLOR_DODGE);
+    break;
+  case gfxBlendColorBurn:
+    cairo_set_operator (cairo, CAIRO_OPERATOR_COLOR_BURN);
+    break;
+  case gfxBlendHardLight:
+    cairo_set_operator (cairo, CAIRO_OPERATOR_HARD_LIGHT);
+    break;
+  case gfxBlendSoftLight:
+    cairo_set_operator (cairo, CAIRO_OPERATOR_SOFT_LIGHT);
+    break;
+  case gfxBlendDifference:
+    cairo_set_operator (cairo, CAIRO_OPERATOR_DIFFERENCE);
+    break;
+  case gfxBlendExclusion:
+    cairo_set_operator (cairo, CAIRO_OPERATOR_EXCLUSION);
+    break;
+  case gfxBlendHue:
+    cairo_set_operator (cairo, CAIRO_OPERATOR_HSL_HUE);
+    break;
+  case gfxBlendSaturation:
+    cairo_set_operator (cairo, CAIRO_OPERATOR_HSL_SATURATION);
+    break;
+  case gfxBlendColor:
+    cairo_set_operator (cairo, CAIRO_OPERATOR_HSL_COLOR);
+    break;
+  case gfxBlendLuminosity:
+    cairo_set_operator (cairo, CAIRO_OPERATOR_HSL_LUMINOSITY);
+    break;
+  }
+  LOG(printf ("blend mode: %d\n", (int)state->getBlendMode()));
+#endif /* CAIRO_HAS_BLEND_MODES */
 }
 
 void CairoOutputDev::updateFont(GfxState *state) {

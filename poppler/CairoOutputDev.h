@@ -141,6 +141,7 @@ public:
   virtual void updateFillOpacity(GfxState *state);
   virtual void updateStrokeOpacity(GfxState *state);
   virtual void updateFillColorStop(GfxState *state, double offset);
+  virtual void updateBlendMode(GfxState *state);
 
   //----- update text state
   virtual void updateFont(GfxState *state);
