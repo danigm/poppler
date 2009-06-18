@@ -1428,24 +1428,39 @@ GfxCIDFont::GfxCIDFont(XRef *xref, char *tagA, Ref idA, GooString *nameA,
   }
 
   // encoding (i.e., CMap)
-  //~ need to handle a CMap stream here
   //~ also need to deal with the UseCMap entry in the stream dict
   if (!fontDict->lookup("Encoding", &obj1)->isName()) {
-    error(-1, "Missing or invalid Encoding entry in Type 0 font");
-    delete collection;
-    goto err3;
-  }
-  cMapName = new GooString(obj1.getName());
-  obj1.free();
-  if (!(cMap = globalParams->getCMap(collection, cMapName))) {
-    error(-1, "Unknown CMap '%s' for character collection '%s'",
-	  cMapName->getCString(), collection->getCString());
-    delete collection;
-    delete cMapName;
-    goto err2;
+    GBool success = gFalse;
+    if (obj1.isStream()) {
+      Object objName;
+      Stream *s = obj1.getStream();
+      s->getDict()->lookup("CMapName", &objName);
+      if (objName.isName())
+      {
+        cMapName = new GooString(objName.getName());
+        cMap = globalParams->getCMap(collection, cMapName, s);
+        success = gTrue;
+      }
+      objName.free();
+    }
+    
+    if (!success) {
+      error(-1, "Missing or invalid Encoding entry in Type 0 font");
+      delete collection;
+      goto err3;
+    }
+  } else {
+    cMapName = new GooString(obj1.getName());
+    cMap = globalParams->getCMap(collection, cMapName);
   }
   delete collection;
   delete cMapName;
+  if (!cMap) {
+      error(-1, "Unknown CMap '%s' for character collection '%s'",
+	    cMapName->getCString(), collection->getCString());
+      goto err2;
+    }
+  obj1.free();
 
   // CIDToGIDMap (for embedded TrueType fonts)
   if (type == fontCIDType2 || type == fontCIDType2OT) {

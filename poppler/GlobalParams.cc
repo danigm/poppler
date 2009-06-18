@@ -12,7 +12,7 @@
 //
 // Copyright (C) 2005 Martin Kretzschmar <martink@gnome.org>
 // Copyright (C) 2005, 2006 Kristian Høgsberg <krh@redhat.com>
-// Copyright (C) 2005, 2007, 2008 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2005, 2007-2009 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2005 Jonathan Blandford <jrb@redhat.com>
 // Copyright (C) 2006, 2007 Jeff Muizelaar <jeff@infidigm.net>
 // Copyright (C) 2006 Takashi Iwai <tiwai@suse.de>
@@ -1565,11 +1565,11 @@ UnicodeMap *GlobalParams::getUnicodeMap2(GooString *encodingName) {
   return map;
 }
 
-CMap *GlobalParams::getCMap(GooString *collection, GooString *cMapName) {
+CMap *GlobalParams::getCMap(GooString *collection, GooString *cMapName, Stream *stream) {
   CMap *cMap;
 
   lockCMapCache;
-  cMap = cMapCache->getCMap(collection, cMapName);
+  cMap = cMapCache->getCMap(collection, cMapName, stream);
   unlockCMapCache;
   return cMap;
 }

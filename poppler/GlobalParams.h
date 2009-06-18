@@ -13,7 +13,7 @@
 // All changes made under the Poppler project to this file are licensed
 // under GPL version 2 or later
 //
-// Copyright (C) 2005, 2007, 2008 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2005, 2007-2009 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2005 Jonathan Blandford <jrb@redhat.com>
 // Copyright (C) 2006 Takashi Iwai <tiwai@suse.de>
 // Copyright (C) 2006 Kristian Høgsberg <krh@redhat.com>
@@ -59,6 +59,7 @@ class CMapCache;
 struct XpdfSecurityHandler;
 class GlobalParams;
 class GfxFont;
+class Stream;
 #ifdef WIN32
 class WinFontList;
 #endif
@@ -220,7 +221,7 @@ public:
   CharCodeToUnicode *getCIDToUnicode(GooString *collection);
   CharCodeToUnicode *getUnicodeToUnicode(GooString *fontName);
   UnicodeMap *getUnicodeMap(GooString *encodingName);
-  CMap *getCMap(GooString *collection, GooString *cMapName);
+  CMap *getCMap(GooString *collection, GooString *cMapName, Stream *stream = NULL);
   UnicodeMap *getTextEncoding();
 #ifdef ENABLE_PLUGINS
   GBool loadPlugin(char *type, char *name);

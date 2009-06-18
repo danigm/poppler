@@ -14,7 +14,7 @@
 // under GPL version 2 or later
 //
 // Copyright (C) 2008 Koji Otani <sho@bbr.jp>
-// Copyright (C) 2008 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2008, 2009 Albert Astals Cid <aacid@kde.org>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -38,6 +38,7 @@
 #include "GlobalParams.h"
 #include "PSTokenizer.h"
 #include "CMap.h"
+#include "Object.h"
 
 //------------------------------------------------------------------------
 
@@ -55,35 +56,44 @@ static int getCharFromFile(void *data) {
   return fgetc((FILE *)data);
 }
 
+static int getCharFromStream(void *data) {
+  return ((Stream *)data)->getChar();
+}
+
 //------------------------------------------------------------------------
 
 CMap *CMap::parse(CMapCache *cache, GooString *collectionA,
-		  GooString *cMapNameA) {
-  FILE *f;
+		  GooString *cMapNameA, Stream *stream) {
+  FILE *f = NULL;
   CMap *cmap;
   PSTokenizer *pst;
   char tok1[256], tok2[256], tok3[256];
   int n1, n2, n3;
   Guint start, end, code;
 
-  if (!(f = globalParams->findCMapFile(collectionA, cMapNameA))) {
+  if (stream) {
+    stream->reset();
+    pst = new PSTokenizer(&getCharFromStream, stream);
+  } else {
+    if (!(f = globalParams->findCMapFile(collectionA, cMapNameA))) {
 
-    // Check for an identity CMap.
-    if (!cMapNameA->cmp("Identity") || !cMapNameA->cmp("Identity-H")) {
-      return new CMap(collectionA->copy(), cMapNameA->copy(), 0);
-    }
-    if (!cMapNameA->cmp("Identity-V")) {
-      return new CMap(collectionA->copy(), cMapNameA->copy(), 1);
-    }
+      // Check for an identity CMap.
+      if (!cMapNameA->cmp("Identity") || !cMapNameA->cmp("Identity-H")) {
+        return new CMap(collectionA->copy(), cMapNameA->copy(), 0);
+      }
+      if (!cMapNameA->cmp("Identity-V")) {
+        return new CMap(collectionA->copy(), cMapNameA->copy(), 1);
+      }
 
-    error(-1, "Couldn't find '%s' CMap file for '%s' collection",
-	  cMapNameA->getCString(), collectionA->getCString());
-    return NULL;
+      error(-1, "Couldn't find '%s' CMap file for '%s' collection",
+	    cMapNameA->getCString(), collectionA->getCString());
+      return NULL;
+    }
+    pst = new PSTokenizer(&getCharFromFile, f);
   }
 
   cmap = new CMap(collectionA->copy(), cMapNameA->copy());
 
-  pst = new PSTokenizer(&getCharFromFile, f);
   pst->getToken(tok1, sizeof(tok1), &n1);
   while (pst->getToken(tok2, sizeof(tok2), &n2)) {
     if (!strcmp(tok2, "usecmap")) {
@@ -166,7 +176,9 @@ CMap *CMap::parse(CMapCache *cache, GooString *collectionA,
   }
   delete pst;
 
-  fclose(f);
+  if (f) {
+    fclose(f);
+  }
 
   return cmap;
 }
@@ -204,7 +216,7 @@ void CMap::useCMap(CMapCache *cache, char *useName) {
   CMap *subCMap;
 
   useNameStr = new GooString(useName);
-  subCMap = cache->getCMap(collection, useNameStr);
+  subCMap = cache->getCMap(collection, useNameStr, NULL);
   delete useNameStr;
   if (!subCMap) {
     return;
@@ -423,7 +435,7 @@ CMapCache::~CMapCache() {
   }
 }
 
-CMap *CMapCache::getCMap(GooString *collection, GooString *cMapName) {
+CMap *CMapCache::getCMap(GooString *collection, GooString *cMapName, Stream *stream) {
   CMap *cmap;
   int i, j;
 
@@ -442,7 +454,7 @@ CMap *CMapCache::getCMap(GooString *collection, GooString *cMapName) {
       return cmap;
     }
   }
-  if ((cmap = CMap::parse(this, collection, cMapName))) {
+  if ((cmap = CMap::parse(this, collection, cMapName, stream))) {
     if (cache[cMapCacheSize - 1]) {
       cache[cMapCacheSize - 1]->decRefCnt();
     }
