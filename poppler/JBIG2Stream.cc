@@ -16,6 +16,7 @@
 // Copyright (C) 2006 Raj Kumar <rkumar@archive.org>
 // Copyright (C) 2006 Paul Walmsley <paul@booyaka.com>
 // Copyright (C) 2006-2009 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2009 David Benjamin <davidben@mit.edu>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -1252,6 +1253,13 @@ int JBIG2Stream::lookChar() {
   return EOF;
 }
 
+int JBIG2Stream::getPos() {
+  if (pageBitmap == NULL) {
+    return 0;
+  }
+  return dataPtr - pageBitmap->getDataPtr();
+}
+
 GooString *JBIG2Stream::getPSFilter(int psLevel, char *indent) {
   return NULL;
 }
@@ -1333,12 +1341,12 @@ void JBIG2Stream::readSegments() {
     }
 
     // keep track of the start of the segment data 
-    segDataPos = getPos();
+    segDataPos = curStr->getPos();
 
     // check for missing page information segment
     if (!pageBitmap && ((segType >= 4 && segType <= 7) ||
 			(segType >= 20 && segType <= 43))) {
-      error(getPos(), "First JBIG2 segment associated with a page must be a page information segment");
+      error(curStr->getPos(), "First JBIG2 segment associated with a page must be a page information segment");
       goto syntaxError;
     }
 
@@ -1410,7 +1418,7 @@ void JBIG2Stream::readSegments() {
       readExtensionSeg(segLength);
       break;
     default:
-      error(getPos(), "Unknown segment type in JBIG2 stream");
+      error(curStr->getPos(), "Unknown segment type in JBIG2 stream");
       for (i = 0; i < segLength; ++i) {
 	if ((c1 = curStr->getChar()) == EOF) {
 	  goto eofError2;
@@ -1425,7 +1433,7 @@ void JBIG2Stream::readSegments() {
 
     if (segLength != 0xffffffff) {
 
-      int segExtraBytes = segDataPos + segLength - getPos();
+      int segExtraBytes = segDataPos + segLength - curStr->getPos();
       if (segExtraBytes > 0) {
 
 	// If we didn't read all of the bytes in the segment data,
@@ -1436,7 +1444,7 @@ void JBIG2Stream::readSegments() {
 	// arithmetic-coded symbol dictionary segments when numNewSyms
 	// == 0.  Segments like this often occur for blank pages.
 	
-	error(getPos(), "%d extraneous byte%s after segment",
+	error(curStr->getPos(), "%d extraneous byte%s after segment",
 	      segExtraBytes, (segExtraBytes > 1) ? "s" : "");
 	
 	// Burn through the remaining bytes -- inefficient, but
@@ -1452,7 +1460,7 @@ void JBIG2Stream::readSegments() {
 	// If we read more bytes than we should have, according to the 
 	// segment length field, note an error.
 	
-	error(getPos(), "Previous segment handler read too many bytes");
+	error(curStr->getPos(), "Previous segment handler read too many bytes");
 	
       }
 
@@ -1470,7 +1478,7 @@ void JBIG2Stream::readSegments() {
  eofError2:
   gfree(refSegs);
  eofError1:
-  error(getPos(), "Unexpected EOF in JBIG2 stream");
+  error(curStr->getPos(), "Unexpected EOF in JBIG2 stream");
 }
 
 GBool JBIG2Stream::readSymbolDictSeg(Guint segNum, Guint length,
@@ -1560,7 +1568,7 @@ GBool JBIG2Stream::readSymbolDictSeg(Guint segNum, Guint length,
       if (seg->getType() == jbig2SegSymbolDict) {
 	j = ((JBIG2SymbolDict *)seg)->getSize();
 	if (numInputSyms > UINT_MAX - j) {
-	  error(getPos(), "Too many input symbols in JBIG2 symbol dictionary");
+	  error(curStr->getPos(), "Too many input symbols in JBIG2 symbol dictionary");
 	  delete codeTables;
 	  goto eofError;
 	}
@@ -1574,7 +1582,7 @@ GBool JBIG2Stream::readSymbolDictSeg(Guint segNum, Guint length,
     }
   }
   if (numInputSyms > UINT_MAX - numNewSyms) {
-    error(getPos(), "Too many input symbols in JBIG2 symbol dictionary");
+    error(curStr->getPos(), "Too many input symbols in JBIG2 symbol dictionary");
     delete codeTables;
     goto eofError;
   }
@@ -1692,7 +1700,7 @@ GBool JBIG2Stream::readSymbolDictSeg(Guint segNum, Guint length,
       arithDecoder->decodeInt(&dh, iadhStats);
     }
     if (dh < 0 && (Guint)-dh >= symHeight) {
-      error(getPos(), "Bad delta-height value in JBIG2 symbol dictionary");
+      error(curStr->getPos(), "Bad delta-height value in JBIG2 symbol dictionary");
       goto syntaxError;
     }
     symHeight += dh;
@@ -1714,12 +1722,12 @@ GBool JBIG2Stream::readSymbolDictSeg(Guint segNum, Guint length,
 	}
       }
       if (dw < 0 && (Guint)-dw >= symWidth) {
-	error(getPos(), "Bad delta-height value in JBIG2 symbol dictionary");
+	error(curStr->getPos(), "Bad delta-height value in JBIG2 symbol dictionary");
 	goto syntaxError;
       }
       symWidth += dw;
       if (i >= numNewSyms) {
-	error(getPos(), "Too many symbols in JBIG2 symbol dictionary");
+	error(curStr->getPos(), "Too many symbols in JBIG2 symbol dictionary");
 	goto syntaxError;
       }
 
@@ -1759,7 +1767,7 @@ GBool JBIG2Stream::readSymbolDictSeg(Guint segNum, Guint length,
 	    arithDecoder->decodeInt(&refDY, iardyStats);
 	  }
 	  if (symID >= numInputSyms + i) {
-	    error(getPos(), "Invalid symbol ID in JBIG2 symbol dictionary");
+	    error(curStr->getPos(), "Invalid symbol ID in JBIG2 symbol dictionary");
 	    goto syntaxError;
 	  }
 	  refBitmap = bitmaps[symID];
@@ -1834,7 +1842,7 @@ GBool JBIG2Stream::readSymbolDictSeg(Guint segNum, Guint length,
     }
     if (i + run > numInputSyms + numNewSyms ||
 	(ex && j + run > numExSyms)) {
-      error(getPos(), "Too many exported symbols in JBIG2 symbol dictionary");
+      error(curStr->getPos(), "Too many exported symbols in JBIG2 symbol dictionary");
       for ( ; j < numExSyms; ++j) symbolDict->setBitmap(j, NULL);
       delete symbolDict;
       goto syntaxError;
@@ -1849,7 +1857,7 @@ GBool JBIG2Stream::readSymbolDictSeg(Guint segNum, Guint length,
     ex = !ex;
   }
   if (j != numExSyms) {
-    error(getPos(), "Too few symbols in JBIG2 symbol dictionary");
+    error(curStr->getPos(), "Too few symbols in JBIG2 symbol dictionary");
     for ( ; j < numExSyms; ++j) symbolDict->setBitmap(j, NULL);
     delete symbolDict;
     goto syntaxError;
@@ -1877,7 +1885,7 @@ GBool JBIG2Stream::readSymbolDictSeg(Guint segNum, Guint length,
   return gTrue;
 
  codeTableError:
-  error(getPos(), "Missing code table in JBIG2 symbol dictionary");
+  error(curStr->getPos(), "Missing code table in JBIG2 symbol dictionary");
   delete codeTables;
 
  syntaxError:
@@ -1893,7 +1901,7 @@ GBool JBIG2Stream::readSymbolDictSeg(Guint segNum, Guint length,
   return gFalse;
 
  eofError:
-  error(getPos(), "Unexpected EOF in JBIG2 stream");
+  error(curStr->getPos(), "Unexpected EOF in JBIG2 stream");
   return gFalse;
 }
 
@@ -1981,7 +1989,7 @@ void JBIG2Stream::readTextRegionSeg(Guint segNum, GBool imm,
 	codeTables->append(seg);
       }
     } else {
-      error(getPos(), "Invalid segment reference in JBIG2 text region");
+      error(curStr->getPos(), "Invalid segment reference in JBIG2 text region");
       delete codeTables;
       return;
     }
@@ -2190,13 +2198,13 @@ void JBIG2Stream::readTextRegionSeg(Guint segNum, GBool imm,
   return;
 
  codeTableError:
-  error(getPos(), "Missing code table in JBIG2 text region");
+  error(curStr->getPos(), "Missing code table in JBIG2 text region");
   gfree(codeTables);
   delete syms;
   return;
 
  eofError:
-  error(getPos(), "Unexpected EOF in JBIG2 stream");
+  error(curStr->getPos(), "Unexpected EOF in JBIG2 stream");
   return;
 }
 
@@ -2297,7 +2305,7 @@ JBIG2Bitmap *JBIG2Stream::readTextRegion(GBool huff, GBool refine,
       }
 
       if (symID >= (Guint)numSyms) {
-	error(getPos(), "Invalid symbol number in JBIG2 text region");
+	error(curStr->getPos(), "Invalid symbol number in JBIG2 text region");
       } else {
 
 	// get the symbol bitmap
@@ -2464,7 +2472,7 @@ void JBIG2Stream::readPatternDictSeg(Guint segNum, Guint length) {
   return;
 
  eofError:
-  error(getPos(), "Unexpected EOF in JBIG2 stream");
+  error(curStr->getPos(), "Unexpected EOF in JBIG2 stream");
 }
 
 void JBIG2Stream::readHalftoneRegionSeg(Guint segNum, GBool imm,
@@ -2506,22 +2514,22 @@ void JBIG2Stream::readHalftoneRegionSeg(Guint segNum, GBool imm,
     goto eofError;
   }
   if (w == 0 || h == 0 || w >= INT_MAX / h) {
-    error(getPos(), "Bad bitmap size in JBIG2 halftone segment");
+    error(curStr->getPos(), "Bad bitmap size in JBIG2 halftone segment");
     return;
   }
   if (gridH == 0 || gridW >= INT_MAX / gridH) {
-    error(getPos(), "Bad grid size in JBIG2 halftone segment");
+    error(curStr->getPos(), "Bad grid size in JBIG2 halftone segment");
     return;
   }
 
   // get pattern dictionary
   if (nRefSegs != 1) {
-    error(getPos(), "Bad symbol dictionary reference in JBIG2 halftone segment");
+    error(curStr->getPos(), "Bad symbol dictionary reference in JBIG2 halftone segment");
     return;
   }
   seg = findSegment(refSegs[0]);
   if (seg == NULL || seg->getType() != jbig2SegPatternDict) {
-    error(getPos(), "Bad symbol dictionary reference in JBIG2 halftone segment");
+    error(curStr->getPos(), "Bad symbol dictionary reference in JBIG2 halftone segment");
     return;
   }
 
@@ -2624,7 +2632,7 @@ void JBIG2Stream::readHalftoneRegionSeg(Guint segNum, GBool imm,
   return;
 
  eofError:
-  error(getPos(), "Unexpected EOF in JBIG2 stream");
+  error(curStr->getPos(), "Unexpected EOF in JBIG2 stream");
 }
 
 void JBIG2Stream::readGenericRegionSeg(Guint segNum, GBool imm,
@@ -2700,14 +2708,14 @@ void JBIG2Stream::readGenericRegionSeg(Guint segNum, GBool imm,
   return;
 
  eofError:
-  error(getPos(), "Unexpected EOF in JBIG2 stream");
+  error(curStr->getPos(), "Unexpected EOF in JBIG2 stream");
 }
 
 inline void JBIG2Stream::mmrAddPixels(int a1, int blackPixels,
 				      int *codingLine, int *a0i, int w) {
   if (a1 > codingLine[*a0i]) {
     if (a1 > w) {
-      error(getPos(), "JBIG2 MMR row is wrong length (%d)", a1);
+      error(curStr->getPos(), "JBIG2 MMR row is wrong length (%d)", a1);
       a1 = w;
     }
     if ((*a0i & 1) ^ blackPixels) {
@@ -2721,7 +2729,7 @@ inline void JBIG2Stream::mmrAddPixelsNeg(int a1, int blackPixels,
 					 int *codingLine, int *a0i, int w) {
   if (a1 > codingLine[*a0i]) {
     if (a1 > w) {
-      error(getPos(), "JBIG2 MMR row is wrong length (%d)", a1);
+      error(curStr->getPos(), "JBIG2 MMR row is wrong length (%d)", a1);
       a1 = w;
     }
     if ((*a0i & 1) ^ blackPixels) {
@@ -2730,7 +2738,7 @@ inline void JBIG2Stream::mmrAddPixelsNeg(int a1, int blackPixels,
     codingLine[*a0i] = a1;
   } else if (a1 < codingLine[*a0i]) {
     if (a1 < 0) {
-      error(getPos(), "Invalid JBIG2 MMR code");
+      error(curStr->getPos(), "Invalid JBIG2 MMR code");
       a1 = 0;
     }
     while (*a0i > 0 && a1 <= codingLine[*a0i - 1]) {
@@ -2767,7 +2775,7 @@ JBIG2Bitmap *JBIG2Stream::readGenericBitmap(GBool mmr, int w, int h,
 
     mmrDecoder->reset();
     if (w > INT_MAX - 2) {
-      error(getPos(), "Bad width in JBIG2 generic bitmap");
+      error(curStr->getPos(), "Bad width in JBIG2 generic bitmap");
       // force a call to gmalloc(-1), which will throw an exception
       w = -3;
     }
@@ -2777,7 +2785,7 @@ JBIG2Bitmap *JBIG2Stream::readGenericBitmap(GBool mmr, int w, int h,
     // ---> max refLine size = w + 2
     codingLine = (int *)gmallocn(w + 1, sizeof(int));
     refLine = (int *)gmallocn(w + 2, sizeof(int));
-    codingLine[0] = w;
+    for (i = 0; i < w + 1; ++i) codingLine[i] = w;
 
     for (y = 0; y < h; ++y) {
 
@@ -2921,7 +2929,7 @@ JBIG2Bitmap *JBIG2Stream::readGenericBitmap(GBool mmr, int w, int h,
           mmrAddPixels(w, 0, codingLine, &a0i, w);
           break;
 	default:
-	  error(getPos(), "Illegal code in JBIG2 MMR bitmap data");
+	  error(curStr->getPos(), "Illegal code in JBIG2 MMR bitmap data");
           mmrAddPixels(w, 0, codingLine, &a0i, w);
 	  break;
 	}
@@ -2944,7 +2952,7 @@ JBIG2Bitmap *JBIG2Stream::readGenericBitmap(GBool mmr, int w, int h,
       mmrDecoder->skipTo(mmrDataLength);
     } else {
       if (mmrDecoder->get24Bits() != 0x001001) {
-	error(getPos(), "Missing EOFB in JBIG2 MMR bitmap data");
+	error(curStr->getPos(), "Missing EOFB in JBIG2 MMR bitmap data");
       }
     }
 
@@ -3184,13 +3192,13 @@ void JBIG2Stream::readGenericRefinementRegionSeg(Guint segNum, GBool imm,
 
   // get referenced bitmap
   if (nRefSegs > 1) {
-    error(getPos(), "Bad reference in JBIG2 generic refinement segment");
+    error(curStr->getPos(), "Bad reference in JBIG2 generic refinement segment");
     return;
   }
   if (nRefSegs == 1) {
     seg = findSegment(refSegs[0]);
     if (seg == NULL || seg->getType() != jbig2SegBitmap) {
-      error(getPos(), "Bad bitmap reference in JBIG2 generic refinement segment");
+      error(curStr->getPos(), "Bad bitmap reference in JBIG2 generic refinement segment");
       return;
     }
     refBitmap = (JBIG2Bitmap *)seg;
@@ -3227,7 +3235,7 @@ void JBIG2Stream::readGenericRefinementRegionSeg(Guint segNum, GBool imm,
   return;
 
  eofError:
-  error(getPos(), "Unexpected EOF in JBIG2 stream");
+  error(curStr->getPos(), "Unexpected EOF in JBIG2 stream");
 }
 
 JBIG2Bitmap *JBIG2Stream::readGenericRefinementRegion(int w, int h,
@@ -3456,7 +3464,7 @@ void JBIG2Stream::readPageInfoSeg(Guint length) {
   return;
 
  eofError:
-  error(getPos(), "Unexpected EOF in JBIG2 stream");
+  error(curStr->getPos(), "Unexpected EOF in JBIG2 stream");
 }
 
 void JBIG2Stream::readEndOfStripeSeg(Guint length) {
@@ -3538,7 +3546,7 @@ void JBIG2Stream::readCodeTableSeg(Guint segNum, Guint length) {
   return;
 
  eofError:
-  error(getPos(), "Unexpected EOF in JBIG2 stream");
+  error(curStr->getPos(), "Unexpected EOF in JBIG2 stream");
 }
 
 void JBIG2Stream::readExtensionSeg(Guint length) {

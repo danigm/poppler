@@ -6,6 +6,20 @@
 //
 //========================================================================
 
+//========================================================================
+//
+// Modified under the Poppler project - http://poppler.freedesktop.org
+//
+// All changes made under the Poppler project to this file are licensed
+// under GPL version 2 or later
+//
+// Copyright (C) 2009 David Benjamin <davidben@mit.edu>
+//
+// To see a description of the changes please see the Changelog file that
+// came with your tarball or type make ChangeLog if you are building from git
+//
+//========================================================================
+
 #ifndef JBIG2STREAM_H
 #define JBIG2STREAM_H
 
@@ -36,6 +50,7 @@ public:
   virtual StreamKind getKind() { return strJBIG2; }
   virtual void reset();
   virtual void close();
+  virtual int getPos();
   virtual int getChar();
   virtual int lookChar();
   virtual GooString *getPSFilter(int psLevel, char *indent);
