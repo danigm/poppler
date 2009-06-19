@@ -1144,11 +1144,11 @@ void HtmlOutputDev::drawChar(GfxState *state, double x, double y,
 }
 
 void HtmlOutputDev::drawImageMask(GfxState *state, Object *ref, Stream *str,
-			      int width, int height, GBool invert,
-			      GBool inlineImg) {
+				  int width, int height, GBool invert,
+				  GBool interpolate, GBool inlineImg) {
 
   if (ignore||complexMode) {
-    OutputDev::drawImageMask(state, ref, str, width, height, invert, inlineImg);
+    OutputDev::drawImageMask(state, ref, str, width, height, invert, interpolate, inlineImg);
     return;
   }
   
@@ -1222,16 +1222,16 @@ void HtmlOutputDev::drawImageMask(GfxState *state, Object *ref, Stream *str,
   if (fName) imgList->append(fName);
   }
   else {
-    OutputDev::drawImageMask(state, ref, str, width, height, invert, inlineImg);
+    OutputDev::drawImageMask(state, ref, str, width, height, invert, interpolate, inlineImg);
   }
 }
 
 void HtmlOutputDev::drawImage(GfxState *state, Object *ref, Stream *str,
-			  int width, int height, GfxImageColorMap *colorMap,
-			  int *maskColors, GBool inlineImg) {
+			      int width, int height, GfxImageColorMap *colorMap,
+			      GBool interpolate, int *maskColors, GBool inlineImg) {
 
   if (ignore||complexMode) {
-    OutputDev::drawImage(state, ref, str, width, height, colorMap, 
+    OutputDev::drawImage(state, ref, str, width, height, colorMap, interpolate,
 			 maskColors, inlineImg);
     return;
   }
@@ -1418,7 +1418,7 @@ void HtmlOutputDev::drawImage(GfxState *state, Object *ref, Stream *str,
     imgStr->close();
     delete imgStr;
 #else
-    OutputDev::drawImage(state, ref, str, width, height, colorMap,
+    OutputDev::drawImage(state, ref, str, width, height, colorMap, interpolate,
 			 maskColors, inlineImg);
 #endif
   }

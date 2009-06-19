@@ -60,7 +60,7 @@ ImageOutputDev::~ImageOutputDev() {
 
 void ImageOutputDev::drawImageMask(GfxState *state, Object *ref, Stream *str,
 				   int width, int height, GBool invert,
-				   GBool inlineImg) {
+				   GBool interpolate, GBool inlineImg) {
   FILE *f;
   int c;
   int size, i;
@@ -117,7 +117,7 @@ void ImageOutputDev::drawImageMask(GfxState *state, Object *ref, Stream *str,
 void ImageOutputDev::drawImage(GfxState *state, Object *ref, Stream *str,
 			       int width, int height,
 			       GfxImageColorMap *colorMap,
-			       int *maskColors, GBool inlineImg) {
+			       GBool interpolate, int *maskColors, GBool inlineImg) {
   FILE *f;
   ImageStream *imgStr;
   Guchar *p;
@@ -227,19 +227,19 @@ void ImageOutputDev::drawImage(GfxState *state, Object *ref, Stream *str,
 
 void ImageOutputDev::drawMaskedImage(
   GfxState *state, Object *ref, Stream *str,
-  int width, int height, GfxImageColorMap *colorMap,
-  Stream *maskStr, int maskWidth, int maskHeight, GBool maskInvert) {
-  drawImage(state, ref, str, width, height, colorMap, NULL, gFalse);
-  drawImageMask(state, ref, maskStr, maskWidth, maskHeight,
+  int width, int height, GfxImageColorMap *colorMap, GBool interpolate,
+  Stream *maskStr, int maskWidth, int maskHeight, GBool maskInvert, GBool maskInterpolate) {
+  drawImage(state, ref, str, width, height, colorMap, interpolate, NULL, gFalse);
+  drawImageMask(state, ref, maskStr, maskWidth, maskHeight, maskInterpolate,
 		maskInvert, gFalse);
 }
 
 void ImageOutputDev::drawSoftMaskedImage(
   GfxState *state, Object *ref, Stream *str,
-  int width, int height, GfxImageColorMap *colorMap,
+  int width, int height, GfxImageColorMap *colorMap, GBool interpolate,
   Stream *maskStr, int maskWidth, int maskHeight,
-  GfxImageColorMap *maskColorMap) {
-  drawImage(state, ref, str, width, height, colorMap, NULL, gFalse);
+  GfxImageColorMap *maskColorMap, GBool maskInterpolate) {
+  drawImage(state, ref, str, width, height, colorMap, interpolate, NULL, gFalse);
   drawImage(state, ref, maskStr, maskWidth, maskHeight,
-	    maskColorMap, NULL, gFalse);
+	    maskColorMap, maskInterpolate, NULL, gFalse);
 }

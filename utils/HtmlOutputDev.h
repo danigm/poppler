@@ -16,6 +16,7 @@
 //
 // Copyright (C) 2006-2007 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2008-2009 Warren Toomey <wkt@tuhs.org>
+// Copyright (C) 2009 Carlos Garcia Campos <carlosgc@gnome.org>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -279,10 +280,10 @@ public:
   virtual void drawImageMask(GfxState *state, Object *ref, 
 			     Stream *str,
 			     int width, int height, GBool invert,
-			     GBool inlineImg);
+			     GBool interpolate, GBool inlineImg);
   virtual void drawImage(GfxState *state, Object *ref, Stream *str,
-			  int width, int height, GfxImageColorMap *colorMap,
-			 int *maskColors, GBool inlineImg);
+			 int width, int height, GfxImageColorMap *colorMap,
+			 GBool interpolate, int *maskColors, GBool inlineImg);
 
   //new feature    
   virtual int DevType() {return 1234;}

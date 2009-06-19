@@ -6,6 +6,20 @@
 //
 //========================================================================
 
+//========================================================================
+//
+// Modified under the Poppler project - http://poppler.freedesktop.org
+//
+// All changes made under the Poppler project to this file are licensed
+// under GPL version 2 or later
+//
+// Copyright (C) 2009 Carlos Garcia Campos <carlosgc@gnome.org>
+//
+// To see a description of the changes please see the Changelog file that
+// came with your tarball or type make ChangeLog if you are building from git
+//
+//========================================================================
+
 #ifdef USE_GCC_PRAGMAS
 #pragma implementation
 #endif
@@ -120,7 +134,7 @@ void PreScanOutputDev::endType3Char(GfxState * /*state*/) {
 
 void PreScanOutputDev::drawImageMask(GfxState *state, Object * /*ref*/, Stream *str,
 				     int width, int height, GBool /*invert*/,
-				     GBool inlineImg) {
+				     GBool /*interpolate*/, GBool inlineImg) {
   int i, j;
 
   check(state->getFillColorSpace(), state->getFillColor(),
@@ -139,7 +153,7 @@ void PreScanOutputDev::drawImageMask(GfxState *state, Object * /*ref*/, Stream *
 void PreScanOutputDev::drawImage(GfxState *state, Object * /*ref*/, Stream *str,
 				 int width, int height,
 				 GfxImageColorMap *colorMap,
-				 int * /*maskColors*/, GBool inlineImg) {
+				 GBool /*interpolate*/, int * /*maskColors*/, GBool inlineImg) {
   GfxColorSpace *colorSpace;
   int i, j;
 
@@ -171,9 +185,10 @@ void PreScanOutputDev::drawMaskedImage(GfxState *state, Object * /*ref*/,
 				       Stream * /*str*/,
 				       int /*width*/, int /*height*/,
 				       GfxImageColorMap *colorMap,
+				       GBool /*interpolate*/,
 				       Stream * /*maskStr*/,
 				       int /*maskWidth*/, int /*maskHeight*/,
-				       GBool /*maskInvert*/) {
+				       GBool /*maskInvert*/, GBool /*maskInterpolate*/) {
   GfxColorSpace *colorSpace;
 
   colorSpace = colorMap->getColorSpace();
@@ -195,9 +210,11 @@ void PreScanOutputDev::drawSoftMaskedImage(GfxState * /*state*/, Object * /*ref*
 					   Stream * /*str*/,
 					   int /*width*/, int /*height*/,
 					   GfxImageColorMap *colorMap,
+					   GBool /*interpolate*/,
 					   Stream * /*maskStr*/,
 					   int /*maskWidth*/, int /*maskHeight*/,
-					   GfxImageColorMap * /*maskColorMap*/) {
+					   GfxImageColorMap * /*maskColorMap*/,
+					   GBool /*maskInterpolate*/) {
   GfxColorSpace *colorSpace;
 
   colorSpace = colorMap->getColorSpace();

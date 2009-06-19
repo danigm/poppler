@@ -665,7 +665,7 @@ void ArthurOutputDev::endTextObject(GfxState *state)
 
 void ArthurOutputDev::drawImageMask(GfxState *state, Object *ref, Stream *str,
 				    int width, int height, GBool invert,
-				    GBool inlineImg)
+				    GBool interpolate, GBool inlineImg)
 {
   qDebug() << "drawImageMask";
 #if 0
@@ -743,7 +743,7 @@ void ArthurOutputDev::drawImageMask(GfxState *state, Object *ref, Stream *str,
 void ArthurOutputDev::drawImage(GfxState *state, Object *ref, Stream *str,
 				int width, int height,
 				GfxImageColorMap *colorMap,
-				int *maskColors, GBool inlineImg)
+				GBool interpolate, int *maskColors, GBool inlineImg)
 {
   unsigned char *buffer;
   unsigned int *dest;

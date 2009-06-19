@@ -17,7 +17,7 @@
 // Copyright (C) 2005-2009 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2006 Thorkild Stray <thorkild@ifi.uio.no>
 // Copyright (C) 2006 Kristian Høgsberg <krh@redhat.com>
-// Copyright (C) 2006-2008 Carlos Garcia Campos <carlosgc@gnome.org>
+// Copyright (C) 2006-2009 Carlos Garcia Campos <carlosgc@gnome.org>
 // Copyright (C) 2006, 2007 Jeff Muizelaar <jeff@infidigm.net>
 // Copyright (C) 2007, 2008 Brad Hards <bradh@kde.org>
 // Copyright (C) 2007 Adrian Johnson <ajohnson@redneon.com>
@@ -3681,6 +3681,7 @@ void Gfx::doImage(Object *ref, Stream *str, GBool inlineImg) {
   Dict *dict, *maskDict;
   int width, height;
   int bits, maskBits;
+  GBool interpolate;
   StreamColorSpaceMode csMode;
   GBool mask;
   GBool invert;
@@ -3691,6 +3692,7 @@ void Gfx::doImage(Object *ref, Stream *str, GBool inlineImg) {
   int maskColors[2*gfxColorMaxComps];
   int maskWidth, maskHeight;
   GBool maskInvert;
+  GBool maskInterpolate;
   Stream *maskStr;
   Object obj1, obj2;
   int i;
@@ -3731,6 +3733,19 @@ void Gfx::doImage(Object *ref, Stream *str, GBool inlineImg) {
 
   if (width < 1 || height < 1)
     goto err1;
+
+  // image interpolation
+  dict->lookup("Interpolate", &obj1);
+  if (obj1.isNull()) {
+    obj1.free();
+    dict->lookup("I", &obj1);
+  }
+  if (obj1.isBool())
+    interpolate = obj1.getBool();
+  else
+    interpolate = gFalse;
+  obj1.free();
+  maskInterpolate = gFalse;
 
   // image or mask?
   dict->lookup("ImageMask", &obj1);
@@ -3786,7 +3801,7 @@ void Gfx::doImage(Object *ref, Stream *str, GBool inlineImg) {
 
     // draw it
     if (!contentIsHidden()) {
-      out->drawImageMask(state, ref, str, width, height, invert, inlineImg);
+	out->drawImageMask(state, ref, str, width, height, invert, interpolate, inlineImg);
       if (out->fillMaskCSPattern(state)) {
         maskHaveCSPattern = gTrue;
         doPatternFill(gTrue);
@@ -3872,6 +3887,16 @@ void Gfx::doImage(Object *ref, Stream *str, GBool inlineImg) {
 	goto err2;
       }
       maskHeight = obj1.getInt();
+      obj1.free();
+      maskDict->lookup("Interpolate", &obj1);
+      if (obj1.isNull()) {
+        obj1.free();
+        maskDict->lookup("I", &obj1);
+      }
+      if (obj1.isBool())
+        maskInterpolate = obj1.getBool();
+      else
+        maskInterpolate = gFalse;
       obj1.free();
       maskDict->lookup("BitsPerComponent", &obj1);
       if (obj1.isNull()) {
@@ -3961,6 +3986,16 @@ void Gfx::doImage(Object *ref, Stream *str, GBool inlineImg) {
       }
       maskHeight = obj1.getInt();
       obj1.free();
+      maskDict->lookup("Interpolate", &obj1);
+      if (obj1.isNull()) {
+        obj1.free();
+	maskDict->lookup("I", &obj1);
+      }
+      if (obj1.isBool())
+        maskInterpolate = obj1.getBool();
+      else
+        maskInterpolate = gFalse;
+      obj1.free();
       maskDict->lookup("ImageMask", &obj1);
       if (obj1.isNull()) {
 	obj1.free();
@@ -3992,15 +4027,15 @@ void Gfx::doImage(Object *ref, Stream *str, GBool inlineImg) {
     // draw it
     if (haveSoftMask) {
       if (!contentIsHidden()) {
-        out->drawSoftMaskedImage(state, ref, str, width, height, colorMap,
-				 maskStr, maskWidth, maskHeight, maskColorMap);
+        out->drawSoftMaskedImage(state, ref, str, width, height, colorMap, interpolate,
+				 maskStr, maskWidth, maskHeight, maskColorMap, maskInterpolate);
       }
       delete maskColorMap;
     } else if (haveExplicitMask && !contentIsHidden ()) {
-      out->drawMaskedImage(state, ref, str, width, height, colorMap,
-			   maskStr, maskWidth, maskHeight, maskInvert);
+      out->drawMaskedImage(state, ref, str, width, height, colorMap, interpolate,
+			   maskStr, maskWidth, maskHeight, maskInvert, maskInterpolate);
     } else if (!contentIsHidden()) {
-      out->drawImage(state, ref, str, width, height, colorMap,
+      out->drawImage(state, ref, str, width, height, colorMap, interpolate,
 		     haveColorKeyMask ? maskColors : (int *)NULL, inlineImg);
     }
     delete colorMap;

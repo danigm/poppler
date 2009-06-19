@@ -21,6 +21,7 @@
 // Copyright (C) 2007 Koji Otani <sho@bbr.jp>
 // Copyright (C) 2009 Petr Gajdos <pgajdos@novell.com>
 // Copyright (C) 2009 Thomas Freitag <Thomas.Freitag@alfa.de>
+// Copyright (C) 2009 Carlos Garcia Campos <carlosgc@gnome.org>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -1970,7 +1971,7 @@ void SplashOutputDev::endMaskClip(GfxState * state) {
 
 void SplashOutputDev::drawImageMask(GfxState *state, Object *ref, Stream *str,
 				    int width, int height, GBool invert,
-				    GBool inlineImg) {
+				    GBool inlineImg, GBool interpolate) {
   double *ctm;
   SplashCoord mat[6];
   SplashOutImageMaskData imgMaskData;
@@ -2242,6 +2243,7 @@ GBool SplashOutputDev::alphaImageSrc(void *data, SplashColorPtr colorLine,
 void SplashOutputDev::drawImage(GfxState *state, Object *ref, Stream *str,
 				int width, int height,
 				GfxImageColorMap *colorMap,
+				GBool interpolate,
 				int *maskColors, GBool inlineImg) {
   double *ctm;
   SplashCoord mat[6];
@@ -2456,8 +2458,10 @@ GBool SplashOutputDev::maskedImageSrc(void *data, SplashColorPtr colorLine,
 void SplashOutputDev::drawMaskedImage(GfxState *state, Object *ref,
 				      Stream *str, int width, int height,
 				      GfxImageColorMap *colorMap,
+				      GBool interpolate,
 				      Stream *maskStr, int maskWidth,
-				      int maskHeight, GBool maskInvert) {
+				      int maskHeight, GBool maskInvert,
+				      GBool maskInterpolate) {
   GfxImageColorMap *maskColorMap;
   Object maskDecode, decodeLow, decodeHigh;
   double *ctm;
@@ -2487,8 +2491,8 @@ void SplashOutputDev::drawMaskedImage(GfxState *state, Object *ref,
     maskColorMap = new GfxImageColorMap(1, &maskDecode,
 					new GfxDeviceGrayColorSpace());
     maskDecode.free();
-    drawSoftMaskedImage(state, ref, str, width, height, colorMap,
-			maskStr, maskWidth, maskHeight, maskColorMap);
+    drawSoftMaskedImage(state, ref, str, width, height, colorMap, interpolate,
+			maskStr, maskWidth, maskHeight, maskColorMap, maskInterpolate);
     delete maskColorMap;
 
   } else {
@@ -2611,9 +2615,11 @@ void SplashOutputDev::drawMaskedImage(GfxState *state, Object *ref,
 void SplashOutputDev::drawSoftMaskedImage(GfxState *state, Object *ref,
 					  Stream *str, int width, int height,
 					  GfxImageColorMap *colorMap,
+					  GBool interpolate,
 					  Stream *maskStr,
 					  int maskWidth, int maskHeight,
-					  GfxImageColorMap *maskColorMap) {
+					  GfxImageColorMap *maskColorMap,
+					  GBool maskInterpolate) {
   double *ctm;
   SplashCoord mat[6];
   SplashOutImageData imgData;

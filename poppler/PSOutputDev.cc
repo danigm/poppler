@@ -22,6 +22,7 @@
 // Copyright (C) 2008 Hib Eris <hib@hiberis.nl>
 // Copyright (C) 2009 Thomas Freitag <Thomas.Freitag@alfa.de>
 // Copyright (C) 2009 Till Kamppeter <till.kamppeter@gmail.com>
+// Copyright (C) 2009 Carlos Garcia Campos <carlosgc@gnome.org>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -4371,7 +4372,7 @@ void PSOutputDev::endMaskClip(GfxState * state) {
 
 void PSOutputDev::drawImageMask(GfxState *state, Object *ref, Stream *str,
 				int width, int height, GBool invert,
-				GBool inlineImg) {
+				GBool interpolate, GBool inlineImg) {
   int len;
 
   len = height * ((width + 7) / 8);
@@ -4399,7 +4400,7 @@ void PSOutputDev::drawImageMask(GfxState *state, Object *ref, Stream *str,
 
 void PSOutputDev::drawImage(GfxState *state, Object *ref, Stream *str,
 			    int width, int height, GfxImageColorMap *colorMap,
-			    int *maskColors, GBool inlineImg) {
+			    GBool interpolate, int *maskColors, GBool inlineImg) {
   int len;
 
   len = height * ((width * colorMap->getNumPixelComps() *
@@ -4429,9 +4430,10 @@ void PSOutputDev::drawImage(GfxState *state, Object *ref, Stream *str,
 void PSOutputDev::drawMaskedImage(GfxState *state, Object *ref, Stream *str,
 				  int width, int height,
 				  GfxImageColorMap *colorMap,
+				  GBool interpolate,
 				  Stream *maskStr,
 				  int maskWidth, int maskHeight,
-				  GBool maskInvert) {
+				  GBool maskInvert, GBool maskInterpolate) {
   int len;
 
   len = height * ((width * colorMap->getNumPixelComps() *

@@ -16,6 +16,7 @@
 // Copyright (C) 2005 Jonathan Blandford <jrb@redhat.com>
 // Copyright (C) 2006 Thorkild Stray <thorkild@ifi.uio.no>
 // Copyright (C) 2007 Adrian Johnson <ajohnson@redneon.com>
+// Copyright (C) 2009 Carlos Garcia Campos <carlosgc@gnome.org>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -94,7 +95,7 @@ GBool OutputDev::beginType3Char(GfxState *state, double x, double y,
 
 void OutputDev::drawImageMask(GfxState *state, Object *ref, Stream *str,
 			      int width, int height, GBool invert,
-			      GBool inlineImg) {
+			      GBool interpolate, GBool inlineImg) {
   int i, j;
 
   if (inlineImg) {
@@ -108,7 +109,7 @@ void OutputDev::drawImageMask(GfxState *state, Object *ref, Stream *str,
 
 void OutputDev::drawImage(GfxState *state, Object *ref, Stream *str,
 			  int width, int height, GfxImageColorMap *colorMap,
-			  int *maskColors, GBool inlineImg) {
+			  GBool interpolate, int *maskColors, GBool inlineImg) {
   int i, j;
 
   if (inlineImg) {
@@ -124,19 +125,23 @@ void OutputDev::drawImage(GfxState *state, Object *ref, Stream *str,
 void OutputDev::drawMaskedImage(GfxState *state, Object *ref, Stream *str,
 				int width, int height,
 				GfxImageColorMap *colorMap,
+				GBool interpolate,
 				Stream *maskStr,
 				int maskWidth, int maskHeight,
-				GBool maskInvert) {
-  drawImage(state, ref, str, width, height, colorMap, NULL, gFalse);
+				GBool maskInvert,
+				GBool maskInterpolate) {
+  drawImage(state, ref, str, width, height, colorMap, interpolate, NULL, gFalse);
 }
 
 void OutputDev::drawSoftMaskedImage(GfxState *state, Object *ref, Stream *str,
 				    int width, int height,
 				    GfxImageColorMap *colorMap,
+				    GBool interpolate,
 				    Stream *maskStr,
 				    int maskWidth, int maskHeight,
-				    GfxImageColorMap *maskColorMap) {
-  drawImage(state, ref, str, width, height, colorMap, NULL, gFalse);
+				    GfxImageColorMap *maskColorMap,
+				    GBool maskInterpolate) {
+  drawImage(state, ref, str, width, height, colorMap, interpolate, NULL, gFalse);
 }
 
 void OutputDev::endMarkedContent(GfxState *state) {
