@@ -173,8 +173,7 @@ pgd_render_start (GtkButton     *button,
 
 		cairo_save (cr);
 		cairo_set_source_rgb (cr, 1, 1, 1);
-		cairo_rectangle (cr, 0, 0, width, height);
-		cairo_fill (cr);
+		cairo_paint (cr);
 		cairo_restore (cr);
 
 		cairo_save (cr);
