@@ -186,6 +186,7 @@ poppler_include_HEADERS =	\
 	Parser.h		\
 	PDFDoc.h		\
 	PDFDocEncoding.h	\
+	PopplerCache.h		\
 	ProfileData.h		\
 	PreScanOutputDev.h	\
 	PSTokenizer.h		\
