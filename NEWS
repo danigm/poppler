@@ -1,4 +1,50 @@
-Release 0.11.0 (0.10 Alpha)
+Release 0.11.1 (0.12 Beta 1)
+
+	core:
+	 * Support colorizing text in pattern colorspace. Bug #19670 and #19994
+	 * Add the possibility of forcing no hinting of fonts in the Splash backend
+	 * Support multiple page sizes when converting to PS. Bug #19777
+	 * Also tokens with leading 00 when parsing the char to unicode map. Bug #22025
+	 * Improvements of rendering speed in documents using PS transformations a lot. Bug #21562
+	 * More work on Annotations support
+	 * Use Interpolate flag to decide whether applying image interpolation during rendering. Bug #9860
+	 * Handle Streams in CMap definitions. Bug #22334
+	 * Fix some bugs in JBIG2Stream handling
+	 * Fix dashed line in page 1 of bug 20011
+	 * Fix exit(1) when rendering a file
+	 * Fix pdftops crash on file from KDE bug #174899
+	 * Fix PS generation in some files. Bug #20420
+	 * Do not create the GfxColorTransform if the lcms could not be created. Bug #20108
+	 * Check Mask entries are int before using them, if they are real cast to int and try to use them. Bug #21841
+	 * Use the correct value when creating the V field for form combo boxes
+	 * Give an error when using level1sep in pdftops without having CMYK support. Bug #22026
+	 * Don't include lcms.h in GfxState.h
+	 * Fix splashColorModeNComps to correctly include all values for each SplashColorMode
+	 * Add splashClearColor that assigns white to the given colorptr
+	 * Kill support for specifying extension in openTmpFile. Bug #21713
+	 * Fix "Conditional jump or move depends on uninitialised value". Bug #20011
+	
+	glib:
+	 * Add poppler_annot_markup_has_popup()
+	 * Hyphenate UTF-8 and UTF-16BE. Bug #21953
+	 * Use g_strerror instead of strerror. Bug #22095
+	 * Fix a crash when a destination points to an invalid page
+	 * Improvements to the demo
+	
+	Qt4:
+	 * Add LinkDestination::destinationName()
+	 * Do not try to resolve named destinations for GoTo links pointing to external documents
+	 * Add Page::thumbnail()
+	 * Improvements to the demo
+	 * Improvements to the documentation
+	
+	build system:
+	 * Build fix for MSVC
+	 * Better lcms cmake check comming from kdelibs
+	 * Use pkgconfig for autotools lcms check
+	 * Remove unneeded files from repo. Bug #22094
+
+Release 0.11.0 (0.12 Alpha)
 
 	core:
 	 * Add initial support for color management
@@ -15,7 +61,7 @@ Release 0.11.0 (0.10 Alpha)
 	 * Small opimization in documents that use PostScriptFunction transforms
 	 * Minor optimization to Stream handling
 	 * Fix some compile warnings
-
+	
 	glib:
 	 * Optional content support
 	 * More work on Annotations support
