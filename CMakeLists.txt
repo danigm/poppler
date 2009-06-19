@@ -308,6 +308,7 @@ if(ENABLE_XPDF_HEADERS)
     poppler/Parser.h
     poppler/PDFDoc.h
     poppler/PDFDocEncoding.h
+    poppler/PopplerCache.h
     poppler/ProfileData.h
     poppler/PreScanOutputDev.h
     poppler/PSTokenizer.h
