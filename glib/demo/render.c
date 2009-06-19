@@ -205,6 +205,7 @@ pgd_render_start (GtkButton     *button,
 		cairo_set_operator (cr, CAIRO_OPERATOR_DEST_OVER);
 		cairo_set_source (cr, pattern);
 		cairo_paint (cr);
+		cairo_pattern_destroy (pattern);
 		g_timer_stop (timer);
 		
 		cairo_destroy (cr);
