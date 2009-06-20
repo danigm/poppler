@@ -146,6 +146,7 @@ gint main (gint argc, gchar **argv)
 	GtkWidget        *notebook;
 	GtkWidget        *treeview;
 	GtkTreeSelection *selection;
+	GFile            *file;
 	gchar            *uri;
 	GTimer           *timer;
 	GError           *error = NULL;
@@ -161,18 +162,10 @@ gint main (gint argc, gchar **argv)
 
 	gtk_init (&argc, &argv);
 
-	if (g_ascii_strncasecmp (argv[1], "file://", strlen ("file://")) == 0) {
-		uri = g_strdup (argv[1]);
-	} else {
-		uri = g_filename_to_uri (argv[1], NULL, &error);
-		if (error) {
-			g_print ("Error: %s\n", error->message);
-			g_error_free (error);
-		
-			return 1;
-		}
-	}
-	
+	file = g_file_new_for_commandline_arg (argv[1]);
+	uri = g_file_get_uri (file);
+	g_object_unref (file);
+
 	timer = g_timer_new ();
 	document = poppler_document_new_from_file (uri, NULL, &error);
 	g_timer_stop (timer);
