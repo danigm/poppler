@@ -14,6 +14,7 @@
 // under GPL version 2 or later
 //
 // Copyright (C) 2008 Julien Rebetez <julien@fhtagn.net>
+// Copyright (C) 2009 David Benjamin <davidben@mit.edu>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -90,6 +91,7 @@ public:
   virtual void reset();
   virtual int getChar();
   virtual int lookChar();
+  virtual int getPos();
   virtual GBool isBinary(GBool last);
   virtual Stream *getUndecodedStream() { return this; }
 
@@ -98,6 +100,7 @@ private:
   CryptAlgorithm algo;
   int objKeyLength;
   Guchar objKey[16 + 9];
+  int charactersRead; // so that getPos() can be correct
 
   union {
     DecryptRC4State rc4;
