@@ -1308,6 +1308,8 @@ void PSOutputDev::writeHeader(int firstPage, int lastPage,
 
   switch (mode) {
   case psModePSOrigPageSizes:
+    prevWidth = 0;
+    prevHeight = 0;
   case psModePS:
     writePSFmt("%%DocumentMedia: plain {0:d} {1:d} 0 () ()\n",
 	       paperWidth, paperHeight);
@@ -3186,7 +3188,13 @@ void PSOutputDev::startPage(int pageNum, GfxState *state) {
     writePS("%%BeginPageSetup\n");
     writePSFmt("%%PageOrientation: {0:s}\n",
 	       landscape ? "Landscape" : "Portrait");
-    writePSFmt("<</PageSize [{0:d} {1:d}]>> setpagedevice\n", width, height);
+    if ((width != prevWidth) || (height != prevHeight)) {
+      // Set page size only when it actually changes, as otherwise Duplex
+      // printing does not work
+      writePSFmt("<</PageSize [{0:d} {1:d}]>> setpagedevice\n", width, height);
+      prevWidth = width;
+      prevHeight = height;
+    }
     writePS("pdfStartPage\n");
     writePSFmt("{0:d} {1:d} {2:d} {3:d} re W\n", x1, y1, x2 - x1, y2 - y1);
     writePS("%%EndPageSetup\n");

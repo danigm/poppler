@@ -352,6 +352,10 @@ private:
   PSOutMode mode;		// PostScript mode (PS, EPS, form)
   int paperWidth;		// width of paper, in pts
   int paperHeight;		// height of paper, in pts
+  int prevWidth;		// width of previous page
+                                // (only psModePSOrigPageSizes output mode)
+  int prevHeight;		// height of previous page
+                                // (only psModePSOrigPageSizes output mode)
   int imgLLX, imgLLY,		// imageable area, in pts
       imgURX, imgURY;
   GBool preload;		// load all images into memory, and
