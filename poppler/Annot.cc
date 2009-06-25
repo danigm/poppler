@@ -658,6 +658,9 @@ AnnotColor::AnnotColor(Array *array) {
       }
       obj1.free();
     }
+  } else {
+    values = NULL;
+    length = 0;
   }
 }
 
