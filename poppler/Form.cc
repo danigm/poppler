@@ -266,6 +266,7 @@ void FormWidgetButton::loadDefaults ()
     //We didn't found the "on" state for the button
     if (!onStr) {
       error(-1, "FormWidgetButton:: unable to find the on state for the button\n");
+      onStr = new GooString(""); // TODO is this the best solution?
     }
   }
 
