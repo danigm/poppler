@@ -67,6 +67,9 @@ void PageView::pageChanged(int page)
 void PageView::slotZoomChanged(qreal value)
 {
     m_zoom = value;
+    if (!document()) {
+        return;
+    }
     reloadPage();
 }
 
