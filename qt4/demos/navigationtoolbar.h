@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008, Pino Toscano <pino@kde.org>
+ * Copyright (C) 2008-2009, Pino Toscano <pino@kde.org>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -38,12 +38,16 @@ public:
     /*virtual*/ void documentClosed();
     /*virtual*/ void pageChanged(int page);
 
+Q_SIGNALS:
+    void zoomChanged(qreal value);
+
 private Q_SLOTS:
     void slotGoFirst();
     void slotGoPrev();
     void slotGoNext();
     void slotGoLast();
     void slotComboActivated(int index);
+    void slotZoomComboChanged(const QString &text);
 
 private:
     QAction *m_firstAct;
@@ -51,6 +55,7 @@ private:
     QComboBox *m_pageCombo;
     QAction *m_nextAct;
     QAction *m_lastAct;
+    QComboBox *m_zoomCombo;
 };
 
 #endif

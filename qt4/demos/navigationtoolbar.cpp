@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008, Pino Toscano <pino@kde.org>
+ * Copyright (C) 2008-2009, Pino Toscano <pino@kde.org>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -33,6 +33,26 @@ NavigationToolBar::NavigationToolBar(QWidget *parent)
     addWidget(m_pageCombo);
     m_nextAct = addAction(tr("Next"), this, SLOT(slotGoNext()));
     m_lastAct = addAction(tr("Last"), this, SLOT(slotGoLast()));
+
+    addSeparator();
+
+    m_zoomCombo = new QComboBox(this);
+    m_zoomCombo->setEditable(true);
+    m_zoomCombo->addItem(tr("10%"));
+    m_zoomCombo->addItem(tr("25%"));
+    m_zoomCombo->addItem(tr("33%"));
+    m_zoomCombo->addItem(tr("50%"));
+    m_zoomCombo->addItem(tr("66%"));
+    m_zoomCombo->addItem(tr("75%"));
+    m_zoomCombo->addItem(tr("100%"));
+    m_zoomCombo->addItem(tr("125%"));
+    m_zoomCombo->addItem(tr("150%"));
+    m_zoomCombo->addItem(tr("200%"));
+    m_zoomCombo->addItem(tr("300%"));
+    m_zoomCombo->addItem(tr("400%"));
+    m_zoomCombo->setCurrentIndex(6); // "100%"
+    connect(m_zoomCombo, SIGNAL(currentIndexChanged(QString)), this, SLOT(slotZoomComboChanged(QString)));
+    addWidget(m_zoomCombo);
 
     documentClosed();
 }
@@ -93,6 +113,17 @@ void NavigationToolBar::slotGoLast()
 void NavigationToolBar::slotComboActivated(int index)
 {
     setPage(index);
+}
+
+void NavigationToolBar::slotZoomComboChanged(const QString &_text)
+{
+    QString text = _text;
+    text.remove(QLatin1Char('%'));
+    bool ok = false;
+    int value = text.toInt(&ok);
+    if (ok && value >= 10) {
+        emit zoomChanged(qreal(value) / 100);
+    }
 }
 
 #include "navigationtoolbar.moc"

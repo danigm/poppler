@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008, Pino Toscano <pino@kde.org>
+ * Copyright (C) 2008-2009, Pino Toscano <pino@kde.org>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,6 +26,7 @@
 
 PageView::PageView(QWidget *parent)
     : QScrollArea(parent)
+    , m_zoom(1.0)
 {
     m_imageLabel = new QLabel(this);
     m_imageLabel->resize(0, 0);
@@ -49,7 +50,10 @@ void PageView::documentClosed()
 void PageView::pageChanged(int page)
 {
     Poppler::Page *popplerPage = document()->page(page);
-    QImage image = popplerPage->renderToImage();
+    QSize pageSize = popplerPage->pageSize();
+    pageSize *= m_zoom;
+    const double res = 72.0 * m_zoom;
+    QImage image = popplerPage->renderToImage(res, res, 0, 0, pageSize.width(), pageSize.height());
     if (!image.isNull()) {
         m_imageLabel->resize(image.size());
         m_imageLabel->setPixmap(QPixmap::fromImage(image));
@@ -58,6 +62,12 @@ void PageView::pageChanged(int page)
         m_imageLabel->setPixmap(QPixmap());
     }
     delete popplerPage;
+}
+
+void PageView::slotZoomChanged(qreal value)
+{
+    m_zoom = value;
+    reloadPage();
 }
 
 #include "pageview.moc"

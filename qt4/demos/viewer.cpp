@@ -147,6 +147,8 @@ PdfViewer::PdfViewer()
         obs->m_viewer = this;
     }
 
+    connect(navbar, SIGNAL(zoomChanged(qreal)), view, SLOT(slotZoomChanged(qreal)));
+
     // activate AA by default
     m_settingsTextAAAct->setChecked(true);
     m_settingsGfxAAAct->setChecked(true);
