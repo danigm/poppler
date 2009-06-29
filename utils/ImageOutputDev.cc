@@ -18,6 +18,7 @@
 // Copyright (C) 2008 Timothy Lee <timothy.lee@siriushk.com>
 // Copyright (C) 2008 Vasile Gaburici <gaburici@cs.umd.edu>
 // Copyright (C) 2009 Carlos Garcia Campos <carlosgc@gnome.org>
+// Copyright (C) 2009 William Bader <williambader@hotmail.com>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -230,8 +231,8 @@ void ImageOutputDev::drawMaskedImage(
   int width, int height, GfxImageColorMap *colorMap, GBool interpolate,
   Stream *maskStr, int maskWidth, int maskHeight, GBool maskInvert, GBool maskInterpolate) {
   drawImage(state, ref, str, width, height, colorMap, interpolate, NULL, gFalse);
-  drawImageMask(state, ref, maskStr, maskWidth, maskHeight, maskInterpolate,
-		maskInvert, gFalse);
+  drawImageMask(state, ref, maskStr, maskWidth, maskHeight, maskInvert,
+		maskInterpolate, gFalse);
 }
 
 void ImageOutputDev::drawSoftMaskedImage(

@@ -22,6 +22,7 @@
 // Copyright (C) 2009 Petr Gajdos <pgajdos@novell.com>
 // Copyright (C) 2009 Thomas Freitag <Thomas.Freitag@alfa.de>
 // Copyright (C) 2009 Carlos Garcia Campos <carlosgc@gnome.org>
+// Copyright (C) 2009 William Bader <williambader@hotmail.com>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -1971,7 +1972,7 @@ void SplashOutputDev::endMaskClip(GfxState * state) {
 
 void SplashOutputDev::drawImageMask(GfxState *state, Object *ref, Stream *str,
 				    int width, int height, GBool invert,
-				    GBool inlineImg, GBool interpolate) {
+				    GBool interpolate, GBool inlineImg) {
   double *ctm;
   SplashCoord mat[6];
   SplashOutImageMaskData imgMaskData;
