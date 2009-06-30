@@ -3528,9 +3528,10 @@ void AnnotMovie::initialize(XRef *xrefA, Catalog *catalog, Dict* dict) {
 
   if (dict->lookup("Movie", &movieDict)->isDict()) {
     Object obj2;
-    getFileSpecNameForPlatform(movieDict.dictLookup("F", &obj1), &obj2);
-    fileName = obj2.getString()->copy();
-    obj2.free();
+    if (getFileSpecNameForPlatform(movieDict.dictLookup("F", &obj1), &obj2)) {
+      fileName = obj2.getString()->copy();
+      obj2.free();
+    }
     obj1.free();
 
     if (movieDict.dictLookup("Aspect", &obj1)->isArray()) {

@@ -16,7 +16,7 @@
 // Copyright (C) 2006, 2008 Pino Toscano <pino@kde.org>
 // Copyright (C) 2007 Carlos Garcia Campos <carlosgc@gnome.org>
 // Copyright (C) 2008 Hugo Mercier <hmercier31@gmail.com>
-// Copyright (C) 2008 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2008, 2009 Albert Astals Cid <aacid@kde.org>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -423,9 +423,10 @@ LinkGoToR::LinkGoToR(Object *fileSpecObj, Object *destObj) {
 
   // get file name
   Object obj1;
-  getFileSpecNameForPlatform (fileSpecObj, &obj1);
-  fileName = obj1.getString()->copy();
-  obj1.free();
+  if (getFileSpecNameForPlatform (fileSpecObj, &obj1)) {
+    fileName = obj1.getString()->copy();
+    obj1.free();
+  }
 
   // named destination
   if (destObj->isName()) {
@@ -469,17 +470,19 @@ LinkLaunch::LinkLaunch(Object *actionObj) {
 
   if (actionObj->isDict()) {
     if (!actionObj->dictLookup("F", &obj1)->isNull()) {
-      getFileSpecNameForPlatform (&obj1, &obj3);
-      fileName = obj3.getString()->copy();
-      obj3.free();
+      if (getFileSpecNameForPlatform (&obj1, &obj3)) {
+	fileName = obj3.getString()->copy();
+	obj3.free();
+      }
     } else {
       obj1.free();
 #ifdef WIN32
       if (actionObj->dictLookup("Win", &obj1)->isDict()) {
 	obj1.dictLookup("F", &obj2);
-	getFileSpecNameForPlatform (&obj2, &obj3);
-	fileName = obj3.getString()->copy();
-	obj3.free();
+	if (getFileSpecNameForPlatform (&obj2, &obj3)) {
+	  fileName = obj3.getString()->copy();
+	  obj3.free();
+	}
 	obj2.free();
 	if (obj1.dictLookup("P", &obj2)->isString()) {
 	  params = obj2.getString()->copy();
@@ -493,9 +496,10 @@ LinkLaunch::LinkLaunch(Object *actionObj) {
       //~ just like the Win dictionary until they say otherwise.
       if (actionObj->dictLookup("Unix", &obj1)->isDict()) {
 	obj1.dictLookup("F", &obj2);
-	getFileSpecNameForPlatform (&obj2, &obj3);
-	fileName = obj3.getString()->copy();
-	obj3.free();
+	if (getFileSpecNameForPlatform (&obj2, &obj3)) {
+	  fileName = obj3.getString()->copy();
+	  obj3.free();
+	}
 	obj2.free();
 	if (obj1.dictLookup("P", &obj2)->isString()) {
 	  params = obj2.getString()->copy();

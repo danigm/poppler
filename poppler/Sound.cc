@@ -1,5 +1,6 @@
 /* Sound.cc - an object that holds the sound structure
  * Copyright (C) 2006-2007, Pino Toscano <pino@kde.org>
+ * Copyright (C) 2009, Albert Astals Cid <aacid@kde.org>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -68,9 +69,10 @@ Sound::Sound(Object *obj, bool readAttrs)
       Object obj1;
       // valid 'F' key -> external file
       kind = soundExternal;
-      getFileSpecNameForPlatform (&tmp, &obj1);
-      fileName = obj1.getString()->copy();
-      obj1.free();
+      if (getFileSpecNameForPlatform (&tmp, &obj1)) {
+        fileName = obj1.getString()->copy();
+        obj1.free();
+      }
     } else {
       // no file specification, then the sound data have to be
       // extracted from the stream
