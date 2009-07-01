@@ -146,7 +146,6 @@ gint main (gint argc, gchar **argv)
 	GtkWidget        *notebook;
 	GtkWidget        *treeview;
 	GtkTreeSelection *selection;
-	GFile            *file;
 	gchar            *uri;
 	GTimer           *timer;
 	GError           *error = NULL;
@@ -158,13 +157,43 @@ gint main (gint argc, gchar **argv)
 
 	if (!g_thread_supported ())
 		g_thread_init (NULL);
-	
 
 	gtk_init (&argc, &argv);
+
+#if GLIB_CHECK_VERSION (2,15,0)
+	GFile *file;
 
 	file = g_file_new_for_commandline_arg (argv[1]);
 	uri = g_file_get_uri (file);
 	g_object_unref (file);
+#else
+	if (g_path_is_absolute (argv[1])) {
+		uri = g_filename_to_uri (argv[1], NULL, &error);
+	} else if (g_ascii_strncasecmp (argv[1], "file://", strlen ("file://")) == 0) {
+		uri = g_strdup (argv[1]);
+	} else if (!g_strrstr (argv[1], "://")) {
+		gchar *dir;
+		gchar *filename;
+
+		dir = g_get_current_dir ();
+		filename = g_build_filename (dir, argv[1], NULL);
+		g_free (dir);
+
+		uri = g_filename_to_uri (filename, NULL, &error);
+		g_free (filename);
+	} else {
+		g_print ("Error: unsupported uri\n");
+
+		return 1;
+	}
+
+	if (error) {
+		g_print ("Error: %s\n", error->message);
+		g_error_free (error);
+
+		return 1;
+	}
+#endif /* GLIB_CHECK_VERSION */
 
 	timer = g_timer_new ();
 	document = poppler_document_new_from_file (uri, NULL, &error);
