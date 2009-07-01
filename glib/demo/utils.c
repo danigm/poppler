@@ -216,7 +216,7 @@ pgd_action_view_set_action (GtkWidget     *action_view,
 	case POPPLER_ACTION_LAUNCH:
 		pgd_table_add_property (GTK_TABLE (table), "<b>Type:</b>", "Launch", &row);
 		pgd_table_add_property (GTK_TABLE (table), "<b>Filename:</b>", action->launch.file_name, &row);
-		pgd_table_add_property (GTK_TABLE (table), "<b>Params:</b>", action->launch.file_name, &row);
+		pgd_table_add_property (GTK_TABLE (table), "<b>Params:</b>", action->launch.params, &row);
 		break;
 	case POPPLER_ACTION_URI:
 		pgd_table_add_property (GTK_TABLE (table), "<b>Type:</b>", "External URI", &row);
