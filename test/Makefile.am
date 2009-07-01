@@ -94,4 +94,4 @@ pdf_fullrewrite_LDADD = \
 
 EXTRA_DIST =					\
 	pdf-operators.c				\
-	pdf-inspector.glade
+	pdf-inspector.ui

@@ -48,7 +48,6 @@ if (NOT WIN32)
 
   pkgconfig(gtk+-2.0 _LibGTK2IncDir _LibGTK2LinkDir GTK2LinkFlags GTK2Cflags)
   pkgconfig(gdk-pixbuf-2.0 _LibGDK2PixbufIncDir _LibGDK2PixbufLinkDir GDK2PixbufLinkFlags GDK2PixbufCflags)
-  pkgconfig(libglade-2.0 _LibGLADE2IncDir _LibGLADE2LinkDir GLADE2LinkFlags GLADE2Cflags)
   pkgconfig(gthread-2.0 _LibGThread2IncDir _LibGThread2LinkDir GThread2LinkFlags GThread2Cflags)
 
   if (_LibGTK2IncDir AND _LibGDK2PixbufIncDir AND _LibGLADE2IncDir AND _LibGThread2IncDir)

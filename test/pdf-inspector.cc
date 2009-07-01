@@ -29,7 +29,6 @@
 #include "GlobalParams.h"
 #include "ErrorCodes.h"
 #include <gtk/gtk.h>
-#include <glade/glade.h>
 
 
 // Mapping
@@ -60,7 +59,7 @@ private:
   static void on_selection_changed (GtkTreeSelection *selection, PdfInspector *inspector);
   static void on_analyze_clicked (GtkWidget *widget, PdfInspector *inspector);
 
-  GladeXML *xml;
+  GtkBuilder* builder;
   GtkTreeModel *model;
   PDFDoc *doc;
   CairoOutputDev *output;
@@ -71,17 +70,24 @@ private:
 PdfInspector::PdfInspector(void)
 {
   GtkWidget *widget;
+  GError* error = NULL;
+  
+  builder = gtk_builder_new ();
 
-  xml = glade_xml_new ("./pdf-inspector.glade", NULL, NULL);
+  if (!gtk_builder_add_from_file (builder, "./pdf-inspector.ui", &error))
+  {
+    g_warning ("Couldn't load builder file: %s", error->message);
+    g_error_free (error);
+  }
 
-  widget = glade_xml_get_widget (xml, "pdf_file_chooser_button");
+  widget = GTK_WIDGET (gtk_builder_get_object (builder, "pdf_file_chooser_button"));
   g_signal_connect (widget, "selection-changed", G_CALLBACK (on_file_activated), this);
 
-  widget = glade_xml_get_widget (xml, "analyze_button");
+  widget = GTK_WIDGET (gtk_builder_get_object (builder, "analyze_button"));
   g_signal_connect (widget, "clicked", G_CALLBACK (on_analyze_clicked), this);
 
   // setup the TreeView 
-  widget = glade_xml_get_widget (xml, "pdf_tree_view");
+  widget = GTK_WIDGET (gtk_builder_get_object (builder, "pdf_tree_view"));
   g_signal_connect (gtk_tree_view_get_selection (GTK_TREE_VIEW (widget)),
 		    "changed", G_CALLBACK (on_selection_changed), this);
   model = (GtkTreeModel *)gtk_list_store_new (N_COLUMNS, G_TYPE_STRING, G_TYPE_INT,
@@ -136,7 +142,7 @@ PdfInspector::set_file_name(const char *file_name)
 {
   GtkWidget *widget;
 
-  widget = glade_xml_get_widget (xml, "pdf_file_chooser_button");
+  widget = GTK_WIDGET (gtk_builder_get_object (builder, "pdf_file_chooser_button"));
   gtk_file_chooser_set_filename (GTK_FILE_CHOOSER (widget), file_name);
 }
 
@@ -161,7 +167,7 @@ PdfInspector::on_selection_changed (GtkTreeSelection *selection, PdfInspector *i
   GtkTreeIter iter;
   gchar *op = NULL;
 
-  label = glade_xml_get_widget (inspector->xml, "description_label");
+  label = GTK_WIDGET (gtk_builder_get_object (inspector->builder, "description_label"));
   gtk_label_set_markup (GTK_LABEL (label), "<i>No Description</i>");
 
   if (gtk_tree_selection_get_selected (selection, &model, &iter))
@@ -197,7 +203,7 @@ PdfInspector::on_analyze_clicked (GtkWidget *widget, PdfInspector *inspector)
   GtkWidget *spin;
   int page;
 
-  spin = glade_xml_get_widget (inspector->xml, "pdf_spin");
+  spin = GTK_WIDGET (gtk_builder_get_object (inspector->builder, "pdf_spin"));
 
   page = (int) gtk_spin_button_get_value (GTK_SPIN_BUTTON (spin));
 
@@ -217,7 +223,7 @@ PdfInspector::analyze_page (int page)
   cairo_t *cr;
   cairo_surface_t *surface;
 
-  label = glade_xml_get_widget (xml, "pdf_total_label");
+  label = GTK_WIDGET (gtk_builder_get_object (builder, "pdf_total_label"));
 
   output->startProfile ();
   gtk_list_store_clear (GTK_LIST_STORE (model));
@@ -290,9 +296,9 @@ PdfInspector::load(const char *file_name)
       doc = NULL;
     }
 
-  spin = glade_xml_get_widget (xml, "pdf_spin");
-  button = glade_xml_get_widget (xml, "analyze_button");
-  label = glade_xml_get_widget (xml, "pdf_total_label");
+  spin = GTK_WIDGET (gtk_builder_get_object (builder, "pdf_spin"));
+  button = GTK_WIDGET (gtk_builder_get_object (builder, "analyze_button"));
+  label = GTK_WIDGET (gtk_builder_get_object (builder, "pdf_total_label"));
   gtk_label_set_text (GTK_LABEL (label), "");
 
   if (doc)
@@ -324,7 +330,7 @@ PdfInspector::run()
 {
   GtkWidget *dialog;
 
-  dialog = glade_xml_get_widget (xml, "pdf_dialog");
+  dialog = GTK_WIDGET (gtk_builder_get_object (builder, "pdf_dialog"));
 
   gtk_dialog_run (GTK_DIALOG (dialog));
 }
