@@ -54,12 +54,9 @@ void PageView::documentClosed()
 void PageView::pageChanged(int page)
 {
     Poppler::Page *popplerPage = document()->page(page);
-    QSize pageSize = popplerPage->pageSize();
-    pageSize.setWidth(int(pageSize.width() / 72.0 * m_dpiX));
-    pageSize.setHeight(int(pageSize.height() / 72.0 * m_dpiY));
     const double resX = m_dpiX * m_zoom;
     const double resY = m_dpiY * m_zoom;
-    QImage image = popplerPage->renderToImage(resX, resY, 0, 0, pageSize.width(), pageSize.height());
+    QImage image = popplerPage->renderToImage(resX, resY);
     if (!image.isNull()) {
         m_imageLabel->resize(image.size());
         m_imageLabel->setPixmap(QPixmap::fromImage(image));
