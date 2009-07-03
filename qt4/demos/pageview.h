@@ -43,6 +43,8 @@ private Q_SLOTS:
 private:
     QLabel *m_imageLabel;
     qreal m_zoom;
+    int m_dpiX;
+    int m_dpiY;
 };
 
 #endif

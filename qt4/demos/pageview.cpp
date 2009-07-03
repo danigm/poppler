@@ -20,6 +20,8 @@
 
 #include <poppler-qt4.h>
 
+#include <QtGui/QApplication>
+#include <QtGui/QDesktopWidget>
 #include <QtGui/QImage>
 #include <QtGui/QLabel>
 #include <QtGui/QPixmap>
@@ -27,6 +29,8 @@
 PageView::PageView(QWidget *parent)
     : QScrollArea(parent)
     , m_zoom(1.0)
+    , m_dpiX(QApplication::desktop()->physicalDpiX())
+    , m_dpiY(QApplication::desktop()->physicalDpiY())
 {
     m_imageLabel = new QLabel(this);
     m_imageLabel->resize(0, 0);
@@ -51,9 +55,11 @@ void PageView::pageChanged(int page)
 {
     Poppler::Page *popplerPage = document()->page(page);
     QSize pageSize = popplerPage->pageSize();
-    pageSize *= m_zoom;
-    const double res = 72.0 * m_zoom;
-    QImage image = popplerPage->renderToImage(res, res, 0, 0, pageSize.width(), pageSize.height());
+    pageSize.setWidth(int(pageSize.width() / 72.0 * m_dpiX));
+    pageSize.setHeight(int(pageSize.height() / 72.0 * m_dpiY));
+    const double resX = m_dpiX * m_zoom;
+    const double resY = m_dpiY * m_zoom;
+    QImage image = popplerPage->renderToImage(resX, resY, 0, 0, pageSize.width(), pageSize.height());
     if (!image.isNull()) {
         m_imageLabel->resize(image.size());
         m_imageLabel->setPixmap(QPixmap::fromImage(image));
