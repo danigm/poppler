@@ -65,7 +65,7 @@ void NavigationToolBar::documentLoaded()
 {
     const int pageCount = document()->numPages();
     for (int i = 0; i < pageCount; ++i) {
-        m_pageCombo->addItem(QString::number(i));
+        m_pageCombo->addItem(QString::number(i + 1));
     }
     m_pageCombo->setEnabled(true);
 }
