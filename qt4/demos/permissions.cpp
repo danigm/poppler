@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008, Pino Toscano <pino@kde.org>
+ * Copyright (C) 2008-2009, Pino Toscano <pino@kde.org>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,21 +20,14 @@
 
 #include <poppler-qt4.h>
 
-#include <QtGui/QTableWidget>
-
-static QString yesNoStatement(bool value)
-{
-    return value ? QString::fromLatin1("yes") : QString::fromLatin1("no");
-}
+#include <QtGui/QListWidget>
 
 PermissionsDock::PermissionsDock(QWidget *parent)
     : AbstractInfoDock(parent)
 {
-    m_table = new QTableWidget(this);
+    m_table = new QListWidget(this);
     setWidget(m_table);
     setWindowTitle(tr("Permissions"));
-    m_table->setColumnCount(2);
-    m_table->setHorizontalHeaderLabels(QStringList() << tr("Permission") << tr("Value"));
     m_table->setHorizontalScrollMode(QAbstractItemView::ScrollPerPixel);
 }
 
@@ -44,14 +37,13 @@ PermissionsDock::~PermissionsDock()
 
 void PermissionsDock::fillInfo()
 {
-    m_table->setHorizontalHeaderLabels(QStringList() << tr("Permission") << tr("Value"));
-    int i = 0;
 #define ADD_ROW(title, function) \
 do { \
-    m_table->setRowCount(i + 1); \
-    m_table->setItem(i, 0, new QTableWidgetItem(QString::fromLatin1(title))); \
-    m_table->setItem(i, 1, new QTableWidgetItem(yesNoStatement(document()->function()))); \
-    ++i; \
+    QListWidgetItem *item = new QListWidgetItem(); \
+    item->setFlags(item->flags() & ~Qt::ItemIsEnabled); \
+    item->setText(title); \
+    item->setCheckState(document()->function() ? Qt::Checked : Qt::Unchecked); \
+    m_table->addItem(item); \
 } while (0)
     ADD_ROW("Print", okToPrint);
     ADD_ROW("PrintHiRes", okToPrintHighRes);
@@ -68,7 +60,6 @@ do { \
 void PermissionsDock::documentClosed()
 {
     m_table->clear();
-    m_table->setRowCount(0);
     AbstractInfoDock::documentClosed();
 }
 

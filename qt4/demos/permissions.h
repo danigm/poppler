@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008, Pino Toscano <pino@kde.org>
+ * Copyright (C) 2008-2009, Pino Toscano <pino@kde.org>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,7 +21,7 @@
 
 #include "abstractinfodock.h"
 
-class QTableWidget;
+class QListWidget;
 
 class PermissionsDock : public AbstractInfoDock
 {
@@ -37,7 +37,7 @@ protected:
     /*virtual*/ void fillInfo();
 
 private:
-    QTableWidget *m_table;
+    QListWidget *m_table;
 };
 
 #endif
