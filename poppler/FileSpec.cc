@@ -5,7 +5,7 @@
 // All changes made under the Poppler project to this file are licensed
 // under GPL version 2 or later
 //
-// Copyright (C) 2008 Carlos Garcia Campos <carlosgc@gnome.org>
+// Copyright (C) 2008-2009 Carlos Garcia Campos <carlosgc@gnome.org>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -63,84 +63,72 @@ GBool getFileSpecNameForPlatform (Object *fileSpec, Object *fileName)
     return gTrue;
   }
 
-  Object obj1;
-  GooString *name;
-
-  name = NULL;
-  
   if (fileSpec->isDict()) {
 #ifdef WIN32
-    if (!fileSpec->dictLookup("DOS", &obj1)->isString()) {
+    fileSpec->dictLookup("DOS", fileName);
 #else
-    if (!fileSpec->dictLookup("Unix", &obj1)->isString()) {
+    fileSpec->dictLookup("Unix", fileName);
 #endif
-      obj1.free();
-      if (fileSpec->dictLookup("UF", &obj1)->isString ()) {
-        name = obj1.getString()->copy();
-      } else if (fileSpec->dictLookup("F", &obj1)->isString ()) {
-        name = obj1.getString()->copy();
-      } else {
-        error(-1, "Illegal file spec in link");
-      }
-    }
-    obj1.free();
-
-  // error
-  } else {
-    error(-1, "Illegal file spec in link");
-  }
-
-  // system-dependent path manipulation
-  if (name) {
-#ifdef WIN32
-    int i, j;
-
-    // "//...."             --> "\...."
-    // "/x/...."            --> "x:\...."
-    // "/server/share/...." --> "\\server\share\...."
-    // convert escaped slashes to slashes and unescaped slashes to backslashes
-    i = 0;
-    if (name->getChar(0) == '/') {
-      if (name->getLength() >= 2 && name->getChar(1) == '/') {
-	name->del(0);
-	i = 0;
-      } else if (name->getLength() >= 2 &&
-		 ((name->getChar(1) >= 'a' && name->getChar(1) <= 'z') ||
-		  (name->getChar(1) >= 'A' && name->getChar(1) <= 'Z')) &&
-		 (name->getLength() == 2 || name->getChar(2) == '/')) {
-	name->setChar(0, name->getChar(1));
-	name->setChar(1, ':');
-	i = 2;
-      } else {
-	for (j = 2; j < name->getLength(); ++j) {
-	  if (name->getChar(j-1) != '\\' &&
-	      name->getChar(j) == '/') {
-	    break;
-	  }
-	}
-	if (j < name->getLength()) {
-	  name->setChar(0, '\\');
-	  name->insert(0, '\\');
-	  i = 2;
+    if (!fileName->isString()) {
+      fileName->free();
+      if (!fileSpec->dictLookup("UF", fileName)->isString ()) {
+        fileName->free();
+        if (!fileSpec->dictLookup("F", fileName)->isString ()) {
+	  fileName->free();
+	  error(-1, "Illegal file spec");
+	  return gFalse;
 	}
       }
     }
-    for (; i < name->getLength(); ++i) {
-      if (name->getChar(i) == '/') {
-	name->setChar(i, '\\');
-      } else if (name->getChar(i) == '\\' &&
-		 i+1 < name->getLength() &&
-		 name->getChar(i+1) == '/') {
-	name->del(i);
-      }
-    }
-#else
-    // no manipulation needed for Unix
-#endif
   } else {
+    error(-1, "Illegal file spec");
     return gFalse;
   }
 
-  fileName->initString (name);
+  // system-dependent path manipulation
+#ifdef WIN32
+  int i, j;
+  GooString *name = fileName->getString();
+  // "//...."             --> "\...."
+  // "/x/...."            --> "x:\...."
+  // "/server/share/...." --> "\\server\share\...."
+  // convert escaped slashes to slashes and unescaped slashes to backslashes
+  i = 0;
+  if (name->getChar(0) == '/') {
+    if (name->getLength() >= 2 && name->getChar(1) == '/') {
+      name->del(0);
+      i = 0;
+    } else if (name->getLength() >= 2 &&
+	       ((name->getChar(1) >= 'a' && name->getChar(1) <= 'z') ||
+		(name->getChar(1) >= 'A' && name->getChar(1) <= 'Z')) &&
+	       (name->getLength() == 2 || name->getChar(2) == '/')) {
+      name->setChar(0, name->getChar(1));
+      name->setChar(1, ':');
+      i = 2;
+    } else {
+      for (j = 2; j < name->getLength(); ++j) {
+        if (name->getChar(j-1) != '\\' &&
+	    name->getChar(j) == '/') {
+	  break;
+	}
+      }
+      if (j < name->getLength()) {
+        name->setChar(0, '\\');
+	name->insert(0, '\\');
+	i = 2;
+      }
+    }
+  }
+  for (; i < name->getLength(); ++i) {
+    if (name->getChar(i) == '/') {
+      name->setChar(i, '\\');
+    } else if (name->getChar(i) == '\\' &&
+	       i+1 < name->getLength() &&
+	       name->getChar(i+1) == '/') {
+      name->del(i);
+    }
+  }
+#endif /* WIN32 */
+
   return gTrue;
 }
