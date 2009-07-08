@@ -1803,8 +1803,8 @@ void CairoOutputDev::drawImage(GfxState *state, Object *ref, Stream *str,
     if (maskColors) {
       for (int x = 0; x < width; x++) {
 	for (int i = 0; i < colorMap->getNumPixelComps(); ++i) {
-	  if (pix[i] < 255*maskColors[2*i] ||
-	      pix[i] > 255*maskColors[2*i+1]) {
+	  if (pix[i] < maskColors[2*i] ||
+	      pix[i] > maskColors[2*i+1]) {
 	    *dest |= 0xff000000;
 	    break;
 	  }
