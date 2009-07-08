@@ -1764,43 +1764,48 @@ void CairoOutputDev::drawImage(GfxState *state, Object *ref, Stream *str,
 			       GBool interpolate,
 			       int *maskColors, GBool inlineImg)
 {
-  unsigned char *buffer;
-  unsigned int *dest;
   cairo_surface_t *image;
   cairo_pattern_t *pattern;
-  int x, y;
   ImageStream *imgStr;
-  Guchar *pix;
-  int i;
   cairo_matrix_t matrix;
-  int is_identity_transform;
-  
-  buffer = (unsigned char *)gmallocn3 (width, height, 4);
+  unsigned char *buffer;
+  int stride;
 
   /* TODO: Do we want to cache these? */
   imgStr = new ImageStream(str, width,
 			   colorMap->getNumPixelComps(),
 			   colorMap->getBits());
   imgStr->reset();
-  
+
+#if 0
   /* ICCBased color space doesn't do any color correction
    * so check its underlying color space as well */
+  int is_identity_transform;
   is_identity_transform = colorMap->getColorSpace()->getMode() == csDeviceRGB ||
-		  (colorMap->getColorSpace()->getMode() == csICCBased && 
+		  (colorMap->getColorSpace()->getMode() == csICCBased &&
 		   ((GfxICCBasedColorSpace*)colorMap->getColorSpace())->getAlt()->getMode() == csDeviceRGB);
+#endif
 
-  if (maskColors) {
-    for (y = 0; y < height; y++) {
-      dest = (unsigned int *) (buffer + y * 4 * width);
-      pix = imgStr->getLine();
-      colorMap->getRGBLine (pix, dest, width);
+  image = cairo_image_surface_create (maskColors ?
+				      CAIRO_FORMAT_ARGB32 :
+				      CAIRO_FORMAT_RGB24,
+				      width, height);
+  if (cairo_surface_status (image))
+    goto cleanup;
 
-      for (x = 0; x < width; x++) {
-	for (i = 0; i < colorMap->getNumPixelComps(); ++i) {
-	  
-	  if (pix[i] < maskColors[2*i] * 255||
-	      pix[i] > maskColors[2*i+1] * 255) {
-	    *dest = *dest | 0xff000000;
+  buffer = cairo_image_surface_get_data (image);
+  stride = cairo_image_surface_get_stride (image);
+  for (int y = 0; y < height; y++) {
+    uint32_t *dest = (uint32_t *) (buffer + y * stride);
+    Guchar *pix = imgStr->getLine();
+    colorMap->getRGBLine (pix, dest, width);
+
+    if (maskColors) {
+      for (int x = 0; x < width; x++) {
+	for (int i = 0; i < colorMap->getNumPixelComps(); ++i) {
+	  if (pix[i] < 255*maskColors[2*i] ||
+	      pix[i] > 255*maskColors[2*i+1]) {
+	    *dest |= 0xff000000;
 	    break;
 	  }
 	}
@@ -1808,64 +1813,39 @@ void CairoOutputDev::drawImage(GfxState *state, Object *ref, Stream *str,
 	dest++;
       }
     }
-
-    image = cairo_image_surface_create_for_data (buffer, CAIRO_FORMAT_ARGB32,
-						 width, height, width * 4);
-  }
-  else {
-    for (y = 0; y < height; y++) {
-      dest = (unsigned int *) (buffer + y * 4 * width);
-      pix = imgStr->getLine();
-      colorMap->getRGBLine (pix, dest, width);
-    }
-
-    image = cairo_image_surface_create_for_data (buffer, CAIRO_FORMAT_RGB24,
-						 width, height, width * 4);
   }
 
-  if (image == NULL) {
-   imgStr->close();
-   delete imgStr;
-   return;
-  }
   pattern = cairo_pattern_create_for_surface (image);
-  if (pattern == NULL) {
-    imgStr->close();
-    delete imgStr;
-    return;
-  }
+  cairo_surface_destroy (image);
+  if (cairo_pattern_status (pattern))
+    goto cleanup;
 
   LOG (printf ("drawImageMask %dx%d\n", width, height));
-  
+
   cairo_matrix_init_translate (&matrix, 0, height);
   cairo_matrix_scale (&matrix, width, -height);
 
   cairo_pattern_set_matrix (pattern, &matrix);
-
   cairo_pattern_set_filter (pattern,
-			    interpolate ? CAIRO_FILTER_BILINEAR : CAIRO_FILTER_FAST);
+			    interpolate ?
+			    CAIRO_FILTER_BILINEAR : CAIRO_FILTER_FAST);
+  cairo_pattern_set_extend (pattern, CAIRO_EXTEND_PAD);
+
   cairo_set_source (cairo, pattern);
-  cairo_paint (cairo);
+  cairo_rectangle (cairo, 0., 0., width, height);
+  cairo_fill (cairo);
 
   if (cairo_shape) {
-#if 0
-    cairo_rectangle (cairo_shape, 0., 0., width, height);
-    cairo_fill (cairo_shape);
-#else
     cairo_save (cairo_shape);
-    /* this should draw a rectangle the size of the image
-     * we use this instead of rect,fill because of the lack
-     * of EXTEND_PAD */
-    /* NOTE: this will multiply the edges of the image twice */
+    cairo_rectangle (cairo_shape, 0., 0., width, height);
     cairo_set_source (cairo_shape, pattern);
-    cairo_paint(cairo_shape);
+    cairo_fill (cairo_shape);
     cairo_restore (cairo_shape);
-#endif
   }
 
   cairo_pattern_destroy (pattern);
-  cairo_surface_destroy (image);
-  free (buffer);
+
+cleanup:
   imgStr->close();
   delete imgStr;
 }
