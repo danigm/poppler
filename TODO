@@ -17,11 +17,17 @@
 	- use QSettings or another system for loading/saving Document/global settings?
 	- expose API for lcms/color management system
 
+* glib frontend:
+        - Sound/Movie actions support
+	- API to create annotations
+
 * new frontends:
 	- toolkit-agnostic C or C++ frontend
 	- Java/JNI-based frontend for Android
 
 * cairo backend:
+  	- Implement linear/radial gradients with cairo gradients
+	- PDF Blend Modes
 	- Make the cairo backend feature complete and optimize the
 	  heck out of it.
 
