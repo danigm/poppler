@@ -1,29 +1,6 @@
-Here's the plan as of March 21:
-
-	- Finish glib and qobject wrappers and get rid of the 80
-	  header files that current constitute the poppler public API.
-	  Make sure the APIs are usable for kpdf and evince and other
-	  tools that use poppler (thumbnailers, metadata plugins
-	  etc.).
-
-	- Make the cairo backend feature complete and optimize the
-	  heck out of it.
-
+* general items:
 	- Investigate better (that is, normal) text selection.
-
 	- Use PDF font descriptors to create an FcPattern.
-
-Convert to use as much existing infra-structure as possible:
-	- drop t1lib entirely
-	- use fontconfig
-	- dont use /etc/xpdf.rc, add abstraction that can work with
-	  GNOME and KDE configuration systems (GConf and ?)
-	- improve cairo backend
-	- use jasper for jpeg2000 decoding?
-	- use littlecms for color management?
-	- use libtiff for ccitt decoding?
-
-Performance:
 	- Add simle performance benchmark that takes a pdf and renders
 	  every page 100 times or so.  Start keeping track of
 	  performance.
@@ -31,16 +8,22 @@ Performance:
 	  hack around some of it in the cairo backend)
 	- move away from getChar to a more read(2) like interface
 
-Done:
-	- rename GString etc in goo lib to make it more glib friendly
-	- make splash optional
+* core:
+	- use libtiff for ccitt decoding?
 
-	- Install poppler-splash.pc and poppler-cairo.pc to indicate
-	  available backends.  Alternatively, just hide the backend
-	  choice from the application.  This is done now, but for this
-	  to work properly, we really need multiple .so's.
+* Qt4 frontend:
+	- expose Rendition media through the MovieObject API
+	- use Q_GLOBAL_STATIC for GlobalParams?
+	- use QSettings or another system for loading/saving Document/global settings?
+	- expose API for lcms/color management system
 
-	  [ This will go away again once we get the wrappers done. ]
+* new frontends:
+	- toolkit-agnostic C or C++ frontend
+	- Java/JNI-based frontend for Android
+
+* cairo backend:
+	- Make the cairo backend feature complete and optimize the
+	  heck out of it.
 
 Jeff Muizelaar's TODO:
 	Short Term:
