@@ -85,6 +85,9 @@ public:
   // will be reduced to a series of other drawing operations.
   virtual GBool useShadedFills() { return gFalse; }
 
+  // Does this device use FillColorStop()?
+  virtual GBool useFillColorStop() { return gFalse; }
+
   // Does this device use drawForm()?  If this returns false,
   // form-type XObjects will be interpreted (i.e., unrolled).
   virtual GBool useDrawForm() { return gFalse; }
@@ -169,6 +172,7 @@ public:
   virtual void updateFillOverprint(GfxState * /*state*/) {}
   virtual void updateStrokeOverprint(GfxState * /*state*/) {}
   virtual void updateTransfer(GfxState * /*state*/) {}
+  virtual void updateFillColorStop(GfxState * /*state*/, double /*offset*/) {}
 
   //----- update text state
   virtual void updateFont(GfxState * /*state*/) {}
@@ -193,7 +197,7 @@ public:
   virtual GBool functionShadedFill(GfxState * /*state*/,
 				   GfxFunctionShading * /*shading*/)
     { return gFalse; }
-  virtual GBool axialShadedFill(GfxState * /*state*/, GfxAxialShading * /*shading*/)
+  virtual GBool axialShadedFill(GfxState * /*state*/, GfxAxialShading * /*shading*/, double /*tMin*/, double /*tMax*/)
     { return gFalse; }
   virtual GBool radialShadedFill(GfxState * /*state*/, GfxRadialShading * /*shading*/)
     { return gFalse; }

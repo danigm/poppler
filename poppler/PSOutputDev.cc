@@ -3850,7 +3850,7 @@ GBool PSOutputDev::functionShadedFill(GfxState *state,
   return gTrue;
 }
 
-GBool PSOutputDev::axialShadedFill(GfxState *state, GfxAxialShading *shading) {
+GBool PSOutputDev::axialShadedFill(GfxState *state, GfxAxialShading *shading, double /*tMin*/, double /*tMax*/) {
   double xMin, yMin, xMax, yMax;
   double x0, y0, x1, y1, dx, dy, mul;
   double tMin, tMax, t, t0, t1;

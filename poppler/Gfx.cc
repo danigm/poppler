@@ -2361,11 +2361,6 @@ void Gfx::doAxialShFill(GfxAxialShading *shading) {
   int nComps;
   int i, j, k;
 
-  if (out->useShadedFills() &&
-      out->axialShadedFill(state, shading)) {
-    return;
-  }
-
   // get the clip region bbox
   state->getUserClipBBox(&xMin, &yMin, &xMax, &yMax);
 
@@ -2393,6 +2388,11 @@ void Gfx::doAxialShFill(GfxAxialShading *shading) {
     if (tMax > 1 && !shading->getExtend1()) {
       tMax = 1;
     }
+  }
+
+  if (out->useShadedFills() &&
+      out->axialShadedFill(state, shading, tMin, tMax)) {
+	  return;
   }
 
   // get the function domain
@@ -2584,7 +2584,10 @@ void Gfx::doAxialShFill(GfxAxialShading *shading) {
 
     // set the color
     state->setFillColor(&color0);
-    out->updateFillColor(state);
+    if (out->useFillColorStop())
+      out->updateFillColorStop(state, (ta[j] - tMin)/(tMax - tMin));
+    else
+      out->updateFillColor(state);
 
     // fill the region
     state->moveTo(ux0, uy0);
@@ -2592,9 +2595,11 @@ void Gfx::doAxialShFill(GfxAxialShading *shading) {
     state->lineTo(vx1, vy1);
     state->lineTo(ux1, uy1);
     state->closePath();
-    if (!contentIsHidden())
-      out->fill(state);
-    state->clearPath();
+    if (!out->useFillColorStop()) {
+      if (!contentIsHidden())
+        out->fill(state);
+      state->clearPath();
+    }
 
     // set up for next region
     ux0 = ux1;
@@ -2603,6 +2608,12 @@ void Gfx::doAxialShFill(GfxAxialShading *shading) {
     vy0 = vy1;
     color0 = color1;
     i = next[i];
+  }
+
+  if (out->useFillColorStop()) {
+    if (!contentIsHidden())
+      out->fill(state);
+    state->clearPath();
   }
 }
 

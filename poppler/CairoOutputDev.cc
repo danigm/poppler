@@ -458,6 +458,18 @@ void CairoOutputDev::updateStrokeOpacity(GfxState *state) {
   LOG(printf ("stroke opacity: %f\n", stroke_opacity));
 }
 
+void CairoOutputDev::updateFillColorStop(GfxState *state, double offset) {
+  state->getFillRGB(&fill_color);
+
+  cairo_pattern_add_color_stop_rgba(fill_pattern, offset,
+				    fill_color.r / 65535.0,
+				    fill_color.g / 65535.0,
+				    fill_color.b / 65535.0,
+				    fill_opacity);
+  LOG(printf ("fill color stop: %f (%d, %d, %d)\n",
+	      offset, fill_color.r, fill_color.g, fill_color.b));
+}
+
 void CairoOutputDev::updateFont(GfxState *state) {
   cairo_font_face_t *font_face;
   cairo_matrix_t matrix, invert_matrix;
@@ -584,6 +596,23 @@ void CairoOutputDev::eoFill(GfxState *state) {
     cairo_fill (cairo_shape);
   }
 
+}
+
+GBool CairoOutputDev::axialShadedFill(GfxState *state, GfxAxialShading *shading, double tMin, double tMax) {
+  double x0, y0, x1, y1;
+  double dx, dy;
+
+  shading->getCoords(&x0, &y0, &x1, &y1);
+  dx = x1 - x0;
+  dy = y1 - y0;
+
+  cairo_pattern_destroy(fill_pattern);
+  fill_pattern = cairo_pattern_create_linear (x0 + tMin * dx, y0 + tMin * dy,
+					      x0 + tMax * dx, y0 + tMax * dy);
+
+  // TODO: use the actual stops in the shading in the case
+  // of linear interpolation (Type 2 Exponential functions with N=1)
+  return gFalse;
 }
 
 void CairoOutputDev::clip(GfxState *state) {
