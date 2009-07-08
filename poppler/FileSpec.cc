@@ -32,6 +32,16 @@ GBool getFileSpecName (Object *fileSpec, Object *fileName)
   }
   
   if (fileSpec->isDict()) {
+    fileSpec->dictLookup("UF", fileName);
+    if (fileName->isString()) {
+      return gTrue;
+    }
+    fileName->free();
+    fileSpec->dictLookup("F", fileName);
+    if (fileName->isString()) {
+      return gTrue;
+    }
+    fileName->free();
     fileSpec->dictLookup("DOS", fileName);
     if (fileName->isString()) {
       return gTrue;
@@ -43,16 +53,6 @@ GBool getFileSpecName (Object *fileSpec, Object *fileName)
     }
     fileName->free();
     fileSpec->dictLookup("Unix", fileName);
-    if (fileName->isString()) {
-      return gTrue;
-    }
-    fileName->free();
-    fileSpec->dictLookup("UF", fileName);
-    if (fileName->isString()) {
-      return gTrue;
-    }
-    fileName->free();
-    fileSpec->dictLookup("F", fileName);
     if (fileName->isString()) {
       return gTrue;
     }
@@ -69,16 +69,16 @@ GBool getFileSpecNameForPlatform (Object *fileSpec, Object *fileName)
   }
 
   if (fileSpec->isDict()) {
-#ifdef WIN32
-    fileSpec->dictLookup("DOS", fileName);
-#else
-    fileSpec->dictLookup("Unix", fileName);
-#endif
-    if (!fileName->isString()) {
+    if (!fileSpec->dictLookup("UF", fileName)->isString ()) {
       fileName->free();
-      if (!fileSpec->dictLookup("UF", fileName)->isString ()) {
+      if (!fileSpec->dictLookup("F", fileName)->isString ()) {
         fileName->free();
-        if (!fileSpec->dictLookup("F", fileName)->isString ()) {
+#ifdef WIN32
+	char *platform = "DOS";
+#else
+	char *platform = "Unix";
+#endif
+	if (!fileSpec->dictLookup(platform, fileName)->isString ()) {
 	  fileName->free();
 	  error(-1, "Illegal file spec");
 	  return gFalse;
