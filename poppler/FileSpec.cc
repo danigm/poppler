@@ -47,6 +47,11 @@ GBool getFileSpecName (Object *fileSpec, Object *fileName)
       return gTrue;
     }
     fileName->free();
+    fileSpec->dictLookup("UF", fileName);
+    if (fileName->isString()) {
+      return gTrue;
+    }
+    fileName->free();
     fileSpec->dictLookup("F", fileName);
     if (fileName->isString()) {
       return gTrue;
