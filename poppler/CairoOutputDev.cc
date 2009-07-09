@@ -1856,21 +1856,29 @@ void CairoOutputDev::drawImage(GfxState *state, Object *ref, Stream *str,
 
   LOG (printf ("drawImageMask %dx%d\n", width, height));
 
-  cairo_matrix_init_translate (&matrix, 0, height);
-  cairo_matrix_scale (&matrix, width, -height);
-
-  cairo_pattern_set_matrix (pattern, &matrix);
   cairo_pattern_set_filter (pattern,
 			    interpolate ?
 			    CAIRO_FILTER_BILINEAR : CAIRO_FILTER_FAST);
   cairo_pattern_set_extend (pattern, CAIRO_EXTEND_PAD);
 
+  /* XXX Undo the transformation applied before drawImage(), once all
+   * painters have been fixed to use PAD we can then fix the callers
+   * not to apply useless transformations.
+   */
+  cairo_matrix_init_translate (&matrix, 0, height);
+  cairo_matrix_scale (&matrix, width, -height);
+  cairo_matrix_invert (&matrix);
+
+  cairo_save (cairo);
+  cairo_transform (cairo, &matrix);
   cairo_set_source (cairo, pattern);
   cairo_rectangle (cairo, 0., 0., width, height);
   cairo_fill (cairo);
+  cairo_restore (cairo);
 
   if (cairo_shape) {
     cairo_save (cairo_shape);
+    cairo_transform (cairo_shape, &matrix);
     cairo_rectangle (cairo_shape, 0., 0., width, height);
     cairo_set_source (cairo_shape, pattern);
     cairo_fill (cairo_shape);
