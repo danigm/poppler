@@ -443,6 +443,7 @@ CairoFreeTypeFont *CairoFreeTypeFont::create(GfxFont *gfxFont, XRef *xref,
   switch (fontType) {
   case fontType1:
   case fontType1C:
+  case fontType1COT:
     if (! _ft_new_face (lib, fileName->getCString(), &face, &font_face)) {
       error(-1, "could not create type1 face");
       goto err2;
@@ -529,7 +530,7 @@ CairoFreeTypeFont *CairoFreeTypeFont::create(GfxFont *gfxFont, XRef *xref,
     break;
     
   default:
-    printf ("font type not handled\n");
+    printf ("font type %d not handled\n", (int)fontType);
     goto err2;
     break;
   }
