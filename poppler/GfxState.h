@@ -958,7 +958,6 @@ private:
   GfxColorComp *		// lookup table
     lookup[gfxColorMaxComps];
   Guchar *byte_lookup;
-  Guchar *tmp_line;
   double			// minimum values for each component
     decodeLow[gfxColorMaxComps];
   double			// max - min value for each component
