@@ -4158,6 +4158,12 @@ GfxImageColorMap::GfxImageColorMap(GfxImageColorMap *colorMap) {
       memcpy(lookup[k], colorMap->lookup[k], n * sizeof(GfxColorComp));
     }
   }
+  if (colorMap->byte_lookup) {
+    int nc = colorSpace2 ? nComps2 : nComps;
+
+    byte_lookup = (Guchar *)gmallocn (n, nc);
+    memcpy(byte_lookup, colorMap->byte_lookup, n * nc);
+  }
   for (i = 0; i < nComps; ++i) {
     decodeLow[i] = colorMap->decodeLow[i];
     decodeRange[i] = colorMap->decodeRange[i];
