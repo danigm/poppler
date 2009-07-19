@@ -260,25 +260,6 @@ char *GfxColorSpace::getColorSpaceModeName(int idx) {
   return gfxColorSpaceModeNames[idx];
 }
 
-void GfxColorSpace::getRGBLine(Guchar *in, unsigned int *out, int length) {
-  int i, j, n;
-  GfxColor color;
-  GfxRGB rgb;
-
-  n = getNComps();
-  for (i = 0; i < length; i++) {
-    
-    for (j = 0; j < n; j++)
-      color.c[j] = in[i * n + j] * 256;
-
-    getRGB (&color, &rgb);
-    out[i] =
-	((int) colToByte(rgb.r) << 16) |
-	((int) colToByte(rgb.g) << 8) |
-	((int) colToByte(rgb.b) << 0);
-  }
-}
-
 #ifdef USE_CMS
 cmsHPROFILE loadColorProfile(const char *fileName)
 {
@@ -491,23 +472,6 @@ unsigned int getCMSNChannels(icColorSpaceSignature cs)
 }
 
 #endif
-
-void GfxColorSpace::getGrayLine(Guchar *in, unsigned char *out, int length) {
-  int i, j, n;
-  GfxColor color;
-  GfxGray gray;
-
-  n = getNComps();
-  for (i = 0; i < length; i++) {
-    
-    for (j = 0; j < n; j++)
-      color.c[j] = in[i * n + j] * 256;
-
-    getGray (&color, &gray);
-    out[i] = colToByte(gray);
-  }
-}
-
 
 //------------------------------------------------------------------------
 // GfxDeviceGrayColorSpace
@@ -1676,6 +1640,14 @@ void GfxICCBasedColorSpace::getCMYK(GfxColor *color, GfxCMYK *cmyk) {
   }
 #else
   alt->getCMYK(color, cmyk);
+#endif
+}
+
+GBool GfxICCBasedColorSpace::useGetRGBLine() {
+#ifdef USE_CMS
+  return lineTransform != NULL || alt->useGetRGBLine();
+#else
+  return alt->useGetRGBLine();
 #endif
 }
 
@@ -4009,8 +3981,9 @@ GfxImageColorMap::GfxImageColorMap(int bitsA, Object *decode,
   Object obj;
   double x[gfxColorMaxComps];
   double y[gfxColorMaxComps];
-  int i, j, k, byte;
+  int i, j, k;
   double mapped;
+  GBool useByteLookup;
 
   ok = gTrue;
 
@@ -4029,6 +4002,7 @@ GfxImageColorMap::GfxImageColorMap(int bitsA, Object *decode,
   for (k = 0; k < gfxColorMaxComps; ++k) {
     lookup[k] = NULL;
   }
+  byte_lookup = NULL;
 
   // get decode map
   if (decode->isNull()) {
@@ -4066,7 +4040,9 @@ GfxImageColorMap::GfxImageColorMap(int bitsA, Object *decode,
   // rather than component values.
   colorSpace2 = NULL;
   nComps2 = 0;
-  if (colorSpace->getMode() == csIndexed) {
+  useByteLookup = gFalse;
+  switch (colorSpace->getMode()) {
+  case csIndexed:
     // Note that indexHigh may not be the same as maxPixel --
     // Distiller will remove unused palette entries, resulting in
     // indexHigh < maxPixel.
@@ -4076,7 +4052,10 @@ GfxImageColorMap::GfxImageColorMap(int bitsA, Object *decode,
     nComps2 = colorSpace2->getNComps();
     lookup2 = indexedCS->getLookup();
     colorSpace2->getDefaultRanges(x, y, indexHigh);
-    byte_lookup = (Guchar *)gmallocn ((maxPixel + 1), nComps2);
+    if (colorSpace2->useGetGrayLine() || colorSpace2->useGetRGBLine()) {
+      byte_lookup = (Guchar *)gmallocn ((maxPixel + 1), nComps2);
+      useByteLookup = gTrue;
+    }
     for (k = 0; k < nComps2; ++k) {
       lookup[k] = (GfxColorComp *)gmallocn(maxPixel + 1,
 					   sizeof(GfxColorComp));
@@ -4090,15 +4069,20 @@ GfxImageColorMap::GfxImageColorMap(int bitsA, Object *decode,
 
 	mapped = x[k] + (lookup2[j*nComps2 + k] / 255.0) * y[k];
 	lookup[k][i] = dblToCol(mapped);
-	byte_lookup[i * nComps2 + k] = (Guchar) (mapped * 255);
+	if (useByteLookup)
+	  byte_lookup[i * nComps2 + k] = (Guchar) (mapped * 255);
       }
     }
-  } else if (colorSpace->getMode() == csSeparation) {
+    break;
+  case csSeparation:
     sepCS = (GfxSeparationColorSpace *)colorSpace;
     colorSpace2 = sepCS->getAlt();
     nComps2 = colorSpace2->getNComps();
     sepFunc = sepCS->getFunc();
-    byte_lookup = (Guchar *)gmallocn ((maxPixel + 1), nComps2);
+    if (colorSpace2->useGetGrayLine() || colorSpace2->useGetRGBLine()) {
+      byte_lookup = (Guchar *)gmallocn ((maxPixel + 1), nComps2);
+      useByteLookup = gTrue;
+    }
     for (k = 0; k < nComps2; ++k) {
       lookup[k] = (GfxColorComp *)gmallocn(maxPixel + 1,
 					   sizeof(GfxColorComp));
@@ -4106,23 +4090,32 @@ GfxImageColorMap::GfxImageColorMap(int bitsA, Object *decode,
 	x[0] = decodeLow[0] + (i * decodeRange[0]) / maxPixel;
 	sepFunc->transform(x, y);
 	lookup[k][i] = dblToCol(y[k]);
-	byte_lookup[i*nComps2 + k] = (Guchar) (y[k] * 255);
+	if (useByteLookup)
+	  byte_lookup[i*nComps2 + k] = (Guchar) (y[k] * 255);
       }
     }
-  } else {
-    byte_lookup = (Guchar *)gmallocn ((maxPixel + 1), nComps);
+    break;
+  default:
+    if (colorSpace->useGetGrayLine() || colorSpace->useGetRGBLine()) {
+      byte_lookup = (Guchar *)gmallocn ((maxPixel + 1), nComps);
+      useByteLookup = gTrue;
+    }
     for (k = 0; k < nComps; ++k) {
       lookup[k] = (GfxColorComp *)gmallocn(maxPixel + 1,
 					   sizeof(GfxColorComp));
       for (i = 0; i <= maxPixel; ++i) {
 	mapped = decodeLow[k] + (i * decodeRange[k]) / maxPixel;
 	lookup[k][i] = dblToCol(mapped);
-	byte = (int) (mapped * 255.0 + 0.5);
-	if (byte < 0)  
-	  byte = 0;  
-	else if (byte > 255)  
-	  byte = 255;  
-	byte_lookup[i * nComps + k] = byte;	
+	if (useByteLookup) {
+	  int byte;
+
+	  byte = (int) (mapped * 255.0 + 0.5);
+	  if (byte < 0)
+	    byte = 0;
+	  else if (byte > 255)
+	    byte = 255;
+	  byte_lookup[i * nComps + k] = byte;
+	}
       }
     }
   }
@@ -4133,7 +4126,6 @@ GfxImageColorMap::GfxImageColorMap(int bitsA, Object *decode,
   obj.free();
  err1:
   ok = gFalse;
-  byte_lookup = NULL;
 }
 
 GfxImageColorMap::GfxImageColorMap(GfxImageColorMap *colorMap) {
@@ -4221,6 +4213,19 @@ void GfxImageColorMap::getGrayLine(Guchar *in, Guchar *out, int length) {
   int i, j;
   Guchar *inp, *tmp_line;
 
+  if ((colorSpace2 && !colorSpace2->useGetGrayLine ()) ||
+      (!colorSpace2 && !colorSpace->useGetGrayLine ())) {
+    GfxGray gray;
+
+    inp = in;
+    for (i = 0; i < length; i++) {
+      getGray (inp, &gray);
+      out[i] = colToByte(gray);
+      inp += nComps;
+    }
+    return;
+  }
+
   switch (colorSpace->getMode()) {
   case csIndexed:
   case csSeparation:
@@ -4250,6 +4255,22 @@ void GfxImageColorMap::getGrayLine(Guchar *in, Guchar *out, int length) {
 void GfxImageColorMap::getRGBLine(Guchar *in, unsigned int *out, int length) {
   int i, j;
   Guchar *inp, *tmp_line;
+
+  if ((colorSpace2 && !colorSpace2->useGetRGBLine ()) ||
+      (!colorSpace2 && !colorSpace->useGetRGBLine ())) {
+    GfxRGB rgb;
+
+    inp = in;
+    for (i = 0; i < length; i++) {
+      getRGB (inp, &rgb);
+      out[i] =
+          ((int) colToByte(rgb.r) << 16) |
+          ((int) colToByte(rgb.g) << 8) |
+	  ((int) colToByte(rgb.b) << 0);
+      inp += nComps;
+    }
+    return;
+  }
 
   switch (colorSpace->getMode()) {
   case csIndexed:

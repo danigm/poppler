@@ -183,8 +183,13 @@ public:
   virtual void getGray(GfxColor *color, GfxGray *gray) = 0;
   virtual void getRGB(GfxColor *color, GfxRGB *rgb) = 0;
   virtual void getCMYK(GfxColor *color, GfxCMYK *cmyk) = 0;
-  virtual void getRGBLine(Guchar *in, unsigned int *out, int length);
-  virtual void getGrayLine(Guchar *in, Guchar *out, int length);
+  virtual void getGrayLine(Guchar */*in*/, Guchar */*out*/, int /*length*/) {}
+  virtual void getRGBLine(Guchar */*in*/, unsigned int */*out*/, int /*length*/) {}
+
+  // Does this ColorSpace use getRGBLine?
+  virtual GBool useGetRGBLine() { return gFalse; }
+  // Does this ColorSpace use getGrayLine?
+  virtual GBool useGetGrayLine() { return gFalse; }
 
   // Return the number of color components.
   virtual int getNComps() = 0;
@@ -236,6 +241,9 @@ public:
   virtual void getCMYK(GfxColor *color, GfxCMYK *cmyk);
   virtual void getGrayLine(Guchar *in, Guchar *out, int length);
   virtual void getRGBLine(Guchar *in, unsigned int *out, int length);
+
+  virtual GBool useGetRGBLine() { return gTrue; }
+  virtual GBool useGetGrayLine() { return gTrue; }
 
   virtual int getNComps() { return 1; }
   virtual void getDefaultColor(GfxColor *color);
@@ -300,6 +308,9 @@ public:
   virtual void getCMYK(GfxColor *color, GfxCMYK *cmyk);
   virtual void getGrayLine(Guchar *in, Guchar *out, int length);
   virtual void getRGBLine(Guchar *in, unsigned int *out, int length);
+
+  virtual GBool useGetRGBLine() { return gTrue; }
+  virtual GBool useGetGrayLine() { return gTrue; }
 
   virtual int getNComps() { return 3; }
   virtual void getDefaultColor(GfxColor *color);
@@ -438,8 +449,10 @@ public:
   virtual void getGray(GfxColor *color, GfxGray *gray);
   virtual void getRGB(GfxColor *color, GfxRGB *rgb);
   virtual void getCMYK(GfxColor *color, GfxCMYK *cmyk);
-
   virtual void getRGBLine(Guchar *in, unsigned int *out, int length);
+
+  virtual GBool useGetRGBLine();
+
   virtual int getNComps() { return nComps; }
   virtual void getDefaultColor(GfxColor *color);
 
@@ -482,6 +495,8 @@ public:
   virtual void getRGB(GfxColor *color, GfxRGB *rgb);
   virtual void getCMYK(GfxColor *color, GfxCMYK *cmyk);
   virtual void getRGBLine(Guchar *in, unsigned int *out, int length);
+
+  virtual GBool useGetRGBLine() { return gTrue; }
 
   virtual int getNComps() { return 1; }
   virtual void getDefaultColor(GfxColor *color);
