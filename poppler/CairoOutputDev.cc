@@ -1798,7 +1798,8 @@ void CairoOutputDev::drawImage(GfxState *state, Object *ref, Stream *str,
   ImageStream *imgStr;
   cairo_matrix_t matrix;
   unsigned char *buffer;
-  int stride;
+  int stride, i;
+  GfxRGB *lookup = NULL;
 
   /* TODO: Do we want to cache these? */
   imgStr = new ImageStream(str, width,
@@ -1822,12 +1823,42 @@ void CairoOutputDev::drawImage(GfxState *state, Object *ref, Stream *str,
   if (cairo_surface_status (image))
     goto cleanup;
 
+  // special case for one-channel (monochrome/gray/separation) images:
+  // build a lookup table here
+  if (colorMap->getNumPixelComps() == 1) {
+    int n;
+    Guchar pix;
+
+    n = 1 << colorMap->getBits();
+    lookup = (GfxRGB *)gmallocn(n, sizeof(GfxRGB));
+    for (i = 0; i < n; ++i) {
+      pix = (Guchar)i;
+
+      colorMap->getRGB(&pix, &lookup[i]);
+    }
+  }
+
   buffer = cairo_image_surface_get_data (image);
   stride = cairo_image_surface_get_stride (image);
   for (int y = 0; y < height; y++) {
     uint32_t *dest = (uint32_t *) (buffer + y * stride);
     Guchar *pix = imgStr->getLine();
-    colorMap->getRGBLine (pix, dest, width);
+
+    if (lookup) {
+      Guchar *p = pix;
+      GfxRGB rgb;
+
+      for (i = 0; i < width; i++) {
+        rgb = lookup[*p];
+        dest[i] =
+		((int) colToByte(rgb.r) << 16) |
+		((int) colToByte(rgb.g) << 8) |
+		((int) colToByte(rgb.b) << 0);
+	p++;
+      }
+    } else {
+      colorMap->getRGBLine (pix, dest, width);
+    }
 
     if (maskColors) {
       for (int x = 0; x < width; x++) {
@@ -1848,6 +1879,7 @@ void CairoOutputDev::drawImage(GfxState *state, Object *ref, Stream *str,
       }
     }
   }
+  gfree(lookup);
 
   pattern = cairo_pattern_create_for_surface (image);
   cairo_surface_destroy (image);
