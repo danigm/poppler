@@ -18,7 +18,7 @@
 // Copyright (C) 2006-2009 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2006 Jeff Muizelaar <jeff@infidigm.net>
 // Copyright (C) 2007, 2008 Brad Hards <bradh@kde.org>
-// Copyright (C) 2008 Koji Otani <sho@bbr.jp>
+// Copyright (C) 2008, 2009 Koji Otani <sho@bbr.jp>
 // Copyright (C) 2008 Hib Eris <hib@hiberis.nl>
 // Copyright (C) 2009 Thomas Freitag <Thomas.Freitag@alfa.de>
 // Copyright (C) 2009 Till Kamppeter <till.kamppeter@gmail.com>
@@ -4729,14 +4729,28 @@ void PSOutputDev::maskToClippingPath(Stream *maskStr, int maskWidth, int maskHei
     rectsOut[rectsOutLen].y1 = maskHeight - rects0[i].y0 - 1;
     ++rectsOutLen;
   }
-  writePSFmt("{0:d} array 0\n", rectsOutLen * 4);
-  for (i = 0; i < rectsOutLen; ++i) {
-    writePSFmt("[{0:d} {1:d} {2:d} {3:d}] pr\n",
-               rectsOut[i].x0, rectsOut[i].y0,
-               rectsOut[i].x1 - rectsOut[i].x0,
-               rectsOut[i].y1 - rectsOut[i].y0);
+  if (rectsOutLen < 65536/4) {
+    writePSFmt("{0:d} array 0\n", rectsOutLen * 4);
+    for (i = 0; i < rectsOutLen; ++i) {
+      writePSFmt("[{0:d} {1:d} {2:d} {3:d}] pr\n",
+		 rectsOut[i].x0, rectsOut[i].y0,
+		 rectsOut[i].x1 - rectsOut[i].x0,
+		 rectsOut[i].y1 - rectsOut[i].y0);
+    }
+    writePSFmt("pop {0:d} {1:d} pdfImClip\n", maskWidth, maskHeight);
+  } else {
+    //  would be over the limit of array size.
+    //  make each rectangle path and clip.
+    writePS("gsave newpath\n");
+    for (i = 0; i < rectsOutLen; ++i) {
+      writePSFmt("{0:.4g} {1:.4g} {2:.4g} {3:.4g} re\n",
+		 ((double)rectsOut[i].x0)/maskWidth,
+		 ((double)rectsOut[i].y0)/maskHeight,
+		 ((double)(rectsOut[i].x1 - rectsOut[i].x0))/maskWidth,
+		 ((double)(rectsOut[i].y1 - rectsOut[i].y0))/maskHeight);
+    }
+    writePS("clip\n");
   }
-  writePSFmt("pop {0:d} {1:d} pdfImClip\n", maskWidth, maskHeight);
   gfree(rectsOut);
   gfree(rects0);
   gfree(rects1);
@@ -4763,6 +4777,8 @@ void PSOutputDev::doImageL2(Object *ref, GfxImageColorMap *colorMap,
   GfxCMYK cmyk;
   int c;
   int col, i, j, x0, x1, y, maskXor;
+  
+  rectsOutLen = 0;
 
   // color key masking
   if (maskColors && colorMap && !inlineImg) {
@@ -4771,7 +4787,7 @@ void PSOutputDev::doImageL2(Object *ref, GfxImageColorMap *colorMap,
     numComps = colorMap->getNumPixelComps();
     imgStr = new ImageStream(str, width, numComps, colorMap->getBits());
     imgStr->reset();
-    rects0Len = rects1Len = rectsOutLen = 0;
+    rects0Len = rects1Len = 0;
     rectsSize = rectsOutSize = 64;
     rects0 = (PSOutImgClipRect *)gmallocn(rectsSize, sizeof(PSOutImgClipRect));
     rects1 = (PSOutImgClipRect *)gmallocn(rectsSize, sizeof(PSOutImgClipRect));
@@ -4894,14 +4910,28 @@ void PSOutputDev::doImageL2(Object *ref, GfxImageColorMap *colorMap,
       rectsOut[rectsOutLen].y1 = height - rects0[i].y0 - 1;
       ++rectsOutLen;
     }
-    writePSFmt("{0:d} array 0\n", rectsOutLen * 4);
-    for (i = 0; i < rectsOutLen; ++i) {
-      writePSFmt("[{0:d} {1:d} {2:d} {3:d}] pr\n",
-		 rectsOut[i].x0, rectsOut[i].y0,
-		 rectsOut[i].x1 - rectsOut[i].x0,
-		 rectsOut[i].y1 - rectsOut[i].y0);
+    if (rectsOutLen < 65536/4) {
+      writePSFmt("{0:d} array 0\n", rectsOutLen * 4);
+      for (i = 0; i < rectsOutLen; ++i) {
+	writePSFmt("[{0:d} {1:d} {2:d} {3:d}] pr\n",
+		   rectsOut[i].x0, rectsOut[i].y0,
+		   rectsOut[i].x1 - rectsOut[i].x0,
+		   rectsOut[i].y1 - rectsOut[i].y0);
+      }
+      writePSFmt("pop {0:d} {1:d} pdfImClip\n", width, height);
+    } else {
+      //  would be over the limit of array size.
+      //  make each rectangle path and clip.
+      writePS("gsave newpath\n");
+      for (i = 0; i < rectsOutLen; ++i) {
+	writePSFmt("{0:.4g} {1:.4g} {2:.4g} {3:.4g} re\n",
+		   ((double)rectsOut[i].x0)/width,
+		   ((double)rectsOut[i].y0)/height,
+		   ((double)(rectsOut[i].x1 - rectsOut[i].x0))/width,
+		   ((double)(rectsOut[i].y1 - rectsOut[i].y0))/height);
+      }
+      writePS("clip\n");
     }
-    writePSFmt("pop {0:d} {1:d} pdfImClip\n", width, height);
     gfree(rectsOut);
     gfree(rects0);
     gfree(rects1);
@@ -5166,7 +5196,11 @@ void PSOutputDev::doImageL2(Object *ref, GfxImageColorMap *colorMap,
   }
 
   if ((maskColors && colorMap && !inlineImg) || maskStr) {
-    writePS("pdfImClipEnd\n");
+    if (rectsOutLen < 65536/4) {
+	writePS("pdfImClipEnd\n");
+    } else {
+	writePS("grestore\n");
+    }
   }
 }
 
