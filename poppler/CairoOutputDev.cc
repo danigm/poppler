@@ -1223,18 +1223,18 @@ void CairoOutputDev::drawImageMaskRegular(GfxState *state, Object *ref, Stream *
 
   cairo_matrix_init_translate (&matrix, 0, height);
   cairo_matrix_scale (&matrix, width, -height);
-  cairo_matrix_invert (&matrix);
+  cairo_pattern_set_matrix (pattern, &matrix);
 
   cairo_save (cairo);
-  cairo_transform (cairo, &matrix);
+  cairo_rectangle (cairo, 0., 0., 1., 1.);
+  cairo_clip (cairo);
   cairo_mask (cairo, pattern);
   cairo_restore (cairo);
 
   if (cairo_shape) {
     cairo_save (cairo_shape);
-    cairo_transform (cairo_shape, &matrix);
     cairo_set_source (cairo_shape, pattern);
-    cairo_rectangle (cairo_shape, 0., 0., width, height);
+    cairo_rectangle (cairo_shape, 0., 0., 1., 1.);
     cairo_fill (cairo_shape);
     cairo_restore (cairo_shape);
   }
@@ -1618,21 +1618,21 @@ void CairoOutputDev::drawMaskedImage(GfxState *state, Object *ref,
 
   cairo_matrix_init_translate (&matrix, 0, height);
   cairo_matrix_scale (&matrix, width, -height);
-  cairo_matrix_invert (&matrix);
+
+  cairo_pattern_set_matrix (pattern, &matrix);
+  cairo_pattern_set_matrix (maskPattern, &matrix);
 
   cairo_save (cairo);
-  cairo_transform (cairo, &matrix);
   cairo_set_source (cairo, pattern);
-  cairo_rectangle (cairo, 0, 0, width, height);
+  cairo_rectangle (cairo, 0., 0., 1., 1.);
   cairo_clip (cairo);
   cairo_mask (cairo, maskPattern);
   cairo_restore (cairo);
 
   if (cairo_shape) {
     cairo_save (cairo_shape);
-    cairo_transform (cairo_shape, &matrix);
     cairo_set_source (cairo_shape, pattern);
-    cairo_rectangle (cairo_shape, 0., 0., width, height);
+    cairo_rectangle (cairo_shape, 0., 0., 1., 1.);
     cairo_fill (cairo_shape);
     cairo_restore (cairo_shape);
   }
@@ -1668,8 +1668,8 @@ void CairoOutputDev::drawSoftMaskedImage(GfxState *state, Object *ref, Stream *s
   int y;
 
   maskImgStr = new ImageStream(maskStr, maskWidth,
-				       maskColorMap->getNumPixelComps(),
-				       maskColorMap->getBits());
+			       maskColorMap->getNumPixelComps(),
+			       maskColorMap->getBits());
   maskImgStr->reset();
 
   maskImage = cairo_image_surface_create (CAIRO_FORMAT_A8, maskWidth, maskHeight);
@@ -1880,20 +1880,18 @@ void CairoOutputDev::drawImage(GfxState *state, Object *ref, Stream *str,
 
   cairo_matrix_init_translate (&matrix, 0, height);
   cairo_matrix_scale (&matrix, width, -height);
-  cairo_matrix_invert (&matrix);
+  cairo_pattern_set_matrix (pattern, &matrix);
 
   cairo_save (cairo);
-  cairo_transform (cairo, &matrix);
   cairo_set_source (cairo, pattern);
-  cairo_rectangle (cairo, 0., 0., width, height);
+  cairo_rectangle (cairo, 0., 0., 1., 1.);
   cairo_fill (cairo);
   cairo_restore (cairo);
 
   if (cairo_shape) {
     cairo_save (cairo_shape);
-    cairo_transform (cairo_shape, &matrix);
     cairo_set_source (cairo_shape, pattern);
-    cairo_rectangle (cairo_shape, 0., 0., width, height);
+    cairo_rectangle (cairo_shape, 0., 0., 1., 1.);
     cairo_fill (cairo_shape);
     cairo_restore (cairo_shape);
   }
