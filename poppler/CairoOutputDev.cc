@@ -1338,12 +1338,15 @@ void CairoOutputDev::drawImageMaskPrescaled(GfxState *state, Object *ref, Stream
 
   invert_bit = invert ? 1 : 0;
 
-  row_stride = (scaledWidth + 3) & ~3;
-  buffer = (unsigned char *) malloc (scaledHeight * row_stride);
-  if (buffer == NULL) {
-    error(-1, "Unable to allocate memory for image.");
+  image = cairo_image_surface_create (CAIRO_FORMAT_A8, scaledWidth, scaledHeight);
+  if (cairo_surface_status (image)) {
+    imgStr->close();
+    delete imgStr;
     return;
   }
+
+  buffer = cairo_image_surface_get_data (image);
+  row_stride = cairo_image_surface_get_stride (image);
 
   int yp = height / scaledHeight;
   int yq = height % scaledHeight;
@@ -1458,16 +1461,9 @@ void CairoOutputDev::drawImageMaskPrescaled(GfxState *state, Object *ref, Stream
   }
   free(pixBuf);
 
-  //XXX: we should handle error's better than this
-  image = cairo_image_surface_create_for_data (buffer, CAIRO_FORMAT_A8,
-      scaledWidth, scaledHeight, row_stride);
-  if (image == NULL) {
-    imgStr->close();
-    delete imgStr;
-    return;
-  }
   pattern = cairo_pattern_create_for_surface (image);
-  if (pattern == NULL) {
+  cairo_surface_destroy (image);
+  if (cairo_pattern_status (pattern)) {
     imgStr->close();
     delete imgStr;
     return;
@@ -1478,6 +1474,7 @@ void CairoOutputDev::drawImageMaskPrescaled(GfxState *state, Object *ref, Stream
    * images with CAIRO_FILTER_NEAREST to look really bad */
   cairo_pattern_set_filter (pattern,
 			    interpolate ? CAIRO_FILTER_BEST : CAIRO_FILTER_FAST);
+  cairo_pattern_set_extend (pattern, CAIRO_EXTEND_PAD);
 
   cairo_save (cairo);
 
@@ -1490,6 +1487,8 @@ void CairoOutputDev::drawImageMaskPrescaled(GfxState *state, Object *ref, Stream
   if (yScale > 0)
     cairo_scale(cairo, 1, -1);
 
+  cairo_rectangle (cairo, 0., 0., scaledWidth, scaledHeight);
+  cairo_clip (cairo);
   cairo_mask (cairo, pattern);
 
   //cairo_get_matrix(cairo, &matrix);
@@ -1508,15 +1507,14 @@ void CairoOutputDev::drawImageMaskPrescaled(GfxState *state, Object *ref, Stream
     if (yScale > 0)
       cairo_scale(cairo_shape, 1, -1);
 
-    cairo_mask (cairo_shape, pattern);
+    cairo_rectangle (cairo_shape, 0., 0., scaledWidth, scaledHeight);
+    cairo_fill (cairo_shape);
 
     cairo_restore(cairo_shape);
   }
 
-
   cairo_pattern_destroy (pattern);
-  cairo_surface_destroy (image);
-  free (buffer);
+
   imgStr->close();
   delete imgStr;
 }
