@@ -1623,6 +1623,8 @@ void CairoOutputDev::drawMaskedImage(GfxState *state, Object *ref,
   cairo_save (cairo);
   cairo_transform (cairo, &matrix);
   cairo_set_source (cairo, pattern);
+  cairo_rectangle (cairo, 0, 0, width, height);
+  cairo_clip (cairo);
   cairo_mask (cairo, maskPattern);
   cairo_restore (cairo);
 
@@ -1688,6 +1690,11 @@ void CairoOutputDev::drawSoftMaskedImage(GfxState *state, Object *ref, Stream *s
   maskImgStr->close();
   delete maskImgStr;
 
+  maskPattern = cairo_pattern_create_for_surface (maskImage);
+  cairo_surface_destroy (maskImage);
+  if (cairo_pattern_status (maskPattern))
+    return;
+
 #if 0
   /* ICCBased color space doesn't do any color correction
    * so check its underlying color space as well */
@@ -1719,12 +1726,6 @@ void CairoOutputDev::drawSoftMaskedImage(GfxState *state, Object *ref, Stream *s
   cairo_surface_destroy (image);
   if (cairo_pattern_status (pattern))
     goto cleanup;
-  maskPattern = cairo_pattern_create_for_surface (maskImage);
-  cairo_surface_destroy (maskImage);
-  if (cairo_pattern_status (maskPattern)) {
-    cairo_surface_destroy (image);
-    goto cleanup;
-  }
 
   LOG (printf ("drawSoftMaskedImage %dx%d\n", width, height));
 
@@ -1746,13 +1747,19 @@ void CairoOutputDev::drawSoftMaskedImage(GfxState *state, Object *ref, Stream *s
 
   cairo_save (cairo);
   cairo_set_source (cairo, pattern);
+  cairo_rectangle (cairo, 0., 0.,
+		   MIN (width, maskWidth) / (double)width,
+		   MIN (height, maskHeight) / (double)height);
+  cairo_clip (cairo);
   cairo_mask (cairo, maskPattern);
   cairo_restore (cairo);
 
   if (cairo_shape) {
     cairo_save (cairo_shape);
     cairo_set_source (cairo_shape, pattern);
-    cairo_rectangle (cairo_shape, 0., 0., width, height);
+    cairo_rectangle (cairo_shape, 0., 0.,
+		     MIN (width, maskWidth) / (double)width,
+		     MIN (height, maskHeight) / (double)height);
     cairo_fill (cairo_shape);
     cairo_restore (cairo_shape);
   }
