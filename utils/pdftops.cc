@@ -18,6 +18,7 @@
 // Copyright (C) 2006 Kristian Høgsberg <krh@redhat.com>
 // Copyright (C) 2007-2008 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2009 Till Kamppeter <till.kamppeter@gmail.com>
+// Copyright (C) 2009 Sanjoy Mahajan <sanjoy@mit.edu>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -348,7 +349,7 @@ int main(int argc, char *argv[]) {
 			  duplex);
   if (psOut->isOk()) {
     doc->displayPages(psOut, firstPage, lastPage, 72, 72,
-		      0, !noCrop, gFalse, gTrue);
+		      0, noCrop, !noCrop, gTrue);
   } else {
     delete psOut;
     exitCode = 2;
