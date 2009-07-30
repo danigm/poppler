@@ -29,6 +29,7 @@
 // Copyright (C) 2008 Hib Eris <hib@hiberis.nl>
 // Copyright (C) 2009 M Joonas Pihlaja <jpihlaja@cc.helsinki.fi>
 // Copyright (C) 2009 Thomas Freitag <Thomas.Freitag@alfa.de>
+// Copyright (C) 2009 William Bader <williambader@hotmail.com>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -2512,7 +2513,7 @@ void Gfx::doAxialShFill(GfxAxialShading *shading) {
          // What we do to ensure that we pass a line through this points
          // is making sure use the exact bboxIntersections[] value as one of the used ta[] values
          if (!doneBBox1 && ta[i] < bboxIntersections[1] && ta[j] > bboxIntersections[1]) {
-           int teoricalj = (bboxIntersections[1] - tMin) * axialMaxSplits / (tMax - tMin);
+           int teoricalj = (int) ((bboxIntersections[1] - tMin) * axialMaxSplits / (tMax - tMin));
            if (teoricalj <= i) teoricalj = i + 1;
            if (teoricalj < j) {
              next[i] = teoricalj;
@@ -2526,7 +2527,7 @@ void Gfx::doAxialShFill(GfxAxialShading *shading) {
            doneBBox1 = true;
          }
          if (!doneBBox2 && ta[i] < bboxIntersections[2] && ta[j] > bboxIntersections[2]) {
-           int teoricalj = (bboxIntersections[2] - tMin) * axialMaxSplits / (tMax - tMin);
+           int teoricalj = (int) ((bboxIntersections[2] - tMin) * axialMaxSplits / (tMax - tMin));
            if (teoricalj <= i) teoricalj = i + 1;
            if (teoricalj < j) {
              next[i] = teoricalj;
@@ -3961,7 +3962,7 @@ void Gfx::doImage(Object *ref, Stream *str, GBool inlineImg) {
 	  maskColors[i] = obj1.getInt();
 	} else if (obj1.isReal()) {
 	  error(-1, "Mask entry should be an integer but it's a real, trying to use it");
-	  maskColors[i] = obj1.getReal();
+	  maskColors[i] = (int) obj1.getReal();
 	} else {
 	  error(-1, "Mask entry should be an integer but it's of type %d", obj1.getType());
 	  obj1.free();
