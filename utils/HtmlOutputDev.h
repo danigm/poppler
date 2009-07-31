@@ -297,7 +297,7 @@ private:
   // convert encoding into a HTML standard, or encoding->getCString if not
   // recognized
   static char* mapEncodingToHtml(GooString* encoding);
-  void processLink(Link *link);
+  void doProcessLink(Link *link);
   GooString* getLinkDest(Link *link,Catalog *catalog);
   void dumpMetaVars(FILE *);
   void doFrame(int firstPage);

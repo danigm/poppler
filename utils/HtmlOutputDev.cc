@@ -1102,7 +1102,7 @@ void HtmlOutputDev::endPage() {
   Links *linksList = catalog->getPage(pageNum)->getLinks(catalog);
   for (int i = 0; i < linksList->getNumLinks(); ++i)
   {
-      processLink(linksList->getLink(i));
+      doProcessLink(linksList->getLink(i));
   }
   delete linksList;
 
@@ -1426,7 +1426,7 @@ void HtmlOutputDev::drawImage(GfxState *state, Object *ref, Stream *str,
 
 
 
-void HtmlOutputDev::processLink(Link* link){
+void HtmlOutputDev::doProcessLink(Link* link){
   double _x1,_y1,_x2,_y2;
   int x1,y1,x2,y2;
   
