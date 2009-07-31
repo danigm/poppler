@@ -4775,7 +4775,7 @@ void PSOutputDev::doImageL2(Object *ref, GfxImageColorMap *colorMap,
   GfxColor color;
   GfxCMYK cmyk;
   int c;
-  int col, i, j, x0, x1, y, maskXor;
+  int col, i, j, x0, x1, y;
   
   rectsOutLen = 0;
 
