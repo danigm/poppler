@@ -201,7 +201,7 @@ public:
     { return gFalse; }
   virtual GBool axialShadedSupportExtend(GfxState * /*state*/, GfxAxialShading * /*shading*/)
     { return gFalse; }
-  virtual GBool radialShadedFill(GfxState * /*state*/, GfxRadialShading * /*shading*/)
+  virtual GBool radialShadedFill(GfxState * /*state*/, GfxRadialShading * /*shading*/, double /*sMin*/, double /*sMax*/)
     { return gFalse; }
   virtual GBool radialShadedSupportExtend(GfxState * /*state*/, GfxRadialShading * /*shading*/)
     { return gFalse; }

@@ -2652,11 +2652,7 @@ void Gfx::doRadialShFill(GfxRadialShading *shading) {
   int ia, ib, k, n;
   double *ctm;
   double theta, alpha, angle, t;
-
-  if (out->useShadedFills() &&
-      out->radialShadedFill(state, shading)) {
-    return;
-  }
+  GBool needExtend = gTrue;
 
   // get the shading info
   shading->getCoords(&x0, &y0, &r0, &x1, &y1, &r1);
@@ -2753,6 +2749,11 @@ void Gfx::doRadialShFill(GfxRadialShading *shading) {
     }
   }
 
+  if (out->useShadedFills() &&
+      out->radialShadedFill(state, shading, sMin, sMax)) {
+    return;
+  }
+
   // compute the number of steps into which circles must be divided to
   // achieve a curve flatness of 0.1 pixel in device space for the
   // largest circle (note that "device space" is 72 dpi when generating
@@ -2798,6 +2799,8 @@ void Gfx::doRadialShFill(GfxRadialShading *shading) {
   } else {
     shading->getColor(ta, &colorA);
   }
+
+  needExtend = !out->radialShadedSupportExtend(state, shading);
 
   // fill the circles
   while (ia < radialMaxSplits) {
@@ -2849,63 +2852,67 @@ void Gfx::doRadialShFill(GfxRadialShading *shading) {
       colorA.c[k] = (colorA.c[k] + colorB.c[k]) / 2;
     }
     state->setFillColor(&colorA);
-    out->updateFillColor(state);
+    if (out->useFillColorStop())
+      out->updateFillColorStop(state, (sa - sMin)/(sMax - sMin));
+    else
+      out->updateFillColor(state);
 
-    if (enclosed) {
+    if (needExtend) {
+      if (enclosed) {
+        // construct path for first circle (counterclockwise)
+        state->moveTo(xa + ra, ya);
+        for (k = 1; k < n; ++k) {
+	  angle = ((double)k / (double)n) * 2 * M_PI;
+	  state->lineTo(xa + ra * cos(angle), ya + ra * sin(angle));
+        }
+        state->closePath();
 
-      // construct path for first circle (counterclockwise)
-      state->moveTo(xa + ra, ya);
-      for (k = 1; k < n; ++k) {
-	angle = ((double)k / (double)n) * 2 * M_PI;
-	state->lineTo(xa + ra * cos(angle), ya + ra * sin(angle));
-      }
-      state->closePath();
+        // construct and append path for second circle (clockwise)
+        state->moveTo(xb + rb, yb);
+        for (k = 1; k < n; ++k) {
+	  angle = -((double)k / (double)n) * 2 * M_PI;
+	  state->lineTo(xb + rb * cos(angle), yb + rb * sin(angle));
+        }
+        state->closePath();
+      } else {
+        // construct the first subpath (clockwise)
+        state->moveTo(xa + ra * cos(alpha + theta + 0.5 * M_PI),
+		      ya + ra * sin(alpha + theta + 0.5 * M_PI));
+        for (k = 0; k < n; ++k) {
+	  angle = alpha + theta + 0.5 * M_PI
+		  - ((double)k / (double)n) * (2 * theta + M_PI);
+	  state->lineTo(xb + rb * cos(angle), yb + rb * sin(angle));
+        }
+	for (k = 0; k < n; ++k) {
+	  angle = alpha - theta - 0.5 * M_PI
+		  + ((double)k / (double)n) * (2 * theta - M_PI);
+	  state->lineTo(xa + ra * cos(angle), ya + ra * sin(angle));
+	}
+	state->closePath();
 
-      // construct and append path for second circle (clockwise)
-      state->moveTo(xb + rb, yb);
-      for (k = 1; k < n; ++k) {
-	angle = -((double)k / (double)n) * 2 * M_PI;
-	state->lineTo(xb + rb * cos(angle), yb + rb * sin(angle));
+        // construct the second subpath (counterclockwise)
+	state->moveTo(xa + ra * cos(alpha + theta + 0.5 * M_PI),
+		      ya + ra * sin(alpha + theta + 0.5 * M_PI));
+	for (k = 0; k < n; ++k) {
+	  angle = alpha + theta + 0.5 * M_PI
+		  + ((double)k / (double)n) * (-2 * theta + M_PI);
+	  state->lineTo(xb + rb * cos(angle), yb + rb * sin(angle));
+	}
+	for (k = 0; k < n; ++k) {
+	  angle = alpha - theta - 0.5 * M_PI
+		  + ((double)k / (double)n) * (2 * theta + M_PI);
+	  state->lineTo(xa + ra * cos(angle), ya + ra * sin(angle));
+	}
+	state->closePath();
       }
-      state->closePath();
-
-    } else {
-
-      // construct the first subpath (clockwise)
-      state->moveTo(xa + ra * cos(alpha + theta + 0.5 * M_PI),
-		    ya + ra * sin(alpha + theta + 0.5 * M_PI));
-      for (k = 0; k < n; ++k) {
-	angle = alpha + theta + 0.5 * M_PI
-	  - ((double)k / (double)n) * (2 * theta + M_PI);
-	state->lineTo(xb + rb * cos(angle), yb + rb * sin(angle));
-      }
-      for (k = 0; k < n; ++k) {
-	angle = alpha - theta - 0.5 * M_PI
-	  + ((double)k / (double)n) * (2 * theta - M_PI);
-	state->lineTo(xa + ra * cos(angle), ya + ra * sin(angle));
-      }
-      state->closePath();
-
-      // construct the second subpath (counterclockwise)
-      state->moveTo(xa + ra * cos(alpha + theta + 0.5 * M_PI),
-		    ya + ra * sin(alpha + theta + 0.5 * M_PI));
-      for (k = 0; k < n; ++k) {
-	angle = alpha + theta + 0.5 * M_PI
-	        + ((double)k / (double)n) * (-2 * theta + M_PI);
-	state->lineTo(xb + rb * cos(angle), yb + rb * sin(angle));
-      }
-      for (k = 0; k < n; ++k) {
-	angle = alpha - theta - 0.5 * M_PI
-	        + ((double)k / (double)n) * (2 * theta + M_PI);
-	state->lineTo(xa + ra * cos(angle), ya + ra * sin(angle));
-      }
-      state->closePath();
     }
 
-    // fill the path
-    if (!contentIsHidden())
-      out->fill(state);
-    state->clearPath();
+    if (!out->useFillColorStop()) {
+      // fill the path
+      if (!contentIsHidden())
+        out->fill(state);
+      state->clearPath();
+    }
 
     // step to the next value of t
     ia = ib;
@@ -2916,6 +2923,26 @@ void Gfx::doRadialShFill(GfxRadialShading *shading) {
     ra = rb;
     colorA = colorB;
   }
+
+  if (out->useFillColorStop()) {
+    // make sure we add stop color when sb = sMax
+    state->setFillColor(&colorA);
+    out->updateFillColorStop(state, (sb - sMin)/(sMax - sMin));
+
+    // fill the path
+    state->moveTo(xMin, yMin);
+    state->lineTo(xMin, yMax);
+    state->lineTo(xMax, yMax);
+    state->lineTo(xMax, yMin);
+    state->closePath();
+
+    if (!contentIsHidden())
+      out->fill(state);
+    state->clearPath();
+  }
+
+  if (!needExtend)
+    return;
 
   if (enclosed) {
     // extend the smaller circle

@@ -683,6 +683,34 @@ GBool CairoOutputDev::axialShadedSupportExtend(GfxState *state, GfxAxialShading 
   return (shading->getExtend0() == shading->getExtend1());
 }
 
+GBool CairoOutputDev::radialShadedFill(GfxState *state, GfxRadialShading *shading, double sMin, double sMax) {
+  double x0, y0, r0, x1, y1, r1;
+  double dx, dy, dr;
+
+  shading->getCoords(&x0, &y0, &r0, &x1, &y1, &r1);
+  dx = x1 - x0;
+  dy = y1 - y0;
+  dr = r1 - r0;
+  cairo_pattern_destroy(fill_pattern);
+  fill_pattern = cairo_pattern_create_radial (x0 + sMin * dx,
+					      y0 + sMin * dy,
+					      r0 + sMin * dr,
+					      x0 + sMax * dx,
+					      y0 + sMax * dy,
+					      r0 + sMax * dr);
+  if (shading->getExtend0() && shading->getExtend1())
+    cairo_pattern_set_extend (fill_pattern, CAIRO_EXTEND_PAD);
+  else
+    cairo_pattern_set_extend (fill_pattern, CAIRO_EXTEND_NONE);
+
+  return gFalse;
+}
+
+GBool CairoOutputDev::radialShadedSupportExtend(GfxState *state, GfxRadialShading *shading)
+{
+  return (shading->getExtend0() == shading->getExtend1());
+}
+
 void CairoOutputDev::clip(GfxState *state) {
   doPath (cairo, state, state->getPath());
   cairo_set_fill_rule (cairo, CAIRO_FILL_RULE_WINDING);

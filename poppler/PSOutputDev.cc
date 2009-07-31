@@ -3944,8 +3944,7 @@ GBool PSOutputDev::axialShadedFill(GfxState *state, GfxAxialShading *shading, do
   return gTrue;
 }
 
-GBool PSOutputDev::radialShadedFill(GfxState *state,
-				    GfxRadialShading *shading) {
+GBool PSOutputDev::radialShadedFill(GfxState *state, GfxRadialShading *shading, double /*sMin*/, double /*sMax*/) {
   double xMin, yMin, xMax, yMax;
   double x0, y0, r0, x1, y1, r1, t0, t1;
   double xa, ya, ra;

@@ -216,7 +216,7 @@ public:
   virtual GBool functionShadedFill(GfxState *state,
 				   GfxFunctionShading *shading);
   virtual GBool axialShadedFill(GfxState *state, GfxAxialShading *shading, double /*tMin*/, double /*tMax*/);
-  virtual GBool radialShadedFill(GfxState *state, GfxRadialShading *shading);
+  virtual GBool radialShadedFill(GfxState *state, GfxRadialShading *shading, double /*sMin*/, double /*sMax*/);
 
   //----- path clipping
   virtual void clip(GfxState *state);
