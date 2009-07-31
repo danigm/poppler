@@ -507,7 +507,7 @@ if test "x$GCC" != xyes; then
 fi
 case "$enable_compile_warnings" in
   no)	;;
-  yes)	CXXFLAGS="-Wall -Wno-write-strings $CXXFLAGS" ;;
+  yes)	CXXFLAGS="-Wall -Wno-write-strings -Woverloaded-virtual $CXXFLAGS" ;;
   kde)	CXXFLAGS="-Wnon-virtual-dtor -Wno-long-long -Wundef -ansi \
 		-D_XOPEN_SOURCE=500 -D_BSD_SOURCE -Wcast-align \
 		-Wconversion -Wchar-subscripts -Wall -W -Wpointer-arith \
