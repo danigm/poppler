@@ -199,7 +199,11 @@ public:
     { return gFalse; }
   virtual GBool axialShadedFill(GfxState * /*state*/, GfxAxialShading * /*shading*/, double /*tMin*/, double /*tMax*/)
     { return gFalse; }
+  virtual GBool axialShadedSupportExtend(GfxState * /*state*/, GfxAxialShading * /*shading*/)
+    { return gFalse; }
   virtual GBool radialShadedFill(GfxState * /*state*/, GfxRadialShading * /*shading*/)
+    { return gFalse; }
+  virtual GBool radialShadedSupportExtend(GfxState * /*state*/, GfxRadialShading * /*shading*/)
     { return gFalse; }
 
   //----- path clipping

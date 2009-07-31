@@ -2361,6 +2361,7 @@ void Gfx::doAxialShFill(GfxAxialShading *shading) {
   GfxColor color0, color1;
   int nComps;
   int i, j, k;
+  GBool needExtend = gTrue;
 
   // get the clip region bbox
   state->getUserClipBBox(&xMin, &yMin, &xMax, &yMax);
@@ -2448,6 +2449,12 @@ void Gfx::doAxialShFill(GfxAxialShading *shading) {
   }
   shading->getColor(tt, &color0);
 
+  if (out->useFillColorStop()) {
+    // make sure we add stop color when t = tMin
+    state->setFillColor(&color0);
+    out->updateFillColorStop(state, (tt - tMin)/(tMax - tMin));
+  }
+
   // compute the coordinates of the point on the t axis at t = tMin;
   // then compute the intersection of the perpendicular line with the
   // bounding box
@@ -2485,6 +2492,11 @@ void Gfx::doAxialShFill(GfxAxialShading *shading) {
     doneBBox1 = bboxIntersections[1] < tMin;
     doneBBox2 = bboxIntersections[2] > tMax;
   }
+
+  // If output device doesn't support the extended mode required
+  // we have to do it here
+  needExtend = !out->axialShadedSupportExtend(state, shading);
+
   while (i < axialMaxSplits) {
 
     // bisect until color difference is small enough or we hit the
@@ -2590,12 +2602,15 @@ void Gfx::doAxialShFill(GfxAxialShading *shading) {
     else
       out->updateFillColor(state);
 
-    // fill the region
-    state->moveTo(ux0, uy0);
-    state->lineTo(vx0, vy0);
-    state->lineTo(vx1, vy1);
-    state->lineTo(ux1, uy1);
-    state->closePath();
+    if (needExtend) {
+      // fill the region
+      state->moveTo(ux0, uy0);
+      state->lineTo(vx0, vy0);
+      state->lineTo(vx1, vy1);
+      state->lineTo(ux1, uy1);
+      state->closePath();
+    }
+
     if (!out->useFillColorStop()) {
       if (!contentIsHidden())
         out->fill(state);
@@ -2612,6 +2627,13 @@ void Gfx::doAxialShFill(GfxAxialShading *shading) {
   }
 
   if (out->useFillColorStop()) {
+    if (!needExtend) {
+      state->moveTo(xMin, yMin);
+      state->lineTo(xMin, yMax);
+      state->lineTo(xMax, yMax);
+      state->lineTo(xMax, yMin);
+      state->closePath();
+    }
     if (!contentIsHidden())
       out->fill(state);
     state->clearPath();

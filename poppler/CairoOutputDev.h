@@ -152,6 +152,7 @@ public:
   virtual void fill(GfxState *state);
   virtual void eoFill(GfxState *state);
   virtual GBool axialShadedFill(GfxState *state, GfxAxialShading *shading, double tMin, double tMax);
+  virtual GBool axialShadedSupportExtend(GfxState *state, GfxAxialShading *shading);
 
   //----- path clipping
   virtual void clip(GfxState *state);

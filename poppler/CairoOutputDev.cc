@@ -668,10 +668,19 @@ GBool CairoOutputDev::axialShadedFill(GfxState *state, GfxAxialShading *shading,
   cairo_pattern_destroy(fill_pattern);
   fill_pattern = cairo_pattern_create_linear (x0 + tMin * dx, y0 + tMin * dy,
 					      x0 + tMax * dx, y0 + tMax * dy);
+  if (!shading->getExtend0() && !shading->getExtend1())
+    cairo_pattern_set_extend (fill_pattern, CAIRO_EXTEND_NONE);
+  else
+    cairo_pattern_set_extend (fill_pattern, CAIRO_EXTEND_PAD);
 
   // TODO: use the actual stops in the shading in the case
   // of linear interpolation (Type 2 Exponential functions with N=1)
   return gFalse;
+}
+
+GBool CairoOutputDev::axialShadedSupportExtend(GfxState *state, GfxAxialShading *shading)
+{
+  return (shading->getExtend0() == shading->getExtend1());
 }
 
 void CairoOutputDev::clip(GfxState *state) {
