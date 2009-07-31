@@ -4474,8 +4474,6 @@ void Gfx::opBeginMarkedContent(Object args[], int numArgs) {
 
   if(numArgs == 2 && args[1].isDict ()) {
     out->beginMarkedContent(args[0].getName(),args[1].getDict());
-  } else {
-    out->beginMarkedContent(args[0].getName());
   }
 }
 

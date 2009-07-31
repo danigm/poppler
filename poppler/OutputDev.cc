@@ -147,9 +147,6 @@ void OutputDev::drawSoftMaskedImage(GfxState *state, Object *ref, Stream *str,
 void OutputDev::endMarkedContent(GfxState *state) {
 }
 
-void OutputDev::beginMarkedContent(char *name) {
-}
-
 void OutputDev::beginMarkedContent(char *name, Dict *properties) {
 }
 
