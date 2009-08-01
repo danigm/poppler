@@ -336,17 +336,9 @@ QValueList<Link*> Page::links() const
         break;
 
         case actionMovie:
-/*      TODO this (Movie link)
-          m_type = Movie;
-          LinkMovie * m = (LinkMovie *) a;
-          // copy Movie parameters (2 IDs and a const char *)
-          Ref * r = m->getAnnotRef();
-          m_refNum = r->num;
-          m_refGen = r->gen;
-          copyString( m_uri, m->getTitle()->getCString() );
-*/      break;
         case actionSound:
-        /* TODO: write me */
+        case actionRendition:
+        case actionJavaScript:
         break;
 
         case actionUnknown:
