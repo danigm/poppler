@@ -806,7 +806,7 @@ void FormField::fillChildrenSiblingsID()
 {
   if(terminal) return;
   for (int i=0; i<numChildren; i++) {
-    children[i]->loadChildrenDefaults();
+    children[i]->fillChildrenSiblingsID();
   }
 }
 
