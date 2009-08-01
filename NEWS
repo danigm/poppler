@@ -1,3 +1,33 @@
+Release 0.11.2 (0.12 Beta 2)
+
+	core:
+	 * Make DecryptStream return sane values for getPos(). Bug #19706
+	 * Fix bug when printing pdf with multiple page sizes in duplex mode
+	 * Initilize AnnotColot properly when the Array is not correct
+	 * Fix crash on some files with forms. Bug #22485
+	 * Fix crash in files with invalid embedded files. Bug #22551
+	 * Improve FileSpec attribute parsing
+	 * Cairo output device improvements. Bugs #10942, #18017, #14160
+	 * Implement blend modes in cairo backend
+	 * Handle fontType1COT fonts in CairoFontEngine
+	 * Fix generation of PS for some files. Bug #18908
+	 * Don't use byte_lookup table when color space doesn't support getLine methods. Bug #11027
+	 * Fix rendering of PDF files with malformed patterns. Bug #22835
+	 * Add the possibility of disabling font substitution in pdftops. Bug #23030
+	 * Fix some radio buttons not being detected as such
+	
+	glib:
+	 * Improvements to the demo
+	
+	Qt4:
+	 * Improvements to the demo
+	
+	build system:
+	 * Use gtkbuilder rather than libglade for some tests
+	
+	utils:
+	 * Fix bug with noCrop parameter in pdftops 
+
 Release 0.11.1 (0.12 Beta 1)
 
 	core:
