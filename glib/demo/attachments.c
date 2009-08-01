@@ -189,6 +189,8 @@ attachment_save_callback (const gchar  *buf,
 	GChecksum *cs = (GChecksum *)data;
 
 	g_checksum_update (cs, buf, count);
+
+	return TRUE;
 }
 
 static void
