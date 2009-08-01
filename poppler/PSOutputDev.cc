@@ -23,6 +23,7 @@
 // Copyright (C) 2009 Thomas Freitag <Thomas.Freitag@alfa.de>
 // Copyright (C) 2009 Till Kamppeter <till.kamppeter@gmail.com>
 // Copyright (C) 2009 Carlos Garcia Campos <carlosgc@gnome.org>
+// Copyright (C) 2009 William Bader <williambader@hotmail.com>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -1106,6 +1107,7 @@ void PSOutputDev::init(PSOutputFunc outputFuncA, void *outputStreamA,
       paperHeight = 1;
     }
   }
+  substFonts = globalParams->getPSSubstFonts();
   preload = globalParams->getPSPreload();
   if (imgLLX == 0 && imgURX == 0 && imgLLY == 0 && imgURY == 0) {
     imgLLX = imgLLY = 0;
@@ -1751,34 +1753,39 @@ void PSOutputDev::setupFont(GfxFont *font, Dict *parentResDict) {
       }
     }
     if (!psName) {
-      if (font->isFixedWidth()) {
-	i = 8;
-      } else if (font->isSerif()) {
-	i = 4;
-      } else {
-	i = 0;
-      }
-      if (font->isBold()) {
-	i += 2;
-      }
-      if (font->isItalic()) {
-	i += 1;
-      }
-      psName = new GooString(psSubstFonts[i].psName);
-      for (code = 0; code < 256; ++code) {
-	if ((charName = ((Gfx8BitFont *)font)->getCharName(code)) &&
-	    charName[0] == 'm' && charName[1] == '\0') {
-	  break;
+      if (substFonts) {
+	if (font->isFixedWidth()) {
+	  i = 8;
+	} else if (font->isSerif()) {
+	  i = 4;
+	} else {
+	  i = 0;
 	}
-      }
-      if (code < 256) {
-	w1 = ((Gfx8BitFont *)font)->getWidth(code);
+	if (font->isBold()) {
+	  i += 2;
+	}
+	if (font->isItalic()) {
+	  i += 1;
+	}
+	psName = new GooString(psSubstFonts[i].psName);
+	for (code = 0; code < 256; ++code) {
+	  if ((charName = ((Gfx8BitFont *)font)->getCharName(code)) &&
+	      charName[0] == 'm' && charName[1] == '\0') {
+	    break;
+	  }
+	}
+	if (code < 256) {
+	  w1 = ((Gfx8BitFont *)font)->getWidth(code);
+	} else {
+	  w1 = 0;
+	}
+	w2 = psSubstFonts[i].mWidth;
+	xs = w1 / w2;
+	if (xs < 0.1) {
+	  xs = 1;
+	}
       } else {
-	w1 = 0;
-      }
-      w2 = psSubstFonts[i].mWidth;
-      xs = w1 / w2;
-      if (xs < 0.1) {
+	psName = new GooString(name);
 	xs = 1;
       }
       if (font->getType() == fontType3) {

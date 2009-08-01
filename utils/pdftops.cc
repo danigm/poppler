@@ -19,6 +19,7 @@
 // Copyright (C) 2007-2008 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2009 Till Kamppeter <till.kamppeter@gmail.com>
 // Copyright (C) 2009 Sanjoy Mahajan <sanjoy@mit.edu>
+// Copyright (C) 2009 William Bader <williambader@hotmail.com>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -86,6 +87,7 @@ static GBool noEmbedT1Fonts = gFalse;
 static GBool noEmbedTTFonts = gFalse;
 static GBool noEmbedCIDPSFonts = gFalse;
 static GBool noEmbedCIDTTFonts = gFalse;
+static GBool noSubstFonts = gFalse;
 static GBool preload = gFalse;
 static char paperSize[15] = "";
 static int paperWidth = -1;
@@ -136,6 +138,8 @@ static const ArgDesc argDesc[] = {
    "don't embed CID PostScript fonts"},
   {"-noembcidtt", argFlag, &noEmbedCIDTTFonts,  0,
    "don't embed CID TrueType fonts"},
+  {"-passfonts",  argFlag,        &noSubstFonts,0,
+   "don't substitute missing fonts"},
   {"-preload",    argFlag,     &preload,        0,
    "preload images and forms"},
   {"-paper",      argString,   paperSize,       sizeof(paperSize),
@@ -268,6 +272,9 @@ int main(int argc, char *argv[]) {
   }
   if (noEmbedCIDTTFonts) {
     globalParams->setPSEmbedCIDTrueType(!noEmbedCIDTTFonts);
+  }
+  if (noSubstFonts) {
+    globalParams->setPSSubstFonts(!noSubstFonts);
   }
   if (preload) {
     globalParams->setPSPreload(preload);
