@@ -4274,8 +4274,21 @@ void Gfx::doForm1(Object *str, Dict *resDict, double *matrix, double *bbox,
     baseMatrix[i] = state->getCTM()[i];
   }
 
+  GfxState *stateBefore = state;
+
   // draw the form
   display(str, gFalse);
+  
+  if (stateBefore != state) {
+    if (state->isParentState(stateBefore)) {
+      error(-1, "There's a form with more q than Q, trying to fix");
+      while (stateBefore != state) {
+        restoreState();
+      }
+    } else {
+      error(-1, "There's a form with more Q than q");
+    }
+  }
 
   if (softMask || transpGroup) {
     out->endTransparencyGroup(state);

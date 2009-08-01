@@ -1269,6 +1269,7 @@ public:
   GfxState *save();
   GfxState *restore();
   GBool hasSaves() { return saved != NULL; }
+  GBool isParentState(GfxState *state) { return saved == state || (saved && saved->isParentState(state)); }
 
   // Misc
   GBool parseBlendMode(Object *obj, GfxBlendMode *mode);
