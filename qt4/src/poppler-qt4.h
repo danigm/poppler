@@ -612,6 +612,16 @@ while (it->hasNext()) {
    The current rendering backend can be changed using setRenderBackend().
    Please note that setting a backend not listed in the available ones
    will always result in null QImage's.
+
+   \section document-cms Color management support
+
+   %Poppler, if compiled with this support, provides functions to handle color
+   profiles.
+
+   To know whether the %Poppler version you are using has support for color
+   management, you can query Poppler::isCmsAvailable(). In case it is not
+   avilable, all the color management-related functions will either do nothing
+   or return null.
 */
     class POPPLER_QT4_EXPORT Document {
 	friend class Page;
@@ -663,6 +673,39 @@ while (it->hasNext()) {
 	    TextAntialiasing = 0x00000002   ///< Antialiasing for text
 	};
 	Q_DECLARE_FLAGS( RenderHints, RenderHint )
+
+	/**
+	  Set a color display profile for the current document.
+
+	  \param outputProfileA is a \c cmsHPROFILE of the LCMS library.
+
+	   \since 0.12
+	*/
+	void setColorDisplayProfile(void *outputProfileA);
+	/**
+	  Set a color display profile for the current document.
+
+	  \param name is the name of the display profile to set.
+
+	   \since 0.12
+	*/
+	void setColorDisplayProfileName(const QString &name);
+	/**
+	  Return the current RGB profile.
+
+	  \return a \c cmsHPROFILE of the LCMS library.
+
+	   \since 0.12
+	*/
+	void* colorRgbProfile() const;
+	/**
+	  Return the current display profile.
+
+	  \return a \c cmsHPROFILE of the LCMS library.
+
+	   \since 0.12
+	*/
+	void *colorDisplayProfile() const;
 
 	/**
 	   Load the document from a file on disk
@@ -1340,6 +1383,13 @@ height = dummy.height();
        Conversion from PDF date string format to QDateTime
     */
     POPPLER_QT4_EXPORT QDateTime convertDate( char *dateString );
+
+    /**
+       Whether the color management functions are available.
+
+       \since 0.12
+    */
+    POPPLER_QT4_EXPORT bool isCmsAvailable();
 
     class SoundData;
     /**

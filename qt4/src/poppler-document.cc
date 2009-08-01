@@ -29,12 +29,17 @@
 #include <Stream.h>
 #include <Catalog.h>
 #include <DateInfo.h>
+#include <GfxState.h>
 
 #include <QtCore/QDebug>
 #include <QtCore/QFile>
 #include <QtCore/QByteArray>
 
 #include "poppler-private.h"
+
+#if defined(USE_CMS)
+#include <lcms.h>
+#endif
 
 namespace Poppler {
 
@@ -424,6 +429,44 @@ namespace Poppler {
         m_doc->setPaperColor(color);
     }
     
+    void Document::setColorDisplayProfile(void* outputProfileA)
+    {
+#if defined(USE_CMS)
+        GfxColorSpace::setDisplayProfile((cmsHPROFILE)outputProfileA);
+#else
+        Q_UNUSED(outputProfileA);
+#endif
+    }
+
+    void Document::setColorDisplayProfileName(const QString &name)
+    {
+#if defined(USE_CMS)
+        GooString *profileName = QStringToGooString( name );
+        GfxColorSpace::setDisplayProfileName(profileName);
+        delete profileName;
+#else
+        Q_UNUSED(name);
+#endif
+    }
+
+    void* Document::colorRgbProfile() const
+    {
+#if defined(USE_CMS)
+        return (void*)GfxColorSpace::getRGBProfile();
+#else
+        return NULL;
+#endif
+    }
+
+    void* Document::colorDisplayProfile() const
+    {
+#if defined(USE_CMS)
+       return (void*)GfxColorSpace::getDisplayProfile();
+#else
+       return NULL;
+#endif
+    }
+
     QColor Document::paperColor() const
     {
     	return m_doc->paperColor;
@@ -554,6 +597,15 @@ namespace Poppler {
             }
         }
         return QDateTime();
+    }
+
+    bool isCmsAvailable()
+    {
+#if defined(USE_CMS)
+        return true;
+#else
+        return false;
+#endif
     }
 
 }
