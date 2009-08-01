@@ -233,6 +233,8 @@ while (it->hasNext()) {
   QList<Poppler::FontInfo> fonts = it->next();
   // do something with the fonts
 }
+// after doing the job, the iterator must be freed
+delete it;
        \endcode
 
        \since 0.12
