@@ -305,7 +305,10 @@ _ft_new_face (FT_Library lib,
   }
 
   /* not a dup, open and insert into list */
-  if (FT_New_Face (lib, filename, 0, &tmpl.face)) {
+  if (FT_New_Memory_Face (lib,
+			  (FT_Byte *) tmpl.bytes, tmpl.size,
+			  0, &tmpl.face))
+  {
 #if defined(__SUNPRO_CC) && defined(__sun) && defined(__SVR4)
     munmap ((char*)tmpl.bytes, tmpl.size);
 #else
