@@ -1321,11 +1321,15 @@ void CairoOutputDev::drawImageMaskRegular(GfxState *state, Object *ref, Stream *
   cairo_matrix_scale (&matrix, width, -height);
   cairo_pattern_set_matrix (pattern, &matrix);
 
-  cairo_save (cairo);
-  cairo_rectangle (cairo, 0., 0., 1., 1.);
-  cairo_clip (cairo);
-  cairo_mask (cairo, pattern);
-  cairo_restore (cairo);
+  if (state->getFillColorSpace()->getMode() == csPattern) {
+    mask = cairo_pattern_reference (pattern);
+  } else {
+    cairo_save (cairo);
+    cairo_rectangle (cairo, 0., 0., 1., 1.);
+    cairo_clip (cairo);
+    cairo_mask (cairo, pattern);
+    cairo_restore (cairo);
+  }
 
   if (cairo_shape) {
     cairo_save (cairo_shape);
@@ -1572,24 +1576,32 @@ void CairoOutputDev::drawImageMaskPrescaled(GfxState *state, Object *ref, Stream
 			    interpolate ? CAIRO_FILTER_BEST : CAIRO_FILTER_FAST);
   cairo_pattern_set_extend (pattern, CAIRO_EXTEND_PAD);
 
-  cairo_save (cairo);
+  if (state->getFillColorSpace()->getMode() == csPattern) {
+    cairo_matrix_init_translate (&matrix, 0, scaledHeight);
+    cairo_matrix_scale (&matrix, scaledWidth, -scaledHeight);
+    cairo_pattern_set_matrix (pattern, &matrix);
 
-  /* modify our current transformation so that the prescaled image
-   * goes where it is supposed to */
-  cairo_get_matrix(cairo, &matrix);
-  cairo_scale(cairo, 1.0/matrix.xx, 1.0/matrix.yy);
-  // get integer co-ords
-  cairo_translate (cairo, tx - matrix.x0, ty2 - matrix.y0);
-  if (yScale > 0)
-    cairo_scale(cairo, 1, -1);
+    mask = cairo_pattern_reference (pattern);
+  } else {
+    cairo_save (cairo);
 
-  cairo_rectangle (cairo, 0., 0., scaledWidth, scaledHeight);
-  cairo_clip (cairo);
-  cairo_mask (cairo, pattern);
+    /* modify our current transformation so that the prescaled image
+     * goes where it is supposed to */
+    cairo_get_matrix(cairo, &matrix);
+    cairo_scale(cairo, 1.0/matrix.xx, 1.0/matrix.yy);
+    // get integer co-ords
+    cairo_translate (cairo, tx - matrix.x0, ty2 - matrix.y0);
+    if (yScale > 0)
+      cairo_scale(cairo, 1, -1);
 
-  //cairo_get_matrix(cairo, &matrix);
-  //printf("mask at: [%f %f], [%f %f], %f %f\n\n", matrix.xx, matrix.xy, matrix.yx, matrix.yy, matrix.x0, matrix.y0);
-  cairo_restore(cairo);
+    cairo_rectangle (cairo, 0., 0., scaledWidth, scaledHeight);
+    cairo_clip (cairo);
+    cairo_mask (cairo, pattern);
+
+    //cairo_get_matrix(cairo, &matrix);
+    //printf("mask at: [%f %f], [%f %f], %f %f\n\n", matrix.xx, matrix.xy, matrix.yx, matrix.yy, matrix.x0, matrix.y0);
+    cairo_restore(cairo);
+  }
 
   if (cairo_shape) {
     cairo_save (cairo_shape);
@@ -1979,7 +1991,12 @@ void CairoOutputDev::drawImage(GfxState *state, Object *ref, Stream *str,
   cairo_save (cairo);
   cairo_set_source (cairo, pattern);
   cairo_rectangle (cairo, 0., 0., 1., 1.);
-  cairo_fill (cairo);
+  if (mask) {
+    cairo_clip (cairo);
+    cairo_mask (cairo, mask);
+  } else {
+    cairo_fill (cairo);
+  }
   cairo_restore (cairo);
 
   if (cairo_shape) {
