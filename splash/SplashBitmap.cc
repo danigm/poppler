@@ -263,7 +263,7 @@ SplashError SplashBitmap::writePNGFile(FILE *f) {
   error(-1, "PNG support not compiled in");
   return splashErrGeneric;
 #else
-  if (mode != splashModeRGB8 && mode != splashModeMono8) {
+  if (mode != splashModeRGB8 && mode != splashModeMono8 && mode != splashModeMono1) {
     error(-1, "unsupported SplashBitmap mode");
     return splashErrGeneric;
   }
@@ -303,6 +303,27 @@ SplashError SplashBitmap::writePNGFile(FILE *f) {
           row[3*x] = data[y * rowSize + x];
           row[3*x+1] = data[y * rowSize + x];
           row[3*x+2] = data[y * rowSize + x];
+        }
+
+        if (!writer->writeRow(&row)) {
+          delete[] row;
+          delete writer;
+          return splashErrGeneric;
+        }
+      }
+      delete[] row;
+    }
+    break;
+    
+    case splashModeMono1:
+    {
+      png_byte *row = new png_byte[3 * width];
+      for (int y = 0; y < height; y++) {
+        // Convert into a PNG row
+        for (int x = 0; x < width; x++) {
+          getPixel(x, y, &row[3*x]);
+          row[3*x+1] = row[3*x];
+          row[3*x+2] = row[3*x];
         }
 
         if (!writer->writeRow(&row)) {
