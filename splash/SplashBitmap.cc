@@ -13,6 +13,7 @@
 //
 // Copyright (C) 2006, 2009 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2007 Ilmari Heikkinen <ilmari.heikkinen@gmail.com>
+// Copyright (C) 2009 Shen Liang <shenzhuxi@gmail.com>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -26,9 +27,12 @@
 #endif
 
 #include <stdio.h>
+#include <stdlib.h>
 #include "goo/gmem.h"
 #include "SplashErrorCodes.h"
 #include "SplashBitmap.h"
+#include "poppler/Error.h"
+#include "PNGWriter.h"
 
 //------------------------------------------------------------------------
 // SplashBitmap
@@ -181,6 +185,8 @@ SplashError SplashBitmap::writePNMFile(FILE *f) {
 #if SPLASH_CMYK
   case splashModeCMYK8:
     // PNM doesn't support CMYK
+    error(-1, "unsupported SplashBitmap mode");
+    return splashErrGeneric;
     break;
 #endif
   }
@@ -236,4 +242,68 @@ void SplashBitmap::getPixel(int x, int y, SplashColorPtr pixel) {
 
 Guchar SplashBitmap::getAlpha(int x, int y) {
   return alpha[y * width + x];
+}
+
+SplashError SplashBitmap::writePNGFile(char *fileName) {
+  FILE *f;
+  SplashError e;
+
+  if (!(f = fopen(fileName, "wb"))) {
+    return splashErrOpenFile;
+  }
+
+  e = writePNGFile(f);
+  
+  fclose(f);
+  return e;
+}
+
+SplashError SplashBitmap::writePNGFile(FILE *f) {
+#ifndef ENABLE_LIBPNG
+  error(-1, "PNG support not compiled in");
+  return splashErrGeneric;
+#else
+  if (mode != splashModeRGB8) {
+    error(-1, "unsupported SplashBitmap mode");
+    return splashErrGeneric;
+  }
+
+  SplashColorPtr row;
+
+  PNGWriter *writer = new PNGWriter();
+  if (!writer->init(f, width, height)) {
+    delete writer;
+    return splashErrGeneric;
+  }
+
+  png_bytep *row_pointers = new png_bytep[height];
+  switch (mode) {
+  case splashModeRGB8:
+    row = data;
+
+    for (int y = 0; y < height; ++y) {
+      row_pointers[y] = row;
+      row += rowSize;
+    }
+    if (!writer->writePointers(row_pointers)) {
+      delete[] row_pointers;
+      delete writer;
+      return splashErrGeneric;
+    }
+    break;
+  default:
+    // can't happen
+    break;
+  }
+  delete[] row_pointers;
+  
+  if (writer->close()) {
+    delete writer;
+    return splashErrGeneric;
+  }
+
+  delete writer;
+
+  return splashOk;
+#endif
 }

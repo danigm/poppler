@@ -51,12 +51,10 @@
 #ifdef ENABLE_LIBJPEG
 #include "DCTStream.h"
 #endif
-#ifdef ENABLE_LIBPNG
-#include "png.h"
-#endif
 #include "GlobalParams.h"
 #include "HtmlOutputDev.h"
 #include "HtmlFonts.h"
+#include "PNGWriter.h"
 
 int HtmlPage::pgNum=0;
 int HtmlOutputDev::imgNum=1;
@@ -1316,10 +1314,6 @@ void HtmlOutputDev::drawImage(GfxState *state, Object *ref, Stream *str,
     // comes from an example by Guillaume Cottenceau.
     Guchar *p;
     GfxRGB rgb;
-    png_structp png_ptr;
-    png_infop info_ptr;
-    png_byte color_type= PNG_COLOR_TYPE_RGB;
-    png_byte bit_depth= 8;
     png_byte *row = (png_byte *) malloc(3 * width);   // 3 bytes/pixel: RGB
     png_bytep *row_pointer= &row;
 
@@ -1339,42 +1333,11 @@ void HtmlOutputDev::drawImage(GfxState *state, Object *ref, Stream *str,
       return;
     }
 
-    // Initialize the PNG stuff
-    png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
-    if (!png_ptr) {
-      error(-1, "png_create_write_struct failed");
-      return;
-    }
-
-    info_ptr = png_create_info_struct(png_ptr);
-    if (!info_ptr) {
-      error(-1, "png_create_info_struct failed");
-      return;
-    }
-    if (setjmp(png_jmpbuf(png_ptr))) {
-      error(-1, "error during init_io");
-      return;
-    }
-
-    // Write the PNG header
-    png_init_io(png_ptr, f1);
-    if (setjmp(png_jmpbuf(png_ptr))) {
-      error(-1, "error during writing png header");
-      return;
-    }
-
-    // Set up the type of PNG image and the compression level
-    png_set_compression_level(png_ptr, Z_BEST_COMPRESSION);
-
-    png_set_IHDR(png_ptr, info_ptr, width, height,
-                     bit_depth, color_type, PNG_INTERLACE_NONE,
-                     PNG_COMPRESSION_TYPE_BASE, PNG_FILTER_TYPE_BASE);
-
-    // Write the image info bytes
-    png_write_info(png_ptr, info_ptr);
-    if (setjmp(png_jmpbuf(png_ptr))) {
-      error(-1, "error during writing png info bytes");
-      return;
+    PNGWriter *writer = new PNGWriter();
+    if (!writer->init(f1, width, height)) {
+        delete writer;
+        fclose(f1);
+        return;
     }
 
     // Initialize the image stream
@@ -1396,22 +1359,17 @@ void HtmlOutputDev::drawImage(GfxState *state, Object *ref, Stream *str,
          p += colorMap->getNumPixelComps();
       }
 
-      // Write the row to the file
-      png_write_rows(png_ptr, row_pointer, 1);
-      if (setjmp(png_jmpbuf(png_ptr))) {
-        error(-1, "error during png row write");
+      if (!writer->writeRow(row_pointer)) {
+        delete writer;
+        fclose(f1);
         return;
       }
     }
 
-    // Finish off the PNG file
-    png_write_end(png_ptr, info_ptr);
-    if (setjmp(png_jmpbuf(png_ptr))) {
-      error(-1, "error during png end of write");
-      return;
-    }
-
+    writer->close();
+    delete writer;
     fclose(f1);
+
     free(row);
     imgList->append(fName);
     ++imgNum;

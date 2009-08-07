@@ -35,10 +35,6 @@ pdftoabw_binary = pdftoabw
 
 endif
 
-if BUILD_LIBPNG
-pdftohtml_LDADD = $(LDADD) $(LIBPNG_LIBS)
-endif
-
 AM_LDFLAGS = @auto_import_flags@
 
 bin_PROGRAMS =					\

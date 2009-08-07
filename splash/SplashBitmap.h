@@ -12,6 +12,8 @@
 // under GPL version 2 or later
 //
 // Copyright (C) 2007 Ilmari Heikkinen <ilmari.heikkinen@gmail.com>
+// Copyright (C) 2009 Shen Liang <shenzhuxi@gmail.com>
+// Copyright (C) 2009 Albert Astals Cid <aacid@kde.org>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -55,6 +57,9 @@ public:
 
   SplashError writePNMFile(char *fileName);
   SplashError writePNMFile(FILE *f);
+  
+  SplashError writePNGFile(char *fileName);
+  SplashError writePNGFile(FILE *f);
 
   void getPixel(int x, int y, SplashColorPtr pixel);
   Guchar getAlpha(int x, int y);

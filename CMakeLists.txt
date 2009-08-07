@@ -143,6 +143,7 @@ set(poppler_SRCS
   goo/GooString.cc
   goo/gmem.cc
   goo/FixedPoint.cc
+  goo/PNGWriter.cc
   fofi/FoFiBase.cc
   fofi/FoFiEncodings.cc
   fofi/FoFiTrueType.cc
@@ -266,7 +267,11 @@ else(MSVC)
 add_library(poppler SHARED ${poppler_SRCS})
 endif(MSVC)
 set_target_properties(poppler PROPERTIES VERSION 5.0.0 SOVERSION 5)
+if (ENABLE_LIBPNG)
+target_link_libraries(poppler ${poppler_LIBS} ${PNG_LIBRARIES})
+else (ENABLE_LIBPNG)
 target_link_libraries(poppler ${poppler_LIBS})
+endif (ENABLE_LIBPNG)
 install(TARGETS poppler RUNTIME DESTINATION bin LIBRARY DESTINATION lib ARCHIVE DESTINATION lib)
 
 if(ENABLE_XPDF_HEADERS)

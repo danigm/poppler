@@ -62,6 +62,13 @@ libjpeg_libs =					\
 
 endif
 
+if BUILD_LIBPNG
+
+libpng_libs =					\
+	$(LIBPNG_LIBS)
+
+endif
+
 if BUILD_LIBOPENJPEG
 
 libjpeg2000_sources =				\
@@ -135,6 +142,7 @@ libpoppler_la_LIBADD =				\
 	$(cms_libs)				\
 	$(splash_libs)				\
 	$(libjpeg_libs)				\
+	$(libpng_libs)				\
 	$(zlib_libs)				\
 	$(libjpeg2000_libs)			\
 	$(abiword_libs)				\
