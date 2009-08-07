@@ -263,12 +263,10 @@ SplashError SplashBitmap::writePNGFile(FILE *f) {
   error(-1, "PNG support not compiled in");
   return splashErrGeneric;
 #else
-  if (mode != splashModeRGB8) {
+  if (mode != splashModeRGB8 && mode != splashModeMono8) {
     error(-1, "unsupported SplashBitmap mode");
     return splashErrGeneric;
   }
-
-  SplashColorPtr row;
 
   PNGWriter *writer = new PNGWriter();
   if (!writer->init(f, width, height)) {
@@ -276,26 +274,51 @@ SplashError SplashBitmap::writePNGFile(FILE *f) {
     return splashErrGeneric;
   }
 
-  png_bytep *row_pointers = new png_bytep[height];
   switch (mode) {
-  case splashModeRGB8:
-    row = data;
+    case splashModeRGB8:
+    {
+      SplashColorPtr row;
+      png_bytep *row_pointers = new png_bytep[height];
+      row = data;
 
-    for (int y = 0; y < height; ++y) {
-      row_pointers[y] = row;
-      row += rowSize;
-    }
-    if (!writer->writePointers(row_pointers)) {
+      for (int y = 0; y < height; ++y) {
+        row_pointers[y] = row;
+        row += rowSize;
+      }
+      if (!writer->writePointers(row_pointers)) {
+        delete[] row_pointers;
+        delete writer;
+        return splashErrGeneric;
+      }
       delete[] row_pointers;
-      delete writer;
-      return splashErrGeneric;
     }
     break;
-  default:
+    
+    case splashModeMono8:
+    {
+      png_byte *row = new png_byte[3 * width];
+      for (int y = 0; y < height; y++) {
+        // Convert into a PNG row
+        for (int x = 0; x < width; x++) {
+          row[3*x] = data[y * rowSize + x];
+          row[3*x+1] = data[y * rowSize + x];
+          row[3*x+2] = data[y * rowSize + x];
+        }
+
+        if (!writer->writeRow(&row)) {
+          delete[] row;
+          delete writer;
+          return splashErrGeneric;
+        }
+      }
+      delete[] row;
+    }
+    break;
+    
+    default:
     // can't happen
     break;
   }
-  delete[] row_pointers;
   
   if (writer->close()) {
     delete writer;
