@@ -16,6 +16,7 @@
 // Copyright (C) 2007 Julien Rebetez <julienr@svn.gnome.org>
 // Copyright (C) 2008 Kees Cook <kees@outflux.net>
 // Copyright (C) 2008 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2009 Jakub Wilk <ubanus@users.sf.net>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -46,14 +47,14 @@
 
 #define OBJECT_TYPE_CHECK(wanted_type) \
     if (unlikely(type != wanted_type)) { \
-        error(0, "Call to Object where the object was type %d, " \
+        error(0, (char *) "Call to Object where the object was type %d, " \
                  "not the expected type %d", type, wanted_type); \
         abort(); \
     }
 
 #define OBJECT_2TYPES_CHECK(wanted_type1, wanted_type2) \
     if (unlikely(type != wanted_type1) && unlikely(type != wanted_type2)) { \
-        error(0, "Call to Object where the object was type %d, " \
+        error(0, (char *) "Call to Object where the object was type %d, " \
                  "not the expected type %d or %d", type, wanted_type1, wanted_type2); \
         abort(); \
     }
