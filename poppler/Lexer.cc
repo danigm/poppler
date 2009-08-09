@@ -13,7 +13,7 @@
 // All changes made under the Poppler project to this file are licensed
 // under GPL version 2 or later
 //
-// Copyright (C) 2006-2008 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2006-2009 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2006 Krzysztof Kowalczyk <kkowalczyk@gmail.com>
 //
 // To see a description of the changes please see the Changelog file that
@@ -150,9 +150,9 @@ int Lexer::lookChar() {
 Object *Lexer::getObj(Object *obj, int objNum) {
   char *p;
   int c, c2;
-  GBool comment, neg, done;
+  GBool comment, neg, done, overflownInteger;
   int numParen;
-  int xi;
+  int xi, tmpxi;
   double xf, scale;
   GooString *s;
   int n, m;
@@ -180,6 +180,7 @@ Object *Lexer::getObj(Object *obj, int objNum) {
   case '0': case '1': case '2': case '3': case '4':
   case '5': case '6': case '7': case '8': case '9':
   case '-': case '.':
+    overflownInteger = gFalse;
     neg = gFalse;
     xi = 0;
     if (c == '-') {
@@ -193,7 +194,16 @@ Object *Lexer::getObj(Object *obj, int objNum) {
       c = lookChar();
       if (isdigit(c)) {
 	getChar();
-	xi = xi * 10 + (c - '0');
+	if (unlikely(overflownInteger)) {
+	  xf = xf * 10.0 + (c - '0');
+	} else {
+	  tmpxi = xi * 10 + (c - '0');
+	  if (likely(tmpxi >= xi)) xi = tmpxi;
+	  else {
+	    overflownInteger = gTrue;
+	    xf = xi * 10.0 + (c - '0');
+	  }
+	}
       } else if (c == '.') {
 	getChar();
 	goto doReal;
@@ -203,10 +213,16 @@ Object *Lexer::getObj(Object *obj, int objNum) {
     }
     if (neg)
       xi = -xi;
-    obj->initInt(xi);
+    if (overflownInteger) {
+      obj->initError();
+    } else {
+      obj->initInt(xi);
+    }
     break;
   doReal:
-    xf = xi;
+    if (likely(!overflownInteger)) {
+      xf = xi;
+    }
     scale = 0.1;
     while (1) {
       c = lookChar();
