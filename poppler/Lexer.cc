@@ -30,6 +30,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <string.h>
+#include <limits.h>
 #include <ctype.h>
 #include "Lexer.h"
 #include "Error.h"
@@ -57,6 +58,8 @@ static const char specialChars[256] = {
   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,   // ex
   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0    // fx
 };
+
+static const int IntegerSafeLimit = (INT_MAX - 9) / 10;
 
 //------------------------------------------------------------------------
 // Lexer
@@ -152,7 +155,7 @@ Object *Lexer::getObj(Object *obj, int objNum) {
   int c, c2;
   GBool comment, neg, done, overflownInteger;
   int numParen;
-  int xi, tmpxi;
+  int xi;
   double xf, scale;
   GooString *s;
   int n, m;
@@ -197,11 +200,12 @@ Object *Lexer::getObj(Object *obj, int objNum) {
 	if (unlikely(overflownInteger)) {
 	  xf = xf * 10.0 + (c - '0');
 	} else {
-	  tmpxi = xi * 10 + (c - '0');
-	  if (likely(tmpxi >= xi)) xi = tmpxi;
-	  else {
+	  if (unlikely(xi > IntegerSafeLimit) &&
+	      (xi > (INT_MAX - (c - '0')) / 10.0)) {
 	    overflownInteger = gTrue;
 	    xf = xi * 10.0 + (c - '0');
+	  } else {
+	    xi = xi * 10 + (c - '0');
 	  }
 	}
       } else if (c == '.') {
