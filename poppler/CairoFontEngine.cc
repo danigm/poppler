@@ -154,10 +154,6 @@ CairoFont::getSubstitutionCorrection(GfxFont *gfxFont)
 
 static cairo_user_data_key_t _ft_cairo_key;
 
-static void fileWrite(void *stream, char *data, int len) {
-  fwrite(data, 1, len, (FILE *)stream);
-}
-
 static void
 _ft_done_face_uncached (void *closure)
 {
@@ -367,7 +363,7 @@ CairoFreeTypeFont *CairoFreeTypeFont::create(GfxFont *gfxFont, XRef *xref,
 					     FT_Library lib, GBool useCIDs) {
   Ref embRef;
   Object refObj, strObj;
-  GooString *tmpFileName, *fileName,*tmpFileName2;
+  GooString *tmpFileName, *fileName;
   DisplayFontParam *dfp;
   FILE *tmpFile;
   int c, i, n;
@@ -493,21 +489,10 @@ CairoFreeTypeFont *CairoFreeTypeFont::create(GfxFont *gfxFont, XRef *xref,
       codeToGID = ((Gfx8BitFont *)gfxFont)->getCodeToGIDMap(ff);
       codeToGIDLen = 256;
     }
-    if (!openTempFile(&tmpFileName2, &tmpFile, "wb")) {
-      delete ff;
-      error(-1, "failed to open truetype tempfile\n");
-      goto err2;
-    }
-    ff->writeTTF(&fileWrite, tmpFile);
-    fclose(tmpFile);
-    delete ff;
-
-    if (! _ft_new_face (lib, tmpFileName2->getCString(), &face, &font_face)) {
+    if (! _ft_new_face (lib, fileName->getCString(), &face, &font_face)) {
       error(-1, "could not create truetype face\n");
       goto err2;
     }
-    unlink (tmpFileName2->getCString());
-    delete tmpFileName2;
     break;
     
   case fontCIDType0:
