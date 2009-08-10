@@ -217,7 +217,7 @@ Object *Lexer::getObj(Object *obj, int objNum) {
     }
     if (neg)
       xi = -xi;
-    if (overflownInteger) {
+    if (unlikely(overflownInteger)) {
       obj->initError();
     } else {
       obj->initInt(xi);
