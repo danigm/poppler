@@ -366,6 +366,7 @@ public:
   virtual void updateStrokeColor(GfxState *state) { }
   virtual void updateFillOpacity(GfxState *state) { }
   virtual void updateStrokeOpacity(GfxState *state) { }
+  virtual void updateBlendMode(GfxState *state) { }
 
   //----- update text state
   virtual void updateFont(GfxState *state) { }
