@@ -1885,7 +1885,7 @@ void CairoOutputDev::drawImage(GfxState *state, Object *ref, Stream *str,
 			       int *maskColors, GBool inlineImg)
 {
   cairo_surface_t *image;
-  cairo_pattern_t *pattern;
+  cairo_pattern_t *pattern, *maskPattern;
   ImageStream *imgStr;
   cairo_matrix_t matrix;
   unsigned char *buffer;
@@ -1988,16 +1988,26 @@ void CairoOutputDev::drawImage(GfxState *state, Object *ref, Stream *str,
   cairo_matrix_scale (&matrix, width, -height);
   cairo_pattern_set_matrix (pattern, &matrix);
 
+  if (!mask && fill_opacity != 1.0) {
+    maskPattern = cairo_pattern_create_rgba (1., 1., 1., fill_opacity);
+  } else if (mask) {
+    maskPattern = cairo_pattern_reference (mask);
+  } else {
+    maskPattern = NULL;
+  }
+
   cairo_save (cairo);
   cairo_set_source (cairo, pattern);
   cairo_rectangle (cairo, 0., 0., 1., 1.);
-  if (mask) {
+  if (maskPattern) {
     cairo_clip (cairo);
-    cairo_mask (cairo, mask);
+    cairo_mask (cairo, maskPattern);
   } else {
     cairo_fill (cairo);
   }
   cairo_restore (cairo);
+
+  cairo_pattern_destroy (maskPattern);
 
   if (cairo_shape) {
     cairo_save (cairo_shape);
