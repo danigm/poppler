@@ -1262,6 +1262,7 @@ void CairoOutputDev::setSoftMask(GfxState * state, double * bbox, GBool alpha,
 
       }
     }
+    cairo_surface_mark_dirty (source);
 
     /* setup the new mask pattern */
     mask = cairo_pattern_create_for_surface(source);
@@ -1378,6 +1379,7 @@ void CairoOutputDev::drawImageMaskRegular(GfxState *state, Object *ref, Stream *
     }
   }
 
+  cairo_surface_mark_dirty (image);
   pattern = cairo_pattern_create_for_surface (image);
   cairo_surface_destroy (image);
   if (cairo_pattern_status (pattern))
@@ -1636,6 +1638,7 @@ void CairoOutputDev::drawImageMaskPrescaled(GfxState *state, Object *ref, Stream
   }
   free(pixBuf);
 
+  cairo_surface_mark_dirty (image);
   pattern = cairo_pattern_create_for_surface (image);
   cairo_surface_destroy (image);
   if (cairo_pattern_status (pattern)) {
@@ -1751,6 +1754,7 @@ void CairoOutputDev::drawMaskedImage(GfxState *state, Object *ref,
   maskImgStr->close();
   delete maskImgStr;
 
+  cairo_surface_mark_dirty (maskImage);
   maskPattern = cairo_pattern_create_for_surface (maskImage);
   cairo_surface_destroy (maskImage);
   if (cairo_pattern_status (maskPattern))
@@ -1783,6 +1787,7 @@ void CairoOutputDev::drawMaskedImage(GfxState *state, Object *ref,
     colorMap->getRGBLine (pix, dest, width);
   }
 
+  cairo_surface_mark_dirty (image);
   pattern = cairo_pattern_create_for_surface (image);
   cairo_surface_destroy (image);
   if (cairo_pattern_status (pattern))
@@ -1871,6 +1876,7 @@ void CairoOutputDev::drawSoftMaskedImage(GfxState *state, Object *ref, Stream *s
   maskImgStr->close();
   delete maskImgStr;
 
+  cairo_surface_mark_dirty (maskImage);
   maskPattern = cairo_pattern_create_for_surface (maskImage);
   cairo_surface_destroy (maskImage);
   if (cairo_pattern_status (maskPattern))
@@ -1903,6 +1909,7 @@ void CairoOutputDev::drawSoftMaskedImage(GfxState *state, Object *ref, Stream *s
     colorMap->getRGBLine (pix, dest, width);
   }
 
+  cairo_surface_mark_dirty (image);
   pattern = cairo_pattern_create_for_surface (image);
   cairo_surface_destroy (image);
   if (cairo_pattern_status (pattern))
@@ -2047,6 +2054,7 @@ void CairoOutputDev::drawImage(GfxState *state, Object *ref, Stream *str,
   }
   gfree(lookup);
 
+  cairo_surface_mark_dirty (image);
   pattern = cairo_pattern_create_for_surface (image);
   cairo_surface_destroy (image);
   if (cairo_pattern_status (pattern))
