@@ -421,9 +421,9 @@ void CairoOutputDev::updateFillColor(GfxState *state) {
       color.b != fill_color.b)
   {
     cairo_pattern_destroy(fill_pattern);
-    fill_pattern = cairo_pattern_create_rgba(fill_color.r / 65535.0,
-					     fill_color.g / 65535.0,
-					     fill_color.b / 65535.0,
+    fill_pattern = cairo_pattern_create_rgba(colToDbl(fill_color.r),
+					     colToDbl(fill_color.g),
+					     colToDbl(fill_color.b),
 					     fill_opacity);
 
     LOG(printf ("fill color: %d %d %d\n",
@@ -440,9 +440,9 @@ void CairoOutputDev::updateStrokeColor(GfxState *state) {
       color.b != stroke_color.b)
   {
     cairo_pattern_destroy(stroke_pattern);
-    stroke_pattern = cairo_pattern_create_rgba(stroke_color.r / 65535.0,
-					       stroke_color.g / 65535.0,
-					       stroke_color.b / 65535.0,
+    stroke_pattern = cairo_pattern_create_rgba(colToDbl(stroke_color.r),
+					       colToDbl(stroke_color.g),
+					       colToDbl(stroke_color.b),
 					       stroke_opacity);
 
     LOG(printf ("stroke color: %d %d %d\n",
@@ -456,9 +456,9 @@ void CairoOutputDev::updateFillOpacity(GfxState *state) {
   fill_opacity = state->getFillOpacity();
   if (opacity != fill_opacity) {
     cairo_pattern_destroy(fill_pattern);
-    fill_pattern = cairo_pattern_create_rgba(fill_color.r / 65535.0,
-					     fill_color.g / 65535.0,
-					     fill_color.b / 65535.0,
+    fill_pattern = cairo_pattern_create_rgba(colToDbl(fill_color.r),
+					     colToDbl(fill_color.g),
+					     colToDbl(fill_color.b),
 					     fill_opacity);
 
     LOG(printf ("fill opacity: %f\n", fill_opacity));
@@ -471,9 +471,9 @@ void CairoOutputDev::updateStrokeOpacity(GfxState *state) {
   stroke_opacity = state->getStrokeOpacity();
   if (opacity != stroke_opacity) {
     cairo_pattern_destroy(stroke_pattern);
-    stroke_pattern = cairo_pattern_create_rgba(stroke_color.r / 65535.0,
-					       stroke_color.g / 65535.0,
-					       stroke_color.b / 65535.0,
+    stroke_pattern = cairo_pattern_create_rgba(colToDbl(stroke_color.r),
+					       colToDbl(stroke_color.g),
+					       colToDbl(stroke_color.b),
 					       stroke_opacity);
 
     LOG(printf ("stroke opacity: %f\n", stroke_opacity));
@@ -484,9 +484,9 @@ void CairoOutputDev::updateFillColorStop(GfxState *state, double offset) {
   state->getFillRGB(&fill_color);
 
   cairo_pattern_add_color_stop_rgba(fill_pattern, offset,
-				    fill_color.r / 65535.0,
-				    fill_color.g / 65535.0,
-				    fill_color.b / 65535.0,
+				    colToDbl(fill_color.r),
+				    colToDbl(fill_color.g),
+				    colToDbl(fill_color.b),
 				    fill_opacity);
   LOG(printf ("fill color stop: %f (%d, %d, %d)\n",
 	      offset, fill_color.r, fill_color.g, fill_color.b));
@@ -1217,9 +1217,10 @@ void CairoOutputDev::setSoftMask(GfxState * state, double * bbox, GBool alpha,
     GfxRGB backdropColorRGB;
     groupColorSpaceStack->cs->getRGB(backdropColor, &backdropColorRGB);
     /* paint the backdrop */
-    cairo_set_source_rgb(maskCtx, backdropColorRGB.r / 65535.0,
-			 backdropColorRGB.g / 65535.0,
-			 backdropColorRGB.b / 65535.0);
+    cairo_set_source_rgb(maskCtx,
+			 colToDbl(backdropColorRGB.r),
+			 colToDbl(backdropColorRGB.g),
+			 colToDbl(backdropColorRGB.b));
 
 
     cairo_matrix_t mat;
