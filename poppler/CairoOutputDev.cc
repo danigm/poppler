@@ -222,10 +222,10 @@ void CairoOutputDev::startDoc(XRef *xrefA, Catalog *catalogA,
 void CairoOutputDev::startPage(int pageNum, GfxState *state) {
   /* set up some per page defaults */
   cairo_pattern_destroy(fill_pattern);
-  fill_pattern = cairo_pattern_create_rgb(0., 0., 0.);
-
   cairo_pattern_destroy(stroke_pattern);
-  stroke_pattern = cairo_pattern_create_rgb(0., 0., 0.);
+
+  fill_pattern = cairo_pattern_create_rgb(0., 0., 0.);
+  stroke_pattern = cairo_pattern_reference(fill_pattern);
 
   if (text)
     text->startPage(state);
@@ -413,53 +413,71 @@ void CairoOutputDev::updateLineWidth(GfxState *state) {
 }
 
 void CairoOutputDev::updateFillColor(GfxState *state) {
+  GfxRGB color = fill_color;
+
   state->getFillRGB(&fill_color);
+  if (color.r != fill_color.r ||
+      color.g != fill_color.g ||
+      color.b != fill_color.b)
+  {
+    cairo_pattern_destroy(fill_pattern);
+    fill_pattern = cairo_pattern_create_rgba(fill_color.r / 65535.0,
+					     fill_color.g / 65535.0,
+					     fill_color.b / 65535.0,
+					     fill_opacity);
 
-  cairo_pattern_destroy(fill_pattern);
-  fill_pattern = cairo_pattern_create_rgba(fill_color.r / 65535.0,
-					   fill_color.g / 65535.0,
-					   fill_color.b / 65535.0,
-					   fill_opacity);
-
-  LOG(printf ("fill color: %d %d %d\n",
-	      fill_color.r, fill_color.g, fill_color.b));
+    LOG(printf ("fill color: %d %d %d\n",
+		fill_color.r, fill_color.g, fill_color.b));
+  }
 }
 
 void CairoOutputDev::updateStrokeColor(GfxState *state) {
-  state->getStrokeRGB(&stroke_color);
+  GfxRGB color = stroke_color;
 
-  cairo_pattern_destroy(stroke_pattern);
-  stroke_pattern = cairo_pattern_create_rgba(stroke_color.r / 65535.0,
-					     stroke_color.g / 65535.0,
-					     stroke_color.b / 65535.0,
-					     stroke_opacity);
-  
-  LOG(printf ("stroke color: %d %d %d\n",
-	      stroke_color.r, stroke_color.g, stroke_color.b));
+  state->getStrokeRGB(&stroke_color);
+  if (color.r != stroke_color.r ||
+      color.g != stroke_color.g ||
+      color.b != stroke_color.b)
+  {
+    cairo_pattern_destroy(stroke_pattern);
+    stroke_pattern = cairo_pattern_create_rgba(stroke_color.r / 65535.0,
+					       stroke_color.g / 65535.0,
+					       stroke_color.b / 65535.0,
+					       stroke_opacity);
+
+    LOG(printf ("stroke color: %d %d %d\n",
+		stroke_color.r, stroke_color.g, stroke_color.b));
+  }
 }
 
 void CairoOutputDev::updateFillOpacity(GfxState *state) {
+  double opacity = fill_opacity;
+
   fill_opacity = state->getFillOpacity();
+  if (opacity != fill_opacity) {
+    cairo_pattern_destroy(fill_pattern);
+    fill_pattern = cairo_pattern_create_rgba(fill_color.r / 65535.0,
+					     fill_color.g / 65535.0,
+					     fill_color.b / 65535.0,
+					     fill_opacity);
 
-  cairo_pattern_destroy(fill_pattern);
-  fill_pattern = cairo_pattern_create_rgba(fill_color.r / 65535.0,
-					   fill_color.g / 65535.0,
-					   fill_color.b / 65535.0,
-					   fill_opacity);
-
-  LOG(printf ("fill opacity: %f\n", fill_opacity));
+    LOG(printf ("fill opacity: %f\n", fill_opacity));
+  }
 }
 
 void CairoOutputDev::updateStrokeOpacity(GfxState *state) {
-  stroke_opacity = state->getStrokeOpacity();
+  double opacity = stroke_opacity;
 
-  cairo_pattern_destroy(stroke_pattern);
-  stroke_pattern = cairo_pattern_create_rgba(stroke_color.r / 65535.0,
-					     stroke_color.g / 65535.0,
-					     stroke_color.b / 65535.0,
-					     stroke_opacity);
-  
-  LOG(printf ("stroke opacity: %f\n", stroke_opacity));
+  stroke_opacity = state->getStrokeOpacity();
+  if (opacity != stroke_opacity) {
+    cairo_pattern_destroy(stroke_pattern);
+    stroke_pattern = cairo_pattern_create_rgba(stroke_color.r / 65535.0,
+					       stroke_color.g / 65535.0,
+					       stroke_color.b / 65535.0,
+					       stroke_opacity);
+
+    LOG(printf ("stroke opacity: %f\n", stroke_opacity));
+  }
 }
 
 void CairoOutputDev::updateFillColorStop(GfxState *state, double offset) {
