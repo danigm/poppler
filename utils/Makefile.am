@@ -12,6 +12,7 @@ endif
 
 INCLUDES =					\
 	-I$(top_srcdir)				\
+	-I$(top_srcdir)/goo			\
 	-I$(top_srcdir)/utils			\
 	-I$(top_srcdir)/poppler			\
 	$(UTILS_CFLAGS)				\
