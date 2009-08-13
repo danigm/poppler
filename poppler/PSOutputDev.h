@@ -209,11 +209,11 @@ public:
   virtual void stroke(GfxState *state);
   virtual void fill(GfxState *state);
   virtual void eoFill(GfxState *state);
-  virtual void tilingPatternFill(GfxState *state, Object *str,
-				 int paintType, Dict *resDict,
-				 double *mat, double *bbox,
-				 int x0, int y0, int x1, int y1,
-				 double xStep, double yStep);
+  virtual GBool tilingPatternFill(GfxState *state, Object *str,
+				  int paintType, Dict *resDict,
+				  double *mat, double *bbox,
+				  int x0, int y0, int x1, int y1,
+				  double xStep, double yStep);
   virtual GBool functionShadedFill(GfxState *state,
 				   GfxFunctionShading *shading);
   virtual GBool axialShadedFill(GfxState *state, GfxAxialShading *shading, double /*tMin*/, double /*tMax*/);

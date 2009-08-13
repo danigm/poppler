@@ -3752,11 +3752,11 @@ void PSOutputDev::eoFill(GfxState *state) {
   writePS("f*\n");
 }
 
-void PSOutputDev::tilingPatternFill(GfxState *state, Object *str,
-				    int paintType, Dict *resDict,
-				    double *mat, double *bbox,
-				    int x0, int y0, int x1, int y1,
-				    double xStep, double yStep) {
+GBool PSOutputDev::tilingPatternFill(GfxState *state, Object *str,
+				     int paintType, Dict *resDict,
+				     double *mat, double *bbox,
+				     int x0, int y0, int x1, int y1,
+				     double xStep, double yStep) {
   PDFRectangle box;
   Gfx *gfx;
 
@@ -3814,6 +3814,8 @@ void PSOutputDev::tilingPatternFill(GfxState *state, Object *str,
   writePSFmt("{0:d} 1 {1:d} {{ {2:.4g} exch {3:.4g} mul m {4:d} 1 {5:d} {{ pop (x) show }} for }} for\n",
 	     y0, y1 - 1, x0 * xStep, yStep, x0, x1 - 1);
   writePS("grestore\n");
+
+  return gTrue;
 }
 
 GBool PSOutputDev::functionShadedFill(GfxState *state,

@@ -1927,7 +1927,7 @@ void Gfx::doTilingPatternFill(GfxTilingPattern *tPat,
   // get the clip region, check for empty
   state->getClipBBox(&cxMin, &cyMin, &cxMax, &cyMax);
   if (cxMin > cxMax || cyMin > cyMax) {
-    goto err;
+    goto restore;
   }
 
   // transform clip region bbox to pattern space
@@ -1982,30 +1982,31 @@ void Gfx::doTilingPatternFill(GfxTilingPattern *tPat,
   for (i = 0; i < 4; ++i) {
     m1[i] = m[i];
   }
-  if (out->useTilingPatternFill()) {
+  if (!contentIsHidden()) {
     m1[4] = m[4];
     m1[5] = m[5];
-    if (!contentIsHidden()) {
-      out->tilingPatternFill(state, tPat->getContentStream(),
-			     tPat->getPaintType(), tPat->getResDict(),
-			     m1, tPat->getBBox(),
-			     xi0, yi0, xi1, yi1, xstep, ystep);
-    }
-  } else {
-    for (yi = yi0; yi < yi1; ++yi) {
-      for (xi = xi0; xi < xi1; ++xi) {
-	x = xi * xstep;
-	y = yi * ystep;
-	m1[4] = x * m[0] + y * m[2] + m[4];
-	m1[5] = x * m[1] + y * m[3] + m[5];
-	doForm1(tPat->getContentStream(), tPat->getResDict(),
-		m1, tPat->getBBox());
+    if (out->useTilingPatternFill() &&
+	out->tilingPatternFill(state, tPat->getContentStream(),
+			       tPat->getPaintType(), tPat->getResDict(),
+			       m1, tPat->getBBox(),
+			       xi0, yi0, xi1, yi1, xstep, ystep)) {
+	    goto restore;
+    } else {
+      for (yi = yi0; yi < yi1; ++yi) {
+        for (xi = xi0; xi < xi1; ++xi) {
+	  x = xi * xstep;
+	  y = yi * ystep;
+	  m1[4] = x * m[0] + y * m[2] + m[4];
+	  m1[5] = x * m[1] + y * m[3] + m[5];
+	  doForm1(tPat->getContentStream(), tPat->getResDict(),
+		  m1, tPat->getBBox());
+	}
       }
     }
   }
 
   // restore graphics state
- err:
+ restore:
   restoreState();
   state->setPath(savedPath);
 }
