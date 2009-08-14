@@ -2989,10 +2989,10 @@ void SplashOutputDev::setSoftMask(GfxState * /*state*/, double * /*bbox*/,
   if (yMax + ty > bitmap->getHeight()) yMax = bitmap->getHeight() - ty;
   for (y = 0; y < yMax; ++y) {
     for (x = 0; x < xMax; ++x) {
-      tBitmap->getPixel(x, y, color);
       if (alpha) {
-	//~ unimplemented
+	p[x] = tBitmap->getAlpha(x, y);
       } else {
+	tBitmap->getPixel(x, y, color);
 	// convert to luminosity
 	switch (colorMode) {
 	case splashModeMono1:
