@@ -1,7 +1,7 @@
 /* poppler-page.cc: qt interface to poppler
  * Copyright (C) 2005, Net Integration Technologies, Inc.
  * Copyright (C) 2005, Brad Hards <bradh@frogmouth.net>
- * Copyright (C) 2005-2008, Albert Astals Cid <aacid@kde.org>
+ * Copyright (C) 2005-2009, Albert Astals Cid <aacid@kde.org>
  * Copyright (C) 2005, Stefan Kebekus <stefan.kebekus@math.uni-koeln.de>
  * Copyright (C) 2006-2009, Pino Toscano <pino@kde.org>
  * Copyright (C) 2008 Carlos Garcia Campos <carlosgc@gnome.org>
@@ -356,7 +356,7 @@ bool Page::search(const QString &text, QRectF &rect, SearchDirection direction, 
             gFalse, gTrue, gTrue, gFalse, sCase, gFalse, &sLeft, &sTop, &sRight, &sBottom );
   else if ( direction == PreviousResult )
     found = textPage->findText( u.data(), len, 
-            gTrue, gFalse, gFalse, gTrue, sCase, gFalse, &sLeft, &sTop, &sRight, &sBottom );
+            gFalse, gTrue, gTrue, gFalse, sCase, gTrue, &sLeft, &sTop, &sRight, &sBottom );
 
   textPage->decRefCnt();
 
