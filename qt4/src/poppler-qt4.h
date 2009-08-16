@@ -935,8 +935,11 @@ QString subject = m_doc->info("Subject");
 	/**
 	   The version of the PDF specification that the document
 	   conforms to
+
+	   \deprecated use getPdfVersion and avoid float point
+	   comparisons/handling
 	*/
-	double pdfVersion() const;
+	Q_DECL_DEPRECATED double pdfVersion() const;
 
 	/**
 	   The version of the PDF specification that the document
