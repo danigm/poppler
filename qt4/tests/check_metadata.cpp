@@ -213,6 +213,10 @@ void TestMetaData::checkVersion()
     QVERIFY( doc );
 
     QCOMPARE( doc->pdfVersion(), 1.6 );
+    int major = 0, minor = 0;
+    doc->getPdfVersion( &major, &minor );
+    QCOMPARE( major, 1 );
+    QCOMPARE( minor, 6 );
 
     delete doc;
 }

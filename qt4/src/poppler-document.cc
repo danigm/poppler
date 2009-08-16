@@ -382,6 +382,14 @@ namespace Poppler {
 	return m_doc->doc->getPDFMajorVersion () + m_doc->doc->getPDFMinorVersion() / 10.0;
     }
 
+    void Document::getPdfVersion(int *major, int *minor) const
+    {
+	if (major)
+	    *major = m_doc->doc->getPDFMajorVersion();
+	if (minor)
+	    *minor = m_doc->doc->getPDFMinorVersion();
+    }
+
     Page *Document::page(const QString &label) const
     {
 	GooString label_g(label.toAscii().data());
