@@ -41,6 +41,7 @@
 #ifdef WIN32
 #  include <windows.h>
 #endif
+#include "goo/gstrtod.h"
 #include "goo/GooString.h"
 #include "poppler-config.h"
 #include "GlobalParams.h"
@@ -324,7 +325,7 @@ void PDFDoc::checkHeader() {
   }
   {
     char *theLocale = setlocale(LC_NUMERIC, "C");
-    pdfVersion = atof(p);
+    pdfVersion = gatof(p);
     setlocale(LC_NUMERIC, theLocale);
   }
   // We don't do the version check. Don't add it back in.

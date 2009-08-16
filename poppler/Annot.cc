@@ -39,6 +39,7 @@
 #include <math.h>
 #include <assert.h>
 #include "goo/gmem.h"
+#include "goo/gstrtod.h"
 #include "GooList.h"
 #include "Error.h"
 #include "Object.h"
@@ -2511,7 +2512,7 @@ void AnnotWidget::drawText(GooString *text, GooString *da, GfxFontDict *fontDict
       error(-1, "Invalid font name in 'Tf' operator in field's DA string");
     }
     tok = (GooString *)daToks->get(tfPos + 1);
-    fontSize = atof(tok->getCString());
+    fontSize = gatof(tok->getCString());
   } else {
     error(-1, "Missing 'Tf' operator in field's DA string");
   }
@@ -2870,7 +2871,7 @@ void AnnotWidget::drawListBox(GooString **text, GBool *selection,
       error(-1, "Invalid font name in 'Tf' operator in field's DA string");
     }
     tok = (GooString *)daToks->get(tfPos + 1);
-    fontSize = atof(tok->getCString());
+    fontSize = gatof(tok->getCString());
   } else {
     error(-1, "Missing 'Tf' operator in field's DA string");
   }

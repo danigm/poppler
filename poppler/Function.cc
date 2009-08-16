@@ -32,6 +32,7 @@
 #include <ctype.h>
 #include <math.h>
 #include "goo/gmem.h"
+#include "goo/gstrtod.h"
 #include "Object.h"
 #include "Dict.h"
 #include "Stream.h"
@@ -1236,7 +1237,7 @@ GBool PostScriptFunction::parseCode(Stream *str, int *codePtr) {
       resizeCode(*codePtr);
       if (isReal) {
 	code[*codePtr].type = psReal;
-          code[*codePtr].real = atof(tok->getCString());
+          code[*codePtr].real = gatof(tok->getCString());
       } else {
 	code[*codePtr].type = psInt;
 	code[*codePtr].intg = atoi(tok->getCString());

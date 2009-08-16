@@ -16,6 +16,7 @@
 #include <string.h>
 #include <math.h>
 #include "goo/gmem.h"
+#include "goo/gstrtod.h"
 #include "goo/GooString.h"
 #include "FoFiEncodings.h"
 #include "FoFiType1C.h"
@@ -2464,7 +2465,7 @@ int FoFiType1C::getOp(int pos, GBool charstring, GBool *ok) {
       }
     } while (i < 64);
     buf[i] = '\0';
-    op.num = atof(buf);
+    op.num = gatof(buf);
     op.isFP = gTrue;
 
   } else if (b0 >= 32 && b0 <= 246) {

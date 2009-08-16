@@ -29,6 +29,8 @@
 #include <ctype.h>
 #include "parseargs.h"
 
+#include "goo/gstrtod.h"
+
 static const ArgDesc *findArg(const ArgDesc *args, char *arg);
 static GBool grabArg(const ArgDesc *arg, int i, int *argc, char *argv[]);
 
@@ -133,7 +135,7 @@ static GBool grabArg(const ArgDesc *arg, int i, int *argc, char *argv[]) {
     break;
   case argFP:
     if (i + 1 < *argc && isFP(argv[i+1])) {
-      *(double *)arg->val = atof(argv[i+1]);
+      *(double *)arg->val = gatof(argv[i+1]);
       n = 2;
     } else {
       ok = gFalse;
