@@ -18,7 +18,7 @@
 // Copyright (C) 2006 Kristian Høgsberg <krh@redhat.com>
 // Copyright (C) 2006 Krzysztof Kowalczyk <kkowalczyk@gmail.com>
 // Copyright (C) 2007 Jeff Muizelaar <jeff@infidigm.net>
-// Copyright (C) 2008 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2008, 2009 Albert Astals Cid <aacid@kde.org>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -39,6 +39,8 @@
 #include <math.h>
 #include "gmem.h"
 #include "GooString.h"
+
+static const int MAXIMUM_DOUBLE_PREC = 16;
 
 //------------------------------------------------------------------------
 
@@ -71,6 +73,7 @@ enum GooStringFormatType {
   fmtULongOctal,
   fmtULongBinary,
   fmtDouble,
+  fmtDoubleTrimSmallAware,
   fmtDoubleTrim,
   fmtChar,
   fmtString,
@@ -81,7 +84,7 @@ enum GooStringFormatType {
 static char *formatStrings[] = {
   "d", "x", "o", "b", "ud", "ux", "uo", "ub",
   "ld", "lx", "lo", "lb", "uld", "ulx", "ulo", "ulb",
-  "f", "g",
+  "f", "gs", "g",
   "c",
   "s",
   "t",
@@ -379,6 +382,7 @@ GooString *GooString::appendfv(char *fmt, va_list argList) {
 	    break;
 	  case fmtDouble:
 	  case fmtDoubleTrim:
+	  case fmtDoubleTrimSmallAware:
 	    args[argsLen].f = va_arg(argList, double);
 	    break;
 	  case fmtChar:
@@ -454,6 +458,9 @@ GooString *GooString::appendfv(char *fmt, va_list argList) {
 	  break;
 	case fmtDoubleTrim:
 	  formatDouble(arg.f, buf, sizeof(buf), prec, gTrue, &str, &len);
+	  break;
+	case fmtDoubleTrimSmallAware:
+	  formatDoubleSmallAware(arg.f, buf, sizeof(buf), prec, gTrue, &str, &len);
 	  break;
 	case fmtChar:
 	  buf[0] = arg.c;
@@ -603,6 +610,22 @@ void GooString::formatDouble(double x, char *buf, int bufSize, int prec,
   }
   *p = buf + i;
   *len = bufSize - i;
+}
+
+void GooString::formatDoubleSmallAware(double x, char *buf, int bufSize, int prec,
+				      GBool trim, char **p, int *len)
+{
+  double absX = fabs(x);
+  if (absX >= 0.1) {
+    formatDouble(x, buf, bufSize, prec, trim, p, len);
+  } else {
+    while (absX < 0.1 && prec < MAXIMUM_DOUBLE_PREC)
+    {
+      absX = absX * 10;
+      prec++;
+    }
+    formatDouble(x, buf, bufSize, prec, trim, p, len);
+  }
 }
 
 GooString *GooString::insert(int i, char c) {

@@ -2904,7 +2904,7 @@ void PSOutputDev::setupForm(Ref id, Object *strObj) {
 
   writePSFmt("/f_{0:d}_{1:d} {{\n", id.num, id.gen);
   writePS("q\n");
-  writePSFmt("[{0:.4g} {1:.4g} {2:.4g} {3:.4g} {4:.4g} {5:.4g}] cm\n",
+  writePSFmt("[{0:.4gs} {1:.4gs} {2:.4gs} {3:.4gs} {4:.4gs} {5:.4gs}] cm\n",
 	     m[0], m[1], m[2], m[3], m[4], m[5]);
 
   box.x1 = bbox[0];
@@ -3390,7 +3390,7 @@ void PSOutputDev::restoreState(GfxState *state) {
 
 void PSOutputDev::updateCTM(GfxState *state, double m11, double m12,
 			    double m21, double m22, double m31, double m32) {
-  writePSFmt("[{0:.4g} {1:.4g} {2:.4g} {3:.4g} {4:.4g} {5:.4g}] cm\n",
+  writePSFmt("[{0:.4gs} {1:.4gs} {2:.4gs} {3:.4gs} {4:.4gs} {5:.4gs}] cm\n",
 	     m11, m12, m21, m22, m31, m32);
 }
 
