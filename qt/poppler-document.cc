@@ -273,6 +273,14 @@ double Document::getPDFVersion() const
   return data->doc.getPDFMajorVersion () + data->doc.getPDFMinorVersion() / 10.0;
 }
 
+void Document::getPdfVersion(int *major, int *minor) const
+{
+  if (major)
+    *major = data->doc.getPDFMajorVersion();
+  if (minor)
+    *minor = data->doc.getPDFMinorVersion();
+}
+
 QDomDocument *Document::toc() const
 {
   Outline * outline = data->doc.getOutline();

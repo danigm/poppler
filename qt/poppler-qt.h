@@ -238,6 +238,18 @@ public:
   bool okToCopy() const;
   bool okToAddNotes() const;
   double getPDFVersion() const;
+  /**
+    The version of the PDF specification that the document
+    conforms to
+
+    \param major an optional pointer to a variable where store the
+    "major" number of the version
+    \param minor an optional pointer to a variable where store the
+    "minor" number of the version
+
+    \since 0.12
+  */
+  void getPdfVersion(int *major, int *minor) const;
 
   bool print(const QString &fileName, QValueList<int> pageList, double hDPI, double vDPI, int rotate);
 
