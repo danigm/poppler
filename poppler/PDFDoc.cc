@@ -323,11 +323,7 @@ void PDFDoc::checkHeader() {
     error(-1, "May not be a PDF file (continuing anyway)");
     return;
   }
-  {
-    char *theLocale = setlocale(LC_NUMERIC, "C");
-    pdfVersion = gatof(p);
-    setlocale(LC_NUMERIC, theLocale);
-  }
+  pdfVersion = gatof(p);
   // We don't do the version check. Don't add it back in.
 }
 
