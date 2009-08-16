@@ -14,7 +14,7 @@
 // under GPL version 2 or later
 //
 // Copyright (C) 2006 Dom Lachowicz <cinamod@hotmail.com>
-// Copyright (C) 2007-2008 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2007-2009 Albert Astals Cid <aacid@kde.org>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -303,7 +303,7 @@ int main(int argc, char *argv[]) {
   printf("Optimized:      %s\n", doc->isLinearized() ? "yes" : "no");
 
   // print PDF version
-  printf("PDF version:    %.1f\n", doc->getPDFVersion());
+  printf("PDF version:    %d.%d\n", doc->getPDFMajorVersion(), doc->getPDFMinorVersion());
 
   // print the metadata
   if (printMetadata && (metadata = doc->readMetadata())) {

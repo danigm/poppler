@@ -646,7 +646,7 @@ poppler_document_get_property (GObject    *object,
     case PROP_FORMAT:
       str = g_strndup("PDF-", 15); /* allocates 16 chars, pads with \0s */
       g_ascii_formatd (str + 4, 15 + 1 - 4,
-		       "%.2g", document->doc->getPDFVersion ());
+		       "%.2g", document->doc->getPDFMajorVersion () + document->doc->getPDFMinorVersion() / 10.0);
       g_value_take_string (value, str);
       break;
     case PROP_AUTHOR:

@@ -1,7 +1,7 @@
 /* poppler-document.cc: qt interface to poppler
  * Copyright (C) 2005, Net Integration Technologies, Inc.
  * Copyright (C) 2005, 2008, Brad Hards <bradh@frogmouth.net>
- * Copyright (C) 2005-2008, Albert Astals Cid <aacid@kde.org>
+ * Copyright (C) 2005-2009, Albert Astals Cid <aacid@kde.org>
  * Copyright (C) 2006-2009, Pino Toscano <pino@kde.org>
  *
  * This program is free software; you can redistribute it and/or modify
@@ -379,7 +379,7 @@ namespace Poppler {
 
     double Document::pdfVersion() const
     {
-	return m_doc->doc->getPDFVersion();
+	return m_doc->doc->getPDFMajorVersion () + m_doc->doc->getPDFMinorVersion() / 10.0;
     }
 
     Page *Document::page(const QString &label) const

@@ -304,7 +304,8 @@ void PDFDoc::checkHeader() {
   char *p;
   int i;
 
-  pdfVersion = 0;
+  pdfMajorVersion = 0;
+  pdfMinorVersion = 0;
   for (i = 0; i < headerSearchSize; ++i) {
     hdrBuf[i] = str->getChar();
   }
@@ -323,7 +324,7 @@ void PDFDoc::checkHeader() {
     error(-1, "May not be a PDF file (continuing anyway)");
     return;
   }
-  pdfVersion = gatof(p);
+  sscanf(p, "%d.%d", &pdfMajorVersion, &pdfMinorVersion);
   // We don't do the version check. Don't add it back in.
 }
 
@@ -578,7 +579,7 @@ void PDFDoc::saveIncrementalUpdate (OutStream* outStr)
 
 void PDFDoc::saveCompleteRewrite (OutStream* outStr)
 {
-  outStr->printf("%%PDF-%.1f\r\n",pdfVersion);
+  outStr->printf("%%PDF-%d.%d\r\n",pdfMajorVersion,pdfMinorVersion);
   XRef *uxref = new XRef();
   uxref->add(0, 65535, 0, gFalse);
   for(int i=0; i<xref->getNumObjects(); i++) {

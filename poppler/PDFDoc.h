@@ -14,7 +14,7 @@
 // under GPL version 2 or later
 //
 // Copyright (C) 2005, 2006, 2008 Brad Hards <bradh@frogmouth.net>
-// Copyright (C) 2005 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2005, 2009 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2008 Julien Rebetez <julienr@svn.gnome.org>
 // Copyright (C) 2008 Pino Toscano <pino@kde.org>
 // Copyright (C) 2008 Carlos Garcia Campos <carlosgc@gnome.org>
@@ -199,7 +199,8 @@ public:
   Object *getDocInfoNF(Object *obj) { return xref->getDocInfoNF(obj); }
 
   // Return the PDF version specified by the file.
-  double getPDFVersion() { return pdfVersion; }
+  int getPDFMajorVersion() { return pdfMajorVersion; }
+  int getPDFMinorVersion() { return pdfMinorVersion; }
 
   // Save this file with another name.
   int saveAs(GooString *name, PDFWriteMode mode=writeStandard);
@@ -234,7 +235,8 @@ private:
   FILE *file;
   BaseStream *str;
   void *guiData;
-  double pdfVersion;
+  int pdfMajorVersion;
+  int pdfMinorVersion;
   XRef *xref;
   Catalog *catalog;
 #ifndef DISABLE_OUTLINE

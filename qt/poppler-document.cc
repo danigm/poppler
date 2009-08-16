@@ -1,6 +1,6 @@
 /* poppler-document.cc: qt interface to poppler
  * Copyright (C) 2005, Net Integration Technologies, Inc.
- * Copyright (C) 2005-2008, Albert Astals Cid <aacid@kde.org>
+ * Copyright (C) 2005-2009, Albert Astals Cid <aacid@kde.org>
  * Copyright (C) 2006, Stefan Kebekus <stefan.kebekus@math.uni-koeln.de>
  * Copyright (C) 2006, Wilfried Huss <Wilfried.Huss@gmx.at>
  *
@@ -270,7 +270,7 @@ bool Document::okToAddNotes() const
 
 double Document::getPDFVersion() const
 {
-  return data->doc.getPDFVersion();
+  return data->doc.getPDFMajorVersion () + data->doc.getPDFMinorVersion() / 10.0;
 }
 
 QDomDocument *Document::toc() const
