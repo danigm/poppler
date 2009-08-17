@@ -40,6 +40,8 @@ enum {
 	PROP_0,
 	PROP_TITLE,
 	PROP_FORMAT,
+	PROP_FORMAT_MAJOR,
+	PROP_FORMAT_MINOR,
 	PROP_AUTHOR,
 	PROP_SUBJECT,
 	PROP_KEYWORDS,
@@ -649,6 +651,12 @@ poppler_document_get_property (GObject    *object,
 		       "%.2g", document->doc->getPDFMajorVersion () + document->doc->getPDFMinorVersion() / 10.0);
       g_value_take_string (value, str);
       break;
+    case PROP_FORMAT_MAJOR:
+      g_value_set_uint (value, document->doc->getPDFMajorVersion ());
+      break;
+    case PROP_FORMAT_MINOR:
+      g_value_set_uint (value, document->doc->getPDFMinorVersion());
+      break;
     case PROP_AUTHOR:
       document->doc->getDocInfo (&obj);
       if (obj.isDict ())
@@ -773,6 +781,24 @@ poppler_document_class_init (PopplerDocumentClass *klass)
 				"The PDF version of the document",
 				NULL,
 				G_PARAM_READABLE));
+
+  g_object_class_install_property
+	  (G_OBJECT_CLASS (klass),
+	   PROP_FORMAT_MAJOR,
+	   g_param_spec_uint ("format-major",
+			      "PDF Format Major",
+			      "The PDF major version number of the document",
+			      0, G_MAXUINT, 1,
+			      G_PARAM_READABLE));
+
+  g_object_class_install_property
+	  (G_OBJECT_CLASS (klass),
+	   PROP_FORMAT_MINOR,
+	   g_param_spec_uint ("format-minor",
+			      "PDF Format Minor",
+			      "The PDF minor version number of the document",
+			      0, G_MAXUINT, 0,
+			      G_PARAM_READABLE));
 
   g_object_class_install_property
 	  (G_OBJECT_CLASS (klass),
