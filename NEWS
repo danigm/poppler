@@ -1,3 +1,25 @@
+Release 0.11.3 (0.12 RC 1)
+
+	core:
+	 * Optimization in the Cairo renderer for some fonts
+	 * Do not apply masks when fill color space mode is csPattern in the Cairo renderer. Bug #22216
+	 * Check for overflow when parsing integers. Bug #23078
+	 * Do not save the font file twice for FreeType fonts in the Cairo renderer. Bug #20491
+	 * Use current fill_opacity when drawing images in the Cairo renderer
+	 * Fix alpha rendering in some files in the Splash renderer. Bug #22143, #22152
+	 * Implement tiling patterns in the Cairo renderer
+	 * When converting a cm matrix to PS write 4 significant digits for numbers < 1 not 4 decimals. Bug #23332
+	 * Fix changing of locale, now poppler no longer changes LC_NUMERIC to "C"
+	 * Return PDF version as two integers instead of as a double
+	
+	Qt4:
+	 * Addition of the Color Management API
+	 * Small fix to documentation
+	 * Fix backwards text search
+	
+	utils:
+	 * Add the -png flag to pdftoppm to output to PNG
+
 Release 0.11.2 (0.12 Beta 2)
 
 	core:
