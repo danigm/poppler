@@ -2,6 +2,8 @@
  * Copyright (C) 2007 Jauco Noordzij <jauco@jauco.nl>
  * Copyright (C) 2007 Dominic Lachowicz <cinamod@hotmail.com>
  * Copyright (C) 2007 Kouhei Sutou <kou@cozmixng.org>
+ * Copyright (C) 2009 Jakub Wilk <ubanus@users.sf.net>
+ * Copyright (C) 2009 Albert Astals Cid <aacid@kde.org>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -49,7 +51,9 @@
 
 static int firstPage = 1;
 static int lastPage = 0;
+static GBool quiet = gFalse;
 static GBool printHelp = gFalse;
+static GBool printVersion = gFalse;
 static GBool stout = gFalse;
 static char ownerPassword[33] = "";
 static char userPassword[33] = "";
@@ -61,20 +65,29 @@ static const ArgDesc argDesc[] = {
    "first page to convert"},
   {"-l",      argInt,      &lastPage,      0,
    "last page to convert"},
-  {"-h",      argFlag,     &printHelp,     0,
-   "print usage information"},
-  {"--help",   argFlag,     &printHelp,     0,
-   "print usage information"},
   {"--stdout"  ,argFlag,    &stout,         0,
    "use standard output"},
   {"--opw",    argString,   ownerPassword,  sizeof(ownerPassword),
    "owner password (for encrypted files)"},
   {"--upw",    argString,   userPassword,   sizeof(userPassword),
    "user password (for encrypted files)"},
+  {"-q",       argFlag,     &quiet,         0,
+   "don't print any messages or errors"},
+  {"-v",       argFlag,     &printVersion,  0,
+   "print copyright and version info"},
+  {"-h",       argFlag,     &printHelp,     0,
+   "print usage information"},
+  {"-help",    argFlag,     &printHelp,     0,
+   "print usage information"},
+  {"--help",   argFlag,     &printHelp,     0,
+   "print usage information"},
+  {"-?",       argFlag,     &printHelp,     0,
+   "print usage information"},
   {NULL}
 };
 
 int main(int argc, char *argv[]) {
+  GBool ok;
   PDFDoc *doc = NULL;
   GooString *fileName = NULL;
 //  GooString *abwFileName = NULL;
@@ -89,11 +102,23 @@ int main(int argc, char *argv[]) {
   xmlDocPtr XMLdoc = NULL;
 
   // parse args
-  parseArgs(argDesc, &argc, argv);
+  ok = parseArgs(argDesc, &argc, argv);
+  if (!ok || argc < 2 || argc > 3 || printVersion || printHelp) {
+    fprintf(stderr, "pdftoabw version %s\n", PACKAGE_VERSION);
+    fprintf(stderr, "%s\n", popplerCopyright);
+    fprintf(stderr, "%s\n", xpdfCopyright);
+    if (!printVersion) {
+      printUsage("pdftoabw", "<PDF-file> [abw-file]", argDesc);
+    }
+    goto err0;
+  }
   globalParams = new GlobalParams();
+  if (quiet) {
+    globalParams->setErrQuiet(quiet);
+  }
 
   fileName = new GooString(argv[1]);
-  if (stout || (argc < 2)){
+  if (stout || (argc < 3)){
     outpName = "-";
   }
   else {
@@ -159,7 +184,7 @@ int main(int argc, char *argv[]) {
   if(doc) delete doc;
   if(XMLdoc) xmlFreeDoc(XMLdoc);
   if(abwOut) delete abwOut;
-  
+ err0:
   // check for memory leaks
   Object::memCheck(stderr);
   gMemReport(stderr);
