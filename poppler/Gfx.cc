@@ -293,6 +293,15 @@ Operator Gfx::opTab[] = {
 
 #define numOps (sizeof(opTab) / sizeof(Operator))
 
+static inline GBool isSameGfxColor(const GfxColor &colorA, const GfxColor &colorB, uint nComps, double delta) {
+  for (uint k = 0; k < nComps; ++k) {
+    if (abs(colorA.c[k] - colorB.c[k]) > delta) {
+      return false;
+    }
+  }
+  return true;
+}
+
 //------------------------------------------------------------------------
 // GfxResources
 //------------------------------------------------------------------------
@@ -2512,12 +2521,7 @@ void Gfx::doAxialShFill(GfxAxialShading *shading) {
 	tt = t0 + (t1 - t0) * ta[j];
       }
       shading->getColor(tt, &color1);
-      for (k = 0; k < nComps; ++k) {
-	if (abs(color1.c[k] - color0.c[k]) > axialColorDelta) {
-	  break;
-	}
-      }
-      if (k == nComps) {
+      if (isSameGfxColor(color1, color0, nComps, axialColorDelta)) {
          // in these two if what we guarantee is that if we are skipping lots of 
          // positions because the colors are the same, we still create a region
          // with vertexs passing by bboxIntersections[1] and bboxIntersections[2]
@@ -2823,12 +2827,7 @@ void Gfx::doRadialShFill(GfxRadialShading *shading) {
       shading->getColor(tb, &colorB);
     }
     while (ib - ia > 1) {
-      for (k = 0; k < nComps; ++k) {
-	if (abs(colorB.c[k] - colorA.c[k]) > radialColorDelta) {
-	  break;
-	}
-      }
-      if (k == nComps && ib < radialMaxSplits) {
+      if (isSameGfxColor(colorB, colorA, nComps, radialColorDelta) && ib < radialMaxSplits) {
 	break;
       }
       ib = (ia + ib) / 2;
