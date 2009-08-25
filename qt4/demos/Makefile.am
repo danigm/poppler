@@ -16,7 +16,7 @@ SUFFIXES: .moc
 
 # This rule lets GNU make create any *.moc from the equivalent *.h
 .h.moc:
-	$(MOCQT4) -i $< -o $@
+	$(AM_V_GEN) $(MOCQT4) -i $< -o $@
 
 noinst_PROGRAMS = poppler_qt4viewer
 

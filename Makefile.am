@@ -89,4 +89,4 @@ EXTRA_DIST +=							\
 dist-hook: ChangeLog
 
 ChangeLog : .git/HEAD
-	git log --stat > ChangeLog
+	$(AM_V_GEN) git log --stat > ChangeLog

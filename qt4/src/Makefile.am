@@ -65,7 +65,7 @@ libpoppler_qt4_la_LDFLAGS = -version-info 4:0:1
 
 # This rule lets GNU make create any *.moc from the equivalent *.h
 .h.moc:
-	$(MOCQT4) -i $< -o $@
+	$(AM_V_GEN) $(MOCQT4) -i $< -o $@
 
 poppler-optcontent.lo: poppler-optcontent.moc
 

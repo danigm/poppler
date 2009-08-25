@@ -15,7 +15,7 @@ LDADDS =					\
 SUFFIXES: .moc
 
 .cpp.moc:
-	$(MOCQT4) -i $< -o $@
+	$(AM_V_GEN) $(MOCQT4) -i $< -o $@
 
 noinst_PROGRAMS = test-poppler-qt4 stress-poppler-qt4 \
 	poppler-fonts test-password-qt4 stress-poppler-dir \

@@ -29,13 +29,13 @@ poppler-enums.h: stamp-poppler-enums.h
 	@true
 
 stamp-poppler-enums.h: poppler-enums.h.template $(poppler_glib_public_headers)
-	$(GLIB_MKENUMS) --template $< $(filter-out $<,$^) > xgen-etbh \
+	$(AM_V_GEN) $(GLIB_MKENUMS) --template $< $(filter-out $<,$^) > xgen-etbh \
 	&& (cmp -s xgen-etbh poppler-enums.h || cp xgen-etbh poppler-enums.h ) \
 	&& rm -f xgen-etbh \
 	&& echo timestamp > $(@F)
 
 poppler-enums.c: poppler-enums.c.template $(poppler_glib_public_headers)
-	$(GLIB_MKENUMS) --template $< $(filter-out $<,$^) > xgen-etbc \
+	$(AM_V_GEN) $(GLIB_MKENUMS) --template $< $(filter-out $<,$^) > xgen-etbc \
 	&& (cmp -s xgen-etbc poppler-enums.c || cp xgen-etbc poppler-enums.c ) \
 	&& rm -f xgen-etbc
 
