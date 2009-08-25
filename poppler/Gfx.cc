@@ -2828,7 +2828,22 @@ void Gfx::doRadialShFill(GfxRadialShading *shading) {
     }
     while (ib - ia > 1) {
       if (isSameGfxColor(colorB, colorA, nComps, radialColorDelta) && ib < radialMaxSplits) {
-	break;
+	// The shading is not necessarily lineal so having two points with the
+	// same color does not mean all the areas in between have the same color too
+	// Do another bisection to be a bit more sure we are not doing something wrong
+	GfxColor colorC;
+	int ic = (ia + ib) / 2;
+	double sc = sMin + ((double)ic / (double)radialMaxSplits) * (sMax - sMin);
+	double tc = t0 + sc * (t1 - t0);
+	if (tc < t0) {
+	  shading->getColor(t0, &colorC);
+	} else if (tc > t1) {
+	  shading->getColor(t1, &colorC);
+	} else {
+	  shading->getColor(tc, &colorC);
+	}
+	if (isSameGfxColor(colorC, colorA, nComps, radialColorDelta))
+	  break;
       }
       ib = (ia + ib) / 2;
       sb = sMin + ((double)ib / (double)radialMaxSplits) * (sMax - sMin);
