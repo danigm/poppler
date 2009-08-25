@@ -86,11 +86,11 @@ void JPXStream::init()
 }
 
 static void libopenjpeg_error_callback(const char *msg, void * /*client_data*/) {
-  error(-1, (char*)msg);
+  error(-1, "%s", msg);
 }
 
 static void libopenjpeg_warning_callback(const char *msg, void * /*client_data*/) {
-  error(-1, (char*)msg);
+  error(-1, "%s", msg);
 }
 
 void JPXStream::init2(unsigned char *buf, int bufLen, OPJ_CODEC_FORMAT format)
