@@ -4,7 +4,7 @@
 //
 // A JPX stream decoder using OpenJPEG
 //
-// Copyright 2008 Albert Astals Cid <aacid@kde.org>
+// Copyright 2008, 2009 Albert Astals Cid <aacid@kde.org>
 //
 // Licensed under GPLv2 or later
 //
