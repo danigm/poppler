@@ -19,6 +19,7 @@
 // Copyright (C) 2006-2009 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2009 Koji Otani <sho@bbr.jp>
 // Copyright (C) 2009 Thomas Freitag <Thomas.Freitag@alfa.de>
+// Copyright (C) 2009 Christian Persch <chpe@gnome.org>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -301,7 +302,7 @@ cmsHPROFILE loadColorProfile(const char *fileName)
 
 static int CMSError(int ecode, const char *msg)
 {
-    error(-1,const_cast<char *>(msg));
+    error(-1, "%s", msg);
     return 1;
 }
 
