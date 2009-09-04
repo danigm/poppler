@@ -21,6 +21,7 @@
 // Copyright (C) 2008 Ed Avis <eda@waniasset.com>
 // Copyright (C) 2008 Hib Eris <hib@hiberis.nl>
 // Copyright (C) 2009 Peter Kerzum <kerzum@yandex-team.ru>
+// Copyright (C) 2009 David Benjamin <davidben@mit.edu>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -272,7 +273,12 @@ void GfxFont::readFontDescriptor(XRef *xref, Dict *fontDict) {
       embFontID = obj2.getRef();
       if (type != fontType1) {
 	error(-1, "Mismatch between font type and embedded font file");
-	type = fontType1;
+	if (isCIDFont()) {
+	  error(-1, "CID font has FontFile attribute; assuming CIDType0");
+	  type = fontCIDType0;
+	} else {
+	  type = fontType1;
+	}
       }
     }
     obj2.free();
@@ -281,7 +287,7 @@ void GfxFont::readFontDescriptor(XRef *xref, Dict *fontDict) {
       embFontID = obj2.getRef();
       if (type != fontTrueType && type != fontCIDType2) {
 	error(-1, "Mismatch between font type and embedded font file");
-	type = type == fontCIDType0 ? fontCIDType2 : fontTrueType;
+	type = isCIDFont() ? fontCIDType2 : fontTrueType;
       }
     }
     obj2.free();
@@ -293,26 +299,46 @@ void GfxFont::readFontDescriptor(XRef *xref, Dict *fontDict) {
 	  embFontID = obj2.getRef();
 	  if (type != fontType1) {
 	    error(-1, "Mismatch between font type and embedded font file");
-	    type = fontType1;
+	    if (isCIDFont()) {
+	      error(-1, "Embedded CID font has type Type1; assuming CIDType0");
+	      type = fontCIDType0;
+	    } else {
+	      type = fontType1;
+	    }
 	  }
 	} else if (obj4.isName("Type1C")) {
 	  embFontID = obj2.getRef();
 	  if (type != fontType1 && type != fontType1C) {
 	    error(-1, "Mismatch between font type and embedded font file");
 	  }
-	  type = fontType1C;
+	  if (isCIDFont()) {
+	    error(-1, "Embedded CID font has type Type1C; assuming CIDType0C");
+	    type = fontCIDType0C;
+	  } else {
+	    type = fontType1C;
+	  }
 	} else if (obj4.isName("TrueType")) {
 	  embFontID = obj2.getRef();
 	  if (type != fontTrueType) {
 	    error(-1, "Mismatch between font type and embedded font file");
-	    type = fontTrueType;
+	    if (isCIDFont()) {
+	      error(-1, "Embedded CID font has type TrueType; assuming CIDType2");
+	      type = fontCIDType2;
+	    } else {
+	      type = fontTrueType;
+	    }
 	  }
 	} else if (obj4.isName("CIDFontType0C")) {
 	  embFontID = obj2.getRef();
 	  if (type != fontCIDType0) {
 	    error(-1, "Mismatch between font type and embedded font file");
 	  }
-	  type = fontCIDType0C;
+	  if (isCIDFont()) {
+	    type = fontCIDType0C;
+	  } else {
+	    error(-1, "Embedded non-CID font has type CIDFontType0c; assuming Type1C");
+	    type = fontType1C;
+	  }
 	} else if (obj4.isName("OpenType")) {
 	  embFontID = obj2.getRef();
 	  if (type == fontTrueType) {
