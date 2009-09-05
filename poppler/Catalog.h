@@ -14,7 +14,7 @@
 // under GPL version 2 or later
 //
 // Copyright (C) 2005 Kristian Høgsberg <krh@redhat.com>
-// Copyright (C) 2005, 2007 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2005, 2007, 2009 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2005 Jonathan Blandford <jrb@redhat.com>
 // Copyright (C) 2005, 2006, 2008 Brad Hards <bradh@frogmouth.net>
 // Copyright (C) 2007 Julien Rebetez <julienr@svn.gnome.org>
@@ -117,6 +117,7 @@ public:
   GooString *checksum() { return m_checksum; }
   GooString *mimeType() { return m_mimetype; }
   Object &streamObject() { return m_objStr; }
+  bool isOk() { return m_objStr.isStream(); }
 
 private:
   GooString *m_name;
