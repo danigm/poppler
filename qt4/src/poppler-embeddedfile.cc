@@ -1,5 +1,5 @@
 /* poppler-document.cc: qt interface to poppler
- * Copyright (C) 2005, 2008, Albert Astals Cid <aacid@kde.org>
+ * Copyright (C) 2005, 2008, 2009, Albert Astals Cid <aacid@kde.org>
  * Copyright (C) 2005, Brad Hards <bradh@frogmouth.net>
  * Copyright (C) 2008, Pino Toscano <pino@kde.org>
  *
@@ -88,6 +88,9 @@ QString EmbeddedFile::mimeType() const
 
 QByteArray EmbeddedFile::data()
 {
+	if (!isValid())
+		return QByteArray();
+	
 	Object obj;
 	Stream *stream = m_embeddedFile->embfile->streamObject().getStream();
 	stream->reset();
@@ -100,6 +103,11 @@ QByteArray EmbeddedFile::data()
 	}
 	fileArray.resize(dataLen);
 	return fileArray;
+}
+
+bool EmbeddedFile::isValid() const
+{
+	return m_embeddedFile->embfile->isOk();
 }
 
 }
