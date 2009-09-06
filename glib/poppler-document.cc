@@ -468,6 +468,10 @@ poppler_document_get_attachments (PopplerDocument *document)
       EmbFile *emb_file;
 
       emb_file = catalog->embeddedFile (i);
+      if (!emb_file->isOk ()) {
+        delete emb_file;
+	continue;
+      }
       attachment = _poppler_attachment_new (document, emb_file);
       delete emb_file;
 
