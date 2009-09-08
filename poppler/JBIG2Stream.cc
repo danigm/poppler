@@ -1587,12 +1587,15 @@ GBool JBIG2Stream::readSymbolDictSeg(Guint segNum, Guint length,
     goto eofError;
   }
 
-  // compute symbol code length
+  // compute symbol code length, per 6.5.8.2.3
+  //  symCodeLen = ceil( log2( numInputSyms + numNewSyms ) )
   symCodeLen = 1;
-  i = (numInputSyms + numNewSyms) >> 1;
-  while (i) {
-    ++symCodeLen;
-    i >>= 1;
+  if (likely(numInputSyms + numNewSyms > 0)) { // don't fail too badly if the sum is 0
+    i = (numInputSyms + numNewSyms - 1) >> 1;
+    while (i) {
+      ++symCodeLen;
+      i >>= 1;
+    }
   }
 
   // get the input symbol bitmaps
