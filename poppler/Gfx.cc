@@ -293,8 +293,8 @@ Operator Gfx::opTab[] = {
 
 #define numOps (sizeof(opTab) / sizeof(Operator))
 
-static inline GBool isSameGfxColor(const GfxColor &colorA, const GfxColor &colorB, uint nComps, double delta) {
-  for (uint k = 0; k < nComps; ++k) {
+static inline GBool isSameGfxColor(const GfxColor &colorA, const GfxColor &colorB, Guint nComps, double delta) {
+  for (Guint k = 0; k < nComps; ++k) {
     if (abs(colorA.c[k] - colorB.c[k]) > delta) {
       return false;
     }
