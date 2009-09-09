@@ -1,3 +1,21 @@
+Release 0.12.0
+
+	core:
+	 * Fix printf format security warnings
+	 * Improve rendering of radial shadings. Bug #20238
+	 * Better fallback when there's a font type mismatch. Bug #17252
+	 * Do not crash on attachments without data stream. Bug #10386
+	 * Fix infinite loop in JBIG2Decoder. Bug #23025
+	
+	build system:
+	 * Minimizes pkg-config dependencies for Qt frontends
+	 * Add automake 1.11 support
+	 * Use the newest automake found and not the oldest
+	 * Support AM_SILENT_RULES when using automake 1.11
+	
+	utils:
+	 * Add common options to pdftoabw
+
 Release 0.11.3 (0.12 RC 1)
 
 	core:
