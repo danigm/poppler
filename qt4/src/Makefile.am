@@ -61,7 +61,7 @@ libpoppler_qt4_la_LIBADD += 			\
 	$(top_builddir)/poppler/libpoppler-arthur.la
 endif
 
-libpoppler_qt4_la_LDFLAGS = -version-info 4:0:1
+libpoppler_qt4_la_LDFLAGS = -version-info 5:0:2
 
 # This rule lets GNU make create any *.moc from the equivalent *.h
 .h.moc:
