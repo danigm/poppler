@@ -642,6 +642,7 @@ GlobalParams::GlobalParams(const char *customPopplerDataDir)
   cMapCache = new CMapCache();
 
 #ifdef WIN32
+  baseFontsInitialized = gFalse;
   winFontList = NULL;
 #endif
 

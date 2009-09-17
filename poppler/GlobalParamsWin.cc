@@ -220,7 +220,6 @@ static void AddFont(GooHash *displayFonts, char *fontName, GooString *fontPath, 
 
 void GlobalParams::setupBaseFonts(char * dir)
 {
-    static bool baseFontsInitialized = false;
     if (baseFontsInitialized)
         return;
     baseFontsInitialized = true;

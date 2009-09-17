@@ -306,6 +306,7 @@ private:
   GooHash *displayFonts;		// display font info, indexed by font name
 				//   [DisplayFontParam]
 #ifdef WIN32
+  GBool baseFontsInitialized;
   WinFontList *winFontList;	// system TrueType fonts
 #endif
   GBool psExpandSmaller;	// expand smaller pages to fill paper
