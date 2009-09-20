@@ -2232,8 +2232,6 @@ void AnnotWidget::layoutText(GooString *text, GooString *outBuf, int *i,
   int uLen, n;
   double dx, dy, ox, oy;
   GBool unicode = text->hasUnicodeMarker();
-  CharCodeToUnicode *ccToUnicode = font->getToUnicode();
-  ccToUnicode->decRefCnt();
   GBool spacePrev;              // previous character was a space
 
   // State for backtracking when more text has been processed than fits within
@@ -2297,19 +2295,28 @@ void AnnotWidget::layoutText(GooString *text, GooString *outBuf, int *i,
 
     if (noReencode) {
       outBuf->append(uChar);
-    } else if (ccToUnicode->mapToCharCode(&uChar, &c, 1)) {
-      if (font->isCIDFont()) {
-        // TODO: This assumes an identity CMap.  It should be extended to
-        // handle the general case.
-        outBuf->append((c >> 8) & 0xff);
-        outBuf->append(c & 0xff);
-      } else {
-        // 8-bit font
-        outBuf->append(c);
-      }
     } else {
-      fprintf(stderr,
-              "warning: layoutText: cannot convert U+%04X\n", uChar);
+      CharCodeToUnicode *ccToUnicode = font->getToUnicode();
+      if (!ccToUnicode) {
+        // This assumes an identity CMap.
+        outBuf->append((uChar >> 8) & 0xff);
+        outBuf->append(uChar & 0xff);
+      } else if (ccToUnicode->mapToCharCode(&uChar, &c, 1)) {
+        ccToUnicode->decRefCnt();
+        if (font->isCIDFont()) {
+          // TODO: This assumes an identity CMap.  It should be extended to
+          // handle the general case.
+          outBuf->append((c >> 8) & 0xff);
+          outBuf->append(c & 0xff);
+        } else {
+          // 8-bit font
+          outBuf->append(c);
+        }
+      } else {
+        ccToUnicode->decRefCnt();
+        fprintf(stderr,
+                "warning: layoutText: cannot convert U+%04X\n", uChar);
+      }
     }
 
     // If we see a space, then we have a linebreak opportunity.
