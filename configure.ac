@@ -43,6 +43,9 @@ win32_libs=""
 create_shared_lib=""
 auto_import_flags=""
 case "$host_os" in
+  cygwin*)
+    create_shared_lib="-no-undefined"
+  ;;
   mingw*)
     win32_libs="-lgdi32"
     create_shared_lib="-no-undefined"
