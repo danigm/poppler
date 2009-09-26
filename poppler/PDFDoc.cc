@@ -19,6 +19,7 @@
 // Copyright (C) 2008 Pino Toscano <pino@kde.org>
 // Copyright (C) 2008 Carlos Garcia Campos <carlosgc@gnome.org>
 // Copyright (C) 2009 Eric Toombs <ewtoombs@uwaterloo.ca>
+// Copyright (C) 2009 Kovid Goyal <kovid@kovidgoyal.net>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -817,7 +818,10 @@ void PDFDoc::writeTrailer (Guint uxrefOffset, int uxrefSize, OutStream* outStr, 
   char buffer[256];
   sprintf(buffer, "%i", (int)time(NULL));
   message.append(buffer);
-  message.append(fileName);
+  if (fileName)
+    message.append(fileName);
+  else
+    message.append("streamwithoutfilename.pdf");
   // file size
   unsigned int fileSize = 0;
   int c;
