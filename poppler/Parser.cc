@@ -13,7 +13,7 @@
 // All changes made under the Poppler project to this file are licensed
 // under GPL version 2 or later
 //
-// Copyright (C) 2006 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2006, 2009 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2006 Krzysztof Kowalczyk <kkowalczyk@gmail.com>
 //
 // To see a description of the changes please see the Changelog file that
@@ -209,9 +209,18 @@ Stream *Parser::makeStream(Object *dict, Guchar *fileKey,
     shift();
   } else {
     error(getPos(), "Missing 'endstream'");
-    // kludge for broken PDF files: just add 5k to the length, and
-    // hope its enough
-    length += 5000;
+    if (xref) {
+      // shift until we find the proper endstream or we change to another object or reach eof
+      while (!buf1.isCmd("endstream") && xref->getNumEntry(lexer->getPos()) == objNum && !buf1.isEOF()) {
+        shift();
+      }
+      length = lexer->getPos() - pos;
+    } else {
+      // When building the xref we can't use it so use this
+      // kludge for broken PDF files: just add 5k to the length, and
+      // hope its enough
+      length += 5000;
+    }
   }
 
   // make base stream
