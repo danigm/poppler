@@ -41,4 +41,5 @@ int main (int argc, char *argv[])
 
   delete doc;
   delete globalParams;
+  delete outputName;
 }
