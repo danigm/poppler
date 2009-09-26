@@ -848,7 +848,7 @@ void PDFDoc::writeTrailer (Guint uxrefOffset, int uxrefSize, OutStream* outStr, 
   obj1.initString(new GooString((const char*)digest, 16));
 
   //create ID array
-  Object obj2,obj3,obj4;
+  Object obj2,obj3,obj4,obj5;
   obj2.initArray(xref);
 
   if (incrUpdate) {
@@ -881,6 +881,12 @@ void PDFDoc::writeTrailer (Guint uxrefOffset, int uxrefSize, OutStream* outStr, 
     obj1.initInt(xref->getLastXRefPos());
     trailerDict->set("Prev", &obj1);
   }
+  
+  xref->getDocInfoNF(&obj5);
+  if (!obj5.isNull()) {
+    trailerDict->set("Info", &obj5);
+  }
+  
   outStr->printf( "trailer\r\n");
   writeDictionnary(trailerDict, outStr);
   outStr->printf( "\r\nstartxref\r\n");
