@@ -69,7 +69,7 @@ if test "x$have_qt" = "xyes"; then
     save_CXXFLAGS=$CXXFLAGS
     save_LIBS=$LIBS
     CXXFLAGS="$CXXFLAGS -I$qt_incdir"
-    LIBS="$LIBS $qt_libdir/$qt_test_library"
+    LIBS="$LIBS -L$qt_libdir -lqt-mt"
     AC_MSG_CHECKING([if Qt needs -pthread])
     AC_TRY_LINK([#include <qt.h>], [QString s;], [pthread_needed=no], [pthread_needed=yes])
     if test "x$pthread_needed" = "xyes"; then
@@ -89,7 +89,7 @@ if test "x$have_qt" = "xyes"; then
     fi
 
     $1[]_CXXFLAGS="-I$qt_incdir"
-    $1[]_LIBS="$qtpthread $qt_libdir/$qt_test_library"
+    $1[]_LIBS="$qtpthread -L$qt_libdir -lqt-mt"
     ifelse([$2], , :, [$2])
 else
     ifelse([$3], , [AC_MSG_FAILURE(dnl
