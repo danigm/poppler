@@ -789,11 +789,11 @@ GooString *GooString::sanitizedName(GBool psmode)
 
   for (i = 0; i < getLength(); ++i) {
     c = getChar(i);
-    if ((psmode && (c <= (char)0x20 || c >= (char)0x7f)) ||
+    if (c <= (char)0x20 || c >= (char)0x7f ||
 	c == ' ' ||
 	c == '(' || c == ')' || c == '<' || c == '>' ||
 	c == '[' || c == ']' || c == '{' || c == '}' ||
-	c == '/' || c == '%') {
+	c == '/' || c == '%' || c == '#') {
       sprintf(buf, "#%02x", c & 0xff);
       name->append(buf);
     } else {
