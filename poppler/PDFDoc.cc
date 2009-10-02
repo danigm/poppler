@@ -716,7 +716,7 @@ Guint PDFDoc::writeObject (Object* obj, Ref* ref, OutStream* outStr)
     case objReal:
     {
       GooString s;
-      s.appendf("{0:.5g}", obj->getReal());
+      s.appendf("{0:.10g}", obj->getReal());
       outStr->printf("%s ", s.getCString());
       break;
     }
