@@ -215,6 +215,11 @@ Stream *Parser::makeStream(Object *dict, Guchar *fileKey,
         shift();
       }
       length = lexer->getPos() - pos;
+      if (buf1.isCmd("endstream")) {
+        obj.initInt(length);
+        dict->dictSet("Length", &obj);
+        obj.free();
+      }
     } else {
       // When building the xref we can't use it so use this
       // kludge for broken PDF files: just add 5k to the length, and
