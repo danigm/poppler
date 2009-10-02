@@ -37,9 +37,10 @@ int main (int argc, char *argv[])
   }
 
 
-  doc->saveAs(outputName, writeForceRewrite);
+  int res = doc->saveAs(outputName, writeForceRewrite);
 
   delete doc;
   delete globalParams;
   delete outputName;
+  return res;
 }
