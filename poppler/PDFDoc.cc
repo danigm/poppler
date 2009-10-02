@@ -684,7 +684,7 @@ void PDFDoc::writeString (GooString* s, OutStream* outStr)
   } else {
     const char* c = s->getCString();
     outStr->printf("(");
-    while(*c!='\0') {
+    for(int i=0; i<s->getLength(); i++) {
       char unescaped = (*c)&0x000000ff;
       //escape if needed
       if (unescaped == '(' || unescaped == ')' || unescaped == '\\')
