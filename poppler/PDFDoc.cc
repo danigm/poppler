@@ -771,6 +771,18 @@ Guint PDFDoc::writeObject (Object* obj, Ref* ref, OutStream* outStr)
           obj1.free();
         } else {
           //raw stream copy
+          FilterStream *fs = dynamic_cast<FilterStream*>(stream);
+          if (fs) {
+            BaseStream *bs = fs->getBaseStream();
+            if (bs) {
+              Guint streamEnd;
+                if (xref->getStreamEnd(bs->getStart(), &streamEnd)) {
+                  Object val;
+                  val.initInt(streamEnd - bs->getStart());
+                  stream->getDict()->set("Length", &val);
+                }
+              }
+          }
           writeDictionnary (stream->getDict(), outStr);
           writeRawStream (stream, outStr);
         }
