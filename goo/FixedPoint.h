@@ -11,7 +11,7 @@
 #ifndef FIXEDPOINT_H
 #define FIXEDPOINT_H
 
-#include <poppler/poppler-config.h>
+#include "poppler/poppler-config.h"
 
 #if USE_FIXEDPOINT
 

@@ -19,7 +19,7 @@
 #include "goo/gtypes.h"
 #include "goo/GooList.h"
 #include "goo/GooString.h"
-#include <Object.h>
+#include "Object.h"
 
 class PageLabelInfo {
 public:

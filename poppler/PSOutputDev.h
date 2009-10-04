@@ -34,7 +34,7 @@
 #pragma interface
 #endif
 
-#include <poppler-config.h>
+#include "poppler-config.h"
 #include <stddef.h>
 #include "Object.h"
 #include "GfxState.h"
