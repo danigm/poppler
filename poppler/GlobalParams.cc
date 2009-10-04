@@ -21,6 +21,7 @@
 // Copyright (C) 2007, 2009 Jonathan Kew <jonathan_kew@sil.org>
 // Copyright (C) 2009 Petr Gajdos <pgajdos@novell.com>
 // Copyright (C) 2009 William Bader <williambader@hotmail.com>
+// Copyright (C) 2009 Kovid Goyal <kovid@kovidgoyal.net>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -37,11 +38,11 @@
 #include <stdio.h>
 #include <ctype.h>
 #ifdef ENABLE_PLUGINS
-#  ifndef WIN32
+#  ifndef _WIN32
 #    include <dlfcn.h>
 #  endif
 #endif
-#ifdef WIN32
+#ifdef _WIN32
 #  include <shlobj.h>
 #endif
 #include "goo/gmem.h"
@@ -62,7 +63,7 @@
 #include "GlobalParams.h"
 #include "GfxFont.h"
 
-#ifdef WIN32
+#ifdef _WIN32
 #  define strcasecmp stricmp
 #endif
 
@@ -91,7 +92,7 @@
 #include "UTF8.h"
 
 #ifdef ENABLE_PLUGINS
-#  ifdef WIN32
+#  ifdef _WIN32
 extern XpdfPluginVecTable xpdfPluginVecTable;
 #  endif
 #endif
@@ -139,7 +140,7 @@ DisplayFontParam::~DisplayFontParam() {
   }
 }
 
-#ifdef WIN32
+#ifdef _WIN32
 
 //------------------------------------------------------------------------
 // WinFontInfo
@@ -382,7 +383,7 @@ int CALLBACK WinFontList::enumFunc2(CONST LOGFONT *font,
   return 1;
 }
 
-#endif // WIN32
+#endif // _WIN32
 
 //------------------------------------------------------------------------
 // PSFontParam
@@ -417,7 +418,7 @@ public:
 
 private:
 
-#ifdef WIN32
+#ifdef _WIN32
   Plugin(HMODULE libA);
   HMODULE lib;
 #else
@@ -431,7 +432,7 @@ Plugin *Plugin::load(char *type, char *name) {
   Plugin *plugin;
   XpdfPluginVecTable *vt;
   XpdfBool (*xpdfInitPlugin)(void);
-#ifdef WIN32
+#ifdef _WIN32
   HMODULE libA;
 #else
   void *dlA;
@@ -442,7 +443,7 @@ Plugin *Plugin::load(char *type, char *name) {
   appendToPath(path, type);
   appendToPath(path, name);
 
-#ifdef WIN32
+#ifdef _WIN32
   path->append(".dll");
   if (!(libA = LoadLibrary(path->getCString()))) {
     error(-1, "Failed to load plugin '%s'",
@@ -476,7 +477,7 @@ Plugin *Plugin::load(char *type, char *name) {
   }
   memcpy(vt, &xpdfPluginVecTable, sizeof(xpdfPluginVecTable));
 
-#ifdef WIN32
+#ifdef _WIN32
   if (!(xpdfInitPlugin = (XpdfBool (*)(void))
 	                     GetProcAddress(libA, "xpdfInitPlugin"))) {
     error(-1, "Failed to find xpdfInitPlugin in plugin '%s'",
@@ -497,7 +498,7 @@ Plugin *Plugin::load(char *type, char *name) {
     goto err2;
   }
 
-#ifdef WIN32
+#ifdef _WIN32
   plugin = new Plugin(libA);
 #else
   plugin = new Plugin(dlA);
@@ -507,7 +508,7 @@ Plugin *Plugin::load(char *type, char *name) {
   return plugin;
 
  err2:
-#ifdef WIN32
+#ifdef _WIN32
   FreeLibrary(libA);
 #else
   dlclose(dlA);
@@ -517,7 +518,7 @@ Plugin *Plugin::load(char *type, char *name) {
   return NULL;
 }
 
-#ifdef WIN32
+#ifdef _WIN32
 Plugin::Plugin(HMODULE libA) {
   lib = libA;
 }
@@ -530,7 +531,7 @@ Plugin::Plugin(void *dlA) {
 Plugin::~Plugin() {
   void (*xpdfFreePlugin)(void);
 
-#ifdef WIN32
+#ifdef _WIN32
   if ((xpdfFreePlugin = (void (*)(void))
                             GetProcAddress(lib, "xpdfFreePlugin"))) {
     (*xpdfFreePlugin)();
@@ -578,7 +579,7 @@ GlobalParams::GlobalParams(const char *customPopplerDataDir)
     }
   }
 
-#ifdef WIN32
+#ifdef _WIN32
   // baseDir will be set by a call to setBaseDir
   baseDir = new GooString();
 #else
@@ -608,7 +609,7 @@ GlobalParams::GlobalParams(const char *customPopplerDataDir)
   psOPI = gFalse;
   psASCIIHex = gFalse;
   textEncoding = new GooString("UTF-8");
-#if defined(WIN32)
+#if defined(_WIN32)
   textEOL = eolDOS;
 #elif defined(MACOS)
   textEOL = eolMac;
@@ -641,7 +642,7 @@ GlobalParams::GlobalParams(const char *customPopplerDataDir)
   unicodeMapCache = new UnicodeMapCache();
   cMapCache = new CMapCache();
 
-#ifdef WIN32
+#ifdef _WIN32
   baseFontsInitialized = gFalse;
   winFontList = NULL;
 #endif
@@ -806,7 +807,7 @@ GlobalParams::~GlobalParams() {
   deleteGooHash(unicodeMaps, GooString);
   deleteGooList(toUnicodeDirs, GooString);
   deleteGooHash(displayFonts, DisplayFontParam);
-#ifdef WIN32
+#ifdef _WIN32
   delete winFontList;
 #endif
   deleteGooHash(psFonts, PSFontParam);

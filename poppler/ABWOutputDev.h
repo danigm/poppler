@@ -3,6 +3,7 @@
 // ABWOutputDev.h
 //
 // Copyright 2006-2007 Jauco Noordzij <jauco@jauco.nl>
+// Copyright (C) 2009 Kovid Goyal <kovid@kovidgoyal.net>
 //
 //========================================================================
 
@@ -27,7 +28,7 @@
 #include <libxml/xpath.h>
 #include <libxml/xpathInternals.h>
 
-#ifdef WIN32
+#ifdef _WIN32
 #  define SLASH '\\'
 #else
 #  define SLASH '/'

@@ -21,6 +21,7 @@
 // Copyright (C) 2008 Pino Toscano <pino@kde.org>
 // Copyright (C) 2008 Hib Eris <hib@hiberis.nl>
 // Copyright (C) 2009 Ross Moore <ross@maths.mq.edu.au>
+// Copyright (C) 2009 Kovid Goyal <kovid@kovidgoyal.net>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -38,7 +39,7 @@
 #include <stddef.h>
 #include <math.h>
 #include <ctype.h>
-#ifdef WIN32
+#ifdef _WIN32
 #include <fcntl.h> // for O_BINARY
 #include <io.h>    // for setmode
 #endif
@@ -4631,7 +4632,7 @@ TextOutputDev::TextOutputDev(char *fileName, GBool physLayoutA,
   if (fileName) {
     if (!strcmp(fileName, "-")) {
       outputStream = stdout;
-#ifdef WIN32
+#ifdef _WIN32
       // keep DOS from munging the end-of-line characters
       setmode(fileno(stdout), O_BINARY);
 #endif

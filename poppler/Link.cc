@@ -17,6 +17,7 @@
 // Copyright (C) 2007 Carlos Garcia Campos <carlosgc@gnome.org>
 // Copyright (C) 2008 Hugo Mercier <hmercier31@gmail.com>
 // Copyright (C) 2008, 2009 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2009 Kovid Goyal <kovid@kovidgoyal.net>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -476,7 +477,7 @@ LinkLaunch::LinkLaunch(Object *actionObj) {
       }
     } else {
       obj1.free();
-#ifdef WIN32
+#ifdef _WIN32
       if (actionObj->dictLookup("Win", &obj1)->isDict()) {
 	obj1.dictLookup("F", &obj2);
 	if (getFileSpecNameForPlatform (&obj2, &obj3)) {

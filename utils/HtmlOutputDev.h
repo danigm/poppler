@@ -17,6 +17,7 @@
 // Copyright (C) 2006, 2007, 2009 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2008-2009 Warren Toomey <wkt@tuhs.org>
 // Copyright (C) 2009 Carlos Garcia Campos <carlosgc@gnome.org>
+// Copyright (C) 2009 Kovid Goyal <kovid@kovidgoyal.net>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -42,7 +43,7 @@
 #include "UnicodeMap.h"
 
 
-#ifdef WIN32
+#ifdef _WIN32
 #  define SLASH '\\'
 #else
 #  define SLASH '/'

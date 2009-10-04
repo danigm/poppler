@@ -6,6 +6,7 @@
 // under GPL version 2 or later
 //
 // Copyright (C) 2008-2009 Carlos Garcia Campos <carlosgc@gnome.org>
+// Copyright (C) 2009 Kovid Goyal <kovid@kovidgoyal.net>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -73,7 +74,7 @@ GBool getFileSpecNameForPlatform (Object *fileSpec, Object *fileName)
       fileName->free();
       if (!fileSpec->dictLookup("F", fileName)->isString ()) {
         fileName->free();
-#ifdef WIN32
+#ifdef _WIN32
 	char *platform = "DOS";
 #else
 	char *platform = "Unix";
@@ -91,7 +92,7 @@ GBool getFileSpecNameForPlatform (Object *fileSpec, Object *fileName)
   }
 
   // system-dependent path manipulation
-#ifdef WIN32
+#ifdef _WIN32
   int i, j;
   GooString *name = fileName->getString();
   // "//...."             --> "\...."
@@ -133,7 +134,7 @@ GBool getFileSpecNameForPlatform (Object *fileSpec, Object *fileName)
       name->del(i);
     }
   }
-#endif /* WIN32 */
+#endif /* _WIN32 */
 
   return gTrue;
 }

@@ -17,6 +17,7 @@
 //
 // Copyright (C) 2006 Kristian Høgsberg <krh@redhat.com>
 // Copyright (C) 2009 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2009 Kovid Goyal <kovid@kovidgoyal.net>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -30,7 +31,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 extern "C" {
-#if defined(WIN32)
+#if defined(_WIN32)
 #  include <sys/stat.h>
 #  ifdef FPTEX
 #    include <win32lib.h>
@@ -141,7 +142,7 @@ private:
 
   GooString *path;		// directory path
   GBool doStat;			// call stat() for each entry?
-#if defined(WIN32)
+#if defined(_WIN32)
   WIN32_FIND_DATA ffd;
   HANDLE hnd;
 #elif defined(ACORN)

@@ -61,7 +61,7 @@ struct XpdfSecurityHandler;
 class GlobalParams;
 class GfxFont;
 class Stream;
-#ifdef WIN32
+#ifdef _WIN32
 class WinFontList;
 #endif
 
@@ -305,7 +305,7 @@ private:
   GooList *toUnicodeDirs;		// list of ToUnicode CMap dirs [GooString]
   GooHash *displayFonts;		// display font info, indexed by font name
 				//   [DisplayFontParam]
-#ifdef WIN32
+#ifdef _WIN32
   GBool baseFontsInitialized;
   WinFontList *winFontList;	// system TrueType fonts
 #endif

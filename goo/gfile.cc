@@ -20,6 +20,7 @@
 // Copyright (C) 2008 Adam Batkin <adam@batkin.net>
 // Copyright (C) 2008 Hib Eris <hib@hiberis.nl>
 // Copyright (C) 2009 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2009 Kovid Goyal <kovid@kovidgoyal.net>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -28,7 +29,7 @@
 
 #include <config.h>
 
-#ifdef WIN32
+#ifdef _WIN32
 #  include <time.h>
 #else
 #  if defined(MACOS)
@@ -46,7 +47,7 @@
 #  if defined(VMS) && (__DECCXX_VER < 50200000)
 #    include <unixlib.h>
 #  endif
-#endif // WIN32
+#endif // _WIN32
 #include "GooString.h"
 #include "gfile.h"
 
@@ -63,7 +64,7 @@ GooString *getHomeDir() {
   //---------- VMS ----------
   return new GooString("SYS$LOGIN:");
 
-#elif defined(__EMX__) || defined(WIN32)
+#elif defined(__EMX__) || defined(_WIN32)
   //---------- OS/2+EMX and Win32 ----------
   char *s;
   GooString *ret;
@@ -109,7 +110,7 @@ GooString *getCurrentDir() {
 
 #if defined(__EMX__)
   if (_getcwd2(buf, sizeof(buf)))
-#elif defined(WIN32)
+#elif defined(_WIN32)
   if (GetCurrentDirectory(sizeof(buf), buf))
 #elif defined(ACORN)
   if (strcpy(buf, "@"))
@@ -163,7 +164,7 @@ GooString *appendToPath(GooString *path, char *fileName) {
   }
   return path;
 
-#elif defined(WIN32)
+#elif defined(_WIN32)
   //---------- Win32 ----------
   GooString *tmp;
   char buf[256];
@@ -299,7 +300,7 @@ GooString *grabPath(char *fileName) {
     return new GooString(fileName, p + 1 - fileName);
   return new GooString();
 
-#elif defined(__EMX__) || defined(WIN32)
+#elif defined(__EMX__) || defined(_WIN32)
   //---------- OS/2+EMX and Win32 ----------
   char *p;
 
@@ -343,7 +344,7 @@ GBool isAbsolutePath(char *path) {
   return strchr(path, ':') ||
 	 (path[0] == '[' && path[1] != '.' && path[1] != '-');
 
-#elif defined(__EMX__) || defined(WIN32)
+#elif defined(__EMX__) || defined(_WIN32)
   //---------- OS/2+EMX and Win32 ----------
   return path[0] == '/' || path[0] == '\\' || path[1] == ':';
 
@@ -373,7 +374,7 @@ GooString *makePathAbsolute(GooString *path) {
   }
   return path;
 
-#elif defined(WIN32)
+#elif defined(_WIN32)
   //---------- Win32 ----------
   char buf[_MAX_PATH];
   char *fp;
@@ -444,7 +445,7 @@ GooString *makePathAbsolute(GooString *path) {
 }
 
 time_t getModTime(char *fileName) {
-#ifdef WIN32
+#ifdef _WIN32
   //~ should implement this, but it's (currently) only used in xpdf
   return 0;
 #else
@@ -458,7 +459,7 @@ time_t getModTime(char *fileName) {
 }
 
 GBool openTempFile(GooString **name, FILE **f, char *mode) {
-#if defined(WIN32)
+#if defined(_WIN32)
   //---------- Win32 ----------
   char *tempDir;
   GooString *s, *s2;
@@ -585,7 +586,7 @@ char *getLine(char *buf, int size, FILE *f) {
 GDirEntry::GDirEntry(char *dirPath, char *nameA, GBool doStat) {
 #ifdef VMS
   char *p;
-#elif defined(WIN32)
+#elif defined(_WIN32)
   DWORD fa;
 #elif defined(ACORN)
 #else
@@ -603,7 +604,7 @@ GDirEntry::GDirEntry(char *dirPath, char *nameA, GBool doStat) {
       dir = gTrue;
 #elif defined(ACORN)
 #else
-#ifdef WIN32
+#ifdef _WIN32
     fa = GetFileAttributes(fullPath->getCString());
     dir = (fa != 0xFFFFFFFF && (fa & FILE_ATTRIBUTE_DIRECTORY));
 #else
@@ -622,7 +623,7 @@ GDirEntry::~GDirEntry() {
 GDir::GDir(char *name, GBool doStatA) {
   path = new GooString(name);
   doStat = doStatA;
-#if defined(WIN32)
+#if defined(_WIN32)
   GooString *tmp;
 
   tmp = path->copy();
@@ -641,7 +642,7 @@ GDir::GDir(char *name, GBool doStatA) {
 
 GDir::~GDir() {
   delete path;
-#if defined(WIN32)
+#if defined(_WIN32)
   if (hnd != INVALID_HANDLE_VALUE) {
     FindClose(hnd);
     hnd = INVALID_HANDLE_VALUE;
@@ -657,7 +658,7 @@ GDir::~GDir() {
 GDirEntry *GDir::getNextEntry() {
   GDirEntry *e;
 
-#if defined(WIN32)
+#if defined(_WIN32)
   if (hnd != INVALID_HANDLE_VALUE) {
     e = new GDirEntry(path->getCString(), ffd.cFileName, doStat);
     if (!FindNextFile(hnd, &ffd)) {
@@ -701,7 +702,7 @@ GDirEntry *GDir::getNextEntry() {
 }
 
 void GDir::rewind() {
-#ifdef WIN32
+#ifdef _WIN32
   GooString *tmp;
 
   if (hnd != INVALID_HANDLE_VALUE)

@@ -19,6 +19,7 @@
 // Copyright (C) 2008 Pino Toscano <pino@kde.org>
 // Copyright (C) 2008 Carlos Garcia Campos <carlosgc@gnome.org>
 // Copyright (C) 2009 Eric Toombs <ewtoombs@uwaterloo.ca>
+// Copyright (C) 2009 Kovid Goyal <kovid@kovidgoyal.net>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -63,7 +64,7 @@ public:
   PDFDoc(GooString *fileNameA, GooString *ownerPassword = NULL,
 	 GooString *userPassword = NULL, void *guiDataA = NULL);
 
-#ifdef WIN32
+#ifdef _WIN32
   PDFDoc(wchar_t *fileNameA, int fileNameLen, GooString *ownerPassword = NULL,
 	 GooString *userPassword = NULL, void *guiDataA = NULL);
 #endif

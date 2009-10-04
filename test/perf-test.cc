@@ -20,7 +20,7 @@
 #pragma comment(linker,"/manifestdependency:\"type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='x86' publicKeyToken='6595b64144ccf1df' language='*'\"")
 #endif
 
-#ifdef WIN32
+#ifdef _WIN32
 #include <windows.h>
 #endif
 
@@ -297,7 +297,7 @@ bool str_endswith(const char *txt, const char *end)
    sleep_milliseconds */
 void sleep_milliseconds(int milliseconds)
 {
-#ifdef WIN32
+#ifdef _WIN32
     Sleep((DWORD)milliseconds);
 #else
     struct timespec tv;
@@ -456,7 +456,7 @@ struct FindFileState {
     char dirpath[MAX_FILENAME_SIZE]; /* current dir path */
     char pattern[MAX_FILENAME_SIZE]; /* search pattern */
     const char *bufptr;
-#ifdef WIN32
+#ifdef _WIN32
     WIN32_FIND_DATA fileinfo;
     HANDLE dir;
 #else
@@ -464,7 +464,7 @@ struct FindFileState {
 #endif
 };
 
-#ifdef WIN32
+#ifdef _WIN32
 #include <windows.h>
 #include <sys/timeb.h>
 #include <direct.h>
@@ -495,7 +495,7 @@ int fnmatch(const char *pattern, const char *string, int flags)
 #include <fnmatch.h>
 #endif
 
-#ifdef WIN32
+#ifdef _WIN32
 /* on windows to query dirs we need foo\* to get files in this directory.
     foo\ always fails and foo will return just info about foo directory,
     not files in this directory */
@@ -520,12 +520,12 @@ FindFileState *find_file_open(const char *path, const char *pattern)
         return NULL;
     strcpy_s(s->path, sizeof(s->path), path);
     strcpy_s(s->dirpath, sizeof(s->path), path);
-#ifdef WIN32
+#ifdef _WIN32
     win_correct_path_for_FindFirstFile(s->path, sizeof(s->path));
 #endif
     strcpy_s(s->pattern, sizeof(s->pattern), pattern);
     s->bufptr = s->path;
-#ifdef WIN32
+#ifdef _WIN32
     s->dir = INVALID_HANDLE_VALUE;
 #else
     s->dir = NULL;
@@ -553,7 +553,7 @@ char *makepath(char *buf, int buf_size, const char *path,
     return buf;
 }
 
-#ifdef WIN32
+#ifdef _WIN32
 static int skip_matching_file(const char *filename)
 {
     if (0 == strcmp(".", filename))
@@ -566,7 +566,7 @@ static int skip_matching_file(const char *filename)
 
 int find_file_next(FindFileState *s, char *filename, int filename_size_max)
 {
-#ifdef WIN32
+#ifdef _WIN32
     int    fFound;
     if (INVALID_HANDLE_VALUE == s->dir) {
         s->dir = FindFirstFile(s->path, &(s->fileinfo));
@@ -633,7 +633,7 @@ CheckFile:
 
 void find_file_close(FindFileState *s)
 {
-#ifdef WIN32
+#ifdef _WIN32
     if (INVALID_HANDLE_VALUE != s->dir)
        FindClose(s->dir);
 #else
@@ -731,7 +731,7 @@ void StrList_Destroy(StrList **root)
     *root = NULL;
 }
 
-#ifndef WIN32
+#ifndef _WIN32
 void OutputDebugString(const char *txt)
 {
     /* do nothing */
@@ -1120,7 +1120,7 @@ Exit:
 }
 #endif
 
-#ifdef WIN32
+#ifdef _WIN32
 #include <sys/types.h>
 #include <sys/stat.h>
 

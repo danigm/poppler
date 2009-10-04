@@ -24,6 +24,7 @@
 // Copyright (C) 2009 Till Kamppeter <till.kamppeter@gmail.com>
 // Copyright (C) 2009 Carlos Garcia Campos <carlosgc@gnome.org>
 // Copyright (C) 2009 William Bader <williambader@hotmail.com>
+// Copyright (C) 2009 Kovid Goyal <kovid@kovidgoyal.net>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -1008,7 +1009,7 @@ PSOutputDev::PSOutputDev(const char *fileName, XRef *xrefA, Catalog *catalog,
   } else if (fileName[0] == '|') {
     fileTypeA = psPipe;
 #ifdef HAVE_POPEN
-#ifndef WIN32
+#ifndef _WIN32
     signal(SIGPIPE, (SignalFunc)SIG_IGN);
 #endif
     if (!(f = popen(fileName + 1, "w"))) {
@@ -1219,7 +1220,7 @@ PSOutputDev::~PSOutputDev() {
 #ifdef HAVE_POPEN
     else if (fileType == psPipe) {
       pclose((FILE *)outputStream);
-#ifndef WIN32
+#ifndef _WIN32
       signal(SIGPIPE, (SignalFunc)SIG_DFL);
 #endif
     }

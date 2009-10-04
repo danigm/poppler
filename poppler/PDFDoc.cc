@@ -39,7 +39,7 @@
 #include <stddef.h>
 #include <string.h>
 #include <time.h>
-#ifdef WIN32
+#ifdef _WIN32
 #  include <windows.h>
 #endif
 #include "goo/gstrtod.h"
@@ -115,7 +115,7 @@ PDFDoc::PDFDoc(GooString *fileNameA, GooString *ownerPassword,
   ok = setup(ownerPassword, userPassword);
 }
 
-#ifdef WIN32
+#ifdef _WIN32
 PDFDoc::PDFDoc(wchar_t *fileNameA, int fileNameLen, GooString *ownerPassword,
 	       GooString *userPassword, void *guiDataA) {
   OSVERSIONINFO version;
