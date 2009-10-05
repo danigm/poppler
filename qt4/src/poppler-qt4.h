@@ -679,7 +679,8 @@ delete it;
 	*/
 	enum RenderHint {
 	    Antialiasing = 0x00000001,      ///< Antialiasing for graphics
-	    TextAntialiasing = 0x00000002   ///< Antialiasing for text
+	    TextAntialiasing = 0x00000002,  ///< Antialiasing for text
+	    TextHinting = 0x00000004        ///< Hinting for text \since 0.12.1
 	};
 	Q_DECLARE_FLAGS( RenderHints, RenderHint )
 

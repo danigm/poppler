@@ -513,7 +513,7 @@ namespace Poppler {
 
         // the only way to set antialiasing for Splash is on creation
         if ( m_doc->m_backend == Document::SplashBackend &&
-             ( hint & ( Document::Antialiasing || Document::TextAntialiasing ) ) )
+             ( hint & ( Document::Antialiasing || Document::TextAntialiasing || Document::TextHinting ) ) )
         {
             delete m_doc->m_outputDev;
             m_doc->m_outputDev = NULL;
