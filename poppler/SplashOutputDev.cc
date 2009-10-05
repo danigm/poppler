@@ -829,6 +829,7 @@ SplashOutputDev::SplashOutputDev(SplashColorMode colorModeA,
   vectorAntialias = allowAntialias &&
 		      globalParams->getVectorAntialias() &&
 		      colorMode != splashModeMono1;
+  enableFreeTypeHinting = gFalse;
   setupScreenParams(72.0, 72.0);
   reverseVideo = reverseVideoA;
   if (paperColorA != NULL) {
@@ -938,7 +939,7 @@ void SplashOutputDev::startDoc(XRef *xrefA) {
 #endif
 #if HAVE_FREETYPE_FREETYPE_H || HAVE_FREETYPE_H
 				    globalParams->getEnableFreeType(),
-				    globalParams->getForceNoFTAutoHinting(),
+				    enableFreeTypeHinting,
 #endif
 				    allowAntialias &&
 				      globalParams->getAntialias() &&
@@ -3106,3 +3107,8 @@ void SplashOutputDev::setVectorAntialias(GBool vaa) {
   splash->setVectorAntialias(vaa);
 }
 #endif
+
+void SplashOutputDev::setFreeTypeHinting(GBool enable)
+{
+  enableFreeTypeHinting = enable;
+}

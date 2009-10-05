@@ -223,6 +223,8 @@ public:
   virtual void setVectorAntialias(GBool vaa);
 #endif
 
+  void setFreeTypeHinting(GBool enable);
+
 private:
 
   void setupScreenParams(double hDPI, double vDPI);
@@ -253,6 +255,7 @@ private:
   GBool bitmapTopDown;
   GBool allowAntialias;
   GBool vectorAntialias;
+  GBool enableFreeTypeHinting;
   GBool reverseVideo;		// reverse video mode
   SplashColor paperColor;	// paper color
   SplashScreenParams screenParams;

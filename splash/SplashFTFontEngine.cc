@@ -58,11 +58,11 @@ static void fileWrite(void *stream, char *data, int len) {
 // SplashFTFontEngine
 //------------------------------------------------------------------------
 
-SplashFTFontEngine::SplashFTFontEngine(GBool aaA, GBool noahA, FT_Library libA) {
+SplashFTFontEngine::SplashFTFontEngine(GBool aaA, GBool enableFreeTypeHintingA, FT_Library libA) {
   FT_Int major, minor, patch;
 
   aa = aaA;
-  noah = noahA;
+  enableFreeTypeHinting = enableFreeTypeHintingA;
   lib = libA;
 
   // as of FT 2.1.8, CID fonts are indexed by CID instead of GID
@@ -71,13 +71,13 @@ SplashFTFontEngine::SplashFTFontEngine(GBool aaA, GBool noahA, FT_Library libA) 
             (major == 2 && (minor > 1 || (minor == 1 && patch > 7)));
 }
 
-SplashFTFontEngine *SplashFTFontEngine::init(GBool aaA, GBool noahA) {
+SplashFTFontEngine *SplashFTFontEngine::init(GBool aaA, GBool enableFreeTypeHintingA) {
   FT_Library libA;
 
   if (FT_Init_FreeType(&libA)) {
     return NULL;
   }
-  return new SplashFTFontEngine(aaA, noahA, libA);
+  return new SplashFTFontEngine(aaA, enableFreeTypeHintingA, libA);
 }
 
 SplashFTFontEngine::~SplashFTFontEngine() {

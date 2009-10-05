@@ -206,7 +206,6 @@ public:
   GBool getEnableFreeType();
   GBool getAntialias();
   GBool getVectorAntialias();
-  GBool getForceNoFTAutoHinting();
   GBool getStrokeAdjust();
   ScreenType getScreenType();
   int getScreenSize();
@@ -251,7 +250,6 @@ public:
   GBool setEnableFreeType(char *s);
   GBool setAntialias(char *s);
   GBool setVectorAntialias(char *s);
-  GBool setForceNoFTAutoHinting(char *s);
   void setStrokeAdjust(GBool strokeAdjust);
   void setScreenType(ScreenType st);
   void setScreenSize(int size);
@@ -336,7 +334,6 @@ private:
   GBool enableFreeType;		// FreeType enable flag
   GBool antialias;		// anti-aliasing enable flag
   GBool vectorAntialias;	// vector anti-aliasing enable flag
-  GBool forceNoFTAutoHinting;  // force to disable FT autohinting
   GBool strokeAdjust;		// stroke adjustment enable flag
   ScreenType screenType;	// halftone screen type
   int screenSize;		// screen matrix size

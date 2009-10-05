@@ -622,7 +622,6 @@ GlobalParams::GlobalParams(const char *customPopplerDataDir)
   enableFreeType = gTrue;
   antialias = gTrue;
   vectorAntialias = gTrue;
-  forceNoFTAutoHinting = gFalse;
   strokeAdjust = gTrue;
   screenType = screenUnset;
   screenSize = -1;
@@ -1408,15 +1407,6 @@ GBool GlobalParams::getVectorAntialias() {
   return f;
 }
 
-GBool GlobalParams::getForceNoFTAutoHinting() {
-  GBool f;
-
-  lockGlobalParams;
-  f = forceNoFTAutoHinting;
-  unlockGlobalParams;
-  return f;
-}
-
 GBool GlobalParams::getStrokeAdjust() {
   GBool f;
 
@@ -1745,15 +1735,6 @@ GBool GlobalParams::setVectorAntialias(char *s) {
 
   lockGlobalParams;
   ok = parseYesNo2(s, &vectorAntialias);
-  unlockGlobalParams;
-  return ok;
-}
-
-GBool GlobalParams::setForceNoFTAutoHinting(char *s) {
-  GBool ok;
-
-  lockGlobalParams;
-  ok = parseYesNo2(s, &forceNoFTAutoHinting);
   unlockGlobalParams;
   return ok;
 }
