@@ -29,6 +29,9 @@ enum {
     ANNOTS_Y2_COLUMN,
     ANNOTS_TYPE_COLUMN,
     ANNOTS_COLOR_COLUMN,
+    ANNOTS_FLAG_INVISIBLE_COLUMN,
+    ANNOTS_FLAG_HIDDEN_COLUMN,
+    ANNOTS_FLAG_PRINT_COLUMN,
     ANNOTS_COLUMN,
     N_COLUMNS
 };
@@ -478,6 +481,7 @@ pgd_annots_get_annots (GtkWidget     *button,
         GtkTreeIter          iter;
         gchar               *x1, *y1, *x2, *y2;
         GdkPixbuf           *pixbuf;
+	PopplerAnnotFlag     flags;
 
         amapping = (PopplerAnnotMapping *) l->data;
 
@@ -487,15 +491,19 @@ pgd_annots_get_annots (GtkWidget     *button,
         y2 = g_strdup_printf ("%.2f", amapping->area.y2);
 
         pixbuf = get_annot_color (amapping->annot);
+	flags = poppler_annot_get_flags (amapping->annot);
 
         gtk_list_store_append (demo->model, &iter);
         gtk_list_store_set (demo->model, &iter,
-                            ANNOTS_X1_COLUMN, x1, 
+                            ANNOTS_X1_COLUMN, x1,
                             ANNOTS_Y1_COLUMN, y1,
                             ANNOTS_X2_COLUMN, x2,
                             ANNOTS_Y2_COLUMN, y2,
                             ANNOTS_TYPE_COLUMN, get_annot_type (amapping->annot),
                             ANNOTS_COLOR_COLUMN, pixbuf,
+			    ANNOTS_FLAG_INVISIBLE_COLUMN, (flags & POPPLER_ANNOT_FLAG_INVISIBLE),
+			    ANNOTS_FLAG_HIDDEN_COLUMN, (flags & POPPLER_ANNOT_FLAG_HIDDEN),
+			    ANNOTS_FLAG_PRINT_COLUMN, (flags & POPPLER_ANNOT_FLAG_PRINT),
                             ANNOTS_COLUMN, amapping->annot,
                            -1);
 
@@ -606,7 +614,9 @@ pgd_annots_create_widget (PopplerDocument *document)
     demo->model = gtk_list_store_new (N_COLUMNS, G_TYPE_STRING,
                                       G_TYPE_STRING, G_TYPE_STRING,
                                       G_TYPE_STRING, G_TYPE_STRING,
-                                      GDK_TYPE_PIXBUF, G_TYPE_OBJECT);
+                                      GDK_TYPE_PIXBUF, G_TYPE_BOOLEAN,
+				      G_TYPE_BOOLEAN, G_TYPE_BOOLEAN,
+				      G_TYPE_OBJECT);
     treeview = gtk_tree_view_new_with_model (GTK_TREE_MODEL (demo->model));
 
     renderer = gtk_cell_renderer_text_new ();
@@ -646,6 +656,27 @@ pgd_annots_create_widget (PopplerDocument *document)
                                                  ANNOTS_COLOR_COLUMN, "Color",
                                                  renderer,
                                                  "pixbuf", ANNOTS_COLOR_COLUMN,
+                                                 NULL);
+
+    renderer = gtk_cell_renderer_toggle_new ();
+    gtk_tree_view_insert_column_with_attributes (GTK_TREE_VIEW (treeview),
+                                                 ANNOTS_FLAG_INVISIBLE_COLUMN, "Invisible",
+                                                 renderer,
+                                                 "active", ANNOTS_FLAG_INVISIBLE_COLUMN,
+                                                 NULL);
+
+    renderer = gtk_cell_renderer_toggle_new ();
+    gtk_tree_view_insert_column_with_attributes (GTK_TREE_VIEW (treeview),
+                                                 ANNOTS_FLAG_HIDDEN_COLUMN, "Hidden",
+                                                 renderer,
+                                                 "active", ANNOTS_FLAG_HIDDEN_COLUMN,
+                                                 NULL);
+
+    renderer = gtk_cell_renderer_toggle_new ();
+    gtk_tree_view_insert_column_with_attributes (GTK_TREE_VIEW (treeview),
+                                                 ANNOTS_FLAG_PRINT_COLUMN, "Print",
+                                                 renderer,
+                                                 "active", ANNOTS_FLAG_PRINT_COLUMN,
                                                  NULL);
 
     selection = gtk_tree_view_get_selection (GTK_TREE_VIEW (treeview));
