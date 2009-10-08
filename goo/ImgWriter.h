@@ -5,6 +5,7 @@
 // This file is licensed under the GPLv2 or later
 //
 // Copyright (C) 2009 Stefan Thomas <thomas@eload24.com>
+// Copyright (C) 2009 Albert Astals Cid <aacid@kde.org>
 //
 //========================================================================
 
@@ -17,6 +18,7 @@
 class ImgWriter
 {
 	public:
+		virtual ~ImgWriter();
 		virtual bool init(FILE *f, int width, int height) = 0;
 		
 		virtual bool writePointers(unsigned char **rowPointers, int rowCount) = 0;

@@ -145,6 +145,7 @@ set(poppler_SRCS
   goo/FixedPoint.cc
   goo/PNGWriter.cc
   goo/JpegWriter.cc
+  goo/ImgWriter.cc
   goo/gstrtod.cc
   fofi/FoFiBase.cc
   fofi/FoFiEncodings.cc

@@ -34,4 +34,5 @@ libgoo_la_SOURCES =				\
 	FixedPoint.cc				\
 	PNGWriter.cc				\
 	JpegWriter.cc				\
+	goo/ImgWriter.cc			\
 	gstrtod.cc
