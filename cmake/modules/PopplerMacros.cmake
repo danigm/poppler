@@ -88,7 +88,7 @@ endif(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
 if(CMAKE_COMPILER_IS_GNUCXX)
   # set the default compile warnings
   set(DEFAULT_COMPILE_WARNINGS_NO)
-  set(DEFAULT_COMPILE_WARNINGS_YES "-Wall -Wno-write-strings")
+  set(DEFAULT_COMPILE_WARNINGS_YES "-ansi -Wall -Wno-write-strings")
   set(DEFAULT_COMPILE_WARNINGS_KDE "-Wno-long-long -Wundef -ansi -D_XOPEN_SOURCE=500 -D_BSD_SOURCE -Wcast-align -Wconversion -Wchar-subscripts -Wall -W -Wpointer-arith -Wwrite-strings -O2 -Wformat-security -Wmissing-format-attribute -fno-exceptions -fno-check-new -fno-common")
 
   set(CMAKE_CXX_FLAGS                "-Wnon-virtual-dtor -Woverloaded-virtual")
