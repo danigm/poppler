@@ -1,32 +1,29 @@
 //========================================================================
 //
-// PNGWriter.h
+// JpegWriter.h
 //
 // This file is licensed under the GPLv2 or later
 //
-// Copyright (C) 2009 Warren Toomey <wkt@tuhs.org>
-// Copyright (C) 2009 Shen Liang <shenzhuxi@gmail.com>
-// Copyright (C) 2009 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2009 Stefan Thomas <thomas@eload24.com>
 //
 //========================================================================
 
-#ifndef PNGWRITER_H
-#define PNGWRITER_H
+#ifndef JPEGWRITER_H
+#define JPEGWRITER_H
 
 #include <config.h>
 
-#ifdef ENABLE_LIBPNG
+#ifdef ENABLE_LIBJPEG
 
 #include <cstdio>
-#include <png.h>
+#include <jpeglib.h>
 #include "ImgWriter.h"
 
-class PNGWriter : public ImgWriter
+class JpegWriter : public ImgWriter
 {
 	public:
-		PNGWriter();
-		~PNGWriter();
+		JpegWriter();
+		~JpegWriter();
 		
 		bool init(FILE *f, int width, int height);
 		
@@ -36,8 +33,8 @@ class PNGWriter : public ImgWriter
 		bool close();
 	
 	private:
-		png_structp png_ptr;
-		png_infop info_ptr;
+		struct jpeg_compress_struct cinfo;
+		struct jpeg_error_mgr jerr;
 };
 
 #endif

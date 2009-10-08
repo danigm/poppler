@@ -7,6 +7,7 @@
 // Copyright (C) 2009 Warren Toomey <wkt@tuhs.org>
 // Copyright (C) 2009 Shen Liang <shenzhuxi@gmail.com>
 // Copyright (C) 2009 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2009 Stefan Thomas <thomas@eload24.com>
 //
 //========================================================================
 
@@ -71,7 +72,7 @@ bool PNGWriter::init(FILE *f, int width, int height)
 	return true;
 }
 
-bool PNGWriter::writePointers(png_bytep *rowPointers)
+bool PNGWriter::writePointers(unsigned char **rowPointers, int rowCount)
 {
 	png_write_image(png_ptr, rowPointers);
 	/* write bytes */
@@ -83,7 +84,7 @@ bool PNGWriter::writePointers(png_bytep *rowPointers)
 	return true;
 }
 
-bool PNGWriter::writeRow(png_bytep *row)
+bool PNGWriter::writeRow(unsigned char **row)
 {
 	// Write the row to the file
 	png_write_rows(png_ptr, row, 1);

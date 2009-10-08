@@ -14,6 +14,7 @@
 // Copyright (C) 2006, 2009 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2007 Ilmari Heikkinen <ilmari.heikkinen@gmail.com>
 // Copyright (C) 2009 Shen Liang <shenzhuxi@gmail.com>
+// Copyright (C) 2009 Stefan Thomas <thomas@eload24.com>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -32,7 +33,8 @@
 #include "SplashErrorCodes.h"
 #include "SplashBitmap.h"
 #include "poppler/Error.h"
-#include "PNGWriter.h"
+#include "goo/JpegWriter.h"
+#include "goo/PNGWriter.h"
 
 //------------------------------------------------------------------------
 // SplashBitmap
@@ -244,7 +246,7 @@ Guchar SplashBitmap::getAlpha(int x, int y) {
   return alpha[y * width + x];
 }
 
-SplashError SplashBitmap::writePNGFile(char *fileName) {
+SplashError SplashBitmap::writeImgFile(SplashImageFileFormat format, char *fileName) {
   FILE *f;
   SplashError e;
 
@@ -252,23 +254,40 @@ SplashError SplashBitmap::writePNGFile(char *fileName) {
     return splashErrOpenFile;
   }
 
-  e = writePNGFile(f);
+  e = writeImgFile(format, f);
   
   fclose(f);
   return e;
 }
 
-SplashError SplashBitmap::writePNGFile(FILE *f) {
-#ifndef ENABLE_LIBPNG
-  error(-1, "PNG support not compiled in");
-  return splashErrGeneric;
-#else
+SplashError SplashBitmap::writeImgFile(SplashImageFileFormat format, FILE *f) {
+  ImgWriter *writer;
+  
+  switch (format) {
+    #ifdef ENABLE_LIBPNG
+    case splashFormatPng:
+	  writer = new PNGWriter();
+      break;
+    #endif
+
+    #ifdef ENABLE_LIBJPEG
+    case splashFormatJpeg:
+      writer = new JpegWriter();
+      break;
+    #endif
+	
+    default:
+      // Not the greatest error message, but users of this function should
+      // have already checked whether their desired format is compiled in.
+      error(-1, "Support for this image type not compiled in");
+      return splashErrGeneric;
+  }
+  
   if (mode != splashModeRGB8 && mode != splashModeMono8 && mode != splashModeMono1) {
     error(-1, "unsupported SplashBitmap mode");
     return splashErrGeneric;
   }
 
-  PNGWriter *writer = new PNGWriter();
   if (!writer->init(f, width, height)) {
     delete writer;
     return splashErrGeneric;
@@ -278,14 +297,14 @@ SplashError SplashBitmap::writePNGFile(FILE *f) {
     case splashModeRGB8:
     {
       SplashColorPtr row;
-      png_bytep *row_pointers = new png_bytep[height];
+      unsigned char **row_pointers = new unsigned char*[height];
       row = data;
 
       for (int y = 0; y < height; ++y) {
         row_pointers[y] = row;
         row += rowSize;
       }
-      if (!writer->writePointers(row_pointers)) {
+      if (!writer->writePointers(row_pointers, height)) {
         delete[] row_pointers;
         delete writer;
         return splashErrGeneric;
@@ -296,7 +315,7 @@ SplashError SplashBitmap::writePNGFile(FILE *f) {
     
     case splashModeMono8:
     {
-      png_byte *row = new png_byte[3 * width];
+      unsigned char *row = new unsigned char[3 * width];
       for (int y = 0; y < height; y++) {
         // Convert into a PNG row
         for (int x = 0; x < width; x++) {
@@ -317,7 +336,7 @@ SplashError SplashBitmap::writePNGFile(FILE *f) {
     
     case splashModeMono1:
     {
-      png_byte *row = new png_byte[3 * width];
+      unsigned char *row = new unsigned char[3 * width];
       for (int y = 0; y < height; y++) {
         // Convert into a PNG row
         for (int x = 0; x < width; x++) {
@@ -349,5 +368,4 @@ SplashError SplashBitmap::writePNGFile(FILE *f) {
   delete writer;
 
   return splashOk;
-#endif
 }
