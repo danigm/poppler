@@ -264,6 +264,7 @@ if(WIN32)
 endif(WIN32)
 
 if(MSVC)
+add_definitions(-D_CRT_SECURE_NO_WARNINGS)
 set(poppler_SRCS ${poppler_SRCS} poppler/GlobalParamsWin.cc)
 add_library(poppler STATIC ${poppler_SRCS})
 else(MSVC)
