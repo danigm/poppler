@@ -16,7 +16,7 @@ set(poppler_qt_SRCS
 add_library(poppler-qt SHARED ${poppler_qt_SRCS})
 set_target_properties(poppler-qt PROPERTIES VERSION 2.0.0 SOVERSION 2)
 target_link_libraries(poppler-qt poppler ${QT3_LIBRARIES})
-install(TARGETS poppler-qt RUNTIME DESTINATION bin LIBRARY DESTINATION lib ARCHIVE DESTINATION lib)
+install(TARGETS poppler-qt RUNTIME DESTINATION bin LIBRARY DESTINATION lib${LIB_SUFFIX} ARCHIVE DESTINATION lib${LIB_SUFFIX})
 
 install(FILES
   poppler-qt.h

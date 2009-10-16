@@ -98,7 +98,7 @@ target_link_libraries(poppler-glib poppler ${GLIB2_LIBRARIES})
 if (CAIRO_FOUND)
   target_link_libraries(poppler-glib ${CAIRO_LIBRARIES})
 endif (CAIRO_FOUND)
-install(TARGETS poppler-glib RUNTIME DESTINATION bin LIBRARY DESTINATION lib ARCHIVE DESTINATION lib)
+install(TARGETS poppler-glib RUNTIME DESTINATION bin LIBRARY DESTINATION lib${LIB_SUFFIX} ARCHIVE DESTINATION lib${LIB_SUFFIX})
 
 install(FILES
   ${poppler_glib_public_headers}
