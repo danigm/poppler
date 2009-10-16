@@ -175,6 +175,12 @@ bool PSConverter::convert()
 	Q_ASSERT(d->paperWidth != -1);
 	Q_ASSERT(d->paperHeight != -1);
 	
+	if (d->document->locked)
+	{
+		d->lastError = FileLockedError;
+		return false;
+	}
+	
 	QIODevice *dev = d->openDevice();
 	if (!dev)
 	{
