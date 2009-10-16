@@ -184,8 +184,8 @@ public:
   virtual void getGray(GfxColor *color, GfxGray *gray) = 0;
   virtual void getRGB(GfxColor *color, GfxRGB *rgb) = 0;
   virtual void getCMYK(GfxColor *color, GfxCMYK *cmyk) = 0;
-  virtual void getGrayLine(Guchar */*in*/, Guchar */*out*/, int /*length*/) {}
-  virtual void getRGBLine(Guchar */*in*/, unsigned int */*out*/, int /*length*/) {}
+  virtual void getGrayLine(Guchar * /*in*/, Guchar * /*out*/, int /*length*/) {}
+  virtual void getRGBLine(Guchar * /*in*/, unsigned int * /*out*/, int /*length*/) {}
 
   // Does this ColorSpace use getRGBLine?
   virtual GBool useGetRGBLine() { return gFalse; }
