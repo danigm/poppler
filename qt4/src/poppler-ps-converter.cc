@@ -1,4 +1,4 @@
-/* poppler-document.cc: qt interface to poppler
+/* poppler-ps-converter.cc: qt interface to poppler
  * Copyright (C) 2007, 2009, Albert Astals Cid <aacid@kde.org>
  * Copyright (C) 2008, Pino Toscano <pino@kde.org>
  *
