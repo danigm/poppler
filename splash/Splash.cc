@@ -27,6 +27,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <limits.h>
 #include "goo/gmem.h"
 #include "SplashErrorCodes.h"
 #include "SplashMath.h"
@@ -2001,6 +2002,9 @@ SplashError Splash::fillImageMask(SplashImageMaskSource src, void *srcData,
   xq = w % scaledWidth;
 
   // allocate pixel buffer
+  if (yp < 0 || yp > INT_MAX - 1) {
+    return splashErrBadArg;
+  }
   pixBuf = (SplashColorPtr)gmallocn((yp + 1), w);
 
   // initialize the pixel pipe
@@ -2301,6 +2305,9 @@ SplashError Splash::drawImage(SplashImageSource src, void *srcData,
   xq = w % scaledWidth;
 
   // allocate pixel buffers
+  if (yp < 0 || yp > INT_MAX - 1) {
+    return splashErrBadArg;
+  }
   colorBuf = (SplashColorPtr)gmallocn3((yp + 1), w, nComps);
   if (srcAlpha) {
     alphaBuf = (Guchar *)gmallocn((yp + 1), w);

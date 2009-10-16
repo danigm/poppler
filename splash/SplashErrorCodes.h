@@ -41,7 +41,9 @@
 
 #define splashErrSingularMatrix  8	// matrix is singular
 
-#define splashErrZeroImage       9      // image of 0x0
+#define splashErrBadArg          9      // bad argument
+
+#define splashErrZeroImage     254      // image of 0x0
 
 #define splashErrGeneric       255
 
