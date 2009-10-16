@@ -1,6 +1,6 @@
 /* poppler-pdf-converter.cc: qt4 interface to poppler
  * Copyright (C) 2008, Pino Toscano <pino@kde.org>
- * Copyright (C) 2008, Albert Astals Cid <aacid@kde.org>
+ * Copyright (C) 2008, 2009, Albert Astals Cid <aacid@kde.org>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -69,13 +69,20 @@ PDFConverter::PDFOptions PDFConverter::pdfOptions() const
 bool PDFConverter::convert()
 {
 	Q_D(PDFConverter);
+	d->lastError = NoError;
 
 	if (d->document->locked)
+	{
+		d->lastError = FileLockedError;
 		return false;
+	}
 
 	QIODevice *dev = d->openDevice();
 	if (!dev)
+	{
+		d->lastError = OpenOutputError;
 		return false;
+	}
 
 	bool deleteFile = false;
 	if (QFile *file = qobject_cast<QFile*>(dev))
@@ -98,6 +105,8 @@ bool PDFConverter::convert()
 		{
 			qobject_cast<QFile*>(dev)->remove();
 		}
+		if (errorCode == errOpenFile) d->lastError = OpenOutputError;
+		else d->lastError = NotSupportedInputFileError;
 	}
 
 	return (errorCode == errNone);

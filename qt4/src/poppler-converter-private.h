@@ -1,5 +1,5 @@
 /* poppler-converter-private.h: Qt4 interface to poppler
- * Copyright (C) 2007, Albert Astals Cid <aacid@kde.org>
+ * Copyright (C) 2007, 2009, Albert Astals Cid <aacid@kde.org>
  * Copyright (C) 2008, Pino Toscano <pino@kde.org>
  *
  * This program is free software; you can redistribute it and/or modify
@@ -41,6 +41,7 @@ class BaseConverterPrivate
 		QString outputFileName;
 		QIODevice *iodev;
 		bool ownIodev : 1;
+		BaseConverter::Error lastError;
 };
 
 }

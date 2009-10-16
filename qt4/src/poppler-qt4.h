@@ -1227,6 +1227,20 @@ QString subject = m_doc->info("Subject");
               \return whether the conversion succeeded
             */
             virtual bool convert() = 0;
+            
+            enum Error
+            {
+                NoError,
+                FileLockedError,
+                OpenOutputError,
+                NotSupportedInputFileError
+            };
+            
+            /**
+              Returns the last error
+              \since 0.12.1
+            */
+            Error lastError() const;
 
         protected:
             /// \cond PRIVATE

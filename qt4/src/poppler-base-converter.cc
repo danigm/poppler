@@ -1,5 +1,5 @@
 /* poppler-base-converter.cc: qt interface to poppler
- * Copyright (C) 2007, Albert Astals Cid <aacid@kde.org>
+ * Copyright (C) 2007, 2009, Albert Astals Cid <aacid@kde.org>
  * Copyright (C) 2008, Pino Toscano <pino@kde.org>
  *
  * This program is free software; you can redistribute it and/or modify
@@ -94,6 +94,12 @@ void BaseConverter::setOutputDevice(QIODevice *device)
 	Q_D(BaseConverter);
 	d->iodev = device;
 	d->ownIodev = false;
+}
+
+BaseConverter::Error BaseConverter::lastError() const
+{
+	Q_D(const BaseConverter);
+	return d->lastError;
 }
 
 }
