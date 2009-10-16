@@ -42,7 +42,7 @@ struct GfxRGB;
 
 class SplashFont;
 class SplashFontEngine;
-class SplashGlyphBitmap;
+struct SplashGlyphBitmap;
 
 //------------------------------------------------------------------------
 // ArthurOutputDev - Qt 4 QPainter renderer
