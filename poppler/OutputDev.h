@@ -36,6 +36,7 @@
 #include "poppler-config.h"
 #include "goo/gtypes.h"
 #include "CharTypes.h"
+#include "Object.h"
 
 class Dict;
 class GooHash;
