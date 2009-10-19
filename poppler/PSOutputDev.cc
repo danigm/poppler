@@ -3163,6 +3163,7 @@ void PSOutputDev::startPage(int pageNum, GfxState *state) {
       } else {
 	writePSFmt("%%Page: {0:t} {1:d}\n", filteredString, seqPage);
       }
+      delete filteredString;
     } else {
       writePSFmt("%%Page: {0:d} {1:d}\n", pageNum, seqPage);
     }
