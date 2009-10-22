@@ -489,6 +489,7 @@ char *GfxFont::readEmbFontFile(XRef *xref, int *len) {
     obj2.free();
     obj1.free();
     embFontID.num = -1;
+    *len = 0;
     return NULL;
   }
   str = obj2.getStream();
