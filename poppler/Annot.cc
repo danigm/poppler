@@ -3546,9 +3546,13 @@ void AnnotMovie::initialize(XRef *xrefA, Catalog *catalog, Dict* dict) {
       Array* aspect = obj1.getArray();
       if (aspect->getLength() >= 2) {
 	Object tmp;
-	width = aspect->get(0, &tmp)->getInt();
+	if( aspect->get(0, &tmp)->isNum() ) {
+	  width = (int)floor( aspect->get(0, &tmp)->getNum() + 0.5 );
+	}
 	tmp.free();
-	height = aspect->get(1, &tmp)->getInt();
+	if( aspect->get(1, &tmp)->isNum() ) {
+	  height = (int)floor( aspect->get(1, &tmp)->getNum() + 0.5 );
+	}
 	tmp.free();
       }
     }
