@@ -350,12 +350,12 @@ public:
   // Does this device use tilingPatternFill()?  If this returns false,
   // tiling pattern fills will be reduced to a series of other drawing
   // operations.
-  virtual GBool useTilingPatternFill() { return gFalse; }
+  virtual GBool useTilingPatternFill() { return gTrue; }
 
   // Does this device use functionShadedFill(), axialShadedFill(), and
   // radialShadedFill()?  If this returns false, these shaded fills
   // will be reduced to a series of other drawing operations.
-  virtual GBool useShadedFills() { return gFalse; }
+  virtual GBool useShadedFills() { return gTrue; }
 
   // Does this device use FillColorStop()?
   virtual GBool useFillColorStop() { return gFalse; }
@@ -398,6 +398,17 @@ public:
   virtual void stroke(GfxState *state) { }
   virtual void fill(GfxState *state) { }
   virtual void eoFill(GfxState *state) { }
+  virtual GBool tilingPatternFill(GfxState *state, Object *str,
+				  int paintType, Dict *resDict,
+				  double *mat, double *bbox,
+				  int x0, int y0, int x1, int y1,
+				  double xStep, double yStep) { return gTrue; }
+  virtual GBool axialShadedFill(GfxState *state,
+				GfxAxialShading *shading,
+				double tMin, double tMax) { return gTrue; }
+  virtual GBool radialShadedFill(GfxState *state,
+				 GfxRadialShading *shading,
+				 double sMin, double sMax) { return gTrue; }
 
   //----- path clipping
   virtual void clip(GfxState *state) { }
