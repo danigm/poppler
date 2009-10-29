@@ -3521,10 +3521,9 @@ void TextSelectionDumper::visitLine (TextLine *line,
 
 GooString *TextSelectionDumper::getText (void)
 {
-  GBool oneRot = gTrue;
   GooString *s;
   TextLineFrag *frag;
-  int i, col;
+  int i;
   GBool multiLine;
   UnicodeMap *uMap;
   char space[8], eol[16];
@@ -3541,45 +3540,11 @@ GooString *TextSelectionDumper::getText (void)
   eolLen = uMap->mapUnicode(0x0a, eol, sizeof(eol));
 
   if (nFrags > 0) {
-    for (i = 0; i < nFrags; ++i) {
-      frags[i].computeCoords(oneRot);
-    }
-    page->assignColumns(frags, nFrags, oneRot);
-
-    // if all lines in the region have the same rotation, use it;
-    // otherwise, use the page's primary rotation
-    if (oneRot) {
-      qsort(frags, nFrags, sizeof(TextLineFrag),
-	    &TextLineFrag::cmpYXLineRot);
-    } else {
-      qsort(frags, nFrags, sizeof(TextLineFrag),
-	    &TextLineFrag::cmpYXPrimaryRot);
-    }
-
-    col = 0;
     multiLine = gFalse;
     for (i = 0; i < nFrags; ++i) {
       frag = &frags[i];
 
-      // insert a return
-      if (frag->col < col ||
-	  (i > 0 && fabs(frag->base - frags[i-1].base) >
-	              maxIntraLineDelta * frags[i-1].line->words->fontSize)) {
-	  s->append(eol, eolLen);
-	col = 0;
-	multiLine = gTrue;
-      }
-
-      // column alignment
-      for (; col < frag->col; ++col) {
-	s->append(space, spaceLen);
-      }
-
-      // get the fragment text
-      col += page->dumpFragment(frag->line->text + frag->start, frag->len, uMap, s);
-    }
-
-    if (multiLine) {
+      page->dumpFragment(frag->line->text + frag->start, frag->len, uMap, s);
       s->append(eol, eolLen);
     }
   }
@@ -3859,75 +3824,96 @@ void TextLine::visitSelection(TextSelectionVisitor *visitor,
 void TextBlock::visitSelection(TextSelectionVisitor *visitor,
 			       PDFRectangle *selection,
 			       SelectionStyle style) {
-  TextLine *p, *begin, *end;
   PDFRectangle child_selection;
-  double start_x, start_y, stop_x, stop_y;
+  double x[2], y[2], d, best_d[2];
+  TextLine *p, *best_line[2];
+  int i, count = 0, best_count[2], start, stop;
+  GBool all[2];
 
-  begin = NULL;
-  end = NULL;
-  start_x = selection->x1;
-  start_y = selection->y1;
-  stop_x = selection->x2;
-  stop_y = selection->y2;
-  
-  for (p = lines; p != NULL; p = p->next) {
-    if (selection->x1 < p->xMax && selection->y1 < p->yMax && 
-	selection->x2 < p->xMax && selection->y2 < p->yMax && begin == NULL) {
-      begin = p;
-      if (selection->x1 < selection->x2) {
-	start_x = selection->x1;
-	start_y = selection->y1;
-	stop_x = selection->x2;
-	stop_y = selection->y2;
-      } else {
-	start_x = selection->x2;
-	start_y = selection->y2;
-	stop_x = selection->x1;
-	stop_y = selection->y1;
-      }
-    } else if (selection->x1 < p->xMax && selection->y1 < p->yMax && begin == NULL) {
-      begin = p;
-      start_x = selection->x1;
-      start_y = selection->y1;
-      stop_x = selection->x2;
-      stop_y = selection->y2;
-    } else if (selection->x2 < p->xMax && selection->y2 < p->yMax && begin == NULL) {
-      begin = p;
-      start_x = selection->x2;
-      start_y = selection->y2;
-      stop_x = selection->x1;
-      stop_y = selection->y1;
+  x[0] = selection->x1;
+  y[0] = selection->y1;
+  x[1] = selection->x2;
+  y[1] = selection->y2;
+
+  for (i = 0; i < 2; i++) {
+    // the first/last lines are often not nearest
+    // the corners, so we have to force them to be
+    // selected when the selection runs outside this
+    // block.
+    all[i] = x[i] >= this->xMax && y[i] >= this->yMax;
+    if (x[i] <= this->xMin && y[i] <= this->yMin) {
+      best_line[i] = this->lines;
+      best_count[i] = 1;
+    } else {
+      best_line[i] = NULL;
+      best_count[i] = 0;
     }
-
-    if (((selection->x1 > p->xMin && selection->y1 > p->yMin) ||
-	 (selection->x2 > p->xMin && selection->y2 > p->yMin))
-	&& (begin != NULL))
-      end = p->next;
+    best_d[i] = 0;
   }
 
-  /* Skip empty selection. */
-  if (end == begin)
+  // find the nearest line to the selection points
+  // using the manhattan distance.
+  for (p = this->lines; p; p = p->next) {
+    count++;
+    for (i = 0; i < 2; i++) {
+      d = fmax(p->xMin - x[i], 0.0) +
+	fmax(x[i] - p->xMax, 0.0) +
+	fmax(p->yMin - y[i], 0.0) +
+	fmax(y[i] - p->yMax, 0.0);
+      if (!best_line[i] || all[i] ||
+	  d < best_d[i]) {
+	best_line[i] = p;
+	best_count[i] = count;
+	best_d[i] = d;
+      }
+    }
+  }
+  // assert: best is always set.
+  if (!best_line[0] || !best_line[1]) {
     return;
+  }
 
-  visitor->visitBlock (this, begin, end, selection);
+  // Now decide which point was first.
+  if (best_count[0] < best_count[1] ||
+      (best_count[0] == best_count[1] &&
+       y[0] < y[1])) {
+    start = 0;
+    stop = 1;
+  } else {
+    start = 1;
+    stop = 0;
+  }
 
-  for (p = begin; p != end; p = p->next) {
-    if (p == begin && style != selectionStyleLine) {
-      child_selection.x1 = start_x;
-      child_selection.y1 = start_y;
+  visitor->visitBlock(this, best_line[start], best_line[stop], selection);
+
+  for (p = best_line[start]; p; p = p->next) {
+    child_selection.x1 = p->xMin;
+    child_selection.y1 = p->yMin;
+    child_selection.x2 = p->xMax;
+    child_selection.y2 = p->yMax;
+    if (style == selectionStyleLine) {
+      if (p == best_line[start]) {
+	child_selection.x1 = 0;
+	child_selection.y1 = 0;
+      }
+      if (p == best_line[stop]) {
+	child_selection.x2 = page->pageWidth;
+	child_selection.y2 = page->pageHeight;
+      }
     } else {
-      child_selection.x1 = 0;
-      child_selection.y1 = 0;
+      if (p == best_line[start]) {
+	child_selection.x1 = fmax(p->xMin, fmin(p->xMax, x[start]));
+	child_selection.y1 = fmax(p->yMin, fmin(p->yMax, y[start]));
+      }
+      if (p == best_line[stop]) {
+	child_selection.x2 = fmax(p->xMin, fmin(p->xMax, x[stop]));
+	child_selection.y2 = fmax(p->yMin, fmin(p->yMax, y[stop]));
+      }
     }
-    if (p->next == end && style != selectionStyleLine) {
-      child_selection.x2 = stop_x;
-      child_selection.y2 = stop_y;
-    } else {
-      child_selection.x2 = page->pageWidth;
-      child_selection.y2 = page->pageHeight;
-    }
-
     p->visitSelection(visitor, &child_selection, style);
+    if (p == best_line[stop]) {
+      return;
+    }
   }
 }
 
@@ -3935,73 +3921,109 @@ void TextPage::visitSelection(TextSelectionVisitor *visitor,
 			      PDFRectangle *selection,
 			      SelectionStyle style)
 {
-  int i, begin, end;
   PDFRectangle child_selection;
-  double start_x, start_y, stop_x, stop_y;
-  TextBlock *b;
+  double x[2], y[2], d, best_d[2];
+  double xMin, yMin, xMax, yMax;
+  TextFlow *flow, *best_flow[2];
+  TextBlock *blk, *best_block[2];
+  int i, count = 0, best_count[2], start, stop;
 
-  begin = nBlocks;
-  end = 0;
-  start_x = selection->x1;
-  start_y = selection->y1;
-  stop_x = selection->x2;
-  stop_y = selection->y2;
+  if (!flows)
+    return;
 
-  for (i = 0; i < nBlocks; i++) {
-    b = blocks[i];
+  x[0] = selection->x1;
+  y[0] = selection->y1;
+  x[1] = selection->x2;
+  y[1] = selection->y2;
 
-    if (selection->x1 < b->xMax && selection->y1 < b->yMax &&
-	selection->x2 < b->xMax && selection->y2 < b->yMax && i < begin) {
-      begin = i;
-      if (selection->y1 < selection->y2) {
-	start_x = selection->x1;
-	start_y = selection->y1;
-	stop_x = selection->x2;
-	stop_y = selection->y2;
-      } else {
-	start_x = selection->x2;
-	start_y = selection->y2;
-	stop_x = selection->x1;
-	stop_y = selection->y1;
-      }
-    } else if (selection->x1 < b->xMax && selection->y1 < b->yMax && i < begin) {
-      begin = i;
-      start_x = selection->x1;
-      start_y = selection->y1;
-      stop_x = selection->x2;
-      stop_y = selection->y2;
-    } else if (selection->x2 < b->xMax && selection->y2 < b->yMax && i < begin) {
-      begin = i;
-      start_x = selection->x2;
-      start_y = selection->y2;
-      stop_x = selection->x1;
-      stop_y = selection->y1;
-    }
+  xMin = pageWidth;
+  yMin = pageHeight;
+  xMax = 0.0;
+  yMax = 0.0;
 
-    if ((selection->x1 > b->xMin && selection->y1 > b->yMin) ||
-	(selection->x2 > b->xMin && selection->y2 > b->yMin))
-      end = i + 1;
+  for (i = 0; i < 2; i++) {
+    best_block[i] = NULL;
+    best_flow[i] = NULL;
+    best_count[i] = 0;
+    best_d[i] = 0;
   }
 
-  for (i = begin; i < end; i++) {
-    if (blocks[i]->xMin < start_x && start_x < blocks[i]->xMax &&
-	blocks[i]->yMin < start_y && start_y < blocks[i]->yMax) {
-      child_selection.x1 = start_x;
-      child_selection.y1 = start_y;
-    } else {
-      child_selection.x1 = 0;
-      child_selection.y1 = 0;
+  // find the nearest blocks to the selection points
+  // using the manhattan distance.
+  for (flow = flows; flow; flow = flow->next) {
+    for (blk = flow->blocks; blk; blk = blk->next) {
+      count++;
+      // the first/last blocks in reading order are
+      // often not the closest to the page corners;
+      // track the corners, force those blocks to
+      // be selected if the selection runs across
+      // multiple pages.
+      xMin = fmin(xMin, blk->xMin);
+      yMin = fmin(yMin, blk->yMin);
+      xMax = fmax(xMax, blk->xMax);
+      yMax = fmax(yMax, blk->yMax);
+      for (i = 0; i < 2; i++) {
+	d = fmax(blk->xMin - x[i], 0.0) +
+	  fmax(x[i] - blk->xMax, 0.0) +
+	  fmax(blk->yMin - y[i], 0.0) +
+	  fmax(y[i] - blk->yMax, 0.0);
+	if (!best_block[i] ||
+	    d < best_d[i] ||
+	    (!blk->next && !flow->next &&
+	     x[i] > xMax && y[i] > yMax)) {
+	  best_block[i] = blk;
+	  best_flow[i] = flow;
+	  best_count[i] = count;
+	  best_d[i] = d;
+	}
+      }
     }
-    if (blocks[i]->xMin < stop_x && stop_x < blocks[i]->xMax &&
-	blocks[i]->yMin < stop_y && stop_y < blocks[i]->yMax) {
-      child_selection.x2 = stop_x;
-      child_selection.y2 = stop_y;
-    } else {
-      child_selection.x2 = pageWidth;
-      child_selection.y2 = pageHeight;
+  }
+  for (i = 0; i < 2; i++) {
+    if (x[i] < xMin && y[i] < yMin) {
+      best_block[i] = flows->blocks;
+      best_flow[i] = flows;
+      best_count[i] = 1;
     }
+  }
+  // assert: best is always set.
+  if (!best_block[0] || !best_block[1]) {
+    return;
+  }
 
-    blocks[i]->visitSelection(visitor, &child_selection, style);
+  // Now decide which point was first.
+  if (best_count[0] < best_count[1] ||
+      (best_count[0] == best_count[1] && y[0] < y[1])) {
+    start = 0;
+    stop = 1;
+  } else {
+    start = 1;
+    stop = 0;
+  }
+
+  for (flow = best_flow[start]; flow; flow = flow->next) {
+    if (flow == best_flow[start]) {
+      blk = best_block[start];
+    } else {
+      blk = flow->blocks;
+    }
+    for (; blk; blk = blk->next) {
+      child_selection.x1 = blk->xMin;
+      child_selection.y1 = blk->yMin;
+      child_selection.x2 = blk->xMax;
+      child_selection.y2 = blk->yMax;
+      if (blk == best_block[start]) {
+	child_selection.x1 = fmax(blk->xMin, fmin(blk->xMax, x[start]));
+	child_selection.y1 = fmax(blk->yMin, fmin(blk->yMax, y[start]));
+      }
+      if (blk == best_block[stop]) {
+	child_selection.x2 = fmax(blk->xMin, fmin(blk->xMax, x[stop]));
+	child_selection.y2 = fmax(blk->yMin, fmin(blk->yMax, y[stop]));
+	blk->visitSelection(visitor, &child_selection, style);
+	return;
+      }
+      blk->visitSelection(visitor, &child_selection, style);
+    }
   }
 }
 
