@@ -22,6 +22,7 @@
 // Copyright (C) 2006, 2008 Carlos Garcia Campos <carlosgc@gnome.org>
 // Copyright (C) 2007 Julien Rebetez <julienr@svn.gnome.org>
 // Copyright (C) 2008 Pino Toscano <pino@kde.org>
+// Copyright (C) 2009 Ilya Gorenbein <igorenbein@finjan.com>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -99,9 +100,10 @@ Catalog::Catalog(XRef *xrefA) {
   if (!obj.isNum()) {
     error(-1, "Page count in top-level pages object is wrong type (%s)",
 	  obj.getTypeName());
-    goto err3;
+    pagesSize = numPages0 = 0;
+  } else {
+    pagesSize = numPages0 = (int)obj.getNum();
   }
-  pagesSize = numPages0 = (int)obj.getNum();
   obj.free();
   pages = (Page **)gmallocn(pagesSize, sizeof(Page *));
   pageRefs = (Ref *)gmallocn(pagesSize, sizeof(Ref));
@@ -216,8 +218,6 @@ Catalog::Catalog(XRef *xrefA) {
   catDict.free();
   return;
 
- err3:
-  obj.free();
  err2:
   pagesDict.free();
  err1:
@@ -292,7 +292,7 @@ int Catalog::readPageTree(Dict *pagesDict, PageAttrs *attrs, int start,
   if (!kids.isArray()) {
     error(-1, "Kids object (page %d) is wrong type (%s)",
 	  start+1, kids.getTypeName());
-    goto err1;
+    return start;
   }
   for (i = 0; i < kids.arrayGetLength(); ++i) {
     kids.arrayGetNF(i, &kidRef);
