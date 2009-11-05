@@ -24,6 +24,7 @@
 // Copyright (C) 2008 Tomas Are Haavet <tomasare@gmail.com>
 // Copyright (C) 2009 Warren Toomey <wkt@tuhs.org>
 // Copyright (C) 2009 Carlos Garcia Campos <carlosgc@gnome.org>
+// Copyright (C) 2009 Reece Dunn <msclrhd@gmail.com>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -645,9 +646,7 @@ void HtmlPage::dumpAsXML(FILE* f,int page){
       fprintf(f,"<text top=\"%d\" left=\"%d\" ",xoutRound(tmp->yMin),xoutRound(tmp->xMin));
       fprintf(f,"width=\"%d\" height=\"%d\" ",xoutRound(tmp->xMax-tmp->xMin),xoutRound(tmp->yMax-tmp->yMin));
       fprintf(f,"font=\"%d\">", tmp->fontpos);
-      if (tmp->fontpos!=-1){
-	str1=fonts->getCSStyle(tmp->fontpos, str);
-      }
+      str1=fonts->getCSStyle(tmp->fontpos, str);
       fputs(str1->getCString(),f);
       delete str;
       delete str1;
@@ -731,12 +730,8 @@ void HtmlPage::dumpComplex(FILE *file, int page){
 	      xoutRound(tmp1->yMin),
 	      xoutRound(tmp1->xMin));
       fputs("<nobr>",pageFile); 
-      if (tmp1->fontpos!=-1){
-	str1=fonts->getCSStyle(tmp1->fontpos, str);  
-      }
-      //printf("%s\n", str1->getCString());
+      str1=fonts->getCSStyle(tmp1->fontpos, str);  
       fputs(str1->getCString(),pageFile);
-      
       delete str;      
       delete str1;
       fputs("</nobr></DIV>\n",pageFile);
