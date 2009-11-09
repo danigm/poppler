@@ -1328,6 +1328,20 @@ void CairoOutputDev::drawImageMask(GfxState *state, Object *ref, Stream *str,
 
   /* work around a cairo bug when scaling 1x1 surfaces */
   if (width == 1 && height == 1) {
+    ImageStream *imgStr;
+    Guchar pix;
+    int invert_bit;
+
+    imgStr = new ImageStream(str, width, 1, 1);
+    imgStr->reset();
+    imgStr->getPixel(&pix);
+    imgStr->close();
+    delete imgStr;
+
+    invert_bit = invert ? 1 : 0;
+    if (pix ^ invert_bit)
+      return;
+
     cairo_save (cairo);
     cairo_rectangle (cairo, 0., 0., width, height);
     cairo_fill (cairo);
