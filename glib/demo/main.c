@@ -17,6 +17,7 @@
  */
 
 #include <gtk/gtk.h>
+#include <gio/gio.h>
 #include <poppler.h>
 #include <string.h>
 
