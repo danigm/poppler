@@ -638,6 +638,13 @@ void CairoOutputDev::doPath(cairo_t *cairo, GfxState *state, GfxPath *path) {
 }
 
 void CairoOutputDev::stroke(GfxState *state) {
+  if (inType3Char) {
+      GfxGray gray;
+      state->getFillGray(&gray);
+      if (colToDbl(gray) > 0.5)
+	  return;
+  }
+
   doPath (cairo, state, state->getPath());
   cairo_set_source (cairo, stroke_pattern);
   LOG(printf ("stroke\n"));
@@ -649,6 +656,13 @@ void CairoOutputDev::stroke(GfxState *state) {
 }
 
 void CairoOutputDev::fill(GfxState *state) {
+  if (inType3Char) {
+      GfxGray gray;
+      state->getFillGray(&gray);
+      if (colToDbl(gray) > 0.5)
+	  return;
+  }
+
   doPath (cairo, state, state->getPath());
   cairo_set_fill_rule (cairo, CAIRO_FILL_RULE_WINDING);
   cairo_set_source (cairo, fill_pattern);
