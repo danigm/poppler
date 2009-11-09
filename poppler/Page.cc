@@ -269,7 +269,7 @@ Page::Page(XRef *xrefA, int numA, Dict *pageDict, Ref pageRefA, PageAttrs *attrs
 
   // transtion
   pageDict->lookupNF("Trans", &trans);
-  if (!(trans.isDict() || trans.isNull())) {
+  if (!(trans.isRef() || trans.isDict() || trans.isNull())) {
     error(-1, "Page transition object (page %d) is wrong type (%s)",
 	  num, trans.getTypeName());
     trans.free();
