@@ -2183,8 +2183,7 @@ void TextPage::coalesce(GBool physLayout, GBool doHTML) {
   TextPool *pool;
   TextWord *word0, *word1, *word2;
   TextLine *line;
-  TextBlock *blkList, *blkStack, *blk, *lastBlk, *blk0, *blk1;
-  TextBlock **blkArray;
+  TextBlock *blkList, *blk, *lastBlk, *blk0, *blk1;
   TextFlow *flow, *lastFlow;
   TextUnderline *underline;
   TextLink *link;
@@ -2194,7 +2193,6 @@ void TextPage::coalesce(GBool physLayout, GBool doHTML) {
   GBool found;
   int count[4];
   int lrCount;
-  int firstBlkIdx, nBlocksLeft;
   int col1, col2;
   int i, j, n;
 
@@ -2841,8 +2839,8 @@ void TextPage::coalesce(GBool physLayout, GBool doHTML) {
 
   //----- reading order sort
 
-  // sort blocks into yx order (in preparation for reading order sort)
-  qsort(blocks, nBlocks, sizeof(TextBlock *), &TextBlock::cmpYXPrimaryRot);
+  // sort blocks into xy order (in preparation for reading order sort)
+  qsort(blocks, nBlocks, sizeof(TextBlock *), &TextBlock::cmpXYPrimaryRot);
 
   // compute space on left and right sides of each block
   for (i = 0; i < nBlocks; ++i) {
@@ -2881,39 +2879,28 @@ void TextPage::coalesce(GBool physLayout, GBool doHTML) {
   // build the flows
   //~ this needs to be adjusted for writing mode (vertical text)
   //~ this also needs to account for right-to-left column ordering
-  blkArray = (TextBlock **)gmallocn(nBlocks, sizeof(TextBlock *));
-  memcpy(blkArray, blocks, nBlocks * sizeof(TextBlock *));
+  flow = NULL;
   while (flows) {
     flow = flows;
     flows = flows->next;
     delete flow;
   }
   flows = lastFlow = NULL;
-  firstBlkIdx = 0;
-  nBlocksLeft = nBlocks;
-  while (nBlocksLeft > 0) {
-
-    // find the upper-left-most block
-    for (; !blkArray[firstBlkIdx]; ++firstBlkIdx) ;
-    i = firstBlkIdx;
-    blk = blkArray[i];
-    for (j = firstBlkIdx + 1; j < nBlocks; ++j) {
-      blk1 = blkArray[j];
-      if (blk1) {
-	if (blk && blk->secondaryDelta(blk1) > 0) {
-	  break;
-	}
-	if (blk1->primaryCmp(blk) < 0) {
-	  i = j;
-	  blk = blk1;
-	}
+  // assume blocks are already in reading order,
+  // and construct flows accordingly.
+  for (i = 0; i < nBlocks; i++) {
+    blk = blocks[i];
+    blk->next = NULL;
+    if (flow) {
+      blk1 = blocks[i - 1];
+      blkSpace = maxBlockSpacing * blk1->lines->words->fontSize;
+      if (blk1->secondaryDelta(blk) <= blkSpace &&
+	  blk->isBelow(blk1) &&
+	  flow->blockFits(blk, blk1)) {
+	flow->addBlock(blk);
+	continue;
       }
     }
-    blkArray[i] = NULL;
-    --nBlocksLeft;
-    blk->next = NULL;
-
-    // create a new flow, starting with the upper-left-most block
     flow = new TextFlow(this, blk);
     if (lastFlow) {
       lastFlow->next = flow;
@@ -2921,56 +2908,7 @@ void TextPage::coalesce(GBool physLayout, GBool doHTML) {
       flows = flow;
     }
     lastFlow = flow;
-    fontSize = blk->lines->words->fontSize;
-
-    // push the upper-left-most block on the stack
-    blk->stackNext = NULL;
-    blkStack = blk;
-
-    // find the other blocks in this flow
-    while (blkStack) {
-
-      // find the upper-left-most block under (but within
-      // maxBlockSpacing of) the top block on the stack
-      blkSpace = maxBlockSpacing * blkStack->lines->words->fontSize;
-      blk = NULL;
-      i = -1;
-      for (j = firstBlkIdx; j < nBlocks; ++j) {
-	blk1 = blkArray[j];
-	if (blk1) {
-	  if (blkStack->secondaryDelta(blk1) > blkSpace) {
-	    break;
-	  }
-	  if (blk && blk->secondaryDelta(blk1) > 0) {
-	    break;
-	  }
-	  if (blk1->isBelow(blkStack) &&
-	      (!blk || blk1->primaryCmp(blk) < 0)) {
-	    i = j;
-	    blk = blk1;
-	  }
-	}
-      }
-
-      // if a suitable block was found, add it to the flow and push it
-      // onto the stack
-      if (blk && flow->blockFits(blk, blkStack)) {
-	blkArray[i] = NULL;
-	--nBlocksLeft;
-	blk->next = NULL;
-	flow->addBlock(blk);
-	fontSize = blk->lines->words->fontSize;
-	blk->stackNext = blkStack;
-	blkStack = blk;
-
-      // otherwise (if there is no block under the top block or the
-      // block is not suitable), pop the stack
-      } else {
-	blkStack = blkStack->stackNext;
-      }
-    }
   }
-  gfree(blkArray);
 
 #if 0 // for debugging
   printf("*** flows ***\n");
