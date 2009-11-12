@@ -1615,6 +1615,144 @@ GBool TextBlock::isBelow(TextBlock *blk) {
   return below;
 }
 
+GBool TextBlock::isBeforeByRule1(TextBlock *blk1) {
+  GBool before = gFalse;
+  GBool overlap = gFalse;
+
+  switch (this->page->primaryRot) {
+  case 0:
+  case 2:
+    overlap = ((this->xMin <= blk1->xMin) &&
+	       (blk1->xMin <= this->xMax)) ||
+      ((blk1->xMin <= this->xMin) &&
+       (this->xMin <= blk1->xMax));
+    break;
+  case 1:
+  case 3:
+    overlap = ((this->yMin <= blk1->yMin) &&
+	       (blk1->yMin <= this->yMax)) ||
+      ((blk1->yMin <= this->yMin) &&
+       (this->yMin <= blk1->yMax));
+    break;
+  }
+  switch (this->page->primaryRot) {
+  case 0:
+    before = overlap && this->yMin < blk1->yMin;
+    break;
+  case 1:
+    before = overlap && this->xMax > blk1->xMax;
+    break;
+  case 2:
+    before = overlap && this->yMax > blk1->yMax;
+    break;
+  case 3:
+    before = overlap && this->xMin < blk1->xMin;
+    break;
+  }
+  return before;
+}
+
+GBool TextBlock::isBeforeByRule2(TextBlock *blk1) {
+  double cmp = 0;
+  int rotLR = rot;
+
+  if (!page->primaryLR) {
+    rotLR = (rotLR + 2) % 4;
+  }
+
+  switch (rotLR) {
+  case 0:
+    cmp = xMax - blk1->xMin;
+    break;
+  case 1:
+    cmp = yMin - blk1->yMax;
+    break;
+  case 2:
+    cmp = blk1->xMax - xMin;
+    break;
+  case 3:
+    cmp = blk1->yMin - yMax;
+    break;
+  }
+  return cmp <= 0;
+}
+
+// Sort into reading order by performing a topological sort using the rules
+// given in "High Performance Document Layout Analysis", T.M. Breuel, 2003.
+// See http://pubs.iupr.org/#2003-breuel-sdiut
+// Topological sort is done by depth first search, see
+// http://en.wikipedia.org/wiki/Topological_sorting
+int TextBlock::visitDepthFirst(TextBlock *blkList, int pos1,
+			       TextBlock **sorted, int sortPos,
+			       GBool* visited) {
+  int pos2;
+  TextBlock *blk1, *blk2, *blk3;
+  GBool before;
+
+  if (visited[pos1]) {
+    return sortPos;
+  }
+
+  blk1 = this;
+
+#if 0 // for debugging
+  printf("visited: %d %.2f..%.2f %.2f..%.2f\n",
+	 sortPos, blk1->xMin, blk1->xMax, blk1->yMin, blk1->yMax);
+#endif
+  visited[pos1] = gTrue;
+  pos2 = -1;
+  for (blk2 = blkList; blk2; blk2 = blk2->next) {
+    pos2++;
+    if (visited[pos2]) {
+      // skip visited nodes
+      continue;
+    }
+    before = gFalse;
+    if (blk2->isBeforeByRule1(blk1)) {
+      // Rule (1) blk1 and blk2 overlap, and blk2 is above blk1.
+      before = gTrue;
+#if 0 // for debugging
+      printf("rule1: %.2f..%.2f %.2f..%.2f %.2f..%.2f %.2f..%.2f\n",
+	     blk2->xMin, blk2->xMax, blk2->yMin, blk2->yMax,
+	     blk1->xMin, blk1->xMax, blk1->yMin, blk1->yMax);
+#endif
+    } else if (blk2->isBeforeByRule2(blk1)) {
+      // Rule (2) blk2 left of blk1, and no intervening blk3
+      //          such that blk1 is before blk3 by rule 1,
+      //          and blk3 is before blk2 by rule 1.
+      before = gTrue;
+      for (blk3 = blkList; blk3; blk3 = blk3->next) {
+	if (blk3 == blk2 || blk3 == blk1) {
+	  continue;
+	}
+	if (blk1->isBeforeByRule1(blk3) &&
+	    blk3->isBeforeByRule1(blk2)) {
+	  before = gFalse;
+	  break;
+	}
+      }
+#if 0 // for debugging
+      if (before) {
+	printf("rule2: %.2f..%.2f %.2f..%.2f %.2f..%.2f %.2f..%.2f\n",
+	       blk1->xMin, blk1->xMax, blk1->yMin, blk1->yMax,
+	       blk2->xMin, blk2->xMax, blk2->yMin, blk2->yMax);
+      }
+#endif
+    }
+    if (before) {
+      // blk2 is before blk1, so it needs to be visited
+      // before we can add blk1 to the sorted list.
+      sortPos = blk2->visitDepthFirst(blkList, pos2, sorted, sortPos, visited);
+    }
+  }
+#if 0 // for debugging
+  printf("sorted: %d %.2f..%.2f %.2f..%.2f\n",
+	 sortPos, blk1->xMin, blk1->xMax, blk1->yMin, blk1->yMax);
+#endif
+  sorted[sortPos++] = blk1;
+  return sortPos;
+}
+
 //------------------------------------------------------------------------
 // TextFlow
 //------------------------------------------------------------------------
@@ -2685,7 +2823,7 @@ void TextPage::coalesce(GBool physLayout, GBool doHTML) {
     }
   }
 
-#if 0 // for debugging 
+#if 0 // for debugging
   printf("*** rotation ***\n");
   for (rot = 0; rot < 4; ++rot) {
     printf("  %d: %6d\n", rot, count[rot]);
@@ -2839,9 +2977,6 @@ void TextPage::coalesce(GBool physLayout, GBool doHTML) {
 
   //----- reading order sort
 
-  // sort blocks into xy order (in preparation for reading order sort)
-  qsort(blocks, nBlocks, sizeof(TextBlock *), &TextBlock::cmpXYPrimaryRot);
-
   // compute space on left and right sides of each block
   for (i = 0; i < nBlocks; ++i) {
     blk0 = blocks[i];
@@ -2854,7 +2989,25 @@ void TextPage::coalesce(GBool physLayout, GBool doHTML) {
   }
 
 #if 0 // for debugging
-  printf("*** blocks, after yx sort ***\n");
+  printf("PAGE\n");
+#endif
+
+  int sortPos = 0;
+  GBool *visited = (GBool *)gmallocn(nBlocks, sizeof(GBool));
+  for (i = 0; i < nBlocks; i++) {
+    visited[i] = gFalse;
+  }
+  i = -1;
+  for (blk1 = blkList; blk1; blk1 = blk1->next) {
+    i++;
+    sortPos = blk1->visitDepthFirst(blkList, i, blocks, sortPos, visited);
+  }
+  if (visited) {
+    gfree(visited);
+  }
+
+#if 0 // for debugging
+  printf("*** blocks, after ro sort ***\n");
   for (i = 0; i < nBlocks; ++i) {
     blk = blocks[i];
     printf("block: rot=%d x=%.2f..%.2f y=%.2f..%.2f space=%.2f..%.2f\n",
@@ -2874,6 +3027,7 @@ void TextPage::coalesce(GBool physLayout, GBool doHTML) {
     }
   }
   printf("\n");
+  fflush(stdout);
 #endif
 
   // build the flows

@@ -361,6 +361,14 @@ public:
 
 private:
 
+  GBool isBeforeByRule1(TextBlock *blk1);
+  GBool isBeforeByRepeatedRule1(TextBlock *blkList, TextBlock *blk1);
+  GBool isBeforeByRule2(TextBlock *blk1);
+
+  int visitDepthFirst(TextBlock *blkList, int pos1,
+		      TextBlock **sorted, int sortPos,
+		      GBool* visited);
+
   TextPage *page;		// the parent page
   int rot;			// text rotation
   double xMin, xMax;		// bounding box x coordinates
