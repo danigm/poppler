@@ -142,7 +142,11 @@ void DCTStream::reset() {
   jpeg_read_header(&cinfo, TRUE);
   if (src.abort) return;
 
-  jpeg_start_decompress(&cinfo);
+  if (!jpeg_start_decompress(&cinfo))
+  {
+    src.abort = true;
+    return;
+  }
 
   row_stride = cinfo.output_width * cinfo.output_components;
   row_buffer = cinfo.mem->alloc_sarray((j_common_ptr) &cinfo, JPOOL_IMAGE, row_stride, 1);
