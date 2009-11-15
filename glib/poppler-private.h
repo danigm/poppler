@@ -103,8 +103,7 @@ PopplerDest   *_poppler_dest_new_goto (PopplerDocument *document,
 				       LinkDest        *link_dest);
 PopplerFormField *_poppler_form_field_new (PopplerDocument *document,
 					   FormWidget      *field);
-PopplerAttachment *_poppler_attachment_new (PopplerDocument *document,
-					    EmbFile         *file);
+PopplerAttachment *_poppler_attachment_new (EmbFile *file);
 PopplerAnnot      *_poppler_annot_new           (Annot *annot);
 PopplerAnnot      *_poppler_annot_text_new      (Annot *annot);
 PopplerAnnot      *_poppler_annot_free_text_new (Annot *annot);

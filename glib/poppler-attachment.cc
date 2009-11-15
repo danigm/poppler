@@ -30,7 +30,6 @@ typedef struct _PopplerAttachmentPrivate PopplerAttachmentPrivate;
 struct _PopplerAttachmentPrivate
 {
   Object *obj_stream;
-  PopplerDocument *document;
 };
 
 #define POPPLER_ATTACHMENT_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), POPPLER_TYPE_ATTACHMENT, PopplerAttachmentPrivate))
@@ -67,12 +66,6 @@ poppler_attachment_dispose (GObject *obj)
       priv->obj_stream = NULL;
     }
 
-  if (priv->document)
-    {
-      g_object_unref (priv->document);
-      priv->document = NULL;
-    }
-
   G_OBJECT_CLASS (poppler_attachment_parent_class)->dispose (obj);
 }
 
@@ -101,19 +94,15 @@ poppler_attachment_finalize (GObject *obj)
 /* Public functions */
 
 PopplerAttachment *
-_poppler_attachment_new (PopplerDocument *document,
-			 EmbFile         *emb_file)
+_poppler_attachment_new (EmbFile *emb_file)
 {
   PopplerAttachment *attachment;
   PopplerAttachmentPrivate *priv;
 
-  g_assert (document != NULL);
   g_assert (emb_file != NULL);
 
   attachment = (PopplerAttachment *) g_object_new (POPPLER_TYPE_ATTACHMENT, NULL);
   priv = POPPLER_ATTACHMENT_GET_PRIVATE (attachment);
-
-  priv->document = (PopplerDocument *) g_object_ref (document);
 
   if (emb_file->name ())
     attachment->name = _poppler_goo_string_to_utf8 (emb_file->name ());
