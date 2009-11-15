@@ -42,6 +42,10 @@ G_BEGIN_DECLS
 #define POPPLER_ANNOT_FREE_TEXT(obj)         (G_TYPE_CHECK_INSTANCE_CAST ((obj), POPPLER_TYPE_ANNOT_FREE_TEXT, PopplerAnnotFreeText))
 #define POPPLER_IS_ANNOT_FREE_TEXT(obj)      (G_TYPE_CHECK_INSTANCE_TYPE ((obj), POPPLER_TYPE_ANNOT_FREE_TEXT))
 
+#define POPPLER_TYPE_ANNOT_FILE_ATTACHMENT   (poppler_annot_file_attachment_get_type ())
+#define POPPLER_ANNOT_FILE_ATTACHMENT(obj)   (G_TYPE_CHECK_INSTANCE_CAST ((obj), POPPLER_TYPE_ANNOT_MARKUP, PopplerAnnotFileAttachment))
+#define POPPLER_IS_ANNOT_FILE_ATTACHMENT(obj)(G_TYPE_CHECK_INSTANCE_TYPE ((obj), POPPLER_TYPE_ANNOT_FILE_ATTACHMENT))
+
 #define POPPLER_TYPE_ANNOT_CALLOUT_LINE      (poppler_annot_callout_line_get_type ())
 
 typedef enum
@@ -164,6 +168,10 @@ PopplerAnnotTextState         poppler_annot_text_get_state                     (
 GType                         poppler_annot_free_text_get_type                 (void) G_GNUC_CONST;
 PopplerAnnotFreeTextQuadding  poppler_annot_free_text_get_quadding             (PopplerAnnotFreeText *poppler_annot);
 PopplerAnnotCalloutLine      *poppler_annot_free_text_get_callout_line         (PopplerAnnotFreeText *poppler_annot);
+
+/* PopplerAnnotFileAttachment */
+GType                         poppler_annot_file_attachment_get_type           (void) G_GNUC_CONST;
+PopplerAttachment            *poppler_annot_file_attachment_get_attachment     (PopplerAnnotFileAttachment *poppler_annot);
 
 /* PopplerCalloutLine */
 GType                         poppler_annot_callout_line_get_type              (void) G_GNUC_CONST;

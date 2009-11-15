@@ -21,10 +21,11 @@
 #include "poppler.h"
 #include "poppler-private.h"
 
-typedef struct _PopplerAnnotClass         PopplerAnnotClass;
-typedef struct _PopplerAnnotMarkupClass   PopplerAnnotMarkupClass;
-typedef struct _PopplerAnnotFreeTextClass PopplerAnnotFreeTextClass;
-typedef struct _PopplerAnnotTextClass     PopplerAnnotTextClass;
+typedef struct _PopplerAnnotClass               PopplerAnnotClass;
+typedef struct _PopplerAnnotMarkupClass         PopplerAnnotMarkupClass;
+typedef struct _PopplerAnnotFreeTextClass       PopplerAnnotFreeTextClass;
+typedef struct _PopplerAnnotTextClass           PopplerAnnotTextClass;
+typedef struct _PopplerAnnotFileAttachmentClass PopplerAnnotFileAttachmentClass;
 
 struct _PopplerAnnot
 {
@@ -67,10 +68,21 @@ struct _PopplerAnnotFreeTextClass
   PopplerAnnotMarkupClass parent_class;
 };
 
+struct _PopplerAnnotFileAttachment
+{
+  PopplerAnnotMarkup parent_instance;
+};
+
+struct _PopplerAnnotFileAttachmentClass
+{
+  PopplerAnnotMarkupClass parent_class;
+};
+
 G_DEFINE_TYPE (PopplerAnnot, poppler_annot, G_TYPE_OBJECT)
 G_DEFINE_TYPE (PopplerAnnotMarkup, poppler_annot_markup, POPPLER_TYPE_ANNOT)
 G_DEFINE_TYPE (PopplerAnnotText, poppler_annot_text, POPPLER_TYPE_ANNOT_MARKUP)
 G_DEFINE_TYPE (PopplerAnnotFreeText, poppler_annot_free_text, POPPLER_TYPE_ANNOT_MARKUP)
+G_DEFINE_TYPE (PopplerAnnotFileAttachment, poppler_annot_file_attachment, POPPLER_TYPE_ANNOT_MARKUP)
 
 static void
 poppler_annot_finalize (GObject *object)
@@ -153,6 +165,27 @@ _poppler_annot_free_text_new (Annot *annot)
   PopplerAnnot *poppler_annot;
 
   poppler_annot = POPPLER_ANNOT (g_object_new (POPPLER_TYPE_ANNOT_FREE_TEXT, NULL));
+  poppler_annot->annot = annot;
+
+  return poppler_annot;
+}
+
+static void
+poppler_annot_file_attachment_init (PopplerAnnotFileAttachment *poppler_annot)
+{
+}
+
+static void
+poppler_annot_file_attachment_class_init (PopplerAnnotFileAttachmentClass *klass)
+{
+}
+
+PopplerAnnot *
+_poppler_annot_file_attachment_new (Annot *annot)
+{
+  PopplerAnnot *poppler_annot;
+
+  poppler_annot = POPPLER_ANNOT (g_object_new (POPPLER_TYPE_ANNOT_FILE_ATTACHMENT, NULL));
   poppler_annot->annot = annot;
 
   return poppler_annot;
@@ -783,6 +816,34 @@ poppler_annot_free_text_get_callout_line (PopplerAnnotFreeText *poppler_annot)
   }
 
   return NULL;
+}
+
+/* PopplerAnnotFileAttachment */
+/**
+ * poppler_annot_file_attachment_get_attachment:
+ * @annot: a #PopplerAnnotFileAttachment
+ *
+ * Creates a #PopplerAttachment for the file of the file attachment annotation @annot.
+ * The #PopplerAttachment must be unrefed with g_object_unref by the caller.
+ *
+ * Return value: @PopplerAttachment
+ **/
+PopplerAttachment *
+poppler_annot_file_attachment_get_attachment (PopplerAnnotFileAttachment *annot)
+{
+  AnnotFileAttachment *annot_file_attachment;
+  PopplerAttachment *attachment;
+
+  g_return_val_if_fail (POPPLER_IS_ANNOT_FILE_ATTACHMENT (annot), FALSE);
+
+  annot_file_attachment = static_cast<AnnotFileAttachment *>(POPPLER_ANNOT (annot)->annot);
+
+  EmbFile *emb_file = new EmbFile (annot_file_attachment->getFile(),
+				   annot_file_attachment->getContents());
+  attachment = _poppler_attachment_new (emb_file);
+  delete emb_file;
+
+  return attachment;
 }
 
 /* PopplerAnnotCalloutLine */

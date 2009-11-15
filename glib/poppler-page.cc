@@ -1700,6 +1700,9 @@ poppler_page_get_annot_mapping (PopplerPage *page)
       case Annot::typeFreeText:
         mapping->annot = _poppler_annot_free_text_new (annot);
 	break;
+      case Annot::typeFileAttachment:
+        mapping->annot = _poppler_annot_file_attachment_new (annot);
+	break;
       default:
         mapping->annot = _poppler_annot_new (annot);
 	break;
