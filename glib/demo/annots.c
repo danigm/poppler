@@ -372,6 +372,70 @@ pgd_annot_view_set_annot_free_text (GtkWidget            *table,
 }
 
 static void
+pgd_annots_file_attachment_save_dialog_response (GtkFileChooser    *file_chooser,
+						 gint               response,
+						 PopplerAttachment *attachment)
+{
+    gchar  *filename;
+    GError *error = NULL;
+
+    if (response != GTK_RESPONSE_ACCEPT) {
+        g_object_unref (attachment);
+	gtk_widget_destroy (GTK_WIDGET (file_chooser));
+	return;
+    }
+
+    filename = gtk_file_chooser_get_filename (file_chooser);
+    if (!poppler_attachment_save (attachment, filename, &error)) {
+        g_warning ("%s", error->message);
+	g_error_free (error);
+    }
+    g_free (filename);
+    g_object_unref (attachment);
+    gtk_widget_destroy (GTK_WIDGET (file_chooser));
+}
+
+static void
+pgd_annot_save_file_attachment_button_clicked (GtkButton                  *button,
+					       PopplerAnnotFileAttachment *annot)
+{
+    GtkWidget         *file_chooser;
+    PopplerAttachment *attachment;
+
+    attachment = poppler_annot_file_attachment_get_attachment (annot);
+    if (!attachment)
+        return;
+
+    file_chooser = gtk_file_chooser_dialog_new ("Save attachment",
+						GTK_WINDOW (gtk_widget_get_toplevel (GTK_WIDGET (button))),
+						GTK_FILE_CHOOSER_ACTION_SAVE,
+						GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
+						GTK_STOCK_SAVE, GTK_RESPONSE_ACCEPT,
+						NULL);
+    gtk_file_chooser_set_current_name (GTK_FILE_CHOOSER (file_chooser), attachment->name);
+    g_signal_connect (G_OBJECT (file_chooser), "response",
+		      G_CALLBACK (pgd_annots_file_attachment_save_dialog_response),
+		      (gpointer) attachment);
+    gtk_widget_show (file_chooser);
+}
+
+static void
+pgd_annot_view_set_annot_file_attachment (GtkWidget                  *table,
+					  PopplerAnnotFileAttachment *annot,
+					  gint                       *row)
+{
+    GtkWidget *button;
+
+    button = gtk_button_new_with_label ("Save Attachment");
+    g_signal_connect (G_OBJECT (button), "clicked",
+		      G_CALLBACK (pgd_annot_save_file_attachment_button_clicked),
+		      (gpointer)annot);
+    pgd_table_add_property_with_custom_widget (GTK_TABLE (table), "<b>File Attachment:</b>", button, row);
+    gtk_widget_show (button);
+
+}
+
+static void
 pgd_annot_view_set_annot (GtkWidget    *annot_view,
                           PopplerAnnot *annot)
 {
@@ -430,6 +494,9 @@ pgd_annot_view_set_annot (GtkWidget    *annot_view,
         case POPPLER_ANNOT_FREE_TEXT:
           pgd_annot_view_set_annot_free_text (table, POPPLER_ANNOT_FREE_TEXT (annot), &row);
           break;
+        case POPPLER_ANNOT_FILE_ATTACHMENT:
+	  pgd_annot_view_set_annot_file_attachment (table, POPPLER_ANNOT_FILE_ATTACHMENT (annot), &row);
+	  break;
         default:
           break;
     }
