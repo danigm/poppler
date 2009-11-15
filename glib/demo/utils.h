@@ -24,19 +24,23 @@
 
 G_BEGIN_DECLS
 
-void       pgd_table_add_property                   (GtkTable        *table,
-						     const gchar     *markup,
-						     const gchar     *value,
-						     gint            *row);
-void       pgd_table_add_property_with_value_widget (GtkTable        *table,
-						     const gchar     *markup,
-						     GtkWidget      **value_widget,
-						     const gchar     *value,
-						     gint            *row);
-GtkWidget *pgd_action_view_new                      (PopplerDocument *document);
-void       pgd_action_view_set_action               (GtkWidget       *action_view,
-						     PopplerAction   *action);
-gchar     *pgd_format_date                          (time_t           utime);
+void       pgd_table_add_property                    (GtkTable        *table,
+						      const gchar     *markup,
+						      const gchar     *value,
+						      gint            *row);
+void       pgd_table_add_property_with_value_widget  (GtkTable        *table,
+						      const gchar     *markup,
+						      GtkWidget      **value_widget,
+						      const gchar     *value,
+						      gint            *row);
+void       pgd_table_add_property_with_custom_widget (GtkTable       *table,
+						      const gchar    *markup,
+						      GtkWidget      *widget,
+						      gint           *row);
+GtkWidget *pgd_action_view_new                       (PopplerDocument *document);
+void       pgd_action_view_set_action                (GtkWidget       *action_view,
+						      PopplerAction   *action);
+gchar     *pgd_format_date                           (time_t           utime);
 
 G_END_DECLS
 

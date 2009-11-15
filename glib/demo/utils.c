@@ -22,11 +22,10 @@
 #include "utils.h"
 
 void
-pgd_table_add_property_with_value_widget (GtkTable    *table,
-					  const gchar *markup,
-					  GtkWidget  **value_widget,
-					  const gchar *value,
-					  gint        *row)
+pgd_table_add_property_with_custom_widget (GtkTable    *table,
+					   const gchar *markup,
+					   GtkWidget   *widget,
+					   gint        *row)
 {
 	GtkWidget *label;
 
@@ -37,17 +36,29 @@ pgd_table_add_property_with_value_widget (GtkTable    *table,
 			  GTK_FILL, GTK_FILL, 0, 0);
 	gtk_widget_show (label);
 
+	gtk_table_attach (GTK_TABLE (table), widget, 1, 2, *row, *row + 1,
+			  GTK_FILL | GTK_EXPAND, GTK_FILL, 0, 0);
+	gtk_widget_show (widget);
+
+	*row += 1;
+}
+
+void
+pgd_table_add_property_with_value_widget (GtkTable    *table,
+					  const gchar *markup,
+					  GtkWidget  **value_widget,
+					  const gchar *value,
+					  gint        *row)
+{
+	GtkWidget *label;
+
 	*value_widget = label = gtk_label_new (value);
 	g_object_set (G_OBJECT (label),
 		      "xalign", 0.0,
 		      "selectable", TRUE,
 		      "ellipsize", PANGO_ELLIPSIZE_END,
 		      NULL);
-	gtk_table_attach (GTK_TABLE (table), label, 1, 2, *row, *row + 1,
-			  GTK_FILL | GTK_EXPAND, GTK_FILL, 0, 0);
-	gtk_widget_show (label);
-
-	*row += 1;
+	pgd_table_add_property_with_custom_widget (table, markup, label, row);
 }
 
 void
