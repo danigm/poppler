@@ -4,6 +4,20 @@
 //
 //========================================================================
 
+//========================================================================
+//
+// Modified under the Poppler project - http://poppler.freedesktop.org
+//
+// All changes made under the Poppler project to this file are licensed
+// under GPL version 2 or later
+//
+// Copyright (C) 2009 Albert Astals Cid <aacid@kde.org>
+//
+// To see a description of the changes please see the Changelog file that
+// came with your tarball or type make ChangeLog if you are building from git
+//
+//========================================================================
+
 #include <config.h>
 
 #ifdef USE_GCC_PRAGMAS
@@ -46,12 +60,24 @@ static int cmpDistances(const void *p0, const void *p1) {
 // threshold matrix using recursive tesselation.  Gamma correction
 // (gamma = 1 / 1.33) is also computed here.
 SplashScreen::SplashScreen(SplashScreenParams *params) {
-  Guchar u, black, white;
-  int i;
 
   if (!params) {
     params = &defaultParams;
   }
+  
+  screenParams = params;
+  mat = NULL;
+  size = 0;
+  maxVal = 0;
+  minVal = 0;
+}
+
+void SplashScreen::createMatrix()
+{
+  Guchar u, black, white;
+  int i;
+  
+  SplashScreenParams *params = screenParams;
 
   switch (params->type) {
 
@@ -349,6 +375,7 @@ void SplashScreen::buildSCDMatrix(int r) {
 }
 
 SplashScreen::SplashScreen(SplashScreen *screen) {
+  screenParams = screen->screenParams;
   size = screen->size;
   mat = (Guchar *)gmallocn(size * size, sizeof(Guchar));
   memcpy(mat, screen->mat, size * size * sizeof(Guchar));
@@ -362,6 +389,8 @@ SplashScreen::~SplashScreen() {
 
 int SplashScreen::test(int x, int y, Guchar value) {
   int xx, yy;
+  
+  if (mat == NULL) createMatrix();
 
   if (value < minVal) {
     return 0;
@@ -379,5 +408,7 @@ int SplashScreen::test(int x, int y, Guchar value) {
 }
 
 GBool SplashScreen::isStatic(Guchar value) {
+  if (mat == NULL) createMatrix();
+  
   return value < minVal || value >= maxVal;
 }

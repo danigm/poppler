@@ -4,6 +4,20 @@
 //
 //========================================================================
 
+//========================================================================
+//
+// Modified under the Poppler project - http://poppler.freedesktop.org
+//
+// All changes made under the Poppler project to this file are licensed
+// under GPL version 2 or later
+//
+// Copyright (C) 2009 Albert Astals Cid <aacid@kde.org>
+//
+// To see a description of the changes please see the Changelog file that
+// came with your tarball or type make ChangeLog if you are building from git
+//
+//========================================================================
+
 #ifndef SPLASHSCREEN_H
 #define SPLASHSCREEN_H
 
@@ -36,6 +50,7 @@ public:
   GBool isStatic(Guchar value);
 
 private:
+  void createMatrix();
 
   void buildDispersedMatrix(int i, int j, int val,
 			    int delta, int offset);
@@ -43,6 +58,7 @@ private:
   int distance(int x0, int y0, int x1, int y1);
   void buildSCDMatrix(int r);
 
+  SplashScreenParams *screenParams;	// params to create the other members
   Guchar *mat;			// threshold matrix
   int size;			// size of the threshold matrix
   Guchar minVal;		// any pixel value below minVal generates
