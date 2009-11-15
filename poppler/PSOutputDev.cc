@@ -25,6 +25,7 @@
 // Copyright (C) 2009 Carlos Garcia Campos <carlosgc@gnome.org>
 // Copyright (C) 2009 William Bader <williambader@hotmail.com>
 // Copyright (C) 2009 Kovid Goyal <kovid@kovidgoyal.net>
+// Copyright (C) 2009 Adrian Johnson <ajohnson@redneon.com>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -2022,12 +2023,19 @@ void PSOutputDev::setupEmbeddedType1Font(Ref *id, GooString *psName) {
 
   if (writePadding)
   {
-    // write padding and "cleartomark"
-    for (i = 0; i < 8; ++i) {
-      writePS("00000000000000000000000000000000"
-	      "00000000000000000000000000000000\n");
+    if (length3 > 0) {
+      // write fixed-content portion
+      while ((c = strObj.streamGetChar()) != EOF) {
+	writePSChar(c);
+      }
+    } else {
+      // write padding and "cleartomark"
+      for (i = 0; i < 8; ++i) {
+	writePS("00000000000000000000000000000000"
+		"00000000000000000000000000000000\n");
+      }
+      writePS("cleartomark\n");
     }
-    writePS("cleartomark\n");
   }
 
   // ending comment
