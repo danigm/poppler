@@ -172,6 +172,7 @@ PopplerAnnotCalloutLine      *poppler_annot_free_text_get_callout_line         (
 /* PopplerAnnotFileAttachment */
 GType                         poppler_annot_file_attachment_get_type           (void) G_GNUC_CONST;
 PopplerAttachment            *poppler_annot_file_attachment_get_attachment     (PopplerAnnotFileAttachment *poppler_annot);
+gchar                        *poppler_annot_file_attachment_get_name           (PopplerAnnotFileAttachment *poppler_annot);
 
 /* PopplerCalloutLine */
 GType                         poppler_annot_callout_line_get_type              (void) G_GNUC_CONST;

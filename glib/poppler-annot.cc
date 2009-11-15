@@ -821,7 +821,7 @@ poppler_annot_free_text_get_callout_line (PopplerAnnotFreeText *poppler_annot)
 /* PopplerAnnotFileAttachment */
 /**
  * poppler_annot_file_attachment_get_attachment:
- * @annot: a #PopplerAnnotFileAttachment
+ * @poppler_annot: a #PopplerAnnotFileAttachment
  *
  * Creates a #PopplerAttachment for the file of the file attachment annotation @annot.
  * The #PopplerAttachment must be unrefed with g_object_unref by the caller.
@@ -829,21 +829,43 @@ poppler_annot_free_text_get_callout_line (PopplerAnnotFreeText *poppler_annot)
  * Return value: @PopplerAttachment
  **/
 PopplerAttachment *
-poppler_annot_file_attachment_get_attachment (PopplerAnnotFileAttachment *annot)
+poppler_annot_file_attachment_get_attachment (PopplerAnnotFileAttachment *poppler_annot)
 {
-  AnnotFileAttachment *annot_file_attachment;
+  AnnotFileAttachment *annot;
   PopplerAttachment *attachment;
 
-  g_return_val_if_fail (POPPLER_IS_ANNOT_FILE_ATTACHMENT (annot), FALSE);
+  g_return_val_if_fail (POPPLER_IS_ANNOT_FILE_ATTACHMENT (poppler_annot), NULL);
 
-  annot_file_attachment = static_cast<AnnotFileAttachment *>(POPPLER_ANNOT (annot)->annot);
+  annot = static_cast<AnnotFileAttachment *>(POPPLER_ANNOT (poppler_annot)->annot);
 
-  EmbFile *emb_file = new EmbFile (annot_file_attachment->getFile(),
-				   annot_file_attachment->getContents());
+  EmbFile *emb_file = new EmbFile (annot->getFile(), annot->getContents());
   attachment = _poppler_attachment_new (emb_file);
   delete emb_file;
 
   return attachment;
+}
+
+/**
+ * poppler_annot_file_attachment_get_name:
+ * @poppler_annot: a #PopplerAnnotFileAttachment
+ *
+ * Retrieves the name of @poppler_annot.
+ *
+ * Return value: a new allocated string with the name of @poppler_annot. It must
+ *               be freed with g_free() when done.
+ **/
+gchar *
+poppler_annot_file_attachment_get_name (PopplerAnnotFileAttachment *poppler_annot)
+{
+  AnnotFileAttachment *annot;
+  GooString *name;
+
+  g_return_val_if_fail (POPPLER_IS_ANNOT_FILE_ATTACHMENT (poppler_annot), NULL);
+
+  annot = static_cast<AnnotFileAttachment *>(POPPLER_ANNOT (poppler_annot)->annot);
+  name = annot->getName ();
+
+  return name ? _poppler_goo_string_to_utf8 (name) : NULL;
 }
 
 /* PopplerAnnotCalloutLine */
