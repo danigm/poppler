@@ -425,6 +425,11 @@ pgd_annot_view_set_annot_file_attachment (GtkWidget                  *table,
 					  gint                       *row)
 {
     GtkWidget *button;
+    gchar *text;
+
+    text = poppler_annot_file_attachment_get_name (annot);
+    pgd_table_add_property (GTK_TABLE (table), "<b>Attachment Name:</b>", text, row);
+    g_free (text);
 
     button = gtk_button_new_with_label ("Save Attachment");
     g_signal_connect (G_OBJECT (button), "clicked",
