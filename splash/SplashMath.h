@@ -26,8 +26,7 @@ static inline int splashFloor(SplashCoord x) {
   #if USE_FIXEDPOINT
     return FixedPoint::floor(x);
   #else
-    if (x > 0) return (int)x;
-    else return (int)floor(x);
+    return (int)floor(x);
   #endif
 }
 
@@ -43,7 +42,7 @@ static inline int splashRound(SplashCoord x) {
 #if USE_FIXEDPOINT
   return FixedPoint::round(x);
 #else
-  return (int)splashFloor(x + 0.5);
+  return (int)floor(x + 0.5);
 #endif
 }
 

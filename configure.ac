@@ -109,35 +109,6 @@ fi
 dnl ##### Checks for library functions.
 AC_CHECK_FUNCS(popen mkstemp mkstemps)
 
-dnl Test for libopenjpeg
-AC_ARG_ENABLE(libopenjpeg,
-	      AC_HELP_STRING([--disable-libopenjpeg],
-	                     [Don't build against libopenjpeg.]),
-              enable_libopenjpeg=$enableval,
-              enable_libopenjpeg="try")
-if test x$enable_libopenjpeg = xyes; then
-  AC_CHECK_LIB([openjpeg], [opj_cio_open],,
-	       AC_MSG_ERROR("*** libopenjpeg library not found ***"))
-  AC_CHECK_HEADERS([openjpeg.h],,
-		   AC_MSG_ERROR("*** libopenjpeg headers not found ***"))
-elif test x$enable_libopenjpeg = xtry; then
-  AC_CHECK_LIB([openjpeg], [opj_cio_open],
-               [enable_libopenjpeg="yes"],
-	       [enable_libopenjpeg="no"])
-  AC_CHECK_HEADERS([openjpeg.h],,
-		   [enable_libopenjpeg="no"])
-fi
-
-if test x$enable_libopenjpeg = xyes; then
-  LIBOPENJPEG_LIBS="-lopenjpeg"
-  AC_SUBST(LIBOPENJPEG_LIBS)
-  AC_DEFINE(ENABLE_LIBOPENJPEG)
-fi
-
-AM_CONDITIONAL(BUILD_LIBOPENJPEG, test x$enable_libopenjpeg = xyes)
-AH_TEMPLATE([ENABLE_LIBOPENJPEG],
-	    [Use libopenjpeg instead of builtin jpeg2000 decoder.])
-
 dnl ##### Back to C for the library tests.
 AC_LANG_C
 
@@ -177,6 +148,37 @@ fi
 AM_CONDITIONAL(BUILD_ZLIB, test x$enable_zlib = xyes)
 AH_TEMPLATE([ENABLE_ZLIB],
 	    [Use zlib instead of builtin zlib decoder.])
+
+
+dnl Test for libopenjpeg
+AC_ARG_ENABLE(libopenjpeg,
+	      AC_HELP_STRING([--disable-libopenjpeg],
+	                     [Don't build against libopenjpeg.]),
+              enable_libopenjpeg=$enableval,
+              enable_libopenjpeg="try")
+if test x$enable_libopenjpeg = xyes; then
+  AC_CHECK_LIB([openjpeg], [opj_cio_open],,
+	       AC_MSG_ERROR("*** libopenjpeg library not found ***"))
+  AC_CHECK_HEADERS([openjpeg.h],,
+		   AC_MSG_ERROR("*** libopenjpeg headers not found ***"))
+elif test x$enable_libopenjpeg = xtry; then
+  AC_CHECK_LIB([openjpeg], [opj_cio_open],
+               [enable_libopenjpeg="yes"],
+	       [enable_libopenjpeg="no"])
+  AC_CHECK_HEADERS([openjpeg.h],,
+		   [enable_libopenjpeg="no"])
+fi
+
+if test x$enable_libopenjpeg = xyes; then
+  LIBOPENJPEG_LIBS="-lopenjpeg"
+  AC_SUBST(LIBOPENJPEG_LIBS)
+  AC_DEFINE(ENABLE_LIBOPENJPEG)
+fi
+
+AM_CONDITIONAL(BUILD_LIBOPENJPEG, test x$enable_libopenjpeg = xyes)
+AH_TEMPLATE([ENABLE_LIBOPENJPEG],
+	    [Use libopenjpeg instead of builtin jpeg2000 decoder.])
+
 
 
 dnl Test for libjpeg
