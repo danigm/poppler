@@ -668,7 +668,12 @@ void CairoOutputDev::fill(GfxState *state) {
   cairo_set_source (cairo, fill_pattern);
   LOG(printf ("fill\n"));
   //XXX: how do we get the path
-  cairo_fill (cairo);
+  if (mask) {
+    cairo_clip (cairo);
+    cairo_mask (cairo, mask);
+  } else {
+    cairo_fill (cairo);
+  }
   if (cairo_shape) {
     cairo_set_fill_rule (cairo_shape, CAIRO_FILL_RULE_WINDING);
     doPath (cairo_shape, state, state->getPath());
