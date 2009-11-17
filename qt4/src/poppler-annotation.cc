@@ -1,5 +1,5 @@
 /* poppler-annotation.cc: qt interface to poppler
- * Copyright (C) 2006, Albert Astals Cid <aacid@kde.org>
+ * Copyright (C) 2006, 2009 Albert Astals Cid <aacid@kde.org>
  * Copyright (C) 2006, 2008 Pino Toscano <pino@kde.org>
  * Adapting code from
  *   Copyright (C) 2004 by Enrico Ros <eros.kde@email.it>
@@ -267,15 +267,15 @@ void Annotation::store( QDomNode & annNode, QDomDocument & document ) const
     if ( style.color.isValid() && style.color != Qt::black )
         e.setAttribute( "color", style.color.name() );
     if ( style.opacity != 1.0 )
-        e.setAttribute( "opacity", style.opacity );
+        e.setAttribute( "opacity", QString::number( style.opacity ) );
 
     // Sub-Node-1 - boundary
     QDomElement bE = document.createElement( "boundary" );
     e.appendChild( bE );
-    bE.setAttribute( "l", (double)d->boundary.left() );
-    bE.setAttribute( "t", (double)d->boundary.top() );
-    bE.setAttribute( "r", (double)d->boundary.right() );
-    bE.setAttribute( "b", (double)d->boundary.bottom() );
+    bE.setAttribute( "l", QString::number( (double)d->boundary.left() ) );
+    bE.setAttribute( "t", QString::number( (double)d->boundary.top() ) );
+    bE.setAttribute( "r", QString::number( (double)d->boundary.right() ) );
+    bE.setAttribute( "b", QString::number( (double)d->boundary.bottom() ) );
 
     // Sub-Node-2 - penStyle
     if ( style.width != 1 || style.style != Solid || style.xCorners != 0 ||
@@ -283,10 +283,10 @@ void Annotation::store( QDomNode & annNode, QDomDocument & document ) const
     {
         QDomElement psE = document.createElement( "penStyle" );
         e.appendChild( psE );
-        psE.setAttribute( "width", style.width );
+        psE.setAttribute( "width", QString::number( style.width ) );
         psE.setAttribute( "style", (int)style.style );
-        psE.setAttribute( "xcr", style.xCorners );
-        psE.setAttribute( "ycr", style.yCorners );
+        psE.setAttribute( "xcr", QString::number( style.xCorners ) );
+        psE.setAttribute( "ycr", QString::number( style.yCorners ) );
         psE.setAttribute( "marks", style.marks );
         psE.setAttribute( "spaces", style.spaces );
     }
@@ -297,7 +297,7 @@ void Annotation::store( QDomNode & annNode, QDomDocument & document ) const
         QDomElement peE = document.createElement( "penEffect" );
         e.appendChild( peE );
         peE.setAttribute( "effect", (int)style.effect );
-        peE.setAttribute( "intensity", style.effectIntensity );
+        peE.setAttribute( "intensity", QString::number( style.effectIntensity ) );
     }
 
     // Sub-Node-4 - window
@@ -307,8 +307,8 @@ void Annotation::store( QDomNode & annNode, QDomDocument & document ) const
         QDomElement wE = document.createElement( "window" );
         e.appendChild( wE );
         wE.setAttribute( "flags", window.flags );
-        wE.setAttribute( "top", window.topLeft.x() );
-        wE.setAttribute( "left", window.topLeft.y() );
+        wE.setAttribute( "top", QString::number( window.topLeft.x() ) );
+        wE.setAttribute( "left", QString::number( window.topLeft.y() ) );
         wE.setAttribute( "width", window.width );
         wE.setAttribute( "height", window.height );
         wE.setAttribute( "title", window.title );
@@ -563,12 +563,12 @@ void TextAnnotation::store( QDomNode & node, QDomDocument & document ) const
     {
         QDomElement calloutElement = document.createElement( "callout" );
         textElement.appendChild( calloutElement );
-        calloutElement.setAttribute( "ax", d->inplaceCallout[0].x() );
-        calloutElement.setAttribute( "ay", d->inplaceCallout[0].y() );
-        calloutElement.setAttribute( "bx", d->inplaceCallout[1].x() );
-        calloutElement.setAttribute( "by", d->inplaceCallout[1].y() );
-        calloutElement.setAttribute( "cx", d->inplaceCallout[2].x() );
-        calloutElement.setAttribute( "cy", d->inplaceCallout[2].y() );
+        calloutElement.setAttribute( "ax", QString::number( d->inplaceCallout[0].x() ) );
+        calloutElement.setAttribute( "ay", QString::number( d->inplaceCallout[0].y() ) );
+        calloutElement.setAttribute( "bx", QString::number( d->inplaceCallout[1].x() ) );
+        calloutElement.setAttribute( "by", QString::number( d->inplaceCallout[1].y() ) );
+        calloutElement.setAttribute( "cx", QString::number( d->inplaceCallout[2].x() ) );
+        calloutElement.setAttribute( "cy", QString::number( d->inplaceCallout[2].y() ) );
     }
 }
 
@@ -774,9 +774,9 @@ void LineAnnotation::store( QDomNode & node, QDomDocument & document ) const
     if ( d->lineInnerColor.isValid() )
         lineElement.setAttribute( "innerColor", d->lineInnerColor.name() );
     if ( d->lineLeadingFwdPt != 0.0 )
-        lineElement.setAttribute( "leadFwd", d->lineLeadingFwdPt );
+        lineElement.setAttribute( "leadFwd", QString::number( d->lineLeadingFwdPt ) );
     if ( d->lineLeadingBackPt != 0.0 )
-        lineElement.setAttribute( "leadBack", d->lineLeadingBackPt );
+        lineElement.setAttribute( "leadBack", QString::number( d->lineLeadingBackPt ) );
     if ( d->lineShowCaption )
         lineElement.setAttribute( "showCaption", d->lineShowCaption );
     if ( d->lineIntent != Unknown )
@@ -792,8 +792,8 @@ void LineAnnotation::store( QDomNode & node, QDomDocument & document ) const
             const QPointF & p = *it;
             QDomElement pElement = document.createElement( "point" );
             lineElement.appendChild( pElement );
-            pElement.setAttribute( "x", p.x() );
-            pElement.setAttribute( "y", p.y() );
+            pElement.setAttribute( "x", QString::number( p.x() ) );
+            pElement.setAttribute( "y", QString::number( p.y() ) );
             ++it;
         }
     }
@@ -1122,19 +1122,19 @@ void HighlightAnnotation::store( QDomNode & node, QDomDocument & document ) cons
         QDomElement quadElement = document.createElement( "quad" );
         hlElement.appendChild( quadElement );
         const Quad & q = *it;
-        quadElement.setAttribute( "ax", q.points[0].x() );
-        quadElement.setAttribute( "ay", q.points[0].y() );
-        quadElement.setAttribute( "bx", q.points[1].x() );
-        quadElement.setAttribute( "by", q.points[1].y() );
-        quadElement.setAttribute( "cx", q.points[2].x() );
-        quadElement.setAttribute( "cy", q.points[2].y() );
-        quadElement.setAttribute( "dx", q.points[3].x() );
-        quadElement.setAttribute( "dy", q.points[3].y() );
+        quadElement.setAttribute( "ax", QString::number( q.points[0].x() ) );
+        quadElement.setAttribute( "ay", QString::number( q.points[0].y() ) );
+        quadElement.setAttribute( "bx", QString::number( q.points[1].x() ) );
+        quadElement.setAttribute( "by", QString::number( q.points[1].y() ) );
+        quadElement.setAttribute( "cx", QString::number( q.points[2].x() ) );
+        quadElement.setAttribute( "cy", QString::number( q.points[2].y() ) );
+        quadElement.setAttribute( "dx", QString::number( q.points[3].x() ) );
+        quadElement.setAttribute( "dy", QString::number( q.points[3].y() ) );
         if ( q.capStart )
             quadElement.setAttribute( "start", 1 );
         if ( q.capEnd )
             quadElement.setAttribute( "end", 1 );
-        quadElement.setAttribute( "feather", q.feather );
+        quadElement.setAttribute( "feather", QString::number( q.feather ) );
     }
 }
 
@@ -1345,8 +1345,8 @@ void InkAnnotation::store( QDomNode & node, QDomDocument & document ) const
             const QPointF & point = *iIt;
             QDomElement pointElement = document.createElement( "point" );
             pathElement.appendChild( pointElement );
-            pointElement.setAttribute( "x", point.x() );
-            pointElement.setAttribute( "y", point.y() );
+            pointElement.setAttribute( "x", QString::number( point.x() ) );
+            pointElement.setAttribute( "y", QString::number( point.y() ) );
         }
     }
 }
@@ -1522,14 +1522,14 @@ void LinkAnnotation::store( QDomNode & node, QDomDocument & document ) const
     // saving region
     QDomElement quadElement = document.createElement( "quad" );
     linkElement.appendChild( quadElement );
-    quadElement.setAttribute( "ax", d->linkRegion[0].x() );
-    quadElement.setAttribute( "ay", d->linkRegion[0].y() );
-    quadElement.setAttribute( "bx", d->linkRegion[1].x() );
-    quadElement.setAttribute( "by", d->linkRegion[1].y() );
-    quadElement.setAttribute( "cx", d->linkRegion[2].x() );
-    quadElement.setAttribute( "cy", d->linkRegion[2].y() );
-    quadElement.setAttribute( "dx", d->linkRegion[3].x() );
-    quadElement.setAttribute( "dy", d->linkRegion[3].y() );
+    quadElement.setAttribute( "ax", QString::number( d->linkRegion[0].x() ) );
+    quadElement.setAttribute( "ay", QString::number( d->linkRegion[0].y() ) );
+    quadElement.setAttribute( "bx", QString::number( d->linkRegion[1].x() ) );
+    quadElement.setAttribute( "by", QString::number( d->linkRegion[1].y() ) );
+    quadElement.setAttribute( "cx", QString::number( d->linkRegion[2].x() ) );
+    quadElement.setAttribute( "cy", QString::number( d->linkRegion[2].y() ) );
+    quadElement.setAttribute( "dx", QString::number( d->linkRegion[3].x() ) );
+    quadElement.setAttribute( "dy", QString::number( d->linkRegion[3].y() ) );
 
     // saving link
     QDomElement hyperlinkElement = document.createElement( "link" );
