@@ -4,6 +4,20 @@
 //
 //========================================================================
 
+//========================================================================
+//
+// Modified under the Poppler project - http://poppler.freedesktop.org
+//
+// All changes made under the Poppler project to this file are licensed
+// under GPL version 2 or later
+//
+// Copyright (C) 2009 Albert Astals Cid <aacid@kde.org>
+//
+// To see a description of the changes please see the Changelog file that
+// came with your tarball or type make ChangeLog if you are building from git
+//
+//========================================================================
+
 #ifndef SPLASHMATH_H
 #define SPLASHMATH_H
 
@@ -26,7 +40,8 @@ static inline int splashFloor(SplashCoord x) {
   #if USE_FIXEDPOINT
     return FixedPoint::floor(x);
   #else
-    return (int)floor(x);
+    if (x > 0) return (int)x;
+    else return (int)floor(x);
   #endif
 }
 
@@ -42,7 +57,7 @@ static inline int splashRound(SplashCoord x) {
 #if USE_FIXEDPOINT
   return FixedPoint::round(x);
 #else
-  return (int)floor(x + 0.5);
+  return (int)splashFloor(x + 0.5);
 #endif
 }
 
