@@ -352,7 +352,6 @@ int Catalog::readPageTree(Dict *pagesDict, PageAttrs *attrs, int start,
  err2:
   kid.free();
   kidRef.free();
- err1:
   kids.free();
   delete attrs1;
   ok = gFalse;
