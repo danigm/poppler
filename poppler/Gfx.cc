@@ -30,6 +30,7 @@
 // Copyright (C) 2009 M Joonas Pihlaja <jpihlaja@cc.helsinki.fi>
 // Copyright (C) 2009 Thomas Freitag <Thomas.Freitag@alfa.de>
 // Copyright (C) 2009 William Bader <williambader@hotmail.com>
+// Copyright (C) 2009 David Benjamin <davidben@mit.edu>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -3875,7 +3876,9 @@ void Gfx::doImage(Object *ref, Stream *str, GBool inlineImg) {
     }
     if (obj1.isArray()) {
       obj1.arrayGet(0, &obj2);
-      if (obj2.isInt() && obj2.getInt() == 1)
+      // Table 4.39 says /Decode must be [1 0] or [0 1]. Adobe
+      // accepts [1.0 0.0] as well.
+      if (obj2.isNum() && obj2.getNum() >= 0.9)
 	invert = gTrue;
       obj2.free();
     } else if (!obj1.isNull()) {
@@ -4097,7 +4100,9 @@ void Gfx::doImage(Object *ref, Stream *str, GBool inlineImg) {
       }
       if (obj1.isArray()) {
 	obj1.arrayGet(0, &obj2);
-	if (obj2.isInt() && obj2.getInt() == 1) {
+	// Table 4.39 says /Decode must be [1 0] or [0 1]. Adobe
+	// accepts [1.0 0.0] as well.
+	if (obj2.isNum() && obj2.getNum() >= 0.9) {
 	  maskInvert = gTrue;
 	}
 	obj2.free();
