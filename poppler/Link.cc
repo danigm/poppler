@@ -18,6 +18,7 @@
 // Copyright (C) 2008 Hugo Mercier <hmercier31@gmail.com>
 // Copyright (C) 2008, 2009 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2009 Kovid Goyal <kovid@kovidgoyal.net>
+// Copyright (C) 2009 Ilya Gorenbein <igorenbein@finjan.com>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -419,6 +420,7 @@ LinkGoTo::~LinkGoTo() {
 //------------------------------------------------------------------------
 
 LinkGoToR::LinkGoToR(Object *fileSpecObj, Object *destObj) {
+  fileName = NULL;
   dest = NULL;
   namedDest = NULL;
 
