@@ -20,7 +20,7 @@
 // Copyright (C) 2005, 2009 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2006, 2007 Carlos Garcia Campos <carlosgc@gnome.org>
 // Copyright (C) 2007 Koji Otani <sho@bbr.jp>
-// Copyright (C) 2008 Chris Wilson <chris@chris-wilson.co.uk>
+// Copyright (C) 2008, 2009 Chris Wilson <chris@chris-wilson.co.uk>
 // Copyright (C) 2008 Adrian Johnson <ajohnson@redneon.com>
 // Copyright (C) 2009 Darren Kenny <darren.kenny@sun.com>
 //
