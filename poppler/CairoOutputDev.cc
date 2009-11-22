@@ -122,7 +122,9 @@ CairoOutputDev::CairoOutputDev() {
   fontEngine_owner = gFalse;
   glyphs = NULL;
   fill_pattern = NULL;
+  fill_color.r = fill_color.g = fill_color.b = 0;
   stroke_pattern = NULL;
+  stroke_color.r = stroke_color.g = stroke_color.b = 0;
   stroke_opacity = 1.0;
   fill_opacity = 1.0;
   textClipPath = NULL;
