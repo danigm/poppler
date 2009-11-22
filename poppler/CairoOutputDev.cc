@@ -24,6 +24,7 @@
 // Copyright (C) 2008 Michael Vrable <mvrable@cs.ucsd.edu>
 // Copyright (C) 2008 Chris Wilson <chris@chris-wilson.co.uk>
 // Copyright (C) 2008 Hib Eris <hib@hiberis.nl>
+// Copyright (C) 2009 David Benjamin <davidben@mit.edu>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -257,6 +258,10 @@ void CairoOutputDev::saveState(GfxState *state) {
 
 void CairoOutputDev::restoreState(GfxState *state) {
   LOG(printf ("restore\n"));
+  if (!state->hasSaves()) {
+    error(-1, "restoreState on an empty state stack");
+    return;
+  }
   cairo_restore (cairo);
   if (cairo_shape)
       cairo_restore (cairo_shape);
