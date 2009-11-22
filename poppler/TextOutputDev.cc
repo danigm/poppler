@@ -4400,23 +4400,12 @@ void TextPage::dump(void *outputStream, TextOutputFunc outputFunc,
 	  dumpFragment(line->text, n, uMap, s);
 	  (*outputFunc)(outputStream, s->getCString(), s->getLength());
 	  delete s;
-	  if (!line->hyphenated) {
-	    if (line->next) {
-	      (*outputFunc)(outputStream, space, spaceLen);
-	    } else if (blk->next) {
-	      //~ this is a bit of a kludge - we should really do a more
-	      //~ intelligent determination of paragraphs
-	      if (blk->next->lines->words->fontSize ==
-		  blk->lines->words->fontSize) {
-		(*outputFunc)(outputStream, space, spaceLen);
-	      } else {
-		(*outputFunc)(outputStream, eol, eolLen);
-	      }
-	    }
+	  // output a newline when a hyphen is not suppressed
+	  if (n == line->len) {
+	    (*outputFunc)(outputStream, eol, eolLen);
 	  }
 	}
       }
-      (*outputFunc)(outputStream, eol, eolLen);
       (*outputFunc)(outputStream, eol, eolLen);
     }
   }
