@@ -3932,13 +3932,24 @@ void TextBlock::visitSelection(TextSelectionVisitor *visitor,
     // the corners, so we have to force them to be
     // selected when the selection runs outside this
     // block.
-    all[i] = x[i] >= this->xMax && y[i] >= this->yMax;
-    if (x[i] <= this->xMin && y[i] <= this->yMin) {
-      best_line[i] = this->lines;
-      best_count[i] = 1;
+    if (page->primaryLR) {
+      all[i] = x[i] >= this->xMax && y[i] >= this->yMax;
+      if (x[i] <= this->xMin && y[i] <= this->yMin) {
+	best_line[i] = this->lines;
+	best_count[i] = 1;
+      } else {
+	best_line[i] = NULL;
+	best_count[i] = 0;
+      }
     } else {
-      best_line[i] = NULL;
-      best_count[i] = 0;
+      all[i] = x[i] <= this->xMin && y[i] >= this->yMax;
+      if (x[i] >= this->xMax && y[i] <= this->yMin) {
+	best_line[i] = this->lines;
+	best_count[i] = 1;
+      } else {
+	best_line[i] = NULL;
+	best_count[i] = 0;
+      }
     }
     best_d[i] = 0;
   }
@@ -3979,9 +3990,14 @@ void TextBlock::visitSelection(TextSelectionVisitor *visitor,
   visitor->visitBlock(this, best_line[start], best_line[stop], selection);
 
   for (p = best_line[start]; p; p = p->next) {
-    child_selection.x1 = p->xMin;
+    if (page->primaryLR) {
+      child_selection.x1 = p->xMin;
+      child_selection.x2 = p->xMax;
+    } else {
+      child_selection.x1 = p->xMax;
+      child_selection.x2 = p->xMin;
+    }
     child_selection.y1 = p->yMin;
-    child_selection.x2 = p->xMax;
     child_selection.y2 = p->yMax;
     if (style == selectionStyleLine) {
       if (p == best_line[start]) {
@@ -4072,10 +4088,18 @@ void TextPage::visitSelection(TextSelectionVisitor *visitor,
     }
   }
   for (i = 0; i < 2; i++) {
-    if (x[i] < xMin && y[i] < yMin) {
-      best_block[i] = flows->blocks;
-      best_flow[i] = flows;
-      best_count[i] = 1;
+    if (primaryLR) {
+      if (x[i] < xMin && y[i] < yMin) {
+	best_block[i] = flows->blocks;
+	best_flow[i] = flows;
+	best_count[i] = 1;
+      }
+    } else {
+      if (x[i] > xMax && y[i] < yMin) {
+	best_block[i] = flows->blocks;
+	best_flow[i] = flows;
+	best_count[i] = 1;
+      }
     }
   }
   // assert: best is always set.
@@ -4100,9 +4124,14 @@ void TextPage::visitSelection(TextSelectionVisitor *visitor,
       blk = flow->blocks;
     }
     for (; blk; blk = blk->next) {
-      child_selection.x1 = blk->xMin;
+      if (primaryLR) {
+	child_selection.x1 = blk->xMin;
+	child_selection.x2 = blk->xMax;
+      } else {
+	child_selection.x1 = blk->xMax;
+	child_selection.x2 = blk->xMin;
+      }
       child_selection.y1 = blk->yMin;
-      child_selection.x2 = blk->xMax;
       child_selection.y2 = blk->yMax;
       if (blk == best_block[start]) {
 	child_selection.x1 = fmax(blk->xMin, fmin(blk->xMax, x[start]));
