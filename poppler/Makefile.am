@@ -47,7 +47,9 @@ libpoppler_cairo_la_SOURCES =			\
 	CairoFontEngine.cc			\
 	CairoFontEngine.h			\
 	CairoOutputDev.cc			\
-	CairoOutputDev.h
+	CairoOutputDev.h			\
+	CairoRescaleBox.cc			\
+	CairoRescaleBox.h
 
 endif
 

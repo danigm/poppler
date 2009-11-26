@@ -58,6 +58,7 @@
 #include <splash/SplashBitmap.h>
 #include "CairoOutputDev.h"
 #include "CairoFontEngine.h"
+#include "CairoRescaleBox.h"
 //------------------------------------------------------------------------
 
 // #define LOG_CAIRO
@@ -1331,6 +1332,82 @@ void CairoOutputDev::endMaskClip(GfxState *state) {
   clearSoftMask(state);
 }
 
+cairo_surface_t *CairoOutputDev::downscaleSurface(cairo_surface_t *orig_surface) {
+  cairo_surface_t *dest_surface;
+  unsigned char *dest_buffer;
+  int dest_stride;
+  unsigned char *orig_buffer;
+  int orig_width, orig_height;
+  int orig_stride;
+  GBool res;
+
+  if (printing)
+    return NULL;
+
+  cairo_matrix_t matrix;
+  cairo_get_matrix(cairo, &matrix);
+
+  /* this whole computation should be factored out */
+  double xScale = matrix.xx;
+  double yScale = matrix.yy;
+  int tx, tx2, ty, ty2; /* the integer co-oridinates of the resulting image */
+  int scaledHeight;
+  int scaledWidth;
+  if (xScale >= 0) {
+    tx = splashRound(matrix.x0 - 0.01);
+    tx2 = splashRound(matrix.x0 + xScale + 0.01) - 1;
+  } else {
+    tx = splashRound(matrix.x0 + 0.01) - 1;
+    tx2 = splashRound(matrix.x0 + xScale - 0.01);
+  }
+  scaledWidth = abs(tx2 - tx) + 1;
+  //scaledWidth = splashRound(fabs(xScale));
+  if (scaledWidth == 0) {
+    // technically, this should draw nothing, but it generally seems
+    // better to draw a one-pixel-wide stripe rather than throwing it
+    // away
+    scaledWidth = 1;
+  }
+  if (yScale >= 0) {
+    ty = splashFloor(matrix.y0 + 0.01);
+    ty2 = splashCeil(matrix.y0 + yScale - 0.01);
+  } else {
+    ty = splashCeil(matrix.y0 - 0.01);
+    ty2 = splashFloor(matrix.y0 + yScale + 0.01);
+  }
+  scaledHeight = abs(ty2 - ty);
+  if (scaledHeight == 0) {
+    scaledHeight = 1;
+  }
+
+  orig_width = cairo_image_surface_get_width (orig_surface);
+  orig_height = cairo_image_surface_get_height (orig_surface);
+  if (scaledWidth >= orig_width || scaledHeight >= orig_height)
+    return NULL;
+
+  dest_surface = cairo_surface_create_similar (orig_surface,
+					       cairo_surface_get_content (orig_surface),
+					       scaledWidth, scaledHeight);
+  dest_buffer = cairo_image_surface_get_data (dest_surface);
+  dest_stride = cairo_image_surface_get_stride (dest_surface);
+
+  orig_buffer = cairo_image_surface_get_data (orig_surface);
+  orig_stride = cairo_image_surface_get_stride (orig_surface);
+
+  res = downscale_box_filter((uint32_t *)orig_buffer,
+			     orig_stride, orig_width, orig_height,
+			     scaledWidth, scaledHeight, 0, 0,
+			     scaledWidth, scaledHeight,
+			     (uint32_t *)dest_buffer, dest_stride);
+  if (!res) {
+    cairo_surface_destroy (dest_surface);
+    return NULL;
+  }
+
+  return dest_surface;
+
+}
+
 void CairoOutputDev::drawImageMask(GfxState *state, Object *ref, Stream *str,
 				   int width, int height, GBool invert,
 				   GBool interpolate, GBool inlineImg) {
@@ -2093,6 +2170,18 @@ void CairoOutputDev::drawImage(GfxState *state, Object *ref, Stream *str,
     }
   }
   gfree(lookup);
+
+  cairo_surface_t *scaled_surface;
+
+  scaled_surface = downscaleSurface (image);
+  if (scaled_surface) {
+    if (cairo_surface_status (scaled_surface))
+      goto cleanup;
+    cairo_surface_destroy (image);
+    image = scaled_surface;
+    width = cairo_image_surface_get_width (image);
+    height = cairo_image_surface_get_height (image);
+  }
 
   cairo_surface_mark_dirty (image);
   pattern = cairo_pattern_create_for_surface (image);
