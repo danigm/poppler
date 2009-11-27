@@ -36,6 +36,8 @@ poppler_glib_demo_SOURCES = 			\
 	outline.c				\
 	page.h					\
 	page.c					\
+	print.h					\
+	print.c					\
 	render.h				\
 	render.c				\
 	text.h					\

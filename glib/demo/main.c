@@ -35,6 +35,7 @@
 #include "layers.h"
 #include "text.h"
 #include "find.h"
+#include "print.h"
 
 enum {
 	PGD_TITLE_COLUMN,
@@ -62,7 +63,8 @@ static const PopplerGlibDemo demo_list[] = {
 	{ "Attachments",      pgd_attachments_create_widget },
 	{ "Layers",           pgd_layers_create_widget },
 	{ "Text",             pgd_text_create_widget },
-	{ "Find",             pgd_find_create_widget }
+	{ "Find",             pgd_find_create_widget },
+	{ "Print",             pgd_print_create_widget }
 };
 
 static void
