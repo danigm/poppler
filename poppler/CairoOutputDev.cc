@@ -258,10 +258,6 @@ void CairoOutputDev::saveState(GfxState *state) {
 
 void CairoOutputDev::restoreState(GfxState *state) {
   LOG(printf ("restore\n"));
-  if (!state->hasSaves()) {
-    error(-1, "restoreState on an empty state stack");
-    return;
-  }
   cairo_restore (cairo);
   if (cairo_shape)
       cairo_restore (cairo_shape);
@@ -278,9 +274,11 @@ void CairoOutputDev::restoreState(GfxState *state) {
   if (mask)
     cairo_pattern_destroy(mask);
 
-  mask = ms->mask;
-  maskStack = ms->next;
-  delete ms;
+  if (ms) {
+    mask = ms->mask;
+    maskStack = ms->next;
+    delete ms;
+  }
 }
 
 void CairoOutputDev::updateAll(GfxState *state) {
