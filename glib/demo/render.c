@@ -39,6 +39,7 @@ typedef struct {
 	gdouble          scale;
 	gint             rotate;
 	GdkRectangle     slice;
+	gboolean         printing;
 	
 	GtkWidget       *swindow;
 	GtkWidget       *darea;
@@ -191,8 +192,11 @@ pgd_render_start (GtkButton     *button,
 		
 		if (demo->rotate != 0)
 			cairo_rotate (cr, demo->rotate * G_PI / 180.0);
-		
-		poppler_page_render (page, cr);
+
+		if (demo->printing)
+			poppler_page_render_for_printing (page, cr);
+		else
+			poppler_page_render (page, cr);
 		cairo_restore (cr);
 
 		cairo_set_operator (cr, CAIRO_OPERATOR_DEST_OVER);
@@ -209,13 +213,23 @@ pgd_render_start (GtkButton     *button,
 		demo->pixbuf = gdk_pixbuf_new (GDK_COLORSPACE_RGB,
 					       FALSE, 8, width, height);
 		gdk_pixbuf_fill (demo->pixbuf, 0xffffff);
-		poppler_page_render_to_pixbuf (page,
-					       x, y,
-					       width,
-					       height,
-					       demo->scale,
-					       demo->rotate,
-					       demo->pixbuf);
+		if (demo->printing) {
+			poppler_page_render_to_pixbuf_for_printing (page,
+								    x, y,
+								    width,
+								    height,
+								    demo->scale,
+								    demo->rotate,
+								    demo->pixbuf);
+		} else {
+			poppler_page_render_to_pixbuf (page,
+						       x, y,
+						       width,
+						       height,
+						       demo->scale,
+						       demo->rotate,
+						       demo->pixbuf);
+		}
 		g_timer_stop (timer);
 #endif /* POPPLER_WITH_GDK */
 #if defined (HAVE_CAIRO)
@@ -284,6 +298,13 @@ pgd_render_rotate_selector_changed (GtkComboBox   *combobox,
 }
 
 static void
+pgd_render_printing_selector_changed (GtkToggleButton *tooglebutton,
+				      PgdRenderDemo *demo)
+{
+	demo->printing = gtk_toggle_button_get_active (tooglebutton);
+}
+
+static void
 pgd_render_mode_selector_changed (GtkComboBox   *combobox,
 				  PgdRenderDemo *demo)
 {
@@ -309,6 +330,7 @@ pgd_render_properties_selector_create (PgdRenderDemo *demo)
 	GtkWidget *scale_hbox, *scale_selector;
 	GtkWidget *rotate_hbox, *rotate_selector;
 	GtkWidget *mode_hbox, *mode_selector;
+	GtkWidget *printing_selector;
 	GtkWidget *slice_hbox, *slice_selector;
 	GtkWidget *button;
 	gint       n_pages;
@@ -404,6 +426,13 @@ pgd_render_properties_selector_create (PgdRenderDemo *demo)
 
 	gtk_box_pack_start (GTK_BOX (hbox), mode_hbox, FALSE, TRUE, 0);
 	gtk_widget_show (mode_hbox);
+
+	printing_selector = gtk_check_button_new_with_label ("Printing");
+	g_signal_connect (printing_selector, "toggled",
+			  G_CALLBACK (pgd_render_printing_selector_changed),
+			  (gpointer)demo);
+	gtk_box_pack_start (GTK_BOX (hbox), printing_selector, FALSE, TRUE, 0);
+	gtk_widget_show (printing_selector);
 
 	hbox = gtk_hbox_new (FALSE, 12);
 	gtk_box_pack_start (GTK_BOX (vbox), hbox, TRUE, TRUE, 0);
