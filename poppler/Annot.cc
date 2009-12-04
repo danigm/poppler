@@ -61,10 +61,6 @@
 #include "DateInfo.h"
 #include <string.h>
 
-#define annotFlagHidden    0x0002
-#define annotFlagPrint     0x0004
-#define annotFlagNoView    0x0020
-
 #define fieldFlagReadOnly           0x00000001
 #define fieldFlagRequired           0x00000002
 #define fieldFlagNoExport           0x00000004
@@ -1270,9 +1266,9 @@ void Annot::draw(Gfx *gfx, GBool printing) {
   Object obj;
 
   // check the flags
-  if ((flags & annotFlagHidden) ||
-      (printing && !(flags & annotFlagPrint)) ||
-      (!printing && (flags & annotFlagNoView))) {
+  if ((flags & flagHidden) ||
+      (printing && !(flags & flagPrint)) ||
+      (!printing && (flags & flagNoView))) {
     return;
   }
 
@@ -1696,9 +1692,9 @@ void AnnotLink::draw(Gfx *gfx, GBool printing) {
   Object obj;
 
   // check the flags
-  if ((flags & annotFlagHidden) ||
-      (printing && !(flags & annotFlagPrint)) ||
-      (!printing && (flags & annotFlagNoView))) {
+  if ((flags & flagHidden) ||
+      (printing && !(flags & flagPrint)) ||
+      (!printing && (flags & flagNoView))) {
     return;
   }
 
@@ -3421,9 +3417,9 @@ void AnnotWidget::draw(Gfx *gfx, GBool printing) {
   Object obj;
 
   // check the flags
-  if ((flags & annotFlagHidden) ||
-      (printing && !(flags & annotFlagPrint)) ||
-      (!printing && (flags & annotFlagNoView))) {
+  if ((flags & flagHidden) ||
+      (printing && !(flags & flagPrint)) ||
+      (!printing && (flags & flagNoView))) {
     return;
   }
 
