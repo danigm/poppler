@@ -230,6 +230,15 @@ void GfxFont::readFontDescriptor(XRef *xref, Dict *fontDict) {
       embFontName = new GooString(obj2.getName());
     }
     obj2.free();
+    if (embFontName == NULL) {
+      // get name with typo
+      obj1.dictLookup("Fontname", &obj2);
+      if (obj2.isName()) {
+        embFontName = new GooString(obj2.getName());
+        error(-1, "The file uses Fontname instead of FontName please notify the creator that the file is broken");
+      }
+      obj2.free();
+    }
 
     // get family
     obj1.dictLookup("FontFamily", &obj2);
