@@ -20,6 +20,7 @@
 // Copyright (C) 2008 Carlos Garcia Campos <carlosgc@gnome.org>
 // Copyright (C) 2009 Eric Toombs <ewtoombs@uwaterloo.ca>
 // Copyright (C) 2009 Kovid Goyal <kovid@kovidgoyal.net>
+// Copyright (C) 2009 Axel Struebing <axel.struebing@freenet.de>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -732,7 +733,7 @@ Guint PDFDoc::writeObject (Object* obj, Ref* ref, OutStream* outStr)
       break;
     }
     case objNull:
-      outStr->printf( "null");
+      outStr->printf( "null ");
       break;
     case objArray:
       array = obj->getArray();
