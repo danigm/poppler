@@ -538,6 +538,7 @@ protected:
   void drawCircle(double cx, double cy, double r, GBool fill);
   void drawCircleTopLeft(double cx, double cy, double r);
   void drawCircleBottomRight(double cx, double cy, double r);
+  GBool isVisible(GBool printing);
 
   // Updates the field key of the annotation dictionary
   // and sets M to the current time

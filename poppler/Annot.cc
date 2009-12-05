@@ -1262,21 +1262,28 @@ void Annot::drawCircleBottomRight(double cx, double cy, double r) {
   appearBuf->append("S\n");
 }
 
-void Annot::draw(Gfx *gfx, GBool printing) {
-  Object obj;
-
+GBool Annot::isVisible(GBool printing) {
   // check the flags
   if ((flags & flagHidden) ||
       (printing && !(flags & flagPrint)) ||
       (!printing && (flags & flagNoView))) {
-    return;
+    return gFalse;
   }
 
   // check the OC
   if (optContentConfig && oc.isRef()) {
     if (! optContentConfig->optContentIsVisible(&oc))
-      return;
+      return gFalse;
   }
+
+  return gTrue;
+}
+
+void Annot::draw(Gfx *gfx, GBool printing) {
+  Object obj;
+
+  if (!isVisible (printing))
+    return;
 
   // draw the appearance stream
   appearance.fetch(xref, &obj);
@@ -1691,12 +1698,8 @@ void AnnotLink::initialize(XRef *xrefA, Catalog *catalog, Dict *dict) {
 void AnnotLink::draw(Gfx *gfx, GBool printing) {
   Object obj;
 
-  // check the flags
-  if ((flags & flagHidden) ||
-      (printing && !(flags & flagPrint)) ||
-      (!printing && (flags & flagNoView))) {
+  if (!isVisible (printing))
     return;
-  }
 
   // draw the appearance stream
   appearance.fetch(xref, &obj);
@@ -3416,12 +3419,8 @@ void AnnotWidget::generateFieldAppearance() {
 void AnnotWidget::draw(Gfx *gfx, GBool printing) {
   Object obj;
 
-  // check the flags
-  if ((flags & flagHidden) ||
-      (printing && !(flags & flagPrint)) ||
-      (!printing && (flags & flagNoView))) {
+  if (!isVisible (printing))
     return;
-  }
 
   addDingbatsResource = gFalse;
   generateFieldAppearance ();
