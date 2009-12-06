@@ -1025,6 +1025,8 @@ public:
   AnnotGeometry(XRef *xrefA, Dict *dict, Catalog *catalog, Object *obj);
   ~AnnotGeometry();
 
+  virtual void draw(Gfx *gfx, GBool printing);
+
   // getters
   AnnotColor *getInteriorColor() const { return interiorColor; }
   AnnotBorderEffect *getBorderEffect() const { return borderEffect; }

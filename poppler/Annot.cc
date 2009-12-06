@@ -4255,6 +4255,126 @@ void AnnotGeometry::initialize(XRef *xrefA, Catalog *catalog, Dict* dict) {
 
 }
 
+void AnnotGeometry::draw(Gfx *gfx, GBool printing) {
+  Object obj;
+
+  if (!isVisible (printing))
+    return;
+
+  if (appearance.isNull()) {
+    appearBuf = new GooString ();
+    appearBuf->append ("q\n");
+    if (color)
+      setColor(color, gFalse);
+
+    if (border) {
+      int i, dashLength;
+      double *dash;
+
+      switch (border->getStyle()) {
+      case AnnotBorder::borderDashed:
+        appearBuf->append("[");
+	dashLength = border->getDashLength();
+	dash = border->getDash();
+	for (i = 0; i < dashLength; ++i)
+	  appearBuf->appendf(" {0:.2f}", dash[i]);
+	appearBuf->append(" ] 0 d\n");
+	break;
+      default:
+        appearBuf->append("[] 0 d\n");
+        break;
+      }
+      appearBuf->appendf("{0:.2f} w\n", border->getWidth());
+    }
+
+    if (interiorColor)
+      setColor(interiorColor, gTrue);
+
+    if (type == typeSquare) {
+      appearBuf->appendf ("{0:.2f} {1:.2f} {2:.2f} {3:.2f} re\n",
+			  border->getWidth() / 2.0, border->getWidth() / 2.0,
+			  (rect->x2 - rect->x1) - border->getWidth(),
+			  (rect->y2 - rect->y1) - border->getWidth());
+    } else {
+      double width, height;
+      double b;
+      double x1, y1, x2, y2, x3, y3;
+
+      width = rect->x2 - rect->x1;
+      height = rect->y2 - rect->y1;
+      b = border->getWidth() / 2.0;
+
+      x1 = b;
+      y1 = height / 2.0;
+      appearBuf->appendf ("{0:.2f} {1:.2f} m\n", x1, y1);
+
+      y1 += height / 4.0;
+      x2 = width / 4.0;
+      y2 = height - b;
+      x3 = width / 2.0;
+      y3 = y2;
+      appearBuf->appendf ("{0:.2f} {1:.2f} {2:.2f} {3:.2f} {4:.2f} {5:.2f} c\n",
+			  x1, y1, x2, y2, x3, y3);
+      x2 = width - b;
+      y2 = y1;
+      x1 = x3 + (width / 4.0);
+      y1 = y3;
+      x3 = x2;
+      y3 = height / 2.0;
+      appearBuf->appendf ("{0:.2f} {1:.2f} {2:.2f} {3:.2f} {4:.2f} {5:.2f} c\n",
+			  x1, y1, x2, y2, x3, y3);
+
+      x2 = x1;
+      y2 = b;
+      x1 = x3;
+      y1 = height / 4.0;
+      x3 = width / 2.0;
+      y3 = b;
+      appearBuf->appendf ("{0:.2f} {1:.2f} {2:.2f} {3:.2f} {4:.2f} {5:.2f} c\n",
+			  x1, y1, x2, y2, x3, y3);
+
+      x2 = b;
+      y2 = y1;
+      x1 = width / 4.0;
+      y1 = b;
+      x3 = b;
+      y3 = height / 2.0;
+      appearBuf->appendf ("{0:.2f} {1:.2f} {2:.2f} {3:.2f} {4:.2f} {5:.2f} c\n",
+			  x1, y1, x2, y2, x3, y3);
+
+    }
+
+    if (interiorColor)
+      appearBuf->append ("b\n");
+    else
+      appearBuf->append ("S\n");
+    appearBuf->append ("Q\n");
+
+    Object appearDict, obj1, obj2;
+
+    appearDict.initDict(xref);
+    appearDict.dictSet("Length", obj1.initInt(appearBuf->getLength()));
+    appearDict.dictSet("Subtype", obj1.initName("Form"));
+    obj1.initArray(xref);
+    obj1.arrayAdd(obj2.initReal(0));
+    obj1.arrayAdd(obj2.initReal(0));
+    obj1.arrayAdd(obj2.initReal(rect->x2 - rect->x1));
+    obj1.arrayAdd(obj2.initReal(rect->y2 - rect->y1));
+    appearDict.dictSet("BBox", &obj1);
+
+    MemStream *appearStream = new MemStream(copyString(appearBuf->getCString()), 0,
+					      appearBuf->getLength(), &appearDict);
+    appearance.initStream(appearStream);
+    delete appearBuf;
+  }
+
+  // draw the appearance stream
+  appearance.fetch(xref, &obj);
+  gfx->drawAnnot(&obj, (AnnotBorder *)NULL, color,
+		 rect->x1, rect->y1, rect->x2, rect->y2);
+  obj.free();
+}
+
 //------------------------------------------------------------------------
 // AnnotPolygon
 //------------------------------------------------------------------------
