@@ -670,6 +670,8 @@ public:
   AnnotText(XRef *xrefA, Dict *dict, Catalog *catalog, Object *obj);
   ~AnnotText();
 
+  virtual void draw(Gfx *gfx, GBool printing);
+
   // getters
   GBool getOpen() const { return open; }
   GooString *getIcon() const { return icon; }
