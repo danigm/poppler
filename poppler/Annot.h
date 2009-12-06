@@ -291,14 +291,13 @@ public:
   AnnotColor(double r, double g, double b);
   AnnotColor(double c, double m, double y, double k);
   AnnotColor(Array *array);
-  ~AnnotColor();
 
   AnnotColorSpace getSpace() const { return (AnnotColorSpace) length; }
-  double *getValues() const { return values; }
+  const double *getValues() const { return values; }
 
 private:
 
-  double *values;
+  double values[4];
   int length;
 };
 

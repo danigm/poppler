@@ -2039,7 +2039,7 @@ QColor convertAnnotColor( AnnotColor *color )
         return QColor();
 
     QColor newcolor;
-    double *color_data = color->getValues();
+    const double *color_data = color->getValues();
     switch ( color->getSpace() )
     {
         case AnnotColor::colorTransparent: // = 0,

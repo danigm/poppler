@@ -607,19 +607,16 @@ AnnotBorderBS::AnnotBorderBS(Dict *dict) {
 
 AnnotColor::AnnotColor() {
   length = 0;
-  values = NULL;
 }
 
 AnnotColor::AnnotColor(double gray) {
   length = 1;
-  values = (double *) gmallocn (length, sizeof(double));
 
   values[0] = gray;
 }
 
 AnnotColor::AnnotColor(double r, double g, double b) {
   length = 3;
-  values = (double *) gmallocn (length, sizeof(double));
 
   values[0] = r;
   values[1] = g;
@@ -628,7 +625,6 @@ AnnotColor::AnnotColor(double r, double g, double b) {
 
 AnnotColor::AnnotColor(double c, double m, double y, double k) {
   length = 4;
-  values = (double *) gmallocn (length, sizeof(double));
 
   values[0] = c;
   values[1] = m;
@@ -637,12 +633,11 @@ AnnotColor::AnnotColor(double c, double m, double y, double k) {
 }
 
 AnnotColor::AnnotColor(Array *array) {
-  // TODO: check what Acrobat does in the case of having more than 5 numbers.
-  if (array->getLength() < 5) {
-    length = array->getLength();
-    values = (double *) gmallocn (length, sizeof(double));
+  length = array->getLength();
+  if (length > 4)
+    length = 4;
 
-    for(int i = 0; i < length; i++) {  
+  for (int i = 0; i < length; i++) {
       Object obj1;
 
       if (array->get(i, &obj1)->isNum()) {
@@ -654,16 +649,7 @@ AnnotColor::AnnotColor(Array *array) {
         values[i] = 0;
       }
       obj1.free();
-    }
-  } else {
-    values = NULL;
-    length = 0;
   }
-}
-
-AnnotColor::~AnnotColor() {
-  if (values)
-    gfree (values);
 }
 
 //------------------------------------------------------------------------
@@ -1076,7 +1062,7 @@ void Annot::setColor(AnnotColor *new_color) {
 
   if (new_color) {
     Object obj1, obj2;
-    double *values = new_color->getValues();
+    const double *values = new_color->getValues();
 
     obj1.initArray(xref);
     for (int i = 0; i < (int)new_color->getSpace(); i++)

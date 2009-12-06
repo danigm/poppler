@@ -391,7 +391,7 @@ poppler_annot_get_color (PopplerAnnot *poppler_annot)
   color = poppler_annot->annot->getColor ();
 
   if (color) {
-    double *values = color->getValues ();
+    const double *values = color->getValues ();
 
     switch (color->getSpace ())
       {
