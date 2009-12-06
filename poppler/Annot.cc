@@ -632,23 +632,41 @@ AnnotColor::AnnotColor(double c, double m, double y, double k) {
   values[3] = k;
 }
 
-AnnotColor::AnnotColor(Array *array) {
+// If <adjust> is +1, color is brightened;
+// if <adjust> is -1, color is darkened;
+// otherwise color is not modified.
+AnnotColor::AnnotColor(Array *array, int adjust) {
+  int i;
+
   length = array->getLength();
   if (length > 4)
     length = 4;
 
-  for (int i = 0; i < length; i++) {
-      Object obj1;
+  for (i = 0; i < length; i++) {
+    Object obj1;
 
-      if (array->get(i, &obj1)->isNum()) {
-        values[i] = obj1.getNum();
+    if (array->get(i, &obj1)->isNum()) {
+      values[i] = obj1.getNum();
 
-        if (values[i] < 0 || values[i] > 1)
-          values[i] = 0;
-      } else {
+      if (values[i] < 0 || values[i] > 1)
         values[i] = 0;
-      }
-      obj1.free();
+    } else {
+      values[i] = 0;
+    }
+    obj1.free();
+  }
+
+  if (length == 4) {
+    adjust = -adjust;
+  }
+  if (adjust > 0) {
+    for (i = 0; i < length; ++i) {
+      values[i] = 0.5 * values[i] + 0.5;
+    }
+  } else if (adjust < 0) {
+    for (i = 0; i < length; ++i) {
+      values[i] = 0.5 * values[i];
+    }
   }
 }
 
@@ -1126,51 +1144,28 @@ Annot::~Annot() {
   oc.free();
 }
 
-// Set the current fill or stroke color, based on <a> (which should
-// have 1, 3, or 4 elements).  If <adjust> is +1, color is brightened;
-// if <adjust> is -1, color is darkened; otherwise color is not
-// modified.
-void Annot::setColor(Array *a, GBool fill, int adjust) {
-  Object obj1;
-  double color[4];
-  int nComps, i;
+void Annot::setColor(AnnotColor *color, GBool fill) {
+  const double *values = color->getValues();
 
-  nComps = a->getLength();
-  if (nComps > 4) {
-    nComps = 4;
-  }
-  for (i = 0; i < nComps && i < 4; ++i) {
-    if (a->get(i, &obj1)->isNum()) {
-      color[i] = obj1.getNum();
-    } else {
-      color[i] = 0;
-    }
-    obj1.free();
-  }
-  if (nComps == 4) {
-    adjust = -adjust;
-  }
-  if (adjust > 0) {
-    for (i = 0; i < nComps; ++i) {
-      color[i] = 0.5 * color[i] + 0.5;
-    }
-  } else if (adjust < 0) {
-    for (i = 0; i < nComps; ++i) {
-      color[i] = 0.5 * color[i];
-    }
-  }
-  if (nComps == 4) {
+  switch (color->getSpace()) {
+  case AnnotColor::colorCMYK:
     appearBuf->appendf("{0:.2f} {1:.2f} {2:.2f} {3:.2f} {4:c}\n",
-        color[0], color[1], color[2], color[3],
-        fill ? 'k' : 'K');
-  } else if (nComps == 3) {
+		       values[0], values[1], values[2], values[3],
+		       fill ? 'k' : 'K');
+    break;
+  case AnnotColor::colorRGB:
     appearBuf->appendf("{0:.2f} {1:.2f} {2:.2f} {3:s}\n",
-        color[0], color[1], color[2],
-        fill ? "rg" : "RG");
-  } else {
+		       values[0], values[1], values[2],
+		       fill ? "rg" : "RG");
+    break;
+  case AnnotColor::colorGray:
     appearBuf->appendf("{0:.2f} {1:c}\n",
-        color[0],
-        fill ? 'g' : 'G');
+		       values[0],
+		       fill ? 'g' : 'G');
+    break;
+  case AnnotColor::colorTransparent:
+  default:
+    break;
   }
 }
 
@@ -2999,6 +2994,7 @@ void AnnotWidget::generateFieldAppearance() {
   GBool *selection;
   int dashLength, ff, quadding, comb, nOptions, topIdx, i, j;
   GBool modified;
+  AnnotColor aColor;
 
   if (widget == NULL || !widget->getField () || !widget->getField ()->getObj ()->isDict ())
     return;
@@ -3027,7 +3023,8 @@ void AnnotWidget::generateFieldAppearance() {
   if (mkDict) {
     if (mkDict->lookup("BG", &obj1)->isArray() &&
         obj1.arrayGetLength() > 0) {
-      setColor(obj1.getArray(), gTrue, 0);
+      AnnotColor aColor = AnnotColor (obj1.getArray());
+      setColor(&aColor, gTrue);
       appearBuf->appendf("0 0 {0:.2f} {1:.2f} re f\n",
           rect->x2 - rect->x1, rect->y2 - rect->y1);
     }
@@ -3075,19 +3072,23 @@ void AnnotWidget::generateFieldAppearance() {
             case AnnotBorder::borderSolid:
             case AnnotBorder::borderUnderlined:
               appearBuf->appendf("{0:.2f} w\n", w);
-              setColor(obj1.getArray(), gFalse, 0);
+	      aColor = AnnotColor (obj1.getArray());
+              setColor(&aColor, gFalse);
               drawCircle(0.5 * dx, 0.5 * dy, r - 0.5 * w, gFalse);
               break;
             case AnnotBorder::borderBeveled:
             case AnnotBorder::borderInset:
               appearBuf->appendf("{0:.2f} w\n", 0.5 * w);
-              setColor(obj1.getArray(), gFalse, 0);
+	      aColor = AnnotColor (obj1.getArray());
+              setColor(&aColor, gFalse);
               drawCircle(0.5 * dx, 0.5 * dy, r - 0.25 * w, gFalse);
-              setColor(obj1.getArray(), gFalse,
-                  border->getStyle() == AnnotBorder::borderBeveled ? 1 : -1);
+	      aColor = AnnotColor (obj1.getArray(),
+				   border->getStyle() == AnnotBorder::borderBeveled ? 1 : -1);
+              setColor(&aColor, gFalse);
               drawCircleTopLeft(0.5 * dx, 0.5 * dy, r - 0.75 * w);
-              setColor(obj1.getArray(), gFalse,
-                  border->getStyle() == AnnotBorder::borderBeveled ? -1 : 1);
+	      aColor = AnnotColor (obj1.getArray(),
+				   border->getStyle() == AnnotBorder::borderBeveled ? -1 : 1);
+              setColor(&aColor, gFalse);
               drawCircleBottomRight(0.5 * dx, 0.5 * dy, r - 0.75 * w);
               break;
           }
@@ -3105,14 +3106,16 @@ void AnnotWidget::generateFieldAppearance() {
               // fall through to the solid case
             case AnnotBorder::borderSolid:
               appearBuf->appendf("{0:.2f} w\n", w);
-              setColor(obj1.getArray(), gFalse, 0);
+	      aColor = AnnotColor (obj1.getArray());
+              setColor(&aColor, gFalse);
               appearBuf->appendf("{0:.2f} {0:.2f} {1:.2f} {2:.2f} re s\n",
                   0.5 * w, dx - w, dy - w);
               break;
             case AnnotBorder::borderBeveled:
             case AnnotBorder::borderInset:
-              setColor(obj1.getArray(), gTrue,
-                  border->getStyle() == AnnotBorder::borderBeveled ? 1 : -1);
+	      aColor = AnnotColor (obj1.getArray(),
+				   border->getStyle() == AnnotBorder::borderBeveled ? 1 : -1);
+	      setColor(&aColor, gTrue);
               appearBuf->append("0 0 m\n");
               appearBuf->appendf("0 {0:.2f} l\n", dy);
               appearBuf->appendf("{0:.2f} {1:.2f} l\n", dx, dy);
@@ -3120,8 +3123,9 @@ void AnnotWidget::generateFieldAppearance() {
               appearBuf->appendf("{0:.2f} {1:.2f} l\n", w, dy - w);
               appearBuf->appendf("{0:.2f} {0:.2f} l\n", w);
               appearBuf->append("f\n");
-              setColor(obj1.getArray(), gTrue,
-                  border->getStyle() == AnnotBorder::borderBeveled ? -1 : 1);
+	      aColor = AnnotColor (obj1.getArray(),
+				   border->getStyle() == AnnotBorder::borderBeveled ? -1 : 1);
+              setColor(&aColor, gTrue);
               appearBuf->append("0 0 m\n");
               appearBuf->appendf("{0:.2f} 0 l\n", dx);
               appearBuf->appendf("{0:.2f} {1:.2f} l\n", dx, dy);
@@ -3132,7 +3136,8 @@ void AnnotWidget::generateFieldAppearance() {
               break;
             case AnnotBorder::borderUnderlined:
               appearBuf->appendf("{0:.2f} w\n", w);
-              setColor(obj1.getArray(), gFalse, 0);
+	      aColor = AnnotColor (obj1.getArray());
+              setColor(&aColor, gFalse);
               appearBuf->appendf("0 0 m {0:.2f} 0 l s\n", dx);
               break;
           }
@@ -3195,7 +3200,8 @@ void AnnotWidget::generateFieldAppearance() {
                   obj3.arrayGetLength() > 0) {
                 dx = rect->x2 - rect->x1;
                 dy = rect->y2 - rect->y1;
-                setColor(obj3.getArray(), gTrue, 0);
+		aColor = AnnotColor (obj1.getArray());
+                setColor(&aColor, gTrue);
                 drawCircle(0.5 * dx, 0.5 * dy, 0.2 * (dx < dy ? dx : dy),
                     gTrue);
               }

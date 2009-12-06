@@ -290,7 +290,7 @@ public:
   AnnotColor(double gray);
   AnnotColor(double r, double g, double b);
   AnnotColor(double c, double m, double y, double k);
-  AnnotColor(Array *array);
+  AnnotColor(Array *array, int adjust = 0);
 
   AnnotColorSpace getSpace() const { return (AnnotColorSpace) length; }
   const double *getValues() const { return values; }
@@ -533,7 +533,7 @@ private:
 
 
 protected:
-  void setColor(Array *a, GBool fill, int adjust);
+  void setColor(AnnotColor *color, GBool fill);
   void drawCircle(double cx, double cy, double r, GBool fill);
   void drawCircleTopLeft(double cx, double cy, double r);
   void drawCircleBottomRight(double cx, double cy, double r);
