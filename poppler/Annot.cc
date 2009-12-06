@@ -1270,7 +1270,7 @@ void Annot::draw(Gfx *gfx, GBool printing) {
 
   // draw the appearance stream
   appearance.fetch(xref, &obj);
-  gfx->drawAnnot(&obj, (AnnotBorder *)NULL, color,
+  gfx->drawAnnot(&obj, (AnnotBorder *)NULL, color, 1,
       rect->x1, rect->y1, rect->x2, rect->y2);
   obj.free();
 }
@@ -1845,11 +1845,14 @@ void AnnotText::setIcon(GooString *new_icon) {
 
 void AnnotText::draw(Gfx *gfx, GBool printing) {
   Object obj;
+  double ca = 1;
 
   if (!isVisible (printing))
     return;
 
   if (appearance.isNull()) {
+    ca = opacity;
+
     appearBuf = new GooString ();
 
     appearBuf->append ("q\n");
@@ -1897,7 +1900,7 @@ void AnnotText::draw(Gfx *gfx, GBool printing) {
 
   // draw the appearance stream
   appearance.fetch(xref, &obj);
-  gfx->drawAnnot(&obj, border, color,
+  gfx->drawAnnot(&obj, border, color, ca,
 		 rect->x1, rect->y1, rect->x2, rect->y2);
   obj.free();
 }
@@ -1989,7 +1992,7 @@ void AnnotLink::draw(Gfx *gfx, GBool printing) {
 
   // draw the appearance stream
   appearance.fetch(xref, &obj);
-  gfx->drawAnnot(&obj, border, color,
+  gfx->drawAnnot(&obj, border, color, 1,
 		 rect->x1, rect->y1, rect->x2, rect->y2);
   obj.free();
 }
@@ -2310,11 +2313,14 @@ void AnnotLine::initialize(XRef *xrefA, Catalog *catalog, Dict *dict) {
 
 void AnnotLine::draw(Gfx *gfx, GBool printing) {
   Object obj;
+  double ca = 1;
 
   if (!isVisible (printing))
     return;
 
   if (appearance.isNull()) {
+    ca = opacity;
+
     appearBuf = new GooString ();
     appearBuf->append ("q\n");
     if (color)
@@ -2365,7 +2371,7 @@ void AnnotLine::draw(Gfx *gfx, GBool printing) {
 
   // draw the appearance stream
   appearance.fetch(xref, &obj);
-  gfx->drawAnnot(&obj, (AnnotBorder *)NULL, color,
+  gfx->drawAnnot(&obj, (AnnotBorder *)NULL, color, ca,
 		 rect->x1, rect->y1, rect->x2, rect->y2);
   obj.free();
 }
@@ -3811,7 +3817,7 @@ void AnnotWidget::draw(Gfx *gfx, GBool printing) {
     gfx->pushResources(dict);
     delete dict;
   }
-  gfx->drawAnnot(&obj, (AnnotBorder *)NULL, color,
+  gfx->drawAnnot(&obj, (AnnotBorder *)NULL, color, 1,
 		 rect->x1, rect->y1, rect->x2, rect->y2);
   if (addDingbatsResource) {
     gfx->popResources();
@@ -4257,11 +4263,14 @@ void AnnotGeometry::initialize(XRef *xrefA, Catalog *catalog, Dict* dict) {
 
 void AnnotGeometry::draw(Gfx *gfx, GBool printing) {
   Object obj;
+  double ca = 1;
 
   if (!isVisible (printing))
     return;
 
   if (appearance.isNull()) {
+    ca = opacity;
+
     appearBuf = new GooString ();
     appearBuf->append ("q\n");
     if (color)
@@ -4370,7 +4379,7 @@ void AnnotGeometry::draw(Gfx *gfx, GBool printing) {
 
   // draw the appearance stream
   appearance.fetch(xref, &obj);
-  gfx->drawAnnot(&obj, (AnnotBorder *)NULL, color,
+  gfx->drawAnnot(&obj, (AnnotBorder *)NULL, color, ca,
 		 rect->x1, rect->y1, rect->x2, rect->y2);
   obj.free();
 }
