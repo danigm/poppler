@@ -928,6 +928,8 @@ public:
   AnnotLine(XRef *xrefA, Dict *dict, Catalog *catalog, Object *obj);
   ~AnnotLine();
 
+  virtual void draw(Gfx *gfx, GBool printing);
+
   // getters
   AnnotLineEndingStyle getStartStyle() const { return startStyle; }
   AnnotLineEndingStyle getEndStyle() const { return endStyle; }

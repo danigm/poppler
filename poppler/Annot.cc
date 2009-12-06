@@ -2308,6 +2308,68 @@ void AnnotLine::initialize(XRef *xrefA, Catalog *catalog, Dict *dict) {
   obj1.free();
 }
 
+void AnnotLine::draw(Gfx *gfx, GBool printing) {
+  Object obj;
+
+  if (!isVisible (printing))
+    return;
+
+  if (appearance.isNull()) {
+    appearBuf = new GooString ();
+    appearBuf->append ("q\n");
+    if (color)
+      setColor(color, gFalse);
+
+    if (border) {
+      int i, dashLength;
+      double *dash;
+
+      switch (border->getStyle()) {
+      case AnnotBorder::borderDashed:
+        appearBuf->append("[");
+	dashLength = border->getDashLength();
+	dash = border->getDash();
+	for (i = 0; i < dashLength; ++i)
+	  appearBuf->appendf(" {0:.2f}", dash[i]);
+	appearBuf->append(" ] 0 d\n");
+	break;
+      default:
+        appearBuf->append("[] 0 d\n");
+        break;
+      }
+      appearBuf->appendf("{0:.2f} w\n", border->getWidth());
+    }
+    appearBuf->appendf ("{0:.2f} {1:.2f} m\n", coord1->getX() - rect->x1, coord1->getY() - rect->y1);
+    appearBuf->appendf ("{0:.2f} {1:.2f} l\n", coord2->getX() - rect->x1, coord2->getY() - rect->y1);
+    // TODO: Line ending, caption, leader lines
+    appearBuf->append ("S\n");
+    appearBuf->append ("Q\n");
+
+    Object appearDict, obj1, obj2;
+
+    appearDict.initDict(xref);
+    appearDict.dictSet("Length", obj1.initInt(appearBuf->getLength()));
+    appearDict.dictSet("Subtype", obj1.initName("Form"));
+    obj1.initArray(xref);
+    obj1.arrayAdd(obj2.initReal(0));
+    obj1.arrayAdd(obj2.initReal(0));
+    obj1.arrayAdd(obj2.initReal(rect->x2 - rect->x1));
+    obj1.arrayAdd(obj2.initReal(rect->y2 - rect->y1));
+    appearDict.dictSet("BBox", &obj1);
+
+    MemStream *appearStream = new MemStream(copyString(appearBuf->getCString()), 0,
+					      appearBuf->getLength(), &appearDict);
+    appearance.initStream(appearStream);
+    delete appearBuf;
+  }
+
+  // draw the appearance stream
+  appearance.fetch(xref, &obj);
+  gfx->drawAnnot(&obj, (AnnotBorder *)NULL, color,
+		 rect->x1, rect->y1, rect->x2, rect->y2);
+  obj.free();
+}
+
 //------------------------------------------------------------------------
 // AnnotTextMarkup
 //------------------------------------------------------------------------
