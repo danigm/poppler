@@ -1152,6 +1152,8 @@ public:
   AnnotFileAttachment(XRef *xrefA, Dict *dict, Catalog *catalog, Object *obj);
   ~AnnotFileAttachment();
 
+  virtual void draw(Gfx *gfx, GBool printing);
+
   // getters
   Object *getFile() { return &file; }
   GooString *getName() const { return name; }

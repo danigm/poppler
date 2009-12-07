@@ -4675,6 +4675,100 @@ void AnnotFileAttachment::initialize(XRef *xrefA, Catalog *catalog, Dict* dict) 
   obj1.free();
 }
 
+#define ANNOT_FILE_ATTACHMENT_AP_PUSHPIN                                         \
+  "4.301 23 m 19.699 23 l 21.523 23 23 21.523 23 19.699 c 23 4.301 l 23\n"       \
+  "2.477 21.523 1 19.699 1 c 4.301 1 l 2.477 1 1 2.477 1 4.301 c 1 19.699\n"     \
+  "l 1 21.523 2.477 23 4.301 23 c h\n"                                           \
+  "4.301 23 m f\n"                                                               \
+  "0.533333 0.541176 0.521569 RG 2 w\n"                                          \
+  "1 J\n"                                                                        \
+  "1 j\n"                                                                        \
+  "[] 0.0 d\n"                                                                   \
+  "4 M 5 4 m 6 5 l S\n"                                                          \
+  "2 w\n"                                                                        \
+  "11 14 m 9 12 l 6 12 l 13 5 l 13 8 l 15 10 l 18 11 l 20 11 l 12 19 l 12\n"     \
+  "17 l 11 14 l h\n"                                                             \
+  "11 14 m S\n"                                                                  \
+  "3 w\n"                                                                        \
+  "6 5 m 9 8 l S\n"                                                              \
+  "0.729412 0.741176 0.713725 RG 2 w\n"                                          \
+  "5 5 m 6 6 l S\n"                                                              \
+  "2 w\n"                                                                        \
+  "11 15 m 9 13 l 6 13 l 13 6 l 13 9 l 15 11 l 18 12 l 20 12 l 12 20 l 12\n"     \
+  "18 l 11 15 l h\n"                                                             \
+  "11 15 m S\n"                                                                  \
+  "3 w\n"                                                                        \
+  "6 6 m 9 9 l S\n"
+
+#define ANNOT_FILE_ATTACHMENT_AP_PAPERCLIP                                       \
+  "4.301 23 m 19.699 23 l 21.523 23 23 21.523 23 19.699 c 23 4.301 l 23\n"       \
+  "2.477 21.523 1 19.699 1 c 4.301 1 l 2.477 1 1 2.477 1 4.301 c 1 19.699\n"     \
+  "l 1 21.523 2.477 23 4.301 23 c h\n"                                           \
+  "4.301 23 m f\n"                                                               \
+  "0.533333 0.541176 0.521569 RG 2 w\n"                                          \
+  "1 J\n"                                                                        \
+  "1 j\n"                                                                        \
+  "[] 0.0 d\n"                                                                   \
+  "4 M 16.645 12.035 m 12.418 7.707 l 10.902 6.559 6.402 11.203 8.09 12.562 c\n" \
+  "14.133 18.578 l 14.949 19.387 16.867 19.184 17.539 18.465 c 20.551\n"         \
+  "15.23 l 21.191 14.66 21.336 12.887 20.426 12.102 c 13.18 4.824 l 12.18\n"     \
+  "3.82 6.25 2.566 4.324 4.461 c 3 6.395 3.383 11.438 4.711 12.801 c 9.648\n"    \
+  "17.887 l S\n"                                                                 \
+  "0.729412 0.741176 0.713725 RG 16.645 13.035 m 12.418 8.707 l\n"               \
+  "10.902 7.559 6.402 12.203 8.09 13.562 c\n"                                    \
+  "14.133 19.578 l 14.949 20.387 16.867 20.184 17.539 19.465 c 20.551\n"         \
+  "16.23 l 21.191 15.66 21.336 13.887 20.426 13.102 c 13.18 5.824 l 12.18\n"     \
+  "4.82 6.25 3.566 4.324 5.461 c 3 7.395 3.383 12.438 4.711 13.801 c 9.648\n"    \
+  "18.887 l S\n"
+
+void AnnotFileAttachment::draw(Gfx *gfx, GBool printing) {
+  Object obj;
+  double ca = 1;
+
+  if (!isVisible (printing))
+    return;
+
+  if (appearance.isNull()) {
+    ca = opacity;
+
+    appearBuf = new GooString ();
+
+    appearBuf->append ("q\n");
+    if (color)
+      setColor(color, gTrue);
+    else
+      appearBuf->append ("1 1 1 rg\n");
+    if (!name->cmp("PushPin"))
+      appearBuf->append (ANNOT_FILE_ATTACHMENT_AP_PUSHPIN);
+    else if (!name->cmp("Paperclip"))
+      appearBuf->append (ANNOT_FILE_ATTACHMENT_AP_PAPERCLIP);
+    appearBuf->append ("Q\n");
+
+    Object appearDict, obj1, obj2;
+
+    appearDict.initDict(xref);
+    appearDict.dictSet("Length", obj1.initInt(appearBuf->getLength()));
+    appearDict.dictSet("Subtype", obj1.initName("Form"));
+    obj1.initArray(xref);
+    obj1.arrayAdd(obj2.initReal(0));
+    obj1.arrayAdd(obj2.initReal(0));
+    obj1.arrayAdd(obj2.initReal(24));
+    obj1.arrayAdd(obj2.initReal(24));
+    appearDict.dictSet("BBox", &obj1);
+
+    MemStream *appearStream = new MemStream(copyString(appearBuf->getCString()), 0,
+					    appearBuf->getLength(), &appearDict);
+    appearance.initStream(appearStream);
+    delete appearBuf;
+  }
+
+  // draw the appearance stream
+  appearance.fetch(xref, &obj);
+  gfx->drawAnnot(&obj, border, color, ca,
+		 rect->x1, rect->y1, rect->x2, rect->y2);
+  obj.free();
+}
+
 //------------------------------------------------------------------------
 // AnnotSound
 //------------------------------------------------------------------------
