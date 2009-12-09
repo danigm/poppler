@@ -294,6 +294,8 @@ void CairoOutputDev::updateAll(GfxState *state) {
   updateStrokeOpacity(state);
   updateBlendMode(state);
   needFontUpdate = gTrue;
+  if (text)
+    text->updateFont(state);
 }
 
 void CairoOutputDev::setDefaultCTM(double *ctm) {
