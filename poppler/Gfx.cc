@@ -565,6 +565,7 @@ Gfx::Gfx(XRef *xrefA, OutputDev *outA, Dict *resDict, Catalog *catalogA,
   catalog = catalogA;
   subPage = gTrue;
   printCommands = globalParams->getPrintCommands();
+  profileCommands = globalParams->getProfileCommands();
   textHaveCSPattern = gFalse;
   drawText = gFalse;
   maskHaveCSPattern = gFalse;
