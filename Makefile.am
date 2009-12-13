@@ -25,11 +25,15 @@ qt4_subdir = qt4
 qt4_pc_file = poppler-qt4.pc
 endif
 
+if BUILD_POPPLER_CPP
+cpp_subdir = cpp
+endif
+
 if BUILD_UTILS
 utils_subdir = utils
 endif
 
-SUBDIRS = goo fofi $(splash_subdir) poppler $(utils_subdir) $(glib_subdir) $(qt_subdir) test $(qt4_subdir)
+SUBDIRS = goo fofi $(splash_subdir) poppler $(utils_subdir) $(glib_subdir) $(qt_subdir) test $(qt4_subdir) $(cpp_subdir)
 
 EXTRA_DIST =					\
 	README-XPDF				\

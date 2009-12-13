@@ -444,6 +444,19 @@ fi
 
 AM_CONDITIONAL(BUILD_POPPLER_QT4, test "x$enable_poppler_qt4" = "xyes")
 
+dnl
+dnl CPP frontend
+dnl
+
+AC_ARG_ENABLE(poppler-cpp,
+              AC_HELP_STRING([--disable-poppler-cpp],
+                             [Don't compile poppler cpp wrapper.]),
+              enable_poppler_cpp=$enableval,
+              enable_poppler_cpp="yes")
+
+AM_CONDITIONAL(BUILD_POPPLER_CPP, test "x$enable_poppler_cpp" = "xyes")
+
+
 AC_ARG_ENABLE(gtk-test,
               AC_HELP_STRING([--disable-gtk-test],
 	                     [Don't compile GTK+ test program.]),
@@ -552,6 +565,7 @@ qt4/Makefile
 qt4/src/Makefile
 qt4/tests/Makefile
 qt4/demos/Makefile
+cpp/Makefile
 poppler.pc
 poppler-cairo.pc
 poppler-splash.pc
@@ -569,6 +583,7 @@ echo "  qt wrapper:         $enable_poppler_qt"
 echo "  qt4 wrapper:        $enable_poppler_qt4"
 echo "  glib wrapper:       $enable_poppler_glib"
 echo "    use GDK:          $enable_gdk"
+echo "  cpp wrapper:        $enable_poppler_cpp"
 echo "  use gtk-doc:        $enable_gtk_doc"
 echo "  use libjpeg:        $enable_libjpeg"
 echo "  use libpng:         $enable_libpng"
