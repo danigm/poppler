@@ -12,6 +12,7 @@ include(CheckTypeSize)
 include(CheckCSourceCompiles)
 
 check_include_files(dlfcn.h HAVE_DLFCN_H)
+check_include_files(fcntl.h HAVE_FCNTL_H)
 check_include_files(inttypes.h HAVE_INTTYPES_H)
 check_include_files(memory.h HAVE_MEMORY_H)
 check_include_files(stdint.h HAVE_STDINT_H)

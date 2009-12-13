@@ -22,6 +22,9 @@
 /* Define to 1 if you have the <dlfcn.h> header file. */
 #cmakedefine HAVE_DLFCN_H 1
 
+/* Define to 1 if you have the <fcntl.h> header file. */
+#cmakedefine HAVE_FCNTL_H 1
+
 /* Have FreeType2 include files */
 #cmakedefine HAVE_FREETYPE_H 1
 
