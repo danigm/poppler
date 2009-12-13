@@ -56,6 +56,7 @@ pkgconfig_DATA =				\
 
 # Add CMake buildsystem files here so they get added on make dist
 EXTRA_DIST +=							\
+	cpp/CMakeLists.txt					\
 	glib/demo/CMakeLists.txt				\
 	glib/CMakeLists.txt					\
 	glib/poppler-features.h.cmake				\
@@ -85,6 +86,7 @@ EXTRA_DIST +=							\
 	config.h.cmake						\
 	poppler-cairo.pc.cmake					\
 	poppler-config.h.cmake					\
+	poppler-cpp.pc.cmake					\
 	poppler-glib.pc.cmake					\
 	poppler-qt.pc.cmake					\
 	poppler-qt4.pc.cmake					\
