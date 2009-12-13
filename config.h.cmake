@@ -139,7 +139,7 @@
 /* Enable word list support. */
 #cmakedefine TEXTOUT_WORD_LIST 1
 
-/* Defines if use cms. */
+/* Defines if use cms */
 #cmakedefine USE_CMS 1
 
 /* Throw exceptions to deal with not enough memory and similar problems */
