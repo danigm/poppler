@@ -85,6 +85,9 @@
 /* Define to 1 if you have the <sys/dir.h> header file, and it defines `DIR'. */
 #cmakedefine HAVE_SYS_DIR_H 1
 
+/* Define to 1 if you have the <sys/mman.h> header file. */
+#cmakedefine HAVE_SYS_MMAN_H 1
+
 /* Define to 1 if you have the <sys/ndir.h> header file, and it defines `DIR'. */
 #cmakedefine HAVE_SYS_NDIR_H 1
 
