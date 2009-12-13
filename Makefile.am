@@ -27,6 +27,7 @@ endif
 
 if BUILD_POPPLER_CPP
 cpp_subdir = cpp
+cpp_pc_file = poppler-cpp.pc
 endif
 
 if BUILD_UTILS
@@ -40,7 +41,8 @@ EXTRA_DIST =					\
 	poppler.pc.in				\
 	poppler-cairo.pc.in			\
 	poppler-splash.pc.in			\
-	poppler-qt.pc.in
+	poppler-qt.pc.in			\
+	poppler-cpp.pc.in
 
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA =				\
@@ -49,7 +51,8 @@ pkgconfig_DATA =				\
 	$(splash_pc_file)			\
 	$(glib_pc_file)				\
 	$(qt_pc_file)                           \
-	$(qt4_pc_file)
+	$(qt4_pc_file)				\
+	$(cpp_pc_file)
 
 # Add CMake buildsystem files here so they get added on make dist
 EXTRA_DIST +=							\

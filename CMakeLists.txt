@@ -452,6 +452,9 @@ endif(GLIB_FOUND)
 if(CAIRO_FOUND)
   poppler_create_install_pkgconfig(poppler-cairo.pc lib${LIB_SUFFIX}/pkgconfig)
 endif(CAIRO_FOUND)
+if(ENABLE_CPP)
+  poppler_create_install_pkgconfig(poppler-cpp.pc lib${LIB_SUFFIX}/pkgconfig)
+endif(ENABLE_CPP)
 
 
 message("Building Poppler with support for:")

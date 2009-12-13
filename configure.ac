@@ -571,7 +571,8 @@ poppler-cairo.pc
 poppler-splash.pc
 poppler-glib.pc
 poppler-qt.pc
-poppler-qt4.pc])
+poppler-qt4.pc
+poppler-cpp.pc])
 
 
 echo ""
