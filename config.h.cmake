@@ -3,19 +3,20 @@
 /* Use libjpeg instead of builtin jpeg decoder. */
 #cmakedefine ENABLE_LIBJPEG 1
 
-/* Use zlib instead of builtin zlib decoder. */
-#cmakedefine ENABLE_ZLIB 1
+/* Use libopenjpeg instead of builtin jpeg2000 decoder. */
+#cmakedefine ENABLE_LIBOPENJPEG 1
 
-/* Use libpng to export images in pdftohtml. */
+/* Build against libpng. */
 #cmakedefine ENABLE_LIBPNG 1
 
-/* Use liblcms for color management. */
-#cmakedefine USE_CMS 1
+/* Use zlib instead of builtin zlib decoder. */
+#cmakedefine ENABLE_ZLIB 1
 
 /* Use cairo for rendering. */
 #cmakedefine HAVE_CAIRO 1
 
-/* Define to 1 if you have the <dirent.h> header file, and it defines `DIR'. */
+/* Define to 1 if you have the <dirent.h> header file, and it defines `DIR'.
+   */
 #cmakedefine HAVE_DIRENT_H 1
 
 /* Define to 1 if you have the <dlfcn.h> header file. */
@@ -109,7 +110,7 @@
 #define PACKAGE "poppler"
 
 /* Define to the address where bug reports for this package should be sent. */
-#define PACKAGE_BUGREPORT ""
+#define PACKAGE_BUGREPORT "https://bugs.freedesktop.org/enter_bug.cgi?product=poppler"
 
 /* Define to the full name of this package. */
 #define PACKAGE_NAME "poppler"
@@ -119,6 +120,9 @@
 
 /* Define to the one symbol short name of this package. */
 #define PACKAGE_TARNAME "poppler"
+
+/* Define to the home page for this package. */
+#define PACKAGE_URL ""
 
 /* Define to the version of this package. */
 #define PACKAGE_VERSION "${POPPLER_VERSION}"
@@ -131,6 +135,9 @@
 
 /* Enable word list support. */
 #cmakedefine TEXTOUT_WORD_LIST 1
+
+/* Defines if use cms. */
+#cmakedefine USE_CMS 1
 
 /* Throw exceptions to deal with not enough memory and similar problems */
 #cmakedefine USE_EXCEPTIONS 1
