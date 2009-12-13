@@ -36,11 +36,17 @@
 /* Defines if gettimeofday is available on your system */
 #cmakedefine HAVE_GETTIMEOFDAY 1
 
+/* Defines if gmtime_r is available on your system */
+#define HAVE_GMTIME_R 1
+
 /* Define to 1 if you have the <inttypes.h> header file. */
 #cmakedefine HAVE_INTTYPES_H 1
 
 /* Define to 1 if you have the `z' library (-lz). */
 #cmakedefine HAVE_LIBZ 1
+
+/* Defines if localtime_r is available on your system */
+#define HAVE_LOCALTIME_R 1
 
 /* Define to 1 if you have the <memory.h> header file. */
 #cmakedefine HAVE_MEMORY_H 1
