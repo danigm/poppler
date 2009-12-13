@@ -1,5 +1,8 @@
 /* config.h.  Generated from config.h.cmake by cmake.  */
 
+/* Whether cairo has blend modes support */
+#cmakedefine CAIRO_HAS_BLEND_MODES 1
+
 /* Use libjpeg instead of builtin jpeg decoder. */
 #cmakedefine ENABLE_LIBJPEG 1
 

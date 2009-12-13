@@ -37,6 +37,24 @@ if (NOT WIN32)
 
 endif(NOT WIN32)
 
+if (CAIRO_FOUND)
+  include(MacroPushRequiredVars)
+  include(CheckCSourceCompiles)
+
+  macro_push_required_vars()
+  set(CMAKE_REQUIRED_DEFINITIONS ${CAIRO_CFLAGS})
+  set(CMAKE_REQUIRED_LIBRARIES ${CAIRO_LIBRARIES})
+  check_c_source_compiles("
+#include <cairo.h>
+int main() {
+  cairo_t *cr;
+  cairo_set_operator(cr, CAIRO_OPERATOR_MULTIPLY);
+  return 0;
+}
+" CAIRO_HAS_BLEND_MODES)
+  macro_pop_required_vars()
+endif (CAIRO_FOUND)
+
 mark_as_advanced(
   CAIRO_CFLAGS
   CAIRO_LIBRARIES
