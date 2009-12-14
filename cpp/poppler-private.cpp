@@ -64,6 +64,6 @@ ustring detail::unicode_to_ustring(const Unicode *u, int length)
 GooString* detail::ustring_to_unicode_GooString(const ustring &str)
 {
     const byte_array utf8_data = str.to_utf_8();
-    GooString *goo = new GooString(utf8_data.data());
+    GooString *goo = new GooString(&utf8_data[0]);
     return goo;
 }

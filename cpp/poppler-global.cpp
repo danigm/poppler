@@ -161,7 +161,7 @@ std::ostream& poppler::operator<<(std::ostream& stream, const byte_array &array)
     stream << "[";
     const std::ios_base::fmtflags f = stream.flags();
     std::hex(stream);
-    const char *data = array.data();
+    const char *data = &array[0];
     const byte_array::size_type out_len = std::min<byte_array::size_type>(array.size(), 50);
     for (byte_array::size_type i = 0; i < out_len; ++i)
     {
