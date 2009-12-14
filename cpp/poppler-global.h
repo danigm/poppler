@@ -34,6 +34,7 @@
 #endif
 
 #include <string>
+#include <vector>
 
 namespace poppler
 {
@@ -59,6 +60,8 @@ enum rotation_enum { rotate_0, rotate_90, rotate_180, rotate_270 };
 
 enum page_box_enum { media_box, crop_box, bleed_box, trim_box, art_box };
 
+typedef std::vector<char> byte_array;
+
 class POPPLER_CPP_EXPORT ustring : public std::basic_string<unsigned short>
 {
 public:
@@ -66,7 +69,7 @@ public:
     ustring(size_type len, value_type ch);
     ~ustring();
 
-    char* to_utf_8(int *length = 0) const;
+    byte_array to_utf_8() const;
     std::string to_latin1() const;
 
     static ustring from_utf_8(const char *str, int len = -1);

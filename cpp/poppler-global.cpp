@@ -47,26 +47,20 @@ ustring::~ustring()
 {
 }
 
-char* ustring::to_utf_8(int *length) const
+byte_array ustring::to_utf_8() const
 {
     if (!size()) {
-        if (length) {
-            *length = 0;
-        }
-        return 0;
+        return byte_array();
     }
 
     const value_type *me = data();
     const size_t len = size() * 2 + 2;
-    char *str = new char[len];
+    byte_array str(len);
     str[0] = 0xfe;
     str[1] = 0xff;
     for (size_t i = 0; i < size(); ++i, ++me) {
         str[i * 2 + 2] = (*me & 0xff);
         str[i * 2 + 3] = ((*me >> 8) & 0xff);
-    }
-    if (length) {
-        *length = len;
     }
     return str;
 }
