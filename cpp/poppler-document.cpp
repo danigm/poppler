@@ -49,6 +49,22 @@ document_private::document_private(GooString *file_path, const std::string &owne
     init();
 }
 
+document_private::document_private(byte_array *file_data,
+                                   const std::string &owner_password,
+                                   const std::string &user_password)
+    : doc(0)
+    , is_locked(false)
+{
+    Object obj;
+    obj.initNull();
+    file_data->swap(doc_data);
+    MemStream *memstr = new MemStream(doc_data.data(), 0, doc_data.size(), &obj);
+    GooString goo_owner_password(owner_password.c_str());
+    GooString goo_user_password(user_password.c_str());
+    doc = new PDFDoc(memstr, &goo_owner_password, &goo_user_password);
+    init();
+}
+
 document_private::~document_private()
 {
     delete_all(embedded_files);
@@ -106,11 +122,15 @@ bool document::unlock(const std::string &owner_password, const std::string &user
 {
     if (d->is_locked) {
         document_private *newdoc = 0;
-        {
+        if (d->doc_data.size() > 0) {
+            newdoc = new document_private(&d->doc_data,
+                                          owner_password, user_password);
+        } else {
             newdoc = new document_private(new GooString(d->doc->getFileName()),
                                           owner_password, user_password);
         }
         if (!newdoc->doc->isOk()) {
+            d->doc_data.swap(newdoc->doc_data);
             delete newdoc;
         } else {
             delete d;
@@ -312,5 +332,18 @@ document* document::load_from_file(const std::string &file_name,
     document_private *doc = new document_private(
                                 new GooString(file_name.c_str()),
                                 owner_password, user_password);
+    return document_private::check_document(doc);
+}
+
+document* document::load_from_data(byte_array *file_data,
+                                   const std::string &owner_password,
+                                   const std::string &user_password)
+{
+    if (!file_data || file_data->size() < 10) {
+        return 0;
+    }
+
+    document_private *doc = new document_private(
+                                file_data, owner_password, user_password);
     return document_private::check_document(doc);
 }

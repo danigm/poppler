@@ -79,6 +79,9 @@ public:
     static document* load_from_file(const std::string &file_name,
                                     const std::string &owner_password,
                                     const std::string &user_password);
+    static document* load_from_data(byte_array *file_data,
+                                    const std::string &owner_password,
+                                    const std::string &user_password);
 
 private:
     document(document_private &dd);

@@ -19,6 +19,8 @@
 #ifndef POPPLER_DOCUMENT_PRIVATE_H
 #define POPPLER_DOCUMENT_PRIVATE_H
 
+#include "poppler-global.h"
+
 #include "poppler-config.h"
 #include "GooString.h"
 #include "PDFDoc.h"
@@ -36,11 +38,14 @@ class document_private
 public:
     document_private(GooString *file_path, const std::string &owner_password,
                      const std::string &user_password);
+    document_private(byte_array *file_data, const std::string &owner_password,
+                     const std::string &user_password);
     ~document_private();
 
     static document* check_document(document_private *doc);
 
     PDFDoc *doc;
+    byte_array doc_data;
     bool is_locked;
     std::vector<embedded_file *> embedded_files;
 
