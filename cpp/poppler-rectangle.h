@@ -19,6 +19,8 @@
 #ifndef POPPLER_RECTANGLE_H
 #define POPPLER_RECTANGLE_H
 
+#include "poppler-global.h"
+
 namespace poppler
 {
 
@@ -54,6 +56,9 @@ private:
 
 typedef rectangle<int> rect;
 typedef rectangle<double> rectf;
+
+POPPLER_CPP_EXPORT std::ostream& operator<<(std::ostream& stream, const rect &r);
+POPPLER_CPP_EXPORT std::ostream& operator<<(std::ostream& stream, const rectf &r);
 
 }
 

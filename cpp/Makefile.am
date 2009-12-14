@@ -25,6 +25,7 @@ libpoppler_cpp_la_SOURCES =			\
 	poppler-page.cpp			\
 	poppler-page-transition.cpp		\
 	poppler-private.cpp			\
+	poppler-rectangle.cpp			\
 	poppler-toc.cpp				\
 	poppler-version.cpp
 
