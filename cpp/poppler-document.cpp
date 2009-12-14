@@ -261,6 +261,16 @@ unsigned int document::info_date(const std::string &key) const
     return result;
 }
 
+bool document::is_encrypted() const
+{
+    return d->doc->isEncrypted();
+}
+
+bool document::is_linearized() const
+{
+    return d->doc->isLinearized();
+}
+
 int document::pages() const
 {
     return d->doc->getNumPages();

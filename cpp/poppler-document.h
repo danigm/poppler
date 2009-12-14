@@ -63,6 +63,8 @@ public:
     std::vector<std::string> info_keys() const;
     ustring info_key(const std::string &key) const;
     unsigned int /*time_t*/ info_date(const std::string &key) const;
+    bool is_encrypted() const;
+    bool is_linearized() const;
 
     int pages() const;
     page* create_page(const ustring &label) const;
