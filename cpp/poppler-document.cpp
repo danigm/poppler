@@ -58,7 +58,7 @@ document_private::document_private(byte_array *file_data,
     Object obj;
     obj.initNull();
     file_data->swap(doc_data);
-    MemStream *memstr = new MemStream(doc_data.data(), 0, doc_data.size(), &obj);
+    MemStream *memstr = new MemStream(&doc_data[0], 0, doc_data.size(), &obj);
     GooString goo_owner_password(owner_password.c_str());
     GooString goo_user_password(user_password.c_str());
     doc = new PDFDoc(memstr, &goo_owner_password, &goo_user_password);
