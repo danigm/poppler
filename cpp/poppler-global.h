@@ -33,6 +33,7 @@
 #  define POPPLER_CPP_EXPORT LIB_IMPORT
 #endif
 
+#include <iosfwd>
 #include <string>
 #include <vector>
 
@@ -87,6 +88,8 @@ private:
 };
 
 POPPLER_CPP_EXPORT unsigned int /*time_t*/ convert_date(const std::string &date);
+
+POPPLER_CPP_EXPORT std::ostream& operator<<(std::ostream& stream, const byte_array &array);
 
 }
 

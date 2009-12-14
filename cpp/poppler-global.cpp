@@ -22,6 +22,7 @@
 
 #include <ctime>
 #include <cstring>
+#include <iostream>
 
 using namespace poppler;
 
@@ -153,4 +154,26 @@ unsigned int convert_date(const std::string &date)
     time.tm_yday = -1;
     time.tm_isdst = -1;
     return mktime(&time);
+}
+
+std::ostream& operator<<(std::ostream& stream, const byte_array &array)
+{
+    stream << "[";
+    const std::ios_base::fmtflags f = stream.flags();
+    std::hex(stream);
+    const char *data = array.data();
+    const byte_array::size_type out_len = std::min<byte_array::size_type>(array.size(), 50);
+    for (byte_array::size_type i = 0; i < out_len; ++i)
+    {
+        if (i != 0) {
+            stream << " ";
+        }
+        stream << ((data[i] & 0xf0) >> 4) << (data[i] & 0xf);
+    }
+    stream.flags(f);
+    if (out_len < array.size()) {
+        stream << " ...";
+    }
+    stream << "]";
+    return stream;
 }
