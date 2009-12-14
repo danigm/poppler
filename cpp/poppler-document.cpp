@@ -294,6 +294,15 @@ bool document::has_permission(permission_enum which) const
     return true;
 }
 
+ustring document::metadata() const
+{
+    std::auto_ptr<GooString> md(d->doc->getCatalog()->readMetadata());
+    if (md.get()) {
+        return detail::unicode_GooString_to_ustring(md.get());
+    }
+    return ustring();
+}
+
 int document::pages() const
 {
     return d->doc->getNumPages();
