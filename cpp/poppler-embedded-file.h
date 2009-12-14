@@ -41,7 +41,7 @@ public:
     unsigned int /*time_t*/ creation_date() const;
     std::string checksum() const;
     std::string mime_type() const;
-    std::vector<char> data() const;
+    byte_array data() const;
 
 private:
     embedded_file(embedded_file_private &dd);

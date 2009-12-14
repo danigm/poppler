@@ -93,15 +93,15 @@ std::string embedded_file::mime_type() const
     return std::string(d->emb_file->mimeType()->getCString());
 }
 
-std::vector<char> embedded_file::data() const
+byte_array embedded_file::data() const
 {
     if (!is_valid()) {
-        return std::vector<char>();
+        return byte_array();
     }
 
     Stream *stream = d->emb_file->streamObject().getStream();
     stream->reset();
-    std::vector<char> ret(1024);
+    byte_array ret(1024);
     size_t data_len = 0;
     int i;
     while ((i = stream->getChar()) != EOF) {
