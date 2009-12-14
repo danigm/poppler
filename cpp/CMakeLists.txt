@@ -1,6 +1,9 @@
 include_directories(
+  ${CMAKE_CURRENT_SOURCE_DIR}
   ${CMAKE_CURRENT_BINARY_DIR}
 )
+
+configure_file(poppler-version.h.in ${CMAKE_CURRENT_BINARY_DIR}/poppler-version.h @ONLY)
 
 set(poppler_cpp_SRCS
   poppler-document.cpp
@@ -11,6 +14,7 @@ set(poppler_cpp_SRCS
   poppler-page-transition.cpp
   poppler-private.cpp
   poppler-toc.cpp
+  poppler-version.cpp
 )
 
 add_library(poppler-cpp SHARED ${poppler_cpp_SRCS})
@@ -30,5 +34,6 @@ install(FILES
   poppler-page-transition.h
   poppler-rectangle.h
   poppler-toc.h
+  ${CMAKE_CURRENT_BINARY_DIR}/poppler-version.h
   DESTINATION include/poppler/cpp)
 

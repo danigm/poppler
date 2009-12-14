@@ -13,7 +13,8 @@ poppler_include_HEADERS =			\
 	poppler-page.h				\
 	poppler-page-transition.h		\
 	poppler-rectangle.h			\
-	poppler-toc.h
+	poppler-toc.h				\
+	poppler-version.h
 
 lib_LTLIBRARIES = libpoppler-cpp.la
 libpoppler_cpp_la_SOURCES =			\
@@ -24,7 +25,8 @@ libpoppler_cpp_la_SOURCES =			\
 	poppler-page.cpp			\
 	poppler-page-transition.cpp		\
 	poppler-private.cpp			\
-	poppler-toc.cpp
+	poppler-toc.cpp				\
+	poppler-version.cpp
 
 libpoppler_cpp_la_LIBADD = 			\
 	$(top_builddir)/poppler/libpoppler.la

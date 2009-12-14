@@ -547,6 +547,7 @@ AC_SUBST(PC_REQUIRES_PRIVATE)
 AC_SUBST([POPPLER_MAJOR_VERSION],[poppler_version_major])
 AC_SUBST([POPPLER_MINOR_VERSION],[poppler_version_minor])
 AC_SUBST([POPPLER_MICRO_VERSION],[poppler_version_micro])
+AC_SUBST([POPPLER_VERSION],[poppler_version])
 
 AC_OUTPUT([
 Makefile
@@ -566,6 +567,7 @@ qt4/src/Makefile
 qt4/tests/Makefile
 qt4/demos/Makefile
 cpp/Makefile
+cpp/poppler-version.h
 poppler.pc
 poppler-cairo.pc
 poppler-splash.pc
