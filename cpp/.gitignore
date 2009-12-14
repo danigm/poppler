@@ -4,3 +4,4 @@
 *.lo
 Makefile
 Makefile.in
+poppler-version.h

@@ -16,6 +16,7 @@ libtool
 ltmain.sh
 missing
 poppler-cairo.pc
+poppler-cpp.pc
 poppler-glib.pc
 poppler-qt.pc
 poppler-qt4.pc
