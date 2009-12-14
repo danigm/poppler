@@ -81,11 +81,11 @@ public:
     std::vector<embedded_file *> embedded_files() const;
 
     static document* load_from_file(const std::string &file_name,
-                                    const std::string &owner_password,
-                                    const std::string &user_password);
+                                    const std::string &owner_password = std::string(),
+                                    const std::string &user_password = std::string());
     static document* load_from_data(byte_array *file_data,
-                                    const std::string &owner_password,
-                                    const std::string &user_password);
+                                    const std::string &owner_password = std::string(),
+                                    const std::string &user_password = std::string());
 
 private:
     document(document_private &dd);
