@@ -133,7 +133,7 @@ ustring ustring::from_latin1(const std::string &str)
 }
 
 
-unsigned int convert_date(const std::string &date)
+unsigned int poppler::convert_date(const std::string &date)
 {
     int year, mon, day, hour, min, sec, tzHours, tzMins;
     char tz;
@@ -156,7 +156,7 @@ unsigned int convert_date(const std::string &date)
     return mktime(&time);
 }
 
-std::ostream& operator<<(std::ostream& stream, const byte_array &array)
+std::ostream& poppler::operator<<(std::ostream& stream, const byte_array &array)
 {
     stream << "[";
     const std::ios_base::fmtflags f = stream.flags();

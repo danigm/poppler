@@ -20,22 +20,22 @@
 
 using namespace poppler;
 
-std::string version_string()
+std::string poppler::version_string()
 {
     return std::string(POPPLER_VERSION);
 }
 
-unsigned int version_major()
+unsigned int poppler::version_major()
 {
     return POPPLER_VERSION_MAJOR;
 }
 
-unsigned int version_minor()
+unsigned int poppler::version_minor()
 {
     return POPPLER_VERSION_MINOR;
 }
 
-unsigned int version_micro()
+unsigned int poppler::version_micro()
 {
     return POPPLER_VERSION_MICRO;
 }
