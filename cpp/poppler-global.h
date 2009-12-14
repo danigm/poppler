@@ -60,6 +60,10 @@ enum rotation_enum { rotate_0, rotate_90, rotate_180, rotate_270 };
 
 enum page_box_enum { media_box, crop_box, bleed_box, trim_box, art_box };
 
+enum permission_enum { perm_print, perm_change, perm_copy, perm_add_notes,
+                       perm_fill_forms, perm_accessibility, perm_assemble,
+                       perm_print_high_resolution };
+
 typedef std::vector<char> byte_array;
 
 class POPPLER_CPP_EXPORT ustring : public std::basic_string<unsigned short>

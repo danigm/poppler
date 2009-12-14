@@ -271,6 +271,29 @@ bool document::is_linearized() const
     return d->doc->isLinearized();
 }
 
+bool document::has_permission(permission_enum which) const
+{
+    switch (which) {
+    case perm_print:
+        return d->doc->okToPrint();
+    case perm_change:
+        return d->doc->okToChange();
+    case perm_copy:
+        return d->doc->okToCopy();
+    case perm_add_notes:
+        return d->doc->okToAddNotes();
+    case perm_fill_forms:
+        return d->doc->okToFillForm();
+    case perm_accessibility:
+        return d->doc->okToAccessibility();
+    case perm_assemble:
+        return d->doc->okToAssemble();
+    case perm_print_high_resolution:
+        return d->doc->okToPrintHighRes();
+    }
+    return true;
+}
+
 int document::pages() const
 {
     return d->doc->getNumPages();

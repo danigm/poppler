@@ -65,6 +65,7 @@ public:
     unsigned int /*time_t*/ info_date(const std::string &key) const;
     bool is_encrypted() const;
     bool is_linearized() const;
+    bool has_permission(permission_enum which) const;
 
     int pages() const;
     page* create_page(const ustring &label) const;
