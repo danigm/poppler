@@ -99,6 +99,11 @@ toc::~toc()
     delete d;
 }
 
+toc_item* toc::root() const
+{
+    return &d->root;
+}
+
 
 toc_item::toc_item()
     : d(new toc_item_private())
