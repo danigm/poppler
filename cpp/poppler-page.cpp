@@ -27,7 +27,7 @@ using namespace poppler;
 
 page_private::page_private(document_private *_doc, int _index)
     : doc(_doc)
-    , page(doc->doc->getCatalog()->getPage(index + 1))
+    , page(doc->doc->getCatalog()->getPage(_index + 1))
     , index(_index)
     , transition(0)
 {
