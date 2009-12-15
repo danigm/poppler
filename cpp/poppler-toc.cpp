@@ -59,6 +59,7 @@ toc_item_private::toc_item_private()
 
 toc_item_private::~toc_item_private()
 {
+    delete_all(children);
 }
 
 void toc_item_private::load(OutlineItem *item)
