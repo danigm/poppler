@@ -984,6 +984,8 @@ public:
   AnnotTextMarkup(XRef *xrefA, Dict *dict, Catalog *catalog, Object *obj);
   virtual ~AnnotTextMarkup();
 
+  virtual void draw(Gfx *gfx, GBool printing);
+
   AnnotQuadrilaterals *getQuadrilaterals() const { return quadrilaterals; }
 
 protected:

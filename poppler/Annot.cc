@@ -2462,6 +2462,205 @@ AnnotTextMarkup::~AnnotTextMarkup() {
   }
 }
 
+void AnnotTextMarkup::draw(Gfx *gfx, GBool printing) {
+  Object obj;
+  double ca = 1;
+  int i;
+  Object obj1, obj2;
+  Object formDict, resDict;
+  MemStream *mStream;
+
+  if (!isVisible (printing))
+    return;
+
+  if (appearance.isNull() || type == typeHighlight) {
+    ca = opacity;
+
+    appearBuf = new GooString ();
+
+    switch (type) {
+    case typeUnderline:
+      if (color) {
+        setColor(color, gFalse);
+	setColor(color, gTrue);
+      }
+
+      for (i = 0; i < quadrilaterals->getQuadrilateralsLength(); ++i) {
+        double x1, y1, x2, y2, x3, y3;
+	double x, y;
+
+	x1 = quadrilaterals->getX1(i);
+	y1 = quadrilaterals->getY1(i);
+	x2 = quadrilaterals->getX2(i);
+	y2 = quadrilaterals->getY2(i);
+	x3 = quadrilaterals->getX3(i);
+	y3 = quadrilaterals->getY3(i);
+
+	x = x1 - rect->x1;
+	y = y3 - rect->y1;
+	appearBuf->append ("[]0 d 2 w\n");
+	appearBuf->appendf ("{0:.2f} {1:.2f} m\n", x, y);
+	appearBuf->appendf ("{0:.2f} {1:.2f} l\n", x + (x2 - x1), y);
+	appearBuf->append ("S\n");
+      }
+      break;
+    case typeStrikeOut:
+      if (color) {
+        setColor(color, gFalse);
+	setColor(color, gTrue);
+      }
+
+      for (i = 0; i < quadrilaterals->getQuadrilateralsLength(); ++i) {
+        double x1, y1, x2, y2, x3, y3;
+	double x, y;
+	double h2;
+
+	x1 = quadrilaterals->getX1(i);
+	y1 = quadrilaterals->getY1(i);
+	x2 = quadrilaterals->getX2(i);
+	y2 = quadrilaterals->getY2(i);
+	x3 = quadrilaterals->getX3(i);
+	y3 = quadrilaterals->getY3(i);
+	h2 = (y1 - y3) / 2.0;
+
+	x = x1 - rect->x1;
+	y = (y3 - rect->y1) + h2;
+	appearBuf->append ("[]0 d 2 w\n");
+	appearBuf->appendf ("{0:.2f} {1:.2f} m\n", x, y);
+	appearBuf->appendf ("{0:.2f} {1:.2f} l\n", x + (x2 - x1), y);
+	appearBuf->append ("S\n");
+      }
+      break;
+    case typeSquiggly:
+      // TODO
+    default:
+    case typeHighlight:
+      appearance.free();
+
+      if (color)
+        setColor(color, gTrue);
+
+      for (i = 0; i < quadrilaterals->getQuadrilateralsLength(); ++i) {
+        double x1, y1, x2, y2, x3, y3, x4, y4;
+	double h4;
+
+	x1 = quadrilaterals->getX1(i);
+	y1 = quadrilaterals->getY1(i);
+	x2 = quadrilaterals->getX2(i);
+	y2 = quadrilaterals->getY2(i);
+	x3 = quadrilaterals->getX3(i);
+	y3 = quadrilaterals->getY3(i);
+	x4 = quadrilaterals->getX4(i);
+	y4 = quadrilaterals->getY4(i);
+	h4 = (y1 - y3) / 4.0;
+
+	appearBuf->appendf ("{0:.2f} {1:.2f} m\n", x3, y3);
+	appearBuf->appendf ("{0:.2f} {1:.2f} {2:.2f} {3:.2f} {4:.2f} {5:.2f} c\n",
+			    x3 - h4, y3 + h4, x1 - h4, y1 - h4, x1, y1);
+	appearBuf->appendf ("{0:.2f} {1:.2f} l\n", x2, y2);
+	appearBuf->appendf ("{0:.2f} {1:.2f} {2:.2f} {3:.2f} {4:.2f} {5:.2f} c\n",
+			    x2 + h4, y2 - h4, x4 + h4, y4 + h4, x4, y4);
+	appearBuf->append ("f\n");
+      }
+
+      Object appearDict;
+      appearDict.initDict(xref);
+      appearDict.dictSet("Length", obj1.initInt(appearBuf->getLength()));
+      appearDict.dictSet("Subtype", obj1.initName("Form"));
+      obj1.initArray(xref);
+      obj1.arrayAdd(obj2.initReal(rect->x1));
+      obj1.arrayAdd(obj2.initReal(rect->y1));
+      obj1.arrayAdd(obj2.initReal(rect->x2));
+      obj1.arrayAdd(obj2.initReal(rect->y2));
+      appearDict.dictSet("BBox", &obj1);
+      obj1.initArray(xref);
+      obj1.arrayAdd(obj2.initReal(1));
+      obj1.arrayAdd(obj2.initReal(0));
+      obj1.arrayAdd(obj2.initReal(0));
+      obj1.arrayAdd(obj2.initReal(1));
+      obj1.arrayAdd(obj2.initReal(-rect->x1));
+      obj1.arrayAdd(obj2.initReal(-rect->y1));
+      appearDict.dictSet("Matrix", &obj1);
+
+      Object aStream;
+      mStream = new MemStream(copyString(appearBuf->getCString()), 0,
+			      appearBuf->getLength(), &appearDict);
+      mStream->setNeedFree(gTrue);
+      aStream.initStream(mStream);
+      delete appearBuf;
+
+      Object transDict;
+      formDict.initDict(xref);
+      formDict.dictSet ("Form", &aStream);
+      resDict.initDict(xref);
+      resDict.dictSet ("XObject", &formDict);
+
+      transDict.initDict(xref);
+      transDict.dictSet ("S", obj1.initName("Transparency"));
+
+      appearBuf = new GooString ("/Form Do");
+
+      formDict.initDict(xref);
+      formDict.dictSet("Length", obj1.initInt(appearBuf->getLength()));
+      formDict.dictSet("Subtype", obj1.initName("Form"));
+      formDict.dictSet("Group", &transDict);
+      formDict.dictSet("Resources", &resDict);
+      obj1.initArray(xref);
+      obj1.arrayAdd(obj2.initReal(0));
+      obj1.arrayAdd(obj2.initReal(0));
+      obj1.arrayAdd(obj2.initReal(rect->x2 - rect->x1));
+      obj1.arrayAdd(obj2.initReal(rect->y2 - rect->y1));
+      formDict.dictSet("BBox", &obj1);
+
+      mStream = new MemStream(copyString(appearBuf->getCString()), 0,
+			      appearBuf->getLength(), &formDict);
+      mStream->setNeedFree(gTrue);
+      aStream.initStream(mStream);
+      delete appearBuf;
+
+      Object stateDict;
+
+      formDict.initDict(xref);
+      formDict.dictSet ("HAForm", &aStream);
+      transDict.initDict(xref);
+      transDict.dictSet ("BM", obj1.initName("Multiply"));
+      stateDict.initDict(xref);
+      stateDict.dictSet ("R0", &transDict);
+      resDict.initDict(xref);
+      resDict.dictSet ("XObject", &formDict);
+      resDict.dictSet ("ExtGState", &stateDict);
+
+      appearBuf = new GooString ("/R0 gs\n/HAForm Do");
+
+      break;
+    }
+
+    formDict.initDict(xref);
+    formDict.dictSet("Length", obj1.initInt(appearBuf->getLength()));
+    formDict.dictSet("Subtype", obj1.initName("Form"));
+    if (type == typeHighlight)
+      formDict.dictSet("Resources", &resDict);
+    obj1.initArray(xref);
+    obj1.arrayAdd(obj2.initReal(0));
+    obj1.arrayAdd(obj2.initReal(0));
+    obj1.arrayAdd(obj2.initReal(rect->x2 - rect->x1));
+    obj1.arrayAdd(obj2.initReal(rect->y2 - rect->y1));
+    formDict.dictSet("BBox", &obj1);
+
+    mStream = new MemStream(copyString(appearBuf->getCString()), 0,
+			    appearBuf->getLength(), &formDict);
+    mStream->setNeedFree(gTrue);
+    appearance.initStream(mStream);
+    delete appearBuf;
+  }
+
+  // draw the appearance stream
+  appearance.fetch(xref, &obj);
+  gfx->drawAnnot(&obj, (AnnotBorder *)NULL, color, ca,
+		 rect->x1, rect->y1, rect->x2, rect->y2);
+  obj.free();
+}
+
 //------------------------------------------------------------------------
 // AnnotWidget
 //------------------------------------------------------------------------
