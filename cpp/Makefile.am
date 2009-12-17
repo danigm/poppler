@@ -3,6 +3,7 @@ INCLUDES =					\
 	-I$(top_srcdir)/goo			\
 	-I$(top_srcdir)/poppler
 
+SUBDIRS = . tests
 
 poppler_includedir = $(includedir)/poppler/cpp
 poppler_include_HEADERS =			\

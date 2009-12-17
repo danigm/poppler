@@ -568,6 +568,7 @@ qt4/tests/Makefile
 qt4/demos/Makefile
 cpp/Makefile
 cpp/poppler-version.h
+cpp/tests/Makefile
 poppler.pc
 poppler-cairo.pc
 poppler-splash.pc
