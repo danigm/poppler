@@ -1894,6 +1894,7 @@ void AnnotText::draw(Gfx *gfx, GBool printing) {
 
     MemStream *appearStream = new MemStream(copyString(appearBuf->getCString()), 0,
 					    appearBuf->getLength(), &appearDict);
+    appearStream->setNeedFree(gTrue);
     appearance.initStream(appearStream);
     delete appearBuf;
   }
@@ -2365,6 +2366,7 @@ void AnnotLine::draw(Gfx *gfx, GBool printing) {
 
     MemStream *appearStream = new MemStream(copyString(appearBuf->getCString()), 0,
 					      appearBuf->getLength(), &appearDict);
+    appearStream->setNeedFree(gTrue);
     appearance.initStream(appearStream);
     delete appearBuf;
   }
@@ -4372,7 +4374,8 @@ void AnnotGeometry::draw(Gfx *gfx, GBool printing) {
     appearDict.dictSet("BBox", &obj1);
 
     MemStream *appearStream = new MemStream(copyString(appearBuf->getCString()), 0,
-					      appearBuf->getLength(), &appearDict);
+					    appearBuf->getLength(), &appearDict);
+    appearStream->setNeedFree(gTrue);
     appearance.initStream(appearStream);
     delete appearBuf;
   }
@@ -4758,6 +4761,7 @@ void AnnotFileAttachment::draw(Gfx *gfx, GBool printing) {
 
     MemStream *appearStream = new MemStream(copyString(appearBuf->getCString()), 0,
 					    appearBuf->getLength(), &appearDict);
+    appearStream->setNeedFree(gTrue);
     appearance.initStream(appearStream);
     delete appearBuf;
   }
