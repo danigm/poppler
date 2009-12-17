@@ -47,7 +47,7 @@ toc* toc_private::load_from_outline(Outline *outline)
 
     toc *newtoc = new toc();
     newtoc->d->root.d->is_open = true;
-    newtoc->d->root.d->load_children(outline->getItems());
+    newtoc->d->root.d->load_children(items);
 
     return newtoc;
 }
