@@ -1182,6 +1182,8 @@ public:
   AnnotSound(XRef *xrefA, Dict *dict, Catalog *catalog, Object *obj);
   ~AnnotSound();
 
+  virtual void draw(Gfx *gfx, GBool printing);
+
   // getters
   Sound *getSound() { return sound; }
   GooString *getName() const { return name; }
