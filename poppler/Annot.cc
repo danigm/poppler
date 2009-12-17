@@ -2451,7 +2451,9 @@ void AnnotTextMarkup::initialize(XRef *xrefA, Catalog *catalog, Dict *dict) {
   if(dict->lookup("QuadPoints", &obj1)->isArray()) {
     quadrilaterals = new AnnotQuadrilaterals(obj1.getArray(), rect);
   } else {
+    error(-1, "Bad Annot Text Markup QuadPoints");
     quadrilaterals = NULL;
+    ok = gFalse;
   }
   obj1.free();
 }
