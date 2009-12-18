@@ -18,6 +18,7 @@
 // Copyright (C) 2009 Michael K. Johnson <a1237@danlj.org>
 // Copyright (C) 2009 Shen Liang <shenzhuxi@gmail.com>
 // Copyright (C) 2009 Stefan Thomas <thomas@eload24.com>
+// Copyright (C) 2009 Albert Astals Cid <aacid@kde.org>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -146,8 +147,6 @@ static void savePageSlice(PDFDoc *doc,
                    int pg, int x, int y, int w, int h, 
                    double pg_w, double pg_h, 
                    char *ppmFile) {
-  SplashBitmap *bitmap = splashOut->getBitmap();
-  
   if (w == 0) w = (int)ceil(pg_w);
   if (h == 0) h = (int)ceil(pg_h);
   w = (x+w > pg_w ? (int)ceil(pg_w-x) : w);
@@ -158,6 +157,9 @@ static void savePageSlice(PDFDoc *doc,
     !useCropBox, gFalse, gFalse,
     x, y, w, h
   );
+
+  SplashBitmap *bitmap = splashOut->getBitmap();
+  
   if (ppmFile != NULL) {
     if (png) {
       bitmap->writeImgFile(splashFormatPng, ppmFile);
