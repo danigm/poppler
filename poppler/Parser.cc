@@ -15,6 +15,7 @@
 //
 // Copyright (C) 2006, 2009 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2006 Krzysztof Kowalczyk <kkowalczyk@gmail.com>
+// Copyright (C) 2009 Ilya Gorenbein <igorenbein@finjan.com>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -179,7 +180,7 @@ Stream *Parser::makeStream(Object *dict, Guchar *fileKey,
   } else {
     error(getPos(), "Bad 'Length' attribute in stream");
     obj.free();
-    return NULL;
+    length = 0;
   }
 
   // check for length in damaged file
