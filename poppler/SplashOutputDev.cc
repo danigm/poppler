@@ -1983,6 +1983,9 @@ void SplashOutputDev::drawImageMask(GfxState *state, Object *ref, Stream *str,
   }
 
   ctm = state->getCTM();
+  for (int i = 0; i < 6; ++i) {
+    if (!isfinite(ctm[i])) return;
+  }
   mat[0] = ctm[0];
   mat[1] = ctm[1];
   mat[2] = -ctm[2];
@@ -2261,6 +2264,9 @@ void SplashOutputDev::drawImage(GfxState *state, Object *ref, Stream *str,
   int n, i;
 
   ctm = state->getCTM();
+  for (i = 0; i < 6; ++i) {
+    if (!isfinite(ctm[i])) return;
+  }
   mat[0] = ctm[0];
   mat[1] = ctm[1];
   mat[2] = -ctm[2];
@@ -2528,6 +2534,12 @@ void SplashOutputDev::drawMaskedImage(GfxState *state, Object *ref,
     //----- draw the source image
 
     ctm = state->getCTM();
+    for (i = 0; i < 6; ++i) {
+      if (!isfinite(ctm[i])) {
+        delete maskBitmap;
+        return;
+      }
+    }
     mat[0] = ctm[0];
     mat[1] = ctm[1];
     mat[2] = -ctm[2];
@@ -2639,6 +2651,9 @@ void SplashOutputDev::drawSoftMaskedImage(GfxState *state, Object *ref,
   int n, i;
 
   ctm = state->getCTM();
+  for (i = 0; i < 6; ++i) {
+    if (!isfinite(ctm[i])) return;
+  }
   mat[0] = ctm[0];
   mat[1] = ctm[1];
   mat[2] = -ctm[2];
