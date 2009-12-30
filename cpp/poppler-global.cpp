@@ -20,9 +20,31 @@
 
 #include "DateInfo.h"
 
+#include <cerrno>
 #include <ctime>
 #include <cstring>
 #include <iostream>
+
+#include <iconv.h>
+
+namespace
+{
+
+struct MiniIconv
+{
+    MiniIconv(const char *to_code, const char *from_code)
+        : i_(iconv_open(to_code, from_code))
+    {}
+    ~MiniIconv()
+    { if (is_valid()) iconv_close(i_); }
+    bool is_valid() const
+    { return i_ != (iconv_t)-1; }
+    operator iconv_t() const
+    { return i_; }
+    iconv_t i_;
+};
+
+}
 
 using namespace poppler;
 
@@ -54,14 +76,28 @@ byte_array ustring::to_utf_8() const
         return byte_array();
     }
 
-    const value_type *me = data();
-    const size_t len = size() * 2 + 2;
-    byte_array str(len);
-    str[0] = 0xfe;
-    str[1] = 0xff;
-    for (size_t i = 0; i < size(); ++i, ++me) {
-        str[i * 2 + 2] = (*me & 0xff);
-        str[i * 2 + 3] = ((*me >> 8) & 0xff);
+    MiniIconv ic("UTF-8", "UTF-16");
+    if (!ic.is_valid()) {
+        return byte_array();
+    }
+    const value_type *me_data = data();
+    byte_array str(size());
+    char *str_data = &str[0];
+    size_t me_len_char = size() * 2;
+    size_t str_len_left = str.size();
+    size_t ir = iconv(ic, (char **)&me_data, &me_len_char, &str_data, &str_len_left);
+    if ((ir == (size_t)-1) && (errno == E2BIG)) {
+        const size_t delta = str_data - &str[0];
+        str_len_left += str.size();
+        str.resize(str.size() * 2);
+        str_data = &str[delta];
+        ir = iconv(ic, (char **)&me_data, &me_len_char, &str_data, &str_len_left);
+        if (ir == (size_t)-1) {
+            return byte_array();
+        }
+    }
+    if (str_len_left >= 0) {
+        str.resize(str.size() - str_len_left);
     }
     return str;
 }
@@ -90,29 +126,29 @@ ustring ustring::from_utf_8(const char *str, int len)
         }
     }
 
-    int i = 0;
-    bool is_unicode = false;
-    if ((str[0] & 0xff) == 0xfe && (len > 1 && (str[1] & 0xff) == 0xff)) {
-        is_unicode = true;
-        i = 2;
+    MiniIconv ic("UTF-16", "UTF-8");
+    if (!ic.is_valid()) {
+        return ustring();
     }
 
-    const ustring::size_type ret_len = (len - i) / (is_unicode ? 2 : 1);
-    ustring ret(ret_len, 0);
-    size_t ret_index = 0;
-    ustring::value_type u;
-    if (is_unicode) {
-        while (i < len) {
-            u = ((str[i] & 0xff) << 8) | (str[i + 1] & 0xff);
-            i += 2;
-            ret[ret_index++] = u;
+    ustring ret(len, 0);
+    char *ret_data = reinterpret_cast<char *>(&ret[0]);
+    char *str_data = const_cast<char *>(str);
+    size_t str_len_char = len;
+    size_t ret_len_left = ret.size();
+    size_t ir = iconv(ic, &str_data, &str_len_char, &ret_data, &ret_len_left);
+    if ((ir == (size_t)-1) && (errno == E2BIG)) {
+        const size_t delta = ret_data - reinterpret_cast<char *>(&ret[0]);
+        ret_len_left += ret.size();
+        ret.resize(ret.size() * 2);
+        ret_data = reinterpret_cast<char *>(&ret[delta]);
+        ir = iconv(ic, (char **)&str_data, &str_len_char, &ret_data, &ret_len_left);
+        if (ir == (size_t)-1) {
+            return ustring();
         }
-    } else {
-        while (i < len) {
-            u = str[i] & 0xff;
-            ++i;
-            ret[ret_index++] = u;
-        }
+    }
+    if (ret_len_left >= 0) {
+        ret.resize(ret.size() - ret_len_left);
     }
 
     return ret;
