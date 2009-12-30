@@ -453,6 +453,12 @@ AC_ARG_ENABLE(poppler-cpp,
                              [Don't compile poppler cpp wrapper.]),
               enable_poppler_cpp=$enableval,
               enable_poppler_cpp="yes")
+if test x$enable_poppler_cpp = xyes; then
+  AM_ICONV()
+  if test x$am_func_iconv != xyes; then
+    enable_poppler_cpp=no
+  fi
+fi
 
 AM_CONDITIONAL(BUILD_POPPLER_CPP, test "x$enable_poppler_cpp" = "xyes")
 

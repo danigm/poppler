@@ -22,7 +22,7 @@ set(poppler_cpp_SRCS
 
 add_library(poppler-cpp SHARED ${poppler_cpp_SRCS})
 set_target_properties(poppler-cpp PROPERTIES VERSION 0.1.0 SOVERSION 0)
-target_link_libraries(poppler-cpp poppler)
+target_link_libraries(poppler-cpp poppler ${ICONV_LIBRARIES})
 if(MSVC)
 target_link_libraries(poppler-cpp ${poppler_LIBS})
 endif(MSVC)

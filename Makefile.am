@@ -73,6 +73,7 @@ EXTRA_DIST +=							\
 	cmake/modules/FindCairo.cmake				\
 	cmake/modules/FindFontconfig.cmake			\
 	cmake/modules/FindGTK.cmake				\
+	cmake/modules/FindIconv.cmake				\
 	cmake/modules/FindLCMS.cmake				\
 	cmake/modules/FindQt3.cmake				\
 	cmake/modules/FindQt4.cmake				\
