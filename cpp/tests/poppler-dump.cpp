@@ -140,7 +140,7 @@ static void print_perm(poppler::document *doc)
 {
     std::cout << "Document permissions:" << std::endl;
 #define OUT_PERM(theperm) \
-    std::cout << std::setw(out_width) << "Perm (" #theperm ")" << ": " \
+    std::cout << std::setw(out_width) << #theperm << ": " \
               << doc->has_permission(poppler::perm_##theperm) << std::endl
     OUT_PERM(print);
     OUT_PERM(change);
