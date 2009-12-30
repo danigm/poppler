@@ -117,6 +117,21 @@ static std::string out_hex_string(const std::string &str)
     return ret;
 }
 
+static std::string out_page_orientation(poppler::page::orientation_enum o)
+{
+    switch (o) {
+    case poppler::page::landscape:
+        return "landscape (90)";
+    case poppler::page::portrait:
+        return "portrait (0)";
+    case poppler::page::seascape:
+        return "seascape (270)";
+    case poppler::page::upside_down:
+        return "upside_downs (180)";
+    };
+    return "<unknown orientation>";
+}
+
 static void print_info(poppler::document *doc)
 {
     std::cout << "Document information:" << std::endl;
@@ -241,6 +256,7 @@ static void print_page(poppler::page *p)
     std::cout << std::setw(out_width) << "Rect" << ": " << p->page_rect() << std::endl;
     std::cout << std::setw(out_width) << "Label" << ": " << out_ustring(p->label()) << std::endl;
     std::cout << std::setw(out_width) << "Duration" << ": " << p->duration() << std::endl;
+    std::cout << std::setw(out_width) << "Orientation" << ": " << out_page_orientation(p->orientation()) << std::endl;
     std::cout << std::endl;
 }
 
