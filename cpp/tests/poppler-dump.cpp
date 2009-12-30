@@ -33,6 +33,7 @@
 
 static const int out_width = 30;
 
+bool show_all = false;
 bool show_info = false;
 bool show_perm = false;
 bool show_metadata = false;
@@ -43,6 +44,8 @@ bool show_pages = false;
 bool show_help = false;
 
 static const ArgDesc the_args[] = {
+    { "--show-all",            argFlag,  &show_all,            0,
+      "show all the available information" },
     { "--show-info",           argFlag,  &show_info,           0,
       "show general document information" },
     { "--show-perm",           argFlag,  &show_perm,           0,
@@ -260,6 +263,16 @@ int main(int argc, char *argv[])
     }
 
     std::cout.setf(std::ios_base::boolalpha);
+
+    if (show_all) {
+        show_info = true;
+        show_perm = true;
+        show_metadata = true;
+        show_toc = true;
+        show_fonts = true;
+        show_embedded_files = true;
+        show_pages = true;
+    }
 
     if (show_info) {
         print_info(doc.get());
