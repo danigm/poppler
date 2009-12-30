@@ -132,6 +132,27 @@ static std::string out_page_orientation(poppler::page::orientation_enum o)
     return "<unknown orientation>";
 }
 
+static std::string out_font_info_type(poppler::font_info::type_enum t)
+{
+#define OUT_FONT_TYPE(thetype) case poppler::font_info::thetype: return #thetype
+    switch (t) {
+    OUT_FONT_TYPE(unknown);
+    OUT_FONT_TYPE(type1);
+    OUT_FONT_TYPE(type1c);
+    OUT_FONT_TYPE(type1c_ot);
+    OUT_FONT_TYPE(type3);
+    OUT_FONT_TYPE(truetype);
+    OUT_FONT_TYPE(truetype_ot);
+    OUT_FONT_TYPE(cid_type0);
+    OUT_FONT_TYPE(cid_type0c);
+    OUT_FONT_TYPE(cid_type0c_ot);
+    OUT_FONT_TYPE(cid_truetype);
+    OUT_FONT_TYPE(cid_truetype_ot);
+    }
+    return "<unknown font type>";
+#undef OUT_FONT_TYPE
+}
+
 static void print_info(poppler::document *doc)
 {
     std::cout << "Document information:" << std::endl;
@@ -209,7 +230,7 @@ static void print_fonts(poppler::document *doc)
         for (; it != it_end; ++it) {
             std::cout
                 << " " << std::setw(out_width + 10) << it->name()
-                << " " << std::setw(15) << it->type()
+                << " " << std::setw(15) << out_font_info_type(it->type())
                 << " " << std::setw(5) << it->is_embedded()
                 << " " << std::setw(5) << it->is_subset()
                 << " " << it->file()
