@@ -161,9 +161,6 @@ poppler_document_new_from_file (const char  *uri,
   if (!filename)
     return NULL;
 
-  filename_g = new GooString (filename);
-  g_free (filename);
-
   password_g = NULL;
   if (password != NULL) {
     if (g_utf8_validate (password, -1, NULL)) {
@@ -180,7 +177,26 @@ poppler_document_new_from_file (const char  *uri,
     }
   }
 
+#ifdef G_OS_WIN32
+  wchar_t *filenameW;
+  int length;
+
+  length = MultiByteToWideChar(CP_UTF8, 0, filename, -1, NULL, 0);
+
+  filenameW = new WCHAR[length];
+  if (!filenameW)
+      return NULL;
+
+  length = MultiByteToWideChar(CP_UTF8, 0, filename, -1, filenameW, length);
+
+  newDoc = new PDFDoc(filenameW, length, password_g, password_g);
+  delete filenameW;
+#else
+  filename_g = new GooString (filename);
   newDoc = new PDFDoc(filename_g, password_g, password_g);
+#endif
+  g_free (filename);
+
   delete password_g;
 
   return _poppler_document_new_from_pdfdoc (newDoc, error);
