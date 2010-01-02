@@ -19,6 +19,7 @@
 // Copyright (C) 2009 Shen Liang <shenzhuxi@gmail.com>
 // Copyright (C) 2009 Stefan Thomas <thomas@eload24.com>
 // Copyright (C) 2009 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2010 Adrian Johnson <ajohnson@redneon.com>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -162,17 +163,17 @@ static void savePageSlice(PDFDoc *doc,
   
   if (ppmFile != NULL) {
     if (png) {
-      bitmap->writeImgFile(splashFormatPng, ppmFile);
+      bitmap->writeImgFile(splashFormatPng, ppmFile, x_resolution, y_resolution);
     } else if (jpeg) {
-      bitmap->writeImgFile(splashFormatJpeg, ppmFile);
+      bitmap->writeImgFile(splashFormatJpeg, ppmFile, x_resolution, y_resolution);
     } else {
       bitmap->writePNMFile(ppmFile);
     }
   } else {
     if (png) {
-      bitmap->writeImgFile(splashFormatPng, stdout);
+      bitmap->writeImgFile(splashFormatPng, stdout, x_resolution, y_resolution);
     } else if (jpeg) {
-      bitmap->writeImgFile(splashFormatJpeg, stdout);
+      bitmap->writeImgFile(splashFormatJpeg, stdout, x_resolution, y_resolution);
     } else {
       bitmap->writePNMFile(stdout);
     }

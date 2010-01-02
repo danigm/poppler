@@ -15,6 +15,7 @@
 // Copyright (C) 2007 Ilmari Heikkinen <ilmari.heikkinen@gmail.com>
 // Copyright (C) 2009 Shen Liang <shenzhuxi@gmail.com>
 // Copyright (C) 2009 Stefan Thomas <thomas@eload24.com>
+// Copyright (C) 2010 Adrian Johnson <ajohnson@redneon.com>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -269,7 +270,7 @@ Guchar SplashBitmap::getAlpha(int x, int y) {
   return alpha[y * width + x];
 }
 
-SplashError SplashBitmap::writeImgFile(SplashImageFileFormat format, char *fileName) {
+SplashError SplashBitmap::writeImgFile(SplashImageFileFormat format, char *fileName, int hDPI, int vDPI) {
   FILE *f;
   SplashError e;
 
@@ -277,13 +278,13 @@ SplashError SplashBitmap::writeImgFile(SplashImageFileFormat format, char *fileN
     return splashErrOpenFile;
   }
 
-  e = writeImgFile(format, f);
+  e = writeImgFile(format, f, hDPI, vDPI);
   
   fclose(f);
   return e;
 }
 
-SplashError SplashBitmap::writeImgFile(SplashImageFileFormat format, FILE *f) {
+SplashError SplashBitmap::writeImgFile(SplashImageFileFormat format, FILE *f, int hDPI, int vDPI) {
   ImgWriter *writer;
   
   switch (format) {
@@ -311,7 +312,7 @@ SplashError SplashBitmap::writeImgFile(SplashImageFileFormat format, FILE *f) {
     return splashErrGeneric;
   }
 
-  if (!writer->init(f, width, height)) {
+  if (!writer->init(f, width, height, hDPI, vDPI)) {
     delete writer;
     return splashErrGeneric;
   }

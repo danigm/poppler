@@ -8,6 +8,7 @@
 // Copyright (C) 2009 Shen Liang <shenzhuxi@gmail.com>
 // Copyright (C) 2009 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2009 Stefan Thomas <thomas@eload24.com>
+// Copyright (C) 2010 Adrian Johnson <ajohnson@redneon.com>
 //
 //========================================================================
 
@@ -28,7 +29,7 @@ class PNGWriter : public ImgWriter
 		PNGWriter();
 		~PNGWriter();
 		
-		bool init(FILE *f, int width, int height);
+		bool init(FILE *f, int width, int height, int hDPI, int vDPI);
 		
 		bool writePointers(unsigned char **rowPointers, int rowCount);
 		bool writeRow(unsigned char **row);

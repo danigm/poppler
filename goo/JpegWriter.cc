@@ -5,6 +5,7 @@
 // This file is licensed under the GPLv2 or later
 //
 // Copyright (C) 2009 Stefan Thomas <thomas@eload24.com>
+// Copyright (C) 2010 Adrian Johnson <ajohnson@redneon.com>
 //
 //========================================================================
 
@@ -35,7 +36,7 @@ JpegWriter::~JpegWriter()
 	jpeg_destroy_compress(&cinfo);
 }
 
-bool JpegWriter::init(FILE *f, int width, int height)
+bool JpegWriter::init(FILE *f, int width, int height, int hDPI, int vDPI)
 {
 	// Setup error handler
 	cinfo.err = jpeg_std_error(&jerr);
@@ -50,6 +51,9 @@ bool JpegWriter::init(FILE *f, int width, int height)
 	// Set libjpeg configuration
 	cinfo.image_width = width;
 	cinfo.image_height = height;
+	cinfo.density_unit = 1; // dots per inch
+	cinfo.X_density = hDPI;
+	cinfo.Y_density = vDPI;
 	cinfo.input_components = 3;     /* # of color components per pixel */
 	cinfo.in_color_space = JCS_RGB; /* colorspace of input image */
 	jpeg_set_defaults(&cinfo);

@@ -6,6 +6,7 @@
 //
 // Copyright (C) 2009 Stefan Thomas <thomas@eload24.com>
 // Copyright (C) 2009 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2010 Adrian Johnson <ajohnson@redneon.com>
 //
 //========================================================================
 
@@ -19,7 +20,7 @@ class ImgWriter
 {
 	public:
 		virtual ~ImgWriter();
-		virtual bool init(FILE *f, int width, int height) = 0;
+		virtual bool init(FILE *f, int width, int height, int hDPI, int vDPI) = 0;
 		
 		virtual bool writePointers(unsigned char **rowPointers, int rowCount) = 0;
 		virtual bool writeRow(unsigned char **row) = 0;

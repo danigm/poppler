@@ -8,6 +8,7 @@
 // Copyright (C) 2009 Shen Liang <shenzhuxi@gmail.com>
 // Copyright (C) 2009 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2009 Stefan Thomas <thomas@eload24.com>
+// Copyright (C) 2010 Adrian Johnson <ajohnson@redneon.com>
 //
 //========================================================================
 
@@ -27,7 +28,7 @@ PNGWriter::~PNGWriter()
 	png_destroy_write_struct(&png_ptr, &info_ptr);
 }
 
-bool PNGWriter::init(FILE *f, int width, int height)
+bool PNGWriter::init(FILE *f, int width, int height, int hDPI, int vDPI)
 {
 	/* initialize stuff */
 	png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
@@ -62,6 +63,9 @@ bool PNGWriter::init(FILE *f, int width, int height)
 	png_byte interlace_type = PNG_INTERLACE_NONE;
 
 	png_set_IHDR(png_ptr, info_ptr, width, height, bit_depth, color_type, interlace_type, PNG_COMPRESSION_TYPE_DEFAULT, PNG_FILTER_TYPE_DEFAULT);
+
+	// PNG_RESOLUTION_UNKNOWN means dots per inch
+	png_set_pHYs(png_ptr, info_ptr, hDPI, vDPI, PNG_RESOLUTION_UNKNOWN);
 
 	png_write_info(png_ptr, info_ptr);
 	if (setjmp(png_jmpbuf(png_ptr))) {

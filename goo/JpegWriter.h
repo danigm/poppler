@@ -5,6 +5,7 @@
 // This file is licensed under the GPLv2 or later
 //
 // Copyright (C) 2009 Stefan Thomas <thomas@eload24.com>
+// Copyright (C) 2010 Adrian Johnson <ajohnson@redneon.com>
 //
 //========================================================================
 
@@ -25,7 +26,7 @@ class JpegWriter : public ImgWriter
 		JpegWriter();
 		~JpegWriter();
 		
-		bool init(FILE *f, int width, int height);
+		bool init(FILE *f, int width, int height, int hDPI, int vDPI);
 		
 		bool writePointers(unsigned char **rowPointers, int rowCount);
 		bool writeRow(unsigned char **row);

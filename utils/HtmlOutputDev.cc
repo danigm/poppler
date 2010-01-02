@@ -25,6 +25,7 @@
 // Copyright (C) 2009 Warren Toomey <wkt@tuhs.org>
 // Copyright (C) 2009 Carlos Garcia Campos <carlosgc@gnome.org>
 // Copyright (C) 2009 Reece Dunn <msclrhd@gmail.com>
+// Copyright (C) 2010 Adrian Johnson <ajohnson@redneon.com>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -1329,7 +1330,8 @@ void HtmlOutputDev::drawImage(GfxState *state, Object *ref, Stream *str,
     }
 
     PNGWriter *writer = new PNGWriter();
-    if (!writer->init(f1, width, height)) {
+    // TODO can we calculate the resolution of the image?
+    if (!writer->init(f1, width, height, 72, 72)) {
         delete writer;
         fclose(f1);
         return;
