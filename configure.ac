@@ -402,17 +402,17 @@ AC_ARG_ENABLE(poppler-qt4,
               enable_poppler_qt4="try")
 if test x$enable_poppler_qt4 = xyes; then
   PKG_CHECK_MODULES(POPPLER_QT4, 
-	            QtCore >= 4.3.0 QtGui >= 4.3.0 QtXml >= 4.3.0)
+	            QtCore >= 4.4.0 QtGui >= 4.4.0 QtXml >= 4.4.0)
   PKG_CHECK_MODULES(POPPLER_QT4_TEST, 
-	            QtTest >= 4.3.0)
+	            QtTest >= 4.4.0)
 elif test x$enable_poppler_qt4 = xtry; then
   PKG_CHECK_MODULES(POPPLER_QT4,
-                    QtCore >= 4.3.0 QtGui >= 4.3.0 QtXml >= 4.3.0,
+                    QtCore >= 4.4.0 QtGui >= 4.4.0 QtXml >= 4.4.0,
                     [enable_poppler_qt4="yes"],
                     [enable_poppler_qt4="no"])
   if test x$enable_poppler_qt4 = xyes; then
     PKG_CHECK_MODULES(POPPLER_QT4_TEST,
-                    QtTest >= 4.3.0,
+                    QtTest >= 4.4.0,
                     [enable_poppler_qt4="yes"],
                     [enable_poppler_qt4="no"])
   fi
