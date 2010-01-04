@@ -166,7 +166,9 @@ int main( int argc, char **argv )
     }
   
     // output some meta-data
-    qDebug() << "    PDF Version: " << doc->pdfVersion();
+    int major = 0, minor = 0;
+    doc->getPdfVersion( &major, &minor );
+    qDebug() << "    PDF Version: " << qPrintable(QString::fromLatin1("%1.%2").arg(major).arg(minor));
     qDebug() << "          Title: " << doc->info("Title");
     qDebug() << "        Subject: " << doc->info("Subject");
     qDebug() << "         Author: " << doc->info("Author");

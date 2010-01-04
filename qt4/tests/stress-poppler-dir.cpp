@@ -28,7 +28,8 @@ int main( int argc, char **argv )
 		    delete doc;
 		}
 	    } else {
-		doc->pdfVersion();
+		int major = 0, minor = 0;
+		doc->getPdfVersion( &major, &minor );
 		doc->info("Title");
 		doc->info("Subject");
 		doc->info("Author");
