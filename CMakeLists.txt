@@ -28,7 +28,8 @@ option(ENABLE_LIBOPENJPEG "Use libopenjpeg for JPX streams." ON)
 option(ENABLE_LCMS "Use liblcms for color management." ON)
 option(ENABLE_ZLIB "TODO" OFF)
 option(USE_EXCEPTIONS "Throw exceptions to deal with not enough memory and similar problems." OFF)
-option(USE_FIXEDPOINT "Use fixed point arithmetic" OFF)
+option(USE_FIXEDPOINT "Use fixed point arithmetic in the Splash backend" OFF)
+option(USE_FLOAT "Use single precision arithmetic in the Splash backend" OFF)
 
 set(LIB_SUFFIX "" CACHE STRING "Define suffix of directory name (32/64)")
 
@@ -464,3 +465,7 @@ show_end_message("use zlib" ENABLE_ZLIB)
 show_end_message("use libopenjpeg" LIBOPENJPEG_FOUND)
 show_end_message("use cms" USE_CMS)
 show_end_message("command line utils" ENABLE_UTILS)
+
+if(USE_FIXEDPOINT AND USE_FLOAT)
+  message("Warning: Single precision and fixed point options should not be enabled at the same time")
+endif(USE_FIXEDPOINT AND USE_FLOAT)

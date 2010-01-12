@@ -67,8 +67,12 @@ AC_ARG_ENABLE(xpdf-headers,
               enable_xpdf_headers="no")
 AM_CONDITIONAL(ENABLE_XPDF_HEADERS, test x$enable_xpdf_headers = xyes)
 
+AC_ARG_ENABLE(single-precision,
+[  --enable-single-precision     use single precision arithmetic (instead of double precision) in the Splash backend],
+AC_DEFINE(USE_FLOAT,      [1], [Use single precision arithmetic]))
+
 AC_ARG_ENABLE(fixedpoint,
-[  --enable-fixedpoint     use fixed point (instead of floating point) arithmetic],
+[  --enable-fixedpoint     use fixed point (instead of double precision) arithmetic in the Splash backend],
 AC_DEFINE(USE_FIXEDPOINT, [1], [Use fixed point arithmetic]))
 
 AC_DEFINE_DIR(POPPLER_DATADIR, "{datarootdir}/poppler", [Poppler data dir])
@@ -580,6 +584,10 @@ echo ""
 
 if test x$enable_splash_output = xno -a x$enable_cairo_output = xno; then
 	echo "  Warning: There is no rendering backend enabled"
+fi
+
+if test x$enable_single_precision = xyes -a x$enable_fixedpoint = xyes; then
+	echo "  Warning: Single precision and fixed point options should not be enabled at the same time"
 fi
 
 if test x$enable_libjpeg != xyes; then

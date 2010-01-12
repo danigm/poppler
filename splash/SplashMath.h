@@ -11,7 +11,7 @@
 // All changes made under the Poppler project to this file are licensed
 // under GPL version 2 or later
 //
-// Copyright (C) 2009 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2009, 2010 Albert Astals Cid <aacid@kde.org>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -31,6 +31,8 @@
 static inline SplashCoord splashAbs(SplashCoord x) {
 #if USE_FIXEDPOINT
   return FixedPoint::abs(x);
+#elif USE_FLOAT
+  return fabsf(x);
 #else
   return fabs(x);
 #endif
@@ -39,6 +41,8 @@ static inline SplashCoord splashAbs(SplashCoord x) {
 static inline int splashFloor(SplashCoord x) {
   #if USE_FIXEDPOINT
     return FixedPoint::floor(x);
+  #elif USE_FLOAT
+    return (int)floorf(x);
   #else
     if (x > 0) return (int)x;
     else return (int)floor(x);
@@ -48,6 +52,8 @@ static inline int splashFloor(SplashCoord x) {
 static inline int splashCeil(SplashCoord x) {
 #if USE_FIXEDPOINT
   return FixedPoint::ceil(x);
+#elif USE_FLOAT
+  return (int)ceilf(x);
 #else
   return (int)ceil(x);
 #endif
@@ -64,6 +70,8 @@ static inline int splashRound(SplashCoord x) {
 static inline SplashCoord splashSqrt(SplashCoord x) {
 #if USE_FIXEDPOINT
   return FixedPoint::sqrt(x);
+#elif USE_FLOAT
+  return sqrtf(x);
 #else
   return sqrt(x);
 #endif
@@ -72,6 +80,8 @@ static inline SplashCoord splashSqrt(SplashCoord x) {
 static inline SplashCoord splashPow(SplashCoord x, SplashCoord y) {
 #if USE_FIXEDPOINT
   return FixedPoint::pow(x, y);
+#elif USE_FLOAT
+  return powf(x, y);
 #else
   return pow(x, y);
 #endif
@@ -96,7 +106,7 @@ static inline SplashCoord splashDist(SplashCoord x0, SplashCoord y0,
     return dya * FixedPoint::sqrt(dxa / dya + 1);
   }
 #else
-  return sqrt(dx * dx + dy * dy);
+  return splashSqrt(dx * dx + dy * dy);
 #endif
 }
 

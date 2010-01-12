@@ -11,7 +11,7 @@
 // All changes made under the Poppler project to this file are licensed
 // under GPL version 2 or later
 //
-// Copyright (C) 2006 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2006, 2010 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2008 Tomas Are Haavet <tomasare@gmail.com>
 // Copyright (C) 2009 Thomas Freitag <Thomas.Freitag@alfa.de>
 // Copyright (C) 2009 Stefan Thomas <thomas@eload24.com>
@@ -33,6 +33,8 @@
 #if USE_FIXEDPOINT
 #include "goo/FixedPoint.h"
 typedef FixedPoint SplashCoord;
+#elif USE_FLOAT
+typedef float SplashCoord;
 #else
 typedef double SplashCoord;
 #endif
