@@ -45,6 +45,7 @@
 #endif
 #ifdef _WIN32
 #  include <shlobj.h>
+#  include <mbstring.h>
 #endif
 #include "goo/gmem.h"
 #include "goo/GooString.h"
@@ -140,6 +141,62 @@ DisplayFontParam::~DisplayFontParam() {
     break;
   }
 }
+
+#if ENABLE_RELOCATABLE && defined(_WIN32)
+
+/* search for data relative to where we are installed */
+
+static HMODULE hmodule;
+
+extern "C" {
+BOOL WINAPI
+DllMain (HINSTANCE hinstDLL,
+	 DWORD     fdwReason,
+	 LPVOID    lpvReserved)
+{
+  switch (fdwReason)
+    {
+    case DLL_PROCESS_ATTACH:
+      hmodule = hinstDLL;
+      break;
+    }
+
+  return TRUE;
+}
+}
+
+static char *
+get_poppler_datadir (void)
+{
+  static char retval[_MAX_PATH];
+  static int beenhere = 0;
+
+  unsigned char *p;
+
+  if (beenhere)
+    return retval;
+
+  if (!GetModuleFileName (hmodule, (CHAR *) retval, sizeof(retval) - 20))
+    return POPPLER_DATADIR;
+
+  p = _mbsrchr ((const unsigned char *) retval, '\\');
+  *p = '\0';
+  p = _mbsrchr ((const unsigned char *) retval, '\\');
+  if (p) {
+    if (stricmp ((const char *) (p+1), "bin") == 0)
+      *p = '\0';
+  }
+  strcat (retval, "\\share\\poppler");
+
+  beenhere = 1;
+
+  return retval;
+}
+
+#undef POPPLER_DATADIR
+#define POPPLER_DATADIR get_poppler_datadir ()
+
+#endif
 
 #ifdef _WIN32
 

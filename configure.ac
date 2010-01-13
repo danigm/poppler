@@ -76,6 +76,32 @@ AC_ARG_ENABLE(fixedpoint,
 [  --enable-fixedpoint     use fixed point (instead of double precision) arithmetic in the Splash backend],
 AC_DEFINE(USE_FIXEDPOINT, [1], [Use fixed point arithmetic]))
 
+dnl Relocation support
+AC_ARG_ENABLE(relocatable,
+    AC_HELP_STRING([--disable-relocatable],
+                   [Hardcode the poppler library location (on Windows).]),
+    enable_relocatable=$enableval,
+    [if test x$os_win32 = xyes; then
+         # default to yes on native Windows.
+         enable_relocatable="yes"
+     else
+         # default to no everywhere else.
+         enable_relocatable="no"
+     fi
+    ]
+)
+
+if test x$enable_relocatable = xyes; then
+    if test x$os_win32 = xyes; then
+     AC_DEFINE([ENABLE_RELOCATABLE],
+               [1],[Do not hardcode the library location])
+    else
+        AC_MSG_ERROR(
+               [Invalid setting for relocatable, only supported on windows])
+
+    fi
+fi
+
 AC_DEFINE_DIR(POPPLER_DATADIR, "{datarootdir}/poppler", [Poppler data dir])
 
 dnl ##### Checks for header files.
