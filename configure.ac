@@ -47,6 +47,7 @@ case "$host_os" in
     create_shared_lib="-no-undefined"
   ;;
   mingw*)
+    os_win32=yes
     win32_libs="-lgdi32"
     create_shared_lib="-no-undefined"
     auto_import_flags="-Wl,--enable-auto-import"
@@ -239,7 +240,42 @@ fi
 AC_SUBST(FREETYPE_CFLAGS)
 AC_SUBST(FREETYPE_LIBS)
 
-PKG_CHECK_MODULES(FONTCONFIG, fontconfig >= 2.0.0)
+AC_MSG_CHECKING([which font configuration to use])
+AC_ARG_WITH([font_configuration],
+   [AS_HELP_STRING([--with-font-configuration=fontconfig|win32],
+                   [Select font configuration backend])],
+   [],
+   [if test x$os_win32 = xyes; then
+        # default to win32 on native Windows.
+        with_font_configuration=win32
+    else
+        # default to fontconig everywhere else.
+        with_font_configuration=fontconfig
+    fi
+   ]
+)
+AC_MSG_RESULT([$with_font_configuration])
+
+case $with_font_configuration in
+  win32)
+     AC_DEFINE([WITH_FONTCONFIGURATION_WIN32],
+               [1],[Use win32 font configuration backend])
+     # Set the minimum required Internet Explorer version to 5.0
+     CPPFLAGS="$CPPFLAGS -D_WIN32_IE=0x0500"
+     ;;
+  fontconfig)
+     AC_DEFINE([WITH_FONTCONFIGURATION_FONTCONFIG],
+               [1],[Use fontconfig font configuration backend])
+     PKG_CHECK_MODULES(FONTCONFIG, fontconfig >= 2.0.0)
+     ;;
+  *)
+     AC_MSG_ERROR(
+               [Invalid font configuration setting: $with_font_configuration])
+     ;;
+esac
+
+AM_CONDITIONAL(BUILD_WITH_WIN32_FONTCONFIGURATION,
+               test x$with_font_configuration = xwin32)
 
 AC_ARG_ENABLE(splash-output,
               AC_HELP_STRING([--disable-splash-output],
@@ -566,6 +602,7 @@ poppler-qt4.pc])
 
 echo ""
 echo "Building poppler with support for:"
+echo "  font configuration: $with_font_configuration"
 echo "  splash output:      $enable_splash_output"
 echo "  cairo output:       $enable_cairo_output"
 echo "  abiword output:     $enable_abiword_output"

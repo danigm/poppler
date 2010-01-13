@@ -22,6 +22,7 @@
 // Copyright (C) 2009 Petr Gajdos <pgajdos@novell.com>
 // Copyright (C) 2009 William Bader <williambader@hotmail.com>
 // Copyright (C) 2009 Kovid Goyal <kovid@kovidgoyal.net>
+// Copyright (C) 2010 Hib Eris <hib@hiberis.nl>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -557,7 +558,7 @@ GlobalParams::GlobalParams(const char *customPopplerDataDir)
   UnicodeMap *map;
   int i;
 
-#ifndef _MSC_VER  
+#if WITH_FONTCONFIGURATION_FONTCONFIG
   FcInit();
   FCcfg = FcConfigGetCurrent();
 #endif
@@ -962,7 +963,7 @@ static GBool findModifier(const char *name, const char *modifier, const char **s
   }
 }
 
-#ifndef _MSC_VER
+#if WITH_FONTCONFIGURATION_FONTCONFIG
 static FcPattern *buildFcPattern(GfxFont *font)
 {
   int weight = -1,
@@ -1110,7 +1111,7 @@ static FcPattern *buildFcPattern(GfxFont *font)
 /* if you can't or don't want to use Fontconfig, you need to implement
    this function for your platform. For Windows, it's in GlobalParamsWin.cc
 */
-#ifndef _MSC_VER
+#if WITH_FONTCONFIGURATION_FONTCONFIG
 DisplayFontParam *GlobalParams::getDisplayFont(GfxFont *font) {
   DisplayFontParam *dfp;
   FcPattern *p=0;
@@ -1169,6 +1170,9 @@ fin:
   unlockGlobalParams;
   return dfp;
 }
+#endif
+#if WITH_FONTCONFIGURATION_WIN32
+#include "GlobalParamsWin.cc"
 #endif
 
 GBool GlobalParams::getPSExpandSmaller() {

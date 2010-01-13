@@ -62,6 +62,7 @@ LIBS = $(LIBS) kernel32.lib advapi32.lib user32.lib gdi32.lib
 
 LDFLAGS = $(LDFLAGS) /nologo /DEBUG
 
+CFLAGS = $(CFLAGS) /D "WITH_FONTCONFIGURATION_WIN32=1"
 #CFLAGS = $(CFLAGS) /D "USE_FIXEDPOINT"
 
 !if "$(TARGET)"=="rel"
@@ -87,7 +88,6 @@ POPPLER_OBJS=$(O)\Annot.obj $(O)\Array.obj $(O)\BuiltinFont.obj $(O)\BuiltinFont
 	$(O)\Decrypt.obj $(O)\Dict.obj $(O)\Error.obj \
 	$(O)\FontEncodingTables.obj $(O)\FontInfo.obj $(O)\Form.obj $(O)\Function.obj \
 	$(O)\Gfx.obj $(O)\GfxFont.obj $(O)\GfxState.obj $(O)\GlobalParams.obj \
-	$(O)\GlobalParamsWin.obj \
 	$(O)\JArithmeticDecoder.obj $(O)\JBIG2Stream.obj $(O)\JPXStream.obj \
 	$(O)\Lexer.obj $(O)\Link.obj $(O)\NameToCharCode.obj $(O)\Object.obj \
 	$(O)\Outline.obj $(O)\OutputDev.obj $(O)\PDFDoc.obj $(O)\PDFDocEncoding.obj \
