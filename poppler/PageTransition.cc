@@ -1,5 +1,6 @@
 /* PageTransition.cc
  * Copyright (C) 2005, Net Integration Technologies, Inc.
+ * Copyright (C) 2010, Albert Astals Cid <aacid@kde.org>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -71,9 +72,9 @@ PageTransition::PageTransition (Object *trans) {
     else if (strcmp("Cover", s) == 0)
       type = transitionCover;
     else if (strcmp("Uncover", s) == 0)
-      type = transitionPush;
+      type = transitionUncover;
     else if (strcmp("Fade", s) == 0)
-      type = transitionCover;
+      type = transitionFade;
   }
   obj.free();
 
