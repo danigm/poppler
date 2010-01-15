@@ -39,6 +39,16 @@
 #undef TEXTOUT_WORD_LIST
 #endif
 
+/* Use fontconfig font configuration backend */
+#ifndef WITH_FONTCONFIGURATION_FONTCONFIG
+#undef WITH_FONTCONFIGURATION_FONTCONFIG
+#endif
+
+/* Use win32 font configuration backend */
+#ifndef WITH_FONTCONFIGURATION_WIN32
+#undef WITH_FONTCONFIGURATION_WIN32
+#endif
+
 // Also, there's a couple of preprocessor symbols in the header files
 // that are used but never defined: DISABLE_OUTLINE, DEBUG_MEM and
 
