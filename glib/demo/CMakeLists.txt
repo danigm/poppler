@@ -11,6 +11,7 @@ set(poppler_glib_demo_SRCS
   links.c
   outline.c
   page.c
+  print.c
   render.c
   text.c
   transitions.c
