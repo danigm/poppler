@@ -16,7 +16,7 @@
 // Copyright (C) 2005 Kristian Høgsberg <krh@redhat.com>
 // Copyright (C) 2006, 2007 Jeff Muizelaar <jeff@infidigm.net>
 // Copyright (C) 2006 Carlos Garcia Campos <carlosgc@gnome.org>
-// Copyright (C) 2006-2009 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2006-2010 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2009 Koji Otani <sho@bbr.jp>
 // Copyright (C) 2009 Thomas Freitag <Thomas.Freitag@alfa.de>
 // Copyright (C) 2009 Christian Persch <chpe@gnome.org>
@@ -2893,7 +2893,7 @@ GfxRadialShading::GfxRadialShading(GfxRadialShading *shading):
   y1 = shading->y1;
   r1 = shading->r1;
   t0 = shading->t0;
-  y1 = shading->t1;
+  t1 = shading->t1;
   nFuncs = shading->nFuncs;
   for (i = 0; i < nFuncs; ++i) {
     funcs[i] = shading->funcs[i]->copy();
