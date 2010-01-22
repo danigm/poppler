@@ -272,10 +272,9 @@ void CairoOutputDev::restoreState(GfxState *state) {
   updateBlendMode(state);
 
   MaskStack* ms = maskStack;
-  if (mask)
-    cairo_pattern_destroy(mask);
-
   if (ms) {
+    if (mask)
+      cairo_pattern_destroy(mask);
     mask = ms->mask;
     maskStack = ms->next;
     delete ms;
