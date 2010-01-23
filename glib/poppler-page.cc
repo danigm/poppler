@@ -268,15 +268,24 @@ static TextPage *
 poppler_page_get_text_page (PopplerPage *page)
 {
   if (page->text == NULL) {
-    cairo_t *cr;
-    cairo_surface_t *surface;
+    TextOutputDev *text_dev;
+    Gfx           *gfx;
 
-    surface = cairo_image_surface_create (CAIRO_FORMAT_RGB24, 1, 1);
-    cr = cairo_create (surface);
-    poppler_page_render (page, cr);
-    cairo_destroy (cr);
-    cairo_surface_destroy (surface);
+    text_dev = new TextOutputDev (NULL, gTrue, gFalse, gFalse);
+    gfx = page->page->createGfx(text_dev,
+				72.0, 72.0, 0,
+				gFalse, /* useMediaBox */
+				gTrue, /* Crop */
+				-1, -1, -1, -1,
+				gFalse, /* printing */
+				page->document->doc->getCatalog (),
+				NULL, NULL, NULL, NULL);
+    page->page->display(gfx);
+    text_dev->endPage();
 
+    page->text = text_dev->takeText();
+    delete gfx;
+    delete text_dev;
   }
 
   return page->text;
