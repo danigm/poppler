@@ -37,12 +37,8 @@ typedef struct {
 	guint            page;
 	GtkWidget       *treeview;
 	GtkWidget       *darea;
-	
-#if defined (HAVE_CAIRO)
+
 	cairo_surface_t *surface;
-#else
-	GdkPixbuf       *pixbuf;
-#endif
 } PgdLayersDemo;
 
 static void
@@ -55,18 +51,11 @@ pgd_layers_free (PgdLayersDemo *demo)
 		g_object_unref (demo->doc);
 		demo->doc = NULL;
 	}
-	
-#if defined (HAVE_CAIRO)
+
 	if (demo->surface) {
 		cairo_surface_destroy (demo->surface);
 		demo->surface = NULL;
 	}
-#else
-	if (demo->pixbuf) {
-		g_object_unref (demo->pixbuf);
-		demo->pixbuf = NULL;
-	}
-#endif
 
 	g_free (demo);
 }
@@ -156,7 +145,6 @@ pgd_layers_create_model (PopplerDocument *document)
 	return model;
 }
 
-#if defined (HAVE_CAIRO)
 static cairo_surface_t *
 pgd_layers_render_page (PgdLayersDemo *demo)
 {
@@ -191,39 +179,12 @@ pgd_layers_render_page (PgdLayersDemo *demo)
 
 	return surface;
 }
-#else
-static GdkPixbuf *
-pgd_layers_render_page (PgdLayersDemo *demo)
-{
-	PopplerPage *page;
-	gdouble width, height;
-	GdkPixbuf *pixbuf = NULL;
-
-	page = poppler_document_get_page (demo->doc, demo->page);
-	if (!page)
-		return NULL;
-
-	poppler_page_get_size (page, &width, &height);
-	gtk_widget_set_size_request (demo->darea, width, height);
-	
-	pixbuf = gdk_pixbuf_new (GDK_COLORSPACE_RGB,
-				 FALSE, 8, width, height);
-	gdk_pixbuf_fill (pixbuf, 0xffffff);
-	poppler_page_render_to_pixbuf (page, 0, 0, 
-				       width, height,
-				       1.0, 0, pixbuf);
-	g_object_unref (page);
-
-	return pixbuf;
-}
-#endif
 
 static gboolean
 pgd_layers_viewer_drawing_area_expose (GtkWidget      *area,
 				       GdkEventExpose *event,
 				       PgdLayersDemo  *demo)
 {
-#if defined (HAVE_CAIRO)
 	cairo_t *cr;
 	
 	if (!demo->surface) {
@@ -231,47 +192,23 @@ pgd_layers_viewer_drawing_area_expose (GtkWidget      *area,
 		if (!demo->surface)
 			return FALSE;
 	}
-#else
-	
-	if (!demo->pixbuf) {
-		demo->pixbuf = pgd_layers_render_page (demo);
-		if (!demo->pixbuf)
-			return FALSE;
-	}
-#endif
 
 	gdk_window_clear (area->window);
 
-#if defined (HAVE_CAIRO)
 	cr = gdk_cairo_create (area->window);
 	cairo_set_source_surface (cr, demo->surface, 0, 0);
 	cairo_paint (cr);
 	cairo_destroy (cr);
-#else
-	gdk_draw_pixbuf (area->window,
-			 area->style->fg_gc[GTK_STATE_NORMAL],
-			 demo->pixbuf,
-			 0, 0,
-			 0, 0,
-			 gdk_pixbuf_get_width (demo->pixbuf),
-			 gdk_pixbuf_get_height (demo->pixbuf),
-			 GDK_RGB_DITHER_NORMAL,
-			 0, 0);
-#endif
-	
+
 	return TRUE;
 }
 
 static gboolean
 pgd_layers_viewer_redraw (PgdLayersDemo *demo)
 {
-#if defined (HAVE_CAIRO)
 	cairo_surface_destroy (demo->surface);
 	demo->surface = NULL;
-#else
-	g_object_unref (demo->pixbuf);
-	demo->pixbuf = NULL;
-#endif
+
 	gtk_widget_queue_draw (demo->darea);
 
 	return FALSE;

@@ -24,9 +24,7 @@
 #include "render.h"
 
 typedef enum {
-#if defined (HAVE_CAIRO)
 	PGD_RENDER_CAIRO,
-#endif
 	PGD_RENDER_PIXBUF
 } PgdRenderMode;
 
@@ -48,10 +46,8 @@ typedef struct {
 	GtkWidget       *slice_w;
 	GtkWidget       *slice_h;
 	GtkWidget       *timer_label;
-	
-#if defined (HAVE_CAIRO)
+
 	cairo_surface_t *surface;
-#endif
 	GdkPixbuf       *pixbuf;
 } PgdRenderDemo;
 
@@ -66,12 +62,10 @@ pgd_render_free (PgdRenderDemo *demo)
 		demo->doc = NULL;
 	}
 	
-#if defined (HAVE_CAIRO)
 	if (demo->surface) {
 		cairo_surface_destroy (demo->surface);
 		demo->surface = NULL;
 	}
-#endif
 
 	if (demo->pixbuf) {
 		g_object_unref (demo->pixbuf);
@@ -86,17 +80,14 @@ pgd_render_drawing_area_expose (GtkWidget      *area,
 				GdkEventExpose *event,
 				PgdRenderDemo  *demo)
 {
-#if defined (HAVE_CAIRO)
 	if (demo->mode == PGD_RENDER_CAIRO && !demo->surface)
 		return FALSE;
-#endif
-	
+
 	if (demo->mode == PGD_RENDER_PIXBUF && !demo->pixbuf)
 		return FALSE;
 
 	gdk_window_clear (area->window);
 
-#if defined (HAVE_CAIRO)
 	if (demo->mode == PGD_RENDER_CAIRO) {
 		cairo_t *cr;
 
@@ -105,7 +96,6 @@ pgd_render_drawing_area_expose (GtkWidget      *area,
 		cairo_paint (cr);
 		cairo_destroy (cr);
 	} else if (demo->mode == PGD_RENDER_PIXBUF) {
-#endif
 		gdk_draw_pixbuf (area->window,
 				 area->style->fg_gc[GTK_STATE_NORMAL],
 				 demo->pixbuf,
@@ -115,12 +105,10 @@ pgd_render_drawing_area_expose (GtkWidget      *area,
 				 gdk_pixbuf_get_height (demo->pixbuf),
 				 GDK_RGB_DITHER_NORMAL,
 				 0, 0);
-#if defined (HAVE_CAIRO)
 	} else {
 		g_assert_not_reached ();
 	}
-#endif
-	
+
 	return TRUE;
 }
 
@@ -139,12 +127,10 @@ pgd_render_start (GtkButton     *button,
 	if (!page)
 		return;
 
-#if defined (HAVE_CAIRO)
 	if (demo->surface)
 		cairo_surface_destroy (demo->surface);
 	demo->surface = NULL;
-#endif
-	
+
 	if (demo->pixbuf)
 		g_object_unref (demo->pixbuf);
 	demo->pixbuf = NULL;
@@ -163,7 +149,6 @@ pgd_render_start (GtkButton     *button,
 		y = demo->slice.x * demo->scale;
 	}
 
-#if defined (HAVE_CAIRO)
 	if (demo->mode == PGD_RENDER_CAIRO) {
 		cairo_t *cr;
 
@@ -207,7 +192,6 @@ pgd_render_start (GtkButton     *button,
 		
 		cairo_destroy (cr);
 	} else if (demo->mode == PGD_RENDER_PIXBUF) {
-#endif
 #ifdef POPPLER_WITH_GDK
 		timer = g_timer_new ();
 		demo->pixbuf = gdk_pixbuf_new (GDK_COLORSPACE_RGB,
@@ -232,11 +216,10 @@ pgd_render_start (GtkButton     *button,
 		}
 		g_timer_stop (timer);
 #endif /* POPPLER_WITH_GDK */
-#if defined (HAVE_CAIRO)
 	} else {
 		g_assert_not_reached ();
 	}
-#endif
+
 	g_object_unref (page);
 	
 	str = g_strdup_printf ("<i>Page rendered in %.4f seconds</i>",
@@ -411,9 +394,7 @@ pgd_render_properties_selector_create (PgdRenderDemo *demo)
 	gtk_widget_show (label);
 
 	mode_selector = gtk_combo_box_new_text ();
-#if defined (HAVE_CAIRO)
 	gtk_combo_box_append_text (GTK_COMBO_BOX (mode_selector), "cairo");
-#endif
 #ifdef POPPLER_WITH_GDK
 	gtk_combo_box_append_text (GTK_COMBO_BOX (mode_selector), "pixbuf");
 #endif

@@ -201,10 +201,8 @@ pgd_images_selection_changed (GtkTreeSelection *treeselection,
 				    IMAGES_ID_COLUMN, &image_id,
 				    -1);
 		page = poppler_document_get_page (demo->doc, demo->page);
-#if defined (HAVE_CAIRO)
 		pgd_image_view_set_image (demo->image_view,
 					  poppler_page_get_image (page, image_id));
-#endif
 		g_object_unref (page);
 					  
 	}
