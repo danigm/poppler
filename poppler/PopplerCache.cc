@@ -100,3 +100,63 @@ PopplerCacheKey *PopplerCache::key(int index)
 {
   return keys[index];
 }
+
+class ObjectKey : public PopplerCacheKey {
+  public:
+    ObjectKey(int numA, int genA) : num(numA), gen(genA)
+    {
+    }
+
+    bool operator==(const PopplerCacheKey &key) const
+    {
+      const ObjectKey *k = static_cast<const ObjectKey*>(&key);
+      return k->num == num && k->gen == gen;
+    }
+
+    int num, gen;
+};
+
+class ObjectItem : public PopplerCacheItem {
+  public:
+    ObjectItem(Object *obj)
+    {
+      obj->copy(&item);
+    }
+
+    ~ObjectItem()
+    {
+      item.free();
+    }
+
+    Object item;
+};
+
+PopplerObjectCache::PopplerObjectCache(int cacheSize, XRef *xrefA) {
+  cache = new PopplerCache (cacheSize);
+  xref = xrefA;
+}
+
+PopplerObjectCache::~PopplerObjectCache() {
+  delete cache;
+}
+
+Object *PopplerObjectCache::put(Object *objRef) {
+  Ref ref = objRef->getRef();
+  Object obj;
+  objRef->fetch(xref, &obj);
+
+  ObjectKey *key = new ObjectKey(ref.num, ref.gen);
+  ObjectItem *item = new ObjectItem(&obj);
+  cache->put(key, item);
+  obj.free();
+
+  return &item->item;
+}
+
+Object *PopplerObjectCache::lookup(Object *objRef, Object *obj) {
+  Ref ref = objRef->getRef();
+  ObjectKey key(ref.num, ref.gen);
+  ObjectItem *item = static_cast<ObjectItem *>(cache->lookup(key));
+
+  return item ? item->item.copy(obj) : obj->initNull();
+}

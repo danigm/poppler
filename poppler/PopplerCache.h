@@ -12,6 +12,8 @@
 #ifndef POPPLER_CACHE_H
 #define POPPLER_CACHE_H
 
+#include "Object.h"
+
 class PopplerCacheItem
 {
   public:
@@ -56,6 +58,20 @@ class PopplerCache
     PopplerCacheItem **items;
     int lastValidCacheIndex;
     int cacheSize;
+};
+
+class PopplerObjectCache
+{
+  public:
+    PopplerObjectCache (int cacheSizeA, XRef *xrefA);
+    ~PopplerObjectCache();
+
+    Object *put(Object *objRef);
+    Object *lookup(Object *objRef, Object *obj);
+
+  private:
+    XRef *xref;
+    PopplerCache *cache;
 };
 
 #endif
