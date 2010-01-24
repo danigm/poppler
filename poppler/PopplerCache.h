@@ -6,6 +6,7 @@
 //
 // Copyright (C) 2009 Koji Otani <sho@bbr.jp>
 // Copyright (C) 2009 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2010 Carlos Garcia Campos <carlosgc@gnome.org>
 //
 //========================================================================
 
