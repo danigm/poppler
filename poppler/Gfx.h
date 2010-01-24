@@ -113,6 +113,7 @@ public:
   GfxPattern *lookupPattern(char *name, Gfx *gfx);
   GfxShading *lookupShading(char *name, Gfx *gfx);
   GBool lookupGState(char *name, Object *obj);
+  GBool lookupGStateNF(char *name, Object *obj);
 
   GfxResources *getNext() { return next; }
 
@@ -124,6 +125,7 @@ private:
   Object patternDict;
   Object shadingDict;
   Object gStateDict;
+  PopplerObjectCache gStateCache;
   Object propertiesDict;
   GfxResources *next;
 };

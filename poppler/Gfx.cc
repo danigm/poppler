@@ -307,7 +307,8 @@ static inline GBool isSameGfxColor(const GfxColor &colorA, const GfxColor &color
 // GfxResources
 //------------------------------------------------------------------------
 
-GfxResources::GfxResources(XRef *xref, Dict *resDict, GfxResources *nextA) {
+GfxResources::GfxResources(XRef *xref, Dict *resDict, GfxResources *nextA) :
+    gStateCache(2, xref) {
   Object obj1, obj2;
   Ref r;
 
@@ -480,11 +481,25 @@ GfxShading *GfxResources::lookupShading(char *name, Gfx *gfx) {
 }
 
 GBool GfxResources::lookupGState(char *name, Object *obj) {
+  Object objRef;
+
+  if (!lookupGStateNF(name, &objRef))
+    return gFalse;
+
+  if (!gStateCache.lookup(&objRef, obj)->isNull())
+    return gTrue;
+  obj->free();
+
+  gStateCache.put(&objRef)->copy(obj);
+  return gTrue;
+}
+
+GBool GfxResources::lookupGStateNF(char *name, Object *obj) {
   GfxResources *resPtr;
 
   for (resPtr = this; resPtr; resPtr = resPtr->next) {
     if (resPtr->gStateDict.isDict()) {
-      if (!resPtr->gStateDict.dictLookup(name, obj)->isNull()) {
+      if (!resPtr->gStateDict.dictLookupNF(name, obj)->isNull()) {
 	return gTrue;
       }
       obj->free();
