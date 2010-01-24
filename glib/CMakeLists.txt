@@ -90,6 +90,7 @@ if (CAIRO_FOUND)
   set(poppler_glib_SRCS ${poppler_glib_SRCS}
     ${CMAKE_SOURCE_DIR}/poppler/CairoFontEngine.cc
     ${CMAKE_SOURCE_DIR}/poppler/CairoOutputDev.cc
+    ${CMAKE_SOURCE_DIR}/poppler/CairoRescaleBox.cc
   )
 endif (CAIRO_FOUND)
 add_library(poppler-glib SHARED ${poppler_glib_SRCS})
