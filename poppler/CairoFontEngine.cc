@@ -489,6 +489,7 @@ CairoFreeTypeFont *CairoFreeTypeFont::create(GfxFont *gfxFont, XRef *xref,
       codeToGID = ((Gfx8BitFont *)gfxFont)->getCodeToGIDMap(ff);
       codeToGIDLen = 256;
     }
+    delete ff;
     if (! _ft_new_face (lib, fileName->getCString(), &face, &font_face)) {
       error(-1, "could not create truetype face\n");
       goto err2;
