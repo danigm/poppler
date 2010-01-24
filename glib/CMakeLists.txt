@@ -4,13 +4,9 @@ include_directories(
   ${CMAKE_CURRENT_SOURCE_DIR}
   ${CMAKE_CURRENT_BINARY_DIR}
 )
-if (CAIRO_FOUND)
-  include_directories(${CAIRO_INCLUDES})
-  set (CAIRO_FEATURE "#define POPPLER_HAS_CAIRO 1")
-  add_definitions(${CAIRO_CFLAGS})
-else (CAIRO_FOUND)
-  set (CAIRO_FEATURE "#undef POPPLER_HAS_CAIRO")
-endif (CAIRO_FOUND)
+include_directories(${CAIRO_INCLUDES})
+set (CAIRO_FEATURE "#define POPPLER_HAS_CAIRO 1")
+add_definitions(${CAIRO_CFLAGS})
 
 if (GDK_FOUND)
   add_definitions(${GDK2_CFLAGS})
@@ -85,20 +81,13 @@ set(poppler_glib_SRCS
   poppler-layer.cc
   poppler.cc
   ${CMAKE_CURRENT_BINARY_DIR}/poppler-enums.c
+  ${CMAKE_SOURCE_DIR}/poppler/CairoFontEngine.cc
+  ${CMAKE_SOURCE_DIR}/poppler/CairoOutputDev.cc
+  ${CMAKE_SOURCE_DIR}/poppler/CairoRescaleBox.cc
 )
-if (CAIRO_FOUND)
-  set(poppler_glib_SRCS ${poppler_glib_SRCS}
-    ${CMAKE_SOURCE_DIR}/poppler/CairoFontEngine.cc
-    ${CMAKE_SOURCE_DIR}/poppler/CairoOutputDev.cc
-    ${CMAKE_SOURCE_DIR}/poppler/CairoRescaleBox.cc
-  )
-endif (CAIRO_FOUND)
 add_library(poppler-glib SHARED ${poppler_glib_SRCS})
 set_target_properties(poppler-glib PROPERTIES VERSION 4.0.0 SOVERSION 4)
-target_link_libraries(poppler-glib poppler ${GLIB2_LIBRARIES})
-if (CAIRO_FOUND)
-  target_link_libraries(poppler-glib ${CAIRO_LIBRARIES})
-endif (CAIRO_FOUND)
+target_link_libraries(poppler-glib poppler ${GLIB2_LIBRARIES} ${CAIRO_LIBRARIES})
 install(TARGETS poppler-glib RUNTIME DESTINATION bin LIBRARY DESTINATION lib${LIB_SUFFIX} ARCHIVE DESTINATION lib${LIB_SUFFIX})
 
 install(FILES
