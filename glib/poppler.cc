@@ -39,13 +39,7 @@ GQuark poppler_error_quark (void)
 PopplerBackend
 poppler_get_backend (void)
 {
-#if defined (HAVE_CAIRO)
   return POPPLER_BACKEND_CAIRO;
-#elif defined (HAVE_SPLASH)
-  return POPPLER_BACKEND_SPLASH;
-#else
-  return POPPLER_BACKEND_UNKNOWN;
-#endif
 }
 
 static const char poppler_version[] = PACKAGE_VERSION;

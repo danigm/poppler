@@ -27,10 +27,7 @@
 #include <gdk/gdk.h>
 #include <gdk-pixbuf/gdk-pixbuf.h>
 #endif
-
-#ifdef POPPLER_HAS_CAIRO
 #include <cairo.h>
-#endif
 
 G_BEGIN_DECLS
 
@@ -71,7 +68,6 @@ void                poppler_page_render_selection_to_pixbuf (
 							  GdkColor           *background_color);
 #endif /* POPPLER_WITH_GDK */
 
-#ifdef POPPLER_HAS_CAIRO
 void                   poppler_page_render               (PopplerPage        *page,
 							  cairo_t            *cairo);
 void                   poppler_page_render_for_printing  (PopplerPage        *page,
@@ -84,7 +80,6 @@ void                   poppler_page_render_selection     (PopplerPage        *pa
 							  PopplerSelectionStyle style,
 							  PopplerColor       *glyph_color,
 							  PopplerColor       *background_color);
-#endif /* POPPLER_HAS_CAIRO */
 
 void                   poppler_page_get_size             (PopplerPage        *page,
 							  double             *width,
@@ -111,10 +106,8 @@ GList                 *poppler_page_get_link_mapping     (PopplerPage        *pa
 void                   poppler_page_free_link_mapping    (GList              *list);
 GList                 *poppler_page_get_image_mapping    (PopplerPage        *page);
 void                   poppler_page_free_image_mapping   (GList              *list);
-#ifdef POPPLER_HAS_CAIRO
 cairo_surface_t       *poppler_page_get_image            (PopplerPage        *page,
 							  gint                image_id);
-#endif /* POPPLER_HAS_CAIRO */
 GList              *poppler_page_get_form_field_mapping  (PopplerPage        *page);
 void                poppler_page_free_form_field_mapping (GList              *list);
 GList                 *poppler_page_get_annot_mapping    (PopplerPage        *page);

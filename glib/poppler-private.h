@@ -11,12 +11,7 @@
 #include <TextOutputDev.h>
 #include <Catalog.h>
 #include <OptionalContent.h>
-
-#if defined (HAVE_CAIRO)
 #include <CairoOutputDev.h>
-#elif defined (HAVE_SPLASH)
-#include <SplashOutputDev.h>
-#endif
 
 struct _PopplerDocument
 {
@@ -25,11 +20,7 @@ struct _PopplerDocument
 
   GList *layers;
   GList *layers_rbgroups;
-#if defined (HAVE_CAIRO)
   CairoOutputDev *output_dev;
-#elif defined (HAVE_SPLASH)
-  SplashOutputDev *output_dev;
-#endif
 };
 
 struct _PopplerPSFile
@@ -59,12 +50,7 @@ struct _PopplerPage
   PopplerDocument *document;
   Page *page;
   int index;
-#if defined (HAVE_CAIRO)
   TextPage *text;
-#else
-  TextOutputDev *text_dev;
-  Gfx *gfx;
-#endif
   Annots *annots;
 };
 

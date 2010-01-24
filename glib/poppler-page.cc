@@ -71,15 +71,8 @@ poppler_page_finalize (GObject *object)
 
   if (page->annots != NULL)
     delete page->annots;
-#if defined (HAVE_CAIRO)
   if (page->text != NULL) 
     page->text->decRefCnt();
-#else
-  if (page->gfx != NULL)
-    delete page->gfx;  
-  if (page->text_dev != NULL)
-    delete page->text_dev;
-#endif
   /* page->page is owned by the document */
 }
 
@@ -235,35 +228,6 @@ poppler_page_get_transition (PopplerPage *page)
   return transition;
 }
 
-#if !defined (HAVE_CAIRO)
-static TextOutputDev *
-poppler_page_get_text_output_dev (PopplerPage *page)
-{
-  if (page->text_dev == NULL) {
-    page->text_dev = new TextOutputDev (NULL, gTrue, gFalse, gFalse);
-
-    if (page->gfx)
-      delete page->gfx;
-    page->gfx = page->page->createGfx(page->text_dev,
-				      72.0, 72.0, 0,
-				      gFalse, /* useMediaBox */
-				      gTrue, /* Crop */
-				      -1, -1, -1, -1,
-				      gFalse, /* printing */
-				      page->document->doc->getCatalog (),
-				      NULL, NULL, NULL, NULL);
-
-    page->page->display(page->gfx);
-
-    page->text_dev->endPage();
-  }
-
-  return page->text_dev;
-}
-#endif /* !defined (HAVE_CAIRO) */
-
-#if defined (HAVE_CAIRO)
-
 static TextPage *
 poppler_page_get_text_page (PopplerPage *page)
 {
@@ -409,125 +373,6 @@ poppler_page_set_selection_alpha (PopplerPage           *page,
 }
 #endif /* POPPLER_WITH_GDK */
 
-#elif defined (HAVE_SPLASH) && defined (POPPLER_WITH_GDK)
- 
-typedef struct {
-} OutputDevData;
-
-static void
-poppler_page_prepare_output_dev (PopplerPage *page,
-				 double scale,
-				 int rotation,
-				 gboolean transparent,
-				 OutputDevData *output_dev_data)
-{
-  /* pft */
-}
-
-static void
-poppler_page_copy_to_pixbuf(PopplerPage *page,
-			    GdkPixbuf *pixbuf,
-			    OutputDevData *data)
-{
-  SplashOutputDev *output_dev;
-  SplashBitmap *bitmap;
-  SplashColorPtr color_ptr;
-  int splash_width, splash_height, splash_rowstride;
-  int pixbuf_rowstride, pixbuf_n_channels;
-  guchar *pixbuf_data, *dst;
-  int x, y;
-
-  output_dev = page->document->output_dev;
-
-  bitmap = output_dev->getBitmap ();
-  color_ptr = bitmap->getDataPtr ();
-
-  splash_width = bitmap->getWidth ();
-  splash_height = bitmap->getHeight ();
-  splash_rowstride = bitmap->getRowSize ();
-
-  pixbuf_data = gdk_pixbuf_get_pixels (pixbuf);
-  pixbuf_rowstride = gdk_pixbuf_get_rowstride (pixbuf);
-  pixbuf_n_channels = gdk_pixbuf_get_n_channels (pixbuf);
-
-  if (splash_width > gdk_pixbuf_get_width (pixbuf))
-    splash_width = gdk_pixbuf_get_width (pixbuf);
-  if (splash_height > gdk_pixbuf_get_height (pixbuf))
-    splash_height = gdk_pixbuf_get_height (pixbuf);
-
-  SplashColorPtr pixel = new Guchar[4];
-  for (y = 0; y < splash_height; y++)
-  {
-    dst = pixbuf_data + y * pixbuf_rowstride;
-    for (x = 0; x < splash_width; x++)
-    {
-      output_dev->getBitmap()->getPixel(x, y, pixel);
-      dst[0] = pixel[0];
-      dst[1] = pixel[1];
-      dst[2] = pixel[2];
-      if (pixbuf_n_channels == 4)
-        dst[3] = 0xff;
-      dst += pixbuf_n_channels;
-    }
-  }
-  delete [] pixel;
-}
-
-static void
-poppler_page_set_selection_alpha (PopplerPage           *page,
-				  double                 scale,
-				  GdkPixbuf             *pixbuf,
-				  PopplerSelectionStyle  style,
-				  PopplerRectangle      *selection)
-{
-  GList *region, *l;
-  gint x, y, width, height;
-  int pixbuf_rowstride, pixbuf_n_channels;
-  guchar *pixbuf_data, *dst;
-
-  pixbuf_data = gdk_pixbuf_get_pixels (pixbuf);
-  pixbuf_rowstride = gdk_pixbuf_get_rowstride (pixbuf);
-  pixbuf_n_channels = gdk_pixbuf_get_n_channels (pixbuf);
-  width = gdk_pixbuf_get_width (pixbuf);
-  height = gdk_pixbuf_get_height (pixbuf);
-
-  if (pixbuf_n_channels != 4)
-    return;
-
-  for (y = 0; y < height; y++) {
-      dst = pixbuf_data + y * pixbuf_rowstride;
-      for (x = 0; x < width; x++) {
-	  dst[3] = 0x00;
-	  dst += pixbuf_n_channels;
-      }
-  }
-
-  region = poppler_page_get_selection_region (page, scale, style, selection);
-
-  for (l = region; l; l = g_list_next (l)) {
-    PopplerRectangle *rectangle = (PopplerRectangle *)l->data;
-    GdkRectangle rect;
-    
-    rect.x = (gint)rectangle->x1;
-    rect.y = (gint)rectangle->y1;
-    rect.width  = (gint) (rectangle->x2 - rectangle->x1);
-    rect.height = (gint) (rectangle->y2 - rectangle->y1);
-    
-    for (y = 0; y < rect.height; y++) {
-      dst = pixbuf_data + (rect.y + y) * pixbuf_rowstride +
-	rect.x * pixbuf_n_channels;
-      for (x = 0; x < rect.width; x++) {
-	  dst[3] = 0xff;
-	  dst += pixbuf_n_channels;
-      }
-    }
-  }
-
-  poppler_page_selection_region_free (region);
-}
-
-#endif /* HAVE_SPLASH */
-
 static GBool
 poppler_print_annot_cb (Annot *annot, void *user_data)
 {
@@ -535,8 +380,6 @@ poppler_print_annot_cb (Annot *annot, void *user_data)
     return gTrue;
   return (annot->getType() == Annot::typeWidget);
 }
-
-#if defined (HAVE_CAIRO)
 
 static void
 _poppler_page_render (PopplerPage *page,
@@ -758,8 +601,6 @@ poppler_page_render_selection (PopplerPage           *page,
   output_dev->setCairo (NULL);
 }
 
-#endif /* HAVE_CAIRO */
-
 #ifdef POPPLER_WITH_GDK
 static void
 _poppler_page_render_to_pixbuf (PopplerPage *page,
@@ -922,6 +763,7 @@ poppler_page_render_selection_to_pixbuf (PopplerPage           *page,
 {
   OutputDev *output_dev;
   OutputDevData data;
+  TextPage *text;
   SelectionStyle selection_style = selectionStyleGlyph;
   PDFRectangle pdf_selection(selection->x1, selection->y1,
 			     selection->x2, selection->y2);
@@ -958,30 +800,11 @@ poppler_page_render_selection_to_pixbuf (PopplerPage           *page,
 
   poppler_page_prepare_output_dev (page, scale, rotation, TRUE, &data);
 
-#if defined (HAVE_CAIRO)
-  TextPage *text;
-
   text = poppler_page_get_text_page (page);
   text->drawSelection (output_dev, scale, rotation,
 			   &pdf_selection, selection_style,
 			   &gfx_glyph_color, &gfx_background_color);
-#else
-  TextOutputDev *text_dev;
 
-  text_dev = poppler_page_get_text_output_dev (page);
-  text_dev->drawSelection (output_dev, scale, rotation,
-			   &pdf_selection, selection_style,
-			   &gfx_glyph_color, &gfx_background_color);
-  /* We'll need a function to destroy page->text_dev and page->gfx
-   * when the application wants to get rid of them.
-   *
-   * Two improvements: 1) make GfxFont refcounted and let TextPage and
-   * friends hold a reference to the GfxFonts they need so we can free
-   * up Gfx early.  2) use a TextPage directly when rendering the page
-   * so we don't have to use TextOutputDev and render a second
-   * time. */
-#endif
-  
   poppler_page_copy_to_pixbuf (page, pixbuf, &data);
 
   poppler_page_set_selection_alpha (page, scale, pixbuf, style, selection);
@@ -1057,6 +880,7 @@ poppler_page_get_selection_region (PopplerPage           *page,
 				   PopplerRectangle      *selection)
 {
   PDFRectangle poppler_selection;
+  TextPage *text;
   SelectionStyle selection_style = selectionStyleGlyph;
   GooList *list;
   GList *region = NULL;
@@ -1080,20 +904,10 @@ poppler_page_get_selection_region (PopplerPage           *page,
 	break;
     }
 
-#if defined (HAVE_CAIRO)
-  TextPage *text;
-
   text = poppler_page_get_text_page (page);
   list = text->getSelectionRegion(&poppler_selection,
 				  selection_style, scale);
-#else
-  TextOutputDev *text_dev;
-  
-  text_dev = poppler_page_get_text_output_dev (page);
-  list = text_dev->getSelectionRegion(&poppler_selection,
-				      selection_style, scale);
-#endif
-  
+
   for (i = 0; i < list->getLength(); i++) {
     PDFRectangle *selection_rect = (PDFRectangle *) list->get(i);
     PopplerRectangle *rect;
@@ -1144,6 +958,7 @@ poppler_page_get_text (PopplerPage          *page,
   GooString *sel_text;
   double height;
   char *result;
+  TextPage *text;
   SelectionStyle selection_style = selectionStyleGlyph;
   PDFRectangle pdf_selection;
 
@@ -1169,18 +984,8 @@ poppler_page_get_text (PopplerPage          *page,
 	break;
     }
 
-#if defined (HAVE_CAIRO)
-  TextPage *text;
-
   text = poppler_page_get_text_page (page);
   sel_text = text->getSelectionText (&pdf_selection, selection_style);
-#else
-  TextOutputDev *text_dev;
-
-  text_dev = poppler_page_get_text_output_dev (page);
-  sel_text = text_dev->getSelectionText (&pdf_selection, selection_style);
-#endif
-	  
   result = g_strdup (sel_text->getCString ());
   delete sel_text;
 
@@ -1207,23 +1012,12 @@ poppler_page_find_text (PopplerPage *page,
   gunichar *ucs4;
   glong ucs4_len;
   double height;
-#if defined (HAVE_CAIRO)
   TextPage *text_dev;
-#else
-  TextOutputDev *text_dev;
-#endif
-  
+
   g_return_val_if_fail (POPPLER_IS_PAGE (page), FALSE);
   g_return_val_if_fail (text != NULL, FALSE);
 
-#if defined (HAVE_CAIRO)
   text_dev = poppler_page_get_text_page (page);
-#else
-  text_dev = new TextOutputDev (NULL, gTrue, gFalse, gFalse);
-  page->page->display (text_dev, 72, 72, 0,
-		       gFalse, gTrue, gFalse,
-		       page->document->doc->getCatalog());
-#endif
 
   ucs4 = g_utf8_to_ucs4_fast (text, -1, &ucs4_len);
   poppler_page_get_size (page, NULL, &height);
@@ -1246,16 +1040,10 @@ poppler_page_find_text (PopplerPage *page,
       matches = g_list_prepend (matches, match);
     }
 
-#if !defined (HAVE_CAIRO)
-  delete text_dev;
-#endif
-  
   g_free (ucs4);
 
   return g_list_reverse (matches);
 }
-
-#if defined (HAVE_CAIRO)
 
 static CairoImageOutputDev *
 poppler_page_get_image_output_dev (PopplerPage *page,
@@ -1396,21 +1184,6 @@ poppler_page_free_image_mapping (GList *list)
   g_list_foreach (list, (GFunc)g_free, NULL);
   g_list_free (list);
 }
-
-#else /* HAVE_CAIRO */
-
-GList *
-poppler_page_get_image_mapping (PopplerPage *page)
-{
-  return NULL;
-}
-
-void
-poppler_page_free_image_mapping (GList *list)
-{
-}
-
-#endif /* HAVE_CAIRO */
 
 /**
  * poppler_page_render_to_ps:

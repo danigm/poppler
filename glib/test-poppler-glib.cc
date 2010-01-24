@@ -538,20 +538,18 @@ int main (int argc, char *argv[])
   for (l = list; l != NULL; l = l->next)
     {
       PopplerImageMapping *mapping;
-#if defined (HAVE_CAIRO)
       cairo_surface_t     *image;
-#endif
+
       mapping = (PopplerImageMapping *)l->data;
       printf ("\t\t(%f, %f) - (%f, %f)\n",
 	      mapping->area.x1,
 	      mapping->area.y1,
 	      mapping->area.x2,
 	      mapping->area.y2);
-#if defined (HAVE_CAIRO)
+
       image = poppler_page_get_image (page, mapping->image_id);
       printf ("\t\tImage: %p\n", image);
       cairo_surface_destroy (image);
-#endif
     }
   poppler_page_free_image_mapping (list);
 

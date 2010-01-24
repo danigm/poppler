@@ -369,28 +369,38 @@ fi
 AC_SUBST(CAIRO_FEATURE)
 AC_SUBST(CAIRO_REQ)
 
-POPPLER_GLIB_DISABLE_DEPRECATED=""
-POPPLER_GLIB_DISABLE_SINGLE_INCLUDES=""
+if test x$enable_cairo_output = xyes; then
+  POPPLER_GLIB_DISABLE_DEPRECATED=""
+  POPPLER_GLIB_DISABLE_SINGLE_INCLUDES=""
 
-GLIB_REQUIRED=2.18
-AC_ARG_ENABLE(poppler-glib,
-              AC_HELP_STRING([--disable-poppler-glib],
-	                     [Don't compile poppler glib wrapper.]),
-              enable_poppler_glib=$enableval,
-              enable_poppler_glib="try")
-if test x$enable_poppler_glib = xyes; then
-  PKG_CHECK_MODULES(POPPLER_GLIB, glib-2.0 >= $GLIB_REQUIRED gobject-2.0 >= $GLIB_REQUIRED)
-elif test x$enable_poppler_glib = xtry; then
-  PKG_CHECK_MODULES(POPPLER_GLIB, glib-2.0 >= $GLIB_REQUIRED gobject-2.0 >= $GLIB_REQUIRED, 
-                    [enable_poppler_glib="yes"],
-                    [enable_poppler_glib="no"])
-fi
-if test x$enable_poppler_glib = xyes; then
-  AC_PATH_PROG([GLIB_MKENUMS],[glib-mkenums])
-  POPPLER_GLIB_DISABLE_DEPRECATED="$POPPLER_GLIB_DISABLE_DEPRECATED -DG_DISABLE_DEPRECATED"
-  POPPLER_GLIB_DISABLE_SINGLE_INCLUDES="$POPPLER_GLIB_DISABLE_SINGLE_INCLUDES -DG_DISABLE_SINGLE_INCLUDES"
+  GLIB_REQUIRED=2.18
+  AC_ARG_ENABLE(poppler-glib,
+	        AC_HELP_STRING([--disable-poppler-glib],
+		               [Don't compile poppler glib wrapper.]),
+              		       enable_poppler_glib=$enableval,
+			       enable_poppler_glib="try")
+  if test x$enable_poppler_glib = xyes; then
+    PKG_CHECK_MODULES(POPPLER_GLIB, glib-2.0 >= $GLIB_REQUIRED gobject-2.0 >= $GLIB_REQUIRED cairo >= $CAIRO_VERSION)
+  elif test x$enable_poppler_glib = xtry; then
+    PKG_CHECK_MODULES(POPPLER_GLIB, glib-2.0 >= $GLIB_REQUIRED gobject-2.0 >= $GLIB_REQUIRED cairo >= $CAIRO_VERSION,
+                      [enable_poppler_glib="yes"],
+                      [enable_poppler_glib="no"])
+  fi
+  if test x$enable_poppler_glib = xyes; then
+    GLIB_REQ="glib-2.0 >= $GLIB_REQUIRED gobject-2.0 >= $GLIB_REQUIRED cairo >= $CAIRO_VERSION"
+    AC_PATH_PROG([GLIB_MKENUMS],[glib-mkenums])
+    POPPLER_GLIB_DISABLE_DEPRECATED="$POPPLER_GLIB_DISABLE_DEPRECATED -DG_DISABLE_DEPRECATED"
+    POPPLER_GLIB_DISABLE_SINGLE_INCLUDES="$POPPLER_GLIB_DISABLE_SINGLE_INCLUDES -DG_DISABLE_SINGLE_INCLUDES"
+  fi
+else
+  if test x$enable_poppler_glib = xyes; then
+    AC_MSG_ERROR("Cairo output is required to build glib frontend")
+  fi
+  enable_poppler_glib="no"
+  GLIB_REQ=""
 fi
 AM_CONDITIONAL(BUILD_POPPLER_GLIB, test x$enable_poppler_glib = xyes)
+AC_SUBST(GLIB_REQ)
 
 GTK_DOC_CHECK([1.0])
 
@@ -407,34 +417,30 @@ if test x$enable_poppler_glib = xyes; then
   if test x$enable_gdk = xyes; then
     PKG_CHECK_MODULES(GDK, gdk-2.0)
   elif test x$enable_gdk = xtry; then
-    if test x$enable_splash_output = xyes; then
-      PKG_CHECK_MODULES(GDK, gdk-2.0,
-                        [enable_gdk="yes"],
-                        [enable_gdk="no"])
-    elif test x$enable_cairo_output = xyes; then
-      PKG_CHECK_MODULES(GDK, gdk-2.0,
-                        [enable_gdk="yes"],
-			[enable_gdk="no"])
-    fi
-  elif test x$enable_splash_output = xyes; then
-    PKG_CHECK_MODULES(GDK, gdk-2.0)
-    AC_MSG_WARN("GDK is required by the glib wrapper when splash output device is
-                 enabled. If you want to comppile popler without GDK use --disable-splash-output too")
-    enable_gdk=yes
+    PKG_CHECK_MODULES(GDK, gdk-2.0,
+                      [enable_gdk="yes"],
+                      [enable_gdk="no"])
   fi
   if test x$enable_gdk = xyes; then
+    GDK_REQ="gdk-2.0 gdk-pixbuf-2.0"
     AC_DEFINE(POPPLER_WITH_GDK,[1], [Have GDK])
     GDK_FEATURE="#define POPPLER_WITH_GDK 1"
     POPPLER_GLIB_DISABLE_DEPRECATED="$POPPLER_GLIB_DISABLE_DEPRECATED -DGDK_DISABLE_DEPRECATED -DGDK_PIXBUF_DISABLE_DEPRECATED"
     POPPLER_GLIB_DISABLE_SINGLE_INCLUDES="$POPPLER_GLIB_DISABLE_SINGLE_INCLUDES -DGTK_DISABLE_SINGLE_INCLUDES"
   else
+    enable_gdk="no"
     GDK_FEATURE=""
+    GDK_REQ=""
   fi
+else
+  enable_gdk="no"
+  GDK_REQ=""
 fi
 AM_CONDITIONAL(BUILD_WITH_GDK, test x$enable_gdk = xyes)
 AC_SUBST(GDK_CFLAGS)
 AC_SUBST(GDK_LIBS)
 AC_SUBST(GDK_FEATURE)
+AC_SUBST(GDK_REQ)
 
 AC_SUBST(POPPLER_GLIB_DISABLE_DEPRECATED)
 AC_SUBST(POPPLER_GLIB_DISABLE_SINGLE_INCLUDES)

@@ -1,25 +1,12 @@
-if BUILD_CAIRO_OUTPUT
-
-cairo_includes =				\
-	$(CAIRO_CFLAGS)
-
-cairo_libs =					\
-	$(top_builddir)/poppler/libpoppler-cairo.la	\
-	$(CAIRO_LIBS)
-
-endif
-
 SUBDIRS = . reference demo
 INCLUDES =					\
 	-DG_LOG_DOMAIN=\"Poppler\"		\
 	-I$(top_srcdir)				\
 	-I$(top_srcdir)/poppler			\
-	$(cairo_includes)			\
 	$(POPPLER_GLIB_CFLAGS)			\
 	$(GDK_CFLAGS)				\
 	$(FREETYPE_CFLAGS)			\
 	$(FONTCONFIG_CFLAGS)                    \
-	$(cairo_includes)			\
 	$(POPPLER_GLIB_DISABLE_DEPRECATED)	\
 	$(POPPLER_GLIB_DISABLE_SINGLE_INCLUDES)
 
@@ -77,11 +64,11 @@ libpoppler_glib_la_SOURCES =			\
 
 libpoppler_glib_la_LIBADD =				\
 	$(top_builddir)/poppler/libpoppler.la		\
+	$(top_builddir)/poppler/libpoppler-cairo.la	\
 	$(POPPLER_GLIB_LIBS)				\
 	$(GDK_LIBS)					\
 	$(FREETYPE_LIBS)				\
-	$(FONTCONFIG_LIBS)				\
-	$(cairo_libs)
+	$(FONTCONFIG_LIBS)
 
 libpoppler_glib_la_LDFLAGS = -version-info 4:0:0 @create_shared_lib@ @auto_import_flags@
 
@@ -96,8 +83,7 @@ test_poppler_glib_LDADD =			\
 	libpoppler-glib.la			\
 	$(POPPLER_GLIB_LIBS)			\
 	$(GDK_LIBS)				\
-	$(FREETYPE_LIBS)			\
-	$(cairo_libs)
+	$(FREETYPE_LIBS)
 endif
 
 BUILT_SOURCES =					\
