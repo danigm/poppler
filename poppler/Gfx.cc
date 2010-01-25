@@ -14,7 +14,7 @@
 // under GPL version 2 or later
 //
 // Copyright (C) 2005 Jonathan Blandford <jrb@redhat.com>
-// Copyright (C) 2005-2009 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2005-2010 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2006 Thorkild Stray <thorkild@ifi.uio.no>
 // Copyright (C) 2006 Kristian Høgsberg <krh@redhat.com>
 // Copyright (C) 2006-2010 Carlos Garcia Campos <carlosgc@gnome.org>
@@ -481,16 +481,18 @@ GfxShading *GfxResources::lookupShading(char *name, Gfx *gfx) {
 }
 
 GBool GfxResources::lookupGState(char *name, Object *obj) {
-  Object objRef;
-
-  if (!lookupGStateNF(name, &objRef))
+  if (!lookupGStateNF(name, obj))
     return gFalse;
 
-  if (!gStateCache.lookup(&objRef, obj)->isNull())
+  if (!obj->isRef())
+    return gTrue;
+  
+  const Ref ref = obj->getRef();
+  if (!gStateCache.lookup(ref, obj)->isNull())
     return gTrue;
   obj->free();
 
-  gStateCache.put(&objRef)->copy(obj);
+  gStateCache.put(ref)->copy(obj);
   return gTrue;
 }
 

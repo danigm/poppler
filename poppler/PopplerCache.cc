@@ -5,12 +5,14 @@
 // This file is licensed under the GPLv2 or later
 //
 // Copyright (C) 2009 Koji Otani <sho@bbr.jp>
-// Copyright (C) 2009 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2009, 2010 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2010 Carlos Garcia Campos <carlosgc@gnome.org>
 //
 //========================================================================
 
 #include "PopplerCache.h"
+
+#include "XRef.h"
 
 PopplerCacheKey::~PopplerCacheKey()
 {
@@ -141,10 +143,9 @@ PopplerObjectCache::~PopplerObjectCache() {
   delete cache;
 }
 
-Object *PopplerObjectCache::put(Object *objRef) {
-  Ref ref = objRef->getRef();
+Object *PopplerObjectCache::put(const Ref &ref) {
   Object obj;
-  objRef->fetch(xref, &obj);
+  xref->fetch(ref.num, ref.gen, &obj);
 
   ObjectKey *key = new ObjectKey(ref.num, ref.gen);
   ObjectItem *item = new ObjectItem(&obj);
@@ -154,8 +155,7 @@ Object *PopplerObjectCache::put(Object *objRef) {
   return &item->item;
 }
 
-Object *PopplerObjectCache::lookup(Object *objRef, Object *obj) {
-  Ref ref = objRef->getRef();
+Object *PopplerObjectCache::lookup(const Ref &ref, Object *obj) {
   ObjectKey key(ref.num, ref.gen);
   ObjectItem *item = static_cast<ObjectItem *>(cache->lookup(key));
 
