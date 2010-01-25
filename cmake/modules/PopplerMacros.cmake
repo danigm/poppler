@@ -12,14 +12,14 @@ macro(POPPLER_ADD_TEST exe build_flag)
   add_executable(${exe} ${_add_executable_param} ${ARGN})
 
   # if the tests are EXCLUDE_FROM_ALL, add a target "buildtests" to build all tests
-  if(NOT build_test)
+  if(NOT build_test AND NOT MSVC_IDE)
     get_directory_property(_buildtestsAdded BUILDTESTS_ADDED)
     if(NOT _buildtestsAdded)
       add_custom_target(buildtests)
       set_directory_properties(PROPERTIES BUILDTESTS_ADDED TRUE)
     endif(NOT _buildtestsAdded)
     add_dependencies(buildtests ${exe})
-  endif(NOT build_test)
+  endif(NOT build_test AND NOT MSVC_IDE)
 endmacro(POPPLER_ADD_TEST)
 
 macro(POPPLER_ADD_UNITTEST exe build_flag)
