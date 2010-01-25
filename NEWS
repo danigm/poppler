@@ -1,3 +1,102 @@
+Release 0.13.0 (0.14 Alpha)
+
+	core:
+	 * Improvements to Annotation rendering. Bug #23108
+	 * Do not give an error when opening files without pages. Bug #24720
+	 * Try to read streams without Length
+	 * Do not crop the transformation matrix at an arbitrary value. Bug #25763
+	 * Make poppler (optionally) relocatable on Windows
+	 * Use a small object cache in GfxResources to cache GState objects
+	 * Reduce the number of redundant pattern creations in the Cairo output device
+	 * Use colToDbl() to avoid rounding error in the Cairo output device
+	 * Fix problems with mask handling in the Cairo output device. Bug #8474
+	 * Use a better scale down implementation in the Cairo output device
+	 * Various optimizations to the Splash output device
+	 * Add the possibility to use floats instead of doubles in the Splash output device. Bug #25578
+	 * Write out fixed-content portion of Type 1 fonts in the PS output device
+	 
+	build system:
+	 * Improvements to the CMake build system
+	 * Enable AM_SILENT_RULES by default in autotools
+	 * Require glib 2.18
+	 * Require GTK+ 2.14
+	 * Make fontconfig optional with mingw compiler
+	 * Remove makefile.vc
+	
+	glib:
+	 * Add support for file attachment annotations
+	 * Improvements to the demo
+	 * Use TextOutputDev to get TextPage when we haven't rendered the page
+	 * Remove support for the Splash output device
+	
+	utils:
+	 * pdftoppm can now write to jpeg
+	 * pdftoppm embeds the correct resolution in png and jpeg files
+	 
+	qt4:
+	 * Minor improvements to the tests
+
+Release 0.12.3
+
+	core:
+	 * Be more lenient with /Decode key on images. Bug #17439
+	 * Correctly initialize fileName in LinkGoToR. Bug #25221
+	 * Improve the reconstruction of the XRef for broken files
+	 * [Cairo backend] Do not crash on malformed files. Bug #24575
+	 * Accept Fontname if FontName is not present. KDE bug #217013
+	 * Make PSOutputDev code a bit more resilient
+	 * Fix writing of null objects. Bug #25465
+	 * [Cairo backend] Fix crash in some documents. GNOME bug #603934
+	 * Correctly initialize profileCommands in Gfx constructor
+	
+	build system:
+	 * Check for openjpeg in the C++ part as it uses bool in the header. Bug #25103
+	
+Release 0.12.2
+
+	core:
+	 * Fix a memory leak when converting to PostScript
+	 * Fix crash when reading a font fails. Bug #24525
+	 * Make the ICC cache per page instead of global. Bug #24686
+	 * Do not accept negative interval lengths in the page labels tree. Bug #24721
+	 * Do not crash on files Aspect of Movie objects are reals instead of integers. Bug #24733
+	 * Do not render patterns when using CairoImageOutputDev
+	 * Allow Transitions dictionary to be a Ref
+	 * Do not crash if jpeg_start_decompress fails. KDE bug #214317
+	
+	glib:
+	 * Fix CVE-2009-3607
+	
+	qt4:
+	 * Use '.' in the annotations XML instead of the decimal separator of the current locale
+
+Release 0.12.1
+
+	core:
+	 * Fix compilation on some compilers
+	 * Only initialize the font list once in Windows32/MSVC
+	 * Do not crash on fonts without CharCodeToUnicode. Bug #24036
+	 * Fix regression due to not setting LC_NUMERIC anymore
+	 * Improve realibility for Streams with broken Length. Bug #6841
+	 * Write the Info into the trailer dict if there is one. Bug #24091
+	 * Do not crash when saving files that come from a stream without name. Bug #24090
+	 * Improve relability of the save function
+	 * Fix the Length value if it was wrong when saving
+	 * Fix includes for those using internal headers
+	 * Rework how hinting is used in the splash backend. It is disabled by default now
+	 * fix constructor of DCTStream when using internal decoder
+	 * Security fixes based xpdf 3.02pl4
+	
+	qt4:
+	 * Add the possibility of setting wheter to use or not font hinting
+	 * Add a way for converters to return more exact errors they had when converting
+	 * Check the document is not locked when converting to PS
+	
+	build system:
+	 * Compile on Cygwin
+	 * Use _WIN32 instead of WIN32. Bug #24259
+	 * Add the possibility to pass LIB_SUFFIX when using CMake
+
 Release 0.12.0
 
 	core:
