@@ -361,8 +361,14 @@ if(ENABLE_XPDF_HEADERS)
     goo/gmem.h
     goo/gfile.h
     goo/FixedPoint.h
+    goo/ImgWriter.h
     goo/gstrtod.h
     DESTINATION include/poppler/goo)
+  if(PNG_FOUND)
+    install(FILES
+      goo/PNGWriter.h
+      DESTINATION include/poppler/goo)
+  endif(PNG_FOUND)
   install(FILES
     fofi/FoFiBase.h
     fofi/FoFiEncodings.h
@@ -374,6 +380,9 @@ if(ENABLE_XPDF_HEADERS)
     install(FILES
       poppler/JPEG2000Stream.h
       DESTINATION include/poppler)
+    install(FILES
+      goo/JpegWriter.h
+      DESTINATION include/poppler/goo)
   else(LIBOPENJPEG_FOUND)
     install(FILES
       poppler/JPXStream.h
