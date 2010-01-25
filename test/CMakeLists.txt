@@ -10,7 +10,7 @@ if (ENABLE_SPLASH)
 
 endif (ENABLE_SPLASH)
 
-if (GTK_FOUND)
+if (GTK_FOUND AND BUILD_GTK_TESTS)
 
   add_definitions(${GTK2_CFLAGS})
 
@@ -41,7 +41,7 @@ if (GTK_FOUND)
 
   endif (HAVE_CAIRO)
 
-endif (GTK_FOUND)
+endif (GTK_FOUND AND BUILD_GTK_TESTS)
 
 set (pdf_fullrewrite_SRCS
   pdf-fullrewrite.cc
