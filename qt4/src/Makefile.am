@@ -16,8 +16,7 @@ poppler_include_HEADERS =			\
 	poppler-form.h				\
 	poppler-optcontent.h			\
 	poppler-export.h			\
-	poppler-page-transition.h		\
-	poppler-page-transition-private.h
+	poppler-page-transition.h
 
 lib_LTLIBRARIES = libpoppler-qt4.la
 
@@ -49,7 +48,8 @@ libpoppler_qt4_la_SOURCES =			\
 	poppler-qiodeviceoutstream-private.h	\
 	poppler-optcontent-private.h		\
 	poppler-export.h			\
-	poppler-private.h
+	poppler-private.h			\
+	poppler-page-transition-private.h
 
 libpoppler_qt4_la_LIBADD = 			\
 	$(top_builddir)/poppler/libpoppler.la	\
