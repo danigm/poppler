@@ -9,6 +9,7 @@ set (CAIRO_FEATURE "#define POPPLER_HAS_CAIRO 1")
 add_definitions(${CAIRO_CFLAGS})
 
 if (GDK_FOUND)
+  set (GDK_FEATURE "#define POPPLER_WITH_GDK 1")
   add_definitions(${GDK2_CFLAGS})
 endif (GDK_FOUND)
 
