@@ -1850,6 +1850,7 @@ void CairoOutputDev::drawMaskedImage(GfxState *state, Object *ref,
   cairo_surface_t *maskImage, *image;
   cairo_pattern_t *maskPattern, *pattern;
   cairo_matrix_t matrix;
+  cairo_matrix_t maskMatrix;
   Guchar *pix;
   int x, y;
   int invert_bit;
@@ -1933,9 +1934,11 @@ void CairoOutputDev::drawMaskedImage(GfxState *state, Object *ref,
 
   cairo_matrix_init_translate (&matrix, 0, height);
   cairo_matrix_scale (&matrix, width, -height);
-
   cairo_pattern_set_matrix (pattern, &matrix);
-  cairo_pattern_set_matrix (maskPattern, &matrix);
+
+  cairo_matrix_init_translate (&maskMatrix, 0, maskHeight);
+  cairo_matrix_scale (&maskMatrix, maskWidth, -maskHeight);
+  cairo_pattern_set_matrix (maskPattern, &maskMatrix);
 
   cairo_save (cairo);
   cairo_set_source (cairo, pattern);
