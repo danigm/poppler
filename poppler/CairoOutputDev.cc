@@ -774,6 +774,8 @@ GBool CairoOutputDev::axialShadedFill(GfxState *state, GfxAxialShading *shading,
   else
     cairo_pattern_set_extend (fill_pattern, CAIRO_EXTEND_PAD);
 
+  LOG (printf ("axial-sh\n"));
+
   // TODO: use the actual stops in the shading in the case
   // of linear interpolation (Type 2 Exponential functions with N=1)
   return gFalse;
@@ -803,6 +805,8 @@ GBool CairoOutputDev::radialShadedFill(GfxState *state, GfxRadialShading *shadin
     cairo_pattern_set_extend (fill_pattern, CAIRO_EXTEND_PAD);
   else
     cairo_pattern_set_extend (fill_pattern, CAIRO_EXTEND_NONE);
+
+  LOG (printf ("radial-sh\n"));
 
   return gFalse;
 }
@@ -1105,6 +1109,9 @@ void CairoOutputDev::beginTransparencyGroup(GfxState * /*state*/, double * /*bbo
   css->knockout = knockout;
   css->next = groupColorSpaceStack;
   groupColorSpaceStack = css;
+
+  LOG(printf ("begin transparency group. knockout: %s\n", knockout ? "yes":"no"));
+
   if (knockout) {
     knockoutCount++;
     if (!cairo_shape) {
@@ -1142,10 +1149,11 @@ void CairoOutputDev::beginTransparencyGroup(GfxState * /*state*/, double * /*bbo
 }
 
 void CairoOutputDev::endTransparencyGroup(GfxState * /*state*/) {
-
   if (group)
     cairo_pattern_destroy(group);
   group = cairo_pop_group (cairo);
+
+  LOG(printf ("end transparency group\n"));
 
   if (groupColorSpaceStack->next && groupColorSpaceStack->next->knockout) {
     if (shape)
@@ -1156,6 +1164,8 @@ void CairoOutputDev::endTransparencyGroup(GfxState * /*state*/) {
 
 void CairoOutputDev::paintTransparencyGroup(GfxState * /*state*/, double * /*bbox*/) {
   cairo_set_source (cairo, group);
+
+  LOG(printf ("paint transparency group\n"));
 
   if (!mask) {
     //XXX: deal with mask && shape case
@@ -1212,6 +1222,8 @@ static uint32_t luminocity(uint32_t x)
 void CairoOutputDev::setSoftMask(GfxState * state, double * bbox, GBool alpha,
                                  Function * transferFunc, GfxColor * backdropColor) {
   cairo_pattern_destroy(mask);
+
+  LOG(printf ("set softMask\n"));
 
   if (alpha == false) {
     /* We need to mask according to the luminocity of the group.
@@ -2171,6 +2183,8 @@ void CairoOutputDev::drawImage(GfxState *state, Object *ref, Stream *str,
   }
   gfree(lookup);
 
+  LOG (printf ("drawImage %dx%d\n", width, height));
+
   cairo_surface_t *scaled_surface;
 
   scaled_surface = downscaleSurface (image);
@@ -2188,8 +2202,6 @@ void CairoOutputDev::drawImage(GfxState *state, Object *ref, Stream *str,
   cairo_surface_destroy (image);
   if (cairo_pattern_status (pattern))
     goto cleanup;
-
-  LOG (printf ("drawImage %dx%d\n", width, height));
 
   cairo_pattern_set_filter (pattern,
 			    interpolate ?
