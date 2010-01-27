@@ -193,6 +193,7 @@ private:
   int updateLevel;
 
   GfxState *state;		// current graphics state
+  int stackHeight;		// the height of the current graphics stack
   GBool fontChanged;		// set if font or text matrix has changed
   GfxClipType clip;		// do a clip?
   int ignoreUndef;		// current BX/EX nesting level

@@ -542,6 +542,7 @@ Gfx::Gfx(XRef *xrefA, OutputDev *outA, int pageNum, Dict *resDict, Catalog *cata
   // initialize
   out = outA;
   state = new GfxState(hDPI, vDPI, box, rotate, out->upsideDown());
+  stackHeight = 1;
   fontChanged = gFalse;
   clip = clipNone;
   ignoreUndef = 0;
@@ -594,6 +595,7 @@ Gfx::Gfx(XRef *xrefA, OutputDev *outA, Dict *resDict, Catalog *catalogA,
   // initialize
   out = outA;
   state = new GfxState(72, 72, box, 0, gFalse);
+  stackHeight = 1;
   fontChanged = gFalse;
   clip = clipNone;
   ignoreUndef = 0;
@@ -4747,11 +4749,13 @@ void Gfx::drawAnnot(Object *str, AnnotBorder *border, AnnotColor *aColor, double
 void Gfx::saveState() {
   out->saveState(state);
   state = state->save();
+  stackHeight++;
 }
 
 void Gfx::restoreState() {
   state = state->restore();
   out->restoreState(state);
+  stackHeight--;
 }
 
 void Gfx::pushResources(Dict *resDict) {
