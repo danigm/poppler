@@ -21,7 +21,7 @@
 // Copyright (C) 2008 Ed Avis <eda@waniasset.com>
 // Copyright (C) 2008 Hib Eris <hib@hiberis.nl>
 // Copyright (C) 2009 Peter Kerzum <kerzum@yandex-team.ru>
-// Copyright (C) 2009 David Benjamin <davidben@mit.edu>
+// Copyright (C) 2009, 2010 David Benjamin <davidben@mit.edu>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -1489,13 +1489,15 @@ GfxCIDFont::GfxCIDFont(XRef *xref, char *tagA, Ref idA, GooString *nameA,
     cMapName = new GooString(obj1.getName());
     cMap = globalParams->getCMap(collection, cMapName);
   }
-  delete collection;
-  delete cMapName;
   if (!cMap) {
       error(-1, "Unknown CMap '%s' for character collection '%s'",
 	    cMapName->getCString(), collection->getCString());
+      delete collection;
+      delete cMapName;
       goto err2;
     }
+  delete collection;
+  delete cMapName;
   obj1.free();
 
   // CIDToGIDMap (for embedded TrueType fonts)
