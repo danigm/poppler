@@ -195,6 +195,7 @@ private:
   GBool textHaveCSPattern;	// in text drawing and text has pattern colorspace
   GBool drawText;		// in text drawing
   GBool maskHaveCSPattern;	// in mask drawing and mask has pattern colorspace
+  GBool commandAborted;         // did the previous command abort the drawing?
   GfxColorSpace *colorSpaceText;// colorspace after text has filled with pattern
   GfxColor colorText;		// fill color after after text has filled with pattern
   GfxResources *res;		// resource stack
