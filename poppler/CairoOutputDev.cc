@@ -1344,6 +1344,30 @@ void CairoOutputDev::endMaskClip(GfxState *state) {
   clearSoftMask(state);
 }
 
+/* Taken from cairo/doc/tutorial/src/singular.c */
+static void
+get_singular_values (const cairo_matrix_t *matrix,
+		     double               *major,
+		     double               *minor)
+{
+	double xx = matrix->xx, xy = matrix->xy;
+	double yx = matrix->yx, yy = matrix->yy;
+
+	double a = xx*xx+yx*yx;
+	double b = xy*xy+yy*yy;
+	double k = xx*xy+yx*yy;
+
+	double f = (a+b) * .5;
+	double g = (a-b) * .5;
+	double delta = sqrt (g*g + k*k);
+
+	if (major)
+		*major = sqrt (f + delta);
+	if (minor)
+		*minor = sqrt (f - delta);
+}
+
+
 cairo_surface_t *CairoOutputDev::downscaleSurface(cairo_surface_t *orig_surface) {
   cairo_surface_t *dest_surface;
   unsigned char *dest_buffer;
@@ -1356,12 +1380,21 @@ cairo_surface_t *CairoOutputDev::downscaleSurface(cairo_surface_t *orig_surface)
   if (printing)
     return NULL;
 
+
+  orig_width = cairo_image_surface_get_width (orig_surface);
+  orig_height = cairo_image_surface_get_height (orig_surface);
+
   cairo_matrix_t matrix;
   cairo_get_matrix(cairo, &matrix);
 
   /* this whole computation should be factored out */
-  double xScale = matrix.xx;
-  double yScale = matrix.yy;
+  double xScale;
+  double yScale;
+  if (orig_width > orig_height)
+    get_singular_values (&matrix, &xScale, &yScale);
+  else
+    get_singular_values (&matrix, &yScale, &xScale);
+
   int tx, tx2, ty, ty2; /* the integer co-oridinates of the resulting image */
   int scaledHeight;
   int scaledWidth;
