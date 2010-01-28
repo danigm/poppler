@@ -840,6 +840,10 @@ void CairoOutputDev::eoClip(GfxState *state) {
 
 }
 
+void CairoOutputDev::clipToStrokePath(GfxState *state) {
+  LOG(printf("clip-to-stroke-path\n"));
+}
+
 void CairoOutputDev::beginString(GfxState *state, GooString *s)
 {
   int len = s->getLength();

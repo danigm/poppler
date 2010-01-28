@@ -156,6 +156,7 @@ public:
   virtual void stroke(GfxState *state);
   virtual void fill(GfxState *state);
   virtual void eoFill(GfxState *state);
+  virtual void clipToStrokePath(GfxState *state);
   virtual GBool tilingPatternFill(GfxState *state, Object *str,
 				  int paintType, Dict *resDict,
 				  double *mat, double *bbox,
