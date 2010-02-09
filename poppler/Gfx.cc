@@ -28,7 +28,7 @@
 // Copyright (C) 2008 Michael Vrable <mvrable@cs.ucsd.edu>
 // Copyright (C) 2008 Hib Eris <hib@hiberis.nl>
 // Copyright (C) 2009 M Joonas Pihlaja <jpihlaja@cc.helsinki.fi>
-// Copyright (C) 2009 Thomas Freitag <Thomas.Freitag@alfa.de>
+// Copyright (C) 2009, 2010 Thomas Freitag <Thomas.Freitag@alfa.de>
 // Copyright (C) 2009 William Bader <williambader@hotmail.com>
 // Copyright (C) 2009, 2010 David Benjamin <davidben@mit.edu>
 //
@@ -1426,6 +1426,13 @@ void Gfx::opSetFillColorSpace(Object args[], int numArgs) {
     out->updateFillColor(state);
     if (drawText) {
       if (colorSpace->getMode() == csPattern) {
+        if (out->supportTextCSPattern(state) && textHaveCSPattern) {
+          GBool needFill = out->deviceHasTextClip(state);
+          out->endTextObject(state);
+          if (needFill)
+            doPatternFill(gTrue);
+          out->restoreState(state);
+        }
         colorSpaceText = NULL;
         textHaveCSPattern = gTrue;
         out->beginTextObject(state);
