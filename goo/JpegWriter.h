@@ -6,6 +6,7 @@
 //
 // Copyright (C) 2009 Stefan Thomas <thomas@eload24.com>
 // Copyright (C) 2010 Adrian Johnson <ajohnson@redneon.com>
+// Copyright (C) 2010 Jürg Billeter <j@bitron.ch>
 //
 //========================================================================
 
@@ -17,8 +18,11 @@
 #ifdef ENABLE_LIBJPEG
 
 #include <cstdio>
-#include <jpeglib.h>
 #include "ImgWriter.h"
+
+extern "C" {
+#include <jpeglib.h>
+}
 
 class JpegWriter : public ImgWriter
 {
