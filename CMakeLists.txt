@@ -41,7 +41,7 @@ endif(MSVC)
 set(LIB_SUFFIX "" CACHE STRING "Define suffix of directory name (32/64)")
 
 # Enable these unconditionally.
-set(MULTITHREAD ON)
+set(MULTITHREADED ON)
 set(OPI_SUPPORT ON)
 set(TEXTOUT_WORD_LIST ON)
 
