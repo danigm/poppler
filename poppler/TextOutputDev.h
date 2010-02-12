@@ -374,6 +374,10 @@ private:
   double xMin, xMax;		// bounding box x coordinates
   double yMin, yMax;		// bounding box y coordinates
   double priMin, priMax;	// whitespace bounding box along primary axis
+  double ExMin, ExMax;		// extended bounding box x coordinates
+  double EyMin, EyMax;		// extended bounding box y coordinates
+  int tableId;			// id of table to which this block belongs
+  GBool tableEnd;		// is this block at end of line of actual table
 
   TextPool *pool;		// pool of words (used only until lines
 				//   are built)
@@ -393,6 +397,7 @@ private:
   friend class TextWordList;
   friend class TextPage;
   friend class TextSelectionPainter;
+  friend class TextSelectionDumper;
 };
 
 //------------------------------------------------------------------------

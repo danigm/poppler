@@ -38,6 +38,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <math.h>
+#include <limits>
 #include <ctype.h>
 #ifdef _WIN32
 #include <fcntl.h> // for O_BINARY
@@ -1154,6 +1155,8 @@ TextBlock::TextBlock(TextPage *pageA, int rotA) {
   curLine = NULL;
   next = NULL;
   stackNext = NULL;
+  tableId = -1;
+  tableEnd = gFalse;
 }
 
 TextBlock::~TextBlock() {
@@ -1622,31 +1625,31 @@ GBool TextBlock::isBeforeByRule1(TextBlock *blk1) {
   switch (this->page->primaryRot) {
   case 0:
   case 2:
-    overlap = ((this->xMin <= blk1->xMin) &&
-	       (blk1->xMin <= this->xMax)) ||
-      ((blk1->xMin <= this->xMin) &&
-       (this->xMin <= blk1->xMax));
+    overlap = ((this->ExMin <= blk1->ExMin) &&
+	       (blk1->ExMin <= this->ExMax)) ||
+      ((blk1->ExMin <= this->ExMin) &&
+       (this->ExMin <= blk1->ExMax));
     break;
   case 1:
   case 3:
-    overlap = ((this->yMin <= blk1->yMin) &&
-	       (blk1->yMin <= this->yMax)) ||
-      ((blk1->yMin <= this->yMin) &&
-       (this->yMin <= blk1->yMax));
+    overlap = ((this->EyMin <= blk1->EyMin) &&
+	       (blk1->EyMin <= this->EyMax)) ||
+      ((blk1->EyMin <= this->EyMin) &&
+       (this->EyMin <= blk1->EyMax));
     break;
   }
   switch (this->page->primaryRot) {
   case 0:
-    before = overlap && this->yMin < blk1->yMin;
+    before = overlap && this->EyMin < blk1->EyMin;
     break;
   case 1:
-    before = overlap && this->xMax > blk1->xMax;
+    before = overlap && this->ExMax > blk1->ExMax;
     break;
   case 2:
-    before = overlap && this->yMax > blk1->yMax;
+    before = overlap && this->EyMax > blk1->EyMax;
     break;
   case 3:
-    before = overlap && this->xMin < blk1->xMin;
+    before = overlap && this->ExMin < blk1->ExMin;
     break;
   }
   return before;
@@ -1662,16 +1665,16 @@ GBool TextBlock::isBeforeByRule2(TextBlock *blk1) {
 
   switch (rotLR) {
   case 0:
-    cmp = xMax - blk1->xMin;
+    cmp = ExMax - blk1->ExMin;
     break;
   case 1:
-    cmp = yMin - blk1->yMax;
+    cmp = EyMin - blk1->EyMax;
     break;
   case 2:
-    cmp = blk1->xMax - xMin;
+    cmp = blk1->ExMax - ExMin;
     break;
   case 3:
-    cmp = blk1->yMin - yMax;
+    cmp = blk1->EyMin - EyMax;
     break;
   }
   return cmp <= 0;
@@ -1697,7 +1700,7 @@ int TextBlock::visitDepthFirst(TextBlock *blkList, int pos1,
 
 #if 0 // for debugging
   printf("visited: %d %.2f..%.2f %.2f..%.2f\n",
-	 sortPos, blk1->xMin, blk1->xMax, blk1->yMin, blk1->yMax);
+	 sortPos, blk1->ExMin, blk1->ExMax, blk1->EyMin, blk1->EyMax);
 #endif
   visited[pos1] = gTrue;
   pos2 = -1;
@@ -1708,36 +1711,55 @@ int TextBlock::visitDepthFirst(TextBlock *blkList, int pos1,
       continue;
     }
     before = gFalse;
-    if (blk2->isBeforeByRule1(blk1)) {
-      // Rule (1) blk1 and blk2 overlap, and blk2 is above blk1.
-      before = gTrue;
-#if 0 // for debugging
-      printf("rule1: %.2f..%.2f %.2f..%.2f %.2f..%.2f %.2f..%.2f\n",
-	     blk2->xMin, blk2->xMax, blk2->yMin, blk2->yMax,
-	     blk1->xMin, blk1->xMax, blk1->yMin, blk1->yMax);
-#endif
-    } else if (blk2->isBeforeByRule2(blk1)) {
-      // Rule (2) blk2 left of blk1, and no intervening blk3
-      //          such that blk1 is before blk3 by rule 1,
-      //          and blk3 is before blk2 by rule 1.
-      before = gTrue;
-      for (blk3 = blkList; blk3; blk3 = blk3->next) {
-	if (blk3 == blk2 || blk3 == blk1) {
-	  continue;
-	}
-	if (blk1->isBeforeByRule1(blk3) &&
-	    blk3->isBeforeByRule1(blk2)) {
-	  before = gFalse;
-	  break;
-	}
+
+    // is blk2 before blk1? (for table entries)
+    if (blk1->tableId >= 0 && blk1->tableId == blk2->tableId) {
+      if (page->primaryLR) {
+        if (blk2->xMax <= blk1->xMin &&
+            blk2->yMin <= blk1->yMax &&
+            blk2->yMax >= blk1->yMin)
+          before = gTrue;
+      } else {
+        if (blk2->xMin >= blk1->xMax &&
+            blk2->yMin <= blk1->yMax &&
+            blk2->yMax >= blk1->yMin)
+          before = gTrue;
       }
-#if 0 // for debugging
-      if (before) {
-	printf("rule2: %.2f..%.2f %.2f..%.2f %.2f..%.2f %.2f..%.2f\n",
-	       blk1->xMin, blk1->xMax, blk1->yMin, blk1->yMax,
-	       blk2->xMin, blk2->xMax, blk2->yMin, blk2->yMax);
-      }
+
+      if (blk2->yMax <= blk1->yMin)
+        before = gTrue;
+    } else {
+      if (blk2->isBeforeByRule1(blk1)) {
+        // Rule (1) blk1 and blk2 overlap, and blk2 is above blk1.
+        before = gTrue;
+#if 0   // for debugging
+        printf("rule1: %.2f..%.2f %.2f..%.2f %.2f..%.2f %.2f..%.2f\n",
+	       blk2->ExMin, blk2->ExMax, blk2->EyMin, blk2->EyMax,
+	       blk1->ExMin, blk1->ExMax, blk1->EyMin, blk1->EyMax);
 #endif
+      } else if (blk2->isBeforeByRule2(blk1)) {
+        // Rule (2) blk2 left of blk1, and no intervening blk3
+        //          such that blk1 is before blk3 by rule 1,
+        //          and blk3 is before blk2 by rule 1.
+        before = gTrue;
+        for (blk3 = blkList; blk3; blk3 = blk3->next) {
+	  if (blk3 == blk2 || blk3 == blk1) {
+	    continue;
+	  }
+	  if (blk1->isBeforeByRule1(blk3) &&
+	      blk3->isBeforeByRule1(blk2)) {
+	    before = gFalse;
+	    break;
+	  }
+        }
+#if 0 // for debugging
+        if (before) {
+	  printf("rule2: %.2f..%.2f %.2f..%.2f %.2f..%.2f %.2f..%.2f\n",
+	         blk1->ExMin, blk1->ExMax, blk1->EyMin, blk1->EyMax,
+	         blk2->ExMin, blk2->ExMax, blk2->EyMin, blk2->EyMax);
+        }
+#endif
+      }
     }
     if (before) {
       // blk2 is before blk1, so it needs to be visited
@@ -1747,7 +1769,7 @@ int TextBlock::visitDepthFirst(TextBlock *blkList, int pos1,
   }
 #if 0 // for debugging
   printf("sorted: %d %.2f..%.2f %.2f..%.2f\n",
-	 sortPos, blk1->xMin, blk1->xMax, blk1->yMin, blk1->yMax);
+	 sortPos, blk1->ExMin, blk1->ExMax, blk1->EyMin, blk1->EyMax);
 #endif
   sorted[sortPos++] = blk1;
   return sortPos;
@@ -2321,7 +2343,7 @@ void TextPage::coalesce(GBool physLayout, GBool doHTML) {
   TextPool *pool;
   TextWord *word0, *word1, *word2;
   TextLine *line;
-  TextBlock *blkList, *blk, *lastBlk, *blk0, *blk1;
+  TextBlock *blkList, *blk, *lastBlk, *blk0, *blk1, *blk2;
   TextFlow *flow, *lastFlow;
   TextUnderline *underline;
   TextLink *link;
@@ -2997,6 +3019,263 @@ void TextPage::coalesce(GBool physLayout, GBool doHTML) {
   for (i = 0; i < nBlocks; i++) {
     visited[i] = gFalse;
   }
+
+  double bxMin0, byMin0, bxMin1, byMin1;
+  int numTables = 0;
+  int tableId = -1;
+  int correspondenceX, correspondenceY;
+  double xCentre1, yCentre1, xCentre2, yCentre2;
+  double xCentre3, yCentre3, xCentre4, yCentre4;
+  double deltaX, deltaY;
+  TextBlock *fblk2 = NULL, *fblk3 = NULL, *fblk4 = NULL;
+
+  for (blk1 = blkList; blk1; blk1 = blk1->next) {
+    blk1->ExMin = blk1->xMin;
+    blk1->ExMax = blk1->xMax;
+    blk1->EyMin = blk1->yMin;
+    blk1->EyMax = blk1->yMax;
+
+    bxMin0 = std::numeric_limits<double>::max();
+    byMin0 = std::numeric_limits<double>::max();
+    bxMin1 = std::numeric_limits<double>::max();
+    byMin1 = std::numeric_limits<double>::max();
+
+    fblk2 = NULL;
+    fblk3 = NULL;
+    fblk4 = NULL;
+
+    /*  find fblk2, fblk3 and fblk4 so that
+     *  fblk2 is on the right of blk1 and overlap with blk1 in y axis
+     *  fblk3 is under blk1 and overlap with blk1 in x axis
+     *  fblk4 is under blk1 and on the right of blk1
+     *  and they are closest to blk1
+     */
+    for (blk2 = blkList; blk2; blk2 = blk2->next) {
+      if (blk2 != blk1) {
+        if (blk2->yMin <= blk1->yMax &&
+            blk2->yMax >= blk1->yMin &&
+            blk2->xMin > blk1->xMax &&
+            blk2->xMin < bxMin0) {
+          bxMin0 = blk2->xMin;
+          fblk2 = blk2;
+        } else if (blk2->xMin <= blk1->xMax &&
+                   blk2->xMax >= blk1->xMin &&
+                   blk2->yMin > blk1->yMax &&
+                   blk2->yMin < byMin0) {
+          byMin0 = blk2->yMin;
+          fblk3 = blk2;
+        } else if (blk2->xMin > blk1->xMax &&
+                   blk2->xMin < bxMin1 &&
+                   blk2->yMin > blk1->yMax &&
+                   blk2->yMin < byMin1) {
+          bxMin1 = blk2->xMin;
+          byMin1 = blk2->yMin;
+          fblk4 = blk2;
+        }
+      }
+    }
+
+    /*  fblk4 can not overlap with fblk3 in x and with fblk2 in y
+     *  fblk4 has to overlap with fblk3 in y and with fblk2 in x
+     */
+    if (fblk2 != NULL &&
+        fblk3 != NULL &&
+        fblk4 != NULL) {
+      if (((fblk3->xMin <= fblk4->xMax && fblk3->xMax >= fblk4->xMin) ||
+           (fblk2->yMin <= fblk4->yMax && fblk2->yMax >= fblk4->yMin)) ||
+          !(fblk4->xMin <= fblk2->xMax && fblk4->xMax >= fblk2->xMin &&
+            fblk4->yMin <= fblk3->yMax && fblk4->yMax >= fblk3->yMin)) {
+        fblk2 = NULL;
+        fblk3 = NULL;
+        fblk4 = NULL;
+      }
+    }
+
+    // if we found any then look whether they form a table
+    if (fblk2 != NULL &&
+        fblk3 != NULL &&
+        fblk4 != NULL) {
+      tableId = -1;
+      correspondenceX = 0;
+      correspondenceY = 0;
+      deltaX = 0.0;
+      deltaY = 0.0;
+
+      if (blk1->lines && blk1->lines->words)
+        deltaX = blk1->lines->words->getFontSize();
+      if (fblk2->lines && fblk2->lines->words)
+        deltaX = deltaX < fblk2->lines->words->getFontSize() ?
+                   deltaX : fblk2->lines->words->getFontSize();
+      if (fblk3->lines && fblk3->lines->words)
+        deltaX = deltaX < fblk3->lines->words->getFontSize() ?
+                   deltaX : fblk3->lines->words->getFontSize();
+      if (fblk4->lines && fblk4->lines->words)
+        deltaX = deltaX < fblk4->lines->words->getFontSize() ?
+                   deltaX : fblk4->lines->words->getFontSize();
+
+      deltaY = deltaX;
+
+      deltaX *= minColSpacing1;
+      deltaY *= maxIntraLineDelta;
+
+      xCentre1 = (blk1->xMax + blk1->xMin) / 2.0;
+      yCentre1 = (blk1->yMax + blk1->yMin) / 2.0;
+      xCentre2 = (fblk2->xMax + fblk2->xMin) / 2.0;
+      yCentre2 = (fblk2->yMax + fblk2->yMin) / 2.0;
+      xCentre3 = (fblk3->xMax + fblk3->xMin) / 2.0;
+      yCentre3 = (fblk3->yMax + fblk3->yMin) / 2.0;
+      xCentre4 = (fblk4->xMax + fblk4->xMin) / 2.0;
+      yCentre4 = (fblk4->yMax + fblk4->yMin) / 2.0;
+
+      // are blocks centrally aligned in x ?
+      if (abs (xCentre1 - xCentre3) <= deltaX &&
+          abs (xCentre2 - xCentre4) <= deltaX)
+        correspondenceX++;
+
+      // are blocks centrally aligned in y ?
+      if (abs (yCentre1 - yCentre2) <= deltaY &&
+          abs (yCentre3 - yCentre4) <= deltaY)
+        correspondenceY++;
+
+      // are blocks aligned to the left ?
+      if (abs (blk1->xMin - fblk3->xMin) <= deltaX &&
+          abs (fblk2->xMin - fblk4->xMin) <= deltaX)
+        correspondenceX++;
+
+      // are blocks aligned to the right ?
+      if (abs (blk1->xMax - fblk3->xMax) <= deltaX &&
+          abs (fblk2->xMax - fblk4->xMax) <= deltaX)
+        correspondenceX++;
+
+      // are blocks aligned to the top ?
+      if (abs (blk1->yMin - fblk2->yMin) <= deltaY &&
+          abs (fblk3->yMin - fblk4->yMin) <= deltaY)
+        correspondenceY++;
+
+      // are blocks aligned to the bottom ?
+      if (abs (blk1->yMax - fblk2->yMax) <= deltaY &&
+          abs (fblk3->yMax - fblk4->yMax) <= deltaY)
+        correspondenceY++;
+
+      // are blocks aligned in x and y ?
+      if (correspondenceX > 0 &&
+          correspondenceY > 0) {
+
+        // find maximal tableId
+        tableId = tableId < fblk4->tableId ? fblk4->tableId : tableId;
+        tableId = tableId < fblk3->tableId ? fblk3->tableId : tableId;
+        tableId = tableId < fblk2->tableId ? fblk2->tableId : tableId;
+        tableId = tableId < blk1->tableId ? blk1->tableId : tableId;
+
+        // if the tableId is -1, then we found new table
+        if (tableId < 0) {
+          tableId = numTables;
+          numTables++;
+        }
+
+        blk1->tableId = tableId;
+        fblk2->tableId = tableId;
+        fblk3->tableId = tableId;
+        fblk4->tableId = tableId;
+      }
+    }
+  }
+
+  /*  set extended bounding boxes of all table entries
+   *  so that they contain whole table
+   *  (we need to process whole table size when comparing it
+   *   with regular text blocks)
+   */
+  PDFRectangle *envelopes = new PDFRectangle [numTables];
+  TextBlock **ending_blocks = new TextBlock* [numTables];
+
+  for (i = 0; i < numTables; i++) {
+    envelopes[i].x1 = std::numeric_limits<double>::max();
+    envelopes[i].x2 = std::numeric_limits<double>::min();
+    envelopes[i].y1 = std::numeric_limits<double>::max();
+    envelopes[i].y2 = std::numeric_limits<double>::min();
+  }
+
+  for (blk1 = blkList; blk1; blk1 = blk1->next) {
+    if (blk1->tableId >= 0) {
+      if (blk1->ExMin < envelopes[blk1->tableId].x1) {
+        envelopes[blk1->tableId].x1 = blk1->ExMin;
+        if (!blk1->page->primaryLR)
+          ending_blocks[blk1->tableId] = blk1;
+      }
+
+      if (blk1->ExMax > envelopes[blk1->tableId].x2) {
+        envelopes[blk1->tableId].x2 = blk1->ExMax;
+        if (blk1->page->primaryLR)
+          ending_blocks[blk1->tableId] = blk1;
+      }
+
+      envelopes[blk1->tableId].y1 = blk1->EyMin < envelopes[blk1->tableId].y1 ?
+                                      blk1->EyMin : envelopes[blk1->tableId].y1;
+      envelopes[blk1->tableId].y2 = blk1->EyMax > envelopes[blk1->tableId].y2 ?
+                                      blk1->EyMax : envelopes[blk1->tableId].y2;
+    }
+  }
+
+  for (blk1 = blkList; blk1; blk1 = blk1->next) {
+    if (blk1->tableId >= 0 &&
+        blk1->xMin <= ending_blocks[blk1->tableId]->xMax &&
+        blk1->xMax >= ending_blocks[blk1->tableId]->xMin) {
+      blk1->tableEnd = gTrue;
+    }
+  }
+
+  for (blk1 = blkList; blk1; blk1 = blk1->next) {
+    if (blk1->tableId >= 0) {
+      blk1->ExMin = envelopes[blk1->tableId].x1;
+      blk1->ExMax = envelopes[blk1->tableId].x2;
+      blk1->EyMin = envelopes[blk1->tableId].y1;
+      blk1->EyMax = envelopes[blk1->tableId].y2;
+    }
+  }
+  delete[] envelopes;
+  delete[] ending_blocks;
+
+
+  /*  set extended bounding boxes of all other blocks
+   *  so that they extend in x without hitting neighbours
+   */
+  for (blk1 = blkList; blk1; blk1 = blk1->next) {
+    if (!blk1->tableId >= 0) {
+      double xMax = std::numeric_limits<double>::max();
+      double xMin = std::numeric_limits<double>::min();
+
+      for (blk2 = blkList; blk2; blk2 = blk2->next) {
+        if (blk2 == blk1)
+           continue;
+
+        if (blk1->yMin <= blk2->yMax && blk1->yMax >= blk2->yMin) {
+          if (blk2->xMin < xMax && blk2->xMin > blk1->xMax)
+            xMax = blk2->xMin;
+
+          if (blk2->xMax > xMin && blk2->xMax < blk1->xMin)
+            xMin = blk2->xMax;
+        }
+      }
+
+      for (blk2 = blkList; blk2; blk2 = blk2->next) {
+        if (blk2 == blk1)
+           continue;
+
+        if (blk2->xMax > blk1->ExMax &&
+            blk2->xMax <= xMax &&
+            blk2->yMin >= blk1->yMax) {
+          blk1->ExMax = blk2->xMax;
+        }
+
+        if (blk2->xMin < blk1->ExMin &&
+            blk2->xMin >= xMin &&
+            blk2->yMin >= blk1->yMax)
+          blk1->ExMin = blk2->xMin;
+      }
+    }
+  }
+
   i = -1;
   for (blk1 = blkList; blk1; blk1 = blk1->next) {
     i++;
@@ -3072,7 +3351,7 @@ void TextPage::coalesce(GBool physLayout, GBool doHTML) {
 	   flow->priMin, flow->priMax);
     for (blk = flow->blocks; blk; blk = blk->next) {
       printf("  block: rot=%d x=%.2f..%.2f y=%.2f..%.2f pri=%.2f..%.2f\n",
-	     blk->rot, blk->xMin, blk->xMax, blk->yMin, blk->yMax,
+	     blk->rot, blk->ExMin, blk->ExMax, blk->EyMin, blk->EyMax,
 	     blk->priMin, blk->priMax);
       for (line = blk->lines; line; line = line->next) {
 	printf("    line:\n");
@@ -3615,11 +3894,16 @@ GooString *TextSelectionDumper::getText (void)
 {
   GooString *s;
   TextLineFrag *frag;
-  int i;
+  int i, j;
   GBool multiLine;
   UnicodeMap *uMap;
   char space[8], eol[16];
   int spaceLen, eolLen;
+  GooList *strings = NULL;
+  int actual_table = -1;
+  int actual_line = -1;
+  int last_length = 0;
+  TextBlock *actual_block = NULL;
 
   s = new GooString();
 
@@ -3636,8 +3920,84 @@ GooString *TextSelectionDumper::getText (void)
     for (i = 0; i < nFrags; ++i) {
       frag = &frags[i];
 
-      page->dumpFragment(frag->line->text + frag->start, frag->len, uMap, s);
-      s->append(eol, eolLen);
+      if (actual_table >= 0 && frag->line->blk->tableId < 0) {
+        for (j = 0; j < strings->getLength (); j++) {
+          s->append ((GooString*) strings->get (j));
+          s->append (eol, eolLen);
+          delete ((GooString*) strings->get (j));
+        }
+        delete strings;
+        strings = NULL;
+        actual_table = -1;
+        actual_line = -1;
+        actual_block = NULL;
+      }
+
+      // a table
+      if (frag->line->blk->tableId >= 0) {
+        if (actual_table == -1) {
+          strings = new GooList();
+          actual_table = frag->line->blk->tableId;
+          actual_block = frag->line->blk;
+          actual_line = -1;
+        }
+
+        // the same block
+        if (actual_block == frag->line->blk) {
+          actual_line++;
+          if (actual_line >= strings->getLength ()) {
+            GooString *t = new GooString ();
+            // add some spaces to have this block correctly aligned
+            if (actual_line > 0)
+              for (j = 0; j < ((GooString*) (strings->get (actual_line - 1)))->getLength() - last_length - 1; j++)
+                t->append (space, spaceLen);
+            strings->append (t);
+          }
+        }
+        // another block
+        else {
+          // previous block ended its row
+          if (actual_block->tableEnd) {
+            for (j = 0; j < strings->getLength (); j++) {
+              s->append ((GooString*) strings->get (j));
+              s->append (eol, eolLen);
+              delete ((GooString*) strings->get (j));
+            }
+            delete strings;
+
+            strings = new GooList();
+            GooString *t = new GooString ();
+            strings->append (t);
+          }
+          actual_block = frag->line->blk;
+          actual_line = 0;
+        }
+
+        page->dumpFragment(frag->line->text + frag->start, frag->len, uMap, ((GooString*) strings->get (actual_line)));
+        last_length = frag->len;
+
+        if (!frag->line->blk->tableEnd) {
+          ((GooString*) strings->get (actual_line))->append (space, spaceLen);
+        }
+      }
+      // not a table
+      else {
+        page->dumpFragment (frag->line->text + frag->start, frag->len, uMap, s);
+        s->append (eol, eolLen);
+      }
+    }
+
+    if (strings != NULL) {
+      for (j = 0; j < strings->getLength (); j++) {
+        s->append((GooString*) strings->get (j));
+        s->append(eol, eolLen);
+        delete ((GooString*) strings->get (j));
+      }
+      delete strings;
+      strings = NULL;
+      actual_table = -1;
+      actual_line = -1;
+      actual_block = NULL;
     }
   }
 
@@ -3867,14 +4227,28 @@ void TextLine::visitSelection(TextSelectionVisitor *visitor,
   end = NULL;
   current = NULL;
   for (p = words; p != NULL; p = p->next) {
-    if ((selection->x1 < p->xMax && selection->y1 < p->yMax) ||
-	(selection->x2 < p->xMax && selection->y2 < p->yMax))
-      if (begin == NULL) 
-	begin = p;
-    if (((selection->x1 > p->xMin && selection->y1 > p->yMin) ||
-	 (selection->x2 > p->xMin && selection->y2 > p->yMin)) && (begin != NULL)) {
-      end = p->next;
-      current = p;
+    if (blk->page->primaryLR) {
+      if ((selection->x1 < p->xMax && selection->y1 < p->yMax) ||
+	  (selection->x2 < p->xMax && selection->y2 < p->yMax))
+        if (begin == NULL) 
+	  begin = p;
+
+      if (((selection->x1 > p->xMin && selection->y1 > p->yMin) ||
+	   (selection->x2 > p->xMin && selection->y2 > p->yMin)) && (begin != NULL)) {
+        end = p->next;
+        current = p;
+      }
+    } else {
+      if ((selection->x1 > p->xMin && selection->y1 < p->yMax) ||
+	  (selection->x2 > p->xMin && selection->y2 < p->yMax))
+        if (begin == NULL) 
+	  begin = p;
+
+      if (((selection->x1 < p->xMax && selection->y1 > p->yMin) ||
+	   (selection->x2 < p->xMax && selection->y2 > p->yMin)) && (begin != NULL)) {
+        end = p->next;
+        current = p;
+      }
     }
   }
 
