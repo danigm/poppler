@@ -79,6 +79,9 @@
 /* Define to 1 if you have the `popen' function. */
 #cmakedefine HAVE_POPEN 1
 
+/* Define if you have POSIX threads libraries and header files. */
+#cmakedefine HAVE_PTHREAD 1
+
 /* Use splash for rendering. */
 #cmakedefine HAVE_SPLASH 1
 

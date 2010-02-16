@@ -10,6 +10,7 @@ include(MacroOptionalFindPackage)
 find_package(PkgConfig)
 include(MacroEnsureVersion)
 include(MacroBoolTo01)
+find_package(Threads)
 
 set(POPPLER_MAJOR_VERSION "0")
 set(POPPLER_MINOR_VERSION "13")
@@ -106,6 +107,9 @@ include_directories(
   ${FREETYPE_INCLUDE_DIRS}
 )
 set(HAVE_FREETYPE_H ON)
+if(CMAKE_USE_PTHREADS_INIT)
+  set(HAVE_PTHREAD ON)
+endif(CMAKE_USE_PTHREADS_INIT)
 
 if(ENABLE_ZLIB)
   include_directories(${ZLIB_INCLUDE_DIR})
