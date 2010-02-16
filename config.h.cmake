@@ -52,6 +52,9 @@
 /* Define to 1 if you have the <inttypes.h> header file. */
 #cmakedefine HAVE_INTTYPES_H 1
 
+/* Define to 1 if you have the `openjpeg' library (-lopenjpeg). */
+#cmakedefine HAVE_LIBOPENJPEG 1
+
 /* Define to 1 if you have the `z' library (-lz). */
 #cmakedefine HAVE_LIBZ 1
 
@@ -69,6 +72,9 @@
 
 /* Define to 1 if you have the <ndir.h> header file, and it defines `DIR'. */
 #cmakedefine HAVE_NDIR_H 1
+
+/* Define to 1 if you have the <openjpeg.h> header file. */
+#cmakedefine HAVE_OPENJPEG_H 1
 
 /* Define to 1 if you have the `popen' function. */
 #cmakedefine HAVE_POPEN 1
