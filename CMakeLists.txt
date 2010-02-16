@@ -37,6 +37,11 @@ else(MSVC)
   option(WITH_FONTCONFIGURATION_WIN32 "Select win32 font configuration backend" OFF)
   option(WITH_FONTCONFIGURATION_FONTCONFIG "Select fontconfig font configuration backend" ON)
 endif(MSVC)
+if(WIN32)
+  option(ENABLE_RELOCATABLE "Hardcode the poppler library location (on Windows)." ON)
+else(WIN32)
+  set(ENABLE_RELOCATABLE OFF)
+endif(WIN32)
 
 set(LIB_SUFFIX "" CACHE STRING "Define suffix of directory name (32/64)")
 

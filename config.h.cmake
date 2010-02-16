@@ -12,6 +12,9 @@
 /* Build against libpng. */
 #cmakedefine ENABLE_LIBPNG 1
 
+/* Do not hardcode the library location */
+#cmakedefine ENABLE_RELOCATABLE 1
+
 /* Use zlib instead of builtin zlib decoder. */
 #cmakedefine ENABLE_ZLIB 1
 
