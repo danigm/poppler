@@ -5,7 +5,7 @@
 // Copyright 2007 Brad Hards <bradh@kde.org>
 // Copyright 2008 Pino Toscano <pino@kde.org>
 // Copyright 2008 Carlos Garcia Campos <carlosgc@gnome.org>
-// Copyright 2008 Albert Astals Cid <aacid@kde.org>
+// Copyright 2008, 2010 Albert Astals Cid <aacid@kde.org>
 // Copyright 2008 Mark Kaplan <mkaplan@finjan.com>
 //
 // Released under the GPL (version 2, or later, at your option)
@@ -199,7 +199,7 @@ bool OCGs::optContentIsVisible( Object *dictRef )
       }
     } else if (ocg.isRef()) {
       OptionalContentGroup* oc = findOcgByRef( ocg.getRef() );      
-      if ( !oc || oc->getState() == OptionalContentGroup::Off ) {
+      if ( oc && oc->getState() == OptionalContentGroup::Off ) {
 	result = false;
       } else {
 	result = true ;
