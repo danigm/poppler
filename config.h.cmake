@@ -165,10 +165,10 @@
 /* Throw exceptions to deal with not enough memory and similar problems */
 #cmakedefine USE_EXCEPTIONS 1
 
-/* Use fixed point arithmetic */
+/* Use fixed point arithmetic in the Splash backend */
 #cmakedefine USE_FIXEDPOINT 1
 
-/* Use single precision arithmetic */
+/* Use single precision arithmetic in the Splash backend */
 #cmakedefine USE_FLOAT 1
 
 /* Version number of package */

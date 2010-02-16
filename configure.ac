@@ -70,11 +70,11 @@ AM_CONDITIONAL(ENABLE_XPDF_HEADERS, test x$enable_xpdf_headers = xyes)
 
 AC_ARG_ENABLE(single-precision,
 [  --enable-single-precision     use single precision arithmetic (instead of double precision) in the Splash backend],
-AC_DEFINE(USE_FLOAT,      [1], [Use single precision arithmetic]))
+AC_DEFINE(USE_FLOAT,      [1], [Use single precision arithmetic in the Splash backend]))
 
 AC_ARG_ENABLE(fixedpoint,
 [  --enable-fixedpoint     use fixed point (instead of double precision) arithmetic in the Splash backend],
-AC_DEFINE(USE_FIXEDPOINT, [1], [Use fixed point arithmetic]))
+AC_DEFINE(USE_FIXEDPOINT, [1], [Use fixed point arithmetic in the Splash backend]))
 
 dnl Relocation support
 AC_ARG_ENABLE(relocatable,
