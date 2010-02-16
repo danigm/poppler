@@ -12,7 +12,7 @@
 //
 // Copyright (C) 2005 Martin Kretzschmar <martink@gnome.org>
 // Copyright (C) 2005, 2006 Kristian Høgsberg <krh@redhat.com>
-// Copyright (C) 2005, 2007-2009 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2005, 2007-2010 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2005 Jonathan Blandford <jrb@redhat.com>
 // Copyright (C) 2006, 2007 Jeff Muizelaar <jeff@infidigm.net>
 // Copyright (C) 2006 Takashi Iwai <tiwai@suse.de>
@@ -615,11 +615,6 @@ GlobalParams::GlobalParams(const char *customPopplerDataDir)
   UnicodeMap *map;
   int i;
 
-#if WITH_FONTCONFIGURATION_FONTCONFIG
-  FcInit();
-  FCcfg = FcConfigGetCurrent();
-#endif
-
 #if MULTITHREADED
   gInitMutex(&mutex);
   gInitMutex(&unicodeMapCacheMutex);
@@ -1189,9 +1184,9 @@ DisplayFontParam *GlobalParams::getDisplayFont(GfxFont *font) {
 
     if (!p)
       goto fin;
-    FcConfigSubstitute(FCcfg, p, FcMatchPattern);
+    FcConfigSubstitute(NULL, p, FcMatchPattern);
     FcDefaultSubstitute(p);
-    set = FcFontSort(FCcfg, p, FcFalse, NULL, &res);
+    set = FcFontSort(NULL, p, FcFalse, NULL, &res);
     if (!set)
       goto fin;
     for (i = 0; i < set->nfont; ++i)
