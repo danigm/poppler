@@ -88,13 +88,15 @@
 /* Define to 1 if you have the <string.h> header file. */
 #cmakedefine HAVE_STRING_H 1
 
-/* Define to 1 if you have the <sys/dir.h> header file, and it defines `DIR'. */
+/* Define to 1 if you have the <sys/dir.h> header file, and it defines `DIR'.
+   */
 #cmakedefine HAVE_SYS_DIR_H 1
 
 /* Define to 1 if you have the <sys/mman.h> header file. */
 #cmakedefine HAVE_SYS_MMAN_H 1
 
-/* Define to 1 if you have the <sys/ndir.h> header file, and it defines `DIR'. */
+/* Define to 1 if you have the <sys/ndir.h> header file, and it defines `DIR'.
+   */
 #cmakedefine HAVE_SYS_NDIR_H 1
 
 /* Define to 1 if you have the <sys/stat.h> header file. */
@@ -154,10 +156,10 @@
 /* Throw exceptions to deal with not enough memory and similar problems */
 #cmakedefine USE_EXCEPTIONS 1
 
-/* Use fixed point arithmetic in the Splash backend */
+/* Use fixed point arithmetic */
 #cmakedefine USE_FIXEDPOINT 1
 
-/* Use single precision arithmetic in the Splash backend */
+/* Use single precision arithmetic */
 #cmakedefine USE_FLOAT 1
 
 /* Version number of package */
