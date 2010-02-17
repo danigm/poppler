@@ -11,7 +11,7 @@
 // All changes made under the Poppler project to this file are licensed
 // under GPL version 2 or later
 //
-// Copyright (C) 2005, 2007-2009 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2005, 2007-2010 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2006 Kristian Høgsberg <krh@bitplanet.net>
 // Copyright (C) 2009 Petr Gajdos <pgajdos@novell.com>
 //
@@ -240,6 +240,9 @@ GBool SplashFTFont::makeGlyph(int c, int xFrac, int yFrac,
     rowSize = (bitmap->w + 7) >> 3;
   }
   bitmap->data = (Guchar *)gmallocn_checkoverflow(rowSize, bitmap->h);
+  if (!bitmap->data) {
+    return gFalse;
+  }
   bitmap->freeData = gTrue;
   for (i = 0, p = bitmap->data, q = slot->bitmap.buffer;
        i < bitmap->h;
