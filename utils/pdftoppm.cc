@@ -18,7 +18,7 @@
 // Copyright (C) 2009 Michael K. Johnson <a1237@danlj.org>
 // Copyright (C) 2009 Shen Liang <shenzhuxi@gmail.com>
 // Copyright (C) 2009 Stefan Thomas <thomas@eload24.com>
-// Copyright (C) 2009 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2009, 2010 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2010 Adrian Johnson <ajohnson@redneon.com>
 //
 // To see a description of the changes please see the Changelog file that
@@ -308,7 +308,7 @@ int main(int argc, char *argv[]) {
     }
     pg_w = pg_w * (x_resolution / 72.0);
     pg_h = pg_h * (y_resolution / 72.0);
-    if (doc->getPageRotate(pg)) {
+    if ((doc->getPageRotate(pg) == 90) || (doc->getPageRotate(pg) == 270)) {
       tmp = pg_w;
       pg_w = pg_h;
       pg_h = tmp;
