@@ -17,7 +17,7 @@
 // Copyright (C) 2006 Jeff Muizelaar <jeff@infidigm.net>
 // Copyright (C) 2007, 2008 Adrian Johnson <ajohnson@redneon.com>
 // Copyright (C) 2008 Koji Otani <sho@bbr.jp>
-// Copyright (C) 2008 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2008, 2010 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2008 Pino Toscano <pino@kde.org>
 // Copyright (C) 2008 Hib Eris <hib@hiberis.nl>
 // Copyright (C) 2009 Ross Moore <ross@maths.mq.edu.au>
@@ -4548,7 +4548,7 @@ void ActualText::beginMC(Dict *properties) {
   }
 
   Object obj;
-  if (properties->lookup("ActualText", &obj)) {
+  if (properties && properties->lookup("ActualText", &obj)) {
     if (obj.isString()) {
       actualText = obj.getString();
       actualTextBMCLevel = 1;
