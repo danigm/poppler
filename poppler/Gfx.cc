@@ -31,6 +31,7 @@
 // Copyright (C) 2009, 2010 Thomas Freitag <Thomas.Freitag@alfa.de>
 // Copyright (C) 2009 William Bader <williambader@hotmail.com>
 // Copyright (C) 2009, 2010 David Benjamin <davidben@mit.edu>
+// Copyright (C) 2010 Nils Höglund <nils.hoglund@gmail.com>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -4562,6 +4563,8 @@ void Gfx::opBeginMarkedContent(Object args[], int numArgs) {
 
   if(numArgs == 2 && args[1].isDict ()) {
     out->beginMarkedContent(args[0].getName(),args[1].getDict());
+  } else if(numArgs == 1) {
+    out->beginMarkedContent(args[0].getName(),NULL);
   }
 }
 
