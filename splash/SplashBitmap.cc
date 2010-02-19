@@ -11,7 +11,7 @@
 // All changes made under the Poppler project to this file are licensed
 // under GPL version 2 or later
 //
-// Copyright (C) 2006, 2009 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2006, 2009, 2010 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2007 Ilmari Heikkinen <ilmari.heikkinen@gmail.com>
 // Copyright (C) 2009 Shen Liang <shenzhuxi@gmail.com>
 // Copyright (C) 2009 Stefan Thomas <thomas@eload24.com>
@@ -307,7 +307,7 @@ SplashError SplashBitmap::writeImgFile(SplashImageFileFormat format, FILE *f, in
       return splashErrGeneric;
   }
   
-  if (mode != splashModeRGB8 && mode != splashModeMono8 && mode != splashModeMono1) {
+  if (mode != splashModeRGB8 && mode != splashModeMono8 && mode != splashModeMono1 && mode != splashModeXBGR8) {
     error(-1, "unsupported SplashBitmap mode");
     return splashErrGeneric;
   }
@@ -334,6 +334,27 @@ SplashError SplashBitmap::writeImgFile(SplashImageFileFormat format, FILE *f, in
         return splashErrGeneric;
       }
       delete[] row_pointers;
+    }
+    break;
+    
+    case splashModeXBGR8:
+    {
+      unsigned char *row = new unsigned char[3 * width];
+      for (int y = 0; y < height; y++) {
+        // Convert into a PNG row
+        for (int x = 0; x < width; x++) {
+          row[3*x] = data[y * rowSize + x * 4 + 2];
+          row[3*x+1] = data[y * rowSize + x * 4 + 1];
+          row[3*x+2] = data[y * rowSize + x * 4];
+        }
+
+        if (!writer->writeRow(&row)) {
+          delete[] row;
+          delete writer;
+          return splashErrGeneric;
+        }
+      }
+      delete[] row;
     }
     break;
     
