@@ -21,8 +21,13 @@ poppler_goo_include_HEADERS =			\
 
 endif
 
+if BUILD_LIBPNG
+libpng_includes = $(LIBPNG_CFLAGS)
+endif
+
 INCLUDES =					\
-	-I$(top_srcdir)
+	-I$(top_srcdir)				\
+	$(libpng_includes)
 
 libgoo_la_SOURCES =				\
 	gfile.cc				\

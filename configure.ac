@@ -228,16 +228,20 @@ AH_TEMPLATE([ENABLE_LIBJPEG],
 dnl Test for libpng
 AC_ARG_ENABLE(libpng,
 	      AC_HELP_STRING([--disable-libpng],
-	                     [Don't build against libpng.]),
+	                     [Do not build against libpng.]),
               enable_libpng=$enableval,
               enable_libpng="try")
+
 if test x$enable_libpng != xno; then
-  POPPLER_FIND_PNG
+  PKG_CHECK_MODULES(LIBPNG, libpng, [enable_libpng="yes"],
+      [enable_libpng="no"])
+fi
+
+if test x$enable_libpng = xyes; then
+  AC_DEFINE(ENABLE_LIBPNG, 1, [Build against libpng.])
 fi
 
 AM_CONDITIONAL(BUILD_LIBPNG, test x$enable_libpng = xyes)
-AH_TEMPLATE([ENABLE_LIBPNG],
-            [Build against libpng.])
 
 dnl Check for freetype headers
 FREETYPE_LIBS=

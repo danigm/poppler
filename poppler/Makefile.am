@@ -68,6 +68,8 @@ if BUILD_LIBPNG
 
 libpng_libs =					\
 	$(LIBPNG_LIBS)
+libpng_includes =				\
+	$(LIBPNG_CFLAGS)
 
 endif
 
@@ -127,6 +129,7 @@ INCLUDES =					\
 	$(cairo_includes)			\
 	$(arthur_includes)			\
 	$(abiword_includes)			\
+	$(libpng_includes)			\
 	$(FREETYPE_CFLAGS)			\
 	$(FONTCONFIG_CFLAGS)
 
