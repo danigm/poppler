@@ -11,7 +11,7 @@
 // All changes made under the Poppler project to this file are licensed
 // under GPL version 2 or later
 //
-// Copyright (C) 2005-2009 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2005-2010 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2005 Marco Pesenti Gritti <mpg@redhat.com>
 //
 // To see a description of the changes please see the Changelog file that
@@ -3018,11 +3018,11 @@ SplashError Splash::composite(SplashBitmap *src, int xSrc, int ySrc,
       pipeSetXY(&pipe, xDest, yDest + y);
       ap = src->getAlphaPtr() + (ySrc + y) * src->getWidth() + xSrc;
       for (x = 0; x < w; ++x) {
-	src->getPixel(xSrc + x, ySrc + y, pixel);
 	alpha = *ap++;
 	if (noClip || state->clip->test(xDest + x, yDest + y)) {
 	  // this uses shape instead of alpha, which isn't technically
 	  // correct, but works out the same
+	  src->getPixel(xSrc + x, ySrc + y, pixel);
 	  pipe.shape = (SplashCoord)(alpha / 255.0);
 	  pipeRun(&pipe);
 	  updateModX(xDest + x);
@@ -3038,8 +3038,8 @@ SplashError Splash::composite(SplashBitmap *src, int xSrc, int ySrc,
     for (y = 0; y < h; ++y) {
       pipeSetXY(&pipe, xDest, yDest + y);
       for (x = 0; x < w; ++x) {
-	src->getPixel(xSrc + x, ySrc + y, pixel);
 	if (noClip || state->clip->test(xDest + x, yDest + y)) {
+	  src->getPixel(xSrc + x, ySrc + y, pixel);
 	  pipeRun(&pipe);
 	  updateModX(xDest + x);
 	  updateModY(yDest + y);
