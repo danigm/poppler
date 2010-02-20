@@ -3163,7 +3163,7 @@ void Splash::compositeBackground(SplashColorPtr color) {
 SplashError Splash::blitTransparent(SplashBitmap *src, int xSrc, int ySrc,
 				    int xDest, int yDest, int w, int h) {
   SplashColor pixel;
-  SplashColorPtr p;
+  SplashColorPtr p, sp;
   Guchar *q;
   int x, y, mask;
 
@@ -3203,23 +3203,24 @@ SplashError Splash::blitTransparent(SplashBitmap *src, int xSrc, int ySrc,
   case splashModeBGR8:
     for (y = 0; y < h; ++y) {
       p = &bitmap->data[(yDest + y) * bitmap->rowSize + 3 * xDest];
+      sp = &src->data[(ySrc + y) * src->rowSize + 3 * xSrc];
       for (x = 0; x < w; ++x) {
-	src->getPixel(xSrc + x, ySrc + y, pixel);
-	*p++ = pixel[0];
-	*p++ = pixel[1];
-	*p++ = pixel[2];
+	*p++ = *sp++;
+	*p++ = *sp++;
+	*p++ = *sp++;
       }
     }
     break;
   case splashModeXBGR8:
     for (y = 0; y < h; ++y) {
       p = &bitmap->data[(yDest + y) * bitmap->rowSize + 4 * xDest];
+      sp = &src->data[(ySrc + y) * src->rowSize + 4 * xSrc];
       for (x = 0; x < w; ++x) {
-	src->getPixel(xSrc + x, ySrc + y, pixel);
-	*p++ = pixel[0];
-	*p++ = pixel[1];
-	*p++ = pixel[2];
+	*p++ = *sp++;
+	*p++ = *sp++;
+	*p++ = *sp++;
 	*p++ = 255;
+	*sp++;
       }
     }
     break;
