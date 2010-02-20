@@ -4,6 +4,20 @@
 //
 //========================================================================
 
+//========================================================================
+//
+// Modified under the Poppler project - http://poppler.freedesktop.org
+//
+// All changes made under the Poppler project to this file are licensed
+// under GPL version 2 or later
+//
+// Copyright (C) 2010 Albert Astals Cid <aacid@kde.org>
+//
+// To see a description of the changes please see the Changelog file that
+// came with your tarball or type make ChangeLog if you are building from git
+//
+//========================================================================
+
 #ifndef SPLASHCLIP_H
 #define SPLASHCLIP_H
 
@@ -13,10 +27,10 @@
 
 #include "SplashTypes.h"
 #include "SplashMath.h"
+#include "SplashXPathScanner.h"
 
 class SplashPath;
 class SplashXPath;
-class SplashXPathScanner;
 class SplashBitmap;
 
 //------------------------------------------------------------------------
@@ -57,7 +71,32 @@ public:
 			 SplashCoord flatness, GBool eo);
 
   // Returns true if (<x>,<y>) is inside the clip.
-  GBool test(int x, int y);
+  GBool test(int x, int y)
+  {
+    int i;
+
+    // check the rectangle
+    if (x < xMinI || x > xMaxI || y < yMinI || y > yMaxI) {
+      return gFalse;
+    }
+
+    // check the paths
+    if (antialias) {
+      for (i = 0; i < length; ++i) {
+        if (!scanners[i]->test(x * splashAASize, y * splashAASize)) {
+	  return gFalse;
+        }
+      }
+    } else {
+      for (i = 0; i < length; ++i) {
+        if (!scanners[i]->test(x, y)) {
+	  return gFalse;
+        }
+      }
+    }
+
+    return gTrue;
+  }
 
   // Tests a rectangle against the clipping region.  Returns one of:
   //   - splashClipAllInside if the entire rectangle is inside the
