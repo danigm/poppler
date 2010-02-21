@@ -614,7 +614,7 @@ delete it;
    \subsection document-rendering-backend Backends
 
    %Poppler offers a different backends for rendering the pages. Currently
-   there two backends (see #RenderBackend), but only the Splash engine works
+   there are two backends (see #RenderBackend), but only the Splash engine works
    well and has been tested.
 
    The available rendering backends can be discovered via availableRenderBackends().
