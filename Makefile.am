@@ -25,18 +25,24 @@ qt4_subdir = qt4
 qt4_pc_file = poppler-qt4.pc
 endif
 
+if BUILD_POPPLER_CPP
+cpp_subdir = cpp
+cpp_pc_file = poppler-cpp.pc
+endif
+
 if BUILD_UTILS
 utils_subdir = utils
 endif
 
-SUBDIRS = goo fofi $(splash_subdir) poppler $(utils_subdir) $(glib_subdir) $(qt_subdir) test $(qt4_subdir)
+SUBDIRS = goo fofi $(splash_subdir) poppler $(utils_subdir) $(glib_subdir) $(qt_subdir) test $(qt4_subdir) $(cpp_subdir)
 
 EXTRA_DIST =					\
 	README-XPDF				\
 	poppler.pc.in				\
 	poppler-cairo.pc.in			\
 	poppler-splash.pc.in			\
-	poppler-qt.pc.in
+	poppler-qt.pc.in			\
+	poppler-cpp.pc.in
 
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA =				\
@@ -45,10 +51,12 @@ pkgconfig_DATA =				\
 	$(splash_pc_file)			\
 	$(glib_pc_file)				\
 	$(qt_pc_file)                           \
-	$(qt4_pc_file)
+	$(qt4_pc_file)				\
+	$(cpp_pc_file)
 
 # Add CMake buildsystem files here so they get added on make dist
 EXTRA_DIST +=							\
+	cpp/CMakeLists.txt					\
 	glib/demo/CMakeLists.txt				\
 	glib/CMakeLists.txt					\
 	glib/poppler-features.h.cmake				\
@@ -65,6 +73,7 @@ EXTRA_DIST +=							\
 	cmake/modules/FindCairo.cmake				\
 	cmake/modules/FindFontconfig.cmake			\
 	cmake/modules/FindGTK.cmake				\
+	cmake/modules/FindIconv.cmake				\
 	cmake/modules/FindLCMS.cmake				\
 	cmake/modules/FindQt3.cmake				\
 	cmake/modules/FindQt4.cmake				\
@@ -78,6 +87,7 @@ EXTRA_DIST +=							\
 	config.h.cmake						\
 	poppler-cairo.pc.cmake					\
 	poppler-config.h.cmake					\
+	poppler-cpp.pc.cmake					\
 	poppler-glib.pc.cmake					\
 	poppler-qt.pc.cmake					\
 	poppler-qt4.pc.cmake					\

@@ -49,6 +49,9 @@
 /* Defines if gmtime_r is available on your system */
 #cmakedefine HAVE_GMTIME_R 1
 
+/* Define if you have the iconv() function and it works. */
+#cmakedefine HAVE_ICONV 1
+
 /* Define to 1 if you have the <inttypes.h> header file. */
 #cmakedefine HAVE_INTTYPES_H 1
 
@@ -119,6 +122,9 @@
 
 /* Define to 1 if you have the <zlib.h> header file. */
 #cmakedefine HAVE_ZLIB_H 1
+
+/* Define as const if the declaration of iconv() needs const. */
+#cmakedefine ICONV_CONST 1
 
 /* Enable multithreading support. */
 #cmakedefine MULTITHREADED 1

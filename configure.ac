@@ -520,6 +520,25 @@ fi
 
 AM_CONDITIONAL(BUILD_POPPLER_QT4, test "x$enable_poppler_qt4" = "xyes")
 
+dnl
+dnl CPP frontend
+dnl
+
+AC_ARG_ENABLE(poppler-cpp,
+              AC_HELP_STRING([--disable-poppler-cpp],
+                             [Don't compile poppler cpp wrapper.]),
+              enable_poppler_cpp=$enableval,
+              enable_poppler_cpp="yes")
+if test x$enable_poppler_cpp = xyes; then
+  AM_ICONV()
+  if test x$am_func_iconv != xyes; then
+    enable_poppler_cpp=no
+  fi
+fi
+
+AM_CONDITIONAL(BUILD_POPPLER_CPP, test "x$enable_poppler_cpp" = "xyes")
+
+
 AC_ARG_ENABLE(gtk-test,
               AC_HELP_STRING([--disable-gtk-test],
 	                     [Don't compile GTK+ test program.]),
@@ -610,6 +629,7 @@ AC_SUBST(PC_REQUIRES_PRIVATE)
 AC_SUBST([POPPLER_MAJOR_VERSION],[poppler_version_major])
 AC_SUBST([POPPLER_MINOR_VERSION],[poppler_version_minor])
 AC_SUBST([POPPLER_MICRO_VERSION],[poppler_version_micro])
+AC_SUBST([POPPLER_VERSION],[poppler_version])
 
 AC_OUTPUT([
 Makefile
@@ -628,12 +648,16 @@ qt4/Makefile
 qt4/src/Makefile
 qt4/tests/Makefile
 qt4/demos/Makefile
+cpp/Makefile
+cpp/poppler-version.h
+cpp/tests/Makefile
 poppler.pc
 poppler-cairo.pc
 poppler-splash.pc
 poppler-glib.pc
 poppler-qt.pc
-poppler-qt4.pc])
+poppler-qt4.pc
+poppler-cpp.pc])
 
 
 echo ""
@@ -646,6 +670,7 @@ echo "  qt wrapper:         $enable_poppler_qt"
 echo "  qt4 wrapper:        $enable_poppler_qt4"
 echo "  glib wrapper:       $enable_poppler_glib"
 echo "    use GDK:          $enable_gdk"
+echo "  cpp wrapper:        $enable_poppler_cpp"
 echo "  use gtk-doc:        $enable_gtk_doc"
 echo "  use libjpeg:        $enable_libjpeg"
 echo "  use libpng:         $enable_libpng"
