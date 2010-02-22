@@ -67,6 +67,8 @@ enum permission_enum { perm_print, perm_change, perm_copy, perm_add_notes,
                        perm_fill_forms, perm_accessibility, perm_assemble,
                        perm_print_high_resolution };
 
+enum case_sensitivity_enum { case_sensitive, case_insensitive };
+
 typedef std::vector<char> byte_array;
 
 class POPPLER_CPP_EXPORT ustring : public std::basic_string<unsigned short>
