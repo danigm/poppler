@@ -51,6 +51,24 @@ public:
     T height() const
     { return y2 - y1; }
 
+    T left() const
+    { return x1; }
+    T top() const
+    { return y1; }
+    T right() const
+    { return x2; }
+    T bottom() const
+    { return y2; }
+
+    void set_left(T value)
+    { x1 = value; }
+    void set_top(T value)
+    { y1 = value; }
+    void set_right(T value)
+    { x2 = value; }
+    void set_bottom(T value)
+    { y2 = value; }
+
 private:
     T x1, y1, x2, y2;
 };
