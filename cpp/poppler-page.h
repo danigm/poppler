@@ -56,6 +56,7 @@ public:
 
     bool search(const ustring &text, rectf &r, search_direction_enum direction,
                 case_sensitivity_enum case_sensitivity, rotation_enum rotation = rotate_0) const;
+    ustring text(const rectf &rect = rectf()) const;
 
 private:
     page(document_private *doc, int index);

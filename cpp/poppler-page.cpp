@@ -25,6 +25,8 @@
 
 #include "TextOutputDev.h"
 
+#include <memory>
+
 using namespace poppler;
 
 page_private::page_private(document_private *_doc, int _index)
@@ -169,4 +171,18 @@ bool page::search(const ustring &text, rectf &r, search_direction_enum direction
     r.set_bottom(rect_bottom);
 
     return found;
+}
+
+ustring page::text(const rectf &r) const
+{
+    std::auto_ptr<GooString> s;
+    TextOutputDev td(0, gFalse, gFalse, gFalse);
+    d->doc->doc->displayPage(&td, d->index + 1, 72, 72, 0, false, true, false);
+    if (r.is_empty()) {
+        const PDFRectangle *rect = d->page->getCropBox();
+        s.reset(td.getText(rect->x1, rect->y1, rect->x2, rect->y2));
+    } else {
+        s.reset(td.getText(r.left(), r.top(), r.right(), r.bottom()));
+    }
+    return ustring::from_utf_8(s->getCString());
 }
