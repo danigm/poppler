@@ -2157,6 +2157,29 @@ cleanup:
   delete imgStr;
 }
 
+GBool CairoOutputDev::getStreamData (Stream *str, char **buffer, int *length)
+{
+  int len, i;
+  char *strBuffer;
+
+  len = 0;
+  str->reset();
+  while (str->getChar() != EOF) len++;
+  if (len == 0)
+    return gFalse;
+
+  strBuffer = (char *)gmalloc (len);
+
+  str->reset();
+  for (i = 0; i < len; ++i)
+    strBuffer[i] = str->getChar();
+
+  *buffer = strBuffer;
+  *length = len;
+
+  return gTrue;
+}
+
 void CairoOutputDev::drawImage(GfxState *state, Object *ref, Stream *str,
 			       int width, int height,
 			       GfxImageColorMap *colorMap,
@@ -2266,6 +2289,25 @@ void CairoOutputDev::drawImage(GfxState *state, Object *ref, Stream *str,
   }
 
   cairo_surface_mark_dirty (image);
+
+#if CAIRO_VERSION >= CAIRO_VERSION_ENCODE(1, 9, 6)
+  if (printing && (str->getKind() == strDCT || str->getKind() == strJPX)) {
+    char *strBuffer;
+    int len;
+
+    if (getStreamData (str->getNextStream(), &strBuffer, &len)) {
+      cairo_status_t st;
+      st = cairo_surface_set_mime_data (image,
+					str->getKind() == strDCT ?
+					CAIRO_MIME_TYPE_JPEG : CAIRO_MIME_TYPE_JP2,
+					(const unsigned char *)strBuffer, len,
+					gfree, strBuffer);
+      if (st)
+        gfree (strBuffer);
+    }
+  }
+#endif /* CAIRO_VERSION >= CAIRO_VERSION_ENCODE(1, 9, 6) */
+
   pattern = cairo_pattern_create_for_surface (image);
   cairo_surface_destroy (image);
   if (cairo_pattern_status (pattern))

@@ -270,6 +270,7 @@ public:
 protected:
   void doPath(cairo_t *cairo, GfxState *state, GfxPath *path);
   cairo_surface_t *downscaleSurface(cairo_surface_t *orig_surface);
+  GBool getStreamData (Stream *str, char **buffer, int *length);
   
   GfxRGB fill_color, stroke_color;
   cairo_pattern_t *fill_pattern, *stroke_pattern;
