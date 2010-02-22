@@ -48,6 +48,19 @@ struct MiniIconv
 
 using namespace poppler;
 
+/**
+ \namespace poppler
+
+ Single namespace containing all the classes and functions of poppler-cpp.
+ */
+
+/**
+ \class poppler::noncopyable
+
+ A class that cannot be copied.
+ */
+
+
 noncopyable::noncopyable()
 {
 }
@@ -169,6 +182,9 @@ ustring ustring::from_latin1(const std::string &str)
 }
 
 
+/**
+ Converts a string representing a PDF date to a value compatible with time_t.
+ */
 unsigned int poppler::convert_date(const std::string &date)
 {
     int year, mon, day, hour, min, sec, tzHours, tzMins;
