@@ -39,6 +39,11 @@ public:
         seascape,
         upside_down
     };
+    enum search_direction_enum {
+        search_from_top,
+        search_next_result,
+        search_previous_result
+    };
 
     ~page();
 
@@ -48,6 +53,9 @@ public:
     ustring label() const;
 
     page_transition* transition() const;
+
+    bool search(const ustring &text, rectf &r, search_direction_enum direction,
+                case_sensitivity_enum case_sensitivity, rotation_enum rotation = rotate_0) const;
 
 private:
     page(document_private *doc, int index);
