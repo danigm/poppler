@@ -20,21 +20,33 @@
 
 using namespace poppler;
 
+/**
+ \returns the version string of the current poppler-cpp library
+ */
 std::string poppler::version_string()
 {
     return std::string(POPPLER_VERSION);
 }
 
+/**
+ \returns the "major" number of the version of the current poppler-cpp library
+ */
 unsigned int poppler::version_major()
 {
     return POPPLER_VERSION_MAJOR;
 }
 
+/**
+ \returns the "minor" number of the version of the current poppler-cpp library
+ */
 unsigned int poppler::version_minor()
 {
     return POPPLER_VERSION_MINOR;
 }
 
+/**
+ \returns the "micro" number of the version of the current poppler-cpp library
+ */
 unsigned int poppler::version_micro()
 {
     return POPPLER_VERSION_MICRO;
