@@ -102,6 +102,51 @@ document* document_private::check_document(document_private *doc)
     return 0;
 }
 
+/**
+ \class poppler::document poppler-document.h "poppler/cpp/poppler-document.h"
+
+ Represents a PDF %document.
+ */
+
+/**
+ \enum poppler::document::page_mode_enum
+
+ The various page modes available in a PDF %document.
+*/
+/**
+ \var poppler::document::page_mode_enum poppler::document::use_none
+
+ The %document specifies no particular page mode.
+*/
+/**
+ \var poppler::document::page_mode_enum poppler::document::use_outlines
+
+ The %document specifies its TOC (table of contents) should be open.
+*/
+/**
+ \var poppler::document::page_mode_enum poppler::document::use_thumbs
+
+ The %document specifies that should be open a view of the thumbnails of its
+ pages.
+*/
+/**
+ \var poppler::document::page_mode_enum poppler::document::fullscreen
+
+ The %document specifies it wants to be open in a fullscreen mode.
+*/
+/**
+ \var poppler::document::page_mode_enum poppler::document::use_oc
+
+ The %document specifies that should be open a view of its Optional Content
+ (also known as layers).
+*/
+/**
+ \var poppler::document::page_mode_enum poppler::document::use_attach
+
+ The %document specifies that should be open a view of its %document-level
+ attachments.
+ */
+
 
 document::document(document_private &dd)
     : d(&dd)
@@ -113,11 +158,19 @@ document::~document()
     delete d;
 }
 
+/**
+ \returns whether the current %document is locked
+ */
 bool document::is_locked() const
 {
     return d->is_locked;
 }
 
+/**
+ Unlocks the current doocument, if locked.
+
+ \returns the new locking status of the document
+ */
 bool document::unlock(const std::string &owner_password, const std::string &user_password)
 {
     if (d->is_locked) {
@@ -141,6 +194,9 @@ bool document::unlock(const std::string &owner_password, const std::string &user
     return d->is_locked;
 }
 
+/**
+ \returns the eventual page mode specified by the current PDF %document
+ */
 document::page_mode_enum document::page_mode() const
 {
     switch (d->doc->getCatalog()->getPageMode()) {
@@ -161,6 +217,9 @@ document::page_mode_enum document::page_mode() const
     }
 }
 
+/**
+ \returns the eventual page layout specified by the current PDF %document
+ */
 document::page_layout_enum document::page_layout() const
 {
     switch (d->doc->getCatalog()->getPageLayout()) {
@@ -183,6 +242,22 @@ document::page_layout_enum document::page_layout() const
     }
 }
 
+/**
+ Gets the version of the current PDF %document.
+
+ Example:
+ \code
+ poppler::document *doc = ...;
+ // for example, if the document is PDF 1.6:
+ int major = 0, minor = 0;
+ doc->get_pdf_version(&major, &minor);
+ // major == 1
+ // minor == 6
+ \endcode
+
+ \param major if not NULL, will be set to the "major" number of the version
+ \param minor if not NULL, will be set to the "minor" number of the version
+ */
 void document::get_pdf_version(int *major, int *minor) const
 {
     if (major) {
@@ -193,6 +268,10 @@ void document::get_pdf_version(int *major, int *minor) const
     }
 }
 
+/**
+ \returns all the information keys available in the %document
+ \see info_key, info_date
+ */
 std::vector<std::string> document::info_keys() const
 {
     if (d->is_locked) {
@@ -215,6 +294,12 @@ std::vector<std::string> document::info_keys() const
     return keys;
 }
 
+/**
+ Gets the value of the specified \p key of the document information.
+
+ \returns the value for the \p key, or an empty string if not available
+ \see info_keys, info_date
+ */
 ustring document::info_key(const std::string &key) const
 {
     if (d->is_locked) {
@@ -238,6 +323,13 @@ ustring document::info_key(const std::string &key) const
     return result;
 }
 
+/**
+ Gets the time_t value value of the specified \p key of the document
+ information.
+
+ \returns the time_t value for the \p key
+ \see info_keys, info_date
+ */
 unsigned int document::info_date(const std::string &key) const
 {
     if (d->is_locked) {
@@ -261,16 +353,27 @@ unsigned int document::info_date(const std::string &key) const
     return result;
 }
 
+/**
+ \returns whether the document is encrypted
+ */
 bool document::is_encrypted() const
 {
     return d->doc->isEncrypted();
 }
 
+/**
+ \returns whether the document is linearized
+ */
 bool document::is_linearized() const
 {
     return d->doc->isLinearized();
 }
 
+/**
+ Check for available "document permission".
+
+ \returns whether the specified permission is allowed
+ */
 bool document::has_permission(permission_enum which) const
 {
     switch (which) {
@@ -294,6 +397,11 @@ bool document::has_permission(permission_enum which) const
     return true;
 }
 
+/**
+ Reads the %document metadata string.
+
+ \return the %document metadata string
+ */
 ustring document::metadata() const
 {
     std::auto_ptr<GooString> md(d->doc->getCatalog()->readMetadata());
@@ -303,11 +411,24 @@ ustring document::metadata() const
     return ustring();
 }
 
+/**
+ Document page count.
+
+ \returns the number of pages of the document
+ */
 int document::pages() const
 {
     return d->doc->getNumPages();
 }
 
+/**
+ Document page by label reading.
+
+ This creates a new page representing the %document %page whose label is the
+ specified \p label. If there is no page with that \p label, NULL is returned.
+
+ \returns a new page object or NULL
+ */
 page* document::create_page(const ustring &label) const
 {
     std::auto_ptr<GooString> goolabel(detail::ustring_to_unicode_GooString(label));
@@ -319,11 +440,26 @@ page* document::create_page(const ustring &label) const
     return create_page(index);
 }
 
+/**
+ Document page by index reading.
+
+ This creates a new page representing the \p index -th %page of the %document.
+ \note the page indexes are in the range [0, pages()[.
+
+ \returns a new page object or NULL
+ */
 page* document::create_page(int index) const
 {
     return index >= 0 && index < d->doc->getNumPages() ? new page(d, index) : 0;
 }
 
+/**
+ Reads all the font information of the %document.
+
+ \note this can be slow for big documents; prefer the use of a font_iterator
+ to read incrementally page by page
+ \see create_font_iterator
+ */
 std::vector<font_info> document::fonts() const
 {
     std::vector<font_info> result;
@@ -335,21 +471,50 @@ std::vector<font_info> document::fonts() const
     return result;
 }
 
+/**
+ Creates a new font iterator.
+
+ This creates a new font iterator for reading the font information of the
+ %document page by page, starting at the specified \p start_page (0 if not
+ specified).
+
+ \returns a new font iterator
+ */
 font_iterator* document::create_font_iterator(int start_page) const
 {
     return new font_iterator(start_page, d);
 }
 
+/**
+ Reads the TOC (table of contents) of the %document.
+
+ \returns a new toc object if a TOC is available, NULL otherwise
+ */
 toc* document::create_toc() const
 {
     return toc_private::load_from_outline(d->doc->getOutline());
 }
 
+/**
+ Reads whether the current document has %document-level embedded files
+ (attachments).
+
+ This is a very fast way to know whether there are embedded files (also known
+ as "attachments") at the %document-level. Note this does not take into account
+ files embedded in other ways (e.g. to annotations).
+
+ \returns whether the document has embedded files
+ */
 bool document::has_embedded_files() const
 {
     return d->doc->getCatalog()->numEmbeddedFiles() > 0;
 }
 
+/**
+ Reads all the %document-level embedded files of the %document.
+
+ \returns the %document-level embedded files
+ */
 std::vector<embedded_file *> document::embedded_files() const
 {
     if (d->is_locked) {
@@ -367,6 +532,13 @@ std::vector<embedded_file *> document::embedded_files() const
     return d->embedded_files;
 }
 
+/**
+ Tries to load a PDF %document from the specified file.
+
+ \param file_name the file to open
+ \returns a new document if the load succeeded (even if the document is locked),
+          NULL otherwise
+ */
 document* document::load_from_file(const std::string &file_name,
                                    const std::string &owner_password,
                                    const std::string &user_password)
@@ -377,6 +549,16 @@ document* document::load_from_file(const std::string &file_name,
     return document_private::check_document(doc);
 }
 
+/**
+ Tries to load a PDF %document from the specified file.
+
+ \note if the loading succeeds, the document takes ownership of the
+       \p file_data (swap()ing it)
+
+ \param file_data the file to open
+ \returns a new document if the load succeeded (even if the document is locked),
+          NULL otherwise
+ */
 document* document::load_from_data(byte_array *file_data,
                                    const std::string &owner_password,
                                    const std::string &user_password)
