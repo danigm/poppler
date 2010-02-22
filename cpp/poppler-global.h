@@ -40,6 +40,7 @@
 namespace poppler
 {
 
+/// \cond DOXYGEN_SKIP_THIS
 namespace detail
 {
 
@@ -56,6 +57,7 @@ private:
 }
 
 typedef detail::noncopyable noncopyable;
+/// \endcond
 
 enum rotation_enum { rotate_0, rotate_90, rotate_180, rotate_270 };
 
