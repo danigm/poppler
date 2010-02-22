@@ -500,7 +500,7 @@ void CairoOutputDev::updateFillColorStop(GfxState *state, double offset) {
 }
 
 void CairoOutputDev::updateBlendMode(GfxState *state) {
-#ifdef CAIRO_HAS_BLEND_MODES
+#if CAIRO_VERSION >= CAIRO_VERSION_ENCODE(1, 9, 4)
   switch (state->getBlendMode()) {
   default:
   case gfxBlendNormal:
@@ -553,7 +553,7 @@ void CairoOutputDev::updateBlendMode(GfxState *state) {
     break;
   }
   LOG(printf ("blend mode: %d\n", (int)state->getBlendMode()));
-#endif /* CAIRO_HAS_BLEND_MODES */
+#endif /* CAIRO_VERSION >= CAIRO_VERSION_ENCODE(1, 9, 4) */
 }
 
 void CairoOutputDev::updateFont(GfxState *state) {
