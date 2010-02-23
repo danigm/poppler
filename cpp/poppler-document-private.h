@@ -42,7 +42,7 @@ public:
                      const std::string &user_password);
     ~document_private();
 
-    static document* check_document(document_private *doc);
+    static document* check_document(document_private *doc, byte_array *file_data);
 
     PDFDoc *doc;
     byte_array doc_data;

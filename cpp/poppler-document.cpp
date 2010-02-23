@@ -89,7 +89,7 @@ void document_private::init()
     count++;
 }
 
-document* document_private::check_document(document_private *doc)
+document* document_private::check_document(document_private *doc, byte_array *file_data)
 {
     if (doc->doc->isOk() || doc->doc->getErrorCode() == errEncrypted) {
         if (doc->doc->getErrorCode() == errEncrypted) {
@@ -97,6 +97,10 @@ document* document_private::check_document(document_private *doc)
         }
         return new document(*doc);
     } else {
+        // put back the document data where it was before
+        if (file_data) {
+            file_data->swap(doc->doc_data);
+        }
         delete doc;
     }
     return 0;
@@ -546,7 +550,7 @@ document* document::load_from_file(const std::string &file_name,
     document_private *doc = new document_private(
                                 new GooString(file_name.c_str()),
                                 owner_password, user_password);
-    return document_private::check_document(doc);
+    return document_private::check_document(doc, 0);
 }
 
 /**
@@ -569,5 +573,5 @@ document* document::load_from_data(byte_array *file_data,
 
     document_private *doc = new document_private(
                                 file_data, owner_password, user_password);
-    return document_private::check_document(doc);
+    return document_private::check_document(doc, file_data);
 }
