@@ -42,57 +42,100 @@ embedded_file* embedded_file_private::create(EmbFile *ef)
     return new embedded_file(*new embedded_file_private(ef));
 }
 
+/**
+ \class poppler::embedded_file poppler-embedded-file.h "poppler/cpp/poppler-embedded-file.h"
+
+ Represents a file embedded in a PDF %document.
+ */
+
 
 embedded_file::embedded_file(embedded_file_private &dd)
     : d(&dd)
 {
 }
 
+/**
+ Destroys the embedded file.
+ */
 embedded_file::~embedded_file()
 {
     delete d;
 }
 
+/**
+ \returns whether the embedded file is valid
+ */
 bool embedded_file::is_valid() const
 {
     return d->emb_file->isOk();
 }
 
+/**
+ \returns the name of the embedded file
+ */
 std::string embedded_file::name() const
 {
     return std::string(d->emb_file->name()->getCString());
 }
 
+/**
+ \returns the description of the embedded file
+ */
 ustring embedded_file::description() const
 {
     return detail::unicode_GooString_to_ustring(d->emb_file->description());
 }
 
+/**
+ \note this is not always available in the PDF %document, in that case this
+       will return \p -1.
+
+ \returns the size of the embedded file, if known
+ */
 int embedded_file::size() const
 {
     return d->emb_file->size();
 }
 
+/**
+ \returns the time_t representing the modification date of the embedded file,
+          if available
+ */
 unsigned int embedded_file::modification_date() const
 {
     return convert_date(d->emb_file->modDate()->getCString());
 }
 
+/**
+ \returns the time_t representing the creation date of the embedded file,
+          if available
+ */
 unsigned int embedded_file::creation_date() const
 {
     return convert_date(d->emb_file->createDate()->getCString());
 }
 
+/**
+ \returns the checksum of the embedded file
+ */
 std::string embedded_file::checksum() const
 {
     return std::string(d->emb_file->checksum()->getCString());
 }
 
+/**
+ \returns the MIME type of the embedded file, if available
+ */
 std::string embedded_file::mime_type() const
 {
     return std::string(d->emb_file->mimeType()->getCString());
 }
 
+/**
+ Reads all the data of the embedded file.
+
+ \returns the data of the embedded file
+ */
 byte_array embedded_file::data() const
 {
     if (!is_valid()) {
