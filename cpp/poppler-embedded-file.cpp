@@ -118,9 +118,15 @@ unsigned int embedded_file::creation_date() const
 /**
  \returns the checksum of the embedded file
  */
-std::string embedded_file::checksum() const
+byte_array embedded_file::checksum() const
 {
-    return std::string(d->emb_file->checksum()->getCString());
+    GooString *cs = d->emb_file->checksum();
+    const char *ccs = cs->getCString();
+    byte_array data(cs->getLength());
+    for (int i = 0; i < cs->getLength(); ++i) {
+        data[i] = ccs[i];
+    }
+    return data;
 }
 
 /**

@@ -39,7 +39,7 @@ public:
     int size() const;
     unsigned int /*time_t*/ modification_date() const;
     unsigned int /*time_t*/ creation_date() const;
-    std::string checksum() const;
+    byte_array checksum() const;
     std::string mime_type() const;
     byte_array data() const;
 
