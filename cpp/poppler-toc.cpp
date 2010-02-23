@@ -89,21 +89,53 @@ void toc_item_private::load_children(GooList *items)
     }
 }
 
+/**
+ \class poppler::toc poppler-toc.h "poppler/cpp/poppler-toc.h"
+
+ Represents the TOC (Table of Contents) of a PDF %document.
+
+ The TOC of a PDF %document is represented as a tree of items.
+ */
+
 
 toc::toc()
     : d(new toc_private())
 {
 }
 
+/**
+ Destroys the TOC.
+ */
 toc::~toc()
 {
     delete d;
 }
 
+/**
+ Returns the "invisible item" representing the root of the TOC.
+
+ This item is special, it has no title nor actions, it is open and its children
+ are the effective root items of the TOC. This is provided as a convenience
+ when iterating throught the TOC.
+
+ \returns the root "item"
+ */
 toc_item* toc::root() const
 {
     return &d->root;
 }
+
+/**
+ \class poppler::toc_item poppler-toc.h "poppler/cpp/poppler-toc.h"
+
+ Represents an item of the TOC (Table of Contents) of a PDF %document.
+ */
+
+/**
+ \typedef std::vector<toc_item *>::const_iterator poppler::toc_item::iterator
+
+ An iterator for the children of a TOC item.
+ */
 
 
 toc_item::toc_item()
@@ -111,31 +143,56 @@ toc_item::toc_item()
 {
 }
 
+/**
+ Destroys the TOC item.
+ */
 toc_item::~toc_item()
 {
     delete d;
 }
 
+/**
+ \returns the title of the TOC item
+ */
 ustring toc_item::title() const
 {
     return d->title;
 }
 
+/**
+ Returns whether the TOC item should be represented as open when showing the
+ TOC.
+
+ This is not a functional behaviour, but a visualisation hint of the item.
+ Regardless of this state, the item can be expanded and collapsed freely when
+ represented in a TOC view of a PDF viewer.
+
+ \returns whether the TOC item should be open
+ */
 bool toc_item::is_open() const
 {
     return d->is_open;
 }
 
+/**
+ \returns the children of the TOC item
+ */
 std::vector<toc_item *> toc_item::children() const
 {
     return d->children;
 }
 
+/**
+ \returns an iterator to the being of the list of children of the TOC item
+ */
 toc_item::iterator toc_item::children_begin() const
 {
     return d->children.begin();
 }
 
+/**
+ \returns an iterator to the end of the list of children of the TOC item
+ */
 toc_item::iterator toc_item::children_end() const
 {
     return d->children.end();
