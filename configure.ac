@@ -210,6 +210,21 @@ AM_CONDITIONAL(BUILD_ZLIB, test x$enable_zlib = xyes)
 AH_TEMPLATE([ENABLE_ZLIB],
 	    [Use zlib instead of builtin zlib decoder.])
 
+dnl Test for libcurl
+AC_ARG_ENABLE(libcurl,
+	      AC_HELP_STRING([--enable-libcurl],
+	                     [Build with libcurl based HTTP support.]),
+              enable_libcurl=$enableval,
+              enable_libcurl="no")
+
+if test x$enable_libcurl = xyes; then
+  PKG_CHECK_MODULES(LIBCURL, libcurl)
+  AC_DEFINE(ENABLE_LIBCURL, 1, [Build against libcurl.])
+  AC_DEFINE(POPPLER_HAS_CURL_SUPPORT, 1,
+     [Support for curl based doc builder is compiled in.])
+fi
+
+AM_CONDITIONAL(BUILD_LIBCURL, test x$enable_libcurl = xyes)
 
 dnl Test for libjpeg
 AC_ARG_ENABLE(libjpeg,
@@ -651,6 +666,7 @@ echo "  use gtk-doc:        $enable_gtk_doc"
 echo "  use libjpeg:        $enable_libjpeg"
 echo "  use libpng:         $enable_libpng"
 echo "  use zlib:           $enable_zlib"
+echo "  use libcurl:        $enable_libcurl"
 echo "  use libopenjpeg:    $enable_libopenjpeg"
 echo "  use cms:            $enable_cms"
 echo "  command line utils: $enable_utils"

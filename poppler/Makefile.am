@@ -102,6 +102,22 @@ zlib_libs = 					\
 
 endif
 
+if BUILD_LIBCURL
+
+libcurl_libs =					\
+	$(LIBCURL_LIBS)
+
+libcurl_includes =				\
+	$(LIBCURL_CFLAGS)
+
+curl_headers =					\
+	CurlCachedFile.h
+
+curl_sources =					\
+	CurlCachedFile.cc
+
+endif
+
 if BUILD_ABIWORD_OUTPUT
 
 abiword_sources =				\
@@ -130,6 +146,7 @@ INCLUDES =					\
 	$(arthur_includes)			\
 	$(abiword_includes)			\
 	$(libpng_includes)			\
+	$(libcurl_includes)			\
 	$(FREETYPE_CFLAGS)			\
 	$(FONTCONFIG_CFLAGS)
 
@@ -149,6 +166,7 @@ libpoppler_la_LIBADD =				\
 	$(libjpeg_libs)				\
 	$(libpng_libs)				\
 	$(zlib_libs)				\
+	$(libcurl_libs)				\
 	$(libjpeg2000_libs)			\
 	$(abiword_libs)				\
 	$(FREETYPE_LIBS)			\
@@ -163,6 +181,7 @@ if ENABLE_XPDF_HEADERS
 poppler_includedir = $(includedir)/poppler
 poppler_include_HEADERS =	\
 	$(splash_headers)	\
+	$(curl_headers)		\
 	Annot.h			\
 	Array.h			\
 	BuiltinFont.h		\
@@ -237,6 +256,7 @@ libpoppler_la_SOURCES =		\
 	$(zlib_sources)		\
 	$(libjpeg2000_sources)	\
 	$(abiword_sources)	\
+	$(curl_sources)		\
 	Annot.cc		\
 	Array.cc 		\
 	BuiltinFont.cc		\

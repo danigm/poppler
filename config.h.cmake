@@ -1,5 +1,8 @@
 /* config.h.  Generated from config.h.cmake by cmake.  */
 
+/* Build against libcurl. */
+#cmakedefine ENABLE_LIBCURL 1
+
 /* Use libjpeg instead of builtin jpeg decoder. */
 #cmakedefine ENABLE_LIBJPEG 1
 
@@ -152,6 +155,9 @@
 
 /* Poppler data dir */
 #define POPPLER_DATADIR "${CMAKE_INSTALL_PREFIX}/share/poppler"
+
+/* Support for curl based doc builder is compiled in. */
+#cmakedefine POPPLER_HAS_CURL_SUPPORT 1
 
 /* Have GDK */
 #cmakedefine POPPLER_WITH_GDK 1

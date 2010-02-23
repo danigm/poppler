@@ -49,6 +49,11 @@
 #cmakedefine WITH_FONTCONFIGURATION_WIN32 1
 #endif
 
+/* Support for curl is compiled in. */
+#ifndef POPPLER_HAS_CURL_SUPPORT
+#cmakedefine POPPLER_HAS_CURL_SUPPORT 1
+#endif
+
 // Also, there's a couple of preprocessor symbols in the header files
 // that are used but never defined: DISABLE_OUTLINE, DEBUG_MEM and
 

@@ -49,6 +49,9 @@
 #include "Error.h"
 #include "DateInfo.h"
 #include "StdinCachedFile.h"
+#if ENABLE_LIBCURL
+#include "CurlCachedFile.h"
+#endif
 
 static void printInfoString(Dict *infoDict, char *key, char *text,
 			    UnicodeMap *uMap);
@@ -160,7 +163,18 @@ int main(int argc, char *argv[]) {
     userPW = NULL;
   }
 
-  if(fileName->cmp("-") != 0) {
+#if ENABLE_LIBCURL
+  if (fileName->cmpN("http://", 7) == 0 ||
+           fileName->cmpN("https://", 8) == 0) {
+      Object obj;
+
+      obj.initNull();
+      CachedFile *cachedFile = new CachedFile(new CurlCachedFileLoader(), fileName);
+      doc = new PDFDoc(new CachedFileStream(cachedFile, 0, gFalse, 0, &obj),
+                       ownerPW, userPW);
+  } else
+#endif
+  if (fileName->cmp("-") != 0) {
       doc = new PDFDoc(fileName, ownerPW, userPW);
   } else {
       Object obj;

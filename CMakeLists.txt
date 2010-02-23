@@ -29,6 +29,7 @@ option(ENABLE_CPP "Compile poppler cpp wrapper." ON)
 option(ENABLE_ABIWORD "Build the Abiword backend." ON)
 option(ENABLE_LIBOPENJPEG "Use libopenjpeg for JPX streams." ON)
 option(ENABLE_LCMS "Use liblcms for color management." ON)
+option(ENABLE_LIBCURL "Build libcurl based HTTP support." OFF)
 option(ENABLE_ZLIB "Build with zlib (not totally safe)." OFF)
 option(USE_EXCEPTIONS "Throw exceptions to deal with not enough memory and similar problems." OFF)
 option(USE_FIXEDPOINT "Use fixed point arithmetic in the Splash backend" OFF)
@@ -132,6 +133,11 @@ if(ENABLE_LCMS)
   find_package(LCMS)
   set(USE_CMS ${LCMS_FOUND})
 endif(ENABLE_LCMS)
+if(ENABLE_LIBCURL)
+  find_package(CURL)
+  include_directories(${CURL_INCLUDE_DIR})
+  set(POPPLER_HAS_CURL_SUPPORT ON)
+endif(ENABLE_LIBCURL)
 
 add_definitions(-DHAVE_CONFIG_H=1)
 if(FONTCONFIG_FOUND)
@@ -311,6 +317,12 @@ if(ENABLE_ZLIB)
   )
   set(poppler_LIBS ${poppler_LIBS} ${ZLIB_LIBRARIES})
 endif(ENABLE_ZLIB)
+if(ENABLE_LIBCURL)
+  set(poppler_SRCS ${poppler_SRCS}
+    poppler/CurlCachedFile.cc
+  )
+  set(poppler_LIBS ${poppler_LIBS} ${CURL_LIBRARIES})
+endif(ENABLE_LIBCURL)
 if(LIBOPENJPEG_FOUND)
   set(poppler_SRCS ${poppler_SRCS}
     poppler/JPEG2000Stream.cc
@@ -442,6 +454,11 @@ if(ENABLE_XPDF_HEADERS)
     fofi/FoFiType1.h
     fofi/FoFiType1C.h
     DESTINATION include/poppler/fofi)
+  if(ENABLE_LIBCURL)
+    install(FILES
+      poppler/CurlCachedFile.h
+      DESTINATION include/poppler)
+  endif(ENABLE_LIBCURL)
   if(LIBOPENJPEG_FOUND)
     install(FILES
       poppler/JPEG2000Stream.h
@@ -552,6 +569,7 @@ show_end_message("use gtk-doc" "not supported with this CMake build system")
 show_end_message_yesno("use libjpeg" ENABLE_LIBJPEG)
 show_end_message_yesno("use libpng" ENABLE_LIBPNG)
 show_end_message_yesno("use zlib" ENABLE_ZLIB)
+show_end_message_yesno("use curl" ENABLE_LIBCURL)
 show_end_message_yesno("use libopenjpeg" LIBOPENJPEG_FOUND)
 show_end_message_yesno("use cms" USE_CMS)
 show_end_message_yesno("command line utils" ENABLE_UTILS)

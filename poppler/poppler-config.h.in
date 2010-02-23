@@ -49,6 +49,11 @@
 #undef WITH_FONTCONFIGURATION_WIN32
 #endif
 
+/* Support for curl is compiled in. */
+#ifndef POPPLER_HAS_CURL_SUPPORT
+#undef POPPLER_HAS_CURL_SUPPORT
+#endif
+
 // Also, there's a couple of preprocessor symbols in the header files
 // that are used but never defined: DISABLE_OUTLINE, DEBUG_MEM and
 
