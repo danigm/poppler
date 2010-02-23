@@ -205,6 +205,7 @@ poppler_include_HEADERS =	\
 	PreScanOutputDev.h	\
 	PSTokenizer.h		\
 	Rendition.h		\
+	StdinCachedFile.h	\
 	Stream-CCITT.h		\
 	Stream.h		\
 	UnicodeMap.h		\
@@ -277,6 +278,7 @@ libpoppler_la_SOURCES =		\
 	PreScanOutputDev.cc \
 	PSTokenizer.cc		\
 	Rendition.cc		\
+	StdinCachedFile.cc	\
 	Stream.cc 		\
 	UnicodeMap.cc		\
 	UnicodeTypeTable.cc	\

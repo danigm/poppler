@@ -265,6 +265,7 @@ set(poppler_SRCS
   poppler/TextOutputDev.cc
   poppler/PageLabelInfo.cc
   poppler/SecurityHandler.cc
+  poppler/StdinCachedFile.cc
   poppler/Sound.cc
   poppler/XpdfPluginAPI.cc
   poppler/Movie.cc
@@ -409,6 +410,7 @@ if(ENABLE_XPDF_HEADERS)
     poppler/PSOutputDev.h
     poppler/TextOutputDev.h
     poppler/SecurityHandler.h
+    poppler/StdinCachedFile.h
     poppler/UTF8.h
     poppler/XpdfPluginAPI.h
     poppler/Sound.h
