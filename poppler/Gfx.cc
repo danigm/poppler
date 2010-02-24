@@ -2101,7 +2101,8 @@ void Gfx::doShadingPatternFill(GfxShadingPattern *sPat,
     state->lineTo(xMin, yMax);
     state->closePath();
     state->clip();
-    out->clip(state);
+    if (!textHaveCSPattern && !maskHaveCSPattern)
+      out->clip(state);
     state->setPath(savedPath->copy());
   }
 
