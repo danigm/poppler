@@ -15,6 +15,7 @@
 //
 // Copyright (C) 2006 Dom Lachowicz <cinamod@hotmail.com>
 // Copyright (C) 2007-2009 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2010 Hib Eris <hib@hiberis.nl>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -47,6 +48,7 @@
 #include "PDFDocEncoding.h"
 #include "Error.h"
 #include "DateInfo.h"
+#include "StdinCachedFile.h"
 
 static void printInfoString(Dict *infoDict, char *key, char *text,
 			    UnicodeMap *uMap);
@@ -164,7 +166,9 @@ int main(int argc, char *argv[]) {
       Object obj;
 
       obj.initNull();
-      doc = new PDFDoc(new FileStream(stdin, 0, gFalse, 0, &obj), ownerPW, userPW);
+      CachedFile *cachedFile = new CachedFile(new StdinCacheLoader(), NULL);
+      doc = new PDFDoc(new CachedFileStream(cachedFile, 0, gFalse, 0, &obj),
+                       ownerPW, userPW);
   }
 
   if (userPW) {
