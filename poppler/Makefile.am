@@ -111,10 +111,12 @@ libcurl_includes =				\
 	$(LIBCURL_CFLAGS)
 
 curl_headers =					\
-	CurlCachedFile.h
+	CurlCachedFile.h			\
+	CurlPDFDocBuilder.h
 
 curl_sources =					\
-	CurlCachedFile.cc
+	CurlCachedFile.cc			\
+	CurlPDFDocBuilder.cc
 
 endif
 

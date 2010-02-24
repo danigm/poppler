@@ -322,6 +322,7 @@ endif(ENABLE_ZLIB)
 if(ENABLE_LIBCURL)
   set(poppler_SRCS ${poppler_SRCS}
     poppler/CurlCachedFile.cc
+    poppler/CurlPDFDocBuilder.cc
   )
   set(poppler_LIBS ${poppler_LIBS} ${CURL_LIBRARIES})
 endif(ENABLE_LIBCURL)
@@ -462,6 +463,7 @@ if(ENABLE_XPDF_HEADERS)
   if(ENABLE_LIBCURL)
     install(FILES
       poppler/CurlCachedFile.h
+      poppler/CurlPDFDocBuilder.h
       DESTINATION include/poppler)
   endif(ENABLE_LIBCURL)
   if(LIBOPENJPEG_FOUND)
