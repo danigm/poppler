@@ -249,6 +249,7 @@ set(poppler_SRCS
   poppler/JBIG2Stream.cc
   poppler/Lexer.cc
   poppler/Link.cc
+  poppler/LocalPDFDocBuilder.cc
   poppler/NameToCharCode.cc
   poppler/Object.cc
   poppler/OptionalContent.cc
@@ -272,6 +273,7 @@ set(poppler_SRCS
   poppler/PageLabelInfo.cc
   poppler/SecurityHandler.cc
   poppler/StdinCachedFile.cc
+  poppler/StdinPDFDocBuilder.cc
   poppler/Sound.cc
   poppler/XpdfPluginAPI.cc
   poppler/Movie.cc
@@ -390,6 +392,7 @@ if(ENABLE_XPDF_HEADERS)
     poppler/JBIG2Stream.h
     poppler/Lexer.h
     poppler/Link.h
+    poppler/LocalPDFDocBuilder.h
     poppler/Movie.h
     poppler/NameToCharCode.h
     poppler/Object.h
@@ -424,6 +427,7 @@ if(ENABLE_XPDF_HEADERS)
     poppler/TextOutputDev.h
     poppler/SecurityHandler.h
     poppler/StdinCachedFile.h
+    poppler/StdinPDFDocBuilder.h
     poppler/UTF8.h
     poppler/XpdfPluginAPI.h
     poppler/Sound.h

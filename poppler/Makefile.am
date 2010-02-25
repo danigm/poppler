@@ -208,6 +208,7 @@ poppler_include_HEADERS =	\
 	JBIG2Stream.h		\
 	Lexer.h			\
 	Link.h			\
+	LocalPDFDocBuilder.h	\
 	Movie.h                 \
 	NameToCharCode.h	\
 	Object.h		\
@@ -226,6 +227,7 @@ poppler_include_HEADERS =	\
 	PSTokenizer.h		\
 	Rendition.h		\
 	StdinCachedFile.h	\
+	StdinPDFDocBuilder.h	\
 	Stream-CCITT.h		\
 	Stream.h		\
 	UnicodeMap.h		\
@@ -283,6 +285,7 @@ libpoppler_la_SOURCES =		\
 	JBIG2Stream.cc		\
 	Lexer.cc 		\
 	Link.cc 		\
+	LocalPDFDocBuilder.cc	\
 	Movie.cc                \
 	NameToCharCode.cc	\
 	Object.cc 		\
@@ -300,6 +303,7 @@ libpoppler_la_SOURCES =		\
 	PSTokenizer.cc		\
 	Rendition.cc		\
 	StdinCachedFile.cc	\
+	StdinPDFDocBuilder.cc	\
 	Stream.cc 		\
 	UnicodeMap.cc		\
 	UnicodeTypeTable.cc	\

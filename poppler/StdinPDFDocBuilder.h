@@ -1,0 +1,30 @@
+//========================================================================
+//
+// StdinPDFDocBuilder.h
+//
+// This file is licensed under the GPLv2 or later
+//
+// Copyright 2010 Hib Eris <hib@hiberis.nl>
+//
+//========================================================================
+
+#ifndef STDINPDFDOCBUILDER_H
+#define STDINPDFDOCBUILDER_H
+
+#include "PDFDocBuilder.h"
+
+//------------------------------------------------------------------------
+// StdinPDFDocBuilder
+//------------------------------------------------------------------------
+
+class StdinPDFDocBuilder : public PDFDocBuilder {
+
+public:
+
+  PDFDoc *buildPDFDoc(GooString* uri, GooString *ownerPassword = NULL,
+    GooString *userPassword = NULL, void *guiDataA = NULL);
+  GBool supports(GooString* uri);
+
+};
+
+#endif /* STDINPDFDOCBUILDER_H */
