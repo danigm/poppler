@@ -347,7 +347,6 @@ _ft_new_face (FT_Library lib,
 
 CairoFreeTypeFont::CairoFreeTypeFont(Ref ref,
 				     cairo_font_face_t *cairo_font_face,
-				     FT_Face face,
 				     Gushort *codeToGID,
 				     int codeToGIDLen,
 				     GBool substitute) : CairoFont(ref,
@@ -355,8 +354,7 @@ CairoFreeTypeFont::CairoFreeTypeFont(Ref ref,
 								   codeToGID,
 								   codeToGIDLen,
 								   substitute,
-								   gTrue),
-							 face(face) { }
+								   gTrue) { }
 
 CairoFreeTypeFont::~CairoFreeTypeFont() { }
 
@@ -534,7 +532,7 @@ CairoFreeTypeFont *CairoFreeTypeFont::create(GfxFont *gfxFont, XRef *xref,
   }
 
   return new CairoFreeTypeFont(ref,
-		       font_face, face,
+		       font_face,
 		       codeToGID, codeToGIDLen,
 		       substitute);
 

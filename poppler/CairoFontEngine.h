@@ -75,9 +75,8 @@ public:
   virtual ~CairoFreeTypeFont();
 
 private:
-  CairoFreeTypeFont(Ref ref, cairo_font_face_t *cairo_font_face, FT_Face face,
+  CairoFreeTypeFont(Ref ref, cairo_font_face_t *cairo_font_face,
 	    Gushort *codeToGID, int codeToGIDLen, GBool substitute);
-  FT_Face face;
 };
 
 //------------------------------------------------------------------------
