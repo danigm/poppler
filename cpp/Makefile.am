@@ -20,14 +20,19 @@ poppler_include_HEADERS =			\
 lib_LTLIBRARIES = libpoppler-cpp.la
 libpoppler_cpp_la_SOURCES =			\
 	poppler-document.cpp			\
+	poppler-document-private.h		\
 	poppler-embedded-file.cpp		\
+	poppler-embedded-file-private.h		\
 	poppler-font.cpp			\
 	poppler-global.cpp			\
 	poppler-page.cpp			\
+	poppler-page-private.h			\
 	poppler-page-transition.cpp		\
 	poppler-private.cpp			\
+	poppler-private.h			\
 	poppler-rectangle.cpp			\
 	poppler-toc.cpp				\
+	poppler-toc-private.h			\
 	poppler-version.cpp
 
 libpoppler_cpp_la_LIBADD = 			\
