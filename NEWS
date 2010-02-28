@@ -1,3 +1,36 @@
+Release 0.13.1 (0.14 Alpha 2)
+
+	core:
+	 * New C++ frontend to interface with Poppler using only STL
+	 * Use the right matrix for the mask in drawMaskedImage in Cairo output device. Bug #16906
+	 * Fix downscaling images when document is rotated in Cairo output device. Bug #26264
+	 * GooVector rewrite, old version had "unknown" origins/license
+	 * Fix use after free in a error condition
+	 * Improve handling of broken commands. Bug #24575
+	 * Fix potential use after free in Cairo output device.
+	 * Fix regression in painting. Bug #26243
+	 * Improve handling of FontConfig. Bug #26544
+	 * Only assume the OC is not visible if it exists and is set to no. Bug #26532
+	 * Fix a potential crash in Splash font handling on out of memory conditions
+	 * Implement writeImgFile for splashModeXBGR8
+	 * Several speed increases (around 40% in some documents) in the Splash output device
+	 * Improve printing on the Cairo output device
+	 * Do not use '\' character in PostScript names
+	 * Omit writing of embedded fonts into temporary files in the Cairo output device. Bug #26694
+	 * Improve filtering of some images in the Cairo output device. Bugs #25268, #9860
+
+	utils:
+	 * pdftoppm: Only swap w with h if rotation is 90 or 270
+	
+	build system:
+	 * Add POPPLER_WITH_GDK in cmake build system. Bug #26247
+	 * Fix typo: "MULTITHREAD" -> "MULTITHREADED in cmake build system
+	 * Wrap #include <jpeglib.h> in extern "C" to fix build. Bug #26351
+	 * Add the Win32-specific ENABLE_RELOCATABLE option to cmake build system
+	 * Reflect that poppler-glib needs cairo now in cmake build system
+	 * Use pkgconfig to detect libpng on autotools build system
+	 * Detect the need for nanosleep in solaris in cmake build system. Bug #26650
+
 Release 0.13.0 (0.14 Alpha)
 
 	core:
