@@ -272,6 +272,8 @@ protected:
   cairo_surface_t *downscaleSurface(cairo_surface_t *orig_surface);
   void getScaledSize(int orig_width, int orig_height,
 		     int *scaledWidth, int *scaledHeight);
+  cairo_filter_t getFilterForSurface(cairo_surface_t *image,
+				     GBool interpolate);
   GBool getStreamData (Stream *str, char **buffer, int *length);
   
   GfxRGB fill_color, stroke_color;

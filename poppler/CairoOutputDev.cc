@@ -1456,6 +1456,25 @@ cairo_surface_t *CairoOutputDev::downscaleSurface(cairo_surface_t *orig_surface)
 
 }
 
+cairo_filter_t
+CairoOutputDev::getFilterForSurface(cairo_surface_t *image,
+				    GBool interpolate)
+{
+  if (interpolate)
+    return CAIRO_FILTER_BILINEAR;
+
+  int orig_width = cairo_image_surface_get_width (image);
+  int orig_height = cairo_image_surface_get_height (image);
+  int scaled_width, scaled_height;
+  getScaledSize (orig_width, orig_height, &scaled_width, &scaled_height);
+
+  /* When scale factor is >= 400% we don't interpolate. See bugs #25268, #9860 */
+  if (scaled_width / orig_width >= 4 || scaled_height / orig_height >= 4)
+	  return CAIRO_FILTER_NEAREST;
+
+  return CAIRO_FILTER_BILINEAR;
+}
+
 void CairoOutputDev::drawImageMask(GfxState *state, Object *ref, Stream *str,
 				   int width, int height, GBool invert,
 				   GBool interpolate, GBool inlineImg) {
@@ -1518,6 +1537,7 @@ void CairoOutputDev::drawImageMaskRegular(GfxState *state, Object *ref, Stream *
   cairo_matrix_t matrix;
   int invert_bit;
   int row_stride;
+  cairo_filter_t filter;
 
   /* TODO: Do we want to cache these? */
   imgStr = new ImageStream(str, width, 1, 1);
@@ -1544,6 +1564,8 @@ void CairoOutputDev::drawImageMaskRegular(GfxState *state, Object *ref, Stream *
     }
   }
 
+  filter = getFilterForSurface (image, interpolate);
+
   cairo_surface_mark_dirty (image);
   pattern = cairo_pattern_create_for_surface (image);
   cairo_surface_destroy (image);
@@ -1552,11 +1574,8 @@ void CairoOutputDev::drawImageMaskRegular(GfxState *state, Object *ref, Stream *
 
   LOG (printf ("drawImageMask %dx%d\n", width, height));
 
-  /* we should actually be using CAIRO_FILTER_NEAREST here. However,
-   * cairo doesn't yet do minifaction filtering causing scaled down
-   * images with CAIRO_FILTER_NEAREST to look really bad */
-  cairo_pattern_set_filter (pattern,
-			    interpolate ? CAIRO_FILTER_BEST : CAIRO_FILTER_FAST);
+  cairo_pattern_set_filter (pattern, filter);
+
   if (!printing)
     cairo_pattern_set_extend (pattern, CAIRO_EXTEND_PAD);
 
@@ -1897,6 +1916,8 @@ void CairoOutputDev::drawMaskedImage(GfxState *state, Object *ref,
   Guchar *pix;
   int x, y;
   int invert_bit;
+  cairo_filter_t filter;
+  cairo_filter_t maskFilter;
 
   maskImgStr = new ImageStream(maskStr, maskWidth, 1, 1);
   maskImgStr->reset();
@@ -1926,6 +1947,8 @@ void CairoOutputDev::drawMaskedImage(GfxState *state, Object *ref,
 
   maskImgStr->close();
   delete maskImgStr;
+
+  maskFilter = getFilterForSurface (maskImage, maskInterpolate);
 
   cairo_surface_mark_dirty (maskImage);
   maskPattern = cairo_pattern_create_for_surface (maskImage);
@@ -1960,6 +1983,8 @@ void CairoOutputDev::drawMaskedImage(GfxState *state, Object *ref,
     colorMap->getRGBLine (pix, dest, width);
   }
 
+  filter = getFilterForSurface (image, interpolate);
+
   cairo_surface_mark_dirty (image);
   pattern = cairo_pattern_create_for_surface (image);
   cairo_surface_destroy (image);
@@ -1968,10 +1993,9 @@ void CairoOutputDev::drawMaskedImage(GfxState *state, Object *ref,
 
   LOG (printf ("drawMaskedImage %dx%d\n", width, height));
 
-  cairo_pattern_set_filter (pattern,
-			    interpolate ? CAIRO_FILTER_BILINEAR : CAIRO_FILTER_FAST);
-  cairo_pattern_set_filter (maskPattern,
-			    maskInterpolate ? CAIRO_FILTER_BILINEAR : CAIRO_FILTER_FAST);
+  cairo_pattern_set_filter (pattern, filter);
+  cairo_pattern_set_filter (maskPattern, maskFilter);
+
   if (!printing) {
     cairo_pattern_set_extend (pattern, CAIRO_EXTEND_PAD);
     cairo_pattern_set_extend (maskPattern, CAIRO_EXTEND_PAD);
@@ -2038,6 +2062,8 @@ void CairoOutputDev::drawSoftMaskedImage(GfxState *state, Object *ref, Stream *s
   cairo_matrix_t maskMatrix, matrix;
   Guchar *pix;
   int y;
+  cairo_filter_t filter;
+  cairo_filter_t maskFilter;
 
   maskImgStr = new ImageStream(maskStr, maskWidth,
 			       maskColorMap->getNumPixelComps(),
@@ -2061,6 +2087,8 @@ void CairoOutputDev::drawSoftMaskedImage(GfxState *state, Object *ref, Stream *s
 
   maskImgStr->close();
   delete maskImgStr;
+
+  maskFilter = getFilterForSurface (maskImage, maskInterpolate);
 
   cairo_surface_mark_dirty (maskImage);
   maskPattern = cairo_pattern_create_for_surface (maskImage);
@@ -2095,6 +2123,8 @@ void CairoOutputDev::drawSoftMaskedImage(GfxState *state, Object *ref, Stream *s
     colorMap->getRGBLine (pix, dest, width);
   }
 
+  filter = getFilterForSurface (image, interpolate);
+
   cairo_surface_mark_dirty (image);
   pattern = cairo_pattern_create_for_surface (image);
   cairo_surface_destroy (image);
@@ -2103,11 +2133,9 @@ void CairoOutputDev::drawSoftMaskedImage(GfxState *state, Object *ref, Stream *s
 
   LOG (printf ("drawSoftMaskedImage %dx%d\n", width, height));
 
-  //XXX: should set mask filter
-  cairo_pattern_set_filter (pattern,
-			    interpolate ? CAIRO_FILTER_BILINEAR : CAIRO_FILTER_FAST);
-  cairo_pattern_set_filter (maskPattern,
-			    maskInterpolate ? CAIRO_FILTER_BILINEAR : CAIRO_FILTER_FAST);
+  cairo_pattern_set_filter (pattern, filter);
+  cairo_pattern_set_filter (maskPattern, maskFilter);
+
   if (!printing) {
     cairo_pattern_set_extend (pattern, CAIRO_EXTEND_PAD);
     cairo_pattern_set_extend (maskPattern, CAIRO_EXTEND_PAD);
@@ -2193,6 +2221,7 @@ void CairoOutputDev::drawImage(GfxState *state, Object *ref, Stream *str,
   unsigned char *buffer;
   int stride, i;
   GfxRGB *lookup = NULL;
+  cairo_filter_t filter = CAIRO_FILTER_BILINEAR;
 
   /* TODO: Do we want to cache these? */
   imgStr = new ImageStream(str, width,
@@ -2286,6 +2315,8 @@ void CairoOutputDev::drawImage(GfxState *state, Object *ref, Stream *str,
     image = scaled_surface;
     width = cairo_image_surface_get_width (image);
     height = cairo_image_surface_get_height (image);
+  } else {
+    filter = getFilterForSurface (image, interpolate);
   }
 
   cairo_surface_mark_dirty (image);
@@ -2313,9 +2344,8 @@ void CairoOutputDev::drawImage(GfxState *state, Object *ref, Stream *str,
   if (cairo_pattern_status (pattern))
     goto cleanup;
 
-  cairo_pattern_set_filter (pattern,
-			    interpolate ?
-			    CAIRO_FILTER_BILINEAR : CAIRO_FILTER_FAST);
+  cairo_pattern_set_filter (pattern, filter);
+
   if (!printing)
     cairo_pattern_set_extend (pattern, CAIRO_EXTEND_PAD);
 
