@@ -1370,27 +1370,13 @@ get_singular_values (const cairo_matrix_t *matrix,
 		*minor = sqrt (f - delta);
 }
 
-
-cairo_surface_t *CairoOutputDev::downscaleSurface(cairo_surface_t *orig_surface) {
-  cairo_surface_t *dest_surface;
-  unsigned char *dest_buffer;
-  int dest_stride;
-  unsigned char *orig_buffer;
-  int orig_width, orig_height;
-  int orig_stride;
-  GBool res;
-
-  if (printing)
-    return NULL;
-
-
-  orig_width = cairo_image_surface_get_width (orig_surface);
-  orig_height = cairo_image_surface_get_height (orig_surface);
-
+void CairoOutputDev::getScaledSize(int  orig_width,
+				   int  orig_height,
+				   int *scaledWidth,
+				   int *scaledHeight) {
   cairo_matrix_t matrix;
   cairo_get_matrix(cairo, &matrix);
 
-  /* this whole computation should be factored out */
   double xScale;
   double yScale;
   if (orig_width > orig_height)
@@ -1399,8 +1385,6 @@ cairo_surface_t *CairoOutputDev::downscaleSurface(cairo_surface_t *orig_surface)
     get_singular_values (&matrix, &yScale, &xScale);
 
   int tx, tx2, ty, ty2; /* the integer co-oridinates of the resulting image */
-  int scaledHeight;
-  int scaledWidth;
   if (xScale >= 0) {
     tx = splashRound(matrix.x0 - 0.01);
     tx2 = splashRound(matrix.x0 + xScale + 0.01) - 1;
@@ -1408,13 +1392,13 @@ cairo_surface_t *CairoOutputDev::downscaleSurface(cairo_surface_t *orig_surface)
     tx = splashRound(matrix.x0 + 0.01) - 1;
     tx2 = splashRound(matrix.x0 + xScale - 0.01);
   }
-  scaledWidth = abs(tx2 - tx) + 1;
+  *scaledWidth = abs(tx2 - tx) + 1;
   //scaledWidth = splashRound(fabs(xScale));
-  if (scaledWidth == 0) {
+  if (*scaledWidth == 0) {
     // technically, this should draw nothing, but it generally seems
     // better to draw a one-pixel-wide stripe rather than throwing it
     // away
-    scaledWidth = 1;
+    *scaledWidth = 1;
   }
   if (yScale >= 0) {
     ty = splashFloor(matrix.y0 + 0.01);
@@ -1423,13 +1407,29 @@ cairo_surface_t *CairoOutputDev::downscaleSurface(cairo_surface_t *orig_surface)
     ty = splashCeil(matrix.y0 - 0.01);
     ty2 = splashFloor(matrix.y0 + yScale + 0.01);
   }
-  scaledHeight = abs(ty2 - ty);
-  if (scaledHeight == 0) {
-    scaledHeight = 1;
+  *scaledHeight = abs(ty2 - ty);
+  if (*scaledHeight == 0) {
+    *scaledHeight = 1;
   }
+}
+
+cairo_surface_t *CairoOutputDev::downscaleSurface(cairo_surface_t *orig_surface) {
+  cairo_surface_t *dest_surface;
+  unsigned char *dest_buffer;
+  int dest_stride;
+  unsigned char *orig_buffer;
+  int orig_width, orig_height;
+  int orig_stride;
+  int scaledHeight;
+  int scaledWidth;
+  GBool res;
+
+  if (printing)
+    return NULL;
 
   orig_width = cairo_image_surface_get_width (orig_surface);
   orig_height = cairo_image_surface_get_height (orig_surface);
+  getScaledSize (orig_width, orig_height, &scaledWidth, &scaledHeight);
   if (scaledWidth >= orig_width || scaledHeight >= orig_height)
     return NULL;
 
