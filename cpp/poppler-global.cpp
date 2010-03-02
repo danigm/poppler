@@ -85,7 +85,7 @@ ustring::~ustring()
 {
 }
 
-byte_array ustring::to_utf_8() const
+byte_array ustring::to_utf8() const
 {
     if (!size()) {
         return byte_array();
@@ -132,7 +132,7 @@ std::string ustring::to_latin1() const
     return ret;
 }
 
-ustring ustring::from_utf_8(const char *str, int len)
+ustring ustring::from_utf8(const char *str, int len)
 {
     if (len <= 0) {
         len = std::strlen(str);

@@ -78,10 +78,10 @@ public:
     ustring(size_type len, value_type ch);
     ~ustring();
 
-    byte_array to_utf_8() const;
+    byte_array to_utf8() const;
     std::string to_latin1() const;
 
-    static ustring from_utf_8(const char *str, int len = -1);
+    static ustring from_utf8(const char *str, int len = -1);
     static ustring from_latin1(const std::string &str);
 
 private:

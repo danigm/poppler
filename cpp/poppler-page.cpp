@@ -184,5 +184,5 @@ ustring page::text(const rectf &r) const
     } else {
         s.reset(td.getText(r.left(), r.top(), r.right(), r.bottom()));
     }
-    return ustring::from_utf_8(s->getCString());
+    return ustring::from_utf8(s->getCString());
 }
