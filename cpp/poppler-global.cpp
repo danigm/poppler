@@ -16,6 +16,8 @@
  * Foundation, Inc., 51 Franklin Street - Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
+#include "config.h"
+
 #include "poppler-global.h"
 
 #include "DateInfo.h"
@@ -98,13 +100,13 @@ byte_array ustring::to_utf_8() const
     char *str_data = &str[0];
     size_t me_len_char = size() * 2;
     size_t str_len_left = str.size();
-    size_t ir = iconv(ic, (char **)&me_data, &me_len_char, &str_data, &str_len_left);
+    size_t ir = iconv(ic, (ICONV_CONST char **)&me_data, &me_len_char, &str_data, &str_len_left);
     if ((ir == (size_t)-1) && (errno == E2BIG)) {
         const size_t delta = str_data - &str[0];
         str_len_left += str.size();
         str.resize(str.size() * 2);
         str_data = &str[delta];
-        ir = iconv(ic, (char **)&me_data, &me_len_char, &str_data, &str_len_left);
+        ir = iconv(ic, (ICONV_CONST char **)&me_data, &me_len_char, &str_data, &str_len_left);
         if (ir == (size_t)-1) {
             return byte_array();
         }
@@ -149,13 +151,13 @@ ustring ustring::from_utf_8(const char *str, int len)
     char *str_data = const_cast<char *>(str);
     size_t str_len_char = len;
     size_t ret_len_left = ret.size();
-    size_t ir = iconv(ic, &str_data, &str_len_char, &ret_data, &ret_len_left);
+    size_t ir = iconv(ic, (ICONV_CONST char **)&str_data, &str_len_char, &ret_data, &ret_len_left);
     if ((ir == (size_t)-1) && (errno == E2BIG)) {
         const size_t delta = ret_data - reinterpret_cast<char *>(&ret[0]);
         ret_len_left += ret.size();
         ret.resize(ret.size() * 2);
         ret_data = reinterpret_cast<char *>(&ret[delta]);
-        ir = iconv(ic, (char **)&str_data, &str_len_char, &ret_data, &ret_len_left);
+        ir = iconv(ic, (ICONV_CONST char **)&str_data, &str_len_char, &ret_data, &ret_len_left);
         if (ir == (size_t)-1) {
             return ustring();
         }
