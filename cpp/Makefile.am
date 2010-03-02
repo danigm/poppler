@@ -35,6 +35,9 @@ libpoppler_cpp_la_SOURCES =			\
 	poppler-toc-private.h			\
 	poppler-version.cpp
 
+libpoppler_cpp_la_CXXFLAGS =			\
+	-Dpoppler_cpp_EXPORTS
+
 libpoppler_cpp_la_LIBADD = 			\
 	$(top_builddir)/poppler/libpoppler.la	\
 	$(LIBICONV)
