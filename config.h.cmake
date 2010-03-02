@@ -121,7 +121,7 @@
 #cmakedefine HAVE_ZLIB_H 1
 
 /* Define as const if the declaration of iconv() needs const. */
-#cmakedefine ICONV_CONST 1
+#define ICONV_CONST ${ICONV_CONST}
 
 /* Enable multithreading support. */
 #cmakedefine MULTITHREADED 1
