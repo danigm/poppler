@@ -31,6 +31,8 @@
 
 #include "parseargs.h"
 
+#include "config.h"
+
 static const int out_width = 30;
 
 bool show_all = false;
@@ -82,10 +84,15 @@ static std::string out_ustring(const poppler::ustring &str)
 static std::string out_date(std::time_t date)
 {
     if (date != std::time_t(-1)) {
+#ifdef HAVE_GMTIME_R
         struct tm time;
         gmtime_r(&date, &time);
+        struct tm *t = &time;
+#else
+        struct tm *t = gmtime(&date);
+#endif
         char buf[32];
-        strftime(buf, sizeof(buf) - 1, "%d/%m/%Y %H:%M:%S", &time);
+        strftime(buf, sizeof(buf) - 1, "%d/%m/%Y %H:%M:%S", t);
         return std::string(buf);
     }
     return std::string("n/a");
