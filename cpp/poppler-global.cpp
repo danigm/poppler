@@ -16,8 +16,6 @@
  * Foundation, Inc., 51 Franklin Street - Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
-#include "config.h"
-
 #include "poppler-global.h"
 
 #include "DateInfo.h"
@@ -28,6 +26,8 @@
 #include <iostream>
 
 #include <iconv.h>
+
+#include "config.h"
 
 namespace
 {
