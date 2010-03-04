@@ -499,8 +499,8 @@ namespace Poppler {
         QSet<Document::RenderBackend> ret;
 #if defined(HAVE_SPLASH)
         ret << Document::SplashBackend;
-        ret << Document::ArthurBackend;
 #endif
+        ret << Document::ArthurBackend;
         return ret;
     }
 
