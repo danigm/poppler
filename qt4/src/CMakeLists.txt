@@ -25,12 +25,8 @@ set(poppler_qt4_SRCS
   poppler-sound.cc
   poppler-textbox.cc
   poppler-page-transition.cc
+  ${CMAKE_SOURCE_DIR}/poppler/ArthurOutputDev.cc
 )
-if (ENABLE_SPLASH)
-  set(poppler_qt4_SRCS ${poppler_qt4_SRCS}
-    ${CMAKE_SOURCE_DIR}/poppler/ArthurOutputDev.cc
-  )
-endif (ENABLE_SPLASH)
 qt4_automoc(${poppler_qt4_SRCS})
 add_library(poppler-qt4 SHARED ${poppler_qt4_SRCS})
 set_target_properties(poppler-qt4 PROPERTIES VERSION 3.2.0 SOVERSION 3)

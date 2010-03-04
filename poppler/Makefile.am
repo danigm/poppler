@@ -13,6 +13,8 @@ splash_libs =					\
 	$(SPLASH_LIBS)				\
 	$(top_builddir)/splash/libsplash.la
 
+endif
+
 if BUILD_POPPLER_QT4
 
 poppler_arthur = libpoppler-arthur.la
@@ -26,8 +28,6 @@ arthur_includes =				\
 
 arthur_libs =					\
 	$(POPPLER_QT4_LIBS)
-
-endif
 
 endif
 
