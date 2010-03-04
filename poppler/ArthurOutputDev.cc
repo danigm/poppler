@@ -49,6 +49,7 @@
 #include <QtGui/QPainterPath>
 //------------------------------------------------------------------------
 
+#ifdef HAVE_SPLASH
 #include "splash/SplashFontFileID.h"
 #include "splash/SplashFontFile.h"
 #include "splash/SplashFontEngine.h"
@@ -77,7 +78,7 @@ private:
   Ref r;
 };
 
-
+#endif
 
 //------------------------------------------------------------------------
 // ArthurOutputDev
@@ -94,11 +95,14 @@ ArthurOutputDev::ArthurOutputDev(QPainter *painter):
 
 ArthurOutputDev::~ArthurOutputDev()
 {
+#ifdef HAVE_SPLASH
   delete m_fontEngine;
+#endif
 }
 
 void ArthurOutputDev::startDoc(XRef *xrefA) {
   xref = xrefA;
+#ifdef HAVE_SPLASH
   delete m_fontEngine;
   m_fontEngine = new SplashFontEngine(
 #if HAVE_T1LIB_H
@@ -109,6 +113,7 @@ void ArthurOutputDev::startDoc(XRef *xrefA) {
   gFalse,
 #endif
   m_painter->testRenderHint(QPainter::TextAntialiasing));
+#endif
 }
 
 void ArthurOutputDev::startPage(int pageNum, GfxState *state)
@@ -249,6 +254,7 @@ void ArthurOutputDev::updateStrokeOpacity(GfxState *state)
 
 void ArthurOutputDev::updateFont(GfxState *state)
 {
+#ifdef HAVE_SPLASH
   GfxFont *gfxFont;
   GfxFontType fontType;
   SplashOutFontFileID *id;
@@ -474,6 +480,7 @@ void ArthurOutputDev::updateFont(GfxState *state)
   delete id;
  err1:
   return;
+#endif
 }
 
 static QPainterPath convertPath(GfxState *state, GfxPath *path, Qt::FillRule fillRule)
@@ -540,6 +547,7 @@ void ArthurOutputDev::drawChar(GfxState *state, double x, double y,
 			       double dx, double dy,
 			       double originX, double originY,
 			       CharCode code, int nBytes, Unicode *u, int uLen) {
+#ifdef HAVE_SPLASH
   double x1, y1;
 //   SplashPath *path;
   int render;
@@ -636,6 +644,7 @@ void ArthurOutputDev::drawChar(GfxState *state, double x, double y,
     }
     */
   }
+#endif
 }
 
 GBool ArthurOutputDev::beginType3Char(GfxState *state, double x, double y,
