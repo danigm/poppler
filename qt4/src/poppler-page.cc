@@ -250,7 +250,6 @@ QImage Page::renderToImage(double xres, double yres, int x, int y, int w, int h,
           painter.setRenderHint(QPainter::Antialiasing);
       if (m_page->parentDoc->m_hints & Document::TextAntialiasing)
           painter.setRenderHint(QPainter::TextAntialiasing);
-      painter.save();
       painter.translate(x == -1 ? 0 : -x, y == -1 ? 0 : -y);
       ArthurOutputDev arthur_output(&painter);
       arthur_output.startDoc(m_page->parentDoc->doc->getXRef());
@@ -266,7 +265,6 @@ QImage Page::renderToImage(double xres, double yres, int x, int y, int w, int h,
 						 y,
 						 w,
 						 h);
-      painter.restore();
       painter.end();
       img = tmpimg;
       break;
