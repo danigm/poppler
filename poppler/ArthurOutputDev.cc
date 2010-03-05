@@ -15,7 +15,7 @@
 //
 // Copyright (C) 2005 Brad Hards <bradh@frogmouth.net>
 // Copyright (C) 2005-2009 Albert Astals Cid <aacid@kde.org>
-// Copyright (C) 2008 Pino Toscano <pino@kde.org>
+// Copyright (C) 2008, 2010 Pino Toscano <pino@kde.org>
 // Copyright (C) 2009 Carlos Garcia Campos <carlosgc@gnome.org>
 // Copyright (C) 2009 Petr Gajdos <pgajdos@novell.com>
 //
