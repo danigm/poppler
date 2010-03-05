@@ -218,8 +218,8 @@ void ArthurOutputDev::updateLineCap(GfxState *state)
 
 void ArthurOutputDev::updateMiterLimit(GfxState *state)
 {
-  // We can't do mitre (or Miter) limit with Qt4 yet.
-  // the limit is in state->getMiterLimit() when we get there
+  m_currentPen.setMiterLimit(state->getMiterLimit());
+  m_painter->setPen(m_currentPen);
 }
 
 void ArthurOutputDev::updateLineWidth(GfxState *state)
