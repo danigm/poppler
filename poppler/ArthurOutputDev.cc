@@ -166,7 +166,17 @@ void ArthurOutputDev::updateCTM(GfxState *state, double m11, double m12,
 
 void ArthurOutputDev::updateLineDash(GfxState *state)
 {
-  // qDebug() << "updateLineDash";
+  double *dashPattern;
+  int dashLength;
+  double dashStart;
+  state->getLineDash(&dashPattern, &dashLength, &dashStart);
+  QVector<qreal> pattern(dashLength);
+  for (int i = 0; i < dashLength; ++i) {
+    pattern[i] = dashPattern[i];
+  }
+  m_currentPen.setDashPattern(pattern);
+  m_currentPen.setDashOffset(dashStart);
+  m_painter->setPen(m_currentPen);
 }
 
 void ArthurOutputDev::updateFlatness(GfxState *state)
