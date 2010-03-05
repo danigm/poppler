@@ -2191,6 +2191,7 @@ GBool CairoOutputDev::getStreamData (Stream *str, char **buffer, int *length)
   char *strBuffer;
 
   len = 0;
+  str->close();
   str->reset();
   while (str->getChar() != EOF) len++;
   if (len == 0)
@@ -2198,6 +2199,7 @@ GBool CairoOutputDev::getStreamData (Stream *str, char **buffer, int *length)
 
   strBuffer = (char *)gmalloc (len);
 
+  str->close();
   str->reset();
   for (i = 0; i < len; ++i)
     strBuffer[i] = str->getChar();
