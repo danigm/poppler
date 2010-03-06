@@ -32,13 +32,6 @@ option(ENABLE_ZLIB "TODO" OFF)
 option(USE_EXCEPTIONS "Throw exceptions to deal with not enough memory and similar problems." OFF)
 option(USE_FIXEDPOINT "Use fixed point arithmetic in the Splash backend" OFF)
 option(USE_FLOAT "Use single precision arithmetic in the Splash backend" OFF)
-if(MSVC)
-  option(WITH_FONTCONFIGURATION_WIN32 "Select win32 font configuration backend" ON)
-  option(WITH_FONTCONFIGURATION_FONTCONFIG "Select fontconfig font configuration backend" OFF)
-else(MSVC)
-  option(WITH_FONTCONFIGURATION_WIN32 "Select win32 font configuration backend" OFF)
-  option(WITH_FONTCONFIGURATION_FONTCONFIG "Select fontconfig font configuration backend" ON)
-endif(MSVC)
 if(WIN32)
   option(ENABLE_RELOCATABLE "Hardcode the poppler library location (on Windows)." ON)
 else(WIN32)
@@ -46,6 +39,23 @@ else(WIN32)
 endif(WIN32)
 
 set(LIB_SUFFIX "" CACHE STRING "Define suffix of directory name (32/64)")
+
+if(WIN32)
+  set(_default_fontconfiguration "win32")
+else(WIN32)
+  set(_default_fontconfiguration "fontconfig")
+endif(WIN32)
+set(FONT_CONFIGURATION "${_default_fontconfiguration}" CACHE STRING "The font configuration backend (win32|fontconfig).")
+string(TOLOWER "${FONT_CONFIGURATION}" font_configuration)
+if(font_configuration STREQUAL "win32")
+  set(WITH_FONTCONFIGURATION_WIN32 ON)
+  set(WITH_FONTCONFIGURATION_FONTCONFIG OFF)
+elseif(font_configuration STREQUAL "fontconfig")
+  set(WITH_FONTCONFIGURATION_WIN32 OFF)
+  set(WITH_FONTCONFIGURATION_FONTCONFIG ON)
+else(font_configuration STREQUAL "win32")
+  message(FATAL_ERROR "Invalid font configuration setting: ${FONT_CONFIGURATION}")
+endif(font_configuration STREQUAL "win32")
 
 # Enable these unconditionally.
 set(MULTITHREADED ON)
@@ -59,7 +69,9 @@ set(CAIRO_VERSION "1.8.4")
 
 macro_bool_to_01(ENABLE_SPLASH HAVE_SPLASH)
 find_package(Freetype REQUIRED)
-find_package(Fontconfig REQUIRED)
+if(WITH_FONTCONFIGURATION_FONTCONFIG)
+  find_package(Fontconfig REQUIRED)
+endif(WITH_FONTCONFIGURATION_FONTCONFIG)
 macro_optional_find_package(JPEG)
 macro_optional_find_package(PNG)
 if(JPEG_FOUND)
@@ -102,7 +114,10 @@ if(ENABLE_LCMS)
   set(USE_CMS ${LCMS_FOUND})
 endif(ENABLE_LCMS)
 
-add_definitions(-DHAVE_CONFIG_H=1 ${FONTCONFIG_DEFINITIONS})
+add_definitions(-DHAVE_CONFIG_H=1)
+if(FONTCONFIG_FOUND)
+  add_definitions(${FONTCONFIG_DEFINITIONS})
+endif(FONTCONFIG_FOUND)
 include_directories(
   ${CMAKE_CURRENT_SOURCE_DIR}
   ${CMAKE_CURRENT_SOURCE_DIR}/fofi
@@ -228,7 +243,7 @@ set(poppler_SRCS
   poppler/XpdfPluginAPI.cc
   poppler/Movie.cc
 )
-set(poppler_LIBS ${FREETYPE_LIBRARIES} ${FONTCONFIG_LIBRARIES})
+set(poppler_LIBS ${FREETYPE_LIBRARIES})
 if(ENABLE_SPLASH)
   set(poppler_SRCS ${poppler_SRCS}
     poppler/SplashOutputDev.cc
@@ -253,6 +268,9 @@ if(ENABLE_SPLASH)
     splash/SplashXPathScanner.cc
   )
 endif(ENABLE_SPLASH)
+if(FONTCONFIG_FOUND)
+  set(poppler_LIBS ${poppler_LIBS} ${FONTCONFIG_LIBRARIES})
+endif(FONTCONFIG_FOUND)
 if(JPEG_FOUND)
   set(poppler_SRCS ${poppler_SRCS}
     poppler/DCTStream.cc
@@ -489,6 +507,7 @@ endif(ENABLE_CPP)
 
 
 message("Building Poppler with support for:")
+show_end_message("font configuration" ${font_configuration})
 show_end_message_yesno("splash output" ENABLE_SPLASH)
 show_end_message_yesno("cairo output" CAIRO_FOUND)
 show_end_message_yesno("abiword output" ENABLE_ABIWORD)
