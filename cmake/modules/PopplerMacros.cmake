@@ -49,7 +49,7 @@ macro(POPPLER_CREATE_INSTALL_PKGCONFIG generated_file install_location)
   endif(NOT WIN32)
 endmacro(POPPLER_CREATE_INSTALL_PKGCONFIG)
 
-macro(SHOW_END_MESSAGE what enabled)
+macro(SHOW_END_MESSAGE_YESNO what enabled)
   string(LENGTH ${what} length_what)
   math(EXPR left_char "20 - ${length_what}")
   set(blanks)
@@ -63,7 +63,7 @@ macro(SHOW_END_MESSAGE what enabled)
   endif(${enabled})
 
   message("  ${what}:${blanks} ${enabled_string}")
-endmacro(SHOW_END_MESSAGE)
+endmacro(SHOW_END_MESSAGE_YESNO)
 
 
 set(CMAKE_SYSTEM_INCLUDE_PATH ${CMAKE_SYSTEM_INCLUDE_PATH}
