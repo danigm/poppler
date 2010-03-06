@@ -514,6 +514,7 @@ show_end_message_yesno("abiword output" ENABLE_ABIWORD)
 show_end_message_yesno("qt wrapper" QT3_FOUND)
 show_end_message_yesno("qt4 wrapper" QT4_FOUND)
 show_end_message_yesno("glib wrapper" GLIB_FOUND)
+show_end_message_yesno("  use GDK" POPPLER_WITH_GDK)
 # message("  use gtk-doc:        $enable_gtk_doc") # TODO
 show_end_message_yesno("cpp wrapper" ENABLE_CPP)
 show_end_message_yesno("use libjpeg" ENABLE_LIBJPEG)
