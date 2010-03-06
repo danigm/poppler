@@ -699,89 +699,18 @@ private:
 
 class AnnotMovie: public Annot {
  public:
-  enum PosterType {
-    posterTypeNone,
-    posterTypeStream,
-    posterTypeFromMovie
-  };
-
-  enum RepeatMode {
-    repeatModeOnce,
-    repeatModeOpen,
-    repeatModeRepeat,
-    repeatModePalindrome
-  };
-
-  struct Time {
-    Time() { units_per_second = 0; }
-    Gulong units;
-    int units_per_second; // 0 : defined by movie
-  };
-
   AnnotMovie(XRef *xrefA, PDFRectangle *rect, Movie *movieA, Catalog *catalog);
   AnnotMovie(XRef *xrefA, Dict *dict, Catalog *catalog, Object *obj);
   ~AnnotMovie();
 
   GooString* getTitle() { return title; }
-  GooString* getFileName() { return fileName; }
-  int getRotationAngle() { return rotationAngle; }
-
-  PosterType getPosterType() { return posterType; }
-  Stream* getPosterStream() { return posterStream; }
-
-  Time getStart() { return start; }
-  Time getDuration() { return duration; }
-  double getRate() { return rate; }
-  double getVolume() { return volume; }
-
-  GBool getShowControls() { return showControls; }
-  RepeatMode getRepeatMode() { return repeatMode; }
-  GBool getSynchronousPlay() { return synchronousPlay; }
-
-  GBool needFloatingWindow() { return hasFloatingWindow; }
-  GBool needFullscreen() { return isFullscreen; }
-  
-  
-  void getMovieSize(int& width, int& height);
-  void getZoomFactor(int& num, int& denum);
-  void getWindowPosition(double& x, double& y) { x = FWPosX; y = FWPosY; }
-
   Movie* getMovie() { return movie; }
 
  private:
   void initialize(XRef *xrefA, Catalog *catalog, Dict *dict);
 
   GooString* title;      // T
-  GooString* fileName;   // Movie/F
-
-  int width;             // Movie/Aspect
-  int height;            // Movie/Aspect
-  int rotationAngle;     // Movie/Rotate
-
-  PosterType posterType; // Movie/Poster
-  Stream* posterStream;
-
-  Time start;            // A/Start
-  Time duration;         // A/Duration
-  double rate;           // A/Rate
-  double volume;         // A/Volume
-  
-  GBool showControls;    // A/ShowControls
-  
-  RepeatMode repeatMode; // A/Mode
-  
-  GBool synchronousPlay; // A/Synchronous
-
-  // floating window
-  GBool hasFloatingWindow; 
-  unsigned short FWScaleNum; // A/FWScale
-  unsigned short FWScaleDenum;
-  GBool isFullscreen;
-
-  double FWPosX;         // A/FWPosition
-  double FWPosY; 
-
-  Movie* movie;
+  Movie* movie;          // Movie + A
 };
 
 

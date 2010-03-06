@@ -4,6 +4,7 @@
 // 
 //---------------------------------------------------------------------------------
 // Hugo Mercier <hmercier31[at]gmail.com> (c) 2008
+// Carlos Garcia Campos <carlosgc@gnome.org> (c) 2010
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -24,7 +25,6 @@
 #define _MOVIE_H_
 
 #include "Object.h"
-#include "Annot.h"
 
 class GooList;
 
@@ -79,8 +79,8 @@ struct MovieParameters {
   void parseMediaPlayParameters(Object* playObj);
   // parse from a "Media Screen Parameters" dictionary
   void parseMediaScreenParameters(Object* screenObj);
-  // parse from a AnnotMovie object
-  void parseAnnotMovie(AnnotMovie* annot);
+  // parse from a "Movie Activation" dictionary
+  void parseMovieActivation(Object* actObj, int width, int height, int rotationAngle);
 
   enum MovieFittingPolicy {
     fittingMeet = 0,
@@ -89,6 +89,13 @@ struct MovieParameters {
     fittingScroll,
     fittingHidden,
     fittingUndefined
+  };
+
+  enum MovieRepeatMode {
+    repeatModeOnce,
+    repeatModeOpen,
+    repeatModeRepeat,
+    repeatModePalindrome
   };
 
   struct MovieTime {
@@ -128,16 +135,18 @@ struct MovieParameters {
 
   GBool showControls;                      // false
 
+  GBool synchronousPlay;                   // false
+  MovieRepeatMode repeatMode;              // repeatModeOnce
+
   MovieWindowParameters windowParams;
 };
 
 class Movie {
  public:
-  Movie();
   ~Movie();
 
-  void parseAnnotMovie(AnnotMovie* annot);
-  void parseMediaRendition(Object* obj);
+  static Movie *fromMovie(Object *objMovie, Object *objAct);
+  static Movie *fromMediaRendition(Object *objRend);
 
   MovieParameters* getMHParameters() { return &MH; }
   MovieParameters* getBEParameters() { return &BE; }
@@ -155,6 +164,10 @@ class Movie {
   Movie* copy();
 
  private:
+  Movie(Object *objMovie, Object *objAct);
+  Movie(Object *objRend);
+  void initialize();
+
   // "Must Honor" parameters
   MovieParameters MH;
   // "Best Effort" parameters

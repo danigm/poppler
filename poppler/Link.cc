@@ -712,10 +712,8 @@ LinkRendition::LinkRendition(Object *Obj) {
       // retrieve rendition object
       Obj->dictLookup("R", &renditionObj);
       if (renditionObj.isDict()) {
+	movie = Movie::fromMediaRendition(&renditionObj);
 
-	movie = new Movie();
-	movie->parseMediaRendition(&renditionObj);
-	
 	if (screenRef.num == -1) {
 	  error(-1, "Action Rendition : Rendition without Screen Annotation !");
 	}

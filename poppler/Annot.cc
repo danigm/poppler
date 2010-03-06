@@ -4049,21 +4049,12 @@ AnnotMovie::AnnotMovie(XRef *xrefA, Dict *dict, Catalog *catalog, Object *obj) :
   Annot(xrefA, dict, catalog, obj) {
   type = typeMovie;
   initialize(xrefA, catalog, dict);
-
-  movie = new Movie();
-  movie->parseAnnotMovie(this);
 }
 
 AnnotMovie::~AnnotMovie() {
   if (title)
     delete title;
-  if (fileName)
-    delete fileName;
   delete movie;
-
-  if (posterStream && (!posterStream->decRef())) {
-    delete posterStream;
-  }
 }
 
 void AnnotMovie::initialize(XRef *xrefA, Catalog *catalog, Dict* dict) {
@@ -4077,237 +4068,16 @@ void AnnotMovie::initialize(XRef *xrefA, Catalog *catalog, Dict* dict) {
   obj1.free();
 
   Object movieDict;
-  Object aDict;
-
-  // default values
-  fileName = NULL;
-  width = 0;
-  height = 0;
-  rotationAngle = 0;
-  rate = 1.0;
-  volume = 1.0;
-  showControls = false;
-  repeatMode = repeatModeOnce;
-  synchronousPlay = false;
-  
-  hasFloatingWindow = false;
-  isFullscreen = false;
-  FWScaleNum = 1;
-  FWScaleDenum = 1;
-  FWPosX = 0.5;
-  FWPosY = 0.5;
-
   if (dict->lookup("Movie", &movieDict)->isDict()) {
-    Object obj2;
-    if (getFileSpecNameForPlatform(movieDict.dictLookup("F", &obj1), &obj2)) {
-      fileName = obj2.getString()->copy();
-      obj2.free();
-    }
-    obj1.free();
-
-    if (movieDict.dictLookup("Aspect", &obj1)->isArray()) {
-      Array* aspect = obj1.getArray();
-      if (aspect->getLength() >= 2) {
-	Object tmp;
-	if( aspect->get(0, &tmp)->isNum() ) {
-	  width = (int)floor( aspect->get(0, &tmp)->getNum() + 0.5 );
-	}
-	tmp.free();
-	if( aspect->get(1, &tmp)->isNum() ) {
-	  height = (int)floor( aspect->get(1, &tmp)->getNum() + 0.5 );
-	}
-	tmp.free();
-      }
-    }
-    obj1.free();
-
-    if (movieDict.dictLookup("Rotate", &obj1)->isInt()) {
-      // round up to 90°
-      rotationAngle = (((obj1.getInt() + 360) % 360) % 90) * 90;
-    }
-    obj1.free();
-
-    //
-    // movie poster
-    //
-    posterType = posterTypeNone;
-    posterStream = NULL;
-    if (!movieDict.dictLookup("Poster", &obj1)->isNone()) {
-      if (obj1.isBool()) {
-	GBool v = obj1.getBool();
-	if (v)
-	  posterType = posterTypeFromMovie;
-      }
-      
-      if (obj1.isStream()) {
-	posterType = posterTypeStream;
-	
-	// "copy" stream
-	posterStream = obj1.getStream();
-	posterStream->incRef();
-      }
-
-      obj1.free();
-    }
-
+    Object aDict;
+    dict->lookup("A", &aDict);
+    movie = Movie::fromMovie (&movieDict, &aDict);
+    aDict.free();
+  } else {
+    error(-1, "Bad Annot Movie");
+    ok = gFalse;
   }
   movieDict.free();
-
-
-  // activation dictionary parsing ...
-
-  if (dict->lookup("A", &aDict)->isDict()) {
-    if (!aDict.dictLookup("Start", &obj1)->isNone()) {
-      if (obj1.isInt()) {
-	// If it is representable as an integer (subject to the implementation limit for
-	// integers, as described in Appendix C), it should be specified as such.
-
-	start.units = obj1.getInt();
-      }
-      if (obj1.isString()) {
-	// If it is not representable as an integer, it should be specified as an 8-byte
-	// string representing a 64-bit twos-complement integer, most significant
-	// byte first.
-
-	// UNSUPPORTED
-      }
-
-      if (obj1.isArray()) {
-	Array* a = obj1.getArray();
-
-	Object tmp;
-	a->get(0, &tmp);
-	if (tmp.isInt()) {
-	  start.units = tmp.getInt();
-	}
-	if (tmp.isString()) {
-	  // UNSUPPORTED
-	}
-	tmp.free();
-
-	a->get(1, &tmp);
-	if (tmp.isInt()) {
-	  start.units_per_second = tmp.getInt();
-	}
-	tmp.free();
-      }
-    }
-    obj1.free();
-
-    if (!aDict.dictLookup("Duration", &obj1)->isNone()) {
-      if (obj1.isInt()) {
-	duration.units = obj1.getInt();
-      }
-      if (obj1.isString()) {
-	// UNSUPPORTED
-      }
-
-      if (obj1.isArray()) {
-	Array* a = obj1.getArray();
-
-	Object tmp;
-	a->get(0, &tmp);
-	if (tmp.isInt()) {
-	  duration.units = tmp.getInt();
-	}
-	if (tmp.isString()) {
-	  // UNSUPPORTED
-	}
-	tmp.free();
-
-	a->get(1, &tmp);
-	if (tmp.isInt()) {
-	  duration.units_per_second = tmp.getInt();
-	}
-	tmp.free();
-      }
-    }
-    obj1.free();
-
-    if (aDict.dictLookup("Rate", &obj1)->isNum()) {
-      rate = obj1.getNum();
-    }
-    obj1.free();
-
-    if (aDict.dictLookup("Volume", &obj1)->isNum()) {
-      volume = obj1.getNum();
-    }
-    obj1.free();
-
-    if (aDict.dictLookup("ShowControls", &obj1)->isBool()) {
-      showControls = obj1.getBool();
-    }
-    obj1.free();
-
-    if (aDict.dictLookup("Synchronous", &obj1)->isBool()) {
-      synchronousPlay = obj1.getBool();
-    }
-    obj1.free();
-
-    if (aDict.dictLookup("Mode", &obj1)->isName()) {
-      char* name = obj1.getName();
-      if (!strcmp(name, "Once"))
-	repeatMode = repeatModeOnce;
-      if (!strcmp(name, "Open"))
-	repeatMode = repeatModeOpen;
-      if (!strcmp(name, "Repeat"))
-	repeatMode = repeatModeRepeat;
-      if (!strcmp(name,"Palindrome"))
-	repeatMode = repeatModePalindrome;
-    }
-    obj1.free();
-
-    if (aDict.dictLookup("FWScale", &obj1)->isArray()) {
-      // the presence of that entry implies that the movie is to be played
-      // in a floating window
-      hasFloatingWindow = true;
-
-      Array* scale = obj1.getArray();
-      if (scale->getLength() >= 2) {
-	Object tmp;
-	if (scale->get(0, &tmp)->isInt()) {
-	  FWScaleNum = tmp.getInt();
-	}
-	tmp.free();
-	if (scale->get(1, &tmp)->isInt()) {
-	  FWScaleDenum = tmp.getInt();
-	}
-	tmp.free();
-      }
-
-      // detect fullscreen mode
-      if ((FWScaleNum == 999) && (FWScaleDenum == 1)) {
-	isFullscreen = true;
-      }
-    }
-    obj1.free();
-
-    if (aDict.dictLookup("FWPosition", &obj1)->isArray()) {
-      Array* pos = obj1.getArray();
-      if (pos->getLength() >= 2) {
-	Object tmp;
-	if (pos->get(0, &tmp)->isNum()) {
-	  FWPosX = tmp.getNum();
-	}
-	tmp.free();
-	if (pos->get(1, &tmp)->isNum()) {
-	  FWPosY = tmp.getNum();
-	}
-	tmp.free();
-      }
-    }
-  }
-  aDict.free();
-}
-
-void AnnotMovie::getMovieSize(int& width, int& height) {
-  width = this->width;
-  height = this->height;
-}
-
-void AnnotMovie::getZoomFactor(int& num, int& denum) {
-  num = FWScaleNum;
-  denum = FWScaleDenum;
 }
 
 

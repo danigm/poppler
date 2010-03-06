@@ -48,10 +48,13 @@ MovieObject::MovieObject( AnnotMovie *ann )
 {
 	m_movieData = new MovieData();
 	m_movieData->m_movieObj = ann->getMovie()->copy();
-	ann->getMovieSize( m_movieData->m_size.rwidth(), m_movieData->m_size.rheight() );
-	m_movieData->m_rotation = ann->getRotationAngle();
-	m_movieData->m_showControls = ann->getShowControls();
-	m_movieData->m_playMode = (MovieObject::PlayMode)ann->getRepeatMode();
+
+	MovieParameters *mp = m_movieData->m_movieObj->getMHParameters();
+	m_movieData->m_size.setWidth(mp->windowParams.width);
+	m_movieData->m_size.setHeight(mp->windowParams.height);
+	m_movieData->m_rotation = mp->rotationAngle;
+	m_movieData->m_showControls = mp->showControls;
+	m_movieData->m_playMode = (MovieObject::PlayMode)mp->repeatMode;
 }
 
 MovieObject::~MovieObject()
