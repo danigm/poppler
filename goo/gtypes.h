@@ -17,6 +17,10 @@ typedef int GBool;
 #define gTrue 1
 #define gFalse 0
 
+#ifdef _MSC_VER
+#pragma warning(disable: 4800) /* 'type' : forcing value to bool 'true' or 'false' (performance warning) */
+#endif
+
 /*
  * These have stupid names to avoid conflicts with <sys/types.h>,
  * which on various systems defines some random subset of these.
