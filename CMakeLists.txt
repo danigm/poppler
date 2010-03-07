@@ -66,6 +66,7 @@ set(TEXTOUT_WORD_LIST ON)
 set(QT3_MIN_VERSION "3.3.0")
 set(QT4_MIN_VERSION "4.4.0")
 set(CAIRO_VERSION "1.8.4")
+set(GLIB_VERSION "2.18")
 
 macro_bool_to_01(ENABLE_SPLASH HAVE_SPLASH)
 find_package(Freetype REQUIRED)
