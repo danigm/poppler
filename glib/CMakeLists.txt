@@ -5,7 +5,6 @@ include_directories(
   ${CMAKE_CURRENT_BINARY_DIR}
   ${CAIRO_INCLUDE_DIRS}
 )
-set (CAIRO_FEATURE "#define POPPLER_HAS_CAIRO 1")
 add_definitions(${CAIRO_CFLAGS})
 
 if (GDK_FOUND)
