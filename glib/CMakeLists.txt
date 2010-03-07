@@ -5,7 +5,11 @@ include_directories(
   ${CMAKE_CURRENT_BINARY_DIR}
   ${CAIRO_INCLUDE_DIRS}
 )
-add_definitions(${CAIRO_CFLAGS})
+add_definitions(
+  ${CAIRO_CFLAGS}
+  ${POPPLER_GLIB_DISABLE_DEPRECATED}
+  ${POPPLER_GLIB_DISABLE_SINGLE_INCLUDES}
+)
 
 if (GDK_FOUND)
   add_definitions(${GDK2_CFLAGS})
