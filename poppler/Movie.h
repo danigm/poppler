@@ -159,6 +159,7 @@ class Movie {
   // write embedded stream to file
   void outputToFile(FILE*);
 
+  void getAspect (int *widthA, int *heightA) { *widthA = width; *heightA = height; }
   Stream* getPosterStream() { return posterStream; }
 
   Movie* copy();
@@ -172,6 +173,9 @@ class Movie {
   MovieParameters MH;
   // "Best Effort" parameters
   MovieParameters BE;
+
+  int width;                               // Aspect
+  int height;                              // Aspect
 
   Stream* posterStream;
 

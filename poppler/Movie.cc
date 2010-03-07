@@ -430,6 +430,8 @@ void Movie::initialize() {
   contentType = NULL;
   isEmbedded = gFalse;
   embeddedStream = NULL;
+  width = -1;
+  height = -1;
   posterStream = NULL;
 }
 
@@ -457,7 +459,6 @@ Movie::Movie(Object *movieDict, Object *aDict) {
   }
   obj1.free();
 
-  int width = 0, height = 0;
   if (movieDict->dictLookup("Aspect", &obj1)->isArray()) {
     Array* aspect = obj1.getArray();
     if (aspect->getLength() >= 2) {
