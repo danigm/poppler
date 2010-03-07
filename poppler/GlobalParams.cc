@@ -179,9 +179,9 @@ get_poppler_datadir (void)
   if (!GetModuleFileName (hmodule, (CHAR *) retval, sizeof(retval) - 20))
     return POPPLER_DATADIR;
 
-  p = _mbsrchr ((const unsigned char *) retval, '\\');
+  p = _mbsrchr ((unsigned char *) retval, '\\');
   *p = '\0';
-  p = _mbsrchr ((const unsigned char *) retval, '\\');
+  p = _mbsrchr ((unsigned char *) retval, '\\');
   if (p) {
     if (stricmp ((const char *) (p+1), "bin") == 0)
       *p = '\0';
