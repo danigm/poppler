@@ -3,8 +3,8 @@ add_definitions(-DG_LOG_DOMAIN=\"Poppler\" ${GLIB2_CFLAGS})
 include_directories(
   ${CMAKE_CURRENT_SOURCE_DIR}
   ${CMAKE_CURRENT_BINARY_DIR}
+  ${CAIRO_INCLUDE_DIRS}
 )
-include_directories(${CAIRO_INCLUDES})
 set (CAIRO_FEATURE "#define POPPLER_HAS_CAIRO 1")
 add_definitions(${CAIRO_CFLAGS})
 
