@@ -86,7 +86,7 @@ EXTRA_DIST +=							\
 	cmake/modules/FindLIBOPENJPEG.cmake			\
 	config.h.cmake						\
 	poppler-cairo.pc.cmake					\
-	poppler-config.h.cmake					\
+	poppler/poppler-config.h.cmake				\
 	poppler-cpp.pc.cmake					\
 	poppler-glib.pc.cmake					\
 	poppler-qt.pc.cmake					\
