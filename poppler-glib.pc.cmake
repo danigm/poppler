@@ -6,7 +6,7 @@ includedir=${prefix}/include
 Name: poppler-glib
 Description: GLib wrapper for poppler
 Version: @POPPLER_VERSION@
-Requires: poppler-cairo = @POPPLER_VERSION@ gobject-2.0 gdk-2.0 gdk-pixbuf-2.0
+Requires: poppler-cairo = @POPPLER_VERSION@ gobject-2.0 @GDK_REQ@
 @PC_REQUIRES_PRIVATE@
 
 Libs: -L${libdir} -lpoppler-glib
