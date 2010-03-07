@@ -56,6 +56,7 @@ pkgconfig_DATA =				\
 
 # Add CMake buildsystem files here so they get added on make dist
 EXTRA_DIST +=							\
+	cpp/tests/CMakeLists.txt				\
 	cpp/CMakeLists.txt					\
 	glib/demo/CMakeLists.txt				\
 	glib/CMakeLists.txt					\
