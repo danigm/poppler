@@ -84,6 +84,10 @@ install(FILES
   ${CMAKE_CURRENT_BINARY_DIR}/poppler-features.h
   DESTINATION include/poppler/glib)
 
+set_directory_properties(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES
+  "${CMAKE_CURRENT_BINARY_DIR}/poppler-enums.h ${CMAKE_CURRENT_BINARY_DIR}/poppler-enums.c"
+)
+
 
 if (GDK_FOUND AND BUILD_GTK_TESTS)
   set(test_poppler_glib_SRCS
