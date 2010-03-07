@@ -39,6 +39,16 @@
 #cmakedefine TEXTOUT_WORD_LIST 1
 #endif
 
+/* Use fontconfig font configuration backend */
+#ifndef WITH_FONTCONFIGURATION_FONTCONFIG
+#cmakedefine WITH_FONTCONFIGURATION_FONTCONFIG 1
+#endif
+
+/* Use win32 font configuration backend */
+#ifndef WITH_FONTCONFIGURATION_WIN32
+#cmakedefine WITH_FONTCONFIGURATION_WIN32 1
+#endif
+
 // Also, there's a couple of preprocessor symbols in the header files
 // that are used but never defined: DISABLE_OUTLINE, DEBUG_MEM and
 
