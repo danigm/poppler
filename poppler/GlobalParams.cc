@@ -23,6 +23,7 @@
 // Copyright (C) 2009 William Bader <williambader@hotmail.com>
 // Copyright (C) 2009 Kovid Goyal <kovid@kovidgoyal.net>
 // Copyright (C) 2010 Hib Eris <hib@hiberis.nl>
+// Copyright (C) 2010 Patrick Spendrin <ps_ml@gmx.de>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git

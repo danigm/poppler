@@ -6,6 +6,20 @@
  * Copyright 1996-2003 Glyph & Cog, LLC
  */
 
+//========================================================================
+//
+// Modified under the Poppler project - http://poppler.freedesktop.org
+//
+// All changes made under the Poppler project to this file are licensed
+// under GPL version 2 or later
+//
+// Copyright (C) 2010 Patrick Spendrin <ps_ml@gmx.de>
+//
+// To see a description of the changes please see the Changelog file that
+// came with your tarball or type make ChangeLog if you are building from git
+//
+//========================================================================
+
 #ifndef GTYPES_H
 #define GTYPES_H
 
