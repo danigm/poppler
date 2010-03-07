@@ -66,6 +66,11 @@ extern "C" int unlink(char *filename);
 #endif
 #endif
 
+#ifdef _MSC_VER
+#include <float.h>
+#define isfinite(x) _finite(x)
+#endif
+
 //------------------------------------------------------------------------
 
 // Divide a 16-bit value (in [0, 255*255]) by 255, returning an 8-bit result.
