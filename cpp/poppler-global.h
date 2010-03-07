@@ -71,6 +71,11 @@ enum case_sensitivity_enum { case_sensitive, case_insensitive };
 
 typedef std::vector<char> byte_array;
 
+// to disable warning only for this occurrence
+#ifdef _MSC_VER
+#pragma warning(push)
+#pragma warning(disable: 4251) /* class 'A' needs to have dll interface for to be used by clients of class 'B'. */
+#endif
 class POPPLER_CPP_EXPORT ustring : public std::basic_string<unsigned short>
 {
 public:
@@ -90,6 +95,9 @@ private:
     operator std::string() const;
     ustring& operator=(const std::string &);
 };
+#ifdef _MSC_VER
+#pragma warning(pop)
+#endif
 
 POPPLER_CPP_EXPORT unsigned int /*time_t*/ convert_date(const std::string &date);
 
