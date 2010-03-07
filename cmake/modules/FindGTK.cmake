@@ -27,10 +27,7 @@ if (NOT WIN32)
   endif (_LibGLIB2IncDir)
 
   if (_LibGDK2IncDir)
-    exec_program(${PKGCONFIG_EXECUTABLE} ARGS --atleast-version=2.14 gdk-2.0 RETURN_VALUE _return_VALUE OUTPUT_VARIABLE _pkgconfigDevNull)
-    if(_return_VALUE STREQUAL "0")
-      set(_gdk_FOUND TRUE)
-    endif(_return_VALUE STREQUAL "0")
+    set(_gdk_FOUND TRUE)
   endif (_LibGDK2IncDir)
 
   if (_glib_FOUND)
