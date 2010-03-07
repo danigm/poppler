@@ -39,38 +39,22 @@ add_custom_command(
   OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/poppler-enums.h
   COMMAND ${GLIB2_MKENUMS}
   ARGS
-    --fhead \"\#ifndef __POPPLER_TYPE_ENUMS_H__\\n\"
-    --fhead \"\#define __POPPLER_TYPE_ENUMS_H__ 1\\n\\n\"
-    --fhead \"\#include <glib-object.h>\\n\\n\"
-    --fhead \"G_BEGIN_DECLS\\n\\n\"
-    --ftail \"G_END_DECLS\\n\\n\"
-    --ftail \"\#endif /* __POPPLER_TYPE_ENUMS_H__ */\\n\"
-    --fprod \"\\n/* --- @filename@ --- */\"
-    --eprod \"\#define POPPLER_TYPE_@ENUMSHORT@ \(@enum_name@_get_type\(\)\)\\n\"
-    --eprod \"GType @enum_name@_get_type \(void\) G_GNUC_CONST\;\\n\"
+    --template poppler-enums.h.template
     ${poppler_glib_public_headers} > ${CMAKE_CURRENT_BINARY_DIR}/poppler-enums.h
   WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
   DEPENDS ${poppler_glib_public_headers}
+          ${CMAKE_CURRENT_SOURCE_DIR}/poppler-enums.h.template
 )
 
 add_custom_command(
   OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/poppler-enums.c
   COMMAND ${GLIB2_MKENUMS}
   ARGS
-    --fhead \"\#include \\"poppler-enums.h\\"\\n\\n\"
-    --fprod \"\\n/* enumerations from \\"@filename@\\" */\"
-    --fprod \"\\n\#include \\"@filename@\\"\"
-    --vhead \"static const G@Type@Value _@enum_name@_values[] = {\"
-    --vprod \"  { @VALUENAME@, \\"@VALUENAME@\\", \\"@valuenick@\\" },\"
-    --vtail \"  { 0, NULL, NULL }\\n}\;\\n\\n\"
-    --vtail \"GType\\n@enum_name@_get_type \(void\)\\n{\\n\"
-    --vtail \"  static GType type = 0\;\\n\\n\"
-    --vtail \"  if \(G_UNLIKELY \(type == 0\)\)\\n\"
-    --vtail \"    type = g_\@type\@_register_static \(\\"@EnumName@\\", _@enum_name@_values\)\;\\n\\n\"
-    --vtail \"  return type\;\\n}\\n\\n\"
+    --template poppler-enums.c.template
     ${poppler_glib_public_headers} > ${CMAKE_CURRENT_BINARY_DIR}/poppler-enums.c
   WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
   DEPENDS ${poppler_glib_public_headers} ${CMAKE_CURRENT_BINARY_DIR}/poppler-enums.h
+          ${CMAKE_CURRENT_SOURCE_DIR}/poppler-enums.c.template
 )
 
 
