@@ -160,7 +160,8 @@ class Movie {
   void outputToFile(FILE*);
 
   void getAspect (int *widthA, int *heightA) { *widthA = width; *heightA = height; }
-  Stream* getPosterStream() { return posterStream; }
+  Object *getPoster (Object *obj) { return poster.copy(obj); }
+  GBool getShowPoster () { return showPoster; }
 
   Movie* copy();
 
@@ -177,7 +178,8 @@ class Movie {
   int width;                               // Aspect
   int height;                              // Aspect
 
-  Stream* posterStream;
+  Object poster;
+  GBool showPoster;
 
   GBool isEmbedded;
 

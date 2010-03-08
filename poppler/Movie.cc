@@ -432,7 +432,7 @@ void Movie::initialize() {
   embeddedStream = NULL;
   width = -1;
   height = -1;
-  posterStream = NULL;
+  showPoster = gFalse;
 }
 
 Movie::~Movie() {
@@ -444,9 +444,7 @@ Movie::~Movie() {
   if (embeddedStream && (!embeddedStream->decRef())) {
     delete embeddedStream;
   }
-  if (posterStream && (!posterStream->decRef())) {
-    delete posterStream;
-  }
+  poster.free();
 }
 
 Movie::Movie(Object *movieDict, Object *aDict) {
@@ -485,13 +483,15 @@ Movie::Movie(Object *movieDict, Object *aDict) {
   //
   // movie poster
   //
-  if (!movieDict->dictLookup("Poster", &obj1)->isNone()) {
-    if (obj1.isStream()) {
-      // "copy" stream
-      posterStream = obj1.getStream();
-      posterStream->incRef();
+  if (!movieDict->dictLookupNF("Poster", &poster)->isNone()) {
+    if (poster.isRef() || poster.isStream()) {
+      showPoster = gTrue;
+    } else if (poster.isBool()) {
+      showPoster = obj1.getBool();
+      poster.free();
+    } else {
+      poster.free();
     }
-    obj1.free();
   }
 
   if (aDict->isDict()) {
@@ -621,9 +621,8 @@ Movie* Movie::copy() {
 
   if (new_movie->embeddedStream)
     new_movie->embeddedStream->incRef();
-  
-  if (new_movie->posterStream)
-    new_movie->posterStream->incRef();
+
+  poster.copy(&new_movie->poster);
 
   return new_movie;
 }
