@@ -159,7 +159,7 @@ void MovieParameters::parseMovieActivation(Object* aDict,
 					   int rotationAngleA) {
   Object obj1;
 
-  if (!aDict->dictLookup("Start", &obj1)->isNone()) {
+  if (!aDict->dictLookup("Start", &obj1)->isNull()) {
     if (obj1.isInt()) {
       // If it is representable as an integer (subject to the implementation limit for
       // integers, as described in Appendix C), it should be specified as such.
@@ -196,7 +196,7 @@ void MovieParameters::parseMovieActivation(Object* aDict,
   }
   obj1.free();
 
-  if (!aDict->dictLookup("Duration", &obj1)->isNone()) {
+  if (!aDict->dictLookup("Duration", &obj1)->isNull()) {
     if (obj1.isInt()) {
       duration.units = obj1.getInt();
     }
@@ -483,7 +483,7 @@ Movie::Movie(Object *movieDict, Object *aDict) {
   //
   // movie poster
   //
-  if (!movieDict->dictLookupNF("Poster", &poster)->isNone()) {
+  if (!movieDict->dictLookupNF("Poster", &poster)->isNull()) {
     if (poster.isRef() || poster.isStream()) {
       showPoster = gTrue;
     } else if (poster.isBool()) {
