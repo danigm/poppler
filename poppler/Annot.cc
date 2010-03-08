@@ -16,7 +16,7 @@
 // Copyright (C) 2006 Scott Turner <scotty1024@mac.com>
 // Copyright (C) 2007, 2008 Julien Rebetez <julienr@svn.gnome.org>
 // Copyright (C) 2007-2009 Albert Astals Cid <aacid@kde.org>
-// Copyright (C) 2007-2009 Carlos Garcia Campos <carlosgc@gnome.org>
+// Copyright (C) 2007-2010 Carlos Garcia Campos <carlosgc@gnome.org>
 // Copyright (C) 2007, 2008 Iñigo Martínez <inigomartinez@gmail.com>
 // Copyright (C) 2007 Jeff Muizelaar <jeff@infidigm.net>
 // Copyright (C) 2008 Pino Toscano <pino@kde.org>
@@ -4080,6 +4080,107 @@ void AnnotMovie::initialize(XRef *xrefA, Catalog *catalog, Dict* dict) {
   movieDict.free();
 }
 
+void AnnotMovie::draw(Gfx *gfx, GBool printing) {
+  Object obj;
+
+  if (!isVisible (printing))
+    return;
+
+  if (appearance.isNull() && movie->getShowPoster()) {
+    int width, height;
+    Object poster;
+    movie->getPoster(&poster);
+    movie->getAspect(&width, &height);
+
+    if (width != -1 && height != -1 && !poster.isNone()) {
+      MemStream *mStream;
+
+      appearBuf = new GooString ();
+      appearBuf->append ("q\n");
+      appearBuf->appendf ("{0:d} 0 0 {1:d} 0 0 cm\n", width, height);
+      appearBuf->append ("/MImg Do\n");
+      appearBuf->append ("Q\n");
+
+      Object imgDict;
+      imgDict.initDict(xref);
+      imgDict.dictSet ("MImg", &poster);
+
+      Object resDict;
+      resDict.initDict(xref);
+      resDict.dictSet ("XObject", &imgDict);
+
+      Object formDict, obj1, obj2;
+      formDict.initDict(xref);
+      formDict.dictSet("Length", obj1.initInt(appearBuf->getLength()));
+      formDict.dictSet("Subtype", obj1.initName("Form"));
+      formDict.dictSet("Name", obj1.initName("FRM"));
+      obj1.initArray(xref);
+      obj1.arrayAdd(obj2.initInt(0));
+      obj1.arrayAdd(obj2.initInt(0));
+      obj1.arrayAdd(obj2.initInt(width));
+      obj1.arrayAdd(obj2.initInt(height));
+      formDict.dictSet("BBox", &obj1);
+      obj1.initArray(xref);
+      obj1.arrayAdd(obj2.initInt(1));
+      obj1.arrayAdd(obj2.initInt(0));
+      obj1.arrayAdd(obj2.initInt(0));
+      obj1.arrayAdd(obj2.initInt(1));
+      obj1.arrayAdd(obj2.initInt(-width / 2));
+      obj1.arrayAdd(obj2.initInt(-height / 2));
+      formDict.dictSet("Matrix", &obj1);
+      formDict.dictSet("Resources", &resDict);
+
+      Object aStream;
+      mStream = new MemStream(copyString(appearBuf->getCString()), 0,
+			      appearBuf->getLength(), &formDict);
+      mStream->setNeedFree(gTrue);
+      aStream.initStream(mStream);
+      delete appearBuf;
+
+      Object objDict;
+      objDict.initDict(xref);
+      objDict.dictSet ("FRM", &aStream);
+
+      resDict.initDict(xref);
+      resDict.dictSet ("XObject", &objDict);
+
+      appearBuf = new GooString ();
+      appearBuf->append ("q\n");
+      appearBuf->appendf ("0 0 {0:d} {1:d} re W n\n", width, height);
+      appearBuf->append ("q\n");
+      appearBuf->appendf ("0 0 {0:d} {1:d} re W n\n", width, height);
+      appearBuf->appendf ("1 0 0 1 {0:d} {1:d} cm\n", width / 2, height / 2);
+      appearBuf->append ("/FRM Do\n");
+      appearBuf->append ("Q\n");
+      appearBuf->append ("Q\n");
+
+      Object appearDict;
+      appearDict.initDict(xref);
+      appearDict.dictSet("Length", obj1.initInt(appearBuf->getLength()));
+      appearDict.dictSet("Subtype", obj1.initName("Form"));
+      appearDict.dictSet("Resources", &resDict);
+      obj1.initArray(xref);
+      obj1.arrayAdd(obj2.initInt(0));
+      obj1.arrayAdd(obj2.initInt(0));
+      obj1.arrayAdd(obj2.initInt(width));
+      obj1.arrayAdd(obj2.initInt(height));
+      appearDict.dictSet("BBox", &obj1);
+
+      MemStream *appearStream = new MemStream(copyString(appearBuf->getCString()), 0,
+					      appearBuf->getLength(), &appearDict);
+      appearStream->setNeedFree(gTrue);
+      appearance.initStream(appearStream);
+      delete appearBuf;
+    }
+    poster.free();
+  }
+
+  // draw the appearance stream
+  appearance.fetch(xref, &obj);
+  gfx->drawAnnot(&obj, (AnnotBorder *)NULL, color, 1,
+		 rect->x1, rect->y1, rect->x2, rect->y2);
+  obj.free();
+}
 
 //------------------------------------------------------------------------
 // AnnotScreen
