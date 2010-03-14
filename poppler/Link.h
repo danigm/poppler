@@ -34,7 +34,7 @@ class GooString;
 class Array;
 class Dict;
 class Sound;
-class Movie;
+class MediaRendition;
 
 //------------------------------------------------------------------------
 // LinkAction
@@ -329,7 +329,7 @@ public:
 
   int getOperation() { return operation; }
 
-  Movie* getMovie() { return movie; }
+  MediaRendition* getMedia() { return media; }
 
 private:
 
@@ -337,7 +337,7 @@ private:
   Object renditionObj;
   int operation;
 
-  Movie* movie;
+  MediaRendition* media;
 };
 
 //------------------------------------------------------------------------

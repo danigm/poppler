@@ -26,70 +26,13 @@
 
 #include "Object.h"
 
-class GooList;
+struct MovieActivationParameters {
 
+  MovieActivationParameters();
+  ~MovieActivationParameters();
 
-struct MovieWindowParameters {
-
-  MovieWindowParameters();
-  ~MovieWindowParameters();
-
-  // parse from a floating window parameters dictionary
-  void parseFWParams(Object* obj);
-
-  enum MovieWindowType {
-    movieWindowFloating = 0,
-    movieWindowFullscreen,
-    movieWindowHidden,  // ?
-    movieWindowEmbedded
-  };
-
-  enum MovieWindowRelativeTo {
-    windowRelativeToDocument = 0,
-    windowRelativeToApplication,
-    windowRelativeToDesktop
-  };
-
-
-                                         // DEFAULT VALUE
-
-  MovieWindowType type;                  // movieWindowEmbedded
-  
-
-  int width;                             // -1
-  int height;                            // -1
-  
-  // floating window position
-  MovieWindowRelativeTo relativeTo;      // windowRelativeToDocument (or to desktop)
-  double XPosition;                      // 0.5
-  double YPosition;                      // 0.5
-
-  GBool hasTitleBar;                      // true
-  GBool hasCloseButton;                   // true
-  GBool isResizeable;                     // true
-};
-
-
-struct MovieParameters {
-
-  MovieParameters();
-  ~MovieParameters();
-
-  // parse from a "Media Play Parameters" dictionary
-  void parseMediaPlayParameters(Object* playObj);
-  // parse from a "Media Screen Parameters" dictionary
-  void parseMediaScreenParameters(Object* screenObj);
   // parse from a "Movie Activation" dictionary
-  void parseMovieActivation(Object* actObj, int width, int height, int rotationAngle);
-
-  enum MovieFittingPolicy {
-    fittingMeet = 0,
-    fittingSlice,
-    fittingFill,
-    fittingScroll,
-    fittingHidden,
-    fittingUndefined
-  };
+  void parseMovieActivation(Object* actObj);
 
   enum MovieRepeatMode {
     repeatModeOnce,
@@ -103,12 +46,6 @@ struct MovieParameters {
     Gulong units;
     int units_per_second; // 0 : defined by movie
   };
-  
-  struct Color {
-    double r, g, b;
-  };
-
-  Gushort rotationAngle;                   // 0
 
   MovieTime start;                         // 0
   MovieTime duration;                      // 0
@@ -117,79 +54,56 @@ struct MovieParameters {
 
   int volume;                              // 100
 
-  // defined in media play parameters, p 770
-  // correspond to 'fit' SMIL's attribute
-  MovieFittingPolicy fittingPolicy;        // fittingUndefined
-
-  GBool autoPlay;                          // true
-
-  // repeat count, can be real values, 0 means forever
-  double repeatCount;                      // 1.0
-
-  // background color                      // black = (0.0 0.0 0.0)
-  Color bgColor;
-  
-  // opacity in [0.0 1.0]
-  double opacity;                          // 1.0
-  
-
   GBool showControls;                      // false
 
   GBool synchronousPlay;                   // false
   MovieRepeatMode repeatMode;              // repeatModeOnce
 
-  MovieWindowParameters windowParams;
+  // floating window position
+  GBool floatingWindow;
+  double xPosition;                        // 0.5
+  double yPosition;                        // 0.5
+  int znum;                                // 1
+  int zdenum;                              // 1
 };
 
 class Movie {
  public:
+  Movie(Object *objMovie, Object *objAct);
+  Movie(Object *objMovie);
   ~Movie();
 
-  static Movie *fromMovie(Object *objMovie, Object *objAct);
-  static Movie *fromMediaRendition(Object *objRend);
+  GBool isOk() { return ok; }
+  MovieActivationParameters* getActivationParameters() { return &MA; }
 
-  MovieParameters* getMHParameters() { return &MH; }
-  MovieParameters* getBEParameters() { return &BE; }
-
-  GooString* getContentType() { return contentType; }
   GooString* getFileName() { return fileName; }
 
-  GBool getIsEmbedded() { return isEmbedded; }
-  Stream* getEmbbededStream() { return embeddedStream; }
-  // write embedded stream to file
-  void outputToFile(FILE*);
-
+  Gushort getRotationAngle() { return rotationAngle; }
   void getAspect (int *widthA, int *heightA) { *widthA = width; *heightA = height; }
-  Object *getPoster (Object *obj) { return poster.copy(obj); }
-  GBool getShowPoster () { return showPoster; }
+
+  Object *getPoster(Object *obj) { return poster.copy(obj); }
+  GBool getShowPoster() { return showPoster; }
+
+  GBool getUseFloatingWindow() { return MA.floatingWindow; }
+  void  getFloatingWindowSize(int *width, int *height);
 
   Movie* copy();
 
  private:
-  Movie(Object *objMovie, Object *objAct);
-  Movie(Object *objRend);
-  void initialize();
+  void parseMovie (Object *movieDict);
 
-  // "Must Honor" parameters
-  MovieParameters MH;
-  // "Best Effort" parameters
-  MovieParameters BE;
+  GBool ok;
 
+  Gushort rotationAngle;                   // 0
   int width;                               // Aspect
   int height;                              // Aspect
 
   Object poster;
   GBool showPoster;
 
-  GBool isEmbedded;
-
-  GooString* contentType;
-
-  // if it's embedded
-  Stream* embeddedStream;
-
-  // if it's not embedded
   GooString* fileName;
+
+  MovieActivationParameters MA;
 };
 
 #endif

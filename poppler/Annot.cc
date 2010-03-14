@@ -4069,10 +4069,18 @@ void AnnotMovie::initialize(XRef *xrefA, Catalog *catalog, Dict* dict) {
 
   Object movieDict;
   if (dict->lookup("Movie", &movieDict)->isDict()) {
-    Object aDict;
-    dict->lookup("A", &aDict);
-    movie = Movie::fromMovie (&movieDict, &aDict);
-    aDict.free();
+    Object obj2;
+    dict->lookup("A", &obj2);
+    if (obj2.isDict())
+      movie = new Movie (&movieDict, &obj2);
+    else
+      movie = new Movie (&movieDict);
+    if (!movie->isOk()) {
+      delete movie;
+      movie = NULL;
+      ok = gFalse;
+    }
+    obj2.free();
   } else {
     error(-1, "Bad Annot Movie");
     ok = gFalse;

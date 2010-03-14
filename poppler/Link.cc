@@ -41,8 +41,8 @@
 #include "Dict.h"
 #include "Link.h"
 #include "Sound.h"
-#include "Movie.h"
 #include "FileSpec.h"
+#include "Rendition.h"
 
 //------------------------------------------------------------------------
 // LinkAction
@@ -687,7 +687,7 @@ LinkSound::~LinkSound() {
 
 LinkRendition::LinkRendition(Object *Obj) {
   operation = -1;
-  movie = NULL;
+  media = NULL;
   screenRef.num = -1;
 
   if (Obj->isDict())
@@ -712,7 +712,7 @@ LinkRendition::LinkRendition(Object *Obj) {
       // retrieve rendition object
       Obj->dictLookup("R", &renditionObj);
       if (renditionObj.isDict()) {
-	movie = Movie::fromMediaRendition(&renditionObj);
+	media = new MediaRendition(&renditionObj);
 
 	if (screenRef.num == -1) {
 	  error(-1, "Action Rendition : Rendition without Screen Annotation !");
@@ -727,8 +727,8 @@ LinkRendition::LinkRendition(Object *Obj) {
 LinkRendition::~LinkRendition() {
   renditionObj.free();
 
-  if (movie)
-    delete movie;
+  if (media)
+    delete media;
 }
 
 
