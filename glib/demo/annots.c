@@ -519,6 +519,10 @@ pgd_annot_view_set_annot (GtkWidget    *annot_view,
     pgd_table_add_property (GTK_TABLE (table), "<b>Flags:</b>", text, &row);
     g_free (text);
 
+    text = g_strdup_printf ("%d", poppler_annot_get_page_index (annot));
+    pgd_table_add_property (GTK_TABLE (table), "<b>Page:</b>", text, &row);
+    g_free (text);
+
     if (POPPLER_IS_ANNOT_MARKUP (annot))
         pgd_annot_view_set_annot_markup (table, POPPLER_ANNOT_MARKUP (annot), &row);
 
