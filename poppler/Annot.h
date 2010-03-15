@@ -45,6 +45,7 @@ class Form;
 class FormWidget;
 class PDFRectangle;
 class Movie;
+class LinkAction;
 class OCGs;
 class Sound;
 
@@ -730,7 +731,7 @@ class AnnotScreen: public Annot {
   GooString* getTitle() { return title; }
 
   AnnotAppearanceCharacs *getAppearCharacs() { return appearCharacs; }
-  Object* getAction() { return &action; }
+  LinkAction* getAction() { return action; }
   Object* getAdditionActions() { return &additionAction; }
 
  private:
@@ -741,7 +742,7 @@ class AnnotScreen: public Annot {
 
   AnnotAppearanceCharacs* appearCharacs; // MK
 
-  Object action;                         // A
+  LinkAction *action;                    // A
   Object additionAction;                 // AA
 };
 

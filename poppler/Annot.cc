@@ -59,6 +59,7 @@
 #include "Sound.h"
 #include "FileSpec.h"
 #include "DateInfo.h"
+#include "Link.h"
 #include <string.h>
 
 #define fieldFlagReadOnly           0x00000001
@@ -4214,8 +4215,9 @@ AnnotScreen::~AnnotScreen() {
     delete title;
   if (appearCharacs)
     delete appearCharacs;
+  if (action)
+    delete action;
 
-  action.free();
   additionAction.free();
 }
 
@@ -4228,7 +4230,10 @@ void AnnotScreen::initialize(XRef *xrefA, Catalog *catalog, Dict* dict) {
   }
   obj1.free();
 
-  dict->lookup("A", &action);
+  action = NULL;
+  if (dict->lookup("A", &obj1)->isDict()) {
+    action = LinkAction::parseAction(&obj1, catalog->getBaseURI());
+  }
 
   dict->lookup("AA", &additionAction);
 
