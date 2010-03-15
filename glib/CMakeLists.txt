@@ -30,6 +30,8 @@ set(poppler_glib_public_headers
   poppler-form-field.h
   poppler-annot.h
   poppler-layer.h
+  poppler-movie.h
+  poppler-media.h
   poppler.h
 )
 
@@ -67,6 +69,8 @@ set(poppler_glib_SRCS
   poppler-form-field.cc
   poppler-annot.cc
   poppler-layer.cc
+  poppler-movie.cc
+  poppler-media.cc
   poppler.cc
   ${CMAKE_CURRENT_BINARY_DIR}/poppler-enums.c
   ${CMAKE_SOURCE_DIR}/poppler/CairoFontEngine.cc

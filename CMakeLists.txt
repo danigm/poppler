@@ -258,6 +258,7 @@ set(poppler_SRCS
   poppler/Sound.cc
   poppler/XpdfPluginAPI.cc
   poppler/Movie.cc
+  poppler/Rendition.cc
 )
 set(poppler_LIBS ${FREETYPE_LIBRARIES})
 if(ENABLE_SPLASH)
@@ -379,6 +380,7 @@ if(ENABLE_XPDF_HEADERS)
     poppler/ProfileData.h
     poppler/PreScanOutputDev.h
     poppler/PSTokenizer.h
+    poppler/Rendition.h
     poppler/Stream-CCITT.h
     poppler/Stream.h
     poppler/UnicodeMap.h
