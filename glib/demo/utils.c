@@ -182,6 +182,22 @@ pgd_action_view_add_destination (GtkWidget   *action_view,
 	}
 }
 
+static const gchar *
+get_movie_op (PopplerActionMovieOperation op)
+{
+	switch (op) {
+	case POPPLER_ACTION_MOVIE_PLAY:
+		return "Play";
+	case POPPLER_ACTION_MOVIE_PAUSE:
+		return "Pause";
+	case POPPLER_ACTION_MOVIE_RESUME:
+		return "Resume";
+	case POPPLER_ACTION_MOVIE_STOP:
+		return "Stop";
+	}
+	return NULL;
+}
+
 void
 pgd_action_view_set_action (GtkWidget     *action_view,
 			    PopplerAction *action)
@@ -237,8 +253,14 @@ pgd_action_view_set_action (GtkWidget     *action_view,
 		pgd_table_add_property (GTK_TABLE (table), "<b>Type:</b>", "Named Action", &row);
 		pgd_table_add_property (GTK_TABLE (table), "<b>Name:</b>", action->named.named_dest, &row);
 		break;
-	case POPPLER_ACTION_MOVIE:
+	case POPPLER_ACTION_MOVIE: {
+		GtkWidget *movie_view = pgd_movie_view_new ();
+
 		pgd_table_add_property (GTK_TABLE (table), "<b>Type:</b>", "Movie", &row);
+		pgd_table_add_property (GTK_TABLE (table), "<b>Operation:</b>", get_movie_op (action->movie.operation), &row);
+		pgd_movie_view_set_movie (movie_view, action->movie.movie);
+		pgd_table_add_property_with_custom_widget (GTK_TABLE (table), "<b>Movie:</b>", movie_view, &row);
+	}
 		break;
 	default:
 		g_assert_not_reached ();
@@ -268,4 +290,95 @@ pgd_format_date (time_t utime)
 	if (len == 0 || s[0] == '\0') return NULL;
 
 	return g_locale_to_utf8 (s, -1, NULL, NULL, NULL);
+}
+
+GtkWidget *
+pgd_movie_view_new (void)
+{
+	GtkWidget  *frame, *label;
+
+	frame = gtk_frame_new (NULL);
+	gtk_frame_set_shadow_type (GTK_FRAME (frame), GTK_SHADOW_NONE);
+	label = gtk_label_new (NULL);
+	gtk_label_set_markup (GTK_LABEL (label), "<b>Movie Properties</b>");
+	gtk_frame_set_label_widget (GTK_FRAME (frame), label);
+	gtk_widget_show (label);
+
+	return frame;
+}
+
+static void
+pgd_movie_view_play_movie (GtkWidget    *button,
+			   PopplerMovie *movie)
+{
+	const gchar *filename;
+	GFile       *file;
+	gchar       *uri;
+
+	filename = poppler_movie_get_filename (movie);
+	if (g_path_is_absolute (filename)) {
+		file = g_file_new_for_path (filename);
+	} else if (g_strrstr (filename, "://")) {
+		file = g_file_new_for_uri (filename);
+	} else {
+		gchar *cwd;
+		gchar *path;
+
+		// FIXME: relative to doc uri, not cwd
+		cwd = g_get_current_dir ();
+		path = g_build_filename (cwd, filename, NULL);
+		g_free (cwd);
+
+		file = g_file_new_for_path (path);
+		g_free (path);
+	}
+
+	uri = g_file_get_uri (file);
+	g_object_unref (file);
+	if (uri) {
+		gtk_show_uri (gtk_widget_get_screen (button),
+			      uri, GDK_CURRENT_TIME, NULL);
+		g_free (uri);
+	}
+}
+
+void
+pgd_movie_view_set_movie (GtkWidget    *movie_view,
+			  PopplerMovie *movie)
+{
+	GtkWidget  *alignment;
+	GtkWidget  *table;
+	GtkWidget  *button;
+	gint        row = 0;
+
+	alignment = gtk_bin_get_child (GTK_BIN (movie_view));
+	if (alignment) {
+		gtk_container_remove (GTK_CONTAINER (movie_view), alignment);
+	}
+
+	alignment = gtk_alignment_new (0.5, 0.5, 1, 1);
+	gtk_alignment_set_padding (GTK_ALIGNMENT (alignment), 5, 5, 12, 5);
+	gtk_container_add (GTK_CONTAINER (movie_view), alignment);
+	gtk_widget_show (alignment);
+
+	if (!movie)
+		return;
+
+	table = gtk_table_new (10, 2, FALSE);
+	gtk_table_set_col_spacings (GTK_TABLE (table), 6);
+	gtk_table_set_row_spacings (GTK_TABLE (table), 6);
+
+	pgd_table_add_property (GTK_TABLE (table), "<b>Filename:</b>", poppler_movie_get_filename (movie), &row);
+	pgd_table_add_property (GTK_TABLE (table), "<b>Need Poster:</b>", poppler_movie_need_poster (movie) ? "Yes" : "No", &row);
+	pgd_table_add_property (GTK_TABLE (table), "<b>Show Controls:</b>", poppler_movie_show_controls (movie) ? "Yes" : "No", &row);
+
+	button = gtk_button_new_from_stock (GTK_STOCK_MEDIA_PLAY);
+	g_signal_connect (button, "clicked",
+			  G_CALLBACK (pgd_movie_view_play_movie),
+			  movie);
+	pgd_table_add_property_with_custom_widget (GTK_TABLE (table), NULL, button, &row);
+	gtk_widget_show (button);
+
+	gtk_container_add (GTK_CONTAINER (alignment), table);
+	gtk_widget_show (table);
 }

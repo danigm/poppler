@@ -441,6 +441,24 @@ pgd_annot_view_set_annot_file_attachment (GtkWidget                  *table,
 }
 
 static void
+pgd_annot_view_set_annot_movie (GtkWidget         *table,
+				PopplerAnnotMovie *annot,
+				gint              *row)
+{
+    GtkWidget *movie_view;
+    gchar *text;
+
+    text = poppler_annot_movie_get_title (annot);
+    pgd_table_add_property (GTK_TABLE (table), "<b>Movie Title:</b>", text, row);
+    g_free (text);
+
+    movie_view = pgd_movie_view_new ();
+    pgd_movie_view_set_movie (movie_view, poppler_annot_movie_get_movie (annot));
+    pgd_table_add_property_with_custom_widget (GTK_TABLE (table), "<b>Movie:</b>", movie_view, row);
+    gtk_widget_show (movie_view);
+}
+
+static void
 pgd_annot_view_set_annot (GtkWidget    *annot_view,
                           PopplerAnnot *annot)
 {
@@ -502,6 +520,8 @@ pgd_annot_view_set_annot (GtkWidget    *annot_view,
         case POPPLER_ANNOT_FILE_ATTACHMENT:
 	  pgd_annot_view_set_annot_file_attachment (table, POPPLER_ANNOT_FILE_ATTACHMENT (annot), &row);
 	  break;
+        case POPPLER_ANNOT_MOVIE:
+	  pgd_annot_view_set_annot_movie (table, POPPLER_ANNOT_MOVIE (annot), &row);
         default:
           break;
     }

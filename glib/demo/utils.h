@@ -41,6 +41,9 @@ GtkWidget *pgd_action_view_new                       (PopplerDocument *document)
 void       pgd_action_view_set_action                (GtkWidget       *action_view,
 						      PopplerAction   *action);
 gchar     *pgd_format_date                           (time_t           utime);
+GtkWidget *pgd_movie_view_new                        (void);
+void       pgd_movie_view_set_movie                  (GtkWidget       *movie_view,
+						      PopplerMovie    *movie);
 
 G_END_DECLS
 
