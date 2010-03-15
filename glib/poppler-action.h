@@ -33,7 +33,8 @@ typedef enum
 	POPPLER_ACTION_LAUNCH,		/* launch app (or open document) */
 	POPPLER_ACTION_URI,		/* URI */
 	POPPLER_ACTION_NAMED,		/* named action*/
-	POPPLER_ACTION_MOVIE		/* movie action */
+	POPPLER_ACTION_MOVIE,		/* movie action */
+	POPPLER_ACTION_RENDITION        /* rendition action */
 } PopplerActionType;
 
 typedef enum
@@ -66,6 +67,7 @@ typedef struct _PopplerActionLaunch     PopplerActionLaunch;
 typedef struct _PopplerActionUri        PopplerActionUri;
 typedef struct _PopplerActionNamed      PopplerActionNamed;
 typedef struct _PopplerActionMovie      PopplerActionMovie;
+typedef struct _PopplerActionRendition  PopplerActionRendition;
 
 struct _PopplerDest
 {
@@ -141,6 +143,15 @@ struct _PopplerActionMovie
 	PopplerMovie               *movie;
 };
 
+struct _PopplerActionRendition
+{
+	PopplerActionType type;
+	gchar            *title;
+
+	gint               op;
+	PopplerMedia      *media;
+};
+
 union _PopplerAction
 {
 	PopplerActionType type;
@@ -151,6 +162,7 @@ union _PopplerAction
 	PopplerActionUri uri;
 	PopplerActionNamed named;
 	PopplerActionMovie movie;
+	PopplerActionRendition rendition;
 };
 
 #define POPPLER_TYPE_ACTION             (poppler_action_get_type ())

@@ -99,6 +99,10 @@ poppler_action_free (PopplerAction *action)
 		if (action->movie.movie)
 			g_object_unref (action->movie.movie);
 		break;
+	case POPPLER_ACTION_RENDITION:
+		if (action->rendition.media)
+			g_object_unref (action->rendition.media);
+		break;
 	default:
 		break;
 	}
@@ -155,6 +159,10 @@ poppler_action_copy (PopplerAction *action)
 	case POPPLER_ACTION_MOVIE:
 		if (action->movie.movie)
 			new_action->movie.movie = (PopplerMovie *)g_object_ref (action->movie.movie);
+		break;
+	case POPPLER_ACTION_RENDITION:
+		if (action->rendition.media)
+			new_action->rendition.media = (PopplerMedia *)g_object_ref (action->rendition.media);
 		break;
 	default:
 		break;
@@ -384,6 +392,16 @@ _poppler_action_movie_set_movie (PopplerAction *action,
 	action->movie.movie = movie ? _poppler_movie_new (movie) : NULL;
 }
 
+static void
+build_rendition (PopplerAction *action,
+		 LinkRendition *link)
+{
+	action->rendition.op = link->getOperation();
+	if (link->hasRenditionObject())
+		action->rendition.media = _poppler_media_new (link->getMedia());
+	// TODO: annotation reference
+}
+
 PopplerAction *
 _poppler_action_new (PopplerDocument *document,
 		     LinkAction      *link,
@@ -425,6 +443,10 @@ _poppler_action_new (PopplerDocument *document,
 	case actionMovie:
 		action->type = POPPLER_ACTION_MOVIE;
 		build_movie (action, dynamic_cast<LinkMovie*> (link));
+		break;
+	case actionRendition:
+		action->type = POPPLER_ACTION_RENDITION;
+		build_rendition (action, dynamic_cast<LinkRendition*> (link));
 		break;
 	case actionUnknown:
 	default:
