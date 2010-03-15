@@ -4229,6 +4229,12 @@ void AnnotScreen::initialize(XRef *xrefA, Catalog *catalog, Dict* dict) {
   action = NULL;
   if (dict->lookup("A", &obj1)->isDict()) {
     action = LinkAction::parseAction(&obj1, catalog->getBaseURI());
+    if (action->getKind() == actionRendition && page == 0) {
+      error (-1, "Invalid Rendition action: associated screen annotation without P");
+      delete action;
+      action = NULL;
+      ok = gFalse;
+    }
   }
 
   dict->lookup("AA", &additionAction);
