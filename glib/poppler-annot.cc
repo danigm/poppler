@@ -26,6 +26,7 @@ typedef struct _PopplerAnnotMarkupClass         PopplerAnnotMarkupClass;
 typedef struct _PopplerAnnotFreeTextClass       PopplerAnnotFreeTextClass;
 typedef struct _PopplerAnnotTextClass           PopplerAnnotTextClass;
 typedef struct _PopplerAnnotFileAttachmentClass PopplerAnnotFileAttachmentClass;
+typedef struct _PopplerAnnotMovieClass          PopplerAnnotMovieClass;
 
 struct _PopplerAnnot
 {
@@ -78,11 +79,24 @@ struct _PopplerAnnotFileAttachmentClass
   PopplerAnnotMarkupClass parent_class;
 };
 
+struct _PopplerAnnotMovie
+{
+  PopplerAnnot  parent_instance;
+
+  PopplerMovie *movie;
+};
+
+struct _PopplerAnnotMovieClass
+{
+  PopplerAnnotClass parent_class;
+};
+
 G_DEFINE_TYPE (PopplerAnnot, poppler_annot, G_TYPE_OBJECT)
 G_DEFINE_TYPE (PopplerAnnotMarkup, poppler_annot_markup, POPPLER_TYPE_ANNOT)
 G_DEFINE_TYPE (PopplerAnnotText, poppler_annot_text, POPPLER_TYPE_ANNOT_MARKUP)
 G_DEFINE_TYPE (PopplerAnnotFreeText, poppler_annot_free_text, POPPLER_TYPE_ANNOT_MARKUP)
 G_DEFINE_TYPE (PopplerAnnotFileAttachment, poppler_annot_file_attachment, POPPLER_TYPE_ANNOT_MARKUP)
+G_DEFINE_TYPE (PopplerAnnotMovie, poppler_annot_movie, POPPLER_TYPE_ANNOT)
 
 static void
 poppler_annot_finalize (GObject *object)
@@ -190,6 +204,49 @@ _poppler_annot_file_attachment_new (Annot *annot)
 
   return poppler_annot;
 }
+
+
+static void
+poppler_annot_movie_finalize (GObject *object)
+{
+  PopplerAnnotMovie *annot_movie = POPPLER_ANNOT_MOVIE (object);
+
+  if (annot_movie->movie) {
+    g_object_unref (annot_movie->movie);
+    annot_movie->movie = NULL;
+  }
+
+  G_OBJECT_CLASS (poppler_annot_movie_parent_class)->finalize (object);
+}
+
+static void
+poppler_annot_movie_init (PopplerAnnotMovie *poppler_annot)
+{
+}
+
+static void
+poppler_annot_movie_class_init (PopplerAnnotMovieClass *klass)
+{
+  GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
+
+  gobject_class->finalize = poppler_annot_movie_finalize;
+}
+
+PopplerAnnot *
+_poppler_annot_movie_new (Annot *annot)
+{
+  PopplerAnnot *poppler_annot;
+  AnnotMovie   *annot_movie;
+
+  poppler_annot = POPPLER_ANNOT (g_object_new (POPPLER_TYPE_ANNOT_MOVIE, NULL));
+  poppler_annot->annot = annot;
+
+  annot_movie = static_cast<AnnotMovie *>(poppler_annot->annot);
+  POPPLER_ANNOT_MOVIE (poppler_annot)->movie = _poppler_movie_new (annot_movie->getMovie());
+
+  return poppler_annot;
+}
+
 
 /* Public methods */
 /**
@@ -919,4 +976,44 @@ void
 poppler_annot_callout_line_free (PopplerAnnotCalloutLine *callout)
 {
   g_free (callout);
+}
+
+
+/* PopplerAnnotMovie */
+/**
+* poppler_annot_movie_get_title:
+* @poppler_annot: a #PopplerAnnotMovie
+*
+* Retrieves the movie title of @poppler_annot.
+*
+* Return value: the title text of @poppler_annot.
+*/
+gchar *
+poppler_annot_movie_get_title (PopplerAnnotMovie *poppler_annot)
+{
+  AnnotMovie *annot;
+  GooString *title;
+
+  g_return_val_if_fail (POPPLER_IS_ANNOT_MOVIE (poppler_annot), NULL);
+
+  annot = static_cast<AnnotMovie *>(POPPLER_ANNOT (poppler_annot)->annot);
+
+  title = annot->getTitle ();
+
+  return title ? _poppler_goo_string_to_utf8 (title) : NULL;
+}
+
+/**
+* poppler_annot_movie_get_movie:
+* @poppler_annot: a #PopplerAnnotMovie
+*
+* Retrieves the movie object (PopplerMovie) stored in the @poppler_annot.
+*
+* Return value: the movie object stored in the @poppler_annot. The returned
+*               object is owned by #PopplerAnnotMovie and should not be freed
+*/
+PopplerMovie *
+poppler_annot_movie_get_movie (PopplerAnnotMovie *poppler_annot)
+{
+  return poppler_annot->movie;
 }

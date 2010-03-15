@@ -96,6 +96,7 @@ PopplerAnnot      *_poppler_annot_new           (Annot *annot);
 PopplerAnnot      *_poppler_annot_text_new      (Annot *annot);
 PopplerAnnot      *_poppler_annot_free_text_new (Annot *annot);
 PopplerAnnot      *_poppler_annot_file_attachment_new (Annot *annot);
+PopplerAnnot      *_poppler_annot_movie_new (Annot *annot);
 
 char *_poppler_goo_string_to_utf8(GooString *s);
 gboolean _poppler_convert_pdf_date_to_gtime (GooString *date,

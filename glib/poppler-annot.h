@@ -46,7 +46,12 @@ G_BEGIN_DECLS
 #define POPPLER_ANNOT_FILE_ATTACHMENT(obj)   (G_TYPE_CHECK_INSTANCE_CAST ((obj), POPPLER_TYPE_ANNOT_MARKUP, PopplerAnnotFileAttachment))
 #define POPPLER_IS_ANNOT_FILE_ATTACHMENT(obj)(G_TYPE_CHECK_INSTANCE_TYPE ((obj), POPPLER_TYPE_ANNOT_FILE_ATTACHMENT))
 
+#define POPPLER_TYPE_ANNOT_MOVIE             (poppler_annot_movie_get_type ())
+#define POPPLER_ANNOT_MOVIE(obj)             (G_TYPE_CHECK_INSTANCE_CAST ((obj), POPPLER_TYPE_ANNOT_MOVIE, PopplerAnnotMovie))
+#define POPPLER_IS_ANNOT_MOVIE(obj)          (G_TYPE_CHECK_INSTANCE_TYPE ((obj), POPPLER_TYPE_ANNOT_MOVIE))
+
 #define POPPLER_TYPE_ANNOT_CALLOUT_LINE      (poppler_annot_callout_line_get_type ())
+
 
 typedef enum
 {
@@ -173,6 +178,11 @@ PopplerAnnotCalloutLine      *poppler_annot_free_text_get_callout_line         (
 GType                         poppler_annot_file_attachment_get_type           (void) G_GNUC_CONST;
 PopplerAttachment            *poppler_annot_file_attachment_get_attachment     (PopplerAnnotFileAttachment *poppler_annot);
 gchar                        *poppler_annot_file_attachment_get_name           (PopplerAnnotFileAttachment *poppler_annot);
+
+/* PopplerAnnotMovie */
+GType                         poppler_annot_movie_get_type                     (void) G_GNUC_CONST;
+gchar                        *poppler_annot_movie_get_title                    (PopplerAnnotMovie *poppler_annot);
+PopplerMovie                 *poppler_annot_movie_get_movie                    (PopplerAnnotMovie *poppler_annot);
 
 /* PopplerCalloutLine */
 GType                         poppler_annot_callout_line_get_type              (void) G_GNUC_CONST;

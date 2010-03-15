@@ -1485,6 +1485,9 @@ poppler_page_get_annot_mapping (PopplerPage *page)
       case Annot::typeFileAttachment:
         mapping->annot = _poppler_annot_file_attachment_new (annot);
 	break;
+      case Annot::typeMovie:
+        mapping->annot = _poppler_annot_movie_new (annot);
+	break;
       default:
         mapping->annot = _poppler_annot_new (annot);
 	break;
