@@ -6,6 +6,7 @@
 #include <PSOutputDev.h>
 #include <Link.h>
 #include <Movie.h>
+#include <Rendition.h>
 #include <Form.h>
 #include <Gfx.h>
 #include <FontInfo.h>
@@ -94,6 +95,7 @@ PopplerFormField *_poppler_form_field_new (PopplerDocument *document,
 					   FormWidget      *field);
 PopplerAttachment *_poppler_attachment_new (EmbFile *file);
 PopplerMovie      *_poppler_movie_new (Movie *movie);
+PopplerMedia      *_poppler_media_new (MediaRendition *media);
 PopplerAnnot      *_poppler_annot_new           (Annot *annot);
 PopplerAnnot      *_poppler_annot_text_new      (Annot *annot);
 PopplerAnnot      *_poppler_annot_free_text_new (Annot *annot);

@@ -99,6 +99,7 @@ typedef struct _PopplerDest                PopplerDest;
 typedef struct _PopplerFormField           PopplerFormField;
 typedef struct _PopplerAttachment          PopplerAttachment;
 typedef struct _PopplerMovie               PopplerMovie;
+typedef struct _PopplerMedia               PopplerMedia;
 typedef struct _PopplerAnnot               PopplerAnnot;
 typedef struct _PopplerAnnotMarkup         PopplerAnnotMarkup;
 typedef struct _PopplerAnnotText           PopplerAnnotText;
@@ -131,5 +132,6 @@ G_END_DECLS
 #include "poppler-annot.h"
 #include "poppler-date.h"
 #include "poppler-movie.h"
+#include "poppler-media.h"
 
 #endif /* __POPPLER_GLIB_H__ */
