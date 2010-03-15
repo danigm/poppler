@@ -1567,6 +1567,9 @@ poppler_page_get_annot_mapping (PopplerPage *page)
       case Annot::typeMovie:
         mapping->annot = _poppler_annot_movie_new (annot);
 	break;
+      case Annot::typeScreen:
+        mapping->annot = _poppler_annot_screen_new (annot);
+	break;
       default:
         mapping->annot = _poppler_annot_new (annot);
 	break;

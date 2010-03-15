@@ -27,6 +27,7 @@ typedef struct _PopplerAnnotFreeTextClass       PopplerAnnotFreeTextClass;
 typedef struct _PopplerAnnotTextClass           PopplerAnnotTextClass;
 typedef struct _PopplerAnnotFileAttachmentClass PopplerAnnotFileAttachmentClass;
 typedef struct _PopplerAnnotMovieClass          PopplerAnnotMovieClass;
+typedef struct _PopplerAnnotScreenClass         PopplerAnnotScreenClass;
 
 struct _PopplerAnnot
 {
@@ -91,12 +92,26 @@ struct _PopplerAnnotMovieClass
   PopplerAnnotClass parent_class;
 };
 
+struct _PopplerAnnotScreen
+{
+  PopplerAnnot  parent_instance;
+
+  PopplerAction *action;
+};
+
+struct _PopplerAnnotScreenClass
+{
+  PopplerAnnotClass parent_class;
+};
+
+
 G_DEFINE_TYPE (PopplerAnnot, poppler_annot, G_TYPE_OBJECT)
 G_DEFINE_TYPE (PopplerAnnotMarkup, poppler_annot_markup, POPPLER_TYPE_ANNOT)
 G_DEFINE_TYPE (PopplerAnnotText, poppler_annot_text, POPPLER_TYPE_ANNOT_MARKUP)
 G_DEFINE_TYPE (PopplerAnnotFreeText, poppler_annot_free_text, POPPLER_TYPE_ANNOT_MARKUP)
 G_DEFINE_TYPE (PopplerAnnotFileAttachment, poppler_annot_file_attachment, POPPLER_TYPE_ANNOT_MARKUP)
 G_DEFINE_TYPE (PopplerAnnotMovie, poppler_annot_movie, POPPLER_TYPE_ANNOT)
+G_DEFINE_TYPE (PopplerAnnotScreen, poppler_annot_screen, POPPLER_TYPE_ANNOT)
 
 static void
 poppler_annot_finalize (GObject *object)
@@ -243,6 +258,50 @@ _poppler_annot_movie_new (Annot *annot)
 
   annot_movie = static_cast<AnnotMovie *>(poppler_annot->annot);
   POPPLER_ANNOT_MOVIE (poppler_annot)->movie = _poppler_movie_new (annot_movie->getMovie());
+
+  return poppler_annot;
+}
+
+static void
+poppler_annot_screen_finalize (GObject *object)
+{
+  PopplerAnnotScreen *annot_screen = POPPLER_ANNOT_SCREEN (object);
+
+  if (annot_screen->action) {
+    poppler_action_free (annot_screen->action);
+    annot_screen->action = NULL;
+  }
+
+  G_OBJECT_CLASS (poppler_annot_screen_parent_class)->finalize (object);
+}
+
+static void
+poppler_annot_screen_init (PopplerAnnotScreen *poppler_annot)
+{
+}
+
+static void
+poppler_annot_screen_class_init (PopplerAnnotScreenClass *klass)
+{
+  GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
+
+  gobject_class->finalize = poppler_annot_screen_finalize;
+}
+
+PopplerAnnot *
+_poppler_annot_screen_new (Annot *annot)
+{
+  PopplerAnnot *poppler_annot;
+  AnnotScreen  *annot_screen;
+  LinkAction   *action;
+
+  poppler_annot = POPPLER_ANNOT (g_object_new (POPPLER_TYPE_ANNOT_SCREEN, NULL));
+  poppler_annot->annot = annot;
+
+  annot_screen = static_cast<AnnotScreen *>(poppler_annot->annot);
+  action = annot_screen->getAction();
+  if (action)
+    POPPLER_ANNOT_SCREEN (poppler_annot)->action = _poppler_action_new (NULL, action, NULL);
 
   return poppler_annot;
 }
@@ -1016,4 +1075,20 @@ PopplerMovie *
 poppler_annot_movie_get_movie (PopplerAnnotMovie *poppler_annot)
 {
   return poppler_annot->movie;
+}
+
+/* PopplerAnnotScreen */
+/**
+ * poppler_annot_screen_get_action:
+ * @poppler_annot: a #PopplerAnnotScreen
+ *
+ * Retrieves the action (#PopplerAction) that shall be performed when @poppler_annot is activated
+ *
+ * Return value: the action to perform. The returned
+ *               object is owned by @poppler_annot and should not be freed
+ */
+PopplerAction *
+poppler_annot_screen_get_action (PopplerAnnotScreen *poppler_annot)
+{
+  return poppler_annot->action;
 }

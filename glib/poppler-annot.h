@@ -50,6 +50,10 @@ G_BEGIN_DECLS
 #define POPPLER_ANNOT_MOVIE(obj)             (G_TYPE_CHECK_INSTANCE_CAST ((obj), POPPLER_TYPE_ANNOT_MOVIE, PopplerAnnotMovie))
 #define POPPLER_IS_ANNOT_MOVIE(obj)          (G_TYPE_CHECK_INSTANCE_TYPE ((obj), POPPLER_TYPE_ANNOT_MOVIE))
 
+#define POPPLER_TYPE_ANNOT_SCREEN            (poppler_annot_screen_get_type ())
+#define POPPLER_ANNOT_SCREEN(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), POPPLER_TYPE_ANNOT_SCREEN, PopplerAnnotScreen))
+#define POPPLER_IS_ANNOT_SCREEN(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), POPPLER_TYPE_ANNOT_SCREEN))
+
 #define POPPLER_TYPE_ANNOT_CALLOUT_LINE      (poppler_annot_callout_line_get_type ())
 
 
@@ -183,6 +187,10 @@ gchar                        *poppler_annot_file_attachment_get_name           (
 GType                         poppler_annot_movie_get_type                     (void) G_GNUC_CONST;
 gchar                        *poppler_annot_movie_get_title                    (PopplerAnnotMovie *poppler_annot);
 PopplerMovie                 *poppler_annot_movie_get_movie                    (PopplerAnnotMovie *poppler_annot);
+
+/* PopplerAnnotScreen */
+GType                         poppler_annot_screen_get_type                    (void) G_GNUC_CONST;
+PopplerAction                *poppler_annot_screen_get_action                  (PopplerAnnotScreen *poppler_annot);
 
 /* PopplerCalloutLine */
 GType                         poppler_annot_callout_line_get_type              (void) G_GNUC_CONST;

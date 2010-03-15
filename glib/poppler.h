@@ -105,6 +105,7 @@ typedef struct _PopplerAnnotText           PopplerAnnotText;
 typedef struct _PopplerAnnotFreeText       PopplerAnnotFreeText;
 typedef struct _PopplerAnnotFileAttachment PopplerAnnotFileAttachment;
 typedef struct _PopplerAnnotMovie          PopplerAnnotMovie;
+typedef struct _PopplerAnnotScreen         PopplerAnnotScreen;
 typedef struct _PopplerAnnotCalloutLine    PopplerAnnotCalloutLine;
 
 typedef enum
