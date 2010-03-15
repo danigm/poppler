@@ -39,6 +39,7 @@ poppler_glib_public_headers =			\
 	poppler-form-field.h			\
 	poppler-annot.h				\
 	poppler-layer.h				\
+	poppler-movie.h				\
 	poppler.h
 
 poppler_glib_includedir = $(includedir)/poppler/glib
@@ -59,6 +60,7 @@ libpoppler_glib_la_SOURCES =			\
 	poppler-form-field.cc			\
 	poppler-annot.cc			\
 	poppler-layer.cc			\
+	poppler-movie.cc			\
 	poppler.cc				\
 	poppler-private.h
 
