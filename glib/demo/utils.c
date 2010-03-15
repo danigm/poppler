@@ -17,6 +17,8 @@
  */
 
 #include <gtk/gtk.h>
+#include <stdio.h>
+#include <unistd.h>
 #include <time.h>
 
 #include "utils.h"
@@ -198,6 +200,84 @@ get_movie_op (PopplerActionMovieOperation op)
 	return NULL;
 }
 
+static void
+free_tmp_file (GFile *tmp_file)
+{
+
+	g_file_delete (tmp_file, NULL, NULL);
+	g_object_unref (tmp_file);
+}
+
+static gboolean
+save_helper (const gchar  *buf,
+	     gsize         count,
+	     gpointer      data,
+	     GError      **error)
+{
+	gint fd = GPOINTER_TO_INT (data);
+
+	return write (fd, buf, count) == count;
+}
+
+static void
+pgd_action_view_play_rendition (GtkWidget    *button,
+				PopplerMedia *media)
+{
+	GFile *file = NULL;
+	gchar *uri;
+
+	if (poppler_media_is_embedded (media)) {
+		gint   fd;
+		gchar *tmp_filename = NULL;
+
+		fd = g_file_open_tmp (NULL, &tmp_filename, NULL);
+		if (fd != -1) {
+			if (poppler_media_save_to_callback (media, save_helper, GINT_TO_POINTER (fd), NULL)) {
+				file = g_file_new_for_path (tmp_filename);
+				g_object_set_data_full (G_OBJECT (media),
+							"tmp-file", g_object_ref (file),
+							(GDestroyNotify)free_tmp_file);
+			} else {
+				g_free (tmp_filename);
+			}
+			close (fd);
+		} else if (tmp_filename) {
+			g_free (tmp_filename);
+		}
+
+	} else {
+		const gchar *filename;
+
+		filename = poppler_media_get_filename (media);
+		if (g_path_is_absolute (filename)) {
+			file = g_file_new_for_path (filename);
+		} else if (g_strrstr (filename, "://")) {
+			file = g_file_new_for_uri (filename);
+		} else {
+			gchar *cwd;
+			gchar *path;
+
+			// FIXME: relative to doc uri, not cwd
+			cwd = g_get_current_dir ();
+			path = g_build_filename (cwd, filename, NULL);
+			g_free (cwd);
+
+			file = g_file_new_for_path (path);
+			g_free (path);
+		}
+	}
+
+	if (file) {
+		uri = g_file_get_uri (file);
+		g_object_unref (file);
+		if (uri) {
+			gtk_show_uri (gtk_widget_get_screen (button),
+				      uri, GDK_CURRENT_TIME, NULL);
+			g_free (uri);
+		}
+	}
+}
+
 void
 pgd_action_view_set_action (GtkWidget     *action_view,
 			    PopplerAction *action)
@@ -260,6 +340,38 @@ pgd_action_view_set_action (GtkWidget     *action_view,
 		pgd_table_add_property (GTK_TABLE (table), "<b>Operation:</b>", get_movie_op (action->movie.operation), &row);
 		pgd_movie_view_set_movie (movie_view, action->movie.movie);
 		pgd_table_add_property_with_custom_widget (GTK_TABLE (table), "<b>Movie:</b>", movie_view, &row);
+	}
+		break;
+	case POPPLER_ACTION_RENDITION: {
+		gchar *text;
+
+		pgd_table_add_property (GTK_TABLE (table), "<b>Type:</b>", "Rendition", &row);
+		text = g_strdup_printf ("%d", action->rendition.op);
+		pgd_table_add_property (GTK_TABLE (table), "<b>Operation:</b>", text, &row);
+		g_free (text);
+		if (action->rendition.media) {
+			gboolean   embedded = poppler_media_is_embedded (action->rendition.media);
+			GtkWidget *button;
+
+			pgd_table_add_property (GTK_TABLE (table), "<b>Embedded:</b>", embedded ? "Yes": "No", &row);
+			if (embedded) {
+				const gchar *mime_type = poppler_media_get_mime_type (action->rendition.media);
+				pgd_table_add_property (GTK_TABLE (table), "<b>Mime type:</b>",
+							mime_type ? mime_type : "",
+							&row);
+			} else {
+				pgd_table_add_property (GTK_TABLE (table), "<b>Filename:</b>",
+							poppler_media_get_filename (action->rendition.media),
+							&row);
+			}
+
+			button = gtk_button_new_from_stock (GTK_STOCK_MEDIA_PLAY);
+			g_signal_connect (button, "clicked",
+					  G_CALLBACK (pgd_action_view_play_rendition),
+					  action->rendition.media);
+			pgd_table_add_property_with_custom_widget (GTK_TABLE (table), NULL, button, &row);
+			gtk_widget_show (button);
+		}
 	}
 		break;
 	default:
