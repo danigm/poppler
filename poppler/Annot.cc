@@ -942,15 +942,14 @@ void Annot::initialize(XRef *xrefA, Dict *dict, Catalog *catalog) {
   }
   obj1.free();
 
-  /* TODO: Page Object indirect reference (should be parsed ?) */
-  pageDict = NULL;
-  /*if (dict->lookup("P", &obj1)->isDict()) {
-    pageDict = NULL;
+  if (dict->lookupNF("P", &obj1)->isRef()) {
+    Ref ref = obj1.getRef();
+
+    page = catalog ? catalog->findPage (ref.num, ref.gen) : -1;
   } else {
-    pageDict = NULL;
+    page = 0;
   }
   obj1.free();
-  */
 
   if (dict->lookup("NM", &obj1)->isString()) {
     name = obj1.getString()->copy();
@@ -1123,9 +1122,6 @@ Annot::~Annot() {
   
   if (contents)
     delete contents;
-
-  if (pageDict)
-    delete pageDict;
 
   if (name)
     delete name;

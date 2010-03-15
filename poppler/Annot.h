@@ -514,7 +514,7 @@ public:
   AnnotSubtype getType() const { return type; }
   PDFRectangle *getRect() const { return rect; }
   GooString *getContents() const { return contents; }
-  Dict *getPageDict() const { return pageDict; }
+  int getPageNum() const { return page; }
   GooString *getName() const { return name; }
   GooString *getModified() const { return modified; }
   Guint getFlags() const { return flags; }
@@ -552,7 +552,7 @@ protected:
 
   // optional data
   GooString *contents;              // Contents
-  Dict *pageDict;                   // P
+  int       page;                   // P
   GooString *name;                  // NM
   GooString *modified;              // M
   Guint flags;                      // F (must be a 32 bit unsigned int)
