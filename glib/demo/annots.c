@@ -459,6 +459,19 @@ pgd_annot_view_set_annot_movie (GtkWidget         *table,
 }
 
 static void
+pgd_annot_view_set_annot_screen (GtkWidget          *table,
+				 PopplerAnnotScreen *annot,
+				 gint               *row)
+{
+    GtkWidget *action_view;
+
+    action_view = pgd_action_view_new (NULL);
+    pgd_action_view_set_action (action_view, poppler_annot_screen_get_action (annot));
+    pgd_table_add_property_with_custom_widget (GTK_TABLE (table), "<b>Action:</b>", action_view, row);
+    gtk_widget_show (action_view);
+}
+
+static void
 pgd_annot_view_set_annot (GtkWidget    *annot_view,
                           PopplerAnnot *annot)
 {
@@ -522,6 +535,10 @@ pgd_annot_view_set_annot (GtkWidget    *annot_view,
 	  break;
         case POPPLER_ANNOT_MOVIE:
 	  pgd_annot_view_set_annot_movie (table, POPPLER_ANNOT_MOVIE (annot), &row);
+	  break;
+        case POPPLER_ANNOT_SCREEN:
+	  pgd_annot_view_set_annot_screen (table, POPPLER_ANNOT_SCREEN (annot), &row);
+	  break;
         default:
           break;
     }
