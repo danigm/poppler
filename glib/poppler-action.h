@@ -50,6 +50,14 @@ typedef enum
 	POPPLER_DEST_NAMED
 } PopplerDestType;
 
+typedef enum
+{
+        POPPLER_ACTION_MOVIE_PLAY,
+	POPPLER_ACTION_MOVIE_PAUSE,
+	POPPLER_ACTION_MOVIE_RESUME,
+	POPPLER_ACTION_MOVIE_STOP
+} PopplerActionMovieOperation;
+
 /* Define the PopplerAction types */
 typedef struct _PopplerActionAny        PopplerActionAny;
 typedef struct _PopplerActionGotoDest   PopplerActionGotoDest;
@@ -126,8 +134,11 @@ struct _PopplerActionNamed
 
 struct _PopplerActionMovie
 {
-	PopplerActionType type;
-	gchar *title;
+        PopplerActionType           type;
+        gchar                      *title;
+
+        PopplerActionMovieOperation operation;
+	PopplerMovie               *movie;
 };
 
 union _PopplerAction

@@ -1257,6 +1257,77 @@ poppler_page_init (PopplerPage *page)
 {
 }
 
+static AnnotMovie *
+poppler_page_find_annot_movie_for_action (PopplerPage *page,
+					  LinkMovie   *link)
+{
+  AnnotMovie *annot = NULL;
+  XRef *xref = page->document->doc->getXRef ();
+  Object annotObj;
+
+  if (link->hasAnnotRef ()) {
+    Ref *ref = link->getAnnotRef ();
+
+    xref->fetch (ref->num, ref->gen, &annotObj);
+  } else if (link->hasAnnotTitle ()) {
+    Catalog *catalog = page->document->doc->getCatalog ();
+    Object annots;
+    GooString *title = link->getAnnotTitle ();
+    int i;
+
+    for (i = 1; i <= page->document->doc->getNumPages (); ++i) {
+      Page *p = catalog->getPage (i);
+
+      if (p->getAnnots (&annots)->isArray ()) {
+        int j;
+	GBool found = gFalse;
+
+	for (j = 0; j < annots.arrayGetLength () && !found; ++j) {
+          if (annots.arrayGet(j, &annotObj)->isDict()) {
+	    Object obj1;
+
+	    if (!annotObj.dictLookup ("Subtype", &obj1)->isName ("Movie")) {
+	      obj1.free ();
+	      continue;
+	    }
+	    obj1.free ();
+
+	    if (annotObj.dictLookup ("T", &obj1)->isString()) {
+	      GooString *t = obj1.getString ();
+
+	      if (title->cmp(t) == 0)
+	        found = gTrue;
+	    }
+	    obj1.free ();
+	  }
+	  if (!found)
+	    annotObj.free ();
+	}
+	if (found) {
+	  annots.free ();
+	  break;
+	} else {
+          annotObj.free ();
+	}
+      }
+      annots.free ();
+    }
+  }
+
+  if (annotObj.isDict ()) {
+    Object tmp;
+
+    annot = new AnnotMovie (xref, annotObj.getDict(), page->document->doc->getCatalog (), &tmp);
+    if (!annot->isOk ()) {
+      delete annot;
+      annot = NULL;
+    }
+  }
+  annotObj.free ();
+
+  return annot;
+}
+
 /**
  * poppler_page_get_link_mapping:
  * @page: A #PopplerPage
@@ -1300,7 +1371,15 @@ poppler_page_get_link_mapping (PopplerPage *page)
       /* Create the mapping */
       mapping = g_new (PopplerLinkMapping, 1);
       mapping->action = _poppler_action_new (page->document, link_action, NULL);
-      
+      if (link_action->getKind () == actionMovie) {
+        AnnotMovie *annot = poppler_page_find_annot_movie_for_action (page, dynamic_cast<LinkMovie*> (link_action));
+
+	if (annot) {
+	  _poppler_action_movie_set_movie (mapping->action, annot->getMovie ());
+	  delete annot;
+	}
+      }
+
       link->getRect (&rect.x1, &rect.y1, &rect.x2, &rect.y2);
       
       switch (page->page->getRotate ())

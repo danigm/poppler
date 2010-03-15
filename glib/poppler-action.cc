@@ -96,7 +96,8 @@ poppler_action_free (PopplerAction *action)
 		g_free (action->named.named_dest);
 		break;
 	case POPPLER_ACTION_MOVIE:
-		/* TODO */
+		if (action->movie.movie)
+			g_object_unref (action->movie.movie);
 		break;
 	default:
 		break;
@@ -152,7 +153,8 @@ poppler_action_copy (PopplerAction *action)
 			new_action->named.named_dest = g_strdup (action->named.named_dest);
 		break;
 	case POPPLER_ACTION_MOVIE:
-		/* TODO */
+		if (action->movie.movie)
+			new_action->movie.movie = (PopplerMovie *)g_object_ref (action->movie.movie);
 		break;
 	default:
 		break;
@@ -354,9 +356,32 @@ build_named (PopplerAction *action,
 
 static void
 build_movie (PopplerAction *action,
-	     LinkAction    *link)
+	     LinkMovie     *link)
 {
-	/* FIXME: Write */
+	switch (link->getOperation ()) {
+	case LinkMovie::operationTypePause:
+		action->movie.operation = POPPLER_ACTION_MOVIE_PAUSE;
+		break;
+	case LinkMovie::operationTypeResume:
+		action->movie.operation = POPPLER_ACTION_MOVIE_RESUME;
+		break;
+	case LinkMovie::operationTypeStop:
+		action->movie.operation = POPPLER_ACTION_MOVIE_STOP;
+		break;
+	default:
+	case LinkMovie::operationTypePlay:
+		action->movie.operation = POPPLER_ACTION_MOVIE_PLAY;
+		break;
+	}
+}
+
+void
+_poppler_action_movie_set_movie (PopplerAction *action,
+				 Movie         *movie)
+{
+	if (action->movie.movie)
+		g_object_unref (action->movie.movie);
+	action->movie.movie = movie ? _poppler_movie_new (movie) : NULL;
 }
 
 PopplerAction *
@@ -399,7 +424,7 @@ _poppler_action_new (PopplerDocument *document,
 		break;
 	case actionMovie:
 		action->type = POPPLER_ACTION_MOVIE;
-		build_movie (action, link);
+		build_movie (action, dynamic_cast<LinkMovie*> (link));
 		break;
 	case actionUnknown:
 	default:

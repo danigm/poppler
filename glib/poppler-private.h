@@ -83,6 +83,8 @@ PopplerPage   *_poppler_page_new   (PopplerDocument *document,
 PopplerAction *_poppler_action_new (PopplerDocument *document,
 				    LinkAction      *link,
 				    const gchar     *title);
+void           _poppler_action_movie_set_movie (PopplerAction *action,
+						Movie         *movie);
 PopplerLayer  *_poppler_layer_new (PopplerDocument  *document,
 				   Layer            *layer,
 				   GList            *rbgroup);
