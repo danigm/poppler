@@ -153,6 +153,7 @@ gchar                        *poppler_annot_get_name                           (
 gchar                        *poppler_annot_get_modified                       (PopplerAnnot *poppler_annot);
 PopplerAnnotFlag              poppler_annot_get_flags                          (PopplerAnnot *poppler_annot);
 PopplerColor                 *poppler_annot_get_color                          (PopplerAnnot *poppler_annot);
+gint                          poppler_annot_get_page_index                     (PopplerAnnot *poppler_annot);
 
 /* PopplerAnnotMarkup */
 GType                         poppler_annot_markup_get_type                    (void) G_GNUC_CONST;

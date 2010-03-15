@@ -537,6 +537,25 @@ poppler_annot_get_color (PopplerAnnot *poppler_annot)
   return poppler_color;
 }
 
+/**
+ * poppler_annot_get_page_index:
+ * @poppler_annot: a #PopplerAnnot
+ *
+ * Returns the page index to which @poppler_annot is associated, or -1 if unknown
+ *
+ * Return value: page index or -1
+ **/
+gint
+poppler_annot_get_page_index (PopplerAnnot *poppler_annot)
+{
+  gint page_num;
+
+  g_return_val_if_fail (POPPLER_IS_ANNOT (poppler_annot), -1);
+
+  page_num = poppler_annot->annot->getPageNum();
+  return page_num <= 0 ? -1 : page_num - 1;
+}
+
 /* PopplerAnnotMarkup */
 /**
 * poppler_annot_markup_get_label:
