@@ -685,48 +685,64 @@ LinkSound::~LinkSound() {
 // LinkRendition
 //------------------------------------------------------------------------
 
-LinkRendition::LinkRendition(Object *Obj) {
+LinkRendition::LinkRendition(Object *obj) {
   operation = -1;
   media = NULL;
-  screenRef.num = -1;
+  js = NULL;
 
-  if (Obj->isDict())
-  {
+  if (obj->isDict()) {
     Object tmp;
 
-    if (Obj->dictLookup("OP", &tmp)->isNull()) {
-      error(-1, "Rendition action : no /OP field defined");
-      tmp.free();
-    } else {
-    
-      operation = tmp.getInt();
-      tmp.free();
-
-      // screen annotation reference
-      Obj->dictLookupNF("AN", &tmp);
-      if (tmp.isRef()) {
-	screenRef = tmp.getRef();
-      }
-      tmp.free();
-
-      // retrieve rendition object
-      Obj->dictLookup("R", &renditionObj);
-      if (renditionObj.isDict()) {
-	media = new MediaRendition(&renditionObj);
-
-	if (screenRef.num == -1) {
-	  error(-1, "Action Rendition : Rendition without Screen Annotation !");
+    if (!obj->dictLookup("JS", &tmp)->isNull()) {
+      if (tmp.isString()) {
+        js = new GooString(tmp.getString());
+      } else if (tmp.isStream()) {
+        Stream *stream = tmp.getStream();
+	js = new GooString();
+	stream->reset();
+	int i;
+	while ((i = stream->getChar()) != EOF) {
+	  js->append((char)i);
 	}
-      }      
-
+      } else {
+        error(-1, "Invalid Rendition Action: JS not string or stream");
+      }
     }
-  }
+    tmp.free();
 
+    if (obj->dictLookup("OP", &tmp)->isInt()) {
+      operation = tmp.getInt();
+      if (!js && (operation < 0 || operation > 4)) {
+        error (-1, "Invalid Rendition Action: unrecognized operation valued: %d", operation);
+      } else {
+        Object obj1;
+
+        // retrieve rendition object
+        if (obj->dictLookup("R", &renditionObj)->isDict()) {
+          media = new MediaRendition(&renditionObj);
+	} else if (operation == 0 || operation == 4) {
+          error (-1, "Invalid Rendition Action: no R field with op = %d", operation);
+	  renditionObj.free();
+	}
+
+	if (!obj->dictLookupNF("AN", &screenRef)->isRef() && operation >= 0 && operation <= 4) {
+	  error (-1, "Invalid Rendition Action: no AN field with op = %d", operation);
+	  screenRef.free();
+	}
+      }
+    } else if (!js) {
+      error(-1, "Invalid Rendition action: no OP or JS field defined");
+    }
+    tmp.free();
+  }
 }
 
 LinkRendition::~LinkRendition() {
   renditionObj.free();
+  screenRef.free();
 
+  if (js)
+    delete js;
   if (media)
     delete media;
 }

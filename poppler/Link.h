@@ -321,23 +321,27 @@ public:
 
   virtual LinkActionKind getKind() { return actionRendition; }
 
-  GBool hasRenditionObject() { return !renditionObj.isNull(); }
+  GBool hasRenditionObject() { return renditionObj.isDict(); }
   Object* getRenditionObject() { return &renditionObj; }
 
-  GBool hasScreenAnnot() { return screenRef.num > 0; }
-  Ref* getScreenAnnot() { return &screenRef; }
+  GBool hasScreenAnnot() { return screenRef.isRef(); }
+  Ref getScreenAnnot() { return screenRef.getRef(); }
 
   int getOperation() { return operation; }
 
   MediaRendition* getMedia() { return media; }
 
+  GooString *getScript() { return js; }
+
 private:
 
-  Ref screenRef;
+  Object screenRef;
   Object renditionObj;
   int operation;
 
   MediaRendition* media;
+
+  GooString *js;
 };
 
 //------------------------------------------------------------------------
