@@ -93,11 +93,11 @@ set_directory_properties(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES
 )
 
 
-if (GDK_FOUND AND BUILD_GTK_TESTS)
+if (GDK_FOUND)
   set(test_poppler_glib_SRCS
     test-poppler-glib.cc
   )
   poppler_add_test(test-poppler-glib BUILD_GTK_TESTS ${test_poppler_glib_SRCS})
   target_link_libraries(test-poppler-glib poppler-glib ${GDK2_LIBRARIES})
-endif (GDK_FOUND AND BUILD_GTK_TESTS)
+endif (GDK_FOUND)
 
