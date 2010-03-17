@@ -1,11 +1,19 @@
-# - try to find GTK (and glib)
+# - try to find GLIB, GDK and GTK libraries
 # Once done this will define
 #
 #  GLIB_FOUND - system has GLib
-#  GLIB_CFLAGS - the GLib CFlags
-#  GLIB_LIBRARIES - Link these to use GLib
+#  GLIB2_CFLAGS - the GLib CFlags
+#  GLIB2_LIBRARIES - Link these to use GLib
 #
-# Copyright 2008 Pino Toscano, <pino@kde.org>
+#  GDK_FOUND - system has GDK
+#  GDK2_CFLAGS - the GDK CFlags
+#  GDK2_LIBRARIES - Link these to use GDK
+#
+#  GTK_FOUND - system has GTK
+#  GTK2_CFLAGS - the GTK CFlags
+#  GTK2_LIBRARIES - Link these to use GTK
+#
+# Copyright 2008-2010 Pino Toscano, <pino@kde.org>
 #
 # Redistribution and use is allowed according to the terms of the BSD license.
 # For details see the accompanying COPYING-CMAKE-SCRIPTS file.
@@ -13,7 +21,6 @@
 include(FindPackageHandleStandardArgs)
 
 if (NOT WIN32)
-  include(UsePkgConfig)
   include(FindPkgConfig)
 
   pkg_check_modules(GLIB2 "glib-2.0>=${GLIB_REQUIRED}" "gobject-2.0>=${GLIB_REQUIRED}")
