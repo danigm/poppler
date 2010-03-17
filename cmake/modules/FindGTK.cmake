@@ -14,26 +14,14 @@ include(FindPackageHandleStandardArgs)
 
 if (NOT WIN32)
   include(UsePkgConfig)
+  include(FindPkgConfig)
 
-  pkgconfig(glib-2.0 _LibGLIB2IncDir _LibGLIB2LinkDir GLIB2LinkFlags GLIB2Cflags)
+  pkg_check_modules(GLIB2 "glib-2.0>=${GLIB_REQUIRED}" "gobject-2.0>=${GLIB_REQUIRED}")
   pkgconfig(gdk-2.0 _LibGDK2IncDir _LibGDK2LinkDir GDK2LinkFlags GDK2Cflags)
-  set (GLIB_FOUND FALSE)
-  if (_LibGLIB2IncDir)
-
-    exec_program(${PKGCONFIG_EXECUTABLE} ARGS --atleast-version=${GLIB_REQUIRED} glib-2.0 RETURN_VALUE _return_VALUE OUTPUT_VARIABLE _pkgconfigDevNull)
-    if(_return_VALUE STREQUAL "0")
-      set(_glib_FOUND TRUE)
-    endif(_return_VALUE STREQUAL "0")
-  endif (_LibGLIB2IncDir)
 
   if (_LibGDK2IncDir)
     set(_gdk_FOUND TRUE)
   endif (_LibGDK2IncDir)
-
-  if (_glib_FOUND)
-    set (GLIB2_CFLAGS ${GLIB2Cflags})
-    set (GLIB2_LIBRARIES ${GLIB2LinkFlags})
-  endif (_glib_FOUND)
 
   if (_gdk_FOUND)
     set (GDK2_CFLAGS ${GDK2Cflags})
@@ -65,8 +53,6 @@ if (NOT WIN32)
 endif(NOT WIN32)
 
 mark_as_advanced(
-  GLIB2_CFLAGS
-  GLIB2_LIBRARIES
   GDK2_CFLAGS
   GDK2_LIBRARIES
   GTK2_CFLAGS
