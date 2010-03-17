@@ -20,7 +20,7 @@ if (NOT WIN32)
   set (GLIB_FOUND FALSE)
   if (_LibGLIB2IncDir)
 
-    exec_program(${PKGCONFIG_EXECUTABLE} ARGS --atleast-version=${GLIB_VERSION} glib-2.0 RETURN_VALUE _return_VALUE OUTPUT_VARIABLE _pkgconfigDevNull)
+    exec_program(${PKGCONFIG_EXECUTABLE} ARGS --atleast-version=${GLIB_REQUIRED} glib-2.0 RETURN_VALUE _return_VALUE OUTPUT_VARIABLE _pkgconfigDevNull)
     if(_return_VALUE STREQUAL "0")
       set(_glib_FOUND TRUE)
     endif(_return_VALUE STREQUAL "0")
