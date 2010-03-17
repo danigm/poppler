@@ -26,6 +26,7 @@ target_link_libraries(poppler-cpp poppler ${ICONV_LIBRARIES})
 if(MSVC)
 target_link_libraries(poppler-cpp ${poppler_LIBS})
 endif(MSVC)
+target_link_libraries(poppler-cpp LINK_INTERFACE_LIBRARIES "")
 install(TARGETS poppler-cpp RUNTIME DESTINATION bin LIBRARY DESTINATION lib${LIB_SUFFIX} ARCHIVE DESTINATION lib${LIB_SUFFIX})
 
 install(FILES

@@ -335,6 +335,7 @@ add_library(poppler SHARED ${poppler_SRCS})
 endif(MSVC)
 set_target_properties(poppler PROPERTIES VERSION 6.0.0 SOVERSION 6)
 target_link_libraries(poppler ${poppler_LIBS})
+target_link_libraries(poppler LINK_INTERFACE_LIBRARIES "")
 install(TARGETS poppler RUNTIME DESTINATION bin LIBRARY DESTINATION lib${LIB_SUFFIX} ARCHIVE DESTINATION lib${LIB_SUFFIX})
 
 if(ENABLE_XPDF_HEADERS)
