@@ -31,6 +31,7 @@
 #include "Object.h"
 
 class GooString;
+class GooList;
 class Array;
 class Dict;
 class Sound;
@@ -50,6 +51,7 @@ enum LinkActionKind {
   actionRendition,
   actionSound,			// sound action
   actionJavaScript,		// JavaScript action
+  actionOCGState,               // Set-OCG-State action
   actionUnknown			// anything else
 };
 
@@ -394,6 +396,35 @@ public:
 private:
 
   GooString *js;
+};
+
+//------------------------------------------------------------------------
+// LinkOCGState
+//------------------------------------------------------------------------
+class LinkOCGState: public LinkAction {
+public:
+  LinkOCGState(Object *obj);
+
+  virtual ~LinkOCGState();
+
+  virtual GBool isOk() { return stateList != NULL; }
+
+  virtual LinkActionKind getKind() { return actionOCGState; }
+
+  enum State { On, Off, Toggle};
+  struct StateList {
+    StateList() { list = NULL; }
+    ~StateList();
+    State st;
+    GooList *list;
+  };
+
+  GooList *getStateList() { return stateList; }
+  GBool getPreserveRB() { return preserveRB; }
+
+private:
+  GooList *stateList;
+  GBool preserveRB;
 };
 
 //------------------------------------------------------------------------

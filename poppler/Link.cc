@@ -35,6 +35,7 @@
 #include <string.h>
 #include "goo/gmem.h"
 #include "goo/GooString.h"
+#include "goo/GooList.h"
 #include "Error.h"
 #include "Object.h"
 #include "Array.h"
@@ -118,6 +119,10 @@ LinkAction *LinkAction::parseAction(Object *obj, GooString *baseURI) {
     obj->dictLookup("JS", &obj3);
     action = new LinkJavaScript(&obj3);
     obj3.free();
+
+  // Set-OCG-State action
+  } else if (obj2.isName("SetOCGState")) {
+    action = new LinkOCGState(obj);
 
   // unknown action
   } else if (obj2.isName()) {
@@ -773,6 +778,81 @@ LinkJavaScript::~LinkJavaScript() {
   if (js) {
     delete js;
   }
+}
+
+//------------------------------------------------------------------------
+// LinkOCGState
+//------------------------------------------------------------------------
+LinkOCGState::LinkOCGState(Object *obj) {
+  Object obj1;
+
+  stateList = new GooList();
+  preserveRB = gTrue;
+
+  if (obj->dictLookup("State", &obj1)->isArray()) {
+    StateList *stList = NULL;
+
+    for (int i = 0; i < obj1.arrayGetLength(); ++i) {
+      Object obj2;
+
+      obj1.arrayGetNF(i, &obj2);
+      if (obj2.isName()) {
+        if (stList)
+	  stateList->append(stList);
+
+	char *name = obj2.getName();
+	stList = new StateList();
+	stList->list = new GooList();
+	if (!strcmp (name, "ON")) {
+	  stList->st = On;
+	} else if (!strcmp (name, "OFF")) {
+	  stList->st = Off;
+	} else if (!strcmp (name, "Toggle")) {
+	  stList->st = Toggle;
+	} else {
+	  error (-1, "Invalid name '%s' in OCG Action state array", name);
+	  delete stList;
+	  stList = NULL;
+	}
+      } else if (obj2.isRef()) {
+        if (stList) {
+	  Ref ocgRef = obj2.getRef();
+	  Ref *item = new Ref();
+	  item->num = ocgRef.num;
+	  item->gen = ocgRef.gen;
+	  stList->list->append(item);
+	} else {
+	  error (-1, "Invalid OCG Action State array, expected name instead of ref");
+	}
+      } else {
+        error (-1, "Invalid item in OCG Action State array");
+      }
+      obj2.free();
+    }
+    // Add the last group
+    if (stList)
+      stateList->append(stList);
+  } else {
+    error (-1, "Invalid OCGState action");
+    delete stateList;
+    stateList = NULL;
+  }
+  obj1.free();
+
+  if (obj->dictLookup("PreserveRB", &obj1)->isBool()) {
+    preserveRB = obj1.getBool();
+  }
+  obj1.free();
+}
+
+LinkOCGState::~LinkOCGState() {
+  if (stateList)
+    deleteGooList(stateList, StateList);
+}
+
+LinkOCGState::StateList::~StateList() {
+  if (list)
+    deleteGooList(list, Ref);
 }
 
 //------------------------------------------------------------------------
