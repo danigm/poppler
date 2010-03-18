@@ -62,6 +62,33 @@ poppler_dest_free (PopplerDest *dest)
 	g_free (dest);
 }
 
+static void
+poppler_action_layer_free (PopplerActionLayer *action_layer)
+{
+	if (!action_layer)
+		return;
+
+	if (action_layer->layers) {
+		g_list_foreach (action_layer->layers, (GFunc)g_object_unref, NULL);
+		g_list_free (action_layer->layers);
+		action_layer->layers = NULL;
+	}
+
+	g_free (action_layer);
+}
+
+static PopplerActionLayer *
+poppler_action_layer_copy (PopplerActionLayer *action_layer)
+{
+	PopplerActionLayer *retval = g_new (PopplerActionLayer, 1);
+
+	retval->action = action_layer->action;
+	retval->layers = g_list_copy (action_layer->layers);
+	g_list_foreach (action_layer->layers, (GFunc)g_object_ref, NULL);
+
+	return retval;
+}
+
 POPPLER_DEFINE_BOXED_TYPE (PopplerAction, poppler_action, poppler_action_copy, poppler_action_free)
 
 /**
@@ -102,6 +129,12 @@ poppler_action_free (PopplerAction *action)
 	case POPPLER_ACTION_RENDITION:
 		if (action->rendition.media)
 			g_object_unref (action->rendition.media);
+		break;
+	case POPPLER_ACTION_OCG_STATE:
+		if (action->ocg_state.state_list) {
+			g_list_foreach (action->ocg_state.state_list, (GFunc)poppler_action_layer_free, NULL);
+			g_list_free (action->ocg_state.state_list);
+		}
 		break;
 	default:
 		break;
@@ -163,6 +196,20 @@ poppler_action_copy (PopplerAction *action)
 	case POPPLER_ACTION_RENDITION:
 		if (action->rendition.media)
 			new_action->rendition.media = (PopplerMedia *)g_object_ref (action->rendition.media);
+		break;
+	case POPPLER_ACTION_OCG_STATE:
+		if (action->ocg_state.state_list) {
+			GList *l;
+			GList *new_list = NULL;
+
+			for (l = action->ocg_state.state_list; l; l = g_list_next (l)) {
+				PopplerActionLayer *alayer = (PopplerActionLayer *)l->data;
+				new_list = g_list_prepend (new_list, poppler_action_layer_copy (alayer));
+			}
+
+			new_action->ocg_state.state_list = g_list_reverse (new_list);
+		}
+
 		break;
 	default:
 		break;
@@ -402,6 +449,80 @@ build_rendition (PopplerAction *action,
 	// TODO: annotation reference
 }
 
+static PopplerLayer *
+get_layer_for_ref (PopplerDocument *document,
+		   GList           *layers,
+		   Ref             *ref,
+		   gboolean         preserve_rb)
+{
+	GList *l;
+
+	for (l = layers; l; l = g_list_next (l)) {
+		Layer *layer = (Layer *)l->data;
+		Ref ocgRef = layer->oc->getRef();
+
+		if (ref->num == ocgRef.num && ref->gen == ocgRef.gen) {
+			GList *rb_group = NULL;
+
+			if (preserve_rb)
+				rb_group = _poppler_document_get_layer_rbgroup (document, layer);
+			return _poppler_layer_new (document, layer, rb_group);
+		}
+
+		if (layer->kids) {
+			PopplerLayer *retval = get_layer_for_ref (document, layer->kids, ref, preserve_rb);
+			if (retval)
+				return retval;
+		}
+	}
+
+	return NULL;
+}
+
+static void
+build_ocg_state (PopplerDocument *document,
+		 PopplerAction   *action,
+		 LinkOCGState    *ocg_state)
+{
+	GooList *st_list = ocg_state->getStateList();
+	GBool    preserve_rb = ocg_state->getPreserveRB();
+	gint     i, j;
+	GList   *layer_state = NULL;
+
+	if (!document->layers) {
+		if (!_poppler_document_get_layers (document))
+			return;
+	}
+
+	for (i = 0; i < st_list->getLength(); ++i) {
+		LinkOCGState::StateList *list = (LinkOCGState::StateList *)st_list->get(i);
+		PopplerActionLayer *action_layer = g_new0 (PopplerActionLayer, 1);
+
+		switch (list->st) {
+		case LinkOCGState::On:
+			action_layer->action = POPPLER_ACTION_LAYER_ON;
+			break;
+		case LinkOCGState::Off:
+			action_layer->action = POPPLER_ACTION_LAYER_OFF;
+			break;
+		case LinkOCGState::Toggle:
+			action_layer->action = POPPLER_ACTION_LAYER_TOGGLE;
+			break;
+		}
+
+		for (j = 0; j < list->list->getLength(); ++j) {
+			Ref *ref = (Ref *)list->list->get(j);
+			PopplerLayer *layer = get_layer_for_ref (document, document->layers, ref, preserve_rb);
+
+			action_layer->layers = g_list_prepend (action_layer->layers, layer);
+		}
+
+		layer_state = g_list_prepend (layer_state, action_layer);
+	}
+
+	action->ocg_state.state_list = g_list_reverse (layer_state);
+}
+
 PopplerAction *
 _poppler_action_new (PopplerDocument *document,
 		     LinkAction      *link,
@@ -447,6 +568,10 @@ _poppler_action_new (PopplerDocument *document,
 	case actionRendition:
 		action->type = POPPLER_ACTION_RENDITION;
 		build_rendition (action, dynamic_cast<LinkRendition*> (link));
+		break;
+	case actionOCGState:
+		action->type = POPPLER_ACTION_OCG_STATE;
+		build_ocg_state (document, action, dynamic_cast<LinkOCGState*> (link));
 		break;
 	case actionUnknown:
 	default:

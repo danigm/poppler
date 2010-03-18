@@ -34,7 +34,8 @@ typedef enum
 	POPPLER_ACTION_URI,		/* URI */
 	POPPLER_ACTION_NAMED,		/* named action*/
 	POPPLER_ACTION_MOVIE,		/* movie action */
-	POPPLER_ACTION_RENDITION        /* rendition action */
+	POPPLER_ACTION_RENDITION,       /* rendition action */
+	POPPLER_ACTION_OCG_STATE        /* Set-OCG-State action */
 } PopplerActionType;
 
 typedef enum
@@ -59,6 +60,13 @@ typedef enum
 	POPPLER_ACTION_MOVIE_STOP
 } PopplerActionMovieOperation;
 
+typedef enum
+{
+	POPPLER_ACTION_LAYER_ON,
+	POPPLER_ACTION_LAYER_OFF,
+	POPPLER_ACTION_LAYER_TOGGLE
+} PopplerActionLayerAction;
+
 /* Define the PopplerAction types */
 typedef struct _PopplerActionAny        PopplerActionAny;
 typedef struct _PopplerActionGotoDest   PopplerActionGotoDest;
@@ -68,6 +76,7 @@ typedef struct _PopplerActionUri        PopplerActionUri;
 typedef struct _PopplerActionNamed      PopplerActionNamed;
 typedef struct _PopplerActionMovie      PopplerActionMovie;
 typedef struct _PopplerActionRendition  PopplerActionRendition;
+typedef struct _PopplerActionOCGState   PopplerActionOCGState;
 
 struct _PopplerDest
 {
@@ -85,6 +94,11 @@ struct _PopplerDest
 	guint change_zoom : 1;
 };
 
+struct _PopplerActionLayer
+{
+	PopplerActionLayerAction action;
+	GList *layers;
+};
 
 struct _PopplerActionAny
 {
@@ -152,6 +166,14 @@ struct _PopplerActionRendition
 	PopplerMedia      *media;
 };
 
+struct _PopplerActionOCGState
+{
+	PopplerActionType type;
+	gchar            *title;
+
+	GList            *state_list;
+};
+
 union _PopplerAction
 {
 	PopplerActionType type;
@@ -163,6 +185,7 @@ union _PopplerAction
 	PopplerActionNamed named;
 	PopplerActionMovie movie;
 	PopplerActionRendition rendition;
+	PopplerActionOCGState ocg_state;
 };
 
 #define POPPLER_TYPE_ACTION             (poppler_action_get_type ())
