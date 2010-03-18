@@ -967,7 +967,7 @@ poppler_index_iter_copy (PopplerIndexIter *iter)
 
 	g_return_val_if_fail (iter != NULL, NULL);
 
-	new_iter = g_new0 (PopplerIndexIter, 1);
+	new_iter = g_slice_new (PopplerIndexIter);
 	*new_iter = *iter;
 	new_iter->document = (PopplerDocument *) g_object_ref (new_iter->document);
 
@@ -1028,7 +1028,7 @@ poppler_index_iter_new (PopplerDocument *document)
 	if (items == NULL)
 		return NULL;
 
-	iter = g_new0 (PopplerIndexIter, 1);
+	iter = g_slice_new (PopplerIndexIter);
 	iter->document = (PopplerDocument *) g_object_ref (document);
 	iter->items = items;
 	iter->index = 0;
@@ -1058,7 +1058,7 @@ poppler_index_iter_get_child (PopplerIndexIter *parent)
 	if (! (item->hasKids() && item->getKids()) )
 		return NULL;
 
-	child = g_new0 (PopplerIndexIter, 1);
+	child = g_slice_new0 (PopplerIndexIter);
 	child->document = (PopplerDocument *)g_object_ref (parent->document);
 	child->items = item->getKids ();
 
@@ -1176,8 +1176,7 @@ poppler_index_iter_free (PopplerIndexIter *iter)
 		return;
 
 	g_object_unref (iter->document);
-	g_free (iter);
-	
+	g_slice_free (PopplerIndexIter, iter);
 }
 
 struct _PopplerFontsIter
@@ -1293,7 +1292,7 @@ poppler_fonts_iter_copy (PopplerFontsIter *iter)
 
 	g_return_val_if_fail (iter != NULL, NULL);
 
-	new_iter = g_new0 (PopplerFontsIter, 1);
+	new_iter = g_slice_new (PopplerFontsIter);
 	*new_iter = *iter;
 
 	new_iter->items = new GooList ();
@@ -1313,7 +1312,7 @@ poppler_fonts_iter_free (PopplerFontsIter *iter)
 
 	deleteGooList (iter->items, FontInfo);
 
-	g_free (iter);
+	g_slice_free (PopplerFontsIter, iter);
 }
 
 static PopplerFontsIter *
@@ -1321,7 +1320,7 @@ poppler_fonts_iter_new (GooList *items)
 {
 	PopplerFontsIter *iter;
 
-	iter = g_new0 (PopplerFontsIter, 1);
+	iter = g_slice_new (PopplerFontsIter);
 	iter->items = items;
 	iter->index = 0;
 
@@ -1418,7 +1417,7 @@ layer_new (OptionalContentGroup *oc)
 {
   Layer *layer;
 
-  layer = g_new0 (Layer, 1);
+  layer = g_slice_new0 (Layer);
   layer->oc = oc;
 
   return layer;
@@ -1439,7 +1438,7 @@ layer_free (Layer *layer)
 	  g_free (layer->label);
   }
 
-  g_free (layer);
+  g_slice_free (Layer, layer);
 }
 
 static GList *
@@ -1632,7 +1631,7 @@ poppler_layers_iter_copy (PopplerLayersIter *iter)
 
   g_return_val_if_fail (iter != NULL, NULL);
   
-  new_iter = g_new0 (PopplerLayersIter, 1);
+  new_iter = g_slice_new (PopplerLayersIter);
   *new_iter = *iter;
   new_iter->document = (PopplerDocument *) g_object_ref (new_iter->document);
   
@@ -1652,7 +1651,7 @@ poppler_layers_iter_free (PopplerLayersIter *iter)
     return;
 
   g_object_unref (iter->document);
-  g_free (iter);
+  g_slice_free (PopplerLayersIter, iter);
 }
 
 /**
@@ -1669,7 +1668,7 @@ poppler_layers_iter_new (PopplerDocument *document)
   if (!items)
     return NULL;
 
-  iter = g_new0 (PopplerLayersIter, 1);
+  iter = g_slice_new0 (PopplerLayersIter);
   iter->document = (PopplerDocument *)g_object_ref (document);
   iter->items = items;
 
@@ -1697,7 +1696,7 @@ poppler_layers_iter_get_child (PopplerLayersIter *parent)
   if (!layer || !layer->kids)
     return NULL;
 
-  child = g_new0 (PopplerLayersIter, 1);
+  child = g_slice_new0 (PopplerLayersIter);
   child->document = (PopplerDocument *)g_object_ref (parent->document);
   child->items = layer->kids;
 
