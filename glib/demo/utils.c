@@ -278,6 +278,36 @@ pgd_action_view_play_rendition (GtkWidget    *button,
 	}
 }
 
+static void
+pgd_action_view_do_action_layer (GtkWidget *button,
+				 GList     *state_list)
+{
+	GList *l, *m;
+
+	for (l = state_list; l; l = g_list_next (l)) {
+		PopplerActionLayer *action_layer = (PopplerActionLayer *)l->data;
+
+		for (m = action_layer->layers; m; m = g_list_next (m)) {
+			PopplerLayer *layer = (PopplerLayer *)m->data;
+
+			switch (action_layer->action) {
+			case POPPLER_ACTION_LAYER_ON:
+				poppler_layer_show (layer);
+				break;
+			case POPPLER_ACTION_LAYER_OFF:
+				poppler_layer_hide (layer);
+				break;
+			case POPPLER_ACTION_LAYER_TOGGLE:
+				if (poppler_layer_is_visible (layer))
+					poppler_layer_hide (layer);
+				else
+					poppler_layer_show (layer);
+				break;
+			}
+		}
+	}
+}
+
 void
 pgd_action_view_set_action (GtkWidget     *action_view,
 			    PopplerAction *action)
@@ -372,6 +402,40 @@ pgd_action_view_set_action (GtkWidget     *action_view,
 			pgd_table_add_property_with_custom_widget (GTK_TABLE (table), NULL, button, &row);
 			gtk_widget_show (button);
 		}
+	}
+		break;
+	case POPPLER_ACTION_OCG_STATE: {
+		GList     *l;
+		GtkWidget *button;
+
+		pgd_table_add_property (GTK_TABLE (table), "<b>Type:</b>", "OCGState", &row);
+
+		for (l = action->ocg_state.state_list; l; l = g_list_next (l)) {
+			PopplerActionLayer *action_layer = (PopplerActionLayer *)l->data;
+			gchar *text;
+			gint   n_layers = g_list_length (action_layer->layers);
+
+			switch (action_layer->action) {
+			case POPPLER_ACTION_LAYER_ON:
+				text = g_strdup_printf ("%d layers On", n_layers);
+				break;
+			case POPPLER_ACTION_LAYER_OFF:
+				text = g_strdup_printf ("%d layers Off", n_layers);
+				break;
+			case POPPLER_ACTION_LAYER_TOGGLE:
+				text = g_strdup_printf ("%d layers Toggle", n_layers);
+				break;
+			}
+			pgd_table_add_property (GTK_TABLE (table), "<b>Action:</b>", text, &row);
+			g_free (text);
+		}
+
+		button = gtk_button_new_with_label ("Do action");
+		g_signal_connect (button, "clicked",
+				  G_CALLBACK (pgd_action_view_do_action_layer),
+				  action->ocg_state.state_list);
+		pgd_table_add_property_with_custom_widget (GTK_TABLE (table), NULL, button, &row);
+		gtk_widget_show (button);
 	}
 		break;
 	default:
