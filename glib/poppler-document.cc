@@ -1488,8 +1488,8 @@ get_optional_content_rbgroups (OCGs *ocg)
   return groups;
 }
 
-static GList *
-poppler_document_get_layer_rbgroup (PopplerDocument *document,
+GList *
+_poppler_document_get_layer_rbgroup (PopplerDocument *document,
 				    Layer           *layer)
 {
   GList *l;
@@ -1572,8 +1572,8 @@ get_optional_content_items (OCGs *ocg)
   return items;
 }
 
-static GList *
-poppler_document_get_layers (PopplerDocument *document)
+GList *
+_poppler_document_get_layers (PopplerDocument *document)
 {
   if (!document->layers) {
     Catalog *catalog = document->doc->getCatalog ();
@@ -1664,7 +1664,7 @@ poppler_layers_iter_new (PopplerDocument *document)
   PopplerLayersIter *iter;
   GList *items;
 
-  items = poppler_document_get_layers (document);
+  items = _poppler_document_get_layers (document);
 
   if (!items)
     return NULL;
@@ -1749,7 +1749,7 @@ poppler_layers_iter_get_layer (PopplerLayersIter *iter)
   if (layer->oc) {
     GList *rb_group = NULL;
 
-    rb_group = poppler_document_get_layer_rbgroup (iter->document, layer);
+    rb_group = _poppler_document_get_layer_rbgroup (iter->document, layer);
     poppler_layer = _poppler_layer_new (iter->document, layer, rb_group);
   }
   

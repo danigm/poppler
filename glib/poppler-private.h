@@ -78,6 +78,9 @@ struct _PopplerLayer
   gchar *title;
 };
 
+GList         *_poppler_document_get_layers (PopplerDocument *document);
+GList         *_poppler_document_get_layer_rbgroup (PopplerDocument *document,
+						    Layer           *layer);
 PopplerPage   *_poppler_page_new   (PopplerDocument *document,
 				    Page            *page,
 				    int              index);
