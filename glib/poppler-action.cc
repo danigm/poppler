@@ -409,10 +409,84 @@ build_named (PopplerAction *action,
 		action->named.named_dest = g_strdup (name);
 }
 
-static void
-build_movie (PopplerAction *action,
-	     LinkMovie     *link)
+static AnnotMovie *
+find_annot_movie_for_action (PopplerDocument *document,
+			     LinkMovie       *link)
 {
+  AnnotMovie *annot = NULL;
+  XRef *xref = document->doc->getXRef ();
+  Object annotObj;
+
+  if (link->hasAnnotRef ()) {
+    Ref *ref = link->getAnnotRef ();
+
+    xref->fetch (ref->num, ref->gen, &annotObj);
+  } else if (link->hasAnnotTitle ()) {
+    Catalog *catalog = document->doc->getCatalog ();
+    Object annots;
+    GooString *title = link->getAnnotTitle ();
+    int i;
+
+    for (i = 1; i <= document->doc->getNumPages (); ++i) {
+      Page *p = catalog->getPage (i);
+
+      if (p->getAnnots (&annots)->isArray ()) {
+        int j;
+	GBool found = gFalse;
+
+	for (j = 0; j < annots.arrayGetLength () && !found; ++j) {
+          if (annots.arrayGet(j, &annotObj)->isDict()) {
+	    Object obj1;
+
+	    if (!annotObj.dictLookup ("Subtype", &obj1)->isName ("Movie")) {
+	      obj1.free ();
+	      continue;
+	    }
+	    obj1.free ();
+
+	    if (annotObj.dictLookup ("T", &obj1)->isString()) {
+	      GooString *t = obj1.getString ();
+
+	      if (title->cmp(t) == 0)
+	        found = gTrue;
+	    }
+	    obj1.free ();
+	  }
+	  if (!found)
+	    annotObj.free ();
+	}
+	if (found) {
+	  annots.free ();
+	  break;
+	} else {
+          annotObj.free ();
+	}
+      }
+      annots.free ();
+    }
+  }
+
+  if (annotObj.isDict ()) {
+    Object tmp;
+
+    annot = new AnnotMovie (xref, annotObj.getDict(), document->doc->getCatalog (), &tmp);
+    if (!annot->isOk ()) {
+      delete annot;
+      annot = NULL;
+    }
+  }
+  annotObj.free ();
+
+  return annot;
+}
+
+static void
+build_movie (PopplerDocument *document,
+	     PopplerAction   *action,
+	     LinkMovie       *link)
+{
+	AnnotMovie *annot;
+
 	switch (link->getOperation ()) {
 	case LinkMovie::operationTypePause:
 		action->movie.operation = POPPLER_ACTION_MOVIE_PAUSE;
@@ -428,15 +502,12 @@ build_movie (PopplerAction *action,
 		action->movie.operation = POPPLER_ACTION_MOVIE_PLAY;
 		break;
 	}
-}
 
-void
-_poppler_action_movie_set_movie (PopplerAction *action,
-				 Movie         *movie)
-{
-	if (action->movie.movie)
-		g_object_unref (action->movie.movie);
-	action->movie.movie = movie ? _poppler_movie_new (movie) : NULL;
+	annot = find_annot_movie_for_action (document, link);
+	if (annot) {
+		action->movie.movie = _poppler_movie_new (annot->getMovie());
+		delete annot;
+	}
 }
 
 static void
@@ -563,7 +634,7 @@ _poppler_action_new (PopplerDocument *document,
 		break;
 	case actionMovie:
 		action->type = POPPLER_ACTION_MOVIE;
-		build_movie (action, dynamic_cast<LinkMovie*> (link));
+		build_movie (document, action, dynamic_cast<LinkMovie*> (link));
 		break;
 	case actionRendition:
 		action->type = POPPLER_ACTION_RENDITION;
