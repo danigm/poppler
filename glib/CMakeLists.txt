@@ -79,7 +79,7 @@ set(poppler_glib_SRCS
 )
 add_library(poppler-glib SHARED ${poppler_glib_SRCS})
 set_target_properties(poppler-glib PROPERTIES VERSION 4.0.0 SOVERSION 4)
-target_link_libraries(poppler-glib poppler ${GLIB2_LIBRARIES} ${CAIRO_LIBRARIES})
+target_link_libraries(poppler-glib poppler ${GLIB2_LIBRARIES} ${CAIRO_LIBRARIES} ${FREETYPE_LIBRARIES})
 if (GDK_FOUND)
   target_link_libraries(poppler-glib ${GDK2_LIBRARIES})
 endif (GDK_FOUND)
