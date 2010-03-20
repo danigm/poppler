@@ -134,6 +134,12 @@ add_definitions(-DHAVE_CONFIG_H=1)
 if(FONTCONFIG_FOUND)
   add_definitions(${FONTCONFIG_DEFINITIONS})
 endif(FONTCONFIG_FOUND)
+if(WITH_FONTCONFIGURATION_WIN32)
+  if(MINGW)
+    # Set the minimum required Internet Explorer version to 5.0
+    add_definitions(-D_WIN32_IE=0x0500)
+  endif(MINGW)
+endif(WITH_FONTCONFIGURATION_WIN32)
 include_directories(
   ${CMAKE_CURRENT_SOURCE_DIR}
   ${CMAKE_CURRENT_SOURCE_DIR}/fofi
