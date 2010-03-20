@@ -85,7 +85,7 @@ if (ENABLE_ABIWORD)
     pdftoabw.cc
   )
   add_executable(pdftoabw ${pdftoabw_SOURCES})
-  target_link_libraries(pdftoabw ${common_libs})
+  target_link_libraries(pdftoabw ${common_libs} ${LIBXML2_LIBRARIES})
   install(TARGETS pdftoabw DESTINATION bin)
 endif (ENABLE_ABIWORD)
 
