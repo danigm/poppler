@@ -22,3 +22,4 @@ endmacro(CPP_ADD_SIMPLETEST)
 
 
 cpp_add_simpletest(poppler-dump poppler-dump.cpp ${CMAKE_SOURCE_DIR}/utils/parseargs.c)
+target_link_libraries(poppler-dump poppler)
