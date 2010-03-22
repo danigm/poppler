@@ -5,9 +5,6 @@ include_directories(
   ${CMAKE_SOURCE_DIR}/utils
 )
 
-# ### temporary
-set(BUILD_CPP_TESTS TRUE)
-
 macro(CPP_ADD_SIMPLETEST exe)
   string(REPLACE "-" "" test_name ${exe})
   set(${test_name}_SOURCES
