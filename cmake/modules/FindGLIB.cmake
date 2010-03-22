@@ -1,17 +1,9 @@
-# - try to find GLIB, GDK and GTK libraries
+# - try to find the GLIB libraries
 # Once done this will define
 #
 #  GLIB_FOUND - system has GLib
 #  GLIB2_CFLAGS - the GLib CFlags
 #  GLIB2_LIBRARIES - Link these to use GLib
-#
-#  GDK_FOUND - system has GDK
-#  GDK2_CFLAGS - the GDK CFlags
-#  GDK2_LIBRARIES - Link these to use GDK
-#
-#  GTK_FOUND - system has GTK
-#  GTK2_CFLAGS - the GTK CFlags
-#  GTK2_LIBRARIES - Link these to use GTK
 #
 # Copyright 2008-2010 Pino Toscano, <pino@kde.org>
 #
@@ -24,11 +16,7 @@ if (NOT WIN32)
   find_package(PkgConfig REQUIRED)
 
   pkg_check_modules(GLIB2 "glib-2.0>=${GLIB_REQUIRED}" "gobject-2.0>=${GLIB_REQUIRED}")
-  pkg_check_modules(GDK2 "gdk-2.0")
-  pkg_check_modules(GTK2 "gtk+-2.0>=2.14" "gdk-pixbuf-2.0" "gthread-2.0" "gio-2.0")
 
   find_package_handle_standard_args(GLib DEFAULT_MSG GLIB2_LIBRARIES GLIB2_CFLAGS)
-  find_package_handle_standard_args(GDK DEFAULT_MSG GDK2_LIBRARIES GDK2_CFLAGS)
-  find_package_handle_standard_args(GTK DEFAULT_MSG GTK2_LIBRARIES GTK2_CFLAGS)
 
 endif(NOT WIN32)
