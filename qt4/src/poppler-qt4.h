@@ -1,7 +1,7 @@
 /* poppler-qt.h: qt interface to poppler
  * Copyright (C) 2005, Net Integration Technologies, Inc.
  * Copyright (C) 2005, 2007, Brad Hards <bradh@frogmouth.net>
- * Copyright (C) 2005-2009, Albert Astals Cid <aacid@kde.org>
+ * Copyright (C) 2005-2010, Albert Astals Cid <aacid@kde.org>
  * Copyright (C) 2005, Stefan Kebekus <stefan.kebekus@math.uni-koeln.de>
  * Copyright (C) 2006-2009, Pino Toscano <pino@kde.org>
  * Copyright (C) 2009 Shawn Rutledge <shawn.t.rutledge@gmail.com>
@@ -472,8 +472,20 @@ delete it;
 	   \param caseSensitive be case sensitive?
 	   \param rotate the rotation to apply for the search order
 	**/
-	bool search(const QString &text, QRectF &rect, SearchDirection direction, SearchMode caseSensitive, Rotation rotate = Rotate0) const;
+	Q_DECL_DEPRECATED bool search(const QString &text, QRectF &rect, SearchDirection direction, SearchMode caseSensitive, Rotation rotate = Rotate0) const;
 	
+	/**
+	   Returns true if the specified text was found.
+
+	   \param text the text the search
+	   \param rectXXX in all directions is used to return where the text was found, for NextResult and PreviousResult
+	               indicates where to continue searching for
+	   \param direction in which direction do the search
+	   \param caseSensitive be case sensitive?
+	   \param rotate the rotation to apply for the search order
+	   \since 0.14
+	**/
+	bool search(const QString &text, double &rectLeft, double &rectTop, double &rectRight, double &rectBottom, SearchDirection direction, SearchMode caseSensitive, Rotation rotate = Rotate0) const;
 
 	/**
 	   Returns a list of text of the page
