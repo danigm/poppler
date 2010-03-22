@@ -339,6 +339,7 @@ QValueList<Link*> Page::links() const
         case actionSound:
         case actionRendition:
         case actionJavaScript:
+        case actionOCGState:
         break;
 
         case actionUnknown:
