@@ -1,7 +1,7 @@
 /* poppler-page.cc: qt interface to poppler
  * Copyright (C) 2005, Net Integration Technologies, Inc.
  * Copyright (C) 2005, Brad Hards <bradh@frogmouth.net>
- * Copyright (C) 2005-2009, Albert Astals Cid <aacid@kde.org>
+ * Copyright (C) 2005-2010, Albert Astals Cid <aacid@kde.org>
  * Copyright (C) 2005, Stefan Kebekus <stefan.kebekus@math.uni-koeln.de>
  * Copyright (C) 2006-2009, Pino Toscano <pino@kde.org>
  * Copyright (C) 2008 Carlos Garcia Campos <carlosgc@gnome.org>
@@ -319,7 +319,7 @@ QString Page::text(const QRectF &r) const
   return result;
 }
 
-bool Page::search(const QString &text, QRectF &rect, SearchDirection direction, SearchMode caseSensitive, Rotation rotate) const
+bool Page::search(const QString &text, double &sLeft, double &sTop, double &sRight, double &sBottom, SearchDirection direction, SearchMode caseSensitive, Rotation rotate) const
 {
   const QChar * str = text.unicode();
   int len = text.length();
@@ -331,11 +331,6 @@ bool Page::search(const QString &text, QRectF &rect, SearchDirection direction, 
   else sCase = gFalse;
 
   bool found = false;
-  double sLeft, sTop, sRight, sBottom;
-  sLeft = rect.left();
-  sTop = rect.top();
-  sRight = rect.right();
-  sBottom = rect.bottom();
 
   int rotation = (int)rotate * 90;
 
@@ -355,6 +350,19 @@ bool Page::search(const QString &text, QRectF &rect, SearchDirection direction, 
             gFalse, gTrue, gTrue, gFalse, sCase, gTrue, &sLeft, &sTop, &sRight, &sBottom );
 
   textPage->decRefCnt();
+
+  return found;
+}
+
+bool Page::search(const QString &text, QRectF &rect, SearchDirection direction, SearchMode caseSensitive, Rotation rotate) const
+{
+  double sLeft, sTop, sRight, sBottom;
+  sLeft = rect.left();
+  sTop = rect.top();
+  sRight = rect.right();
+  sBottom = rect.bottom();
+
+  bool found = search(text, sLeft, sTop, sRight, sBottom, direction, caseSensitive, rotate);
 
   rect.setLeft( sLeft );
   rect.setTop( sTop );

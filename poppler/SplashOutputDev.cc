@@ -20,7 +20,7 @@
 // Copyright (C) 2006 Scott Turner <scotty1024@mac.com>
 // Copyright (C) 2007 Koji Otani <sho@bbr.jp>
 // Copyright (C) 2009 Petr Gajdos <pgajdos@novell.com>
-// Copyright (C) 2009 Thomas Freitag <Thomas.Freitag@alfa.de>
+// Copyright (C) 2009, 2010 Thomas Freitag <Thomas.Freitag@alfa.de>
 // Copyright (C) 2009 Carlos Garcia Campos <carlosgc@gnome.org>
 // Copyright (C) 2009 William Bader <williambader@hotmail.com>
 // Copyright (C) 2010 Patrick Spendrin <ps_ml@gmx.de>
@@ -3002,7 +3002,12 @@ void SplashOutputDev::setSoftMask(GfxState * /*state*/, double * /*bbox*/,
 
   softMask = new SplashBitmap(bitmap->getWidth(), bitmap->getHeight(),
 			      1, splashModeMono8, gFalse);
-  memset(softMask->getDataPtr(), 0,
+  unsigned char fill = 0;
+  if (transpGroupStack->blendingColorSpace) {
+	transpGroupStack->blendingColorSpace->getGray(backdropColor, &gray);
+	fill = colToByte(gray);
+  }
+  memset(softMask->getDataPtr(), fill,
 	 softMask->getRowSize() * softMask->getHeight());
   p = softMask->getDataPtr() + ty * softMask->getRowSize() + tx;
   int xMax = tBitmap->getWidth();
