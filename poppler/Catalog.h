@@ -199,7 +199,7 @@ public:
 
   OCGs *getOptContentConfig() { return optContent; }
 
-  Form* getForm() { return form; }
+  Form* getForm();
 
   enum PageMode {
     pageModeNone,

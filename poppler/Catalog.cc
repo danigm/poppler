@@ -86,12 +86,6 @@ Catalog::Catalog(XRef *xrefA) {
   // get the AcroForm dictionary
   catDict.dictLookup("AcroForm", &acroForm);
 
-  // load Forms
-  if (acroForm.isDict()) {
-    form = new Form(xref,&acroForm);
-  }
-
-
   // read page tree
   catDict.dictLookup("Pages", &pagesDict);
   // This should really be isDict("Pages"), but I've seen at least one
@@ -153,8 +147,8 @@ Catalog::Catalog(XRef *xrefA) {
   optContentProps.free();
 
   // perform form-related loading after all widgets have been loaded
-  if (form) 
-    form->postWidgetsLoad();
+  if (getForm())
+    getForm()->postWidgetsLoad();
 
   catDict.free();
   return;
@@ -846,6 +840,17 @@ Object *Catalog::getDests()
   }
 
   return &dests;
+}
+
+Form *Catalog::getForm()
+{
+  if (!form) {
+    if (acroForm.isDict()) {
+      form = new Form(xref,&acroForm);
+    }
+  }
+
+  return form;
 }
 
 Object *Catalog::getNames()
