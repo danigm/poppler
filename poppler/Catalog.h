@@ -192,7 +192,7 @@ public:
   GBool labelToIndex(GooString *label, int *index);
   GBool indexToLabel(int index, GooString *label);
 
-  Object *getOutline() { return &outline; }
+  Object *getOutline();
 
   Object *getAcroForm() { return &acroForm; }
 

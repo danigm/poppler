@@ -156,9 +156,6 @@ Catalog::Catalog(XRef *xrefA) {
   }
   obj.free();
 
-  // get the outline dictionary
-  catDict.dictLookup("Outlines", &outline);
-
   // get the Optional Content dictionary
   if (catDict.dictLookup("OCProperties", &optContentProps)->isDict()) {
     optContent = new OCGs(&optContentProps, xref);
@@ -822,3 +819,23 @@ Object *Catalog::getStructTreeRoot()
 
   return &structTreeRoot;
 }
+
+Object *Catalog::getOutline()
+{
+  if (outline.isNone())
+  {
+     Object catDict;
+
+     xref->getCatalog(&catDict);
+     if (catDict.isDict()) {
+       catDict.dictLookup("Outlines", &outline);
+     } else {
+       error(-1, "Catalog object is wrong type (%s)", catDict.getTypeName());
+       outline.initNull();
+     }
+     catDict.free();
+  }
+
+  return &outline;
+}
+
