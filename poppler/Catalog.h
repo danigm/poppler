@@ -226,6 +226,9 @@ public:
 
 private:
 
+  // Get page label info.
+  PageLabelInfo *getPageLabelInfo();
+
   XRef *xref;			// the xref table for this PDF file
   Page **pages;			// array of pages
   Ref *pageRefs;		// object ID for each page

@@ -147,10 +147,6 @@ Catalog::Catalog(XRef *xrefA) {
   }
   obj.free();
 
-  if (catDict.dictLookup("PageLabels", &obj)->isDict())
-    pageLabelInfo = new PageLabelInfo(&obj, numPages);
-  obj.free();
-
   // read base URI
   if (catDict.dictLookup("URI", &obj)->isDict()) {
     if (obj.dictLookup("Base", &obj2)->isString()) {
@@ -642,8 +638,9 @@ GBool Catalog::labelToIndex(GooString *label, int *index)
 {
   char *end;
 
-  if (pageLabelInfo != NULL) {
-    if (!pageLabelInfo->labelToIndex(label, index))
+  PageLabelInfo *pli = getPageLabelInfo();
+  if (pli != NULL) {
+    if (!pli->labelToIndex(label, index))
       return gFalse;
   } else {
     *index = strtol(label->getCString(), &end, 10) - 1;
@@ -664,8 +661,9 @@ GBool Catalog::indexToLabel(int index, GooString *label)
   if (index < 0 || index >= numPages)
     return gFalse;
 
-  if (pageLabelInfo != NULL) {
-    return pageLabelInfo->indexToLabel(index, label);
+  PageLabelInfo *pli = getPageLabelInfo();
+  if (pli != NULL) {
+    return pli->indexToLabel(index, label);
   } else {
     snprintf(buffer, sizeof (buffer), "%d", index + 1);
     label->append(buffer);	      
@@ -774,4 +772,27 @@ EmbFile::EmbFile(Object *efDict, GooString *description)
     m_checksum = new GooString();
   if (!m_mimetype)
     m_mimetype = new GooString();
+}
+
+PageLabelInfo *Catalog::getPageLabelInfo()
+{
+  if (!pageLabelInfo) {
+    Object catDict;
+    Object obj;
+
+    xref->getCatalog(&catDict);
+    if (!catDict.isDict()) {
+      error(-1, "Catalog object is wrong type (%s)", catDict.getTypeName());
+      catDict.free();
+      return NULL;
+    }
+
+    if (catDict.dictLookup("PageLabels", &obj)->isDict()) {
+      pageLabelInfo = new PageLabelInfo(&obj, getNumPages());
+    }
+    obj.free();
+    catDict.free();
+  }
+
+  return pageLabelInfo;
 }
