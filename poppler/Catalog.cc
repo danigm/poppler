@@ -130,9 +130,6 @@ Catalog::Catalog(XRef *xrefA) {
   }
   pagesDict.free();
 
-  // read named destination dictionary
-  catDict.dictLookup("Dests", &dests);
-
   // read root of named destination tree - PDF1.6 table 3.28
   if (catDict.dictLookup("Names", &obj)->isDict()) {
     obj.dictLookup("Dests", &obj2);
@@ -177,7 +174,6 @@ Catalog::Catalog(XRef *xrefA) {
   pagesDict.free();
  err1:
   catDict.free();
-  dests.initNull();
   ok = gFalse;
 }
 
@@ -343,8 +339,8 @@ LinkDest *Catalog::findDest(GooString *name) {
 
   // try named destination dictionary then name tree
   found = gFalse;
-  if (dests.isDict()) {
-    if (!dests.dictLookup(name->getCString(), &obj1)->isNull())
+  if (getDests()->isDict()) {
+    if (!getDests()->dictLookup(name->getCString(), &obj1)->isNull())
       found = gTrue;
     else
       obj1.free();
@@ -837,5 +833,24 @@ Object *Catalog::getOutline()
   }
 
   return &outline;
+}
+
+Object *Catalog::getDests()
+{
+  if (dests.isNone())
+  {
+     Object catDict;
+
+     xref->getCatalog(&catDict);
+     if (catDict.isDict()) {
+       catDict.dictLookup("Dests", &dests);
+     } else {
+       error(-1, "Catalog object is wrong type (%s)", catDict.getTypeName());
+       dests.initNull();
+     }
+     catDict.free();
+  }
+
+  return &dests;
 }
 

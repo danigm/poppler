@@ -174,7 +174,7 @@ public:
   // NULL if <name> is not a destination.
   LinkDest *findDest(GooString *name);
 
-  Object *getDests() { return &dests; }
+  Object *getDests();
 
   // Get the number of embedded files
   int numEmbeddedFiles() { return embeddedFileNameTree.numEntries(); }
