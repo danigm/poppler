@@ -50,6 +50,7 @@ class OCGs;
 class NameTree {
 public:
   NameTree();
+  ~NameTree();
   void init(XRef *xref, Object *tree);
   void parse(Object *tree);
   GBool lookup(GooString *name, Object *obj);
@@ -177,13 +178,13 @@ public:
   Object *getDests();
 
   // Get the number of embedded files
-  int numEmbeddedFiles() { return embeddedFileNameTree.numEntries(); }
+  int numEmbeddedFiles() { return getEmbeddedFileNameTree()->numEntries(); }
 
   // Get the i'th file embedded (at the Document level) in the document
   EmbFile *embeddedFile(int i);
 
   // Get the number of javascript scripts
-  int numJS() { return jsNameTree.numEntries(); }
+  int numJS() { return getJSNameTree()->numEntries(); }
 
   // Get the i'th JavaScript script (at the Document level) in the document
   GooString *getJS(int i);
@@ -236,9 +237,10 @@ private:
   int numPages;			// number of pages
   int pagesSize;		// size of pages array
   Object dests;			// named destination dictionary
-  NameTree destNameTree;	// named destination name-tree
-  NameTree embeddedFileNameTree;  // embedded file name-tree
-  NameTree jsNameTree;		// Java Script name-tree
+  Object names;			// named names dictionary
+  NameTree *destNameTree;	// named destination name-tree
+  NameTree *embeddedFileNameTree;  // embedded file name-tree
+  NameTree *jsNameTree;		// Java Script name-tree
   GooString *baseURI;		// base URI for URI-type links
   Object metadata;		// metadata stream
   Object structTreeRoot;	// structure tree root dictionary
@@ -253,6 +255,12 @@ private:
   int readPageTree(Dict *pages, PageAttrs *attrs, int start,
 		   char *alreadyRead);
   Object *findDestInTree(Object *tree, GooString *name, Object *obj);
+
+  Object *getNames();
+  NameTree *getDestNameTree();
+  NameTree *getEmbeddedFileNameTree();
+  NameTree *getJSNameTree();
+
 };
 
 #endif

@@ -74,6 +74,9 @@ Catalog::Catalog(XRef *xrefA) {
   optContent = NULL;
   pageMode = pageModeNull;
   pageLayout = pageLayoutNull;
+  destNameTree = NULL;
+  embeddedFileNameTree = NULL;
+  jsNameTree = NULL;
 
   xref->getCatalog(&catDict);
   if (!catDict.isDict()) {
@@ -130,20 +133,6 @@ Catalog::Catalog(XRef *xrefA) {
   }
   pagesDict.free();
 
-  // read root of named destination tree - PDF1.6 table 3.28
-  if (catDict.dictLookup("Names", &obj)->isDict()) {
-    obj.dictLookup("Dests", &obj2);
-    destNameTree.init(xref, &obj2);
-    obj2.free();
-    obj.dictLookup("EmbeddedFiles", &obj2);
-    embeddedFileNameTree.init(xref, &obj2);
-    obj2.free();
-    obj.dictLookup("JavaScript", &obj2);
-    jsNameTree.init(xref, &obj2);
-    obj2.free();
-  }
-  obj.free();
-
   // read base URI
   if (catDict.dictLookup("URI", &obj)->isDict()) {
     if (obj.dictLookup("Base", &obj2)->isString()) {
@@ -190,9 +179,9 @@ Catalog::~Catalog() {
     gfree(pageRefs);
   }
   dests.free();
-  destNameTree.free();
-  embeddedFileNameTree.free();
-  jsNameTree.free();
+  delete destNameTree;
+  delete embeddedFileNameTree;
+  delete jsNameTree;
   if (baseURI) {
     delete baseURI;
   }
@@ -346,7 +335,7 @@ LinkDest *Catalog::findDest(GooString *name) {
       obj1.free();
   }
   if (!found) {
-    if (destNameTree.lookup(name, &obj1))
+    if (getDestNameTree()->lookup(name, &obj1))
       found = gTrue;
     else
       obj1.free();
@@ -380,10 +369,10 @@ EmbFile *Catalog::embeddedFile(int i)
 {
     Object efDict;
     Object obj;
-    obj = embeddedFileNameTree.getValue(i);
+    obj = getEmbeddedFileNameTree()->getValue(i);
     EmbFile *embeddedFile = 0;
     if (obj.isRef()) {
-        GooString desc(embeddedFileNameTree.getName(i));
+        GooString desc(getEmbeddedFileNameTree()->getName(i));
         embeddedFile = new EmbFile(obj.fetch(xref, &efDict), &desc);
         efDict.free();
     } else {
@@ -395,7 +384,7 @@ EmbFile *Catalog::embeddedFile(int i)
 
 GooString *Catalog::getJS(int i)
 {
-  Object obj = jsNameTree.getValue(i);
+  Object obj = getJSNameTree()->getValue(i);
   if (obj.isRef()) {
     Ref r = obj.getRef();
     obj.free();
@@ -513,6 +502,11 @@ NameTree::NameTree()
   size = 0;
   length = 0;
   entries = NULL;
+}
+
+NameTree::~NameTree()
+{
+  this->free();
 }
 
 NameTree::Entry::Entry(Array *array, int index) {
@@ -852,5 +846,81 @@ Object *Catalog::getDests()
   }
 
   return &dests;
+}
+
+Object *Catalog::getNames()
+{
+  if (names.isNone())
+  {
+     Object catDict;
+
+     xref->getCatalog(&catDict);
+     if (catDict.isDict()) {
+       catDict.dictLookup("Names", &names);
+     } else {
+       error(-1, "Catalog object is wrong type (%s)", catDict.getTypeName());
+       names.initNull();
+     }
+     catDict.free();
+  }
+
+  return &names;
+}
+
+NameTree *Catalog::getDestNameTree()
+{
+  if (!destNameTree) {
+
+    destNameTree = new NameTree();
+
+    if (getNames()->isDict()) {
+       Object obj;
+
+       getNames()->dictLookup("Dests", &obj);
+       destNameTree->init(xref, &obj);
+       obj.free();
+    }
+
+  }
+
+  return destNameTree;
+}
+
+NameTree *Catalog::getEmbeddedFileNameTree()
+{
+  if (!embeddedFileNameTree) {
+
+    embeddedFileNameTree = new NameTree();
+
+    if (getNames()->isDict()) {
+       Object obj;
+
+       getNames()->dictLookup("EmbeddedFiles", &obj);
+       embeddedFileNameTree->init(xref, &obj);
+       obj.free();
+    }
+
+  }
+
+  return embeddedFileNameTree;
+}
+
+NameTree *Catalog::getJSNameTree()
+{
+  if (!jsNameTree) {
+
+    jsNameTree = new NameTree();
+
+    if (getNames()->isDict()) {
+       Object obj;
+
+       getNames()->dictLookup("JavaScript", &obj);
+       jsNameTree->init(xref, &obj);
+       obj.free();
+    }
+
+  }
+
+  return jsNameTree;
 }
 
