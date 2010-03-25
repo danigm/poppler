@@ -164,7 +164,7 @@ public:
   GooString *readMetadata();
 
   // Return the structure tree root object.
-  Object *getStructTreeRoot() { return &structTreeRoot; }
+  Object *getStructTreeRoot();
 
   // Find a page, given its object ID.  Returns page number, or 0 if
   // not found.

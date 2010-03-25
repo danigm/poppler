@@ -156,9 +156,6 @@ Catalog::Catalog(XRef *xrefA) {
   }
   obj.free();
 
-  // get the structure tree root
-  catDict.dictLookup("StructTreeRoot", &structTreeRoot);
-
   // get the outline dictionary
   catDict.dictLookup("Outlines", &outline);
 
@@ -805,4 +802,23 @@ PageLabelInfo *Catalog::getPageLabelInfo()
   }
 
   return pageLabelInfo;
+}
+
+Object *Catalog::getStructTreeRoot()
+{
+  if (structTreeRoot.isNone())
+  {
+     Object catDict;
+
+     xref->getCatalog(&catDict);
+     if (catDict.isDict()) {
+       catDict.dictLookup("StructTreeRoot", &structTreeRoot);
+     } else {
+       error(-1, "Catalog object is wrong type (%s)", catDict.getTypeName());
+       structTreeRoot.initNull();
+     }
+     catDict.free();
+  }
+
+  return &structTreeRoot;
 }
