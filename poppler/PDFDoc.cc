@@ -226,11 +226,6 @@ GBool PDFDoc::setup(GooString *ownerPassword, GooString *userPassword) {
     return gFalse;
   }
 
-#ifndef DISABLE_OUTLINE
-  // read outline
-  outline = new Outline(catalog->getOutline(), xref);
-#endif
-
   // done
   return gTrue;
 }
@@ -906,6 +901,18 @@ void PDFDoc::writeTrailer (Guint uxrefOffset, int uxrefSize, OutStream* outStr, 
 
   delete trailerDict;
 }
+
+#ifndef DISABLE_OUTLINE
+Outline *PDFDoc::getOutline()
+{
+  if (!outline) {
+    // read outline
+    outline = new Outline(catalog->getOutline(), xref);
+  }
+
+  return outline;
+}
+#endif
 
 PDFDoc *PDFDoc::ErrorPDFDoc(int errorCode, GooString *fileNameA)
 {

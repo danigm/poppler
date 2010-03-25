@@ -170,7 +170,7 @@ public:
 
 #ifndef DISABLE_OUTLINE
   // Return the outline object.
-  Outline *getOutline() { return outline; }
+  Outline *getOutline();
 #endif
 
   // Is the file encrypted?
