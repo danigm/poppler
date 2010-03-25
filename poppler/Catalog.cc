@@ -156,9 +156,6 @@ Catalog::Catalog(XRef *xrefA) {
   }
   obj.free();
 
-  // get the metadata stream
-  catDict.dictLookup("Metadata", &metadata);
-
   // get the structure tree root
   catDict.dictLookup("StructTreeRoot", &structTreeRoot);
 
@@ -223,6 +220,19 @@ GooString *Catalog::readMetadata() {
   Dict *dict;
   Object obj;
   int c;
+
+  if (metadata.isNone()) {
+    Object catDict;
+
+    xref->getCatalog(&catDict);
+    if (catDict.isDict()) {
+      catDict.dictLookup("Metadata", &metadata);
+    } else {
+      error(-1, "Catalog object is wrong type (%s)", catDict.getTypeName());
+      metadata.initNull();
+    }
+    catDict.free();
+  }
 
   if (!metadata.isStream()) {
     return NULL;
