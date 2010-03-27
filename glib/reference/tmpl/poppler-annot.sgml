@@ -142,15 +142,6 @@ Annotations
 @Returns: 
 
 
-<!-- ##### FUNCTION poppler_annot_get_id ##### -->
-<para>
-
-</para>
-
-@poppler_annot: 
-@Returns: 
-
-
 <!-- ##### FUNCTION poppler_annot_get_modified ##### -->
 <para>
 

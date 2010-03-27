@@ -30,6 +30,8 @@ Action links
 @POPPLER_ACTION_URI: 
 @POPPLER_ACTION_NAMED: 
 @POPPLER_ACTION_MOVIE: 
+@POPPLER_ACTION_RENDITION: 
+@POPPLER_ACTION_OCG_STATE: 
 
 <!-- ##### ENUM PopplerDestType ##### -->
 <para>
@@ -110,10 +112,7 @@ Action links
 @type: 
 @title: 
 @operation: 
-@has_annotation_ref: 
-@has_annotation_title: 
-@annotation_title: 
-@annotation_id: 
+@movie: 
 
 <!-- ##### STRUCT PopplerDest ##### -->
 <para>

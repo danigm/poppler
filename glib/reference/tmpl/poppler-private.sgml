@@ -43,6 +43,16 @@ poppler-private
 
 </para>
 
+<!-- ##### ARG PopplerDocument:format-major ##### -->
+<para>
+
+</para>
+
+<!-- ##### ARG PopplerDocument:format-minor ##### -->
+<para>
+
+</para>
+
 <!-- ##### ARG PopplerDocument:keywords ##### -->
 <para>
 
