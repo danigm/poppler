@@ -2,7 +2,7 @@ INCLUDES =					\
 	-I$(top_srcdir)				\
 	-I$(top_srcdir)/poppler			\
 	$(cairo_includes)			\
-	$(POPPLER_QT_CXXFLAGS)			\
+	$(libqt3_CFLAGS)			\
 	$(FREETYPE_CFLAGS)			\
 	$(FONTCONFIG_CFLAGS)
 
@@ -44,5 +44,5 @@ test_poppler_qt_SOURCES =			\
 test_poppler_qt_LDADD =				\
 	$(top_builddir)/poppler/libpoppler.la	\
 	libpoppler-qt.la			\
-	$(POPPLER_QT_LIBS)			\
+	$(libqt3_LIBS)				\
 	$(FREETYPE_LIBS)
