@@ -5,7 +5,7 @@
  * Copyright (C) 2005, Stefan Kebekus <stefan.kebekus@math.uni-koeln.de>
  * Copyright (C) 2006, Wilfried Huss <Wilfried.Huss@gmx.at>
  * Copyright (C) 2006, Jerry Epplin <jepplin@globalvelocity.com>
- * Copyright (C) 2007, Pino Toscano <pino@kde.org>
+ * Copyright (C) 2007, 2010, Pino Toscano <pino@kde.org>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
