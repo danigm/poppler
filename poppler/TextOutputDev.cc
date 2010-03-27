@@ -19,7 +19,7 @@
 // Copyright (C) 2008 Koji Otani <sho@bbr.jp>
 // Copyright (C) 2008, 2010 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2008 Pino Toscano <pino@kde.org>
-// Copyright (C) 2008 Hib Eris <hib@hiberis.nl>
+// Copyright (C) 2008, 2010 Hib Eris <hib@hiberis.nl>
 // Copyright (C) 2009 Ross Moore <ross@maths.mq.edu.au>
 // Copyright (C) 2009 Kovid Goyal <kovid@kovidgoyal.net>
 //
@@ -4641,6 +4641,7 @@ TextOutputDev::TextOutputDev(char *fileName, GBool physLayoutA,
     } else {
       error(-1, "Couldn't open text file '%s'", fileName);
       ok = gFalse;
+      actualText = NULL;
       return;
     }
     outputFunc = &TextOutputDev_outputToFile;
