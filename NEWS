@@ -12,8 +12,6 @@ Release 0.13.2 (0.14 Beta 1)
 	 * Correctly initialize actualText in TextOutputDev when initialization fails
 	 * Various MSVC fixes
 
-	utils:
-	
 	glib:
 	 * Add support for Movie objects
 	 * Add support for Screen annotations
