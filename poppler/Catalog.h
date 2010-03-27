@@ -19,6 +19,7 @@
 // Copyright (C) 2005, 2006, 2008 Brad Hards <bradh@frogmouth.net>
 // Copyright (C) 2007 Julien Rebetez <julienr@svn.gnome.org>
 // Copyright (C) 2008 Pino Toscano <pino@kde.org>
+// Copyright (C) 2010 Hib Eris <hib@hiberis.nl>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -205,7 +206,8 @@ public:
     pageModeThumbs,
     pageModeFullScreen,
     pageModeOC,
-    pageModeAttach
+    pageModeAttach,
+    pageModeNull
   };
   enum PageLayout {
     pageLayoutNone,
@@ -214,12 +216,13 @@ public:
     pageLayoutTwoColumnLeft,
     pageLayoutTwoColumnRight,
     pageLayoutTwoPageLeft,
-    pageLayoutTwoPageRight
+    pageLayoutTwoPageRight,
+    pageLayoutNull
   };
 
   // Returns the page mode.
-  PageMode getPageMode() { return pageMode; }
-  PageLayout getPageLayout() { return pageLayout; }
+  PageMode getPageMode();
+  PageLayout getPageLayout();
 
 private:
 

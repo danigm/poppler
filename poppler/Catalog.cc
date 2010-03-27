@@ -23,6 +23,7 @@
 // Copyright (C) 2007 Julien Rebetez <julienr@svn.gnome.org>
 // Copyright (C) 2008 Pino Toscano <pino@kde.org>
 // Copyright (C) 2009 Ilya Gorenbein <igorenbein@finjan.com>
+// Copyright (C) 2010 Hib Eris <hib@hiberis.nl>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -71,6 +72,8 @@ Catalog::Catalog(XRef *xrefA) {
   pageLabelInfo = NULL;
   form = NULL;
   optContent = NULL;
+  pageMode = pageModeNull;
+  pageLayout = pageLayoutNull;
 
   xref->getCatalog(&catDict);
   if (!catDict.isDict()) {
@@ -146,41 +149,6 @@ Catalog::Catalog(XRef *xrefA) {
 
   if (catDict.dictLookup("PageLabels", &obj)->isDict())
     pageLabelInfo = new PageLabelInfo(&obj, numPages);
-  obj.free();
-
-  // read page mode
-  pageMode = pageModeNone;
-  if (catDict.dictLookup("PageMode", &obj)->isName()) {
-    if (obj.isName("UseNone"))
-      pageMode = pageModeNone;
-    else if (obj.isName("UseOutlines"))
-      pageMode = pageModeOutlines;
-    else if (obj.isName("UseThumbs"))
-      pageMode = pageModeThumbs;
-    else if (obj.isName("FullScreen"))
-      pageMode = pageModeFullScreen;
-    else if (obj.isName("UseOC"))
-      pageMode = pageModeOC;
-    else if (obj.isName("UseAttachments"))
-      pageMode = pageModeAttach;
-  }
-  obj.free();
-
-  pageLayout = pageLayoutNone;
-  if (catDict.dictLookup("PageLayout", &obj)->isName()) {
-    if (obj.isName("SinglePage"))
-      pageLayout = pageLayoutSinglePage;
-    if (obj.isName("OneColumn"))
-      pageLayout = pageLayoutOneColumn;
-    if (obj.isName("TwoColumnLeft"))
-      pageLayout = pageLayoutTwoColumnLeft;
-    if (obj.isName("TwoColumnRight"))
-      pageLayout = pageLayoutTwoColumnRight;
-    if (obj.isName("TwoPageLeft"))
-      pageLayout = pageLayoutTwoPageLeft;
-    if (obj.isName("TwoPageRight"))
-      pageLayout = pageLayoutTwoPageRight;
-  }
   obj.free();
 
   // read base URI
@@ -471,6 +439,77 @@ GooString *Catalog::getJS(int i)
   obj2.free();
   obj.free();
   return js;
+}
+
+Catalog::PageMode Catalog::getPageMode() {
+
+  if (pageMode == pageModeNull) {
+
+    Object catDict, obj;
+
+    pageMode = pageModeNone;
+
+    xref->getCatalog(&catDict);
+    if (!catDict.isDict()) {
+      error(-1, "Catalog object is wrong type (%s)", catDict.getTypeName());
+      catDict.free();
+      return pageMode;
+    }
+
+    if (catDict.dictLookup("PageMode", &obj)->isName()) {
+      if (obj.isName("UseNone"))
+        pageMode = pageModeNone;
+      else if (obj.isName("UseOutlines"))
+        pageMode = pageModeOutlines;
+      else if (obj.isName("UseThumbs"))
+        pageMode = pageModeThumbs;
+      else if (obj.isName("FullScreen"))
+        pageMode = pageModeFullScreen;
+      else if (obj.isName("UseOC"))
+        pageMode = pageModeOC;
+      else if (obj.isName("UseAttachments"))
+        pageMode = pageModeAttach;
+    }
+    obj.free();
+    catDict.free();
+  }
+  return pageMode;
+}
+
+Catalog::PageLayout Catalog::getPageLayout() {
+
+  if (pageLayout == pageLayoutNull) {
+
+    Object catDict, obj;
+
+    pageLayout = pageLayoutNone;
+
+    xref->getCatalog(&catDict);
+    if (!catDict.isDict()) {
+      error(-1, "Catalog object is wrong type (%s)", catDict.getTypeName());
+      catDict.free();
+      return pageLayout;
+    }
+
+    pageLayout = pageLayoutNone;
+    if (catDict.dictLookup("PageLayout", &obj)->isName()) {
+      if (obj.isName("SinglePage"))
+        pageLayout = pageLayoutSinglePage;
+      if (obj.isName("OneColumn"))
+        pageLayout = pageLayoutOneColumn;
+      if (obj.isName("TwoColumnLeft"))
+        pageLayout = pageLayoutTwoColumnLeft;
+      if (obj.isName("TwoColumnRight"))
+        pageLayout = pageLayoutTwoColumnRight;
+      if (obj.isName("TwoPageLeft"))
+        pageLayout = pageLayoutTwoPageLeft;
+      if (obj.isName("TwoPageRight"))
+        pageLayout = pageLayoutTwoPageRight;
+    }
+    obj.free();
+    catDict.free();
+  }
+  return pageLayout;
 }
 
 NameTree::NameTree()
