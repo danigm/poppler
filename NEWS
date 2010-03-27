@@ -1,3 +1,42 @@
+Release 0.13.2 (0.14 Beta 1)
+
+	core:
+	 * Improve Movie support
+	 * Fix experimental Arthur backend to compile when if Splash backend is disable
+	 * Fix usage of some streams in the Cairo backend
+	 * Small improvements in the experimental Arthur backend
+	 * Minor annotation improvements
+	 * Rework LinkRendition to follow the spec
+	 * Add support for Set-OCG-State actions
+	 * Correctly initialize the grayscale softmask color in the Splash backend
+	 * Correctly initialize actualText in TextOutputDev when initialization fails
+	 * Various MSVC fixes
+
+	utils:
+	
+	glib:
+	 * Add support for Movie objects
+	 * Add support for Screen annotations
+	 * Add support for rendition actions
+	 * Add support for OCG State actions
+	 * Improvements to the demo
+	
+	qt4:
+	 * Always compile the experimental Arthur backend
+	 * Minor speed improvement in QPainter usage
+	 * Add a search overload that takes doubles instead of QRectF
+	
+	cpp:
+	 * Fix iconv usage
+	 * use gmtime() when gmtime_r() is not available
+	 * Fix building in autotools in windows
+	 * {from,to}_utf_8() -> {from,to}_utf8()
+	
+	build system:
+	 * Multiple CMake build system fixes
+	 * Fix of some DIST targets in autotools
+	 * Make finding of Qt3 in autotools use pkg-config
+
 Release 0.13.1 (0.14 Alpha 2)
 
 	core:
