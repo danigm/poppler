@@ -19,6 +19,8 @@
 // Copyright (C) 2008 Julien Rebetez <julien@fhtagn.net>
 // Copyright (C) 2009 Carlos Garcia Campos <carlosgc@gnome.org>
 // Copyright (C) 2009 Glenn Ganz <glenn.ganz@uptime.ch>
+// Copyright (C) 2009 Stefan Thomas <thomas@eload24.com>
+// Copyright (C) 2010 Hib Eris <hib@hiberis.nl>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -50,6 +52,7 @@
 #include "Stream.h"
 #include "JBIG2Stream.h"
 #include "Stream-CCITT.h"
+#include "CachedFile.h"
 
 #ifdef ENABLE_LIBJPEG
 #include "DCTStream.h"
@@ -788,6 +791,105 @@ void FileStream::setPos(Guint pos, int dir) {
 }
 
 void FileStream::moveStart(int delta) {
+  start += delta;
+  bufPtr = bufEnd = buf;
+  bufPos = start;
+}
+
+//------------------------------------------------------------------------
+// CachedFileStream
+//------------------------------------------------------------------------
+
+CachedFileStream::CachedFileStream(CachedFile *ccA, Guint startA,
+        GBool limitedA, Guint lengthA, Object *dictA)
+  : BaseStream(dictA)
+{
+  cc = ccA;
+  start = startA;
+  limited = limitedA;
+  length = lengthA;
+  bufPtr = bufEnd = buf;
+  bufPos = start;
+  savePos = 0;
+  saved = gFalse;
+}
+
+CachedFileStream::~CachedFileStream()
+{
+  close();
+  cc->decRefCnt();
+}
+
+Stream *CachedFileStream::makeSubStream(Guint startA, GBool limitedA,
+        Guint lengthA, Object *dictA)
+{
+  cc->incRefCnt();
+  return new CachedFileStream(cc, startA, limitedA, lengthA, dictA);
+}
+
+void CachedFileStream::reset()
+{
+  savePos = (Guint)cc->tell();
+  cc->seek(start, SEEK_SET);
+
+  saved = gTrue;
+  bufPtr = bufEnd = buf;
+  bufPos = start;
+}
+
+void CachedFileStream::close()
+{
+  if (saved) {
+    cc->seek(savePos, SEEK_SET);
+    saved = gFalse;
+  }
+}
+
+GBool CachedFileStream::fillBuf()
+{
+  int n;
+
+  bufPos += bufEnd - buf;
+  bufPtr = bufEnd = buf;
+  if (limited && bufPos >= start + length) {
+    return gFalse;
+  }
+  if (limited && bufPos + cachedStreamBufSize > start + length) {
+    n = start + length - bufPos;
+  } else {
+    n = cachedStreamBufSize;
+  }
+  cc->read(buf, 1, n);
+  bufEnd = buf + n;
+  if (bufPtr >= bufEnd) {
+    return gFalse;
+  }
+  return gTrue;
+}
+
+void CachedFileStream::setPos(Guint pos, int dir)
+{
+  Guint size;
+
+  if (dir >= 0) {
+    cc->seek(pos, SEEK_SET);
+    bufPos = pos;
+  } else {
+    cc->seek(0, SEEK_END);
+    size = (Guint)cc->tell();
+
+    if (pos > size)
+      pos = (Guint)size;
+
+    cc->seek(-(int)pos, SEEK_END);
+    bufPos = (Guint)cc->tell();
+  }
+
+  bufPtr = bufEnd = buf;
+}
+
+void CachedFileStream::moveStart(int delta)
+{
   start += delta;
   bufPtr = bufEnd = buf;
   bufPos = start;

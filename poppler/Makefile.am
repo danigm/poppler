@@ -167,6 +167,7 @@ poppler_include_HEADERS =	\
 	Array.h			\
 	BuiltinFont.h		\
 	BuiltinFontTables.h	\
+	CachedFile.h		\
 	Catalog.h		\
 	CharCodeToUnicode.h	\
 	CMap.h			\
@@ -239,6 +240,7 @@ libpoppler_la_SOURCES =		\
 	Array.cc 		\
 	BuiltinFont.cc		\
 	BuiltinFontTables.cc	\
+	CachedFile.cc		\
 	Catalog.cc 		\
 	CharCodeToUnicode.cc	\
 	CMap.cc			\

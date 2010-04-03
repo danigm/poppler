@@ -17,6 +17,8 @@
 // Copyright (C) 2008 Julien Rebetez <julien@fhtagn.net>
 // Copyright (C) 2008 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2009 Carlos Garcia Campos <carlosgc@gnome.org>
+// Copyright (C) 2009 Stefan Thomas <thomas@eload24.com>
+// Copyright (C) 2010 Hib Eris <hib@hiberis.nl>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -32,14 +34,17 @@
 
 #include <stdio.h>
 #include "goo/gtypes.h"
+#include "goo/GooVector.h"
 #include "Object.h"
 
 class BaseStream;
+class CachedFile;
 
 //------------------------------------------------------------------------
 
 enum StreamKind {
   strFile,
+  strCachedFile,
   strASCIIHex,
   strASCII85,
   strLZW,
@@ -67,6 +72,13 @@ enum CryptAlgorithm {
   cryptRC4,
   cryptAES
 };
+
+//------------------------------------------------------------------------
+
+typedef struct _ByteRange {
+  Guint offset;
+  Guint length;
+} ByteRange;
 
 //------------------------------------------------------------------------
 // Stream (base class)
@@ -397,6 +409,52 @@ private:
   int savePos;
   GBool saved;
 };
+
+//------------------------------------------------------------------------
+// CachedFileStream
+//------------------------------------------------------------------------
+
+#define cachedStreamBufSize 1024
+
+class CachedFileStream: public BaseStream {
+public:
+
+  CachedFileStream(CachedFile *ccA, Guint startA, GBool limitedA,
+	     Guint lengthA, Object *dictA);
+  virtual ~CachedFileStream();
+  virtual Stream *makeSubStream(Guint startA, GBool limitedA,
+				Guint lengthA, Object *dictA);
+  virtual StreamKind getKind() { return strCachedFile; }
+  virtual void reset();
+  virtual void close();
+  virtual int getChar()
+    { return (bufPtr >= bufEnd && !fillBuf()) ? EOF : (*bufPtr++ & 0xff); }
+  virtual int lookChar()
+    { return (bufPtr >= bufEnd && !fillBuf()) ? EOF : (*bufPtr & 0xff); }
+  virtual int getPos() { return bufPos + (bufPtr - buf); }
+  virtual void setPos(Guint pos, int dir = 0);
+  virtual Guint getStart() { return start; }
+  virtual void moveStart(int delta);
+
+  virtual int getUnfilteredChar () { return getChar(); }
+  virtual void unfilteredReset () { reset(); }
+
+private:
+
+  GBool fillBuf();
+
+  CachedFile *cc;
+  Guint start;
+  GBool limited;
+  Guint length;
+  char buf[cachedStreamBufSize];
+  char *bufPtr;
+  char *bufEnd;
+  Guint bufPos;
+  int savePos;
+  GBool saved;
+};
+
 
 //------------------------------------------------------------------------
 // MemStream

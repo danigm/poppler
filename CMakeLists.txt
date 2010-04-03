@@ -222,6 +222,7 @@ set(poppler_SRCS
   poppler/Array.cc
   poppler/BuiltinFont.cc
   poppler/BuiltinFontTables.cc
+  poppler/CachedFile.cc
   poppler/Catalog.cc
   poppler/CharCodeToUnicode.cc
   poppler/CMap.cc
@@ -353,6 +354,7 @@ if(ENABLE_XPDF_HEADERS)
     poppler/Array.h
     poppler/BuiltinFont.h
     poppler/BuiltinFontTables.h
+    poppler/CachedFile.h
     poppler/Catalog.h
     poppler/CharCodeToUnicode.h
     poppler/CMap.h
