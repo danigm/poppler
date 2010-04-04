@@ -44,6 +44,8 @@
 
 static int firstPage = 1;
 static int lastPage = 0;
+static GBool printOnlyOdd = gFalse;
+static GBool printOnlyEven = gFalse;
 static double resolution = 0.0;
 static double x_resolution = 150.0;
 static double y_resolution = 150.0;
@@ -74,6 +76,10 @@ static const ArgDesc argDesc[] = {
    "first page to print"},
   {"-l",      argInt,      &lastPage,      0,
    "last page to print"},
+  {"-o",      argFlag,      &printOnlyOdd, 0,
+   "print only odd pages"},
+  {"-e",      argFlag,      &printOnlyEven, 0,
+   "print only even pages"},
 
   {"-r",      argFP,       &resolution,    0,
    "resolution, in DPI (default is 150)"},
@@ -287,6 +293,8 @@ int main(int argc, char *argv[]) {
   if (sz != 0) w = h = sz;
   pg_num_len = (int)ceil(log((double)doc->getNumPages()) / log((double)10));
   for (pg = firstPage; pg <= lastPage; ++pg) {
+    if (printOnlyEven && pg % 2 == 0) continue;
+    if (printOnlyOdd && pg % 2 == 1) continue;
     if (useCropBox) {
       pg_w = doc->getPageCropWidth(pg);
       pg_h = doc->getPageCropHeight(pg);
