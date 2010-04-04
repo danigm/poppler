@@ -13,6 +13,7 @@
 // All changes made under the Poppler project to this file are licensed
 // under GPL version 2 or later
 //
+// Copyright (C) 2010 Carlos Garcia Campos <carlosgc@gnome.org>
 // Copyright (C) 2006-2009 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2006 Krzysztof Kowalczyk <kkowalczyk@gmail.com>
 //
@@ -182,7 +183,7 @@ Object *Lexer::getObj(Object *obj, int objNum) {
   // number
   case '0': case '1': case '2': case '3': case '4':
   case '5': case '6': case '7': case '8': case '9':
-  case '-': case '.':
+  case '+': case '-': case '.':
     overflownInteger = gFalse;
     neg = gFalse;
     xi = 0;
@@ -190,7 +191,7 @@ Object *Lexer::getObj(Object *obj, int objNum) {
       neg = gTrue;
     } else if (c == '.') {
       goto doReal;
-    } else {
+    } else if (c != '+') {
       xi = c - '0';
     }
     while (1) {
