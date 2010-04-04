@@ -400,6 +400,7 @@ if(ENABLE_XPDF_HEADERS)
     poppler/PageTransition.h
     poppler/Parser.h
     poppler/PDFDoc.h
+    poppler/PDFDocBuilder.h
     poppler/PDFDocEncoding.h
     poppler/PopplerCache.h
     poppler/ProfileData.h

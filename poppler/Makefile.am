@@ -218,6 +218,7 @@ poppler_include_HEADERS =	\
 	PageTransition.h	\
 	Parser.h		\
 	PDFDoc.h		\
+	PDFDocBuilder.h		\
 	PDFDocEncoding.h	\
 	PopplerCache.h		\
 	ProfileData.h		\
