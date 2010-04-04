@@ -74,6 +74,8 @@ public:
 	 GooString *userPassword = NULL, void *guiDataA = NULL);
   ~PDFDoc();
 
+  static PDFDoc *ErrorPDFDoc(int errorCode, GooString *fileNameA = NULL);
+
   // Was PDF document successfully opened?
   GBool isOk() { return ok; }
 
@@ -227,6 +229,7 @@ private:
   void saveIncrementalUpdate (OutStream* outStr);
   void saveCompleteRewrite (OutStream* outStr);
 
+  PDFDoc();
   void init();
   GBool setup(GooString *ownerPassword, GooString *userPassword);
   GBool checkFooter();

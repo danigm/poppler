@@ -88,6 +88,11 @@ void PDFDoc::init()
 #endif
 }
 
+PDFDoc::PDFDoc()
+{
+  init();
+}
+
 PDFDoc::PDFDoc(GooString *fileNameA, GooString *ownerPassword,
 	       GooString *userPassword, void *guiDataA) {
   Object obj;
@@ -901,4 +906,13 @@ void PDFDoc::writeTrailer (Guint uxrefOffset, int uxrefSize, OutStream* outStr, 
   outStr->printf( "%%%%EOF\r\n");
 
   delete trailerDict;
+}
+
+PDFDoc *PDFDoc::ErrorPDFDoc(int errorCode, GooString *fileNameA)
+{
+  PDFDoc *doc = new PDFDoc();
+  doc->errCode = errorCode;
+  doc->fileName = fileNameA;
+
+  return doc;
 }
