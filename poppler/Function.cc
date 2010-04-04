@@ -13,7 +13,7 @@
 // All changes made under the Poppler project to this file are licensed
 // under GPL version 2 or later
 //
-// Copyright (C) 2006, 2008, 2009 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2006, 2008-2010 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2006 Jeff Muizelaar <jeff@infidigm.net>
 //
 // To see a description of the changes please see the Changelog file that
@@ -1012,11 +1012,13 @@ void PSStack::roll(int n, int j) {
     }
   } else {
     j = n - j;
-    obj = stack[sp + n - 1];
-    for (k = sp + n - 1; k > sp; --k) {
-      stack[k] = stack[k-1];
+    for (i = 0; i < j; ++i) {
+      obj = stack[sp + n - 1];
+      for (k = sp + n - 1; k > sp; --k) {
+        stack[k] = stack[k-1];
+      }
+      stack[sp] = obj;
     }
-    stack[sp] = obj;
   }
 }
 
