@@ -21,6 +21,7 @@
 // Copyright (C) 2009 Eric Toombs <ewtoombs@uwaterloo.ca>
 // Copyright (C) 2009 Kovid Goyal <kovid@kovidgoyal.net>
 // Copyright (C) 2009 Axel Struebing <axel.struebing@freenet.de>
+// Copyright (C) 2010 Hib Eris <hib@hiberis.nl>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -73,15 +74,11 @@
 // PDFDoc
 //------------------------------------------------------------------------
 
-PDFDoc::PDFDoc(GooString *fileNameA, GooString *ownerPassword,
-	       GooString *userPassword, void *guiDataA) {
-  Object obj;
-
+void PDFDoc::init()
+{
   ok = gFalse;
   errCode = errNone;
-
-  guiData = guiDataA;
-
+  fileName = NULL;
   file = NULL;
   str = NULL;
   xref = NULL;
@@ -89,8 +86,16 @@ PDFDoc::PDFDoc(GooString *fileNameA, GooString *ownerPassword,
 #ifndef DISABLE_OUTLINE
   outline = NULL;
 #endif
+}
+
+PDFDoc::PDFDoc(GooString *fileNameA, GooString *ownerPassword,
+	       GooString *userPassword, void *guiDataA) {
+  Object obj;
+
+  init();
 
   fileName = fileNameA;
+  guiData = guiDataA;
 
   // try to open file
 #ifdef VMS
@@ -124,18 +129,9 @@ PDFDoc::PDFDoc(wchar_t *fileNameA, int fileNameLen, GooString *ownerPassword,
   Object obj;
   int i;
 
-  ok = gFalse;
-  errCode = errNone;
+  init();
 
   guiData = guiDataA;
-
-  file = NULL;
-  str = NULL;
-  xref = NULL;
-  catalog = NULL;
-#ifndef DISABLE_OUTLINE
-  outline = NULL;
-#endif
 
   //~ file name should be stored in Unicode (?)
   fileName = new GooString();
@@ -174,21 +170,15 @@ PDFDoc::PDFDoc(wchar_t *fileNameA, int fileNameLen, GooString *ownerPassword,
 
 PDFDoc::PDFDoc(BaseStream *strA, GooString *ownerPassword,
 	       GooString *userPassword, void *guiDataA) {
-  ok = gFalse;
-  errCode = errNone;
+
+  init();
   guiData = guiDataA;
   if (strA->getFileName()) {
     fileName = strA->getFileName()->copy();
   } else {
     fileName = NULL;
   }
-  file = NULL;
   str = strA;
-  xref = NULL;
-  catalog = NULL;
-#ifndef DISABLE_OUTLINE
-  outline = NULL;
-#endif
   ok = setup(ownerPassword, userPassword);
 }
 
