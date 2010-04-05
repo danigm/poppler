@@ -6,6 +6,7 @@
 //
 // Copyright 2009 Stefan Thomas <thomas@eload24.com>
 // Copyright 2010 Hib Eris <hib@hiberis.nl>
+// Copyright 2010 Albert Astals Cid <aacid@kde.org>
 //
 //========================================================================
 
@@ -68,7 +69,7 @@ int CachedFile::seek(long int offset, int origin)
   return 0;
 }
 
-int CachedFile::cache(GooVector<ByteRange>* ranges)
+int CachedFile::cache(const GooVector<ByteRange> &origRanges)
 {
   GooVector<int> loadChunks;
   int numChunks = length/CachedFileChunkSize + 1;
@@ -76,12 +77,13 @@ int CachedFile::cache(GooVector<ByteRange>* ranges)
   int startChunk, endChunk;
   GooVector<ByteRange> chunk_ranges, all;
   ByteRange range;
+  const GooVector<ByteRange> *ranges = &origRanges;
 
-  if (!ranges) {
-     ranges = &all;
-     range.offset = 0;
-     range.length = length;
-     ranges->push_back(range);
+  if (ranges->empty()) {
+    range.offset = 0;
+    range.length = length;
+    all.push_back(range);
+    ranges = &all;
   }
 
   memset(&chunkNeeded, 0, numChunks);
@@ -124,7 +126,7 @@ int CachedFile::cache(GooVector<ByteRange>* ranges)
   if (chunk_ranges.size() > 0) {
     CachedFileWriter writer =
         CachedFileWriter(this, &loadChunks);
-    return loader->load(&chunk_ranges, &writer);
+    return loader->load(chunk_ranges, &writer);
   }
 
   return 0;
@@ -168,7 +170,7 @@ int CachedFile::cache(size_t offset, size_t length)
   range.offset = offset;
   range.length = length;
   r.push_back(range);
-  return cache(&r);
+  return cache(r);
 }
 
 //------------------------------------------------------------------------

@@ -5,6 +5,7 @@
 // This file is licensed under the GPLv2 or later
 //
 // Copyright 2010 Hib Eris <hib@hiberis.nl>
+// Copyright 2010 Albert Astals Cid <aacid@kde.org>
 //
 //========================================================================
 
@@ -20,13 +21,13 @@
 //------------------------------------------------------------------------
 
 PDFDoc *
-CurlPDFDocBuilder::buildPDFDoc(GooString* uri,
+CurlPDFDocBuilder::buildPDFDoc(const GooString &uri,
         GooString *ownerPassword, GooString *userPassword, void *guiDataA)
 {
     Object obj;
 
     CachedFile *cachedFile = new CachedFile(
-        new CurlCachedFileLoader(), new GooString(uri));
+        new CurlCachedFileLoader(), uri.copy());
 
     obj.initNull();
     BaseStream *str = new CachedFileStream(
@@ -35,9 +36,9 @@ CurlPDFDocBuilder::buildPDFDoc(GooString* uri,
     return new PDFDoc(str, ownerPassword, userPassword, guiDataA);
 }
 
-GBool CurlPDFDocBuilder::supports(GooString* uri)
+GBool CurlPDFDocBuilder::supports(const GooString &uri)
 {
-  if (uri->cmpN("http://", 7) == 0 || uri->cmpN("https://", 8) == 0) {
+  if (uri.cmpN("http://", 7) == 0 || uri.cmpN("https://", 8) == 0) {
     return gTrue;
   } else {
     return gFalse;

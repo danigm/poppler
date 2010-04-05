@@ -3,7 +3,7 @@
  * Copyright (C) 2007 Dominic Lachowicz <cinamod@hotmail.com>
  * Copyright (C) 2007 Kouhei Sutou <kou@cozmixng.org>
  * Copyright (C) 2009 Jakub Wilk <ubanus@users.sf.net>
- * Copyright (C) 2009 Albert Astals Cid <aacid@kde.org>
+ * Copyright (C) 2009, 2010 Albert Astals Cid <aacid@kde.org>
  * Copyright (C) 2010 Hib Eris <hib@hiberis.nl>
  *
  * This program is free software; you can redistribute it and/or modify
@@ -143,7 +143,7 @@ int main(int argc, char *argv[]) {
       fileName = new GooString("fd://0");
   }
 
-  doc = PDFDocFactory().createPDFDoc(fileName, ownerPW, userPW);
+  doc = PDFDocFactory().createPDFDoc(*fileName, ownerPW, userPW);
   delete fileName;
 
   if (userPW) {

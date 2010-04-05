@@ -15,7 +15,7 @@
 // All changes made under the Poppler project to this file are licensed
 // under GPL version 2 or later
 //
-// Copyright (C) 2007-2008 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2007-2008, 2010 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2010 Hib Eris <hib@hiberis.nl>
 //
 // To see a description of the changes please see the Changelog file that
@@ -127,7 +127,7 @@ int main(int argc, char *argv[]) {
       fileName = new GooString("fd://0");
   }
 
-  doc = PDFDocFactory().createPDFDoc(fileName, ownerPW, userPW);
+  doc = PDFDocFactory().createPDFDoc(*fileName, ownerPW, userPW);
   delete fileName;
 
   if (userPW) {

@@ -266,7 +266,7 @@ int main(int argc, char *argv[]) {
     delete fileName;
     fileName = new GooString("fd://0");
   }
-  doc = PDFDocFactory().createPDFDoc(fileName, ownerPW, userPW);
+  doc = PDFDocFactory().createPDFDoc(*fileName, ownerPW, userPW);
   delete fileName;
 
   if (userPW) {

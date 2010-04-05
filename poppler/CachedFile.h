@@ -8,6 +8,7 @@
 //
 // Copyright 2009 Stefan Thomas <thomas@eload24.com>
 // Copyright 2010 Hib Eris <hib@hiberis.nl>
+// Copyright 2010 Albert Astals Cid <aacid@kde.org>
 //
 //========================================================================
 
@@ -37,20 +38,21 @@ friend class CachedFileWriter;
 public:
 
   CachedFile(CachedFileLoader *cacheLoader, GooString *uri);
-  ~CachedFile();
 
   Guint getLength() { return length; }
   long int tell();
   int seek(long int offset, int origin);
   size_t read(void * ptr, size_t unitsize, size_t count);
   size_t write(const char *ptr, size_t size, size_t fromByte);
-  int cache(GooVector<ByteRange>* ranges);
+  int cache(const GooVector<ByteRange> &ranges);
 
   // Reference counting.
   void incRefCnt();
   void decRefCnt();
 
 private:
+
+  ~CachedFile();
 
   enum ChunkState {
     chunkStateNew = 0,
@@ -104,7 +106,7 @@ public:
 
   virtual ~CachedFileLoader() {};
   virtual size_t init(GooString *uri, CachedFile *cachedFile) = 0;
-  virtual int load(GooVector<ByteRange> *ranges, CachedFileWriter *writer) = 0;
+  virtual int load(const GooVector<ByteRange> &ranges, CachedFileWriter *writer) = 0;
 
 };
 

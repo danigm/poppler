@@ -6,6 +6,7 @@
 //
 // Copyright 2009 Stefan Thomas <thomas@eload24.com>
 // Copyright 2010 Hib Eris <hib@hiberis.nl>
+// Copyright 2010 Albert Astals Cid <aacid@kde.org>
 //
 //========================================================================
 
@@ -67,14 +68,14 @@ size_t load_cb(const char *ptr, size_t size, size_t nmemb, void *data)
   return (writer->write) (ptr, size*nmemb);
 }
 
-int CurlCachedFileLoader::load(GooVector<ByteRange> *ranges, CachedFileWriter *writer)
+int CurlCachedFileLoader::load(const GooVector<ByteRange> &ranges, CachedFileWriter *writer)
 {
   CURLcode r = CURLE_OK;
   size_t fromByte, toByte;
-  for (size_t i = 0; i < (*ranges).size(); i++) {
+  for (size_t i = 0; i < ranges.size(); i++) {
 
-     fromByte = (*ranges)[i].offset;
-     toByte = fromByte + (*ranges)[i].length - 1;
+     fromByte = ranges[i].offset;
+     toByte = fromByte + ranges[i].length - 1;
      GooString *range = GooString::format("{0:ud}-{1:ud}", fromByte, toByte);
 
      curl_easy_setopt(curl, CURLOPT_URL, url->getCString());

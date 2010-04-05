@@ -5,6 +5,7 @@
 // This file is licensed under the GPLv2 or later
 //
 // Copyright 2010 Hib Eris <hib@hiberis.nl>
+// Copyright 2010 Albert Astals Cid <aacid@kde.org>
 //
 //========================================================================
 
@@ -48,7 +49,7 @@ PDFDocFactory::~PDFDocFactory()
 }
 
 PDFDoc *
-PDFDocFactory::createPDFDoc(GooString* uri, GooString *ownerPassword,
+PDFDocFactory::createPDFDoc(const GooString &uri, GooString *ownerPassword,
                                     GooString *userPassword, void *guiDataA)
 {
   for (int i = builders->getLength() - 1; i >= 0 ; i--) {
@@ -58,8 +59,8 @@ PDFDocFactory::createPDFDoc(GooString* uri, GooString *ownerPassword,
     }
   }
 
-  error(-1, "Cannot handle URI '%s'.", uri->getCString());
-  GooString *fileName = new GooString(uri);
+  error(-1, "Cannot handle URI '%s'.", uri.getCString());
+  GooString *fileName = uri.copy();
   return PDFDoc::ErrorPDFDoc(errOpenFile, fileName);
 }
 

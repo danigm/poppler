@@ -5,6 +5,7 @@
 // This file is licensed under the GPLv2 or later
 //
 // Copyright 2010 Hib Eris <hib@hiberis.nl>
+// Copyright 2010 Albert Astals Cid <aacid@kde.org>
 //
 //========================================================================
 
@@ -30,7 +31,7 @@ size_t StdinCacheLoader::init(GooString *dummy, CachedFile *cachedFile)
   return size;
 }
 
-int StdinCacheLoader::load(GooVector<ByteRange> *ranges, CachedFileWriter *writer)
+int StdinCacheLoader::load(const GooVector<ByteRange> &ranges, CachedFileWriter *writer)
 {
   return 0;
 }

@@ -5,6 +5,7 @@
 // This file is licensed under the GPLv2 or later
 //
 // Copyright 2010 Hib Eris <hib@hiberis.nl>
+// Copyright 2010 Albert Astals Cid <aacid@kde.org>
 //
 //========================================================================
 
@@ -25,7 +26,7 @@ public:
   CurlCachedFileLoader();
   ~CurlCachedFileLoader();
   size_t init(GooString *url, CachedFile* cachedFile);
-  int load(GooVector<ByteRange> *ranges, CachedFileWriter *writer);
+  int load(const GooVector<ByteRange> &ranges, CachedFileWriter *writer);
 
 private:
 

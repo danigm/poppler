@@ -5,6 +5,7 @@
 // This file is licensed under the GPLv2 or later
 //
 // Copyright 2010 Hib Eris <hib@hiberis.nl>
+// Copyright 2010 Albert Astals Cid <aacid@kde.org>
 //
 //========================================================================
 
@@ -28,7 +29,7 @@ public:
   PDFDocFactory(GooList *pdfDocBuilders = NULL);
   ~PDFDocFactory();
 
-  PDFDoc *createPDFDoc(GooString* uri, GooString *ownerPassword = NULL,
+  PDFDoc *createPDFDoc(const GooString &uri, GooString *ownerPassword = NULL,
       GooString *userPassword = NULL, void *guiDataA = NULL);
 
   void registerPDFDocBuilder(PDFDocBuilder *pdfDocBuilder);

@@ -5,6 +5,7 @@
 // This file is licensed under the GPLv2 or later
 //
 // Copyright 2010 Hib Eris <hib@hiberis.nl>
+// Copyright 2010 Albert Astals Cid <aacid@kde.org>
 //
 //========================================================================
 
@@ -19,7 +20,7 @@
 //------------------------------------------------------------------------
 
 PDFDoc *
-StdinPDFDocBuilder::buildPDFDoc(GooString* uri, GooString *ownerPassword,
+StdinPDFDocBuilder::buildPDFDoc(const GooString &uri, GooString *ownerPassword,
                                     GooString *userPassword, void *guiDataA)
 {
   Object obj;
@@ -31,9 +32,9 @@ StdinPDFDocBuilder::buildPDFDoc(GooString* uri, GooString *ownerPassword,
                     ownerPassword, userPassword);
 }
 
-GBool StdinPDFDocBuilder::supports(GooString* uri)
+GBool StdinPDFDocBuilder::supports(const GooString &uri)
 {
-  if (uri->cmpN("fd://0", 6) == 0) {
+  if (uri.cmpN("fd://0", 6) == 0) {
     return gTrue;
   } else {
     return gFalse;

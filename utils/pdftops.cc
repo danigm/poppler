@@ -16,7 +16,7 @@
 // under GPL version 2 or later
 //
 // Copyright (C) 2006 Kristian Høgsberg <krh@redhat.com>
-// Copyright (C) 2007-2008 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2007-2008, 2010 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2009 Till Kamppeter <till.kamppeter@gmail.com>
 // Copyright (C) 2009 Sanjoy Mahajan <sanjoy@mit.edu>
 // Copyright (C) 2009 William Bader <williambader@hotmail.com>
@@ -305,7 +305,7 @@ int main(int argc, char *argv[]) {
       fileName = new GooString("fd://0");
   }
 
-  doc = PDFDocFactory().createPDFDoc(fileName, ownerPW, userPW);
+  doc = PDFDocFactory().createPDFDoc(*fileName, ownerPW, userPW);
 
   if (userPW) {
     delete userPW;
