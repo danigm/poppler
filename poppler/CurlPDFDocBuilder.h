@@ -16,6 +16,8 @@
 
 //------------------------------------------------------------------------
 // CurlPDFDocBuilder
+//
+// The CurlPDFDocBuilder implements a PDFDocBuilder for 'http(s)://'.
 //------------------------------------------------------------------------
 
 class CurlPDFDocBuilder : public PDFDocBuilder {

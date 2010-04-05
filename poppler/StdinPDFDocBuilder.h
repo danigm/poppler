@@ -16,6 +16,8 @@
 
 //------------------------------------------------------------------------
 // StdinPDFDocBuilder
+//
+// The StdinPDFDocBuilder implements a PDFDocBuilder that read from stdin.
 //------------------------------------------------------------------------
 
 class StdinPDFDocBuilder : public PDFDocBuilder {

@@ -30,6 +30,13 @@ class GooString;
 class CachedFileLoader;
 
 //------------------------------------------------------------------------
+// CachedFile
+//
+// CachedFile gives FILE-like access to a document at a specified URI.
+// In the constructor, you specify a CachedFileLoader that handles loading
+// the data from the document. The CachedFile requests no more data then it
+// needs from the CachedFileLoader.
+//------------------------------------------------------------------------
 
 class CachedFile {
 
@@ -79,14 +86,24 @@ private:
 };
 
 //------------------------------------------------------------------------
+// CachedFileWriter
+//
+// CachedFileWriter handles sequential writes to a CachedFile.
+// On construction, you specify the CachedFile and the chunks of it to which data
+// should be written.
+//------------------------------------------------------------------------
 
 class CachedFileWriter {
 
 public:
 
+  // Construct a CachedFile Writer.
+  // The caller is responsible for deleting the cachedFile and chunksA.
   CachedFileWriter(CachedFile *cachedFile, GooVector<int> *chunksA);
+
   ~CachedFileWriter();
 
+  // Writes size bytes from ptr to cachedFile, returns number of bytes written.
   size_t write(const char *ptr, size_t size);
 
 private:
@@ -99,13 +116,26 @@ private:
 };
 
 //------------------------------------------------------------------------
+// CachedFileLoader
+//
+// CachedFileLoader is an abstact class that specifies the interface for
+// loadng data from an URI into a CachedFile.
+//------------------------------------------------------------------------
 
 class CachedFileLoader {
 
 public:
 
   virtual ~CachedFileLoader() {};
+
+  // Initializes the file load.
+  // Returns the length of the file.
+  // The caller is responsible for deleting uri and cachedFile.
   virtual size_t init(GooString *uri, CachedFile *cachedFile) = 0;
+
+  // Loads speficified byte ranges and passes it to the writer to store them.
+  // Returns 0 on success, Anything but 0 on failure.
+  // The caller is responsible for deleting the writer.
   virtual int load(const GooVector<ByteRange> &ranges, CachedFileWriter *writer) = 0;
 
 };

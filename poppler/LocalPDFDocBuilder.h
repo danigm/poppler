@@ -16,6 +16,8 @@
 
 //------------------------------------------------------------------------
 // LocalPDFDocBuilder
+//
+// The LocalPDFDocBuilder implements a PDFDocBuilder for local files.
 //------------------------------------------------------------------------
 
 class LocalPDFDocBuilder : public PDFDocBuilder {
