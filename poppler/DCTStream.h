@@ -6,7 +6,7 @@
 //
 // Copyright 2005 Jeff Muizelaar <jeff@infidigm.net>
 // Copyright 2005 Martin Kretzschmar <martink@gnome.org>
-// Copyright 2005-2007, 2009 Albert Astals Cid <aacid@kde.org>
+// Copyright 2005-2007, 2009, 2010 Albert Astals Cid <aacid@kde.org>
 //
 //========================================================================
 
@@ -26,6 +26,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stddef.h>
+#include <setjmp.h>
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
@@ -48,7 +49,7 @@ struct str_src_mgr {
     JOCTET buffer;
     Stream *str;
     int index;
-    bool abort;
+    jmp_buf setjmp_buffer;
 };
 
 

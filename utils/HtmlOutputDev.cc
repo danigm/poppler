@@ -17,7 +17,7 @@
 // All changes made under the Poppler project to this file are licensed
 // under GPL version 2 or later
 //
-// Copyright (C) 2005-2009 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2005-2010 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2008 Kjartan Maraas <kmaraas@gnome.org>
 // Copyright (C) 2008 Boris Toloknov <tlknv@yandex.ru>
 // Copyright (C) 2008 Haruyuki Kawabe <Haruyuki.Kawabe@unisys.co.jp>
@@ -50,13 +50,13 @@
 #include "Error.h"
 #include "GfxState.h"
 #include "Page.h"
+#include "PNGWriter.h"
 #ifdef ENABLE_LIBJPEG
 #include "DCTStream.h"
 #endif
 #include "GlobalParams.h"
 #include "HtmlOutputDev.h"
 #include "HtmlFonts.h"
-#include "PNGWriter.h"
 
 int HtmlPage::pgNum=0;
 int HtmlOutputDev::imgNum=1;

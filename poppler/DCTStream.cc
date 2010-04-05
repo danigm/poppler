@@ -5,7 +5,7 @@
 // This file is licensed under the GPLv2 or later
 //
 // Copyright 2005 Jeff Muizelaar <jeff@infidigm.net>
-// Copyright 2005-2009 Albert Astals Cid <aacid@kde.org>
+// Copyright 2005-2010 Albert Astals Cid <aacid@kde.org>
 // Copyright 2009 Ryszard Trojnacki <rysiek@menel.com>
 //
 //========================================================================
@@ -20,7 +20,6 @@ static boolean str_fill_input_buffer(j_decompress_ptr cinfo)
 {
   int c;
   struct str_src_mgr * src = (struct str_src_mgr *)cinfo->src;
-  if (src->abort) return FALSE;
   if (src->index == 0) {
     c = 0xFF;
     src->index++;
@@ -70,7 +69,7 @@ DCTStream::~DCTStream() {
 static void exitErrorHandler(jpeg_common_struct *error) {
   j_decompress_ptr cinfo = (j_decompress_ptr)error;
   str_src_mgr * src = (struct str_src_mgr *)cinfo->src;
-  src->abort = true;
+  longjmp(src->setjmp_buffer, 1);
 }
 
 void DCTStream::init()
@@ -86,7 +85,6 @@ void DCTStream::init()
   src.pub.next_input_byte = NULL;
   src.str = str;
   src.index = 0;
-  src.abort = false;
   current = NULL;
   limit = NULL;
   
@@ -122,7 +120,6 @@ void DCTStream::reset() {
       if (c == -1)
       {
         error(-1, "Could not find start of jpeg data");
-        src.abort = true;
         return;
       }
       if (c != 0xFF) c = 0;
@@ -139,30 +136,28 @@ void DCTStream::reset() {
     }
   }
 
-  jpeg_read_header(&cinfo, TRUE);
-  if (src.abort) return;
+  if (!setjmp(src.setjmp_buffer)) {
+    jpeg_read_header(&cinfo, TRUE);
+    jpeg_start_decompress(&cinfo);
 
-  if (!jpeg_start_decompress(&cinfo))
-  {
-    src.abort = true;
-    return;
+    row_stride = cinfo.output_width * cinfo.output_components;
+    row_buffer = cinfo.mem->alloc_sarray((j_common_ptr) &cinfo, JPOOL_IMAGE, row_stride, 1);
   }
-
-  row_stride = cinfo.output_width * cinfo.output_components;
-  row_buffer = cinfo.mem->alloc_sarray((j_common_ptr) &cinfo, JPOOL_IMAGE, row_stride, 1);
 }
 
 int DCTStream::getChar() {
-  if (src.abort) return EOF;
-  
   int c;
 
   if (current == limit) {
     if (cinfo.output_scanline < cinfo.output_height)
     {
-      if (!jpeg_read_scanlines(&cinfo, row_buffer, 1)) return EOF;
-      current = &row_buffer[0][0];
-      limit = &row_buffer[0][(cinfo.output_width - 1) * cinfo.output_components] + cinfo.output_components;
+      if (!setjmp(src.setjmp_buffer))
+      {
+        if (!jpeg_read_scanlines(&cinfo, row_buffer, 1)) return EOF;
+        current = &row_buffer[0][0];
+        limit = &row_buffer[0][(cinfo.output_width - 1) * cinfo.output_components] + cinfo.output_components;
+      }
+      else return EOF;
     }
     else return EOF;
   }
@@ -172,8 +167,6 @@ int DCTStream::getChar() {
 }
 
 int DCTStream::lookChar() {
-  if (src.abort) return EOF;
-  
   return *current;
 }
 
