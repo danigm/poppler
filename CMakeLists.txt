@@ -260,6 +260,7 @@ set(poppler_SRCS
   poppler/Parser.cc
   poppler/PDFDoc.cc
   poppler/PDFDocEncoding.cc
+  poppler/PDFDocFactory.cc
   poppler/PopplerCache.cc
   poppler/ProfileData.cc
   poppler/PreScanOutputDev.cc
@@ -406,6 +407,7 @@ if(ENABLE_XPDF_HEADERS)
     poppler/PDFDoc.h
     poppler/PDFDocBuilder.h
     poppler/PDFDocEncoding.h
+    poppler/PDFDocFactory.h
     poppler/PopplerCache.h
     poppler/ProfileData.h
     poppler/PreScanOutputDev.h

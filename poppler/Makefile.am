@@ -223,6 +223,7 @@ poppler_include_HEADERS =	\
 	PDFDoc.h		\
 	PDFDocBuilder.h		\
 	PDFDocEncoding.h	\
+	PDFDocFactory.h		\
 	PopplerCache.h		\
 	ProfileData.h		\
 	PreScanOutputDev.h	\
@@ -299,6 +300,7 @@ libpoppler_la_SOURCES =		\
 	Parser.cc 		\
 	PDFDoc.cc 		\
 	PDFDocEncoding.cc	\
+	PDFDocFactory.cc	\
 	PopplerCache.cc		\
 	ProfileData.cc		\
 	PreScanOutputDev.cc \
