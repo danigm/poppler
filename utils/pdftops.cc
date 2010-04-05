@@ -44,6 +44,7 @@
 #include "Catalog.h"
 #include "Page.h"
 #include "PDFDoc.h"
+#include "PDFDocFactory.h"
 #include "PSOutputDev.h"
 #include "Error.h"
 
@@ -299,7 +300,13 @@ int main(int argc, char *argv[]) {
   } else {
     userPW = NULL;
   }
-  doc = new PDFDoc(fileName, ownerPW, userPW);
+  if (fileName->cmp("-") == 0) {
+      delete fileName;
+      fileName = new GooString("fd://0");
+  }
+
+  doc = PDFDocFactory().createPDFDoc(fileName, ownerPW, userPW);
+
   if (userPW) {
     delete userPW;
   }

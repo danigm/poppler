@@ -16,6 +16,7 @@
 // under GPL version 2 or later
 //
 // Copyright (C) 2007-2008 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2010 Hib Eris <hib@hiberis.nl>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -40,6 +41,7 @@
 #include "Catalog.h"
 #include "Page.h"
 #include "PDFDoc.h"
+#include "PDFDocFactory.h"
 #include "ImageOutputDev.h"
 #include "Error.h"
 
@@ -120,7 +122,14 @@ int main(int argc, char *argv[]) {
   } else {
     userPW = NULL;
   }
-  doc = new PDFDoc(fileName, ownerPW, userPW);
+  if (fileName->cmp("-") == 0) {
+      delete fileName;
+      fileName = new GooString("fd://0");
+  }
+
+  doc = PDFDocFactory().createPDFDoc(fileName, ownerPW, userPW);
+  delete fileName;
+
   if (userPW) {
     delete userPW;
   }

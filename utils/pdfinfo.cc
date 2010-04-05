@@ -43,15 +43,12 @@
 #include "Catalog.h"
 #include "Page.h"
 #include "PDFDoc.h"
+#include "PDFDocFactory.h"
 #include "CharTypes.h"
 #include "UnicodeMap.h"
 #include "PDFDocEncoding.h"
 #include "Error.h"
 #include "DateInfo.h"
-#include "StdinCachedFile.h"
-#if ENABLE_LIBCURL
-#include "CurlCachedFile.h"
-#endif
 
 static void printInfoString(Dict *infoDict, char *key, char *text,
 			    UnicodeMap *uMap);
@@ -163,27 +160,13 @@ int main(int argc, char *argv[]) {
     userPW = NULL;
   }
 
-#if ENABLE_LIBCURL
-  if (fileName->cmpN("http://", 7) == 0 ||
-           fileName->cmpN("https://", 8) == 0) {
-      Object obj;
-
-      obj.initNull();
-      CachedFile *cachedFile = new CachedFile(new CurlCachedFileLoader(), fileName);
-      doc = new PDFDoc(new CachedFileStream(cachedFile, 0, gFalse, 0, &obj),
-                       ownerPW, userPW);
-  } else
-#endif
-  if (fileName->cmp("-") != 0) {
-      doc = new PDFDoc(fileName, ownerPW, userPW);
-  } else {
-      Object obj;
-
-      obj.initNull();
-      CachedFile *cachedFile = new CachedFile(new StdinCacheLoader(), NULL);
-      doc = new PDFDoc(new CachedFileStream(cachedFile, 0, gFalse, 0, &obj),
-                       ownerPW, userPW);
+  if (fileName->cmp("-") == 0) {
+      delete fileName;
+      fileName = new GooString("fd://0");
   }
+
+  doc = PDFDocFactory().createPDFDoc(fileName, ownerPW, userPW);
+  delete fileName;
 
   if (userPW) {
     delete userPW;

@@ -20,6 +20,7 @@
 // Copyright (C) 2009 Stefan Thomas <thomas@eload24.com>
 // Copyright (C) 2009, 2010 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2010 Adrian Johnson <ajohnson@redneon.com>
+// Copyright (C) 2010 Hib Eris <hib@hiberis.nl>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -36,6 +37,7 @@
 #include "GlobalParams.h"
 #include "Object.h"
 #include "PDFDoc.h"
+#include "PDFDocFactory.h"
 #include "splash/SplashBitmap.h"
 #include "splash/Splash.h"
 #include "SplashOutputDev.h"
@@ -256,14 +258,17 @@ int main(int argc, char *argv[]) {
   } else {
     userPW = NULL;
   }
-  if(fileName != NULL && fileName->cmp("-") != 0) {
-      doc = new PDFDoc(fileName, ownerPW, userPW);
-  } else {
-      Object obj;
 
-      obj.initNull();
-      doc = new PDFDoc(new FileStream(stdin, 0, gFalse, 0, &obj), ownerPW, userPW);
+  if (fileName == NULL) {
+    fileName = new GooString("fd://0");
   }
+  if (fileName->cmp("-") == 0) {
+    delete fileName;
+    fileName = new GooString("fd://0");
+  }
+  doc = PDFDocFactory().createPDFDoc(fileName, ownerPW, userPW);
+  delete fileName;
+
   if (userPW) {
     delete userPW;
   }
