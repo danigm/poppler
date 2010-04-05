@@ -18,7 +18,7 @@
 // Copyright (C) 2006 Kristian Høgsberg <krh@redhat.com>
 // Copyright (C) 2006 Krzysztof Kowalczyk <kkowalczyk@gmail.com>
 // Copyright (C) 2007 Jeff Muizelaar <jeff@infidigm.net>
-// Copyright (C) 2008, 2009 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2008-2010 Albert Astals Cid <aacid@kde.org>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -197,7 +197,7 @@ GooString::GooString(GooString *str, int idx, int lengthA) {
   Set(str->getCString() + idx, lengthA);
 }
 
-GooString::GooString(GooString *str) {
+GooString::GooString(const GooString *str) {
   s = NULL;
   length = 0;
   Set(str->getCString(), str->length);
@@ -684,7 +684,7 @@ GooString *GooString::lowerCase() {
   return this;
 }
 
-int GooString::cmp(GooString *str) {
+int GooString::cmp(GooString *str) const {
   int n1, n2, i, x;
   char *p1, *p2;
 
@@ -699,7 +699,7 @@ int GooString::cmp(GooString *str) {
   return n1 - n2;
 }
 
-int GooString::cmpN(GooString *str, int n) {
+int GooString::cmpN(GooString *str, int n) const {
   int n1, n2, i, x;
   char *p1, *p2;
 
@@ -719,7 +719,7 @@ int GooString::cmpN(GooString *str, int n) {
   return n1 - n2;
 }
 
-int GooString::cmp(const char *sA) {
+int GooString::cmp(const char *sA) const {
   int n1, i, x;
   const char *p1, *p2;
 
@@ -739,7 +739,7 @@ int GooString::cmp(const char *sA) {
   return 0;
 }
 
-int GooString::cmpN(const char *sA, int n) {
+int GooString::cmpN(const char *sA, int n) const {
   int n1, i, x;
   const char *p1, *p2;
 
