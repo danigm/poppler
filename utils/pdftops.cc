@@ -378,6 +378,7 @@ int main(int argc, char *argv[]) {
   delete psFileName;
  err1:
   delete doc;
+  delete fileName;
  err0:
   delete globalParams;
 

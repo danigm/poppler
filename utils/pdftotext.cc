@@ -334,6 +334,7 @@ int main(int argc, char *argv[]) {
   delete textFileName;
  err2:
   delete doc;
+  delete fileName;
   uMap->decRefCnt();
  err1:
   delete globalParams;

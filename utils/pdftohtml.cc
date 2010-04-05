@@ -389,6 +389,7 @@ int main(int argc, char *argv[]) {
   // clean up
  error:
   if(doc) delete doc;
+  delete fileName;
   if(globalParams) delete globalParams;
 
   if(htmlFileName) delete htmlFileName;
