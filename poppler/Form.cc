@@ -990,7 +990,7 @@ FormFieldText::FormFieldText(XRef *xrefA, Object *aobj, const Ref& ref)
 GooString* FormFieldText::getContentCopy ()
 {
   if (!content) return NULL;
-  return new GooString(*content);
+  return new GooString(content);
 }
 
 void FormFieldText::setContentCopy (GooString* new_content)
