@@ -73,7 +73,7 @@ int CachedFile::cache(const GooVector<ByteRange> &origRanges)
 {
   GooVector<int> loadChunks;
   int numChunks = length/CachedFileChunkSize + 1;
-  char chunkNeeded[numChunks];
+  GooVector<bool> chunkNeeded(numChunks);
   int startChunk, endChunk;
   GooVector<ByteRange> chunk_ranges, all;
   ByteRange range;
@@ -86,7 +86,7 @@ int CachedFile::cache(const GooVector<ByteRange> &origRanges)
     ranges = &all;
   }
 
-  memset(&chunkNeeded, 0, numChunks);
+  memset(&chunkNeeded[0], 0, sizeof(bool) * numChunks);
   for (size_t i = 0; i < ranges->size(); i++) {
 
     if ((*ranges)[i].length == 0) continue;
@@ -100,7 +100,7 @@ int CachedFile::cache(const GooVector<ByteRange> &origRanges)
     endChunk = end / CachedFileChunkSize;
     for (int chunk = startChunk; chunk <= endChunk; chunk++) {
       if ((*chunks)[chunk].state == chunkStateNew) {
-           chunkNeeded[chunk] = 1;
+           chunkNeeded[chunk] = true;
       }
     }
   }
