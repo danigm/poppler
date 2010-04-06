@@ -144,7 +144,6 @@ int main(int argc, char *argv[]) {
   }
 
   doc = PDFDocFactory().createPDFDoc(*fileName, ownerPW, userPW);
-  delete fileName;
 
   if (userPW) {
     delete userPW;
@@ -190,6 +189,7 @@ int main(int argc, char *argv[]) {
   // clean up
   if(globalParams) delete globalParams;
   if(doc) delete doc;
+  delete fileName;
   if(XMLdoc) xmlFreeDoc(XMLdoc);
   if(abwOut) delete abwOut;
  err0:

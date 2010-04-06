@@ -166,7 +166,6 @@ int main(int argc, char *argv[]) {
   }
 
   doc = PDFDocFactory().createPDFDoc(*fileName, ownerPW, userPW);
-  delete fileName;
 
   if (userPW) {
     delete userPW;
@@ -320,6 +319,7 @@ int main(int argc, char *argv[]) {
  err2:
   uMap->decRefCnt();
   delete doc;
+  delete fileName;
  err1:
   delete globalParams;
  err0:
