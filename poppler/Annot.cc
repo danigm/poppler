@@ -15,7 +15,7 @@
 //
 // Copyright (C) 2006 Scott Turner <scotty1024@mac.com>
 // Copyright (C) 2007, 2008 Julien Rebetez <julienr@svn.gnome.org>
-// Copyright (C) 2007-2009 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2007-2010 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2007-2010 Carlos Garcia Campos <carlosgc@gnome.org>
 // Copyright (C) 2007, 2008 Iñigo Martínez <inigomartinez@gmail.com>
 // Copyright (C) 2007 Jeff Muizelaar <jeff@infidigm.net>
@@ -1847,6 +1847,8 @@ void AnnotText::draw(Gfx *gfx, GBool printing) {
   if (!isVisible (printing))
     return;
 
+  double rectx2 = rect->x2;
+  double recty2 = rect->y2;
   if (appearance.isNull()) {
     ca = opacity;
 
@@ -1894,12 +1896,15 @@ void AnnotText::draw(Gfx *gfx, GBool printing) {
     appearStream->setNeedFree(gTrue);
     appearance.initStream(appearStream);
     delete appearBuf;
+
+    rectx2 = rect->x1 + 24;
+    recty2 = rect->y1 + 24;
   }
 
   // draw the appearance stream
   appearance.fetch(xref, &obj);
   gfx->drawAnnot(&obj, border, color, ca,
-		 rect->x1, rect->y1, rect->x2, rect->y2);
+		 rect->x1, rect->y1, rectx2, recty2);
   obj.free();
 }
 
