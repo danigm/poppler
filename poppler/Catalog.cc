@@ -14,7 +14,7 @@
 // under GPL version 2 or later
 //
 // Copyright (C) 2005 Kristian Høgsberg <krh@redhat.com>
-// Copyright (C) 2005-2009 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2005-2010 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2005 Jeff Muizelaar <jrmuizel@nit.ca>
 // Copyright (C) 2005 Jonathan Blandford <jrb@redhat.com>
 // Copyright (C) 2005 Marco Pesenti Gritti <mpg@redhat.com>
@@ -500,7 +500,12 @@ NameTree::NameTree()
 
 NameTree::~NameTree()
 {
-  this->free();
+  int i;
+
+  for (i = 0; i < length; i++)
+    delete entries[i];
+
+  gfree(entries);
 }
 
 NameTree::Entry::Entry(Array *array, int index) {
@@ -610,16 +615,6 @@ GooString *NameTree::getName(int index)
     } else {
 	return NULL;
     }
-}
-
-void NameTree::free()
-{
-  int i;
-
-  for (i = 0; i < length; i++)
-    delete entries[i];
-
-  gfree(entries);
 }
 
 GBool Catalog::labelToIndex(GooString *label, int *index)

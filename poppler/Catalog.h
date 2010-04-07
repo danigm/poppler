@@ -14,7 +14,7 @@
 // under GPL version 2 or later
 //
 // Copyright (C) 2005 Kristian Høgsberg <krh@redhat.com>
-// Copyright (C) 2005, 2007, 2009 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2005, 2007, 2009, 2010 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2005 Jonathan Blandford <jrb@redhat.com>
 // Copyright (C) 2005, 2006, 2008 Brad Hards <bradh@frogmouth.net>
 // Copyright (C) 2007 Julien Rebetez <julienr@svn.gnome.org>
@@ -54,7 +54,6 @@ public:
   void init(XRef *xref, Object *tree);
   void parse(Object *tree);
   GBool lookup(GooString *name, Object *obj);
-  void free();
   int numEntries() { return length; };
   // iterator accessor
   Object getValue(int i);
