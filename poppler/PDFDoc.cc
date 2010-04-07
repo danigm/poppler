@@ -17,7 +17,7 @@
 // Copyright (C) 2005, 2007-2009 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2008 Julien Rebetez <julienr@svn.gnome.org>
 // Copyright (C) 2008 Pino Toscano <pino@kde.org>
-// Copyright (C) 2008 Carlos Garcia Campos <carlosgc@gnome.org>
+// Copyright (C) 2008, 2010 Carlos Garcia Campos <carlosgc@gnome.org>
 // Copyright (C) 2009 Eric Toombs <ewtoombs@uwaterloo.ca>
 // Copyright (C) 2009 Kovid Goyal <kovid@kovidgoyal.net>
 // Copyright (C) 2009 Axel Struebing <axel.struebing@freenet.de>
@@ -544,17 +544,16 @@ void PDFDoc::saveIncrementalUpdate (OutStream* outStr)
 
   uxref = new XRef();
   uxref->add(0, 65535, 0, gFalse);
-  int objectsCount = 0; //count the number of objects in the XRef(s)
   for(int i=0; i<xref->getNumObjects(); i++) {
     if ((xref->getEntry(i)->type == xrefEntryFree) && 
         (xref->getEntry(i)->gen == 0)) //we skip the irrelevant free objects
       continue;
-    objectsCount++;
+
     if (xref->getEntry(i)->updated) { //we have an updated object
       Object obj1;
       Ref ref;
       ref.num = i;
-      ref.gen = xref->getEntry(i)->gen;
+      ref.gen = xref->getEntry(i)->type == xrefEntryCompressed ? 0 : xref->getEntry(i)->gen;
       xref->fetch(ref.num, ref.gen, &obj1);
       Guint offset = writeObject(&obj1, &ref, outStr);
       uxref->add(ref.num, ref.gen, offset, gTrue);
@@ -569,7 +568,7 @@ void PDFDoc::saveIncrementalUpdate (OutStream* outStr)
   Guint uxrefOffset = outStr->getPos();
   uxref->writeToFile(outStr, gFalse /* do not write unnecessary entries */);
 
-  writeTrailer(uxrefOffset, objectsCount, outStr, gTrue);
+  writeTrailer(uxrefOffset, xref->getSize(), outStr, gTrue);
 
   delete uxref;
 }
