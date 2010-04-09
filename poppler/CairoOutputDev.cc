@@ -1511,6 +1511,9 @@ void CairoOutputDev::drawImageMask(GfxState *state, Object *ref, Stream *str,
     return;
   }
 
+  if (state->getFillColorSpace()->getMode() == csPattern)
+    cairo_push_group_with_content (cairo, CAIRO_CONTENT_ALPHA);
+
   /* shape is 1.0 for painted areas, 0.0 for unpainted ones */
 
   cairo_matrix_t matrix;
@@ -1521,6 +1524,12 @@ void CairoOutputDev::drawImageMask(GfxState *state, Object *ref, Stream *str,
     drawImageMaskPrescaled(state, ref, str, width, height, invert, interpolate, inlineImg);
   } else {
     drawImageMaskRegular(state, ref, str, width, height, invert, interpolate, inlineImg);
+  }
+
+  if (state->getFillColorSpace()->getMode() == csPattern) {
+    if (mask)
+      cairo_pattern_destroy (mask);
+    mask = cairo_pop_group (cairo);
   }
 }
 
