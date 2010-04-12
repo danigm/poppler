@@ -256,59 +256,8 @@ poppler_page_get_text_page (PopplerPage *page)
 }
 
 #ifdef POPPLER_WITH_GDK
-typedef struct {
-  unsigned char *cairo_data;
-  cairo_surface_t *surface;
-  cairo_t *cairo;
-} OutputDevData;
-
-static void
-poppler_page_prepare_output_dev (PopplerPage *page,
-				 double scale,
-				 int rotation,
-				 gboolean transparent,
-				 OutputDevData *output_dev_data)
-{
-  CairoOutputDev *output_dev;
-  cairo_surface_t *surface;
-  double width, height;
-  int cairo_width, cairo_height, cairo_rowstride, rotate;
-  unsigned char *cairo_data;
-
-  rotate = rotation + page->page->getRotate ();
-  if (rotate == 90 || rotate == 270) {
-    height = page->page->getCropWidth ();
-    width = page->page->getCropHeight ();
-  } else {
-    width = page->page->getCropWidth ();
-    height = page->page->getCropHeight ();
-  }
-
-  cairo_width = (int) ceil(width * scale);
-  cairo_height = (int) ceil(height * scale);
-
-  output_dev = page->document->output_dev;
-  cairo_rowstride = cairo_width * 4;
-  cairo_data = (guchar *) gmallocn (cairo_height, cairo_rowstride);
-  if (transparent)
-      memset (cairo_data, 0x00, cairo_height * cairo_rowstride);
-  else
-      memset (cairo_data, 0xff, cairo_height * cairo_rowstride);
-
-  surface = cairo_image_surface_create_for_data(cairo_data,
-						CAIRO_FORMAT_ARGB32,
-	  					cairo_width, cairo_height, 
-						cairo_rowstride);
-
-  output_dev_data->cairo_data = cairo_data;
-  output_dev_data->surface = surface;
-  output_dev_data->cairo = cairo_create (surface);
-  output_dev->setCairo (output_dev_data->cairo);
-}
-
 static void
 copy_cairo_surface_to_pixbuf (cairo_surface_t *surface,
-			      unsigned char   *data,
 			      GdkPixbuf       *pixbuf)
 {
   int cairo_width, cairo_height, cairo_rowstride;
@@ -319,8 +268,8 @@ copy_cairo_surface_to_pixbuf (cairo_surface_t *surface,
 
   cairo_width = cairo_image_surface_get_width (surface);
   cairo_height = cairo_image_surface_get_height (surface);
-  cairo_rowstride = cairo_width * 4;
-  cairo_data = data;
+  cairo_rowstride = cairo_image_surface_get_stride (surface);
+  cairo_data = cairo_image_surface_get_data (surface);
 
   pixbuf_data = gdk_pixbuf_get_pixels (pixbuf);
   pixbuf_rowstride = gdk_pixbuf_get_rowstride (pixbuf);
@@ -346,31 +295,6 @@ copy_cairo_surface_to_pixbuf (cairo_surface_t *surface,
 	}
     }
 }	
-
-static void
-poppler_page_copy_to_pixbuf (PopplerPage *page,
-			     GdkPixbuf *pixbuf,
-			     OutputDevData *output_dev_data)
-{
-  copy_cairo_surface_to_pixbuf (output_dev_data->surface,
-				output_dev_data->cairo_data,
-				pixbuf);
-  
-  page->document->output_dev->setCairo (NULL);
-  cairo_surface_destroy (output_dev_data->surface);
-  cairo_destroy (output_dev_data->cairo);
-  gfree (output_dev_data->cairo_data);
-}
-
-static void
-poppler_page_set_selection_alpha (PopplerPage           *page,
-				  double                 scale,
-				  GdkPixbuf             *pixbuf,
-				  PopplerSelectionStyle  style,
-				  PopplerRectangle      *selection)
-{
-  /* Cairo doesn't need this, since cairo generates an alpha channel. */ 
-}
 #endif /* POPPLER_WITH_GDK */
 
 static GBool
@@ -611,23 +535,47 @@ _poppler_page_render_to_pixbuf (PopplerPage *page,
 				GBool printing,
 				GdkPixbuf *pixbuf)
 {
-  OutputDevData data;
-  
-  poppler_page_prepare_output_dev (page, scale, rotation, FALSE, &data);
+  cairo_t *cr;
+  cairo_surface_t *surface;
 
-  page->page->displaySlice(page->document->output_dev,
-			   72.0 * scale, 72.0 * scale,
-			   rotation,
-			   gFalse, /* useMediaBox */
-			   gTrue, /* Crop */
-			   src_x, src_y,
-			   src_width, src_height,
-			   printing,
-			   page->document->doc->getCatalog (),
-			   NULL, NULL,
-			   printing ? poppler_print_annot_cb : NULL, NULL);
-  
-  poppler_page_copy_to_pixbuf (page, pixbuf, &data);
+  surface = cairo_image_surface_create (CAIRO_FORMAT_ARGB32,
+					src_width, src_height);
+  cr = cairo_create (surface);
+  cairo_save (cr);
+  switch (rotation) {
+  case 90:
+	  cairo_translate (cr, src_x + src_width, -src_y);
+	  break;
+  case 180:
+	  cairo_translate (cr, src_x + src_width, src_y + src_height);
+	  break;
+  case 270:
+	  cairo_translate (cr, -src_x, src_y + src_height);
+	  break;
+  default:
+	  cairo_translate (cr, -src_x, -src_y);
+  }
+
+  if (scale != 1.0)
+	  cairo_scale (cr, scale, scale);
+
+  if (rotation != 0)
+	  cairo_rotate (cr, rotation * G_PI / 180.0);
+
+  if (printing)
+	  poppler_page_render_for_printing (page, cr);
+  else
+	  poppler_page_render (page, cr);
+  cairo_restore (cr);
+
+  cairo_set_operator (cr, CAIRO_OPERATOR_DEST_OVER);
+  cairo_set_source_rgb (cr, 1., 1., 1.);
+  cairo_paint (cr);
+
+  cairo_destroy (cr);
+
+  copy_cairo_surface_to_pixbuf (surface, pixbuf);
+  cairo_surface_destroy (surface);
 }
 
 /**
@@ -761,53 +709,64 @@ poppler_page_render_selection_to_pixbuf (PopplerPage           *page,
                                          GdkColor              *glyph_color,
                                          GdkColor              *background_color)
 {
-  OutputDev *output_dev;
-  OutputDevData data;
-  TextPage *text;
-  SelectionStyle selection_style = selectionStyleGlyph;
-  PDFRectangle pdf_selection(selection->x1, selection->y1,
-			     selection->x2, selection->y2);
+  cairo_t *cr;
+  cairo_surface_t *surface;
+  double width, height;
+  int cairo_width, cairo_height, rotate;
+  PopplerColor poppler_background_color;
+  PopplerColor poppler_glyph_color;
 
-  GfxColor gfx_background_color = { 
-      {
-	  background_color->red,
-	  background_color->green,
-	  background_color->blue
-      }
-  };
-  GfxColor gfx_glyph_color = {
-      {
-	  glyph_color->red,
-	  glyph_color->green,
-	  glyph_color->blue
-      }
-  };
+  poppler_background_color.red = background_color->red;
+  poppler_background_color.green = background_color->green;
+  poppler_background_color.blue = background_color->blue;
+  poppler_glyph_color.red = glyph_color->red;
+  poppler_glyph_color.green = glyph_color->green;
+  poppler_glyph_color.blue = glyph_color->blue;
 
-  switch (style)
-    {
-      case POPPLER_SELECTION_GLYPH:
-        selection_style = selectionStyleGlyph;
-	break;
-      case POPPLER_SELECTION_WORD:
-        selection_style = selectionStyleWord;
-	break;
-      case POPPLER_SELECTION_LINE:
-        selection_style = selectionStyleLine;
-	break;
-    }
+  rotate = rotation + page->page->getRotate ();
+  if (rotate == 90 || rotate == 270) {
+    height = page->page->getCropWidth ();
+    width = page->page->getCropHeight ();
+  } else {
+    width = page->page->getCropWidth ();
+    height = page->page->getCropHeight ();
+  }
 
-  output_dev = page->document->output_dev;
+  cairo_width = (int) ceil(width * scale);
+  cairo_height = (int) ceil(height * scale);
 
-  poppler_page_prepare_output_dev (page, scale, rotation, TRUE, &data);
+  surface = cairo_image_surface_create (CAIRO_FORMAT_ARGB32,
+					cairo_width, cairo_height);
+  cr = cairo_create (surface);
+  cairo_set_source_rgba (cr, 0, 0, 0, 0);
+  cairo_paint (cr);
 
-  text = poppler_page_get_text_page (page);
-  text->drawSelection (output_dev, scale, rotation,
-			   &pdf_selection, selection_style,
-			   &gfx_glyph_color, &gfx_background_color);
+  switch (rotate) {
+  case 90:
+	  cairo_translate (cr, cairo_width, 0);
+	  break;
+  case 180:
+	  cairo_translate (cr, cairo_width, cairo_height);
+	  break;
+  case 270:
+	  cairo_translate (cr, 0, cairo_height);
+	  break;
+  default:
+	  cairo_translate (cr, 0, 0);
+  }
+  if (scale != 1.0)
+	  cairo_scale (cr, scale, scale);
 
-  poppler_page_copy_to_pixbuf (page, pixbuf, &data);
+  if (rotate != 0)
+	  cairo_rotate (cr, rotation * G_PI / 180.0);
 
-  poppler_page_set_selection_alpha (page, scale, pixbuf, style, selection);
+  poppler_page_render_selection (page, cr, selection, old_selection, style,
+				 &poppler_glyph_color, &poppler_background_color);
+
+  cairo_destroy (cr);
+
+  copy_cairo_surface_to_pixbuf (surface, pixbuf);
+  cairo_surface_destroy (surface);
 }
 
 #endif /* POPPLER_WITH_GDK */
