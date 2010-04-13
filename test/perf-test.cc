@@ -22,6 +22,8 @@
 
 #ifdef _WIN32
 #include <windows.h>
+#else
+#include <strings.h>
 #endif
 
 // Define COPY_FILE if you want the file to be copied to a local disk first
