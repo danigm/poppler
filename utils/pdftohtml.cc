@@ -231,6 +231,9 @@ int main(int argc, char *argv[]) {
       else htmlFileName =new GooString(tmp);
     
     delete tmp;
+  } else if (fileName->cmp("fd://0") == 0) {
+      error(-1, "You have to provide an output filename when reading form stdin.");
+      goto error;
   } else {
     p = fileName->getCString() + fileName->getLength() - 4;
     if (!strcmp(p, ".pdf") || !strcmp(p, ".PDF"))
