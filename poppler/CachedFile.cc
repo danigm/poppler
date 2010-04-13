@@ -24,6 +24,7 @@ CachedFile::CachedFile(CachedFileLoader *cachedFileLoaderA, GooString *uriA)
 
   streamPos = 0;
   chunks = new GooVector<Chunk>();
+  length = 0;
 
   length = loader->init(uri, this);
   refCnt = 1;
