@@ -224,6 +224,9 @@ int main(int argc, char *argv[]) {
   // construct text file name
   if (argc == 3) {
     textFileName = new GooString(argv[2]);
+  } else if (fileName->cmp("fd://0") == 0) {
+     error(-1, "You have to provide an output filename when reading form stdin.");
+     goto err2;
   } else {
     p = fileName->getCString() + fileName->getLength() - 4;
     if (!strcmp(p, ".pdf") || !strcmp(p, ".PDF")) {
