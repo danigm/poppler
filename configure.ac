@@ -598,7 +598,7 @@ case "$enable_compile_warnings" in
   no)	;;
   yes)	CXXFLAGS="-Wall -Wno-write-strings -Woverloaded-virtual -Wnon-virtual-dtor -ansi $CXXFLAGS" ;;
   kde)	CXXFLAGS="-Wnon-virtual-dtor -Wno-long-long -Wundef -ansi \
-		-D_XOPEN_SOURCE=500 -D_BSD_SOURCE -Wcast-align \
+		-D_XOPEN_SOURCE=600 -D_BSD_SOURCE -Wcast-align \
 		-Wconversion -Wchar-subscripts -Wall -W -Wpointer-arith \
 		-Wwrite-strings -O2 -Wformat-security \
 		-Wmissing-format-attribute -fno-exceptions -fno-check-new \
