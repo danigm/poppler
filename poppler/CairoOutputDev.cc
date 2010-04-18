@@ -1594,6 +1594,10 @@ void CairoOutputDev::drawImageMaskRegular(GfxState *state, Object *ref, Stream *
   cairo_matrix_init_translate (&matrix, 0, height);
   cairo_matrix_scale (&matrix, width, -height);
   cairo_pattern_set_matrix (pattern, &matrix);
+  if (cairo_pattern_status (pattern)) {
+    cairo_pattern_destroy (pattern);
+    goto cleanup;
+  }
 
   if (state->getFillColorSpace()->getMode() == csPattern) {
     mask = cairo_pattern_reference (pattern);
@@ -1861,6 +1865,12 @@ void CairoOutputDev::drawImageMaskPrescaled(GfxState *state, Object *ref, Stream
     cairo_matrix_init_translate (&matrix, 0, scaledHeight);
     cairo_matrix_scale (&matrix, scaledWidth, -scaledHeight);
     cairo_pattern_set_matrix (pattern, &matrix);
+    if (cairo_pattern_status (pattern)) {
+      cairo_pattern_destroy (pattern);
+      imgStr->close();
+      delete imgStr;
+      return;
+    }
 
     mask = cairo_pattern_reference (pattern);
   } else {
@@ -2016,10 +2026,20 @@ void CairoOutputDev::drawMaskedImage(GfxState *state, Object *ref,
   cairo_matrix_init_translate (&matrix, 0, height);
   cairo_matrix_scale (&matrix, width, -height);
   cairo_pattern_set_matrix (pattern, &matrix);
+  if (cairo_pattern_status (pattern)) {
+    cairo_pattern_destroy (pattern);
+    cairo_pattern_destroy (maskPattern);
+    goto cleanup;
+  }
 
   cairo_matrix_init_translate (&maskMatrix, 0, maskHeight);
   cairo_matrix_scale (&maskMatrix, maskWidth, -maskHeight);
   cairo_pattern_set_matrix (maskPattern, &maskMatrix);
+  if (cairo_pattern_status (maskPattern)) {
+    cairo_pattern_destroy (maskPattern);
+    cairo_pattern_destroy (pattern);
+    goto cleanup;
+  }
 
   if (!printing) {
     cairo_save (cairo);
@@ -2156,10 +2176,20 @@ void CairoOutputDev::drawSoftMaskedImage(GfxState *state, Object *ref, Stream *s
   cairo_matrix_init_translate (&matrix, 0, height);
   cairo_matrix_scale (&matrix, width, -height);
   cairo_pattern_set_matrix (pattern, &matrix);
+  if (cairo_pattern_status (pattern)) {
+    cairo_pattern_destroy (pattern);
+    cairo_pattern_destroy (maskPattern);
+    goto cleanup;
+  }
 
   cairo_matrix_init_translate (&maskMatrix, 0, maskHeight);
   cairo_matrix_scale (&maskMatrix, maskWidth, -maskHeight);
   cairo_pattern_set_matrix (maskPattern, &maskMatrix);
+  if (cairo_pattern_status (maskPattern)) {
+    cairo_pattern_destroy (maskPattern);
+    cairo_pattern_destroy (pattern);
+    goto cleanup;
+  }
 
   if (fill_opacity != 1.0)
     cairo_push_group (cairo);
@@ -2379,6 +2409,10 @@ void CairoOutputDev::drawImage(GfxState *state, Object *ref, Stream *str,
   cairo_matrix_init_translate (&matrix, 0, height);
   cairo_matrix_scale (&matrix, width, -height);
   cairo_pattern_set_matrix (pattern, &matrix);
+  if (cairo_pattern_status (pattern)) {
+    cairo_pattern_destroy (pattern);
+    goto cleanup;
+  }
 
   if (!mask && fill_opacity != 1.0) {
     maskPattern = cairo_pattern_create_rgba (1., 1., 1., fill_opacity);
