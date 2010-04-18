@@ -1465,6 +1465,9 @@ CairoOutputDev::getFilterForSurface(cairo_surface_t *image,
 
   int orig_width = cairo_image_surface_get_width (image);
   int orig_height = cairo_image_surface_get_height (image);
+  if (orig_width == 0 || orig_height == 0)
+	  return CAIRO_FILTER_NEAREST;
+
   int scaled_width, scaled_height;
   getScaledSize (orig_width, orig_height, &scaled_width, &scaled_height);
 
