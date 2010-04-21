@@ -716,14 +716,18 @@ GBool CairoOutputDev::tilingPatternFill(GfxState *state, Object *str,
   cairo_matrix_t matrix;
   cairo_t *old_cairo;
   double xMin, yMin, xMax, yMax;
+  double width, height;
 
-  if (xStep != bbox[2] || yStep != bbox[3])
+  width = bbox[2] - bbox[0];
+  height = bbox[3] - bbox[1];
+
+  if (xStep != width || yStep != height)
     return gFalse;
   /* TODO: implement the other cases here too */
 
   surface = cairo_surface_create_similar (cairo_get_target (cairo),
 					  CAIRO_CONTENT_COLOR_ALPHA,
-					  bbox[2], bbox[3]);
+					  width, height);
   if (cairo_surface_status (surface))
     return gFalse;
 
@@ -745,6 +749,9 @@ GBool CairoOutputDev::tilingPatternFill(GfxState *state, Object *str,
 
   state->getUserClipBBox(&xMin, &yMin, &xMax, &yMax);
   cairo_rectangle (cairo, xMin, yMin, xMax - xMin, yMax - yMin);
+
+  cairo_matrix_init_scale (&matrix, (int)width / width, (int)height / height);
+  cairo_pattern_set_matrix (pattern, &matrix);
 
   cairo_matrix_init (&matrix, mat[0], mat[1], mat[2], mat[3], mat[4], mat[5]);
   cairo_transform (cairo, &matrix);
