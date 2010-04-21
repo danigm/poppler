@@ -86,18 +86,18 @@ pgd_render_drawing_area_expose (GtkWidget      *area,
 	if (demo->mode == PGD_RENDER_PIXBUF && !demo->pixbuf)
 		return FALSE;
 
-	gdk_window_clear (area->window);
+	gdk_window_clear (gtk_widget_get_window (area));
 
 	if (demo->mode == PGD_RENDER_CAIRO) {
 		cairo_t *cr;
 
-		cr = gdk_cairo_create (area->window);
+		cr = gdk_cairo_create (gtk_widget_get_window (area));
 		cairo_set_source_surface (cr, demo->surface, 0, 0);
 		cairo_paint (cr);
 		cairo_destroy (cr);
 	} else if (demo->mode == PGD_RENDER_PIXBUF) {
-		gdk_draw_pixbuf (area->window,
-				 area->style->fg_gc[GTK_STATE_NORMAL],
+		gdk_draw_pixbuf (gtk_widget_get_window (area),
+				 gtk_widget_get_style(area)->fg_gc[GTK_STATE_NORMAL],
 				 demo->pixbuf,
 				 0, 0,
 				 0, 0,

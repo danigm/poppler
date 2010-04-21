@@ -76,7 +76,7 @@ pgd_image_view_drawing_area_expose (GtkWidget      *area,
 				     cairo_image_surface_get_width (image),
 				     cairo_image_surface_get_height (image));
 	
-	cr = gdk_cairo_create (area->window);
+	cr = gdk_cairo_create (gtk_widget_get_window (area));
 	cairo_set_source_surface (cr, image, 0, 0);
 	cairo_paint (cr);
 	cairo_destroy (cr);
