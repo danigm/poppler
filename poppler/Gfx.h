@@ -18,7 +18,7 @@
 // Copyright (C) 2008 Brad Hards <bradh@kde.org>
 // Copyright (C) 2008, 2010 Carlos Garcia Campos <carlosgc@gnome.org>
 // Copyright (C) 2009 Albert Astals Cid <aacid@kde.org>
-// Copyright (C) 2009 Thomas Freitag <Thomas.Freitag@alfa.de>
+// Copyright (C) 2009, 2010 Thomas Freitag <Thomas.Freitag@alfa.de>
 // Copyright (C) 2010 David Benjamin <davidben@mit.edu>
 //
 // To see a description of the changes please see the Changelog file that
@@ -196,8 +196,6 @@ private:
   GBool drawText;		// in text drawing
   GBool maskHaveCSPattern;	// in mask drawing and mask has pattern colorspace
   GBool commandAborted;         // did the previous command abort the drawing?
-  GfxColorSpace *colorSpaceText;// colorspace after text has filled with pattern
-  GfxColor colorText;		// fill color after after text has filled with pattern
   GfxResources *res;		// resource stack
   int updateLevel;
 

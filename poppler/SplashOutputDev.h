@@ -14,7 +14,7 @@
 // under GPL version 2 or later
 //
 // Copyright (C) 2005 Takashi Iwai <tiwai@suse.de>
-// Copyright (C) 2009 Thomas Freitag <Thomas.Freitag@alfa.de>
+// Copyright (C) 2009, 2010 Thomas Freitag <Thomas.Freitag@alfa.de>
 // Copyright (C) 2009 Carlos Garcia Campos <carlosgc@gnome.org>
 //
 // To see a description of the changes please see the Changelog file that
@@ -277,6 +277,7 @@ private:
 
   SplashTransparencyGroup *	// transparency group stack
     transpGroupStack;
+  SplashBitmap *maskBitmap; // for image masks in pattern colorspace
 };
 
 #endif

@@ -1974,7 +1974,20 @@ GBool SplashOutputDev::imageMaskSrc(void *data, SplashColorPtr line) {
 }
 
 void SplashOutputDev::endMaskClip(GfxState * state) {
-	splash->setSoftMask(NULL);
+  double bbox[4] = {0,0,1,1}; // dummy
+  /* transfer mask to alpha channel! */
+  // memcpy(maskBitmap->getAlphaPtr(), maskBitmap->getDataPtr(), bitmap->getRowSize() * bitmap->getHeight());
+  // memset(maskBitmap->getDataPtr(), 0, bitmap->getRowSize() * bitmap->getHeight());
+  int c;
+  Guchar *dest = bitmap->getAlphaPtr();
+  Guchar *src = maskBitmap->getDataPtr();
+  for (c= 0; c < maskBitmap->getRowSize() * maskBitmap->getHeight(); c++) {
+    dest[c] = src[c];
+  }
+  delete maskBitmap;
+  maskBitmap = NULL;
+  endTransparencyGroup(state);
+  paintTransparencyGroup(state, bbox);
 }
 
 void SplashOutputDev::drawImageMask(GfxState *state, Object *ref, Stream *str,
@@ -2007,10 +2020,31 @@ void SplashOutputDev::drawImageMask(GfxState *state, Object *ref, Stream *str,
   imgMaskData.y = 0;
 
   if (state->getFillColorSpace()->getMode() == csPattern) {
-    SplashBitmap *maskBitmap;
     Splash *maskSplash;
     SplashColor maskColor;
-    
+
+    /* from beginTransparencyGroup: */
+    // push a new stack entry
+    SplashTransparencyGroup *transpGroup = new SplashTransparencyGroup();
+    transpGroup->tx = 0;
+    transpGroup->ty = 0;
+    transpGroup->blendingColorSpace = NULL;
+    transpGroup->isolated = gFalse;
+    transpGroup->next = transpGroupStack;
+    transpGroupStack = transpGroup;
+    // save state
+    transpGroup->origBitmap = bitmap;
+    transpGroup->origSplash = splash;
+    //~ this ignores the blendingColorSpace arg
+    // create the temporary bitmap
+    bitmap = new SplashBitmap(bitmap->getWidth(), bitmap->getHeight(), bitmapRowPad, colorMode, gTrue,
+                              bitmapTopDown); 
+    splash = new Splash(bitmap, vectorAntialias,
+                        transpGroup->origSplash->getScreen());
+    splash->blitTransparent(transpGroup->origBitmap, 0, 0, 0, 0, bitmap->getWidth(), bitmap->getHeight());
+    splash->setInNonIsolatedGroup(transpGroup->origBitmap, 0, 0);
+    transpGroup->tBitmap = bitmap;
+
     maskBitmap = new SplashBitmap(bitmap->getWidth(), bitmap->getHeight(), 1, splashModeMono8, gFalse);
     maskSplash = new Splash(maskBitmap, vectorAntialias);
     maskColor[0] = 0;
@@ -2019,7 +2053,6 @@ void SplashOutputDev::drawImageMask(GfxState *state, Object *ref, Stream *str,
     maskSplash->setFillPattern(new SplashSolidColor(maskColor));
     maskSplash->fillImageMask(&imageMaskSrc, &imgMaskData,  width, height, mat, t3GlyphStack != NULL);
     delete maskSplash;
-    splash->setSoftMask(maskBitmap);
   } else {
     splash->fillImageMask(&imageMaskSrc, &imgMaskData, width, height, mat, t3GlyphStack != NULL);
     if (inlineImg) {
