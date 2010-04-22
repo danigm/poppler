@@ -39,7 +39,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <math.h>
-#include <limits>
+#include <values.h>
 #include <ctype.h>
 #ifdef _WIN32
 #include <fcntl.h> // for O_BINARY
@@ -62,9 +62,6 @@
 // needed for setting type/creator of MacOS files
 #include "ICSupport.h"
 #endif
-
-// ugly way to workaround compilers which #define min()/max()
-#define POPPLER_AVOID_MACRO_SUBSTITUTION
 
 //------------------------------------------------------------------------
 // parameters
@@ -3039,10 +3036,10 @@ void TextPage::coalesce(GBool physLayout, GBool doHTML) {
     blk1->EyMin = blk1->yMin;
     blk1->EyMax = blk1->yMax;
 
-    bxMin0 = std::numeric_limits<double>::max POPPLER_AVOID_MACRO_SUBSTITUTION ();
-    byMin0 = std::numeric_limits<double>::max POPPLER_AVOID_MACRO_SUBSTITUTION ();
-    bxMin1 = std::numeric_limits<double>::max POPPLER_AVOID_MACRO_SUBSTITUTION ();
-    byMin1 = std::numeric_limits<double>::max POPPLER_AVOID_MACRO_SUBSTITUTION ();
+    bxMin0 = DBL_MAX;
+    byMin0 = DBL_MAX;
+    bxMin1 = DBL_MAX;
+    byMin1 = DBL_MAX;
 
     fblk2 = NULL;
     fblk3 = NULL;
@@ -3194,10 +3191,10 @@ void TextPage::coalesce(GBool physLayout, GBool doHTML) {
   TextBlock **ending_blocks = new TextBlock* [numTables];
 
   for (i = 0; i < numTables; i++) {
-    envelopes[i].x1 = std::numeric_limits<double>::max();
-    envelopes[i].x2 = std::numeric_limits<double>::min();
-    envelopes[i].y1 = std::numeric_limits<double>::max();
-    envelopes[i].y2 = std::numeric_limits<double>::min();
+    envelopes[i].x1 = DBL_MAX;
+    envelopes[i].x2 = DBL_MIN;
+    envelopes[i].y1 = DBL_MAX;
+    envelopes[i].y2 = DBL_MIN;
   }
 
   for (blk1 = blkList; blk1; blk1 = blk1->next) {
@@ -3246,8 +3243,8 @@ void TextPage::coalesce(GBool physLayout, GBool doHTML) {
    */
   for (blk1 = blkList; blk1; blk1 = blk1->next) {
     if (!blk1->tableId >= 0) {
-      double xMax = std::numeric_limits<double>::max();
-      double xMin = std::numeric_limits<double>::min();
+      double xMax = DBL_MAX;
+      double xMin = DBL_MIN;
 
       for (blk2 = blkList; blk2; blk2 = blk2->next) {
         if (blk2 == blk1)
