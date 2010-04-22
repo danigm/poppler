@@ -63,6 +63,9 @@
 #include "ICSupport.h"
 #endif
 
+// ugly way to workaround compilers which #define min()/max()
+#define POPPLER_AVOID_MACRO_SUBSTITUTION
+
 //------------------------------------------------------------------------
 // parameters
 //------------------------------------------------------------------------
@@ -3036,10 +3039,10 @@ void TextPage::coalesce(GBool physLayout, GBool doHTML) {
     blk1->EyMin = blk1->yMin;
     blk1->EyMax = blk1->yMax;
 
-    bxMin0 = std::numeric_limits<double>::max();
-    byMin0 = std::numeric_limits<double>::max();
-    bxMin1 = std::numeric_limits<double>::max();
-    byMin1 = std::numeric_limits<double>::max();
+    bxMin0 = std::numeric_limits<double>::max POPPLER_AVOID_MACRO_SUBSTITUTION ();
+    byMin0 = std::numeric_limits<double>::max POPPLER_AVOID_MACRO_SUBSTITUTION ();
+    bxMin1 = std::numeric_limits<double>::max POPPLER_AVOID_MACRO_SUBSTITUTION ();
+    byMin1 = std::numeric_limits<double>::max POPPLER_AVOID_MACRO_SUBSTITUTION ();
 
     fblk2 = NULL;
     fblk3 = NULL;
