@@ -8,7 +8,9 @@ scan the whole fonts directory, parse TTF files and build font
 description for all fonts available in Windows. That's how MuPDF works.
 */
 
+#ifndef PACKAGE_NAME
 #include <config.h>
+#endif
 
 #ifdef USE_GCC_PRAGMAS
 #pragma implementation
