@@ -18,6 +18,7 @@
 // Copyright (C) 2007 Koji Otani <sho@bbr.jp>
 // Copyright (C) 2008 Michael Vrable <mvrable@cs.ucsd.edu>
 // Copyright (C) 2008 Vasile Gaburici <gaburici@cs.umd.edu>
+// Copyright (C) 2010 William Bader <williambader@hotmail.com>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -307,8 +308,10 @@ void CharCodeToUnicode::parseCMap1(int (*getCharFunc)(void *), void *data,
 	  error(-1, "Illegal entry in bfrange block in ToUnicode CMap");
 	  break;
 	}
-	if (!(n1 == 2 + nDigits && tok1[0] == '<' && tok1[n1 - 1] == '>' &&
-	      n2 == 2 + nDigits && tok2[0] == '<' && tok2[n2 - 1] == '>')) {
+	if (!(((n1 == 2 + nDigits && tok1[0] == '<' && tok1[n1 - 1] == '>') ||
+	       (n1 == 4 + nDigits && tok1[0] == '<' && tok1[n1 - 1] == '>' && tok1[1] == '0' && tok1[2] == '0')) &&
+	      ((n2 == 2 + nDigits && tok2[0] == '<' && tok2[n2 - 1] == '>') ||
+	       (n2 == 4 + nDigits && tok2[0] == '<' && tok2[n2 - 1] == '>' && tok1[1] == '0' && tok1[2] == '0')))) {
 	  error(-1, "Illegal entry in bfrange block in ToUnicode CMap");
 	  continue;
 	}
