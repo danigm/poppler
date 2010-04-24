@@ -1,3 +1,34 @@
+Release 0.13.3 (0.14 Beta 2)
+
+	core:
+	 * Fix roll optimization in the PS function interpreter
+	 * Correctly parse numbers with '+' sign. Gnome bug #614549
+	 * Add support for cached files
+	 * Add support for reading a cached file from stdin
+	 * Add HTTP support using libcurl, disabled by default
+	 * Add some const correctnes to GooString
+	 * Rework DCTStream error handling. Bug #26280
+	 * Use current fill_opacity when drawing soft masked images in Cairo backend. Gnome bug #614915
+	 * Use the topleft of the Rect of text annots to draw
+	 * Fix saving update docs that have a compressed xref table. Bug #27450
+	 * Parse varius part of the document catalog on demand
+	 * Implement colorizing image masks with pattern colorspace in Cairo backend
+	 * Fix a crash when rendering 0x0 images in Cairo backend
+	 * Check pattern status after setting matrix when rendering images
+	 * Improve text selection/extraction order. Bug #3188
+	 * Fix pattern size when bbox is not at 0,0
+	 * Improve colorizing text and masks in pattern colorspace. Bug #27482
+	 * Silence some Illegal entry in bfrange block in ToUnicode CMap. Bug #27728
+
+	utils:
+	 * Add the -o[dd] and -e[ven] options to pdftoppm
+	 * Allow read from stdin using the new cached files feature
+	 * Fix crash in pdftohtml when output filename was shorter than 5 characters
+
+	glib:
+	 * Use existing cairo api when rendering to a pixbuf
+	 * Compile with -DGSEAL_ENABLE. Bug #27579
+
 Release 0.13.2 (0.14 Beta 1)
 
 	core:
