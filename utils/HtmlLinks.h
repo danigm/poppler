@@ -10,6 +10,20 @@
 //
 //========================================================================
 
+//========================================================================
+//
+// Modified under the Poppler project - http://poppler.freedesktop.org
+//
+// All changes made under the Poppler project to this file are licensed
+// under GPL version 2 or later
+//
+// Copyright (C) 2010 Albert Astals Cid <aacid@kde.org>
+//
+// To see a description of the changes please see the Changelog file that
+// came with your tarball or type make ChangeLog if you are building from git
+//
+//========================================================================
+
 #ifndef _HTML_LINKS
 #define _HTML_LINKS
 
@@ -28,9 +42,7 @@ private:
   GooString* dest;
 
 public:
-  HtmlLink(){dest=NULL;}
   HtmlLink(const HtmlLink& x);
-  HtmlLink& operator=(const HtmlLink& x);
   HtmlLink(double xmin,double ymin,double xmax,double ymax,GooString *_dest);
   ~HtmlLink();
   GBool isEqualDest(const HtmlLink& x) const;

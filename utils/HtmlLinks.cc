@@ -18,6 +18,7 @@
 // under GPL version 2 or later
 //
 // Copyright (C) 2008 Boris Toloknov <tlknv@yandex.ru>
+// Copyright (C) 2010 Albert Astals Cid <aacid@kde.org>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -56,7 +57,7 @@ HtmlLink::HtmlLink(double xmin,double ymin,double xmax,double ymax,GooString * _
 }
 
 HtmlLink::~HtmlLink(){
- if (dest) delete dest;
+ delete dest;
 }
 
 GBool HtmlLink::isEqualDest(const HtmlLink& x) const{
@@ -69,18 +70,6 @@ GBool HtmlLink::inLink(double xmin,double ymin,double xmax,double ymax) const {
   return (y>Ymin)&&(xmin<Xmax)&&(xmax>Xmin);
  }
   
-
-HtmlLink& HtmlLink::operator=(const HtmlLink& x){
-  if (this==&x) return *this;
-  if (dest) {delete dest;dest=NULL;} 
-  Xmin=x.Xmin;
-  Ymin=x.Ymin;
-  Xmax=x.Xmax;
-  Ymax=x.Ymax;
-  dest=new GooString(x.dest);
-  return *this;
-} 
-
 static GooString* EscapeSpecialChars( GooString* s )
 {
     GooString* tmp = NULL;
