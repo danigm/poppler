@@ -5,6 +5,7 @@
 // This file is licensed under the GPLv2 or later
 //
 // Copyright 2010 David Benjamin <davidben@mit.edu>
+// Copyright 2010 Albert Astals Cid <aacid@kde.org>
 //
 //========================================================================
 
@@ -58,8 +59,8 @@ public:
 
   iterator begin() { return m_data; }
   const_iterator begin() const { return m_data; }
-  iterator end() { return m_data + m_capacity; }
-  const_iterator end() const { return m_data + m_capacity; }
+  iterator end() { return m_data + m_size; }
+  const_iterator end() const { return m_data + m_size; }
 
   size_type size() const { return m_size; }
   size_type capacity() const { return m_capacity; }
