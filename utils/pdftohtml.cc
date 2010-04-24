@@ -218,18 +218,24 @@ int main(int argc, char *argv[]) {
   // construct text file name
   if (argc == 3) {
     GooString* tmp = new GooString(argv[2]);
-    p=tmp->getCString()+tmp->getLength()-5;
-    if (!xml)
-      if (!strcmp(p, ".html") || !strcmp(p, ".HTML"))
-	htmlFileName = new GooString(tmp->getCString(),
-				   tmp->getLength() - 5);
-      else htmlFileName =new GooString(tmp);
-    else   
-      if (!strcmp(p, ".xml") || !strcmp(p, ".XML"))
-	htmlFileName = new GooString(tmp->getCString(),
-				   tmp->getLength() - 5);
-      else htmlFileName =new GooString(tmp);
-    
+    if (!xml) {
+      if (tmp->getLength() >= 5) {
+        p = tmp->getCString() + tmp->getLength() - 5;
+        if (!strcmp(p, ".html") || !strcmp(p, ".HTML")) {
+          htmlFileName = new GooString(tmp->getCString(), tmp->getLength() - 5);
+        }
+      }
+    } else {
+      if (tmp->getLength() >= 4) {
+        p = tmp->getCString() + tmp->getLength() - 4;
+        if (!strcmp(p, ".xml") || !strcmp(p, ".XML")) {
+          htmlFileName = new GooString(tmp->getCString(), tmp->getLength() - 4);
+        }
+      }
+    }
+    if (!htmlFileName) {
+      htmlFileName =new GooString(tmp);
+    }
     delete tmp;
   } else if (fileName->cmp("fd://0") == 0) {
       error(-1, "You have to provide an output filename when reading form stdin.");
