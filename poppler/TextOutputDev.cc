@@ -39,7 +39,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <math.h>
-#include <values.h>
+#include <float.h>
 #include <ctype.h>
 #ifdef _WIN32
 #include <fcntl.h> // for O_BINARY
