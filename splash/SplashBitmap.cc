@@ -37,6 +37,7 @@
 #include "poppler/Error.h"
 #include "goo/JpegWriter.h"
 #include "goo/PNGWriter.h"
+#include "goo/ImgWriter.h"
 
 //------------------------------------------------------------------------
 // SplashBitmap
