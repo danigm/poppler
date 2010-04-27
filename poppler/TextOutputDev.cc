@@ -3129,33 +3129,33 @@ void TextPage::coalesce(GBool physLayout, GBool doHTML) {
       yCentre4 = (fblk4->yMax + fblk4->yMin) / 2.0;
 
       // are blocks centrally aligned in x ?
-      if (abs (xCentre1 - xCentre3) <= deltaX &&
-          abs (xCentre2 - xCentre4) <= deltaX)
+      if (fabs (xCentre1 - xCentre3) <= deltaX &&
+          fabs (xCentre2 - xCentre4) <= deltaX)
         correspondenceX++;
 
       // are blocks centrally aligned in y ?
-      if (abs (yCentre1 - yCentre2) <= deltaY &&
-          abs (yCentre3 - yCentre4) <= deltaY)
+      if (fabs (yCentre1 - yCentre2) <= deltaY &&
+          fabs (yCentre3 - yCentre4) <= deltaY)
         correspondenceY++;
 
       // are blocks aligned to the left ?
-      if (abs (blk1->xMin - fblk3->xMin) <= deltaX &&
-          abs (fblk2->xMin - fblk4->xMin) <= deltaX)
+      if (fabs (blk1->xMin - fblk3->xMin) <= deltaX &&
+          fabs (fblk2->xMin - fblk4->xMin) <= deltaX)
         correspondenceX++;
 
       // are blocks aligned to the right ?
-      if (abs (blk1->xMax - fblk3->xMax) <= deltaX &&
-          abs (fblk2->xMax - fblk4->xMax) <= deltaX)
+      if (fabs (blk1->xMax - fblk3->xMax) <= deltaX &&
+          fabs (fblk2->xMax - fblk4->xMax) <= deltaX)
         correspondenceX++;
 
       // are blocks aligned to the top ?
-      if (abs (blk1->yMin - fblk2->yMin) <= deltaY &&
-          abs (fblk3->yMin - fblk4->yMin) <= deltaY)
+      if (fabs (blk1->yMin - fblk2->yMin) <= deltaY &&
+          fabs (fblk3->yMin - fblk4->yMin) <= deltaY)
         correspondenceY++;
 
       // are blocks aligned to the bottom ?
-      if (abs (blk1->yMax - fblk2->yMax) <= deltaY &&
-          abs (fblk3->yMax - fblk4->yMax) <= deltaY)
+      if (fabs (blk1->yMax - fblk2->yMax) <= deltaY &&
+          fabs (fblk3->yMax - fblk4->yMax) <= deltaY)
         correspondenceY++;
 
       // are blocks aligned in x and y ?
