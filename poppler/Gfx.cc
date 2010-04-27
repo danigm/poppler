@@ -2524,7 +2524,7 @@ void Gfx::doAxialShFill(GfxAxialShading *shading) {
   if (out->useFillColorStop()) {
     // make sure we add stop color when t = tMin
     state->setFillColor(&color0);
-    out->updateFillColorStop(state, (tt - tMin)/(tMax - tMin));
+    out->updateFillColorStop(state, 0);
   }
 
   // compute the coordinates of the point on the t axis at t = tMin;
