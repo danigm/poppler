@@ -3341,13 +3341,13 @@ void Gfx::opEndText(Object args[], int numArgs) {
   GBool needFill = out->deviceHasTextClip(state);
   out->endTextObject(state);
   drawText = gFalse;
-  if (out->supportTextCSPattern(state) && textHaveCSPattern) {
+  if (textHaveCSPattern) {
+    textHaveCSPattern = gFalse;
     if (needFill) {
       doPatternFill(gTrue);
     }
     out->restoreState(state);
   }
-  textHaveCSPattern = gFalse;
 }
 
 //------------------------------------------------------------------------
