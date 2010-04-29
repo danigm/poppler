@@ -101,5 +101,10 @@
 #define GCC_PRINTF_FORMAT(fmt_index, va_index)
 #endif
 
+#if defined(_MSC_VER)
+#define fmax(a, b) max(a, b)
+#define fmin(a, b) min(a, b)
+#endif
+
 
 #endif /* POPPLER_CONFIG_H */
