@@ -1297,7 +1297,7 @@ void Gfx::opSetRenderingIntent(Object args[], int numArgs) {
 void Gfx::opSetFillGray(Object args[], int numArgs) {
   GfxColor color;
 
-  if (textHaveCSPattern) {
+  if (textHaveCSPattern && drawText) {
     GBool needFill = out->deviceHasTextClip(state);
     out->endTextObject(state);
     if (needFill) {
@@ -1335,7 +1335,7 @@ void Gfx::opSetFillCMYKColor(Object args[], int numArgs) {
   GfxColor color;
   int i;
 
-  if (textHaveCSPattern) {
+  if (textHaveCSPattern && drawText) {
     GBool needFill = out->deviceHasTextClip(state);
     out->endTextObject(state);
     if (needFill) {
@@ -1378,7 +1378,7 @@ void Gfx::opSetFillRGBColor(Object args[], int numArgs) {
   GfxColor color;
   int i;
 
-  if (textHaveCSPattern) {
+  if (textHaveCSPattern && drawText) {
     GBool needFill = out->deviceHasTextClip(state);
     out->endTextObject(state);
     if (needFill) {
@@ -1430,7 +1430,7 @@ void Gfx::opSetFillColorSpace(Object args[], int numArgs) {
   }
   obj.free();
   if (colorSpace) {
-    if (textHaveCSPattern) {
+    if (textHaveCSPattern && drawText) {
       GBool needFill = out->deviceHasTextClip(state);
       out->endTextObject(state);
       if (needFill) {
@@ -3342,12 +3342,12 @@ void Gfx::opEndText(Object args[], int numArgs) {
   out->endTextObject(state);
   drawText = gFalse;
   if (textHaveCSPattern) {
-    textHaveCSPattern = gFalse;
     if (needFill) {
       doPatternFill(gTrue);
     }
     out->restoreState(state);
   }
+  textHaveCSPattern = gFalse;
 }
 
 //------------------------------------------------------------------------
