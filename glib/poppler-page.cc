@@ -951,6 +951,55 @@ poppler_page_get_text (PopplerPage          *page,
   return result;
 }
 
+char *
+poppler_page_get_text_raw (PopplerPage *page)
+{
+  GooString *s;
+  char *result;
+  int page_index;
+  TextOutputDev *textOut;
+
+  g_return_val_if_fail (POPPLER_IS_PAGE (page), FALSE);
+
+  page_index = poppler_page_get_index (page) + 1;
+  textOut = new TextOutputDev(0, gTrue, gTrue, gFalse);
+  page->document->doc->displayPageSlice(textOut, page_index, 72, 72,
+      0, false, true, false, -1, -1, -1, -1); 
+ 
+  /*
+  PDFRectangle *rect;
+  rect = page->page->getCropBox();
+  s = textOut->getText(rect->x1, rect->y1, rect->x2, rect->y2);
+  // I tried that but don't work with raw
+  */
+
+  TextWordList *wordlist;
+  wordlist = textOut->makeWordList ();
+  int word_length = wordlist->getLength ();
+  TextWord *word, *initialword;
+  initialword = wordlist->get (0);
+
+  s = new GooString ();
+  for (int i=0; i < word_length; i++)
+  {
+    word = wordlist->get (i);
+    s->append (word->getText ());
+    if (word->getNext() && word->getNext()->primaryDelta (word) <= 0)
+    {
+        s->append (" ");
+    } else {
+        s->append ("\n");
+    }   
+  }
+
+
+  result = g_strdup (s->getCString ());
+  delete textOut;
+  delete s;
+
+  return result;
+}
+
 /**
  * poppler_page_find_text:
  * @page: a #PopplerPage

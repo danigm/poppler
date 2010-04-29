@@ -97,6 +97,7 @@ void                   poppler_page_render_to_ps         (PopplerPage        *pa
 char                  *poppler_page_get_text             (PopplerPage        *page,
 							  PopplerSelectionStyle style,
 							  PopplerRectangle   *rect);
+char                  *poppler_page_get_text_raw         (PopplerPage        *page);
 GList                 *poppler_page_get_selection_region (PopplerPage        *page,
 							  gdouble             scale,
 							  PopplerSelectionStyle style,
