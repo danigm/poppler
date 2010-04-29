@@ -600,9 +600,7 @@ void ArthurOutputDev::drawChar(GfxState *state, double x, double y,
 		       fontPath->pts[i+1].x+x0, fontPath->pts[i+1].y+y0);
 	  ++i;
 	}
-#ifdef __GNUC__
-#warning FIX THIS
-#endif
+// FIXME fix this
 // 	else if (fontPath->flags[i] & splashPathArcCW) {
 // 	  qDebug() << "Need to implement arc";
 // 	}
