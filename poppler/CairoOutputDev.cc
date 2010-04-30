@@ -1279,9 +1279,13 @@ void CairoOutputDev::setSoftMask(GfxState * state, double * bbox, GBool alpha,
 
     /* make the device offset of the new mask match that of the group */
     double x_offset, y_offset;
-    cairo_surface_t *pats;
-    cairo_pattern_get_surface(group, &pats);
-    cairo_surface_get_device_offset(pats, &x_offset, &y_offset);
+    if (cairo_get_group_target(cairo) == cairo_get_target(cairo)) {
+      cairo_surface_get_device_offset(cairo_get_group_target(cairo), &x_offset, &y_offset);
+    } else {
+      cairo_surface_t *pats;
+      cairo_pattern_get_surface(group, &pats);
+      cairo_surface_get_device_offset(pats, &x_offset, &y_offset);
+    }
     cairo_surface_set_device_offset(source, x_offset, y_offset);
 
     /* paint the group */
@@ -1316,9 +1320,14 @@ void CairoOutputDev::setSoftMask(GfxState * state, double * bbox, GBool alpha,
 
     /* setup the new mask pattern */
     mask = cairo_pattern_create_for_surface(source);
-    cairo_matrix_t patMatrix;
-    cairo_pattern_get_matrix(group, &patMatrix);
-    cairo_pattern_set_matrix(mask, &patMatrix);
+
+    if (cairo_get_group_target(cairo) == cairo_get_target(cairo)) {
+      cairo_pattern_set_matrix(mask, &mat);
+    } else {
+      cairo_matrix_t patMatrix;
+      cairo_pattern_get_matrix(group, &patMatrix);
+      cairo_pattern_set_matrix(mask, &patMatrix);
+    }
 
     cairo_surface_destroy(source);
   } else {
