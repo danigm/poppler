@@ -6,6 +6,20 @@
 //
 //========================================================================
 
+//========================================================================
+//
+// Modified under the Poppler project - http://poppler.freedesktop.org
+//
+// All changes made under the Poppler project to this file are licensed
+// under GPL version 2 or later
+//
+// Copyright (C) 2010 Jakub Wilk <ubanus@users.sf.net>
+//
+// To see a description of the changes please see the Changelog file that
+// came with your tarball or type make ChangeLog if you are building from git
+//
+//========================================================================
+
 #include <config.h>
 
 #ifdef USE_GCC_PRAGMAS
@@ -43,6 +57,7 @@ UnicodeMap *UnicodeMap::parse(GooString *encodingNameA) {
   char buf[256];
   int line, nBytes, i, x;
   char *tok1, *tok2, *tok3;
+  char *tokptr;
 
   if (!(f = globalParams->getUnicodeMapFile(encodingNameA))) {
     error(-1, "Couldn't find unicodeMap file for the '%s' encoding",
@@ -58,9 +73,9 @@ UnicodeMap *UnicodeMap::parse(GooString *encodingNameA) {
 
   line = 1;
   while (getLine(buf, sizeof(buf), f)) {
-    if ((tok1 = strtok(buf, " \t\r\n")) &&
-	(tok2 = strtok(NULL, " \t\r\n"))) {
-      if (!(tok3 = strtok(NULL, " \t\r\n"))) {
+    if ((tok1 = strtok_r(buf, " \t\r\n", &tokptr)) &&
+	(tok2 = strtok_r(NULL, " \t\r\n", &tokptr))) {
+      if (!(tok3 = strtok_r(NULL, " \t\r\n", &tokptr))) {
 	tok3 = tok2;
 	tok2 = tok1;
       }

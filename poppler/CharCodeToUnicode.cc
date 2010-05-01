@@ -19,6 +19,7 @@
 // Copyright (C) 2008 Michael Vrable <mvrable@cs.ucsd.edu>
 // Copyright (C) 2008 Vasile Gaburici <gaburici@cs.umd.edu>
 // Copyright (C) 2010 William Bader <williambader@hotmail.com>
+// Copyright (C) 2010 Jakub Wilk <ubanus@users.sf.net>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -125,6 +126,7 @@ CharCodeToUnicode *CharCodeToUnicode::parseUnicodeToUnicode(
   Unicode *uBuf = (Unicode *)gmallocn(uBufSize, sizeof(Unicode));
   CharCodeToUnicode *ctu;
   int line, n, i;
+  char *tokptr;
 
   if (!(f = fopen(fileName->getCString(), "r"))) {
     gfree(uBuf);
@@ -143,14 +145,14 @@ CharCodeToUnicode *CharCodeToUnicode::parseUnicodeToUnicode(
   line = 0;
   while (getLine(buf, sizeof(buf), f)) {
     ++line;
-    if (!(tok = strtok(buf, " \t\r\n")) ||
+    if (!(tok = strtok_r(buf, " \t\r\n", &tokptr)) ||
 	sscanf(tok, "%x", &u0) != 1) {
       error(-1, "Bad line (%d) in unicodeToUnicode file '%s'",
 	    line, fileName->getCString());
       continue;
     }
     n = 0;
-    while ((tok = strtok(NULL, " \t\r\n"))) {
+    while ((tok = strtok_r(NULL, " \t\r\n", &tokptr))) {
       if (n >= uBufSize)
       {
         uBufSize += 8;

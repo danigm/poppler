@@ -24,6 +24,7 @@
 // Copyright (C) 2009 Kovid Goyal <kovid@kovidgoyal.net>
 // Copyright (C) 2010 Hib Eris <hib@hiberis.nl>
 // Copyright (C) 2010 Patrick Spendrin <ps_ml@gmx.de>
+// Copyright (C) 2010 Jakub Wilk <ubanus@users.sf.net>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -786,6 +787,7 @@ void GlobalParams::parseNameToUnicode(GooString *name) {
   char buf[256];
   int line;
   Unicode u;
+  char *tokptr;
 
   if (!(f = fopen(name->getCString(), "r"))) {
     error(-1, "Couldn't open 'nameToUnicode' file '%s'",
@@ -794,8 +796,8 @@ void GlobalParams::parseNameToUnicode(GooString *name) {
   }
   line = 1;
   while (getLine(buf, sizeof(buf), f)) {
-    tok1 = strtok(buf, " \t\r\n");
-    tok2 = strtok(NULL, " \t\r\n");
+    tok1 = strtok_r(buf, " \t\r\n", &tokptr);
+    tok2 = strtok_r(NULL, " \t\r\n", &tokptr);
     if (tok1 && tok2) {
       sscanf(tok1, "%x", &u);
       nameToUnicode->add(tok2, u);

@@ -22,6 +22,7 @@
 // Copyright (C) 2009 Kovid Goyal <kovid@kovidgoyal.net>
 // Copyright (C) 2009 Axel Struebing <axel.struebing@freenet.de>
 // Copyright (C) 2010 Hib Eris <hib@hiberis.nl>
+// Copyright (C) 2010 Jakub Wilk <ubanus@users.sf.net>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -294,6 +295,7 @@ GBool PDFDoc::checkFooter() {
 void PDFDoc::checkHeader() {
   char hdrBuf[headerSearchSize+1];
   char *p;
+  char *tokptr;
   int i;
 
   pdfMajorVersion = 0;
@@ -312,7 +314,7 @@ void PDFDoc::checkHeader() {
     return;
   }
   str->moveStart(i);
-  if (!(p = strtok(&hdrBuf[i+5], " \t\n\r"))) {
+  if (!(p = strtok_r(&hdrBuf[i+5], " \t\n\r", &tokptr))) {
     error(-1, "May not be a PDF file (continuing anyway)");
     return;
   }
