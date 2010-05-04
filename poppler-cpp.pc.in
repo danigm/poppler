@@ -6,4 +6,8 @@ includedir=@includedir@
 Name: poppler-cpp
 Description: cpp backend for Poppler PDF rendering library
 Version: @VERSION@
-Requires: poppler = @VERSION@
+Requires: @PC_REQUIRES@
+@PC_REQUIRES_PRIVATE@
+
+Libs: -L${libdir} -lpoppler-cpp
+Cflags: -I${includedir}/poppler/cpp
