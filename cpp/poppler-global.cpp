@@ -99,7 +99,7 @@ byte_array ustring::to_utf8() const
     const value_type *me_data = data();
     byte_array str(size());
     char *str_data = &str[0];
-    size_t me_len_char = size() * 2;
+    size_t me_len_char = size();
     size_t str_len_left = str.size();
     size_t ir = iconv(ic, (ICONV_CONST char **)&me_data, &me_len_char, &str_data, &str_len_left);
     if ((ir == (size_t)-1) && (errno == E2BIG)) {
@@ -147,7 +147,7 @@ ustring ustring::from_utf8(const char *str, int len)
         return ustring();
     }
 
-    ustring ret(len, 0);
+    ustring ret(len * 2, 0);
     char *ret_data = reinterpret_cast<char *>(&ret[0]);
     char *str_data = const_cast<char *>(str);
     size_t str_len_char = len;
