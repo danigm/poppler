@@ -1,4 +1,3 @@
-
 if (ENABLE_SPLASH)
 
   if (HAVE_NANOSLEEP OR LIB_RT_HAS_NANOSLEEP)
@@ -58,4 +57,8 @@ set (pdf_fullrewrite_SRCS
 add_executable(pdf-fullrewrite ${pdf_fullrewrite_SRCS})
 target_link_libraries(pdf-fullrewrite poppler)
 
-
+set (gettext_SRCS
+    gettext-test.cc
+    )
+add_executable(gettext-test ${gettext_SRCS})
+target_link_libraries(gettext-test poppler)

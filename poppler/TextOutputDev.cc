@@ -3602,10 +3602,6 @@ GooString *TextPage::getText(double xMin, double yMin,
 
   s = new GooString();
 
-  if (rawOrder) {
-    return s;
-  }
-
   // get the output encoding
   if (!(uMap = globalParams->getTextEncoding())) {
     return s;
@@ -3625,6 +3621,32 @@ GooString *TextPage::getText(double xMin, double yMin,
     eolLen = uMap->mapUnicode(0x0d, eol, sizeof(eol));
     break;
   }
+
+  if (rawOrder) {
+    TextWordList *wordlist;
+    wordlist = makeWordList(gFalse);
+    int word_length = wordlist->getLength ();
+    TextWord *word;
+    double xMinA, yMinA, xMaxA, yMaxA;
+
+    for (int i=0; i < word_length; i++)
+    {
+      word = wordlist->get (i);
+      word->getBBox (&xMinA, &yMinA, &xMaxA, &yMaxA);
+      if (xMinA > xMin && yMinA > yMin && xMaxA < xMax && yMaxA < yMax)
+        s->append (word->getText ());
+      else
+        continue;
+      if (word->getNext() && word->getNext()->primaryDelta (word) <= 0)
+      {
+	s->append(space, spaceLen);
+      } else {
+	s->append(eol, eolLen);
+      }
+    }
+    return s;
+  }
+
 
   //~ writing mode (horiz/vert)
 
