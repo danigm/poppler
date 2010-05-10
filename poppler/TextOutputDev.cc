@@ -3626,22 +3626,43 @@ GooString *TextPage::getText(double xMin, double yMin,
     TextWordList *wordlist;
     wordlist = makeWordList(gFalse);
     int word_length = wordlist->getLength ();
-    TextWord *word;
+    TextWord *word=NULL, *prev_word=NULL;
+    const Unicode *word_char;
+    char buf[8];
+    bool outOfBound = false;
     double xMinA, yMinA, xMaxA, yMaxA;
 
-    for (int i=0; i < word_length; i++)
-    {
+    for (int i=0; i < word_length; i++) {
       word = wordlist->get (i);
-      word->getBBox (&xMinA, &yMinA, &xMaxA, &yMaxA);
-      if (xMinA > xMin && yMinA > yMin && xMaxA < xMax && yMaxA < yMax)
-        s->append (word->getText ());
-      else
-        continue;
-      if (word->getNext() && word->getNext()->primaryDelta (word) <= 0)
-      {
-	s->append(space, spaceLen);
+
+      if (prev_word && word->primaryDelta (prev_word) <= 0) {
+        if (!outOfBound)
+            s->append(space, spaceLen);
       } else {
-	s->append(eol, eolLen);
+        s->append(eol, eolLen);
+      }
+
+      word->getBBox (&xMinA, &yMinA, &xMaxA, &yMaxA);
+      if (xMinA > xMin && yMinA > yMin && xMaxA < xMax && yMaxA < yMax) {
+        s->append (word->getText ());
+        prev_word = word;
+        outOfBound = false;
+      }
+      else if (xMinA < xMax && yMinA < yMax) {
+        for (int i=0; i < word->getLength(); i++) {
+          int n;
+          word->getCharBBox(i, &xMinA, &yMinA, &xMaxA, &yMaxA);
+          if (xMinA > xMin && yMinA > yMin && xMaxA < xMax && yMaxA < yMax) {
+            word_char = word->getChar(i);
+            n = uMap->mapUnicode(*word_char, buf, sizeof(buf));
+            s->append(buf, n);
+          }
+        }
+        prev_word = word;
+        outOfBound = true;
+      }
+      else {
+        outOfBound = true;
       }
     }
     return s;

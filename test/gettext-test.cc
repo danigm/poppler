@@ -50,6 +50,7 @@ int main (int argc, char *argv[])
 
   rect = page->getCropBox();
   s = textOut->getText(rect->x1, rect->y1, rect->x2, rect->y2);
+  //s = textOut->getText(0, 0, 200, 1000);
 
   result = s->getCString ();
   printf ("%s\n", result);
