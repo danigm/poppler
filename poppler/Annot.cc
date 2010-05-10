@@ -2321,6 +2321,16 @@ void AnnotLine::draw(Gfx *gfx, GBool printing) {
   if (!isVisible (printing))
     return;
 
+  /* Some documents like pdf_commenting_new.pdf,
+   * have y1 = y2 but line_width > 0, acroread
+   * renders the lines in such cases even though
+   * the annot bbox is empty. We adjust the bbox here
+   * to avoid having an empty bbox so that lines
+   * are rendered
+   */
+  if (rect->y1 == rect->y2)
+    rect->y2 += border ? border->getWidth() : 1;
+
   if (appearance.isNull()) {
     ca = opacity;
 
