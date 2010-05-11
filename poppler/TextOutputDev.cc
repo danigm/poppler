@@ -3077,13 +3077,16 @@ void TextPage::coalesce(GBool physLayout, GBool doHTML) {
     }
 
     /*  fblk4 can not overlap with fblk3 in x and with fblk2 in y
+     *  fblk2 can not overlap with fblk3 in x and y
      *  fblk4 has to overlap with fblk3 in y and with fblk2 in x
      */
     if (fblk2 != NULL &&
         fblk3 != NULL &&
         fblk4 != NULL) {
       if (((fblk3->xMin <= fblk4->xMax && fblk3->xMax >= fblk4->xMin) ||
-           (fblk2->yMin <= fblk4->yMax && fblk2->yMax >= fblk4->yMin)) ||
+           (fblk2->yMin <= fblk4->yMax && fblk2->yMax >= fblk4->yMin) ||
+           (fblk2->xMin <= fblk3->xMax && fblk2->xMax >= fblk3->xMin) ||
+           (fblk2->yMin <= fblk3->yMax && fblk2->yMax >= fblk3->yMin)) ||
           !(fblk4->xMin <= fblk2->xMax && fblk4->xMax >= fblk2->xMin &&
             fblk4->yMin <= fblk3->yMax && fblk4->yMax >= fblk3->yMin)) {
         fblk2 = NULL;
