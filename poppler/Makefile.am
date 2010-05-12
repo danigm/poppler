@@ -309,6 +309,7 @@ libpoppler_la_SOURCES =		\
 	StdinCachedFile.cc	\
 	StdinPDFDocBuilder.cc	\
 	Stream.cc 		\
+	strtok_r.cpp		\
 	UnicodeMap.cc		\
 	UnicodeTypeTable.cc	\
 	XRef.cc			\

@@ -266,6 +266,7 @@ set(poppler_SRCS
   poppler/PreScanOutputDev.cc
   poppler/PSTokenizer.cc
   poppler/Stream.cc
+  poppler/strtok_r.cpp
   poppler/UnicodeMap.cc
   poppler/UnicodeTypeTable.cc
   poppler/XRef.cc
