@@ -14,7 +14,7 @@
 // under GPL version 2 or later
 //
 // Copyright (C) 2005 Brad Hards <bradh@frogmouth.net>
-// Copyright (C) 2006, 2008 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2006, 2008, 2010 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2007-2008 Julien Rebetez <julienr@svn.gnome.org>
 // Copyright (C) 2007 Carlos Garcia Campos <carlosgc@gnome.org>
 //
@@ -31,6 +31,7 @@
 #endif
 
 #include "goo/gtypes.h"
+#include "goo/GooVector.h"
 #include "Object.h"
 
 class Dict;
@@ -156,8 +157,8 @@ private:
   GBool ownerPasswordOk;	// true if owner password is correct
 
   Guint getStartXref();
-  GBool readXRef(Guint *pos);
-  GBool readXRefTable(Parser *parser, Guint *pos);
+  GBool readXRef(Guint *pos, GooVector<Guint> *followedXRefStm);
+  GBool readXRefTable(Parser *parser, Guint *pos, GooVector<Guint> *followedXRefStm);
   GBool readXRefStreamSection(Stream *xrefStr, int *w, int first, int n);
   GBool readXRefStream(Stream *xrefStr, Guint *pos);
   GBool constructXRef();

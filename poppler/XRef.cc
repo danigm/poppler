@@ -15,7 +15,7 @@
 //
 // Copyright (C) 2005 Dan Sheridan <dan.sheridan@postman.org.uk>
 // Copyright (C) 2005 Brad Hards <bradh@frogmouth.net>
-// Copyright (C) 2006, 2008 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2006, 2008, 2010 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2007-2008 Julien Rebetez <julienr@svn.gnome.org>
 // Copyright (C) 2007 Carlos Garcia Campos <carlosgc@gnome.org>
 // Copyright (C) 2009 Ilya Gorenbein <igorenbein@finjan.com>
@@ -267,7 +267,8 @@ XRef::XRef(BaseStream *strA) {
 
   // read the xref table
   } else {
-    while (readXRef(&pos)) ;
+    GooVector<Guint> followedXRefStm;
+    while (readXRef(&pos, &followedXRefStm)) ;
 
     // if there was a problem with the xref table,
     // try to reconstruct it
@@ -346,7 +347,7 @@ Guint XRef::getStartXref() {
 
 // Read one xref table section.  Also reads the associated trailer
 // dictionary, and returns the prev pointer (if any).
-GBool XRef::readXRef(Guint *pos) {
+GBool XRef::readXRef(Guint *pos, GooVector<Guint> *followedXRefStm) {
   Parser *parser;
   Object obj;
   GBool more;
@@ -362,7 +363,7 @@ GBool XRef::readXRef(Guint *pos) {
   // parse an old-style xref table
   if (obj.isCmd("xref")) {
     obj.free();
-    more = readXRefTable(parser, pos);
+    more = readXRefTable(parser, pos, followedXRefStm);
 
   // parse an xref stream
   } else if (obj.isInt()) {
@@ -395,7 +396,7 @@ GBool XRef::readXRef(Guint *pos) {
   return gFalse;
 }
 
-GBool XRef::readXRefTable(Parser *parser, Guint *pos) {
+GBool XRef::readXRefTable(Parser *parser, Guint *pos, GooVector<Guint> *followedXRefStm) {
   XRefEntry entry;
   GBool more;
   Object obj, obj2;
@@ -509,7 +510,15 @@ GBool XRef::readXRefTable(Parser *parser, Guint *pos) {
   // check for an 'XRefStm' key
   if (obj.getDict()->lookup("XRefStm", &obj2)->isInt()) {
     pos2 = (Guint)obj2.getInt();
-    readXRef(&pos2);
+    for (uint i = 0; ok == gTrue && i < followedXRefStm->size(); ++i) {
+      if (followedXRefStm->at(i) == pos2) {
+        ok = gFalse;
+      }
+    }
+    if (ok) {
+      followedXRefStm->push_back(pos2);
+      readXRef(&pos2, followedXRefStm);
+    }
     if (!ok) {
       obj2.free();
       goto err1;
