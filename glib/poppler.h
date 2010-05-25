@@ -90,6 +90,7 @@ typedef struct _PopplerPageTransition      PopplerPageTransition;
 typedef struct _PopplerImageMapping        PopplerImageMapping;
 typedef struct _PopplerFormFieldMapping    PopplerFormFieldMapping;
 typedef struct _PopplerAnnotMapping        PopplerAnnotMapping;
+typedef struct _PopplerTextMapping         PopplerTextMapping;
 typedef struct _PopplerPage                PopplerPage;
 typedef struct _PopplerFontInfo            PopplerFontInfo;
 typedef struct _PopplerLayer               PopplerLayer;

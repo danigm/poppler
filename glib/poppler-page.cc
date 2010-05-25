@@ -1722,14 +1722,124 @@ poppler_annot_mapping_free (PopplerAnnotMapping *mapping)
   g_slice_free (PopplerAnnotMapping, mapping);
 }
 
-void 
+void
 poppler_page_get_crop_box (PopplerPage *page, PopplerRectangle *rect)
 {
   PDFRectangle* cropBox = page->page->getCropBox ();
-  
+
   rect->x1 = cropBox->x1;
   rect->x2 = cropBox->x2;
   rect->y1 = cropBox->y1;
   rect->y2 = cropBox->y2;
 }
 
+/* PopplerTextMapping type */
+POPPLER_DEFINE_BOXED_TYPE (PopplerTextMapping, poppler_text_mapping,
+			   poppler_text_mapping_copy,
+			   poppler_text_mapping_free)
+
+PopplerTextMapping *
+poppler_text_mapping_new (void)
+{
+  return (PopplerTextMapping *) g_new0 (PopplerTextMapping, 1);
+}
+
+PopplerTextMapping *
+poppler_text_mapping_copy (PopplerTextMapping *mapping)
+{
+  PopplerTextMapping *new_mapping;
+
+  new_mapping = poppler_text_mapping_new ();
+  *new_mapping = *mapping;
+
+  return new_mapping;
+}
+
+void
+poppler_text_mapping_free (PopplerTextMapping *mapping)
+{
+  g_free (mapping);
+}
+
+/**
+ * poppler_page_get_text_mapping:
+ * @page: A #PopplerPage
+ *
+ * Returns a list of #PopplerTextMapping items
+ * This list must be freed with poppler_page_free_text_mapping() when done.
+ *
+ * Return value: A #GList of #PopplerTextMapping
+ **/
+GList *
+poppler_page_get_text_mapping (PopplerPage *page)
+{
+  TextPage *text;
+  TextWordList *wordlist;
+  TextWord *word;
+  GList *mapping_list = NULL;
+  PopplerTextMapping *mapping;
+  int i, j, offset = 0;
+
+  text = poppler_page_get_text_page (page);
+  wordlist = text->makeWordList (gTrue);
+
+  for (i=0; i < wordlist->getLength (); i++)
+  {
+    word = wordlist->get(i);
+    for (j=0; j < word->getLength (); j++)
+    {
+      mapping = poppler_text_mapping_new ();
+      mapping->offset = ++offset;
+
+      word->getBBox (&(mapping->area.x1),
+                     &(mapping->area.x2),
+                     &(mapping->area.y1),
+                     &(mapping->area.y2));
+
+      mapping->area.x1 -= page->page->getCropBox()->x1;
+      mapping->area.x2 -= page->page->getCropBox()->x1;
+      mapping->area.y1 -= page->page->getCropBox()->y1;
+      mapping->area.y2 -= page->page->getCropBox()->y1;
+
+      mapping_list = g_list_append (mapping_list, mapping);
+    }
+
+    // adding spaces and break lines
+    if (i < wordlist->getLength ())
+    {
+      mapping = poppler_text_mapping_new ();
+      mapping->offset = ++offset;
+
+      word->getBBox (&(mapping->area.x1),
+                     &(mapping->area.x2),
+                     &(mapping->area.y1),
+                     &(mapping->area.y2));
+
+      mapping->area.x1 -= page->page->getCropBox()->x1;
+      mapping->area.x2 -= page->page->getCropBox()->x1;
+      mapping->area.y1 -= page->page->getCropBox()->y1;
+      mapping->area.y2 -= page->page->getCropBox()->y1;
+
+      mapping_list = g_list_append (mapping_list, mapping);
+    }
+  }
+
+  return mapping_list;
+}
+
+/**
+ * poppler_page_free_text_mapping:
+ * @list: A list of #PopplerTextMapping<!-- -->s
+ *
+ * Frees a list of #PopplerTextMapping<!-- -->s allocated by
+ * poppler_page_get_text_mapping().
+ **/
+void
+poppler_page_free_text_mapping (GList *list)
+{
+  if (!list)
+    return;
+
+  g_list_foreach (list, (GFunc)poppler_text_mapping_free, NULL);
+  g_list_free (list);
+}

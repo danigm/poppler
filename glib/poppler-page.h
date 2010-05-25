@@ -114,6 +114,8 @@ GList                 *poppler_page_get_annot_mapping    (PopplerPage        *pa
 void                   poppler_page_free_annot_mapping   (GList              *list);
 void 		      poppler_page_get_crop_box 	 (PopplerPage        *page,
 							  PopplerRectangle   *rect);
+GList                 *poppler_page_get_text_mapping     (PopplerPage        *page);
+void                   poppler_page_free_text_mapping    (GList              *list);
 
 
 /* A rectangle on a page, with coordinates in PDF points. */
@@ -214,6 +216,19 @@ GType                poppler_annot_mapping_get_type (void) G_GNUC_CONST;
 PopplerAnnotMapping *poppler_annot_mapping_new      (void);
 PopplerAnnotMapping *poppler_annot_mapping_copy     (PopplerAnnotMapping *mapping);
 void                 poppler_annot_mapping_free     (PopplerAnnotMapping *mapping);
+
+/* Mapping between areas on the current page and text */
+#define POPPLER_TYPE_TEXT_MAPPING                  (poppler_text_mapping_get_type ())
+struct _PopplerTextMapping
+{
+  PopplerRectangle area;
+  gint offset;
+};
+
+GType                poppler_text_mapping_get_type (void) G_GNUC_CONST;
+PopplerTextMapping  *poppler_text_mapping_new      (void);
+PopplerTextMapping  *poppler_text_mapping_copy     (PopplerTextMapping *mapping);
+void                 poppler_text_mapping_free     (PopplerTextMapping *mapping);
 
 G_END_DECLS
 
