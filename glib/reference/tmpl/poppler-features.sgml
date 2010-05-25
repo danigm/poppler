@@ -20,6 +20,9 @@ depend but not require a specific poppler version.
 <!-- ##### SECTION Stability_Level ##### -->
 
 
+<!-- ##### SECTION Image ##### -->
+
+
 <!-- ##### MACRO POPPLER_HAS_CAIRO ##### -->
 <para>
 Defined if poppler was compiled with cairo support.

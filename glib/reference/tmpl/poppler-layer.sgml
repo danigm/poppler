@@ -17,11 +17,15 @@ PopplerLayer
 <!-- ##### SECTION Stability_Level ##### -->
 
 
+<!-- ##### SECTION Image ##### -->
+
+
 <!-- ##### FUNCTION poppler_layer_get_type ##### -->
 <para>
 
 </para>
 
+@void: 
 @Returns: 
 
 

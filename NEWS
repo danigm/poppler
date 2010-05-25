@@ -1,3 +1,19 @@
+Release 0.13.4 (0.14 RC 1)
+
+	core:
+	 * Include standard float.h instead of unportable values.h
+	 * Fix first color stop offset of linear gradients. Bug #27837
+	 * Fix compilation if JPEG nor PNG is used
+	 * Use fabs for doubles instead of abs
+	 * Use strtok_r instead strtok
+	 * Adjust bbox for line annots when y1 = y2
+	 * Some fixes and regressions in the cairo output device
+	 * Better check of overlapping of table cells when selecting text
+	
+	cpp:
+	 * Make the pkg-config files really work
+	 * Fix in/out buffer sizes in some functions
+
 Release 0.13.3 (0.14 Beta 2)
 
 	core:

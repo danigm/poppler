@@ -17,6 +17,9 @@ poppler-enums
 <!-- ##### SECTION Stability_Level ##### -->
 
 
+<!-- ##### SECTION Image ##### -->
+
+
 <!-- ##### MACRO POPPLER_TYPE_ACTION_TYPE ##### -->
 <para>
 
@@ -29,6 +32,7 @@ poppler-enums
 
 </para>
 
+@void: 
 @Returns: 
 
 
@@ -44,6 +48,7 @@ poppler-enums
 
 </para>
 
+@void: 
 @Returns: 
 
 
@@ -59,6 +64,7 @@ poppler-enums
 
 </para>
 
+@void: 
 @Returns: 
 
 
@@ -74,6 +80,7 @@ poppler-enums
 
 </para>
 
+@void: 
 @Returns: 
 
 
@@ -89,6 +96,7 @@ poppler-enums
 
 </para>
 
+@void: 
 @Returns: 
 
 
@@ -104,6 +112,7 @@ poppler-enums
 
 </para>
 
+@void: 
 @Returns: 
 
 
@@ -119,6 +128,7 @@ poppler-enums
 
 </para>
 
+@void: 
 @Returns: 
 
 
@@ -134,6 +144,7 @@ poppler-enums
 
 </para>
 
+@void: 
 @Returns: 
 
 
@@ -149,6 +160,7 @@ poppler-enums
 
 </para>
 
+@void: 
 @Returns: 
 
 
@@ -164,6 +176,7 @@ poppler-enums
 
 </para>
 
+@void: 
 @Returns: 
 
 
@@ -179,6 +192,7 @@ poppler-enums
 
 </para>
 
+@void: 
 @Returns: 
 
 
@@ -194,6 +208,7 @@ poppler-enums
 
 </para>
 
+@void: 
 @Returns: 
 
 
@@ -209,6 +224,7 @@ poppler-enums
 
 </para>
 
+@void: 
 @Returns: 
 
 
@@ -224,6 +240,7 @@ poppler-enums
 
 </para>
 
+@void: 
 @Returns: 
 
 

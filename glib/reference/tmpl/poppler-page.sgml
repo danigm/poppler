@@ -17,6 +17,9 @@ Information about a page in a document
 <!-- ##### SECTION Stability_Level ##### -->
 
 
+<!-- ##### SECTION Image ##### -->
+
+
 <!-- ##### FUNCTION poppler_page_render ##### -->
 <para>
 
@@ -243,6 +246,7 @@ Information about a page in a document
 
 </para>
 
+@void: 
 @Returns: 
 
 
@@ -251,6 +255,7 @@ Information about a page in a document
 
 </para>
 
+@void: 
 @Returns: 
 
 
@@ -296,6 +301,7 @@ Information about a page in a document
 
 </para>
 
+@void: 
 @Returns: 
 
 
@@ -304,6 +310,7 @@ Information about a page in a document
 
 </para>
 
+@void: 
 @Returns: 
 
 
@@ -344,6 +351,7 @@ Information about a page in a document
 
 </para>
 
+@void: 
 @Returns: 
 
 
@@ -352,6 +360,7 @@ Information about a page in a document
 
 </para>
 
+@void: 
 @Returns: 
 
 
@@ -392,6 +401,7 @@ Information about a page in a document
 
 </para>
 
+@void: 
 @Returns: 
 
 
@@ -400,6 +410,7 @@ Information about a page in a document
 
 </para>
 
+@void: 
 @Returns: 
 
 
@@ -440,6 +451,7 @@ Information about a page in a document
 
 </para>
 
+@void: 
 @Returns: 
 
 
@@ -448,6 +460,7 @@ Information about a page in a document
 
 </para>
 
+@void: 
 @Returns: 
 
 

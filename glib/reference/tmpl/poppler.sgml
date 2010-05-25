@@ -17,11 +17,15 @@ poppler
 <!-- ##### SECTION Stability_Level ##### -->
 
 
+<!-- ##### SECTION Image ##### -->
+
+
 <!-- ##### FUNCTION poppler_error_quark ##### -->
 <para>
 
 </para>
 
+@void: 
 @Returns: 
 
 
@@ -266,6 +270,7 @@ poppler
 
 </para>
 
+@void: 
 @Returns: 
 
 
@@ -274,6 +279,7 @@ poppler
 
 </para>
 
+@void: 
 @Returns: 
 
 

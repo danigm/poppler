@@ -17,6 +17,9 @@ Action links
 <!-- ##### SECTION Stability_Level ##### -->
 
 
+<!-- ##### SECTION Image ##### -->
+
+
 <!-- ##### ENUM PopplerActionType ##### -->
 <para>
 
@@ -157,6 +160,7 @@ Action links
 
 </para>
 
+@void: 
 @Returns: 
 
 
@@ -189,6 +193,7 @@ Action links
 
 </para>
 
+@void: 
 @Returns: 
 
 

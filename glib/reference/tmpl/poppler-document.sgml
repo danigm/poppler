@@ -16,6 +16,9 @@ The #PopplerDocument is an object used to refer to a main document.
 <!-- ##### SECTION Stability_Level ##### -->
 
 
+<!-- ##### SECTION Image ##### -->
+
+
 <!-- ##### ENUM PopplerPageLayout ##### -->
 <para>
 
@@ -192,6 +195,7 @@ The #PopplerDocument is an object used to refer to a main document.
 
 </para>
 
+@void: 
 @Returns: 
 
 
@@ -290,6 +294,7 @@ The #PopplerDocument is an object used to refer to a main document.
 
 </para>
 
+@void: 
 @Returns: 
 
 
