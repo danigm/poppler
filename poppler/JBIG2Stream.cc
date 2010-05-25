@@ -742,13 +742,18 @@ JBIG2Bitmap *JBIG2Bitmap::getSlice(Guint x, Guint y, Guint wA, Guint hA) {
   Guint xx, yy;
 
   slice = new JBIG2Bitmap(0, wA, hA);
-  slice->clearToZero();
-  for (yy = 0; yy < hA; ++yy) {
-    for (xx = 0; xx < wA; ++xx) {
-      if (getPixel(x + xx, y + yy)) {
-	slice->setPixel(xx, yy);
+  if (slice->isOk()) {
+    slice->clearToZero();
+    for (yy = 0; yy < hA; ++yy) {
+      for (xx = 0; xx < wA; ++xx) {
+        if (getPixel(x + xx, y + yy)) {
+	  slice->setPixel(xx, yy);
+        }
       }
     }
+  } else {
+    delete slice;
+    slice = NULL;
   }
   return slice;
 }
@@ -3224,8 +3229,12 @@ void JBIG2Stream::readGenericRefinementRegionSeg(Guint segNum, GBool imm,
 
   // store the region bitmap
   } else {
-    bitmap->setSegNum(segNum);
-    segments->append(bitmap);
+    if (bitmap) {
+      bitmap->setSegNum(segNum);
+      segments->append(bitmap);
+    } else {
+      error(curStr->getPos(), "readGenericRefinementRegionSeg with null bitmap");
+    }
   }
 
   // delete the referenced bitmap
