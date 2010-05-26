@@ -1789,39 +1789,30 @@ poppler_page_get_text_mapping (PopplerPage *page)
     for (j=0; j < word->getLength (); j++)
     {
       mapping = poppler_text_mapping_new ();
-      mapping->offset = ++offset;
+      mapping->offset = offset++;
 
-      word->getBBox (&(mapping->area.x1),
-                     &(mapping->area.x2),
-                     &(mapping->area.y1),
-                     &(mapping->area.y2));
-
-      mapping->area.x1 -= page->page->getCropBox()->x1;
-      mapping->area.x2 -= page->page->getCropBox()->x1;
-      mapping->area.y1 -= page->page->getCropBox()->y1;
-      mapping->area.y2 -= page->page->getCropBox()->y1;
+      word->getCharBBox (j,
+                         &(mapping->area.x1),
+                         &(mapping->area.y1),
+                         &(mapping->area.x2),
+                         &(mapping->area.y2));
 
       mapping_list = g_list_append (mapping_list, mapping);
     }
 
     // adding spaces and break lines
-    if (i < wordlist->getLength ())
-    {
-      mapping = poppler_text_mapping_new ();
-      mapping->offset = ++offset;
+    mapping = poppler_text_mapping_new ();
+    mapping->offset = offset++;
 
-      word->getBBox (&(mapping->area.x1),
-                     &(mapping->area.x2),
-                     &(mapping->area.y1),
-                     &(mapping->area.y2));
+    word->getBBox (&(mapping->area.x1),
+                   &(mapping->area.y1),
+                   &(mapping->area.x2),
+                   &(mapping->area.y2));
 
-      mapping->area.x1 -= page->page->getCropBox()->x1;
-      mapping->area.x2 -= page->page->getCropBox()->x1;
-      mapping->area.y1 -= page->page->getCropBox()->y1;
-      mapping->area.y2 -= page->page->getCropBox()->y1;
+    mapping->area.x1 = mapping->area.x2;
+    mapping->area.y1 = mapping->area.y2;
 
-      mapping_list = g_list_append (mapping_list, mapping);
-    }
+    mapping_list = g_list_append (mapping_list, mapping);
   }
 
   return mapping_list;
