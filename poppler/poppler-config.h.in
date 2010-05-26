@@ -91,7 +91,11 @@
 #endif
 
 #if defined(_WIN32)
+#ifdef _MSC_VER
 #define strtok_r strtok_s
+#elif __MINGW32__
+char * strtok_r (char *s, const char *delim, char **save_ptr);
+#endif
 #endif
 
 //------------------------------------------------------------------------
