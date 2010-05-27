@@ -7,6 +7,7 @@
 // Copyright (C) 2009 Stefan Thomas <thomas@eload24.com>
 // Copyright (C) 2010 Adrian Johnson <ajohnson@redneon.com>
 // Copyright (C) 2010 Jürg Billeter <j@bitron.ch>
+// Copyright (C) 2010 Harry Roberts <harry.roberts@midnight-labs.org>
 //
 //========================================================================
 
@@ -27,6 +28,7 @@ extern "C" {
 class JpegWriter : public ImgWriter
 {
 	public:
+		JpegWriter(int quality, bool progressive);
 		JpegWriter();
 		~JpegWriter();
 		
@@ -38,6 +40,8 @@ class JpegWriter : public ImgWriter
 		bool close();
 	
 	private:
+		bool progressive;
+		int quality;
 		struct jpeg_compress_struct cinfo;
 		struct jpeg_error_mgr jerr;
 };

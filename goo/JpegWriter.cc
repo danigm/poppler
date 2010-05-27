@@ -6,6 +6,7 @@
 //
 // Copyright (C) 2009 Stefan Thomas <thomas@eload24.com>
 // Copyright (C) 2010 Adrian Johnson <ajohnson@redneon.com>
+// Copyright (C) 2010 Harry Roberts <harry.roberts@midnight-labs.org>
 //
 //========================================================================
 
@@ -26,7 +27,13 @@ void outputMessage(j_common_ptr cinfo)
 	error(-1, "%s", buffer);
 }
 
+JpegWriter::JpegWriter(int q, bool p)
+: progressive(p), quality(q)
+{
+}
+
 JpegWriter::JpegWriter()
+: progressive(false), quality(-1)
 {
 }
 
@@ -59,10 +66,14 @@ bool JpegWriter::init(FILE *f, int width, int height, int hDPI, int vDPI)
 	jpeg_set_defaults(&cinfo);
 	
 	// Set quality
-	//jpeg_set_quality(&cinfo, 80, true);
+	if( quality >= 0 && quality <= 100 ) { 
+		jpeg_set_quality(&cinfo, quality, true);
+	}
 	
 	// Use progressive mode
-	//jpeg_simple_progression(&cinfo);
+	if( progressive) {
+		jpeg_simple_progression(&cinfo);
+	}
 	
 	// Get ready for data
 	jpeg_start_compress(&cinfo, TRUE);
