@@ -45,6 +45,8 @@ ustring unicode_GooString_to_ustring(GooString *str);
 ustring unicode_to_ustring(const Unicode *u, int length);
 GooString* ustring_to_unicode_GooString(const ustring &str);
 
+time_type convert_date(const char *date);
+
 }
 
 template <typename ConstIterator>

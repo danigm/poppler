@@ -19,10 +19,9 @@
 
 #include "poppler-global.h"
 
-#include "DateInfo.h"
+#include "poppler-private.h"
 
 #include <cerrno>
-#include <ctime>
 #include <cstring>
 #include <iostream>
 
@@ -190,25 +189,7 @@ ustring ustring::from_latin1(const std::string &str)
  */
 time_type poppler::convert_date(const std::string &date)
 {
-    int year, mon, day, hour, min, sec, tzHours, tzMins;
-    char tz;
-
-    if (!parseDateString(date.c_str(), &year, &mon, &day, &hour, &min, &sec,
-                                       &tz, &tzHours, &tzMins)) {
-        return time_type(-1);
-    }
-
-    struct tm time;
-    time.tm_sec = sec;
-    time.tm_min = min;
-    time.tm_hour = hour;
-    time.tm_mday = day;
-    time.tm_mon = mon - 1;
-    time.tm_year = year - 1900;
-    time.tm_wday = -1;
-    time.tm_yday = -1;
-    time.tm_isdst = -1;
-    return mktime(&time);
+    return detail::convert_date(date.c_str());
 }
 
 std::ostream& poppler::operator<<(std::ostream& stream, const byte_array &array)

@@ -350,7 +350,7 @@ time_type document::info_date(const std::string &key) const
     Object obj;
     time_type result = time_type(-1);
     if (info_dict->lookup(PSTR(key.c_str()), &obj)->isString()) {
-        result = convert_date(obj.getString()->getCString());
+        result = detail::convert_date(obj.getString()->getCString());
     }
     obj.free();
     info.free();
