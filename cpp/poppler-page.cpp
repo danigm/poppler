@@ -42,17 +42,41 @@ page_private::~page_private()
     delete transition;
 }
 
+/**
+ \class poppler::page poppler-page.h "poppler/cpp/poppler-page.h"
+
+ A page in a PDF %document.
+ */
+
+/**
+ \enum poppler::page::orientation_enum
+
+ The possible orientation of a page.
+*/
+
+/**
+ \enum poppler::page::search_direction_enum
+
+ The direction/action to follow when performing a text search.
+*/
+
 
 page::page(document_private *doc, int index)
     : d(new page_private(doc, index))
 {
 }
 
+/**
+ Destructor.
+ */
 page::~page()
 {
     delete d;
 }
 
+/**
+ \returns the orientation of the page
+ */
 page::orientation_enum page::orientation() const
 {
     const int rotation = d->page->getRotate();
@@ -71,11 +95,26 @@ page::orientation_enum page::orientation() const
     }
 }
 
+/**
+ The eventual duration the page can be hinted to be shown in a presentation.
+
+ If this value is positive (usually different than -1) then a PDF viewer, when
+ showing the page in a presentation, should show the page for at most for this
+ number of seconds, and then switch to the next page (if any). Note this is
+ purely a presentation attribute, it has no influence on the behaviour.
+
+ \returns the duration time (in seconds) of the page
+ */
 double page::duration() const
 {
     return d->page->getDuration();
 }
 
+/**
+ Returns the size of one rect of the page.
+
+ \returns the size of the specified page rect
+ */
 rectf page::page_rect(page_box_enum box) const
 {
     PDFRectangle *r = 0;
@@ -102,6 +141,9 @@ rectf page::page_rect(page_box_enum box) const
     return rectf();
 }
 
+/**
+ \returns the label of the page, if any
+ */
 ustring page::label() const
 {
     GooString goo;
@@ -112,6 +154,14 @@ ustring page::label() const
     return detail::unicode_GooString_to_ustring(&goo);
 }
 
+/**
+ The transition from this page to the next one.
+
+ If it is set, then a PDF viewer in a presentation should perform the
+ specified transition effect when switching from this page to the next one.
+
+ \returns the transition effect for the switch to the next page, if any
+ */
 page_transition* page::transition() const
 {
     if (!d->transition) {
@@ -124,6 +174,16 @@ page_transition* page::transition() const
     return d->transition;
 }
 
+/**
+ Search the page for some text.
+
+ \param text the text to search
+ \param[in,out] r the area where to start search, which will be set to the area
+                  of the match (if any)
+ \param direction in which direction search for text
+ \param case_sensitivity whether search in a case sensitive way
+ \param rotation the rotation assumed for the page
+ */
 bool page::search(const ustring &text, rectf &r, search_direction_enum direction,
                   case_sensitivity_enum case_sensitivity, rotation_enum rotation) const
 {
@@ -173,6 +233,14 @@ bool page::search(const ustring &text, rectf &r, search_direction_enum direction
     return found;
 }
 
+/**
+ Returns the text in the page.
+
+ \param r if not empty, it will be extracted the text in it; otherwise, the
+          text of the whole page
+
+ \returns the text of the page in the specified rect or in the whole page
+ */
 ustring page::text(const rectf &r) const
 {
     std::auto_ptr<GooString> s;
