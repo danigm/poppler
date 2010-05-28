@@ -510,7 +510,7 @@ GBool XRef::readXRefTable(Parser *parser, Guint *pos, GooVector<Guint> *followed
   // check for an 'XRefStm' key
   if (obj.getDict()->lookup("XRefStm", &obj2)->isInt()) {
     pos2 = (Guint)obj2.getInt();
-    for (uint i = 0; ok == gTrue && i < followedXRefStm->size(); ++i) {
+    for (size_t i = 0; ok == gTrue && i < followedXRefStm->size(); ++i) {
       if (followedXRefStm->at(i) == pos2) {
         ok = gFalse;
       }
