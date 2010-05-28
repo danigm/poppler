@@ -37,8 +37,8 @@ public:
     std::string name() const;
     ustring description() const;
     int size() const;
-    unsigned int /*time_t*/ modification_date() const;
-    unsigned int /*time_t*/ creation_date() const;
+    time_type modification_date() const;
+    time_type creation_date() const;
     byte_array checksum() const;
     std::string mime_type() const;
     byte_array data() const;

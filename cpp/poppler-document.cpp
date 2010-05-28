@@ -334,21 +334,21 @@ ustring document::info_key(const std::string &key) const
  \returns the time_t value for the \p key
  \see info_keys, info_date
  */
-unsigned int document::info_date(const std::string &key) const
+time_type document::info_date(const std::string &key) const
 {
     if (d->is_locked) {
-        return (unsigned int)(-1);
+        return time_type(-1);
     }
 
     Object info;
     if (!d->doc->getDocInfo(&info)->isDict()) {
         info.free();
-        return (unsigned int)(-1);
+        return time_type(-1);
     }
 
     Dict *info_dict = info.getDict();
     Object obj;
-    unsigned int result = (unsigned int)(-1);
+    time_type result = time_type(-1);
     if (info_dict->lookup(PSTR(key.c_str()), &obj)->isString()) {
         result = convert_date(obj.getString()->getCString());
     }

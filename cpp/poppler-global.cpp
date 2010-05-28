@@ -188,14 +188,14 @@ ustring ustring::from_latin1(const std::string &str)
 /**
  Converts a string representing a PDF date to a value compatible with time_t.
  */
-unsigned int poppler::convert_date(const std::string &date)
+time_type poppler::convert_date(const std::string &date)
 {
     int year, mon, day, hour, min, sec, tzHours, tzMins;
     char tz;
 
     if (!parseDateString(date.c_str(), &year, &mon, &day, &hour, &min, &sec,
                                        &tz, &tzHours, &tzMins)) {
-        return (unsigned int)(-1);
+        return time_type(-1);
     }
 
     struct tm time;

@@ -72,6 +72,8 @@ enum case_sensitivity_enum { case_sensitive, case_insensitive };
 
 typedef std::vector<char> byte_array;
 
+typedef unsigned int /* time_t */ time_type;
+
 // to disable warning only for this occurrence
 #ifdef _MSC_VER
 #pragma warning(push)
@@ -100,7 +102,7 @@ private:
 #pragma warning(pop)
 #endif
 
-POPPLER_CPP_EXPORT unsigned int /*time_t*/ convert_date(const std::string &date);
+POPPLER_CPP_EXPORT time_type convert_date(const std::string &date);
 
 POPPLER_CPP_EXPORT std::ostream& operator<<(std::ostream& stream, const byte_array &array);
 

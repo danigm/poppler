@@ -62,7 +62,7 @@ public:
     void get_pdf_version(int *major, int *minor) const;
     std::vector<std::string> info_keys() const;
     ustring info_key(const std::string &key) const;
-    unsigned int /*time_t*/ info_date(const std::string &key) const;
+    time_type info_date(const std::string &key) const;
     bool is_encrypted() const;
     bool is_linearized() const;
     bool has_permission(permission_enum which) const;
