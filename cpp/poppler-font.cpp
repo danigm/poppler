@@ -62,7 +62,7 @@ public:
     font_iterator_private(int start_page, document_private *dd)
         : font_info_scanner(dd->doc, start_page)
         , total_pages(dd->doc->getNumPages())
-        , current_page((std::max)(start_page, 0) - 1)
+        , current_page((std::max)(start_page, 0))
     {
     }
     ~font_iterator_private()
@@ -206,6 +206,10 @@ font_iterator::~font_iterator()
  */
 std::vector<font_info> font_iterator::next()
 {
+    if (!has_next()) {
+        return std::vector<font_info>();
+    }
+
     ++d->current_page;
 
     GooList *items = d->font_info_scanner.scan(1);
@@ -225,7 +229,7 @@ std::vector<font_info> font_iterator::next()
 */
 bool font_iterator::has_next() const
 {
-    return (d->current_page + 1) < d->total_pages;
+    return d->current_page < d->total_pages;
 }
 
 /**
