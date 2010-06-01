@@ -1781,7 +1781,7 @@ poppler_page_get_text_mapping (PopplerPage *page)
   int i, j, offset = 0;
 
   text = poppler_page_get_text_page (page);
-  wordlist = text->makeWordList (gTrue);
+  wordlist = text->makeWordList (gFalse);
 
   for (i=0; i < wordlist->getLength (); i++)
   {
