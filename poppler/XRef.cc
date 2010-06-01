@@ -897,13 +897,17 @@ GBool XRef::okToPrint(GBool ignoreOwnerPW) {
 // 2 (and we are allowed to print at all), or with security handler rev
 // 3 and we are allowed to print, and bit 12 is set.
 GBool XRef::okToPrintHighRes(GBool ignoreOwnerPW) {
-  if (2 == encRevision) {
-    return (okToPrint(ignoreOwnerPW));
-  } else if (encRevision >= 3) {
-    return (okToPrint(ignoreOwnerPW) && (permFlags & permHighResPrint));
+  if (encrypted) {
+    if (2 == encRevision) {
+      return (okToPrint(ignoreOwnerPW));
+    } else if (encRevision >= 3) {
+      return (okToPrint(ignoreOwnerPW) && (permFlags & permHighResPrint));
+    } else {
+      // something weird - unknown security handler version
+      return gFalse;
+    }
   } else {
-    // something weird - unknown security handler version
-    return gFalse;
+    return gTrue;
   }
 }
 
