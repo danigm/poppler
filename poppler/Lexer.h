@@ -13,7 +13,7 @@
 // All changes made under the Poppler project to this file are licensed
 // under GPL version 2 or later
 //
-// Copyright (C) 2006, 2007 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2006, 2007, 2010 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2006 Krzysztof Kowalczyk <kkowalczyk@gmail.com>
 //
 // To see a description of the changes please see the Changelog file that
@@ -64,16 +64,16 @@ public:
 
   // Get stream.
   Stream *getStream()
-    { return curStr.isNone() ? (Stream *)NULL : curStr.getStream(); }
+    { return curStr.isStream() ? curStr.getStream() : (Stream *)NULL; }
 
   // Get current position in file.  This is only used for error
   // messages, so it returns an int instead of a Guint.
   int getPos()
-    { return curStr.isNone() ? -1 : (int)curStr.streamGetPos(); }
+    { return curStr.isStream() ? (int)curStr.streamGetPos() : -1; }
 
   // Set position in file.
   void setPos(Guint pos, int dir = 0)
-    { if (!curStr.isNone()) curStr.streamSetPos(pos, dir); }
+    { if (curStr.isStream()) curStr.streamSetPos(pos, dir); }
 
   // Returns true if <c> is a whitespace character.
   static GBool isSpace(int c);
