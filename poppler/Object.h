@@ -99,7 +99,7 @@ enum ObjType {
   objNone,			// uninitialized object
 
   // poppler-only objects
-  objUint			// overflown integer
+  objUint			// overflown integer that still fits in a unsigned integer
 };
 
 #define numObjTypes 15		// total number of object types
