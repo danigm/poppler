@@ -1797,7 +1797,7 @@ poppler_page_get_text_mapping (PopplerPage *page)
                          &(mapping->area.x2),
                          &(mapping->area.y2));
 
-      mapping_list = g_list_append (mapping_list, mapping);
+      mapping_list = g_list_prepend (mapping_list, mapping);
     }
 
     // adding spaces and break lines
@@ -1812,10 +1812,10 @@ poppler_page_get_text_mapping (PopplerPage *page)
     mapping->area.x1 = mapping->area.x2;
     mapping->area.y1 = mapping->area.y2;
 
-    mapping_list = g_list_append (mapping_list, mapping);
+    mapping_list = g_list_prepend (mapping_list, mapping);
   }
 
-  return mapping_list;
+  return g_list_reverse (mapping_list);
 }
 
 /**
