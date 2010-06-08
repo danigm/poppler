@@ -816,7 +816,11 @@ GBool XRef::constructXRef() {
 		      return gFalse;
 		    }
 		    entries = (XRefEntry *)
-		        greallocn(entries, newSize, sizeof(XRefEntry));
+		        greallocn_checkoverflow(entries, newSize, sizeof(XRefEntry));
+		    if (entries == NULL) {
+		      size = 0;
+		      return gFalse;
+		    }
 		    for (i = size; i < newSize; ++i) {
 		      entries[i].offset = 0xffffffff;
 		      entries[i].type = xrefEntryFree;
