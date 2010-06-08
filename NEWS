@@ -1,3 +1,21 @@
+Release 0.14.0
+
+	core:
+	 * Fix crash when parsing pdf with broken JBIG2Stream (Bug #28170)
+	 * Do not follow loops blindly when parsing XRef (Bug #28172)
+	 * Allow quality & progressive mode to be utilised in JpegWriter
+	 * Fix potential assert in Lexer code (KDE bug #240208)
+	 * Fix opening of files whose /P is stored as unsigned integer
+	 * Do not exit() when trying to allocate memory for the XRef fails
+	
+	cpp:
+	 * Minor bugfixes
+	 * Documentation improvements
+	
+	build system:
+	 * Fix build in mingw32 when using autotools
+	 * Preserve compiler flags when using cmake
+
 Release 0.13.4 (0.14 RC 1)
 
 	core:
