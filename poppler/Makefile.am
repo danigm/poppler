@@ -249,8 +249,8 @@ poppler_include_HEADERS =	\
 	SecurityHandler.h	\
 	UTF8.h			\
 	XpdfPluginAPI.h		\
-	Sound.h			\
-	poppler-config.h
+	Sound.h
+nodist_poppler_include_HEADERS = poppler-config.h
 
 endif
 
