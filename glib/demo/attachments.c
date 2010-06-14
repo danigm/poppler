@@ -179,7 +179,6 @@ pgd_attachments_save_button_clicked (GtkButton   *button,
 		
 }
 
-#if GLIB_CHECK_VERSION(2, 16, 0)
 static gboolean
 attachment_save_callback (const gchar  *buf,
 			  gsize         count,
@@ -270,7 +269,6 @@ pgd_attachments_validate_button_clicked (GtkButton   *button,
 	g_free (digest);
 	g_object_unref (attachment);
 }
-#endif
 
 GtkWidget *
 pgd_attachments_create_widget (PopplerDocument *document)
@@ -340,7 +338,6 @@ pgd_attachments_create_widget (PopplerDocument *document)
 	gtk_box_pack_start (GTK_BOX (hbox), button, FALSE, FALSE, 0);
 	gtk_widget_show (button);
 
-#if GLIB_CHECK_VERSION(2, 16, 0)
 	button = gtk_button_new_with_label ("Validate");
 	g_signal_connect (G_OBJECT (button), "clicked",
 			  G_CALLBACK (pgd_attachments_validate_button_clicked),
@@ -348,8 +345,6 @@ pgd_attachments_create_widget (PopplerDocument *document)
 
 	gtk_box_pack_start (GTK_BOX (hbox), button, FALSE, FALSE, 0);
 	gtk_widget_show (button);
-#endif
-	
 
 	gtk_box_pack_start (GTK_BOX (vbox), hbox, FALSE, TRUE, 6);
 	gtk_widget_show (hbox);
