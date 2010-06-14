@@ -37,7 +37,7 @@
 class Dict;
 class Stream;
 class Parser;
-class ObjectStream;
+class PopplerCache;
 
 //------------------------------------------------------------------------
 // XRef
@@ -146,7 +146,7 @@ private:
   Guint *streamEnds;		// 'endstream' positions - only used in
 				//   damaged files
   int streamEndsLen;		// number of valid entries in streamEnds
-  ObjectStream *objStr;		// cached object stream
+  PopplerCache *objStrs;	// cached object streams
   GBool encrypted;		// true if file is encrypted
   int encRevision;		
   int encVersion;		// encryption algorithm

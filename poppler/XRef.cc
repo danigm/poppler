@@ -45,6 +45,7 @@
 #include "Error.h"
 #include "ErrorCodes.h"
 #include "XRef.h"
+#include "PopplerCache.h"
 
 //------------------------------------------------------------------------
 
@@ -95,6 +96,37 @@ private:
   Object *objs;			// the objects (length = nObjects)
   int *objNums;			// the object numbers (length = nObjects)
   GBool ok;
+};
+
+class ObjectStreamKey : public PopplerCacheKey
+{
+  public:
+    ObjectStreamKey(int num) : objStrNum(num)
+    {
+    }
+
+    bool operator==(const PopplerCacheKey &key) const
+    {
+      const ObjectStreamKey *k = static_cast<const ObjectStreamKey*>(&key);
+      return objStrNum == k->objStrNum;
+    }
+
+    const int objStrNum;
+};
+
+class ObjectStreamItem : public PopplerCacheItem
+{
+  public:
+    ObjectStreamItem(ObjectStream *objStr) : objStream(objStr)
+    {
+    }
+
+    ~ObjectStreamItem()
+    {
+      delete objStream;
+    }
+
+    ObjectStream *objStream;
 };
 
 ObjectStream::ObjectStream(XRef *xref, int objStrNumA) {
@@ -233,7 +265,7 @@ XRef::XRef() {
   size = 0;
   streamEnds = NULL;
   streamEndsLen = 0;
-  objStr = NULL;
+  objStrs = new PopplerCache(5);
 }
 
 XRef::XRef(BaseStream *strA) {
@@ -246,7 +278,7 @@ XRef::XRef(BaseStream *strA) {
   entries = NULL;
   streamEnds = NULL;
   streamEndsLen = 0;
-  objStr = NULL;
+  objStrs = new PopplerCache(5);
 
   encrypted = gFalse;
   permFlags = defPermFlags;
@@ -309,8 +341,8 @@ XRef::~XRef() {
   if (streamEnds) {
     gfree(streamEnds);
   }
-  if (objStr) {
-    delete objStr;
+  if (objStrs) {
+    delete objStrs;
   }
 }
 
@@ -1010,22 +1042,34 @@ Object *XRef::fetch(int num, int gen, Object *obj) {
     break;
 
   case xrefEntryCompressed:
+  {
     if (gen != 0) {
       goto err;
     }
-    if (!objStr || objStr->getObjStrNum() != (int)e->offset) {
-      if (objStr) {
-	delete objStr;
-      }
+
+    ObjectStream *objStr = NULL;
+    ObjectStreamKey key(e->offset);
+    PopplerCacheItem *item = objStrs->lookup(key);
+    if (item) {
+      ObjectStreamItem *it = static_cast<ObjectStreamItem *>(item);
+      objStr = it->objStream;
+    }
+
+    if (!objStr) {
       objStr = new ObjectStream(this, e->offset);
       if (!objStr->isOk()) {
 	delete objStr;
 	objStr = NULL;
 	goto err;
+      } else {
+	ObjectStreamKey *newkey = new ObjectStreamKey(e->offset);
+	ObjectStreamItem *newitem = new ObjectStreamItem(objStr);
+	objStrs->put(newkey, newitem);
       }
     }
     objStr->getObject(e->gen, num, obj);
-    break;
+  }
+  break;
 
   default:
     goto err;
