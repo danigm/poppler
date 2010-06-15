@@ -1603,6 +1603,9 @@ void LinkAnnotation::store( QDomNode & node, QDomDocument & document ) const
                     case Poppler::LinkAction::Close:
                         hyperlinkElement.setAttribute( "action", "Close" );
                         break;
+                    case Poppler::LinkAction::Print:
+                        hyperlinkElement.setAttribute( "action", "Print" );
+                        break;
                 }
                 break;
             }
