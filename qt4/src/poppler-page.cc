@@ -129,6 +129,8 @@ Link* PageData::convertLinkActionToLink(::LinkAction * a, DocumentData *parentDo
         popplerLink = new LinkAction( linkArea, LinkAction::Find );
       else if ( !strcmp( name, "FullScreen" ) )
         popplerLink = new LinkAction( linkArea, LinkAction::Presentation );
+      else if ( !strcmp( name, "Print" ) )
+        popplerLink = new LinkAction( linkArea, LinkAction::Print );
       else if ( !strcmp( name, "Close" ) )
       {
         // acroread closes the document always, doesnt care whether 
