@@ -1733,104 +1733,90 @@ poppler_page_get_crop_box (PopplerPage *page, PopplerRectangle *rect)
   rect->y2 = cropBox->y2;
 }
 
-/* PopplerTextMapping type */
-POPPLER_DEFINE_BOXED_TYPE (PopplerTextMapping, poppler_text_mapping,
-			   poppler_text_mapping_copy,
-			   poppler_text_mapping_free)
-
-PopplerTextMapping *
-poppler_text_mapping_new (void)
-{
-  return (PopplerTextMapping *) g_new0 (PopplerTextMapping, 1);
-}
-
-PopplerTextMapping *
-poppler_text_mapping_copy (PopplerTextMapping *mapping)
-{
-  PopplerTextMapping *new_mapping;
-
-  new_mapping = poppler_text_mapping_new ();
-  *new_mapping = *mapping;
-
-  return new_mapping;
-}
-
-void
-poppler_text_mapping_free (PopplerTextMapping *mapping)
-{
-  g_free (mapping);
-}
-
 /**
- * poppler_page_get_text_mapping:
+ * poppler_page_get_text_layout:
  * @page: A #PopplerPage
  *
- * Returns a list of #PopplerTextMapping items
- * This list must be freed with poppler_page_free_text_mapping() when done.
+ * Returns an array of #PopplerRectangle items
+ * This array must be freed with g_free () when done.
  *
- * Return value: A #GList of #PopplerTextMapping
+ * The position in the array represent the offset in text returned by
+ * poppler_page_get_text
+ *
+ * Return value: An array of #PopplerRectangle, n_areas is the size of
+ * the array.
  **/
-GList *
-poppler_page_get_text_mapping (PopplerPage *page)
+gboolean
+poppler_page_get_text_layout (PopplerPage       *page,
+                              PopplerRectangle **areas,
+                              guint             *n_areas)
 {
   TextPage *text;
   TextWordList *wordlist;
-  TextWord *word;
-  GList *mapping_list = NULL;
-  PopplerTextMapping *mapping;
+  TextWord *word, *nextword;
+  PopplerRectangle *rect;
   int i, j, offset = 0;
+  gdouble x1, y1, x2, y2;
+  gdouble x3, y3, x4, y4;
+
+  *n_areas = 0;
 
   text = poppler_page_get_text_page (page);
   wordlist = text->makeWordList (gFalse);
 
+  // Getting the array size
   for (i=0; i < wordlist->getLength (); i++)
   {
-    word = wordlist->get(i);
+    word = wordlist->get (i);
+    *n_areas += word->getLength () + 1;
+  }
+
+  // Creating areas
+  *areas = g_new (PopplerRectangle, *n_areas);
+
+  // Calculating each char position
+  for (i=0; i < wordlist->getLength (); i++)
+  {
+    word = wordlist->get (i);
     for (j=0; j < word->getLength (); j++)
     {
-      mapping = poppler_text_mapping_new ();
-      mapping->offset = offset++;
-
+      rect = *areas + offset;
       word->getCharBBox (j,
-                         &(mapping->area.x1),
-                         &(mapping->area.y1),
-                         &(mapping->area.x2),
-                         &(mapping->area.y2));
-
-      mapping_list = g_list_prepend (mapping_list, mapping);
+                         &(rect->x1),
+                         &(rect->y1),
+                         &(rect->x2),
+                         &(rect->y2));
+      offset++;
     }
 
     // adding spaces and break lines
-    mapping = poppler_text_mapping_new ();
-    mapping->offset = offset++;
-
-    word->getBBox (&(mapping->area.x1),
-                   &(mapping->area.y1),
-                   &(mapping->area.x2),
-                   &(mapping->area.y2));
-
-    mapping->area.x1 = mapping->area.x2;
-    mapping->area.y1 = mapping->area.y2;
-
-    mapping_list = g_list_prepend (mapping_list, mapping);
+    nextword = word->getNext ();
+    if (nextword)
+    {
+      rect = *areas + offset;
+      word->getBBox (&x1, &y1, &x2, &y2);
+      nextword->getBBox (&x3, &y3, &x4, &y4);
+      // space is from one wort to other and with the same height as
+      // first word.
+      rect->x1 = x2;
+      rect->y1 = y1;
+      rect->x2 = x3;
+      rect->y2 = y2;
+    }
+    else
+    {
+      // end of line
+      rect = *areas + offset;
+      word->getBBox (&x1, &y1, &x2, &y2);
+      rect->x1 = x2;
+      rect->y1 = y2;
+      rect->x2 = x2;
+      rect->y2 = y2;
+    }
+    offset++;
   }
 
-  return g_list_reverse (mapping_list);
-}
+  delete wordlist;
 
-/**
- * poppler_page_free_text_mapping:
- * @list: A list of #PopplerTextMapping<!-- -->s
- *
- * Frees a list of #PopplerTextMapping<!-- -->s allocated by
- * poppler_page_get_text_mapping().
- **/
-void
-poppler_page_free_text_mapping (GList *list)
-{
-  if (!list)
-    return;
-
-  g_list_foreach (list, (GFunc)poppler_text_mapping_free, NULL);
-  g_list_free (list);
+  return gTrue;
 }
