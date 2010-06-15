@@ -114,7 +114,9 @@ GList                 *poppler_page_get_annot_mapping    (PopplerPage        *pa
 void                   poppler_page_free_annot_mapping   (GList              *list);
 void 		      poppler_page_get_crop_box 	 (PopplerPage        *page,
 							  PopplerRectangle   *rect);
-
+gboolean               poppler_page_get_text_layout      (PopplerPage        *page,
+                                                          PopplerRectangle  **rectangles,
+                                                          guint              *n_rectangles);
 
 /* A rectangle on a page, with coordinates in PDF points. */
 #define POPPLER_TYPE_RECTANGLE             (poppler_rectangle_get_type ())

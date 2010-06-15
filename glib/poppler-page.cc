@@ -1736,3 +1736,94 @@ poppler_page_get_crop_box (PopplerPage *page, PopplerRectangle *rect)
   rect->y2 = cropBox->y2;
 }
 
+/**
+ * poppler_page_get_text_layout:
+ * @page: A #PopplerPage
+ * @rectangles: return location for an array of #PopplerRectangle
+ * @n_rectangles: length of returned array
+ *
+ * Obtains the layout of the text as a list of #PopplerRectangle
+ * This array must be freed with g_free () when done.
+ *
+ * The position in the array represents an offset in the text returned by
+ * poppler_page_get_text
+ *
+ * Return value: %TRUE if the page contains text, %FALSE otherwise
+ **/
+gboolean
+poppler_page_get_text_layout (PopplerPage       *page,
+                              PopplerRectangle **rectangles,
+                              guint             *n_rectangles)
+{
+  TextPage *text;
+  TextWordList *wordlist;
+  TextWord *word, *nextword;
+  PopplerRectangle *rect;
+  int i, j, offset = 0;
+  gdouble x1, y1, x2, y2;
+  gdouble x3, y3, x4, y4;
+
+  g_return_val_if_fail (POPPLER_IS_PAGE (page), FALSE);
+
+  *n_rectangles = 0;
+
+  text = poppler_page_get_text_page (page);
+  wordlist = text->makeWordList (gFalse);
+
+  if (wordlist->getLength () <= 0)
+    return FALSE;
+
+  // Getting the array size
+  for (i = 0; i < wordlist->getLength (); i++)
+    {
+      word = wordlist->get (i);
+      *n_rectangles += word->getLength () + 1;
+    }
+
+  *rectangles = g_new (PopplerRectangle, *n_rectangles);
+
+  // Calculating each char position
+  for (i = 0; i < wordlist->getLength (); i++)
+    {
+      word = wordlist->get (i);
+      for (j = 0; j < word->getLength (); j++)
+        {
+          rect = *rectangles + offset;
+	  word->getCharBBox (j,
+			     &(rect->x1),
+			     &(rect->y1),
+			     &(rect->x2),
+			     &(rect->y2));
+	  offset++;
+	}
+
+      // adding spaces and break lines
+      rect = *rectangles + offset;
+      word->getBBox (&x1, &y1, &x2, &y2);
+
+      nextword = word->getNext ();
+      if (nextword)
+        {
+	  nextword->getBBox (&x3, &y3, &x4, &y4);
+	  // space is from one word to other and with the same height as
+	  // first word.
+	  rect->x1 = x2;
+	  rect->y1 = y1;
+	  rect->x2 = x3;
+	  rect->y2 = y2;
+	}
+      else
+        {
+	  // end of line
+	  rect->x1 = x2;
+	  rect->y1 = y2;
+	  rect->x2 = x2;
+	  rect->y2 = y2;
+	}
+      offset++;
+    }
+
+  delete wordlist;
+
+  return TRUE;
+}
