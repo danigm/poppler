@@ -1477,6 +1477,8 @@ LinkAnnotation::LinkAnnotation( const QDomNode & node )
                         act = Poppler::LinkAction::GoToPage;
                     else if ( actString == "Close" )
                         act = Poppler::LinkAction::Close;
+                    else if ( actString == "Print" )
+                        act = Poppler::LinkAction::Print;
                     else
                         found = false;
                     if (found)
