@@ -42,6 +42,9 @@
 #include "SplashGlyphBitmap.h"
 #include "Splash.h"
 
+// to get the unlikely definition
+#include "Object.h"
+
 //------------------------------------------------------------------------
 
 // distance of Bezier control point from center for circle approximation
@@ -646,6 +649,9 @@ inline void Splash::pipeIncX(SplashPipe *pipe) {
 }
 
 inline void Splash::drawPixel(SplashPipe *pipe, int x, int y, GBool noClip) {
+  if (unlikely(y < 0))
+    return;
+
   if (noClip || state->clip->test(x, y)) {
     pipeSetXY(pipe, x, y);
     pipeRun(pipe);
