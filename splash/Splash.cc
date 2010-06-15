@@ -29,6 +29,7 @@
 #include <string.h>
 #include <limits.h>
 #include "goo/gmem.h"
+#include "goo/GooLikely.h"
 #include "SplashErrorCodes.h"
 #include "SplashMath.h"
 #include "SplashBitmap.h"
@@ -41,9 +42,6 @@
 #include "SplashFont.h"
 #include "SplashGlyphBitmap.h"
 #include "Splash.h"
-
-// to get the unlikely definition
-#include "Object.h"
 
 //------------------------------------------------------------------------
 

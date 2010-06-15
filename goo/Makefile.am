@@ -17,6 +17,7 @@ poppler_goo_include_HEADERS =			\
 	PNGWriter.h				\
 	JpegWriter.h				\
 	ImgWriter.h				\
+	GooLikely.h				\
 	gstrtod.h
 
 endif

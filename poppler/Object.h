@@ -35,15 +35,8 @@
 #include "goo/gtypes.h"
 #include "goo/gmem.h"
 #include "goo/GooString.h"
+#include "goo/GooLikely.h"
 #include "Error.h"
-
-#if defined(__GNUC__) && (__GNUC__ > 2) && defined(__OPTIMIZE__)
-# define likely(x)      __builtin_expect((x), 1)
-# define unlikely(x)    __builtin_expect((x), 0)
-#else
-# define likely(x)      (x)
-# define unlikely(x)    (x)
-#endif
 
 #define OBJECT_TYPE_CHECK(wanted_type) \
     if (unlikely(type != wanted_type)) { \
