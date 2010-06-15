@@ -34,8 +34,7 @@ poppler_dest_copy (PopplerDest *dest)
 {
 	PopplerDest *new_dest;
 
-	new_dest = g_new0 (PopplerDest, 1);
-	memcpy (new_dest, dest, sizeof (PopplerDest));
+	new_dest = g_slice_dup (PopplerDest, dest);
 
 	if (dest->named_dest)
 		new_dest->named_dest = g_strdup (dest->named_dest);
@@ -59,7 +58,7 @@ poppler_dest_free (PopplerDest *dest)
 	if (dest->named_dest)
 		g_free (dest->named_dest);
 	
-	g_free (dest);
+	g_slice_free (PopplerDest, dest);
 }
 
 static void
@@ -74,15 +73,14 @@ poppler_action_layer_free (PopplerActionLayer *action_layer)
 		action_layer->layers = NULL;
 	}
 
-	g_free (action_layer);
+	g_slice_free (PopplerActionLayer, action_layer);
 }
 
 static PopplerActionLayer *
 poppler_action_layer_copy (PopplerActionLayer *action_layer)
 {
-	PopplerActionLayer *retval = g_new (PopplerActionLayer, 1);
+	PopplerActionLayer *retval = g_slice_dup (PopplerActionLayer, action_layer);
 
-	retval->action = action_layer->action;
 	retval->layers = g_list_copy (action_layer->layers);
 	g_list_foreach (action_layer->layers, (GFunc)g_object_ref, NULL);
 
@@ -141,7 +139,7 @@ poppler_action_free (PopplerAction *action)
 	}
 	
 	g_free (action->any.title);
-	g_free (action);
+	g_slice_free (PopplerAction, action);
 }
 
 /**
@@ -160,8 +158,7 @@ poppler_action_copy (PopplerAction *action)
 	g_return_val_if_fail (action != NULL, NULL);
 
 	/* Do a straight copy of the memory */
-	new_action = g_new0 (PopplerAction, 1);
-	memcpy (new_action, action, sizeof (PopplerAction));
+	new_action = g_slice_dup (PopplerAction, action);
 
 	if (action->any.title != NULL)
 		new_action->any.title = g_strdup (action->any.title);
@@ -224,7 +221,7 @@ dest_new_goto (PopplerDocument *document,
 {
 	PopplerDest *dest;
 
-	dest = g_new0 (PopplerDest, 1);
+	dest = g_slice_new0 (PopplerDest);
 
 	if (link_dest == NULL) {
 		dest->type = POPPLER_DEST_UNKNOWN;
@@ -309,7 +306,7 @@ dest_new_named (GooString *named_dest)
 {
 	PopplerDest *dest;
 
-	dest = g_new0 (PopplerDest, 1);
+	dest = g_slice_new0 (PopplerDest);
 
 	if (named_dest == NULL) {
 		dest->type = POPPLER_DEST_UNKNOWN;
@@ -601,7 +598,7 @@ _poppler_action_new (PopplerDocument *document,
 {
 	PopplerAction *action;
 
-	action = g_new0 (PopplerAction, 1);
+	action = g_slice_new0 (PopplerAction);
 
 	if (title)
 		action->any.title = g_strdup (title);
