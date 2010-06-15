@@ -1523,26 +1523,21 @@ POPPLER_DEFINE_BOXED_TYPE (PopplerRectangle, poppler_rectangle,
 PopplerRectangle *
 poppler_rectangle_new (void)
 {
-  return g_new0 (PopplerRectangle, 1);
+  return g_slice_new0 (PopplerRectangle);
 }
 
 PopplerRectangle *
 poppler_rectangle_copy (PopplerRectangle *rectangle)
 {
-  PopplerRectangle *new_rectangle;
-
   g_return_val_if_fail (rectangle != NULL, NULL);
-  
-  new_rectangle = g_new (PopplerRectangle, 1);
-  *new_rectangle = *rectangle;
 
-  return new_rectangle;
+  return g_slice_dup (PopplerRectangle, rectangle);
 }
 
 void
 poppler_rectangle_free (PopplerRectangle *rectangle)
 {
-  g_free (rectangle);
+  g_slice_free (PopplerRectangle, rectangle);
 }
 
 /* PopplerColor type */
@@ -1579,7 +1574,7 @@ POPPLER_DEFINE_BOXED_TYPE (PopplerLinkMapping, poppler_link_mapping,
 PopplerLinkMapping *
 poppler_link_mapping_new (void)
 {
-  return (PopplerLinkMapping *) g_new0 (PopplerLinkMapping, 1);
+  return g_slice_new0 (PopplerLinkMapping);
 }
 
 PopplerLinkMapping *
@@ -1587,9 +1582,8 @@ poppler_link_mapping_copy (PopplerLinkMapping *mapping)
 {
   PopplerLinkMapping *new_mapping;
 
-  new_mapping = poppler_link_mapping_new ();
-	
-  *new_mapping = *mapping;
+  new_mapping = g_slice_dup (PopplerLinkMapping, mapping);
+
   if (new_mapping->action)
     new_mapping->action = poppler_action_copy (new_mapping->action);
 
@@ -1602,7 +1596,7 @@ poppler_link_mapping_free (PopplerLinkMapping *mapping)
   if (mapping->action)
     poppler_action_free (mapping->action);
 
-  g_free (mapping);
+  g_slice_free (PopplerLinkMapping, mapping);
 }
 
 /* Poppler Image mapping type */
@@ -1613,25 +1607,19 @@ POPPLER_DEFINE_BOXED_TYPE (PopplerImageMapping, poppler_image_mapping,
 PopplerImageMapping *
 poppler_image_mapping_new (void)
 {
-  return (PopplerImageMapping *) g_new0 (PopplerImageMapping, 1);
+  return g_slice_new0 (PopplerImageMapping);
 }
 
 PopplerImageMapping *
 poppler_image_mapping_copy (PopplerImageMapping *mapping)
 {
-  PopplerImageMapping *new_mapping;
-
-  new_mapping = poppler_image_mapping_new ();
-
-  *new_mapping = *mapping;
-
-  return new_mapping;
+  return g_slice_dup (PopplerImageMapping, mapping);
 }
 
 void
 poppler_image_mapping_free (PopplerImageMapping *mapping)
 {
-  g_free (mapping);
+  g_slice_free (PopplerImageMapping, mapping);
 }
 
 /* Page Transition */
@@ -1670,16 +1658,15 @@ POPPLER_DEFINE_BOXED_TYPE (PopplerFormFieldMapping, poppler_form_field_mapping,
 PopplerFormFieldMapping *
 poppler_form_field_mapping_new (void)
 {
-  return (PopplerFormFieldMapping *) g_new0 (PopplerFormFieldMapping, 1);
+  return g_slice_new0 (PopplerFormFieldMapping);
 }
 
 PopplerFormFieldMapping *
 poppler_form_field_mapping_copy (PopplerFormFieldMapping *mapping)
 {
   PopplerFormFieldMapping *new_mapping;
-  
-  new_mapping = poppler_form_field_mapping_new ();
-  *new_mapping = *mapping;
+
+  new_mapping = g_slice_dup (PopplerFormFieldMapping, mapping);
 
   if (mapping->field)
 	  new_mapping->field = (PopplerFormField *)g_object_ref (mapping->field);
@@ -1695,8 +1682,8 @@ poppler_form_field_mapping_free (PopplerFormFieldMapping *mapping)
 
   if (mapping->field)
     g_object_unref (mapping->field);
-  
-  g_free (mapping);
+
+  g_slice_free (PopplerFormFieldMapping, mapping);
 }
 
 /* PopplerAnnot Mapping Type */
@@ -1707,7 +1694,7 @@ POPPLER_DEFINE_BOXED_TYPE (PopplerAnnotMapping, poppler_annot_mapping,
 PopplerAnnotMapping *
 poppler_annot_mapping_new (void)
 {
-  return (PopplerAnnotMapping *) g_new0 (PopplerAnnotMapping, 1);
+  return g_slice_new0 (PopplerAnnotMapping);
 }
 
 PopplerAnnotMapping *
@@ -1715,9 +1702,8 @@ poppler_annot_mapping_copy (PopplerAnnotMapping *mapping)
 {
   PopplerAnnotMapping *new_mapping;
 
-  new_mapping = poppler_annot_mapping_new ();
+  new_mapping = g_slice_dup (PopplerAnnotMapping, mapping);
 
-  *new_mapping = *mapping;
   if (mapping->annot)
     new_mapping->annot = (PopplerAnnot *) g_object_ref (mapping->annot);
 
@@ -1733,7 +1719,7 @@ poppler_annot_mapping_free (PopplerAnnotMapping *mapping)
   if (mapping->annot)
     g_object_unref (mapping->annot);
 
-  g_free (mapping);
+  g_slice_free (PopplerAnnotMapping, mapping);
 }
 
 void 
