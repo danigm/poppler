@@ -138,7 +138,7 @@ pgd_find_find_text (PgdFindDemo *demo)
 			g_free (y1);
 			g_free (x2);
 			g_free (y2);
-			g_free (rect);
+			poppler_rectangle_free (rect);
 		}
 		g_list_free (matches);
 	}
