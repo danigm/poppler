@@ -967,8 +967,7 @@ poppler_index_iter_copy (PopplerIndexIter *iter)
 
 	g_return_val_if_fail (iter != NULL, NULL);
 
-	new_iter = g_slice_new (PopplerIndexIter);
-	*new_iter = *iter;
+	new_iter = g_slice_dup (PopplerIndexIter, iter);
 	new_iter->document = (PopplerDocument *) g_object_ref (new_iter->document);
 
 	return new_iter;
@@ -1292,8 +1291,7 @@ poppler_fonts_iter_copy (PopplerFontsIter *iter)
 
 	g_return_val_if_fail (iter != NULL, NULL);
 
-	new_iter = g_slice_new (PopplerFontsIter);
-	*new_iter = *iter;
+	new_iter = g_slice_dup (PopplerFontsIter, iter);
 
 	new_iter->items = new GooList ();
 	for (int i = 0; i < iter->items->getLength(); i++) {
@@ -1631,8 +1629,7 @@ poppler_layers_iter_copy (PopplerLayersIter *iter)
 
   g_return_val_if_fail (iter != NULL, NULL);
   
-  new_iter = g_slice_new (PopplerLayersIter);
-  *new_iter = *iter;
+  new_iter = g_slice_dup (PopplerLayersIter, iter);
   new_iter->document = (PopplerDocument *) g_object_ref (new_iter->document);
   
   return new_iter;
