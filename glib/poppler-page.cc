@@ -991,7 +991,7 @@ poppler_page_find_text (PopplerPage *page,
 			     gFalse, gFalse, // caseSensitive, backwards
 			     &xMin, &yMin, &xMax, &yMax))
     {
-      match = g_new (PopplerRectangle, 1);
+      match = poppler_rectangle_new ();
       match->x1 = xMin;
       match->y1 = height - yMax;
       match->x2 = xMax;
@@ -1061,7 +1061,7 @@ poppler_page_get_image_mapping (PopplerPage *page)
     image = out->getImage (i);
 
     /* Create the mapping */
-    mapping = g_new (PopplerImageMapping, 1);
+    mapping = poppler_image_mapping_new ();
 
     image->getRect (&(mapping->area.x1), &(mapping->area.y1),
 		    &(mapping->area.x2), &(mapping->area.y2));
@@ -1257,7 +1257,7 @@ poppler_page_get_link_mapping (PopplerPage *page)
       link_action = link->getAction ();
       
       /* Create the mapping */
-      mapping = g_new (PopplerLinkMapping, 1);
+      mapping = poppler_link_mapping_new ();
       mapping->action = _poppler_action_new (page->document, link_action, NULL);
 
       link->getRect (&rect.x1, &rect.y1, &rect.x2, &rect.y2);
