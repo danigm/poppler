@@ -358,7 +358,8 @@ class POPPLER_QT4_EXPORT LinkAction : public Link
 		                  Find = 10,
 		                  GoToPage = 11,
 		                  Close = 12,
-		                  Print = 13 };
+		                  Print = 13    ///< \since 0.14
+		};
 
 		/**
 		 * The action of the current LinkAction
