@@ -1305,13 +1305,6 @@ poppler_page_get_link_mapping (PopplerPage *page)
   return map_list;
 }
 
-static void
-poppler_mapping_free (PopplerLinkMapping *mapping)
-{
-  poppler_action_free (mapping->action);
-  g_free (mapping);
-}
-
 /**
  * poppler_page_free_link_mapping:
  * @list: A list of #PopplerLinkMapping<!-- -->s
@@ -1327,7 +1320,7 @@ poppler_page_free_link_mapping (GList *list)
   if (list == NULL)
     return;
 
-  g_list_foreach (list, (GFunc) (poppler_mapping_free), NULL);
+  g_list_foreach (list, (GFunc)poppler_link_mapping_free, NULL);
   g_list_free (list);
 }
 
