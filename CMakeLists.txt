@@ -449,6 +449,7 @@ if(ENABLE_XPDF_HEADERS)
     goo/gfile.h
     goo/FixedPoint.h
     goo/ImgWriter.h
+    goo/GooLikely.h
     goo/gstrtod.h
     DESTINATION include/poppler/goo)
   if(PNG_FOUND)
