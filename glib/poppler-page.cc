@@ -891,7 +891,7 @@ poppler_page_get_selection_region (PopplerPage           *page,
 void
 poppler_page_selection_region_free (GList *region)
 {
-  if (!region)
+  if (G_UNLIKELY (!region))
     return;
 
   g_list_foreach (region, (GFunc)poppler_rectangle_free, NULL);
@@ -1137,7 +1137,7 @@ poppler_page_get_image (PopplerPage *page,
 void
 poppler_page_free_image_mapping (GList *list)
 {
-  if (list == NULL)
+  if (G_UNLIKELY (list == NULL))
     return;
 
   g_list_foreach (list, (GFunc)poppler_image_mapping_free, NULL);
@@ -1317,7 +1317,7 @@ poppler_page_get_link_mapping (PopplerPage *page)
 void
 poppler_page_free_link_mapping (GList *list)
 {
-  if (list == NULL)
+  if (G_UNLIKELY (list == NULL))
     return;
 
   g_list_foreach (list, (GFunc)poppler_link_mapping_free, NULL);
@@ -1380,7 +1380,7 @@ poppler_page_get_form_field_mapping (PopplerPage *page)
 void
 poppler_page_free_form_field_mapping (GList *list)
 {
-  if (list == NULL)
+  if (G_UNLIKELY (list == NULL))
     return;
 
   g_list_foreach (list, (GFunc) poppler_form_field_mapping_free, NULL);
@@ -1507,7 +1507,7 @@ poppler_page_get_annot_mapping (PopplerPage *page)
 void
 poppler_page_free_annot_mapping (GList *list)
 {
-  if (!list)
+  if (G_UNLIKELY (!list))
     return;
 
   g_list_foreach (list, (GFunc)poppler_annot_mapping_free, NULL);
@@ -1593,6 +1593,9 @@ poppler_link_mapping_copy (PopplerLinkMapping *mapping)
 void
 poppler_link_mapping_free (PopplerLinkMapping *mapping)
 {
+  if (G_UNLIKELY (!mapping))
+    return;
+
   if (mapping->action)
     poppler_action_free (mapping->action);
 
@@ -1677,7 +1680,7 @@ poppler_form_field_mapping_copy (PopplerFormFieldMapping *mapping)
 void
 poppler_form_field_mapping_free (PopplerFormFieldMapping *mapping)
 {
-  if (!mapping)
+  if (G_UNLIKELY (!mapping))
     return;
 
   if (mapping->field)
@@ -1713,7 +1716,7 @@ poppler_annot_mapping_copy (PopplerAnnotMapping *mapping)
 void
 poppler_annot_mapping_free (PopplerAnnotMapping *mapping)
 {
-  if (!mapping)
+  if (G_UNLIKELY (!mapping))
     return;
 
   if (mapping->annot)

@@ -1171,7 +1171,7 @@ poppler_index_iter_next (PopplerIndexIter *iter)
 void
 poppler_index_iter_free (PopplerIndexIter *iter)
 {
-	if (iter == NULL)
+	if (G_UNLIKELY (iter == NULL))
 		return;
 
 	g_object_unref (iter->document);
@@ -1305,7 +1305,7 @@ poppler_fonts_iter_copy (PopplerFontsIter *iter)
 void
 poppler_fonts_iter_free (PopplerFontsIter *iter)
 {
-	if (iter == NULL)
+	if (G_UNLIKELY (iter == NULL))
 		return;
 
 	deleteGooList (iter->items, FontInfo);
@@ -1424,7 +1424,7 @@ layer_new (OptionalContentGroup *oc)
 static void
 layer_free (Layer *layer)
 {
-  if (!layer)
+  if (G_UNLIKELY (!layer))
     return;
 
   if (layer->kids) {
@@ -1589,8 +1589,8 @@ _poppler_document_get_layers (PopplerDocument *document)
 static void
 poppler_document_layers_free (PopplerDocument *document)
 {
-  if (!document->layers)
-	  return;
+  if (G_UNLIKELY (!document->layers))
+    return;
 
   g_list_foreach (document->layers, (GFunc)layer_free, NULL);
   g_list_free (document->layers);
@@ -1644,7 +1644,7 @@ poppler_layers_iter_copy (PopplerLayersIter *iter)
 void
 poppler_layers_iter_free (PopplerLayersIter *iter)
 {
-  if (iter == NULL)
+  if (G_UNLIKELY (iter == NULL))
     return;
 
   g_object_unref (iter->document);
