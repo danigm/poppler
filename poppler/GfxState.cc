@@ -1465,13 +1465,16 @@ GfxColorSpace *GfxICCBasedColorSpace::parse(Array *arr, Gfx *gfx) {
   cs = new GfxICCBasedColorSpace(nCompsA, altA, &iccProfileStreamA);
   if (dict->lookup("Range", &obj2)->isArray() &&
       obj2.arrayGetLength() == 2 * nCompsA) {
+    Object obj4;
     for (i = 0; i < nCompsA; ++i) {
       obj2.arrayGet(2*i, &obj3);
-      cs->rangeMin[i] = obj3.getNum();
+      obj2.arrayGet(2*i+1, &obj4);
+      if (obj3.isNum() && obj4.isNum()) {
+        cs->rangeMin[i] = obj3.getNum();
+        cs->rangeMax[i] = obj4.getNum();
+      }
       obj3.free();
-      obj2.arrayGet(2*i+1, &obj3);
-      cs->rangeMax[i] = obj3.getNum();
-      obj3.free();
+      obj4.free();
     }
   }
   obj2.free();
