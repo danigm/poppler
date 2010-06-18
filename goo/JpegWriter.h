@@ -8,6 +8,7 @@
 // Copyright (C) 2010 Adrian Johnson <ajohnson@redneon.com>
 // Copyright (C) 2010 Jürg Billeter <j@bitron.ch>
 // Copyright (C) 2010 Harry Roberts <harry.roberts@midnight-labs.org>
+// Copyright (C) 2010 Brian Cameron <brian.cameron@oracle.com>
 //
 //========================================================================
 
@@ -18,7 +19,7 @@
 
 #ifdef ENABLE_LIBJPEG
 
-#include <cstdio>
+#include <sys/types.h>
 #include "ImgWriter.h"
 
 extern "C" {

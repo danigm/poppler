@@ -7,6 +7,7 @@
 // Copyright (C) 2009 Stefan Thomas <thomas@eload24.com>
 // Copyright (C) 2009 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2010 Adrian Johnson <ajohnson@redneon.com>
+// Copyright (C) 2010 Brian Cameron <brian.cameron@oracle.com>
 //
 //========================================================================
 
@@ -14,7 +15,7 @@
 #define IMGWRITER_H
 
 #include <config.h>
-#include <cstdio>
+#include <stdio.h>
 	
 class ImgWriter
 {
