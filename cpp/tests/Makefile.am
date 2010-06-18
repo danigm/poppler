@@ -4,6 +4,7 @@ INCLUDES =					\
 	-I$(top_srcdir)/cpp
 
 LDADDS =					\
+	$(top_builddir)/poppler/libpoppler.la	\
 	$(top_builddir)/cpp/libpoppler-cpp.la
 
 
