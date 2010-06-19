@@ -1261,6 +1261,11 @@ poppler_page_get_link_mapping (PopplerPage *page)
       mapping->action = _poppler_action_new (page->document, link_action, NULL);
 
       link->getRect (&rect.x1, &rect.y1, &rect.x2, &rect.y2);
+
+      rect.x1 -= page->page->getCropBox()->x1;
+      rect.x2 -= page->page->getCropBox()->x1;
+      rect.y1 -= page->page->getCropBox()->y1;
+      rect.y2 -= page->page->getCropBox()->y1;
       
       switch (page->page->getRotate ())
         {
@@ -1291,12 +1296,7 @@ poppler_page_get_link_mapping (PopplerPage *page)
 	  mapping->area.x2 = rect.x2;
 	  mapping->area.y2 = rect.y2;
 	}
-			
-      mapping->area.x1 -= page->page->getCropBox()->x1;
-      mapping->area.x2 -= page->page->getCropBox()->x1;
-      mapping->area.y1 -= page->page->getCropBox()->y1;
-      mapping->area.y2 -= page->page->getCropBox()->y1;
-      
+
       map_list = g_list_prepend (map_list, mapping);
     }
   
@@ -1449,10 +1449,10 @@ poppler_page_get_annot_mapping (PopplerPage *page)
       }
 
     annot_rect = annot->getRect ();
-    rect.x1 = annot_rect->x1;
-    rect.y1 = annot_rect->y1;
-    rect.x2 = annot_rect->x2;
-    rect.y2 = annot_rect->y2;
+    rect.x1 = annot_rect->x1 - page->page->getCropBox()->x1;
+    rect.y1 = annot_rect->y1 - page->page->getCropBox()->y1;
+    rect.x2 = annot_rect->x2 - page->page->getCropBox()->x1;
+    rect.y2 = annot_rect->y2 - page->page->getCropBox()->y1;
 
     if (! (annot->getFlags () & Annot::flagNoRotate))
       rotation = page->page->getRotate ();
@@ -1483,11 +1483,6 @@ poppler_page_get_annot_mapping (PopplerPage *page)
         mapping->area.x2 = rect.x2;
         mapping->area.y2 = rect.y2;
       }
-
-    mapping->area.x1 -= page->page->getCropBox()->x1;
-    mapping->area.x2 -= page->page->getCropBox()->x1;
-    mapping->area.y1 -= page->page->getCropBox()->y1;
-    mapping->area.y2 -= page->page->getCropBox()->y1;
 
     map_list = g_list_prepend (map_list, mapping);
   }
