@@ -965,9 +965,9 @@ void GfxCalRGBColorSpace::getRGB(GfxColor *color, GfxRGB *rgb) {
   r = xyzrgb[0][0] * X + xyzrgb[0][1] * Y + xyzrgb[0][2] * Z;
   g = xyzrgb[1][0] * X + xyzrgb[1][1] * Y + xyzrgb[1][2] * Z;
   b = xyzrgb[2][0] * X + xyzrgb[2][1] * Y + xyzrgb[2][2] * Z;
-  rgb->r = dblToCol(pow(clip01(r), 0.5));
-  rgb->g = dblToCol(pow(clip01(g), 0.5));
-  rgb->b = dblToCol(pow(clip01(b), 0.5));
+  rgb->r = dblToCol(sqrt(clip01(r)));
+  rgb->g = dblToCol(sqrt(clip01(g)));
+  rgb->b = dblToCol(sqrt(clip01(b)));
 }
 
 void GfxCalRGBColorSpace::getCMYK(GfxColor *color, GfxCMYK *cmyk) {
