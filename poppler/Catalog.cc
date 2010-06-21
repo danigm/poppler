@@ -192,7 +192,6 @@ GooString *Catalog::readMetadata() {
   GooString *s;
   Dict *dict;
   Object obj;
-  int c;
 
   if (metadata.isNone()) {
     Object catDict;
@@ -217,10 +216,7 @@ GooString *Catalog::readMetadata() {
   }
   obj.free();
   s = new GooString();
-  metadata.streamReset();
-  while ((c = metadata.streamGetChar()) != EOF) {
-    s->append(c);
-  }
+  metadata.getStream()->fillGooString(s);
   metadata.streamClose();
   return s;
 }
@@ -409,11 +405,7 @@ GooString *Catalog::getJS(int i)
   else if (obj2.isStream()) {
     Stream *stream = obj2.getStream();
     js = new GooString();
-    stream->reset();
-    int j;
-    while ((j = stream->getChar()) != EOF) {
-      js->append((char)j);
-    }
+    stream->fillGooString(js);
   }
   obj2.free();
   obj.free();

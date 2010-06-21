@@ -69,6 +69,9 @@ public:
 private:
   void init();
 
+  virtual GBool hasGetChars() { return true; }
+  virtual int getChars(int nChars, Guchar *buffer);
+
   JSAMPLE *current;
   JSAMPLE *limit;
   struct jpeg_decompress_struct cinfo;

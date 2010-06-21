@@ -145,25 +145,46 @@ void DCTStream::reset() {
   }
 }
 
+// we can not go with inline since gcc
+// refuses to inline because of setjmp
+#define DO_GET_CHAR \
+  if (current == limit) { \
+    if (cinfo.output_scanline < cinfo.output_height) \
+    { \
+      if (!setjmp(src.setjmp_buffer)) \
+      { \
+        if (!jpeg_read_scanlines(&cinfo, row_buffer, 1)) c = EOF; \
+        else { \
+          current = &row_buffer[0][0]; \
+          limit = &row_buffer[0][(cinfo.output_width - 1) * cinfo.output_components] + cinfo.output_components; \
+          c = *current; \
+          ++current; \
+        } \
+      } \
+      else c = EOF; \
+    } \
+    else c = EOF; \
+  } else { \
+    c = *current; \
+    ++current; \
+  } \
+
 int DCTStream::getChar() {
   int c;
 
-  if (current == limit) {
-    if (cinfo.output_scanline < cinfo.output_height)
-    {
-      if (!setjmp(src.setjmp_buffer))
-      {
-        if (!jpeg_read_scanlines(&cinfo, row_buffer, 1)) return EOF;
-        current = &row_buffer[0][0];
-        limit = &row_buffer[0][(cinfo.output_width - 1) * cinfo.output_components] + cinfo.output_components;
-      }
-      else return EOF;
-    }
-    else return EOF;
-  }
-  c = *current;
-  ++current;
+  DO_GET_CHAR
+  
   return c;
+}
+
+int DCTStream::getChars(int nChars, Guchar *buffer) {
+  int c;
+  for (int i = 0; i < nChars; ++i) {
+    DO_GET_CHAR
+    if (likely(c != EOF)) buffer[i] = c;
+    else return i;
+  }
+  return nChars;
 }
 
 int DCTStream::lookChar() {

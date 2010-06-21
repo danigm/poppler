@@ -4,7 +4,7 @@
 //
 // A JPX stream decoder using OpenJPEG
 //
-// Copyright 2008, 2009 Albert Astals Cid <aacid@kde.org>
+// Copyright 2008-2010 Albert Astals Cid <aacid@kde.org>
 //
 // Licensed under GPLv2 or later
 //
@@ -43,42 +43,34 @@ int JPXStream::getPos() {
   return counter;
 }
 
-int JPXStream::getChar() {
-  int result = lookChar();
-  ++counter;
-  return result;
+int JPXStream::getChars(int nChars, Guchar *buffer) {
+  for (int i = 0; i < nChars; ++i) {
+    const int c = doGetChar();
+    if (likely(c != EOF)) buffer[i] = c;
+    else return i;
+  }
+  return nChars;
 }
 
-#define BUFFER_INCREASE 4096
+int JPXStream::getChar() {
+  return doGetChar();
+}
+
+#define BUFFER_INITIAL_SIZE 4096
 
 void JPXStream::init()
 {
   Object oLen;
   if (getDict()) getDict()->lookup("Length", &oLen);
 
-  int bufSize = BUFFER_INCREASE;
+  int bufSize = BUFFER_INITIAL_SIZE;
   if (oLen.isInt()) bufSize = oLen.getInt();
   oLen.free();
 
-  unsigned char *buf = (unsigned char*)gmallocn(bufSize, sizeof(unsigned char));
-  int index = 0;
-
-  str->reset();
-  int c = str->getChar();
-  while(c != EOF)
-  {
-    if (index >= bufSize)
-    {
-      bufSize += BUFFER_INCREASE;
-      buf = (unsigned char*)greallocn(buf, bufSize, sizeof(unsigned char));
-    }
-    buf[index] = c;
-    ++index;
-    c = str->getChar();
-  }
-
-  init2(buf, index, CODEC_JP2);
-
+  
+  int length = 0;
+  unsigned char *buf = str->toUnsignedChars(&length, bufSize);
+  init2(buf, length, CODEC_JP2);
   free(buf);
 
   counter = 0;
@@ -143,30 +135,7 @@ error:
 }
 
 int JPXStream::lookChar() {
-  if (inited == gFalse) init();
-
-  if (!image) return EOF;
-
-  int w = image->comps[0].w;
-  int h = image->comps[0].h;
-
-  int y = (counter / image->numcomps) / w;
-  int x = (counter / image->numcomps) % w;
-  if (y >= h) return EOF;
-
-  int component = counter % image->numcomps;
-
-  int adjust = 0;
-  if (image->comps[component].prec > 8) {
-    adjust = image->comps[component].prec - 8;
-  }
-
-  int r = image->comps[component].data[y * w + x];
-  r += (image->comps[component].sgnd ? 1 << (image->comps[0].prec - 1) : 0);
-
-  unsigned char rc = (unsigned char) ((r >> adjust)+((r >> (adjust-1))%2));
-
-  return rc;
+  return doLookChar();
 }
 
 GooString *JPXStream::getPSFilter(int psLevel, char *indent) {

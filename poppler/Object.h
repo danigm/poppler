@@ -223,6 +223,7 @@ public:
   void streamReset();
   void streamClose();
   int streamGetChar();
+  int streamGetChars(int nChars, Guchar *buffer);
   int streamLookChar();
   char *streamGetLine(char *buf, int size);
   Guint streamGetPos();
@@ -333,6 +334,9 @@ inline void Object::streamClose()
 
 inline int Object::streamGetChar()
   { OBJECT_TYPE_CHECK(objStream); return stream->getChar(); }
+
+inline int Object::streamGetChars(int nChars, Guchar *buffer)
+  { OBJECT_TYPE_CHECK(objStream); return stream->doGetChars(nChars, buffer); }
 
 inline int Object::streamLookChar()
   { OBJECT_TYPE_CHECK(objStream); return stream->lookChar(); }

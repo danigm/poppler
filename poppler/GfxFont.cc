@@ -10,7 +10,7 @@
 //
 // Modified under the Poppler project - http://poppler.freedesktop.org
 //
-// Copyright (C) 2005, 2006, 2008, 2009 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2005, 2006, 2008-2010 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2005, 2006 Kristian Høgsberg <krh@redhat.com>
 // Copyright (C) 2006 Takashi Iwai <tiwai@suse.de>
 // Copyright (C) 2007 Julien Rebetez <julienr@svn.gnome.org>
@@ -421,17 +421,13 @@ CharCodeToUnicode *GfxFont::readToUnicodeCMap(Dict *fontDict, int nBits,
 					      CharCodeToUnicode *ctu) {
   GooString *buf;
   Object obj1;
-  int c;
 
   if (!fontDict->lookup("ToUnicode", &obj1)->isStream()) {
     obj1.free();
     return NULL;
   }
   buf = new GooString();
-  obj1.streamReset();
-  while ((c = obj1.streamGetChar()) != EOF) {
-    buf->append(c);
-  }
+  obj1.getStream()->fillGooString(buf);
   obj1.streamClose();
   obj1.free();
   if (ctu) {
@@ -488,8 +484,6 @@ char *GfxFont::readEmbFontFile(XRef *xref, int *len) {
   char *buf;
   Object obj1, obj2;
   Stream *str;
-  int c;
-  int size, i;
 
   obj1.initRef(embFontID.num, embFontID.gen);
   obj1.fetch(xref, &obj2);
@@ -503,17 +497,7 @@ char *GfxFont::readEmbFontFile(XRef *xref, int *len) {
   }
   str = obj2.getStream();
 
-  buf = NULL;
-  i = size = 0;
-  str->reset();
-  while ((c = str->getChar()) != EOF) {
-    if (i == size) {
-      size += 4096;
-      buf = (char *)grealloc(buf, size);
-    }
-    buf[i++] = c;
-  }
-  *len = i;
+  buf = (char*)str->toUnsignedChars(len);
   str->close();
 
   obj2.free();

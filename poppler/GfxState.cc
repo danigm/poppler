@@ -1484,22 +1484,11 @@ GfxColorSpace *GfxICCBasedColorSpace::parse(Array *arr, Gfx *gfx) {
   arr->get(1, &obj1);
   dict = obj1.streamGetDict();
   Guchar *profBuf;
-  unsigned int bufSize;
   Stream *iccStream = obj1.getStream();
-  int c;
-  unsigned int size = 0;
+  int length = 0;
 
-  bufSize = 65536;
-  profBuf = (Guchar *)gmallocn(bufSize,1);
-  iccStream->reset();
-  while ((c = iccStream->getChar()) != EOF) {
-    if (bufSize <= size) {
-      bufSize += 65536;
-      profBuf = (Guchar *)greallocn(profBuf,bufSize,1);
-    }
-    profBuf[size++] = c;
-  }
-  cmsHPROFILE hp = cmsOpenProfileFromMem(profBuf,size);
+  profBuf = iccStream->toUnsignedChars(&length, 65536, 65536);
+  cmsHPROFILE hp = cmsOpenProfileFromMem(profBuf,length);
   gfree(profBuf);
   if (hp == 0) {
     error(-1, "read ICCBased color space profile error");
@@ -1718,7 +1707,6 @@ GfxColorSpace *GfxIndexedColorSpace::parse(Array *arr, Gfx *gfx) {
   GfxColorSpace *baseA;
   int indexHighA;
   Object obj1;
-  int x;
   char *s;
   int n, i, j;
 
@@ -1755,12 +1743,10 @@ GfxColorSpace *GfxIndexedColorSpace::parse(Array *arr, Gfx *gfx) {
   if (obj1.isStream()) {
     obj1.streamReset();
     for (i = 0; i <= indexHighA; ++i) {
-      for (j = 0; j < n; ++j) {
-	if ((x = obj1.streamGetChar()) == EOF) {
-	  error(-1, "Bad Indexed color space (lookup table stream too short) padding with zeroes");
-	  x = 0;
-	}
-	cs->lookup[i*n + j] = (Guchar)x;
+      const int readChars = obj1.streamGetChars(n, &cs->lookup[i*n]);
+      for (j = readChars; j < n; ++j) {
+        error(-1, "Bad Indexed color space (lookup table stream too short) padding with zeroes");
+        cs->lookup[i*n + j] = 0;
       }
     }
     obj1.streamClose();

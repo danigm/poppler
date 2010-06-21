@@ -16,7 +16,7 @@
 // Copyright (C) 2006, 2008 Pino Toscano <pino@kde.org>
 // Copyright (C) 2007,2010 Carlos Garcia Campos <carlosgc@gnome.org>
 // Copyright (C) 2008 Hugo Mercier <hmercier31@gmail.com>
-// Copyright (C) 2008, 2009 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2008-2010 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2009 Kovid Goyal <kovid@kovidgoyal.net>
 // Copyright (C) 2009 Ilya Gorenbein <igorenbein@finjan.com>
 //
@@ -704,11 +704,7 @@ LinkRendition::LinkRendition(Object *obj) {
       } else if (tmp.isStream()) {
         Stream *stream = tmp.getStream();
 	js = new GooString();
-	stream->reset();
-	int i;
-	while ((i = stream->getChar()) != EOF) {
-	  js->append((char)i);
-	}
+	stream->fillGooString(js);
       } else {
         error(-1, "Invalid Rendition Action: JS not string or stream");
       }
@@ -766,11 +762,7 @@ LinkJavaScript::LinkJavaScript(Object *jsObj) {
   else if (jsObj->isStream()) {
     Stream *stream = jsObj->getStream();
     js = new GooString();
-    stream->reset();
-    int i;
-    while ((i = stream->getChar()) != EOF) {
-      js->append((char)i);
-    }
+    stream->fillGooString(js);
   }
 }
 
