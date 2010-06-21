@@ -672,9 +672,9 @@ void GfxCalGrayColorSpace::getRGB(GfxColor *color, GfxRGB *rgb) {
   r = xyzrgb[0][0] * X + xyzrgb[0][1] * Y + xyzrgb[0][2] * Z;
   g = xyzrgb[1][0] * X + xyzrgb[1][1] * Y + xyzrgb[1][2] * Z;
   b = xyzrgb[2][0] * X + xyzrgb[2][1] * Y + xyzrgb[2][2] * Z;
-  rgb->r = dblToCol(pow(clip01(r * kr), 0.5));
-  rgb->g = dblToCol(pow(clip01(g * kg), 0.5));
-  rgb->b = dblToCol(pow(clip01(b * kb), 0.5));
+  rgb->r = dblToCol(sqrt(clip01(r * kr)));
+  rgb->g = dblToCol(sqrt(clip01(g * kg)));
+  rgb->b = dblToCol(sqrt(clip01(b * kb)));
   rgb->r = rgb->g = rgb->b = clip01(color->c[0]);
 }
 
@@ -1246,9 +1246,9 @@ void GfxLabColorSpace::getRGB(GfxColor *color, GfxRGB *rgb) {
   r = xyzrgb[0][0] * X + xyzrgb[0][1] * Y + xyzrgb[0][2] * Z;
   g = xyzrgb[1][0] * X + xyzrgb[1][1] * Y + xyzrgb[1][2] * Z;
   b = xyzrgb[2][0] * X + xyzrgb[2][1] * Y + xyzrgb[2][2] * Z;
-  rgb->r = dblToCol(pow(clip01(r * kr), 0.5));
-  rgb->g = dblToCol(pow(clip01(g * kg), 0.5));
-  rgb->b = dblToCol(pow(clip01(b * kb), 0.5));
+  rgb->r = dblToCol(sqrt(clip01(r * kr)));
+  rgb->g = dblToCol(sqrt(clip01(g * kg)));
+  rgb->b = dblToCol(sqrt(clip01(b * kb)));
 }
 
 void GfxLabColorSpace::getCMYK(GfxColor *color, GfxCMYK *cmyk) {
