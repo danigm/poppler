@@ -51,6 +51,9 @@ libpoppler_qt4_la_SOURCES =			\
 	poppler-private.h			\
 	poppler-page-transition-private.h
 
+libpoppler_qt4_la_CXXFLAGS = 			\
+	-Dpoppler_qt4_EXPORTS
+
 libpoppler_qt4_la_LIBADD = 			\
 	$(top_builddir)/poppler/libpoppler.la	\
 	$(top_builddir)/poppler/libpoppler-arthur.la	\
