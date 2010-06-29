@@ -66,7 +66,7 @@ libpoppler_qt4_la_LDFLAGS = -version-info 6:0:3 @create_shared_lib@
 .h.moc:
 	$(AM_V_GEN) $(MOCQT4) -i $< -o $@
 
-poppler-optcontent.lo: poppler-optcontent.moc
+BUILT_SOURCES = poppler-optcontent.moc
 
 clean-generic:
 	rm -f *.moc
