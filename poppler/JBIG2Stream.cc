@@ -2461,6 +2461,9 @@ void JBIG2Stream::readPatternDictSeg(Guint segNum, Guint length) {
 			     templ, gFalse, gFalse, NULL,
 			     atx, aty, length - 7);
 
+  if (!bitmap)
+    return;
+
   // create the pattern dict object
   patternDict = new JBIG2PatternDict(segNum, grayMax + 1);
 
