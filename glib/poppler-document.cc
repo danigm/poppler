@@ -1661,6 +1661,7 @@ poppler_layers_iter_free (PopplerLayersIter *iter)
 
 /**
  * poppler_layers_iter_new:
+ * @document: a #PopplerDocument
  **/
 PopplerLayersIter *
 poppler_layers_iter_new (PopplerDocument *document)
