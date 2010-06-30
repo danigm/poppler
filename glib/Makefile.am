@@ -97,3 +97,32 @@ BUILT_SOURCES =					\
 CLEANFILES = $(BUILT_SOURCES) $(stamp_files)
 DISTCLEANFILES = $(BUILT_SOURCES) $(stamp_files)
 MAINTAINERCLEANFILES = $(BUILT_SOURCES) $(stamp_files)
+
+# GObject Introspection
+if HAVE_INTROSPECTION
+-include $(INTROSPECTION_MAKEFILE)
+INTROSPECTION_GIRS =
+INTROSPECTION_SCANNER_ARGS = --add-include-path=$(srcdir)
+INTROSPECTION_COMPILER_ARGS = --includedir=$(srcdir)
+
+introspection_files = $(libpoppler_glib_la_SOURCES) $(poppler_glib_include_HEADERS)
+Poppler-0.14.gir: libpoppler-glib.la
+Poppler_0_14_gir_INCLUDES = GObject-2.0 cairo-1.0
+Poppler_0_14_gir_CFLAGS = $(INCLUDES)
+Poppler_0_14_gir_LIBS = libpoppler-glib.la
+Poppler_0_14_gir_FILES = $(addprefix $(srcdir)/, $(introspection_files))
+
+if BUILD_WITH_GDK
+Poppler_0_14_gir_INCLUDES += Gdk-2.0
+endif
+
+INTROSPECTION_GIRS += Poppler-0.14.gir
+
+girdir = $(datadir)/gir-1.0
+dist_gir_DATA = $(INTROSPECTION_GIRS)
+
+typelibsdir = $(libdir)/girepository-1.0
+typelibs_DATA = $(INTROSPECTION_GIRS:.gir=.typelib)
+
+CLEANFILES += $(dist_gir_DATA) $(typelibs_DATA)
+endif #HAVE_INTROSPECTION

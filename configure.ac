@@ -364,6 +364,7 @@ fi
 AC_SUBST(CAIRO_FEATURE)
 AC_SUBST(CAIRO_REQ)
 
+found_introspection=no
 if test x$enable_cairo_output = xyes; then
   POPPLER_GLIB_DISABLE_DEPRECATED=""
   POPPLER_GLIB_DISABLE_SINGLE_INCLUDES=""
@@ -382,6 +383,9 @@ if test x$enable_cairo_output = xyes; then
                       [enable_poppler_glib="no"])
   fi
   if test x$enable_poppler_glib = xyes; then
+    # Check for introspection
+    GOBJECT_INTROSPECTION_CHECK([0.6.7])
+
     GLIB_REQ="glib-2.0 >= $GLIB_REQUIRED gobject-2.0 >= $GLIB_REQUIRED cairo >= $CAIRO_VERSION"
     AC_PATH_PROG([GLIB_MKENUMS],[glib-mkenums])
     POPPLER_GLIB_DISABLE_DEPRECATED="$POPPLER_GLIB_DISABLE_DEPRECATED -DG_DISABLE_DEPRECATED"
@@ -662,6 +666,7 @@ echo "  qt wrapper:         $enable_poppler_qt"
 echo "  qt4 wrapper:        $enable_poppler_qt4"
 echo "  glib wrapper:       $enable_poppler_glib"
 echo "    use GDK:          $enable_gdk"
+echo "    introspection:    $found_introspection"
 echo "  cpp wrapper:        $enable_poppler_cpp"
 echo "  use gtk-doc:        $enable_gtk_doc"
 echo "  use libjpeg:        $enable_libjpeg"
