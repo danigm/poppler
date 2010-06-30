@@ -542,7 +542,7 @@ poppler_form_field_choice_toggle_item (PopplerFormField *field,
 }
 
 /**
- * poppler_form_field_choice_toggle_item:
+ * poppler_form_field_choice_set_text:
  * @field: a #PopplerFormField
  * @text: the new text
  *
