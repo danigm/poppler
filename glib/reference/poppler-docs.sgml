@@ -19,9 +19,10 @@
     <xi:include href="xml/poppler-action.xml"/>
     <xi:include href="xml/poppler-attachment.xml"/>
     <xi:include href="xml/poppler-form-field.xml"/>
-    <xi:include href="xml/poppler-enums.xml"/>
     <xi:include href="xml/poppler-annot.xml"/>
     <xi:include href="xml/poppler-layer.xml"/>
+    <xi:include href="xml/poppler-media.xml"/>
+    <xi:include href="xml/poppler-movie.xml"/>
     <xi:include href="xml/poppler-features.xml"/>
   </chapter>
 

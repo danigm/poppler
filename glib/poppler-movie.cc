@@ -21,6 +21,12 @@
 #include "poppler-movie.h"
 #include "poppler-private.h"
 
+/**
+ * SECTION: poppler-movie
+ * @short_description: Movies
+ * @title: PopplerMovie
+ */
+
 typedef struct _PopplerMovieClass PopplerMovieClass;
 
 struct _PopplerMovie

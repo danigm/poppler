@@ -25,6 +25,12 @@
 #include "poppler-media.h"
 #include "poppler-private.h"
 
+/**
+ * SECTION: poppler-media
+ * @short_description: Media
+ * @title: PopplerMedia
+ */
+
 typedef struct _PopplerMediaClass PopplerMediaClass;
 
 struct _PopplerMedia
