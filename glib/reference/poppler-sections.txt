@@ -340,7 +340,6 @@ PopplerAnnotTextState
 PopplerAnnotCalloutLine
 PopplerAnnotFreeTextQuadding
 poppler_annot_get_annot_type
-poppler_annot_get_id
 poppler_annot_get_flags
 poppler_annot_get_name
 poppler_annot_get_page_index
