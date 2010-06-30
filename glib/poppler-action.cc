@@ -19,6 +19,12 @@
 #include "poppler.h"
 #include "poppler-private.h"
 
+/**
+ * SECTION:poppler-action
+ * @short_description: Action links
+ * @title: PopplerAction
+ */
+
 POPPLER_DEFINE_BOXED_TYPE (PopplerDest, poppler_dest, poppler_dest_copy, poppler_dest_free)
 
 /**

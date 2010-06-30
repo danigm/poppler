@@ -32,6 +32,12 @@
 #include "poppler.h"
 #include "poppler-private.h"
 
+/**
+ * SECTION:poppler-page
+ * @short_description: Information about a page in a document
+ * @title: PopplerPage
+ */
+
 enum
 {
   PROP_0,

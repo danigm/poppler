@@ -32,6 +32,22 @@ G_BEGIN_DECLS
 #define POPPLER_IS_ATTACHMENT(obj)          (G_TYPE_CHECK_INSTANCE_TYPE ((obj), POPPLER_TYPE_ATTACHMENT))
 
 
+/**
+ * PopplerAttachmentSaveFunc:
+ * @buf: buffer containing bytes to be written.
+ * @count: number of bytes in @buf.
+ * @data: user data passed to poppler_attachment_save_to_callback()
+ * @error: GError to set on error, or NULL
+ *
+ * Specifies the type of the function passed to
+ * poppler_attachment_save_to_callback().  It is called once for each block of
+ * bytes that is "written" by poppler_attachment_save_to_callback().  If
+ * successful it should return %TRUE.  If an error occurs it should set
+ * @error and return %FALSE, in which case poppler_attachment_save_to_callback()
+ * will fail with the same error.
+ *
+ * @Returns: %TRUE if successful, %FALSE (with @error set) if failed.
+ */
 typedef gboolean (*PopplerAttachmentSaveFunc) (const gchar  *buf,
 					       gsize         count,
 					       gpointer      data,

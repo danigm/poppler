@@ -397,7 +397,7 @@ fi
 AM_CONDITIONAL(BUILD_POPPLER_GLIB, test x$enable_poppler_glib = xyes)
 AC_SUBST(GLIB_REQ)
 
-GTK_DOC_CHECK([1.0])
+GTK_DOC_CHECK([1.14],[--flavour no-tmpl])
 
 dnl
 dnl GDK

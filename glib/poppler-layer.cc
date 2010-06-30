@@ -20,6 +20,12 @@
 #include "poppler-layer.h"
 #include "poppler-private.h"
 
+/**
+ * SECTION:poppler-layer
+ * @short_description: Layers
+ * @title: PopplerLayer
+ */
+
 typedef struct _PopplerLayerClass PopplerLayerClass;
 struct _PopplerLayerClass
 {

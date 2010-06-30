@@ -21,6 +21,12 @@
 #include "poppler.h"
 #include "poppler-private.h"
 
+/**
+ * SECTION:poppler-annot
+ * @short_description: Annotations
+ * @title: PopplerAnnot
+ */
+
 typedef struct _PopplerAnnotClass               PopplerAnnotClass;
 typedef struct _PopplerAnnotMarkupClass         PopplerAnnotMarkupClass;
 typedef struct _PopplerAnnotFreeTextClass       PopplerAnnotFreeTextClass;

@@ -23,6 +23,12 @@
 #include "poppler.h"
 #include "poppler-private.h"
 
+/**
+ * SECTION:poppler-attachment
+ * @short_description: Attachments
+ * @title: PopplerAttachment
+ */
+
 /* FIXME: We need to add gettext support sometime */
 #define _(x) (x)
 

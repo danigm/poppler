@@ -36,6 +36,14 @@
 #include "poppler-private.h"
 #include "poppler-enums.h"
 
+/**
+ * SECTION:poppler-document
+ * @short_description: Information about a document
+ * @title: PopplerDocument
+ *
+ * The #PopplerDocument is an object used to refer to a main document.
+ */
+
 enum {
 	PROP_0,
 	PROP_TITLE,

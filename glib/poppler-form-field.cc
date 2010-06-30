@@ -21,6 +21,12 @@
 #include "poppler.h"
 #include "poppler-private.h"
 
+/**
+ * SECTION:poppler-form-field
+ * @short_description: Form Field
+ * @title: PoppplerFormField
+ */
+
 typedef struct _PopplerFormFieldClass PopplerFormFieldClass;
 struct _PopplerFormFieldClass
 {
