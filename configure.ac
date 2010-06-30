@@ -632,6 +632,7 @@ utils/Makefile
 glib/Makefile
 glib/poppler-features.h
 glib/reference/Makefile
+glib/reference/version.xml
 glib/demo/Makefile
 test/Makefile
 qt/Makefile
