@@ -22,7 +22,7 @@
 #include <sys/time.h>
 #endif
 
-#ifdef _MSC_VER
+#ifdef _WIN32
 #include <windows.h>
 #endif
 
@@ -44,7 +44,7 @@ private:
 #ifdef HAVE_GETTIMEOFDAY
   struct timeval start_time;
   struct timeval end_time;
-#elif defined(_MSC_VER)
+#elif defined(_WIN32)
   LARGE_INTEGER start_time;
   LARGE_INTEGER end_time;
 #endif

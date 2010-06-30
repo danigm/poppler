@@ -32,7 +32,7 @@ GooTimer::GooTimer() {
 void GooTimer::start() {
 #ifdef HAVE_GETTIMEOFDAY
   gettimeofday(&start_time, NULL);
-#elif defined(_MSC_VER)
+#elif defined(_WIN32)
   QueryPerformanceCounter(&start_time);
 #endif
   active = true;
@@ -41,7 +41,7 @@ void GooTimer::start() {
 void GooTimer::stop() {
 #ifdef HAVE_GETTIMEOFDAY
   gettimeofday(&end_time, NULL);
-#elif defined(_MSC_VER)
+#elif defined(_WIN32)
   QueryPerformanceCounter(&end_time);
 #endif
   active = false;
@@ -70,7 +70,7 @@ double GooTimer::getElapsed()
 
   return total;
 }
-#elif defined(_MSC_VER)
+#elif defined(_WIN32)
 double GooTimer::getElapsed()
 {
   LARGE_INTEGER   freq;
