@@ -24,6 +24,21 @@
 
 G_BEGIN_DECLS
 
+/**
+ * PopplerActionType:
+ * @POPPLER_ACTION_UNKNOWN: unknown action
+ * @POPPLER_ACTION_NONE: no action specified
+ * @POPPLER_ACTION_GOTO_DEST: go to destination
+ * @POPPLER_ACTION_GOTO_REMOTE: go to destination in another document
+ * @POPPLER_ACTION_LAUNCH: launch app (or open document
+ * @POPPLER_ACTION_URI: URI
+ * @POPPLER_ACTION_NAMED: predefined action
+ * @POPPLER_ACTION_MOVIE: play movies
+ * @POPPLER_ACTION_RENDITION: play multimedia content
+ * @POPPLER_ACTION_OCG_STATE: state of layer
+ *
+ * Action types
+ */
 typedef enum
 {
 	POPPLER_ACTION_UNKNOWN,		/* unknown action */
@@ -38,6 +53,38 @@ typedef enum
 	POPPLER_ACTION_OCG_STATE        /* Set-OCG-State action */
 } PopplerActionType;
 
+/**
+ * PopplerDestType:
+ * @POPPLER_DEST_UNKNOWN: unknown destination
+ * @POPPLER_DEST_XYZ: go to page with coordinates (left, top)
+ * positioned at the upper-left corner of the window and the contents of
+ * the page magnified by the factor zoom
+ * @POPPLER_DEST_FIT: go to page with its contents magnified just
+ * enough to fit the entire page within the window both horizontally and
+ * vertically
+ * @POPPLER_DEST_FITH: go to page with the vertical coordinate top
+ * positioned at the top edge of the window and the contents of the page
+ * magnified just enough to fit the entire width of the page within the window
+ * @POPPLER_DEST_FITV: go to page with the horizontal coordinate
+ * left positioned at the left edge of the window and the contents of the
+ * page magnified just enough to fit the entire height of the page within the window
+ * @POPPLER_DEST_FITR: go to page with its contents magnified just
+ * enough to fit the rectangle specified by the coordinates left, bottom,
+ * right, and top entirely within the window both horizontally and vertically
+ * @POPPLER_DEST_FITB: go to page with its contents magnified just enough to fit
+ * its bounding box entirely within the window both horizontally and vertically
+ * @POPPLER_DEST_FITBH: go to page with the vertical
+ * coordinate top positioned at the top edge of the window and the
+ * contents of the page magnified just enough to fit the entire width of its
+ * bounding box within the window
+ * @POPPLER_DEST_FITBV: go to page with the horizontal
+ * coordinate left positioned at the left edge of the window and the
+ * contents of the page magnified just enough to fit the entire height of its
+ * bounding box within the window
+ * @POPPLER_DEST_NAMED: got to page specified by a name. See poppler_document_find_dest()
+ *
+ * Destination types
+ */
 typedef enum
 {
 	POPPLER_DEST_UNKNOWN,
@@ -52,6 +99,15 @@ typedef enum
 	POPPLER_DEST_NAMED
 } PopplerDestType;
 
+/**
+ * PopplerActionMovieOperation:
+ * @POPPLER_ACTION_MOVIE_PLAY: play movie
+ * @POPPLER_ACTION_MOVIE_PAUSE: pause playing movie
+ * @POPPLER_ACTION_MOVIE_RESUME: resume paused movie
+ * @POPPLER_ACTION_MOVIE_STOP: stop playing movie
+ *
+ * Movie operations
+ */
 typedef enum
 {
         POPPLER_ACTION_MOVIE_PLAY,
@@ -60,6 +116,14 @@ typedef enum
 	POPPLER_ACTION_MOVIE_STOP
 } PopplerActionMovieOperation;
 
+/**
+ * PopplerActionLayerAction:
+ * @POPPLER_ACTION_LAYER_ON: set layer visibility on
+ * @POPPLER_ACTION_LAYER_OFF: set layer visibility off
+ * @POPPLER_ACTION_LAYER_TOGGLE: reverse the layer visibility state
+ *
+ * Layer actions
+ */
 typedef enum
 {
 	POPPLER_ACTION_LAYER_ON,
@@ -78,6 +142,22 @@ typedef struct _PopplerActionMovie      PopplerActionMovie;
 typedef struct _PopplerActionRendition  PopplerActionRendition;
 typedef struct _PopplerActionOCGState   PopplerActionOCGState;
 
+/**
+ * PopplerDest:
+ * @type: type of destination
+ * @page_num: page number
+ * @left: left coordinate
+ * @bottom: bottom coordinate
+ * @right: right coordinate
+ * @top: top coordinate
+ * @zoom: scale factor
+ * @named_dest: name of the destination (#POPPLER_DEST_NAMED only)
+ * @change_left: whether left coordinate should be changed
+ * @change_top: whether top coordinate should be changed
+ * @change_zoom: whether scale factor should be changed
+ *
+ * Data structure for holding a destination
+ */
 struct _PopplerDest
 {
 	PopplerDestType type;
@@ -94,6 +174,13 @@ struct _PopplerDest
 	guint change_zoom : 1;
 };
 
+/**
+ * PopplerActionLayer:
+ * @action: a #PopplerActionLayerAction
+ * @layers: list of #PopplerLayer<!-- -->s
+ *
+ * Action to perform over a list of layers
+ */
 struct _PopplerActionLayer
 {
 	PopplerActionLayerAction action;
@@ -174,6 +261,11 @@ struct _PopplerActionOCGState
 	GList            *state_list;
 };
 
+/**
+ * PopplerAction:
+ *
+ * A data structure for holding actions
+ */
 union _PopplerAction
 {
 	PopplerActionType type;
