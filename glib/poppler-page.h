@@ -120,6 +120,16 @@ gboolean               poppler_page_get_text_layout      (PopplerPage        *pa
 
 /* A rectangle on a page, with coordinates in PDF points. */
 #define POPPLER_TYPE_RECTANGLE             (poppler_rectangle_get_type ())
+/**
+ * PopplerRectangle:
+ * @x1: x coordinate of lower left corner
+ * @y1: y coordinate of lower left corner
+ * @x2: x coordinate of upper right corner
+ * @y2: y coordinate of upper right corner
+ *
+ * A #PopplerRectangle is used to describe
+ * locations on a page and bounding boxes
+ */
 struct _PopplerRectangle
 {
   gdouble x1;
@@ -135,6 +145,16 @@ void              poppler_rectangle_free     (PopplerRectangle *rectangle);
 
 /* A color in RGB */
 #define POPPLER_TYPE_COLOR                 (poppler_color_get_type ())
+
+/**
+ * PopplerColor:
+ * @red: the red componment of color
+ * @green: the green component of color
+ * @blue: the blue component of color
+ *
+ * A #PopplerColor describes a RGB color. Color components
+ * are values between 0 and 65535
+ */
 struct _PopplerColor
 {
   guint16 red;
@@ -149,6 +169,15 @@ void              poppler_color_free          (PopplerColor *color);
 
 /* Mapping between areas on the current page and PopplerActions */
 #define POPPLER_TYPE_LINK_MAPPING             (poppler_link_mapping_get_type ())
+
+/**
+ * PopplerLinkMapping:
+ * @area: a #PopplerRectangle representing an area of the page
+ * @action: a #PopplerAction
+ *
+ * A #PopplerLinkMapping structure represents the location
+ * of @action on the page
+ */
 struct  _PopplerLinkMapping
 {
   PopplerRectangle area;
@@ -162,6 +191,29 @@ void                poppler_link_mapping_free     (PopplerLinkMapping *mapping);
 
 /* Page Transition */
 #define POPPLER_TYPE_PAGE_TRANSITION                (poppler_page_transition_get_type ())
+
+/**
+ * PopplerPageTransition:
+ * @type: the type of transtition
+ * @alignment: the dimension in which the transition effect shall occur.
+ * Only for #POPPLER_PAGE_TRANSITION_SPLIT and #POPPLER_PAGE_TRANSITION_BLINDS transition types
+ * @direction: the direccion of motion for the transition effect.
+ * Only for #POPPLER_PAGE_TRANSITION_SPLIT, #POPPLER_PAGE_TRANSITION_BOX and #POPPLER_PAGE_TRANSITION_FLY
+ * transition types
+ * @duration: the duration of the transition effect
+ * @angle: the direction in which the specified transition effect shall moves,
+ * expressed in degrees counterclockwise starting from a left-to-right direction.
+ * Only for #POPPLER_PAGE_TRANSITION_WIPE, #POPPLER_PAGE_TRANSITION_GLITTER, #POPPLER_PAGE_TRANSITION_FLY,
+ * #POPPLER_PAGE_TRANSITION_COVER, #POPPLER_PAGE_TRANSITION_UNCOVER and #POPPLER_PAGE_TRANSITION_PUSH
+ * transition types
+ * @scale: the starting or ending scale at which the changes shall be drawn.
+ * Only for #POPPLER_PAGE_TRANSITION_FLY transition type
+ * @rectangular: whether the area that will be flown is rectangular and opaque.
+ * Only for #POPPLER_PAGE_TRANSITION_FLY transition type
+ *
+ * A #PopplerPageTransition structures describes a visual transition
+ * to use when moving between pages during a presentation
+ */
 struct _PopplerPageTransition
 {
   PopplerPageTransitionType type;
@@ -180,6 +232,15 @@ void                   poppler_page_transition_free     (PopplerPageTransition *
 
 /* Mapping between areas on the current page and images */
 #define POPPLER_TYPE_IMAGE_MAPPING             (poppler_image_mapping_get_type ())
+
+/**
+ * PopplerImageMapping:
+ * @area: a #PopplerRectangle representing an area of the page
+ * @image_id: an image identifier
+ *
+ * A #PopplerImageMapping structure represents the location
+ * of an image on the page
+ */
 struct  _PopplerImageMapping
 {
   PopplerRectangle area;
@@ -193,6 +254,15 @@ void                   poppler_image_mapping_free     (PopplerImageMapping *mapp
 
 /* Mapping between areas on the current page and form fields */
 #define POPPLER_TYPE_FORM_FIELD_MAPPING               (poppler_form_field_mapping_get_type ())
+
+/**
+ * PopplerFormFieldMapping:
+ * @area: a #PopplerRectangle representing an area of the page
+ * @field: a #PopplerFormField
+ *
+ * A #PopplerFormFieldMapping structure represents the location
+ * of @field on the page
+ */
 struct  _PopplerFormFieldMapping
 {
   PopplerRectangle area;
@@ -206,6 +276,15 @@ void                     poppler_form_field_mapping_free     (PopplerFormFieldMa
 
 /* Mapping between areas on the current page and annots */
 #define POPPLER_TYPE_ANNOT_MAPPING                  (poppler_annot_mapping_get_type ())
+
+/**
+ * PopplerAnnotMapping:
+ * @area: a #PopplerRectangle representing an area of the page
+ * @annot: a #PopplerAannot
+ *
+ * A #PopplerAnnotMapping structure represents the location
+ * of @annot on the page
+ */
 struct _PopplerAnnotMapping
 {
   PopplerRectangle area;

@@ -1520,12 +1520,27 @@ POPPLER_DEFINE_BOXED_TYPE (PopplerRectangle, poppler_rectangle,
 			   poppler_rectangle_copy,
 			   poppler_rectangle_free)
 
+/**
+ * poppler_rectangle_new:
+ *
+ * Creates a new #PopplerRectangle
+ *
+ * Returns: a new #PopplerRectangle, use poppler_rectangle_free() to free it
+ */
 PopplerRectangle *
 poppler_rectangle_new (void)
 {
   return g_slice_new0 (PopplerRectangle);
 }
 
+/**
+ * poppler_rectangle_copy:
+ * @rectangle: a #PopplerRectangle to copy
+ *
+ * Creates a copy of @rectangle
+ *
+ * Returns: a new allocated copy of @rectangle
+ */
 PopplerRectangle *
 poppler_rectangle_copy (PopplerRectangle *rectangle)
 {
@@ -1534,6 +1549,12 @@ poppler_rectangle_copy (PopplerRectangle *rectangle)
   return g_slice_dup (PopplerRectangle, rectangle);
 }
 
+/**
+ * poppler_rectangle_free:
+ * @rectangle: a #PopplerRectangle
+ *
+ * Frees the given #PopplerRectangle
+ */
 void
 poppler_rectangle_free (PopplerRectangle *rectangle)
 {
@@ -1543,12 +1564,27 @@ poppler_rectangle_free (PopplerRectangle *rectangle)
 /* PopplerColor type */
 POPPLER_DEFINE_BOXED_TYPE (PopplerColor, poppler_color, poppler_color_copy, poppler_color_free)
 
+/**
+ * poppler_color_new:
+ *
+ * Creates a new #PopplerColor
+ *
+ * Returns: a new #PopplerColor, use poppler_color_free() to free it
+ */
 PopplerColor *
 poppler_color_new (void)
 {
   return (PopplerColor *) g_new0 (PopplerColor, 1);
 }
 
+/**
+ * poppler_color_copy:
+ * @color: a #PopplerColor to copy
+ *
+ * Creates a copy of @color
+ *
+ * Returns: a new allocated copy of @color
+ */
 PopplerColor *
 poppler_color_copy (PopplerColor *color)
 {
@@ -1560,6 +1596,12 @@ poppler_color_copy (PopplerColor *color)
   return new_color;
 }
 
+/**
+ * poppler_color_free:
+ * @color: a #PopplerColor
+ *
+ * Frees the given #PopplerColor
+ */
 void
 poppler_color_free (PopplerColor *color)
 {
@@ -1571,12 +1613,27 @@ POPPLER_DEFINE_BOXED_TYPE (PopplerLinkMapping, poppler_link_mapping,
 			   poppler_link_mapping_copy,
 			   poppler_link_mapping_free)
 
+/**
+ * poppler_link_mapping_new:
+ *
+ * Creates a new #PopplerLinkMapping
+ *
+ * Returns: a new #PopplerLinkMapping, use poppler_link_mapping_free() to free it
+ */
 PopplerLinkMapping *
 poppler_link_mapping_new (void)
 {
   return g_slice_new0 (PopplerLinkMapping);
 }
 
+/**
+ * poppler_link_mapping_copy:
+ * @mapping: a #PopplerLinkMapping to copy
+ *
+ * Creates a copy of @mapping
+ *
+ * Returns: a new allocated copy of @mapping
+ */
 PopplerLinkMapping *
 poppler_link_mapping_copy (PopplerLinkMapping *mapping)
 {
@@ -1590,6 +1647,12 @@ poppler_link_mapping_copy (PopplerLinkMapping *mapping)
   return new_mapping;
 }
 
+/**
+ * poppler_link_mapping_free:
+ * @mapping: a #PopplerLinkMapping
+ *
+ * Frees the given #PopplerLinkMapping
+ */
 void
 poppler_link_mapping_free (PopplerLinkMapping *mapping)
 {
@@ -1607,18 +1670,39 @@ POPPLER_DEFINE_BOXED_TYPE (PopplerImageMapping, poppler_image_mapping,
 			   poppler_image_mapping_copy,
 			   poppler_image_mapping_free)
 
+/**
+ * poppler_image_mapping_new:
+ *
+ * Creates a new #PopplerImageMapping
+ *
+ * Returns: a new #PopplerImageMapping, use poppler_image_mapping_free() to free it
+ */
 PopplerImageMapping *
 poppler_image_mapping_new (void)
 {
   return g_slice_new0 (PopplerImageMapping);
 }
 
+/**
+ * poppler_image_mapping_copy:
+ * @mapping: a #PopplerImageMapping to copy
+ *
+ * Creates a copy of @mapping
+ *
+ * Returns: a new allocated copy of @mapping
+ */
 PopplerImageMapping *
 poppler_image_mapping_copy (PopplerImageMapping *mapping)
 {
   return g_slice_dup (PopplerImageMapping, mapping);
 }
 
+/**
+ * poppler_image_mapping_free:
+ * @mapping: a #PopplerImageMapping
+ *
+ * Frees the given #PopplerImageMapping
+ */
 void
 poppler_image_mapping_free (PopplerImageMapping *mapping)
 {
@@ -1630,12 +1714,27 @@ POPPLER_DEFINE_BOXED_TYPE (PopplerPageTransition, poppler_page_transition,
 			   poppler_page_transition_copy,
 			   poppler_page_transition_free)
 
+/**
+ * poppler_page_transition_new:
+ *
+ * Creates a new #PopplerPageTransition
+ *
+ * Returns: a new #PopplerPageTransition, use poppler_page_transition_free() to free it
+ */
 PopplerPageTransition *
 poppler_page_transition_new (void)
 {
   return (PopplerPageTransition *) g_new0 (PopplerPageTransition, 1);
 }
 
+/**
+ * poppler_page_transition_copy:
+ * @transition: a #PopplerPageTransition to copy
+ *
+ * Creates a copy of @transition
+ *
+ * Returns: a new allocated copy of @transition
+ */
 PopplerPageTransition *
 poppler_page_transition_copy (PopplerPageTransition *transition)
 {
@@ -1647,6 +1746,12 @@ poppler_page_transition_copy (PopplerPageTransition *transition)
   return new_transition;
 }
 
+/**
+ * poppler_page_transition_free:
+ * @transition: a #PopplerPageTransition
+ *
+ * Frees the given #PopplerPageTransition
+ */
 void
 poppler_page_transition_free (PopplerPageTransition *transition)
 {
@@ -1658,12 +1763,27 @@ POPPLER_DEFINE_BOXED_TYPE (PopplerFormFieldMapping, poppler_form_field_mapping,
 			   poppler_form_field_mapping_copy,
 			   poppler_form_field_mapping_free)
 
+/**
+ * poppler_form_field_mapping_new:
+ *
+ * Creates a new #PopplerFormFieldMapping
+ *
+ * Returns: a new #PopplerFormFieldMapping, use poppler_form_field_mapping_free() to free it
+ */
 PopplerFormFieldMapping *
 poppler_form_field_mapping_new (void)
 {
   return g_slice_new0 (PopplerFormFieldMapping);
 }
 
+/**
+ * poppler_form_field_mapping_copy:
+ * @mapping: a #PopplerFormFieldMapping to copy
+ *
+ * Creates a copy of @mapping
+ *
+ * Returns: a new allocated copy of @mapping
+ */
 PopplerFormFieldMapping *
 poppler_form_field_mapping_copy (PopplerFormFieldMapping *mapping)
 {
@@ -1677,6 +1797,12 @@ poppler_form_field_mapping_copy (PopplerFormFieldMapping *mapping)
   return new_mapping;
 }
 
+/**
+ * poppler_form_field_mapping_free:
+ * @mapping: a #PopplerFormFieldMapping
+ *
+ * Frees the given #PopplerFormFieldMapping
+ */
 void
 poppler_form_field_mapping_free (PopplerFormFieldMapping *mapping)
 {
@@ -1694,12 +1820,27 @@ POPPLER_DEFINE_BOXED_TYPE (PopplerAnnotMapping, poppler_annot_mapping,
 			   poppler_annot_mapping_copy,
 			   poppler_annot_mapping_free)
 
+/**
+ * poppler_annot_mapping_new:
+ *
+ * Creates a new #PopplerAnnotMapping
+ *
+ * Returns: a new #PopplerAnnotMapping, use poppler_annot_mapping_free() to free it
+ */
 PopplerAnnotMapping *
 poppler_annot_mapping_new (void)
 {
   return g_slice_new0 (PopplerAnnotMapping);
 }
 
+/**
+ * poppler_annot_mapping_copy:
+ * @mapping: a #PopplerAnnotMapping to copy
+ *
+ * Creates a copy of @mapping
+ *
+ * Returns: a new allocated copy of @mapping
+ */
 PopplerAnnotMapping *
 poppler_annot_mapping_copy (PopplerAnnotMapping *mapping)
 {
@@ -1713,6 +1854,12 @@ poppler_annot_mapping_copy (PopplerAnnotMapping *mapping)
   return new_mapping;
 }
 
+/**
+ * poppler_annot_mapping_free:
+ * @mapping: a #PopplerAnnotMapping
+ *
+ * Frees the given #PopplerAnnotMapping
+ */
 void
 poppler_annot_mapping_free (PopplerAnnotMapping *mapping)
 {
