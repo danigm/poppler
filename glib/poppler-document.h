@@ -28,6 +28,18 @@ G_BEGIN_DECLS
 #define POPPLER_DOCUMENT(obj)             (G_TYPE_CHECK_INSTANCE_CAST ((obj), POPPLER_TYPE_DOCUMENT, PopplerDocument))
 #define POPPLER_IS_DOCUMENT(obj)          (G_TYPE_CHECK_INSTANCE_TYPE ((obj), POPPLER_TYPE_DOCUMENT))
 
+/**
+ * PopplerPageLayout:
+ * @POPPLER_PAGE_LAYOUT_UNSET: no specific layout set
+ * @POPPLER_PAGE_LAYOUT_SINGLE_PAGE: one page at a time
+ * @POPPLER_PAGE_LAYOUT_ONE_COLUMN: pages in one column
+ * @POPPLER_PAGE_LAYOUT_TWO_COLUMN_LEFT: pages in two columns with odd numbered pages on the left
+ * @POPPLER_PAGE_LAYOUT_TWO_COLUMN_RIGHT: pages in two columns with odd numbered pages on the right
+ * @POPPLER_PAGE_LAYOUT_TWO_PAGE_LEFT: two pages at a time with odd numbered pages on the left
+ * @POPPLER_PAGE_LAYOUT_TWO_PAGE_RIGHT: two pages at a time with odd numbered pages on the right
+ *
+ * Page layout types
+ */
 typedef enum
 {
   POPPLER_PAGE_LAYOUT_UNSET,
@@ -39,6 +51,18 @@ typedef enum
   POPPLER_PAGE_LAYOUT_TWO_PAGE_RIGHT
 } PopplerPageLayout;
 
+/**
+ * PopplerPageMode:
+ * @POPPLER_PAGE_MODE_UNSET: no specific mode set
+ * @POPPLER_PAGE_MODE_NONE: neither document outline nor thumbnails visible
+ * @POPPLER_PAGE_MODE_USE_OUTLINES: document outline visible
+ * @POPPLER_PAGE_MODE_USE_THUMBS: thumbnails visible
+ * @POPPLER_PAGE_MODE_FULL_SCREEN: full-screen mode
+ * @POPPLER_PAGE_MODE_USE_OC: layers panel visible
+ * @POPPLER_PAGE_MODE_USE_ATTACHMENTS: attachments panel visible
+ *
+ * Page modes
+ */
 typedef enum
 {
   POPPLER_PAGE_MODE_UNSET,
@@ -50,6 +74,23 @@ typedef enum
   POPPLER_PAGE_MODE_USE_ATTACHMENTS
 } PopplerPageMode;
 
+/**
+ * PopplerFontType:
+ * @POPPLER_FONT_TYPE_UNKNOWN: unknown font type
+ * @POPPLER_FONT_TYPE_TYPE1:
+ * @POPPLER_FONT_TYPE_TYPE1C:
+ * @POPPLER_FONT_TYPE_TYPE1COT:
+ * @POPPLER_FONT_TYPE_TYPE3:
+ * @POPPLER_FONT_TYPE_TRUETYPE:
+ * @POPPLER_FONT_TYPE_TRUETYPEOT:
+ * @POPPLER_FONT_TYPE_CID_TYPE0:
+ * @POPPLER_FONT_TYPE_CID_TYPE0C:
+ * @POPPLER_FONT_TYPE_CID_TYPE0COT:
+ * @POPPLER_FONT_TYPE_CID_TYPE2:
+ * @POPPLER_FONT_TYPE_CID_TYPE2OT:
+ *
+ * Font types
+ */
 typedef enum
 {
   POPPLER_FONT_TYPE_UNKNOWN,
@@ -66,6 +107,19 @@ typedef enum
   POPPLER_FONT_TYPE_CID_TYPE2OT
 } PopplerFontType;
 
+/**
+ * PopplerViewerPreferences:
+ * @POPPLER_VIEWER_PREFERENCES_UNSET: no preferences set
+ * @POPPLER_VIEWER_PREFERENCES_HIDE_TOOLBAR: hider toolbars when document is active
+ * @POPPLER_VIEWER_PREFERENCES_HIDE_MENUBAR: hide menu bar when document is active
+ * @POPPLER_VIEWER_PREFERENCES_HIDE_WINDOWUI: hide UI elements in document's window
+ * @POPPLER_VIEWER_PREFERENCES_FIT_WINDOW: resize document's window to fit the size of the first displayed page
+ * @POPPLER_VIEWER_PREFERENCES_CENTER_WINDOW: position the document's window in the center of the screen
+ * @POPPLER_VIEWER_PREFERENCES_DISPLAY_DOC_TITLE: display document title in window's title bar
+ * @POPPLER_VIEWER_PREFERENCES_DIRECTION_RTL:
+ *
+ * Viewer preferences
+ */
 typedef enum /*< flags >*/
 {
   POPPLER_VIEWER_PREFERENCES_UNSET = 0,
@@ -78,6 +132,17 @@ typedef enum /*< flags >*/
   POPPLER_VIEWER_PREFERENCES_DIRECTION_RTL = 1 << 6
 } PopplerViewerPreferences;
 
+/**
+ * PopplerPermissions:
+ * @POPPLER_PERMISSIONS_OK_TO_PRINT: document can be printer
+ * @POPPLER_PERMISSIONS_OK_TO_MODIFY: document contents can be modified
+ * @POPPLER_PERMISSIONS_OK_TO_COPY: document can be copied
+ * @POPPLER_PERMISSIONS_OK_TO_ADD_NOTES: annotations can added to the document
+ * @POPPLER_PERMISSIONS_OK_TO_FILL_FORM: interactive form fields can be filled in
+ * @POPPLER_PERMISSIONS_FULL:
+ *
+ * Permissions
+ */
 typedef enum /*< flags >*/
 {
   POPPLER_PERMISSIONS_OK_TO_PRINT = 1 << 0,
