@@ -30,6 +30,7 @@ G_BEGIN_DECLS
 #define POPPLER_IS_MEDIA(obj)                (G_TYPE_CHECK_INSTANCE_TYPE ((obj), POPPLER_TYPE_MEDIA))
 
 // FIXME: this should be generic (PopplerSaveToCallbackFunc)
+
 /**
  * PopplerMediaSaveFunc:
  * @buf: buffer containing bytes to be written.
@@ -45,6 +46,8 @@ G_BEGIN_DECLS
  * will fail with the same error.
  *
  * Returns: %TRUE if successful, %FALSE (with @error set) if failed.
+ *
+ * Since: 0.14
  */
 typedef gboolean (*PopplerMediaSaveFunc) (const gchar  *buf,
 					  gsize         count,

@@ -102,6 +102,8 @@ _poppler_movie_new (Movie *poppler_movie)
 *
 * Return value: a local filename, return value is owned by #PopplerMovie and
 *               should not be freed
+*
+* Since: 0.14
 */
 const gchar *
 poppler_movie_get_filename (PopplerMovie *poppler_movie)
@@ -120,6 +122,8 @@ poppler_movie_get_filename (PopplerMovie *poppler_movie)
  * from the movie file.
  *
  * Return value: %TRUE if move needs a poster image, %FALSE otherwise
+ *
+ * Since: 0.14
  */
 gboolean
 poppler_movie_need_poster (PopplerMovie *poppler_movie)
@@ -136,6 +140,8 @@ poppler_movie_need_poster (PopplerMovie *poppler_movie)
  * Returns whether to display a movie controller bar while playing the movie
  *
  * Return value: %TRUE if controller bar should be displayed, %FALSE otherwise
+ *
+ * Since: 0.14
  */
 gboolean
 poppler_movie_show_controls (PopplerMovie *poppler_movie)

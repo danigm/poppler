@@ -117,6 +117,8 @@ _poppler_media_new (MediaRendition *poppler_media)
 * a local relative or absolute path or a URI
 *
 * Return value: a filename, return value is owned by #PopplerMedia and should not be freed
+*
+* Since: 0.14
 */
 const gchar *
 poppler_media_get_filename (PopplerMedia *poppler_media)
@@ -137,6 +139,8 @@ poppler_media_get_filename (PopplerMedia *poppler_media)
  * poppler_media_get_file_name() function.
  *
  * Return value: %TRUE if media clip is embedded, %FALSE otherwise
+ *
+ * Since: 0.14
  */
 gboolean
 poppler_media_is_embedded (PopplerMedia *poppler_media)
@@ -153,6 +157,8 @@ poppler_media_is_embedded (PopplerMedia *poppler_media)
  * Returns the media clip mime-type
  *
  * Return value: the mime-type, return value is owned by #PopplerMedia and should not be freed
+ *
+ * Since: 0.14
  */
 const gchar *
 poppler_media_get_mime_type (PopplerMedia *poppler_media)
@@ -197,7 +203,9 @@ save_helper (const gchar  *buf,
  * and whatever the save function generates.
  *
  * Return value: %TRUE, if the file successfully saved
- **/
+ *
+ * Since: 0.14
+ */
 gboolean
 poppler_media_save (PopplerMedia *poppler_media,
 		    const char   *filename,
@@ -258,7 +266,9 @@ poppler_media_save (PopplerMedia *poppler_media,
  * whatever the save function generates.
  *
  * Return value: %TRUE, if the save successfully completed
- **/
+ *
+ * Since: 0.14
+ */
 gboolean
 poppler_media_save_to_callback (PopplerMedia        *poppler_media,
 				PopplerMediaSaveFunc save_func,

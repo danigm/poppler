@@ -414,6 +414,8 @@ poppler_annot_get_contents (PopplerAnnot *poppler_annot)
  *
  * Sets the contents of @poppler_annot to the given value,
  * replacing the current contents.
+ *
+ * Since: 0.12
  **/
 void
 poppler_annot_set_contents (PopplerAnnot *poppler_annot,
@@ -550,6 +552,8 @@ poppler_annot_get_color (PopplerAnnot *poppler_annot)
  * Returns the page index to which @poppler_annot is associated, or -1 if unknown
  *
  * Return value: page index or -1
+ *
+ * Since: 0.14
  **/
 gint
 poppler_annot_get_page_index (PopplerAnnot *poppler_annot)
@@ -593,6 +597,8 @@ poppler_annot_markup_get_label (PopplerAnnotMarkup *poppler_annot)
  * Return %TRUE if the markup annotation has a popup window associated
  *
  * Return value: %TRUE, if @poppler_annot has popup, %FALSE otherwise
+ *
+ * Since: 0.12
  **/
 gboolean
 poppler_annot_markup_has_popup (PopplerAnnotMarkup *poppler_annot)
@@ -640,6 +646,8 @@ poppler_annot_markup_get_popup_is_open (PopplerAnnotMarkup *poppler_annot)
  *
  * Return value: %TRUE if #PopplerRectangle was correctly filled,
  *               %FALSE otherwise
+ *
+ * Since: 0.12
  **/
 gboolean
 poppler_annot_markup_get_popup_rectangle (PopplerAnnotMarkup *poppler_annot,
@@ -968,6 +976,8 @@ poppler_annot_free_text_get_callout_line (PopplerAnnotFreeText *poppler_annot)
  * The #PopplerAttachment must be unrefed with g_object_unref by the caller.
  *
  * Return value: @PopplerAttachment
+ *
+ * Since: 0.14
  **/
 PopplerAttachment *
 poppler_annot_file_attachment_get_attachment (PopplerAnnotFileAttachment *poppler_annot)
@@ -994,6 +1004,7 @@ poppler_annot_file_attachment_get_attachment (PopplerAnnotFileAttachment *popple
  *
  * Return value: a new allocated string with the name of @poppler_annot. It must
  *               be freed with g_free() when done.
+ * Since: 0.14
  **/
 gchar *
 poppler_annot_file_attachment_get_name (PopplerAnnotFileAttachment *poppler_annot)
@@ -1071,6 +1082,8 @@ poppler_annot_callout_line_free (PopplerAnnotCalloutLine *callout)
 * Retrieves the movie title of @poppler_annot.
 *
 * Return value: the title text of @poppler_annot.
+*
+* Since: 0.14
 */
 gchar *
 poppler_annot_movie_get_title (PopplerAnnotMovie *poppler_annot)
@@ -1095,6 +1108,8 @@ poppler_annot_movie_get_title (PopplerAnnotMovie *poppler_annot)
 *
 * Return value: the movie object stored in the @poppler_annot. The returned
 *               object is owned by #PopplerAnnotMovie and should not be freed
+*
+* Since: 0.14
 */
 PopplerMovie *
 poppler_annot_movie_get_movie (PopplerAnnotMovie *poppler_annot)
@@ -1111,6 +1126,8 @@ poppler_annot_movie_get_movie (PopplerAnnotMovie *poppler_annot)
  *
  * Return value: the action to perform. The returned
  *               object is owned by @poppler_annot and should not be freed
+ *
+ * Since: 0.14
  */
 PopplerAction *
 poppler_annot_screen_get_action (PopplerAnnotScreen *poppler_annot)

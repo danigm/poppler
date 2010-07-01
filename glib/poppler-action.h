@@ -33,9 +33,9 @@ G_BEGIN_DECLS
  * @POPPLER_ACTION_LAUNCH: launch app (or open document
  * @POPPLER_ACTION_URI: URI
  * @POPPLER_ACTION_NAMED: predefined action
- * @POPPLER_ACTION_MOVIE: play movies
- * @POPPLER_ACTION_RENDITION: play multimedia content
- * @POPPLER_ACTION_OCG_STATE: state of layer
+ * @POPPLER_ACTION_MOVIE: play movies. Since 0.14
+ * @POPPLER_ACTION_RENDITION: play multimedia content. Since 0.14
+ * @POPPLER_ACTION_OCG_STATE: state of layer. Since 0.14
  *
  * Action types
  */
@@ -107,6 +107,8 @@ typedef enum
  * @POPPLER_ACTION_MOVIE_STOP: stop playing movie
  *
  * Movie operations
+ *
+ * Since: 0.14
  */
 typedef enum
 {
@@ -123,6 +125,8 @@ typedef enum
  * @POPPLER_ACTION_LAYER_TOGGLE: reverse the layer visibility state
  *
  * Layer actions
+ *
+ * Since: 0.14
  */
 typedef enum
 {

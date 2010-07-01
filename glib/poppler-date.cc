@@ -30,6 +30,8 @@
  * if the parsing fails or the input string is not a valid PDF format date string
  *
  * Return value: #TRUE, if @timet was set
+ *
+ * Since: 0.12
  **/
 gboolean
 poppler_date_parse (const gchar *date,

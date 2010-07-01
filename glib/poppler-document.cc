@@ -1735,6 +1735,8 @@ POPPLER_DEFINE_BOXED_TYPE (PopplerLayersIter, poppler_layers_iter,
  * poppler_layers_iter_free().
  * 
  * Return value: a new #PopplerLayersIter
+ *
+ * Since 0.12
  **/
 PopplerLayersIter *
 poppler_layers_iter_copy (PopplerLayersIter *iter)
@@ -1754,6 +1756,8 @@ poppler_layers_iter_copy (PopplerLayersIter *iter)
  * @iter: a #PopplerLayersIter
  * 
  * Frees @iter.
+ *
+ * Since: 0.12
  **/
 void
 poppler_layers_iter_free (PopplerLayersIter *iter)
@@ -1768,6 +1772,8 @@ poppler_layers_iter_free (PopplerLayersIter *iter)
 /**
  * poppler_layers_iter_new:
  * @document: a #PopplerDocument
+ *
+ * Since: 0.12
  **/
 PopplerLayersIter *
 poppler_layers_iter_new (PopplerDocument *document)
@@ -1795,6 +1801,8 @@ poppler_layers_iter_new (PopplerDocument *document)
  * See poppler_layers_iter_new() for more information on this function.
  * 
  * Return value: a new #PopplerLayersIter, or %NULL
+ *
+ * Since: 0.12
  **/
 PopplerLayersIter *
 poppler_layers_iter_get_child (PopplerLayersIter *parent)
@@ -1825,7 +1833,9 @@ poppler_layers_iter_get_child (PopplerLayersIter *parent)
  * g_free().
  * 
  * Return value: a new string containing the @iter's title or %NULL if @iter doesn't have a title.
- * The returned string should be freed with g_free() when no longer needed. 
+ * The returned string should be freed with g_free() when no longer needed.
+ *
+ * Since: 0.12
  **/
 gchar *
 poppler_layers_iter_get_title (PopplerLayersIter *iter)
@@ -1847,6 +1857,8 @@ poppler_layers_iter_get_title (PopplerLayersIter *iter)
  * poppler_layer_free().
  * 
  * Return value: a new #PopplerLayer, or %NULL if there isn't any layer associated with @iter
+ *
+ * Since: 0.12
  **/
 PopplerLayer *
 poppler_layers_iter_get_layer (PopplerLayersIter *iter)
@@ -1875,6 +1887,8 @@ poppler_layers_iter_get_layer (PopplerLayersIter *iter)
  * poppler_layers_iter_new() for more information.
  * 
  * Return value: %TRUE, if @iter was set to the next action
+ *
+ * Since: 0.12
  **/
 gboolean
 poppler_layers_iter_next (PopplerLayersIter *iter)

@@ -1896,6 +1896,8 @@ poppler_page_get_crop_box (PopplerPage *page, PopplerRectangle *rect)
  * poppler_page_get_text
  *
  * Return value: %TRUE if the page contains text, %FALSE otherwise
+ *
+ * Since: 0.16
  **/
 gboolean
 poppler_page_get_text_layout (PopplerPage       *page,
