@@ -27,6 +27,16 @@ GQuark poppler_error_quark (void);
 
 #define POPPLER_ERROR poppler_error_quark ()
 
+/**
+ * PopplerError:
+ * @POPPLER_ERROR_INVALID: Generic error when a document opration fails
+ * @POPPLER_ERROR_ENCRYPTED: Document is encrypted
+ * @POPPLER_ERROR_OPEN_FILE: File could not be opened for writing when saving document
+ * @POPPLER_ERROR_BAD_CATALOG: Failed to read the document catalog
+ * @POPPLER_ERROR_DAMAGED: Document is damaged
+ *
+ * Error codes returned by #PopplerDocument
+ */
 typedef enum
 {
   POPPLER_ERROR_INVALID,
@@ -44,6 +54,27 @@ typedef enum
   POPPLER_ORIENTATION_SEASCAPE
 } PopplerOrientation;
 
+/**
+ * PopplerPageTransitionType:
+ * @POPPLER_PAGE_TRANSITION_REPLACE: the new page replace the old one
+ * @POPPLER_PAGE_TRANSITION_SPLIT: two lines sweep across the screen, revealing the new page
+ * @POPPLER_PAGE_TRANSITION_BLINDS: multiple lines, evenly spaced across the screen, synchronously
+ * sweep in the same direction to reveal the new page
+ * @POPPLER_PAGE_TRANSITION_BOX: a rectangular box sweeps inward from the edges of the page or
+ * outward from the center revealing the new page
+ * @POPPLER_PAGE_TRANSITION_WIPE: a single line sweeps across the screen from one edge to the other
+ * revealing the new page
+ * @POPPLER_PAGE_TRANSITION_DISSOLVE: the old page dissolves gradually to reveal the new one
+ * @POPPLER_PAGE_TRANSITION_GLITTER: similar to #POPPLER_PAGE_TRANSITION_DISSOLVE, except that the effect
+ * sweeps across the page in a wide band moving from one side of the screen to the other
+ * @POPPLER_PAGE_TRANSITION_FLY: changes are flown out or in to or from a location that is offscreen
+ * @POPPLER_PAGE_TRANSITION_PUSH: the old page slides off the screen while the new page slides in
+ * @POPPLER_PAGE_TRANSITION_COVER: the new page slides on to the screen covering the old page
+ * @POPPLER_PAGE_TRANSITION_UNCOVER: the old page slides off the screen uncovering the new page
+ * @POPPLER_PAGE_TRANSITION_FADE: the new page gradually becomes visible through the old one
+ *
+ * Page transition types
+ */
 typedef enum
 {
   POPPLER_PAGE_TRANSITION_REPLACE,
@@ -60,18 +91,42 @@ typedef enum
   POPPLER_PAGE_TRANSITION_FADE
 } PopplerPageTransitionType;
 
+/**
+ * PopplerPageTransitionAlignment:
+ * @POPPLER_PAGE_TRANSITION_HORIZONTAL: horizontal dimension
+ * @POPPLER_PAGE_TRANSITION_VERTICAL: vertical dimension
+ *
+ * Page transition alignment types for #POPPLER_PAGE_TRANSITION_SPLIT
+ * and #POPPLER_PAGE_TRANSITION_BLINDS transition types
+ */
 typedef enum
 {
   POPPLER_PAGE_TRANSITION_HORIZONTAL,
   POPPLER_PAGE_TRANSITION_VERTICAL
 } PopplerPageTransitionAlignment;
 
+/**
+ * PopplerPageTransitionDirection:
+ * @POPPLER_PAGE_TRANSITION_INWARD: inward from the edges of the page
+ * @POPPLER_PAGE_TRANSITION_OUTWARD: outward from the center of the page
+ *
+ * Page transition direction types for #POPPLER_PAGE_TRANSITION_SPLIT,
+ * #POPPLER_PAGE_TRANSITION_BOX and #POPPLER_PAGE_TRANSITION_FLY transition types
+ */
 typedef enum
 {
   POPPLER_PAGE_TRANSITION_INWARD,
   POPPLER_PAGE_TRANSITION_OUTWARD
 } PopplerPageTransitionDirection;
 
+/**
+ * PopplerSelectionStyle:
+ * @POPPLER_SELECTION_GLYPH: glyph is the minimum unit for selection
+ * @POPPLER_SELECTION_WORD: word is the minimum unit for selection
+ * @POPPLER_SELECTION_LINE: line is the minimum unit for selection
+ *
+ * Selection styles
+ */
 typedef enum
 {
   POPPLER_SELECTION_GLYPH,
