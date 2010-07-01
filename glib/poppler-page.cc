@@ -20,7 +20,6 @@
 #include <math.h>
 
 #include <goo/GooList.h>
-#include <splash/SplashBitmap.h>
 #include <GlobalParams.h>
 #include <PDFDoc.h>
 #include <Outline.h>
