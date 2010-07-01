@@ -32,9 +32,9 @@ G_BEGIN_DECLS
 
 
 GType        poppler_movie_get_type      (void) G_GNUC_CONST;
-const gchar *poppler_movie_get_filename  (PopplerMovie *movie);
-gboolean     poppler_movie_need_poster   (PopplerMovie *movie);
-gboolean     poppler_movie_show_controls (PopplerMovie *movie);
+const gchar *poppler_movie_get_filename  (PopplerMovie *poppler_movie);
+gboolean     poppler_movie_need_poster   (PopplerMovie *poppler_movie);
+gboolean     poppler_movie_show_controls (PopplerMovie *poppler_movie);
 
 G_END_DECLS
 
