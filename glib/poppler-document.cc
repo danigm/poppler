@@ -1196,6 +1196,14 @@ POPPLER_DEFINE_BOXED_TYPE (PopplerFontsIter, poppler_fonts_iter,
 			   poppler_fonts_iter_copy,
 			   poppler_fonts_iter_free)
 
+/**
+ * poppler_fonts_iter_get_full_name:
+ * @iter: a #PopplerFontsIter
+ *
+ * Returns the full name of the font associated with @iter
+ *
+ * Returns: the font full name
+ */
 const char *
 poppler_fonts_iter_get_full_name (PopplerFontsIter *iter)
 {
@@ -1212,6 +1220,14 @@ poppler_fonts_iter_get_full_name (PopplerFontsIter *iter)
 	}
 }
 
+/**
+ * poppler_fonts_iter_get_name:
+ * @iter: a #PopplerFontsIter
+ *
+ * Returns the name of the font associated with @iter
+ *
+ * Returns: the font name
+ */
 const char *
 poppler_fonts_iter_get_name (PopplerFontsIter *iter)
 {
@@ -1232,6 +1248,15 @@ poppler_fonts_iter_get_name (PopplerFontsIter *iter)
 	return name;
 }
 
+/**
+ * poppler_fonts_iter_get_file_name:
+ * @iter: a #PopplerFontsIter
+ *
+ * The filename of the font associated with @iter or %NULL if
+ * the font is embedded
+ *
+ * Returns: the filename of the font or %NULL y font is emebedded
+ */
 const char *
 poppler_fonts_iter_get_file_name (PopplerFontsIter *iter)
 {
@@ -1248,6 +1273,14 @@ poppler_fonts_iter_get_file_name (PopplerFontsIter *iter)
 	}
 }
 
+/**
+ * poppler_fonts_iter_get_font_type:
+ * @iter: a #PopplerFontsIter
+ *
+ * Returns the type of the font associated with @iter
+ *
+ * Returns: the font type
+ */
 PopplerFontType
 poppler_fonts_iter_get_font_type (PopplerFontsIter *iter)
 {
@@ -1260,6 +1293,14 @@ poppler_fonts_iter_get_font_type (PopplerFontsIter *iter)
 	return (PopplerFontType)info->getType ();
 }
 
+/**
+ * poppler_fonts_iter_is_embedded:
+ * @iter: a #PopplerFontsIter
+ *
+ * Returns whether the font associated with @iter is embedded in the document
+ *
+ * Returns: %TRUE if font is emebdded, %FALSE otherwise
+ */
 gboolean
 poppler_fonts_iter_is_embedded (PopplerFontsIter *iter)
 {
@@ -1270,6 +1311,14 @@ poppler_fonts_iter_is_embedded (PopplerFontsIter *iter)
 	return info->getEmbedded();
 }
 
+/**
+ * poppler_fonts_iter_is_subset:
+ * @iter: a #PopplerFontsIter
+ *
+ * Returns whether the font associated with @iter is a subset of another font
+ *
+ * Returns: %TRUE if font is a subset, %FALSE otherwise
+ */
 gboolean
 poppler_fonts_iter_is_subset (PopplerFontsIter *iter)
 {
@@ -1280,6 +1329,14 @@ poppler_fonts_iter_is_subset (PopplerFontsIter *iter)
 	return info->getSubset();
 }
 
+/**
+ * poppler_fonts_iter_next:
+ * @iter: a #PopplerFontsIter
+ *
+ * Sets @iter to point to the next font
+ *
+ * Returns: %TRUE, if @iter was set to the next font
+ **/
 gboolean
 poppler_fonts_iter_next (PopplerFontsIter *iter)
 {
@@ -1292,6 +1349,14 @@ poppler_fonts_iter_next (PopplerFontsIter *iter)
 	return TRUE;
 }
 
+/**
+ * poppler_fonts_iter_copy:
+ * @iter: a #PopplerFontsIter to copy
+ *
+ * Creates a copy of @iter
+ *
+ * Returns: a new allocated copy of @iter
+ */
 PopplerFontsIter *
 poppler_fonts_iter_copy (PopplerFontsIter *iter)
 {
@@ -1310,6 +1375,12 @@ poppler_fonts_iter_copy (PopplerFontsIter *iter)
 	return new_iter;
 }
 
+/**
+ * poppler_fonts_iter_free:
+ * @iter: a #PopplerFontsIter
+ *
+ * Frees the given #PopplerFontsIter
+ */
 void
 poppler_fonts_iter_free (PopplerFontsIter *iter)
 {
@@ -1369,6 +1440,14 @@ poppler_font_info_finalize (GObject *object)
         g_object_unref (font_info->document);
 }
 
+/**
+ * poppler_font_info_new:
+ * @document: a #PopplerDocument
+ *
+ * Creates a new #PopplerFontInfo object
+ *
+ * Returns: a new #PopplerFontInfo instance
+ */
 PopplerFontInfo *
 poppler_font_info_new (PopplerDocument *document)
 {
@@ -1384,6 +1463,33 @@ poppler_font_info_new (PopplerDocument *document)
 	return font_info;
 }
 
+/**
+ * poppler_font_info_scan:
+ * @font_info: a #PopplerFontInfo
+ * @n_pages: number of pages to scan
+ * @iter: return location for a #PopplerFontsIter
+ *
+ * Scans the document associated with @font_info for fonts. At most
+ * @n_pages will be scanned starting from the current iterator. @iter will
+ * point to the first font scanned.
+ *
+ * Here is a simple example of code to scan fonts in a document
+ *
+ * <informalexample><programlisting>
+ * font_info = poppler_font_info_new (document);
+ * while (poppler_font_info_scan (font_info, 20, &fonts_iter)) {
+ *         if (!fonts_iter)
+ *                 continue; /<!-- -->* No fonts found in these 20 pages *<!-- -->/
+ *         do {
+ *                 /<!-- -->* Do something with font iter *<!-- -->/
+ *                 g_print ("Font Name: %s\n", poppler_fonts_iter_get_name (fonts_iter));
+ *         } while (poppler_fonts_iter_next (fonts_iter));
+ *         poppler_fonts_iter_free (fonts_iter);
+ * }
+ * </programlisting></informalexample>
+ *
+ * Returns: %TRUE, if there are more fonts left to scan
+ */
 gboolean
 poppler_font_info_scan (PopplerFontInfo   *font_info,
 			int                n_pages,
