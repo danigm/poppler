@@ -843,7 +843,7 @@ poppler_page_get_thumbnail_size (PopplerPage *page,
  * #PopplerRectangle. The returned list must be freed with
  * poppler_page_selection_region_free().
  * 
- * Return value: a #GList of #PopplerRectangle
+ * Return value: (element-type PopplerRectangle) (transfer full): a #GList of #PopplerRectangle
  **/
 GList *
 poppler_page_get_selection_region (PopplerPage           *page,
@@ -972,7 +972,7 @@ poppler_page_get_text (PopplerPage          *page,
  * A #GList of rectangles for each occurance of the text on the page.
  * The coordinates are in PDF points.
  * 
- * Return value: a #GList of PopplerRectangle, 
+ * Return value: (element-type PopplerRectangle) (transfer full): a #GList of #PopplerRectangle,
  **/
 GList *
 poppler_page_find_text (PopplerPage *page,
@@ -1054,7 +1054,7 @@ poppler_page_get_image_output_dev (PopplerPage *page,
  * location on @page to an image of the page. This list must be freed
  * with poppler_page_free_image_mapping() when done.
  *
- * Return value: A #GList of #PopplerImageMapping
+ * Return value: (element-type PopplerImageMapping) (transfer full): A #GList of #PopplerImageMapping
  **/
 GList *
 poppler_page_get_image_mapping (PopplerPage *page)
@@ -1237,7 +1237,7 @@ poppler_page_init (PopplerPage *page)
  * location on @page to a #PopplerAction.  This list must be freed
  * with poppler_page_free_link_mapping() when done.
  * 
- * Return value: A #GList of #PopplerLinkMapping
+ * Return value: (element-type PopplerLinkMapping) (transfer full): A #GList of #PopplerLinkMapping
  **/
 GList *
 poppler_page_get_link_mapping (PopplerPage *page)
@@ -1345,7 +1345,7 @@ poppler_page_free_link_mapping (GList *list)
  * location on @page to a form field.  This list must be freed
  * with poppler_page_free_form_field_mapping() when done.
  *
- * Return value: A #GList of #PopplerFormFieldMapping
+ * Return value: (element-type PopplerFormFieldMapping) (transfer full): A #GList of #PopplerFormFieldMapping
  **/
 GList *
 poppler_page_get_form_field_mapping (PopplerPage *page)
@@ -1408,7 +1408,7 @@ poppler_page_free_form_field_mapping (GList *list)
  * @page to a #PopplerAnnot.  This list must be freed with
  * poppler_page_free_annot_mapping() when done.
  *
- * Return value: A #GList of #PopplerAnnotMapping
+ * Return value: (element-type PopplerAnnotMapping) (transfer full): A #GList of #PopplerAnnotMapping
  **/
 GList *
 poppler_page_get_annot_mapping (PopplerPage *page)
@@ -1880,7 +1880,14 @@ poppler_annot_mapping_free (PopplerAnnotMapping *mapping)
   g_slice_free (PopplerAnnotMapping, mapping);
 }
 
-void 
+/**
+ * poppler_page_get_crop_box:
+ * @page: a #PopplerPage
+ * @rect: (out): a #PopplerRectangle to fill
+ *
+ * Retrurns the crop box of @page
+ */
+void
 poppler_page_get_crop_box (PopplerPage *page, PopplerRectangle *rect)
 {
   PDFRectangle* cropBox = page->page->getCropBox ();
@@ -1894,7 +1901,7 @@ poppler_page_get_crop_box (PopplerPage *page, PopplerRectangle *rect)
 /**
  * poppler_page_get_text_layout:
  * @page: A #PopplerPage
- * @rectangles: return location for an array of #PopplerRectangle
+ * @rectangles: (out) (array length=n_rectangles) (transfer container): return location for an array of #PopplerRectangle
  * @n_rectangles: length of returned array
  *
  * Obtains the layout of the text as a list of #PopplerRectangle

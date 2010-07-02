@@ -640,12 +640,11 @@ poppler_annot_markup_get_popup_is_open (PopplerAnnotMarkup *poppler_annot)
 /**
  * poppler_annot_markup_get_popup_rectangle:
  * @poppler_annot: a #PopplerAnnotMarkup
- * @poppler_rect: a #PopplerRectangle to store the popup rectangle
+ * @poppler_rect: (out): a #PopplerRectangle to store the popup rectangle
  *
  * Retrieves the rectangle of the popup annot related to @poppler_annot.
  *
- * Return value: %TRUE if #PopplerRectangle was correctly filled,
- *               %FALSE otherwise
+ * Return value: %TRUE if #PopplerRectangle was correctly filled, %FALSE otherwise
  *
  * Since: 0.12
  **/
@@ -1076,15 +1075,15 @@ poppler_annot_callout_line_free (PopplerAnnotCalloutLine *callout)
 
 /* PopplerAnnotMovie */
 /**
-* poppler_annot_movie_get_title:
-* @poppler_annot: a #PopplerAnnotMovie
-*
-* Retrieves the movie title of @poppler_annot.
-*
-* Return value: the title text of @poppler_annot.
-*
-* Since: 0.14
-*/
+ * poppler_annot_movie_get_title:
+ * @poppler_annot: a #PopplerAnnotMovie
+ *
+ * Retrieves the movie title of @poppler_annot.
+ *
+ * Return value: the title text of @poppler_annot.
+ *
+ * Since: 0.14
+ */
 gchar *
 poppler_annot_movie_get_title (PopplerAnnotMovie *poppler_annot)
 {
@@ -1101,16 +1100,16 @@ poppler_annot_movie_get_title (PopplerAnnotMovie *poppler_annot)
 }
 
 /**
-* poppler_annot_movie_get_movie:
-* @poppler_annot: a #PopplerAnnotMovie
-*
-* Retrieves the movie object (PopplerMovie) stored in the @poppler_annot.
-*
-* Return value: the movie object stored in the @poppler_annot. The returned
-*               object is owned by #PopplerAnnotMovie and should not be freed
-*
-* Since: 0.14
-*/
+ * poppler_annot_movie_get_movie:
+ * @poppler_annot: a #PopplerAnnotMovie
+ *
+ * Retrieves the movie object (PopplerMovie) stored in the @poppler_annot.
+ *
+ * Return value: (transfer none): the movie object stored in the @poppler_annot. The returned
+ *               object is owned by #PopplerAnnotMovie and should not be freed
+ *
+ * Since: 0.14
+ */
 PopplerMovie *
 poppler_annot_movie_get_movie (PopplerAnnotMovie *poppler_annot)
 {
@@ -1124,7 +1123,7 @@ poppler_annot_movie_get_movie (PopplerAnnotMovie *poppler_annot)
  *
  * Retrieves the action (#PopplerAction) that shall be performed when @poppler_annot is activated
  *
- * Return value: the action to perform. The returned
+ * Return value: (transfer none): the action to perform. The returned
  *               object is owned by @poppler_annot and should not be freed
  *
  * Since: 0.14

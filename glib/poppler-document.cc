@@ -456,12 +456,12 @@ poppler_document_has_attachments (PopplerDocument *document)
 /**
  * poppler_document_get_attachments:
  * @document: A #PopplerDocument
- * 
+ *
  * Returns a #GList containing #PopplerAttachment<!-- -->s.  These attachments
  * are unowned, and must be unreffed, and the list must be freed with
  * g_list_free().
- * 
- * Return value: a list of available attachments.
+ *
+ * Return value: (element-type PopplerAttachment) (transfer full): a list of available attachments.
  **/
 GList *
 poppler_document_get_attachments (PopplerDocument *document)
@@ -1467,7 +1467,7 @@ poppler_font_info_new (PopplerDocument *document)
  * poppler_font_info_scan:
  * @font_info: a #PopplerFontInfo
  * @n_pages: number of pages to scan
- * @iter: return location for a #PopplerFontsIter
+ * @iter: (out): return location for a #PopplerFontsIter
  *
  * Scans the document associated with @font_info for fonts. At most
  * @n_pages will be scanned starting from the current iterator. @iter will
