@@ -75,7 +75,6 @@
 
 /**
  * POPPLER_CHECK_VERSION:
- *
  * @major: major version (e.g. 0 for version 0.1.2)
  * @minor: minor version (e.g. 1 for version 0.1.2)
  * @micro: micro version (e.g. 2 for version 0.1.2)
