@@ -122,4 +122,10 @@ if $want_gtk_doc; then
     (cd $srcdir && $GTKDOCIZE --copy) || exit 1
 fi
 
-$srcdir/configure $@
+if test x$NOCONFIGURE = x; then
+    printbold "Running $srcdir/configure $@ ..."
+    $srcdir/configure $@
+else
+    printbold "Skipping configure process."
+fi
+
