@@ -600,6 +600,8 @@ _poppler_page_render_to_pixbuf (PopplerPage *page,
  * This function is for rendering a page that will be displayed.
  * If you want to render a page that will be printed use
  * poppler_page_render_to_pixbuf_for_printing() instead
+ *
+ * Deprecated: 0.16
  **/
 void
 poppler_page_render_to_pixbuf (PopplerPage *page,
@@ -635,6 +637,8 @@ poppler_page_render_to_pixbuf (PopplerPage *page,
  * then render the rectangle given by the upper left corner at
  * (src_x, src_y) and src_width and src_height.
  * This function is for rendering a page that will be printed.
+ *
+ * Deprecated: 0.16
  **/
 void
 poppler_page_render_to_pixbuf_for_printing (PopplerPage *page,
@@ -665,6 +669,8 @@ poppler_page_render_to_pixbuf_for_printing (PopplerPage *page,
  * 
  * Return value: the tumbnail as a #GdkPixbuf or %NULL if the document
  * doesn't have a thumbnail for this page.
+ *
+ * Deprecated: 0.16
  **/
 GdkPixbuf *
 poppler_page_get_thumbnail_pixbuf (PopplerPage *page)
@@ -702,6 +708,8 @@ poppler_page_get_thumbnail_pixbuf (PopplerPage *page)
  * If non-NULL, @old_selection specifies the selection that is already
  * rendered in @pixbuf, in which case this function will (some day)
  * only render the changed part of the selection.
+ *
+ * Deprecated: 0.16
  **/
 void
 poppler_page_render_selection_to_pixbuf (PopplerPage           *page,
