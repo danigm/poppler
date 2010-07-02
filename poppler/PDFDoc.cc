@@ -131,7 +131,7 @@ PDFDoc::PDFDoc(GooString *fileNameA, GooString *ownerPassword,
 PDFDoc::PDFDoc(wchar_t *fileNameA, int fileNameLen, GooString *ownerPassword,
 	       GooString *userPassword, void *guiDataA) {
   OSVERSIONINFO version;
-  wchar_t fileName2[_MAX_PATH + 1];
+  wchar_t fileName2[MAX_PATH + 1];
   Object obj;
   int i;
 
@@ -146,7 +146,7 @@ PDFDoc::PDFDoc(wchar_t *fileNameA, int fileNameLen, GooString *ownerPassword,
   }
 
   // zero-terminate the file name string
-  for (i = 0; i < fileNameLen && i < _MAX_PATH; ++i) {
+  for (i = 0; i < fileNameLen && i < MAX_PATH; ++i) {
     fileName2[i] = fileNameA[i];
   }
   fileName2[i] = 0;

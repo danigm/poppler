@@ -172,7 +172,7 @@ DllMain (HINSTANCE hinstDLL,
 static char *
 get_poppler_datadir (void)
 {
-  static char retval[_MAX_PATH];
+  static char retval[MAX_PATH];
   static int beenhere = 0;
 
   unsigned char *p;

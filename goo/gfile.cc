@@ -376,11 +376,11 @@ GooString *makePathAbsolute(GooString *path) {
 
 #elif defined(_WIN32)
   //---------- Win32 ----------
-  char buf[_MAX_PATH];
+  char buf[MAX_PATH];
   char *fp;
 
   buf[0] = '\0';
-  if (!GetFullPathName(path->getCString(), _MAX_PATH, buf, &fp)) {
+  if (!GetFullPathName(path->getCString(), MAX_PATH, buf, &fp)) {
     path->clear();
     return path;
   }
