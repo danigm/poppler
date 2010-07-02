@@ -1,3 +1,5 @@
+AM_LDFLAGS = @auto_import_flags@
+
 INCLUDES =					\
 	-I$(top_srcdir)				\
 	-I$(top_srcdir)/poppler			\

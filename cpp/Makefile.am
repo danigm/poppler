@@ -42,4 +42,4 @@ libpoppler_cpp_la_LIBADD = 			\
 	$(top_builddir)/poppler/libpoppler.la	\
 	$(LIBICONV)
 
-libpoppler_cpp_la_LDFLAGS = -version-info 1:0:1 @create_shared_lib@
+libpoppler_cpp_la_LDFLAGS = -version-info 1:0:1 @create_shared_lib@ @auto_import_flags@

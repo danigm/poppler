@@ -1,3 +1,5 @@
+AM_LDFLAGS = @auto_import_flags@
+
 SUBDIRS = . reference demo
 INCLUDES =					\
 	-DG_LOG_DOMAIN=\"Poppler\"		\
