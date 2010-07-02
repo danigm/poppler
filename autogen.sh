@@ -115,6 +115,7 @@ fi
 version_check automake AUTOMAKE "$automake_progs" $REQUIRED_AUTOMAKE_VERSION \
 "http://ftp.gnu.org/pub/gnu/automake/automake-$REQUIRED_AUTOMAKE_VERSION.tar.gz" || DIE=1
 
+printbold "Running autoreconf -v -i ..."
 (cd $srcdir && autoreconf -v -i )
 
 if $want_gtk_doc; then
