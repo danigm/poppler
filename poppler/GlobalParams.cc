@@ -1002,6 +1002,7 @@ FILE *GlobalParams::findToUnicodeFile(GooString *name) {
   return NULL;
 }
 
+#if WITH_FONTCONFIGURATION_FONTCONFIG
 static GBool findModifier(const char *name, const char *modifier, const char **start)
 {
   const char *match;
@@ -1020,7 +1021,6 @@ static GBool findModifier(const char *name, const char *modifier, const char **s
   }
 }
 
-#if WITH_FONTCONFIGURATION_FONTCONFIG
 static FcPattern *buildFcPattern(GfxFont *font)
 {
   int weight = -1,
