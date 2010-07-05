@@ -79,8 +79,10 @@
  * @minor: minor version (e.g. 1 for version 0.1.2)
  * @micro: micro version (e.g. 2 for version 0.1.2)
  *
- * Returns %TRUE if the version of the poppler header files is the same
- * as or newer than the passed-in version.
+ * Checks the version fo the poppler library
+ *
+ * Returns: %TRUE if the version of the poppler header files is the same
+ * as or newer than the passed-in version
  *
  * Since: 0.12
  */
