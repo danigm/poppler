@@ -84,8 +84,8 @@ poppler_page_finalize (GObject *object)
 /**
  * poppler_page_get_size:
  * @page: A #PopplerPage
- * @width: return location for the width of @page
- * @height: return location for the height of @page
+ * @width: (allow-none): return location for the width of @page
+ * @height: (allow-none): return location for the height of @page
  * 
  * Gets the size of @page at the current scale and rotation.
  **/

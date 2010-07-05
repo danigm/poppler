@@ -157,7 +157,7 @@ save_helper (const gchar  *buf,
  * poppler_attachment_save:
  * @attachment: A #PopplerAttachment.
  * @filename: name of file to save
- * @error: return location for error, or %NULL.
+ * @error: (allow-none): return location for error, or %NULL.
  * 
  * Saves @attachment to a file indicated by @filename.  If @error is set, %FALSE
  * will be returned. Possible errors include those in the #G_FILE_ERROR domain
@@ -215,7 +215,7 @@ poppler_attachment_save (PopplerAttachment  *attachment,
  * @attachment: A #PopplerAttachment.
  * @save_func: a function that is called to save each block of data that the save routine generates.
  * @user_data: user data to pass to the save function.
- * @error: return location for error, or %NULL.
+ * @error: (allow-none): return location for error, or %NULL.
  * 
  * Saves @attachment by feeding the produced data to @save_func. Can be used
  * when you want to store the attachment to something other than a file, such as

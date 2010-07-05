@@ -195,7 +195,7 @@ save_helper (const gchar  *buf,
  * poppler_media_save:
  * @poppler_media: a #PopplerMedia
  * @filename: name of file to save
- * @error: return location for error, or %NULL.
+ * @error: (allow-none): return location for error, or %NULL.
  *
  * Saves embedded stream of @poppler_media to a file indicated by @filename.
  * If @error is set, %FALSE will be returned.
@@ -257,7 +257,7 @@ poppler_media_save (PopplerMedia *poppler_media,
  * @poppler_media: a #PopplerMedia
  * @save_func: a function that is called to save each block of data that the save routine generates.
  * @user_data: user data to pass to the save function.
- * @error: return location for error, or %NULL.
+ * @error: (allow-none): return location for error, or %NULL.
  *
  * Saves embedded stream of @poppler_media by feeding the produced data to @save_func. Can be used
  * when you want to store the media clip stream to something other than a file, such as

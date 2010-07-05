@@ -133,8 +133,8 @@ _poppler_document_new_from_pdfdoc (PDFDoc  *newDoc,
 /**
  * poppler_document_new_from_file:
  * @uri: uri of the file to load
- * @password: password to unlock the file with, or %NULL
- * @error: Return location for an error, or %NULL
+ * @password: (allow-none): password to unlock the file with, or %NULL
+ * @error: (allow-none): Return location for an error, or %NULL
  * 
  * Creates a new #PopplerDocument.  If %NULL is returned, then @error will be
  * set. Possible errors include those in the #POPPLER_ERROR and #G_FILE_ERROR
@@ -205,8 +205,8 @@ poppler_document_new_from_file (const char  *uri,
  * poppler_document_new_from_data:
  * @data: the pdf data contained in a char array
  * @length: the length of #data
- * @password: password to unlock the file with, or %NULL
- * @error: Return location for an error, or %NULL
+ * @password: (allow-none): password to unlock the file with, or %NULL
+ * @error: (allow-none): Return location for an error, or %NULL
  * 
  * Creates a new #PopplerDocument.  If %NULL is returned, then @error will be
  * set. Possible errors include those in the #POPPLER_ERROR and #G_FILE_ERROR
@@ -274,7 +274,7 @@ handle_save_error (int      err_code,
  * poppler_document_save:
  * @document: a #PopplerDocument
  * @uri: uri of file to save
- * @error: return location for an error, or %NULL
+ * @error: (allow-none): return location for an error, or %NULL
  * 
  * Saves @document. Any change made in the document such as 
  * form fields filled by the user will be saved. 
@@ -311,7 +311,7 @@ poppler_document_save (PopplerDocument  *document,
  * poppler_document_save_a_copy:
  * @document: a #PopplerDocument
  * @uri: uri of file to save
- * @error: return location for an error, or %NULL
+ * @error: (allow-none): return location for an error, or %NULL
  * 
  * Saves a copy of the original @document.
  * Any change made in the document such as 
