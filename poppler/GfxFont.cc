@@ -19,7 +19,7 @@
 // Copyright (C) 2007 Ed Catmur <ed@catmur.co.uk>
 // Copyright (C) 2008 Jonathan Kew <jonathan_kew@sil.org>
 // Copyright (C) 2008 Ed Avis <eda@waniasset.com>
-// Copyright (C) 2008 Hib Eris <hib@hiberis.nl>
+// Copyright (C) 2008, 2010 Hib Eris <hib@hiberis.nl>
 // Copyright (C) 2009 Peter Kerzum <kerzum@yandex-team.ru>
 // Copyright (C) 2009, 2010 David Benjamin <davidben@mit.edu>
 //
@@ -1328,6 +1328,7 @@ GfxCIDFont::GfxCIDFont(XRef *xref, char *tagA, Ref idA, GooString *nameA,
   descent = -0.35;
   fontBBox[0] = fontBBox[1] = fontBBox[2] = fontBBox[3] = 0;
   cMap = NULL;
+  cMapName = NULL;
   ctu = NULL;
   widths.defWidth = 1.0;
   widths.defHeight = -1.0;

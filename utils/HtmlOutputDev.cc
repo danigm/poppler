@@ -26,6 +26,7 @@
 // Copyright (C) 2009 Carlos Garcia Campos <carlosgc@gnome.org>
 // Copyright (C) 2009 Reece Dunn <msclrhd@gmail.com>
 // Copyright (C) 2010 Adrian Johnson <ajohnson@redneon.com>
+// Copyright (C) 2010 Hib Eris <hib@hiberis.nl>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -1529,7 +1530,7 @@ void HtmlOutputDev::dumpMetaVars(FILE *file)
 
 GBool HtmlOutputDev::dumpDocOutline(Catalog* catalog)
 { 
-	FILE * output;
+	FILE * output = NULL;
 	GBool bClose = gFalse;
 
 	if (!ok || xml)
