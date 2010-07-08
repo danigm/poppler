@@ -69,10 +69,8 @@ pgd_text_get_text (GtkWidget   *button,
 		   PgdTextDemo *demo)
 {
 	PopplerPage      *page;
-	PopplerRectangle  rect;
 	PopplerRectangle *recs = NULL;
 	guint             n_recs;
-	gdouble           width, height;
 	gchar            *text;
 	GTimer           *timer;
 	gint              i;
@@ -83,13 +81,8 @@ pgd_text_get_text (GtkWidget   *button,
 
 	gtk_list_store_clear (demo->model);
 
-	poppler_page_get_size (page, &width, &height);
-	rect.x1 = rect.y1 = 0;
-	rect.x2 = width;
-	rect.y2 = height;
-
 	timer = g_timer_new ();
-	text = poppler_page_get_text (page, POPPLER_SELECTION_GLYPH, &rect);
+	text = poppler_page_get_text (page);
 	g_timer_stop (timer);
 
 	if (text) {

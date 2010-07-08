@@ -94,7 +94,8 @@ GList     	      *poppler_page_find_text            (PopplerPage        *page,
 							  const  char        *text);
 void                   poppler_page_render_to_ps         (PopplerPage        *page,
 							  PopplerPSFile      *ps_file);
-char                  *poppler_page_get_text             (PopplerPage        *page,
+char                  *poppler_page_get_text             (PopplerPage        *page);
+char                  *poppler_page_get_selected_text    (PopplerPage        *page,
 							  PopplerSelectionStyle style,
 							  PopplerRectangle   *selection);
 GList                 *poppler_page_get_selection_region (PopplerPage        *page,

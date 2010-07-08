@@ -912,23 +912,23 @@ poppler_page_selection_region_free (GList *region)
 }
 
 /**
- * poppler_page_get_text:
+ * poppler_page_get_selected_text:
  * @page: a #PopplerPage
  * @style: a #PopplerSelectionStyle
  * @selection: the #PopplerRectangle including the text
- * 
+ *
  * Retrieves the contents of the specified @selection as text.
- * 
+ *
  * Return value: a pointer to the contents of the @selection
  *               as a string
+ * Since: 0.16
  **/
 char *
-poppler_page_get_text (PopplerPage          *page,
-		       PopplerSelectionStyle style,
-		       PopplerRectangle     *selection)
+poppler_page_get_selected_text (PopplerPage          *page,
+				PopplerSelectionStyle style,
+				PopplerRectangle     *selection)
 {
   GooString *sel_text;
-  double height;
   char *result;
   TextPage *text;
   SelectionStyle selection_style = selectionStyleGlyph;
@@ -937,11 +937,10 @@ poppler_page_get_text (PopplerPage          *page,
   g_return_val_if_fail (POPPLER_IS_PAGE (page), FALSE);
   g_return_val_if_fail (selection != NULL, NULL);
 
-  poppler_page_get_size (page, NULL, &height);
   pdf_selection.x1 = selection->x1;
-  pdf_selection.y1 = height - selection->y2;
+  pdf_selection.y1 = selection->y1;
   pdf_selection.x2 = selection->x2;
-  pdf_selection.y2 = height - selection->y1;
+  pdf_selection.y2 = selection->y2;
 
   switch (style)
     {
@@ -962,6 +961,28 @@ poppler_page_get_text (PopplerPage          *page,
   delete sel_text;
 
   return result;
+}
+
+/**
+ * poppler_page_get_text:
+ * @page: a #PopplerPage
+ *
+ * Retrieves the text of @page.
+ *
+ * Return value: a pointer to the text of the @page
+ *               as a string
+ * Since: 0.16
+ **/
+char *
+poppler_page_get_text (PopplerPage *page)
+{
+  PopplerRectangle rectangle = {0, 0, 0, 0};
+
+  g_return_val_if_fail (POPPLER_IS_PAGE (page), FALSE);
+
+  poppler_page_get_size (page, &rectangle.x2, &rectangle.y2);
+
+  return poppler_page_get_selected_text (page, POPPLER_SELECTION_GLYPH, &rectangle);
 }
 
 /**
@@ -1908,7 +1929,7 @@ poppler_page_get_crop_box (PopplerPage *page, PopplerRectangle *rect)
  * This array must be freed with g_free () when done.
  *
  * The position in the array represents an offset in the text returned by
- * poppler_page_get_text
+ * poppler_page_get_text()
  *
  * Return value: %TRUE if the page contains text, %FALSE otherwise
  *
