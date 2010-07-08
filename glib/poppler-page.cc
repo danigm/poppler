@@ -1021,7 +1021,7 @@ poppler_page_find_text (PopplerPage *page,
 
   while (text_dev->findText (ucs4, ucs4_len,
 			     gFalse, gTrue, // startAtTop, stopAtBottom
-			     gTrue, gFalse, // startAtLast, stopAtLast
+			     gFalse, gFalse, // startAtLast, stopAtLast
 			     gFalse, gFalse, // caseSensitive, backwards
 			     &xMin, &yMin, &xMax, &yMax))
     {
