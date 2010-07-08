@@ -40,6 +40,8 @@ poppler_glib_demo_SOURCES = 			\
 	print.c					\
 	render.h				\
 	render.c				\
+	selections.h				\
+	selections.c				\
 	text.h					\
 	text.c					\
 	transitions.h				\

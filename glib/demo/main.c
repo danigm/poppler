@@ -36,6 +36,7 @@
 #include "text.h"
 #include "find.h"
 #include "print.h"
+#include "selections.h"
 
 enum {
 	PGD_TITLE_COLUMN,
@@ -53,6 +54,7 @@ static const PopplerGlibDemo demo_list[] = {
 	{ "Info",             pgd_info_create_widget },
 	{ "Fonts",            pgd_fonts_create_widget },
 	{ "Render",           pgd_render_create_widget },
+	{ "Selections",       pgd_selections_create_widget },
 	{ "Page Info",        pgd_page_create_widget },
 	{ "Outline",          pgd_outline_create_widget },
 	{ "Links",            pgd_links_create_widget },
@@ -64,7 +66,7 @@ static const PopplerGlibDemo demo_list[] = {
 	{ "Layers",           pgd_layers_create_widget },
 	{ "Text",             pgd_text_create_widget },
 	{ "Find",             pgd_find_create_widget },
-	{ "Print",             pgd_print_create_widget }
+	{ "Print",            pgd_print_create_widget }
 };
 
 static void
