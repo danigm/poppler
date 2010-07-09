@@ -394,7 +394,6 @@ int main (int argc, char *argv[])
   GList *list, *l;
   char *text;
   double duration;
-  PopplerRectangle area;
   gint num_images;
   gint num_forms;
   gint num_links;
@@ -501,12 +500,7 @@ int main (int argc, char *argv[])
     }
   poppler_page_free_link_mapping (list); 
   
-  area.x1 = 0;
-  area.y1 = 0;
-  area.x2 = width;
-  area.y2 = height;
-
-  text = poppler_page_get_text (page, POPPLER_SELECTION_GLYPH, &area);
+  text = poppler_page_get_text (page);
   if (text)
     {
       FILE *file = fopen ("dump.txt", "w");
