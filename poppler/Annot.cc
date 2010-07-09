@@ -90,6 +90,10 @@
 // = (4 * (sqrt(2) - 1) / 3) * r
 #define bezierCircle 0.55228475
 
+// Ensures that x is between the limits set by low and high.
+// If low is greater than high the result is undefined.
+#define CLAMP(x, low, high)  (((x) > (high)) ? (high) : (((x) < (low)) ? (low) : (x)))
+
 AnnotLineEndingStyle parseAnnotLineEndingStyle(GooString *string) {
   if (string != NULL) {
     if (!string->cmp("Square")) {
@@ -320,37 +324,37 @@ AnnotQuadrilaterals::AnnotQuadrilaterals(Array *array, PDFRectangle *rect) {
   quadrilateralsLength = 0;
 
   if ((arrayLength % 8) == 0) {
-    int i = 0;
+    int i;
 
     quadsLength = arrayLength / 8;
     quads = (AnnotQuadrilateral **) gmallocn
         ((quadsLength), sizeof(AnnotQuadrilateral *));
     memset(quads, 0, quadsLength * sizeof(AnnotQuadrilateral *));
 
-    while (i < (quadsLength) && correct) {
-      for (int j = 0; j < 8 && correct; j++) {
+    for (i = 0; i < quadsLength; i++) {
+      for (int j = 0; j < 8; j++) {
         Object obj;
         if (array->get(i * 8 + j, &obj)->isNum()) {
-          quadArray[j] = obj.getNum();
-          if (j % 2 == 1) {
-              if (quadArray[j] < rect->y1 || quadArray[j] > rect->y2)
-                  correct = gFalse;
-          } else {
-              if (quadArray[j] < rect->x1 || quadArray[j] > rect->x2)
-                  correct = gFalse;
-          }
+          if (j % 2 == 1)
+	    quadArray[j] = CLAMP (obj.getNum(), rect->y1, rect->y2);
+          else
+	    quadArray[j] = CLAMP (obj.getNum(), rect->x1, rect->x2);
         } else {
             correct = gFalse;
+	    obj.free();
+	    error (-1, "Invalid QuadPoint in annot");
+	    break;
         }
         obj.free();
       }
 
-      if (correct)
-        quads[i] = new AnnotQuadrilateral(quadArray[0], quadArray[1],
-                                          quadArray[2], quadArray[3],
-                                          quadArray[4], quadArray[5],
-                                          quadArray[6], quadArray[7]);
-      i++;
+      if (!correct)
+        break;
+
+      quads[i] = new AnnotQuadrilateral(quadArray[0], quadArray[1],
+					quadArray[2], quadArray[3],
+					quadArray[4], quadArray[5],
+					quadArray[6], quadArray[7]);
     }
 
     if (correct) {
