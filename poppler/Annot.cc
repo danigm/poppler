@@ -1246,6 +1246,57 @@ void Annot::drawCircleBottomRight(double cx, double cy, double r) {
   appearBuf->append("S\n");
 }
 
+void Annot::createForm(double *bbox, GBool transparencyGroup, Object *resDict, Object *aStream) {
+  Object obj1, obj2;
+  Object appearDict;
+
+  appearDict.initDict(xref);
+  appearDict.dictSet("Length", obj1.initInt(appearBuf->getLength()));
+  appearDict.dictSet("Subtype", obj1.initName("Form"));
+  obj1.initArray(xref);
+  obj1.arrayAdd(obj2.initReal(bbox[0]));
+  obj1.arrayAdd(obj2.initReal(bbox[1]));
+  obj1.arrayAdd(obj2.initReal(bbox[2]));
+  obj1.arrayAdd(obj2.initReal(bbox[3]));
+  appearDict.dictSet("BBox", &obj1);
+  if (transparencyGroup) {
+    Object transDict;
+    transDict.initDict(xref);
+    transDict.dictSet("S", obj1.initName("Transparency"));
+    appearDict.dictSet("Group", &transDict);
+  }
+  if (resDict)
+    appearDict.dictSet("Resources", resDict);
+
+  MemStream *mStream = new MemStream(copyString(appearBuf->getCString()), 0,
+				     appearBuf->getLength(), &appearDict);
+  mStream->setNeedFree(gTrue);
+  aStream->initStream(mStream);
+}
+
+void Annot::createResourcesDict(char *formName, Object *formStream,
+				char *stateName,
+				double opacity,	char *blendMode,
+				Object *resDict) {
+  Object gsDict, stateDict, formDict, obj1;
+
+  gsDict.initDict(xref);
+  if (opacity != 1) {
+    gsDict.dictSet("CA", obj1.initReal(opacity));
+    gsDict.dictSet("ca", obj1.initReal(opacity));
+  }
+  if (blendMode)
+    gsDict.dictSet("BM", obj1.initName(blendMode));
+  stateDict.initDict(xref);
+  stateDict.dictSet(stateName, &gsDict);
+  formDict.initDict(xref);
+  formDict.dictSet(formName, formStream);
+
+  resDict->initDict(xref);
+  resDict->dictSet("ExtGState", &stateDict);
+  resDict->dictSet("XObject", &formDict);
+}
+
 GBool Annot::isVisible(GBool printing) {
   // check the flags
   if ((flags & flagHidden) ||
@@ -1271,7 +1322,7 @@ void Annot::draw(Gfx *gfx, GBool printing) {
 
   // draw the appearance stream
   appearance.fetch(xref, &obj);
-  gfx->drawAnnot(&obj, (AnnotBorder *)NULL, color, 1,
+  gfx->drawAnnot(&obj, (AnnotBorder *)NULL, color,
       rect->x1, rect->y1, rect->x2, rect->y2);
   obj.free();
 }
@@ -1883,22 +1934,21 @@ void AnnotText::draw(Gfx *gfx, GBool printing) {
       appearBuf->append (ANNOT_TEXT_AP_CIRCLE);
     appearBuf->append ("Q\n");
 
-    Object appearDict, obj1, obj2;
+    double bbox[4];
+    bbox[0] = bbox[1] = 0;
+    bbox[2] = bbox[3] = 24;
+    if (ca == 1) {
+      createForm(bbox, gFalse, NULL, &appearance);
+    } else {
+      Object aStream, resDict;
 
-    appearDict.initDict(xref);
-    appearDict.dictSet("Length", obj1.initInt(appearBuf->getLength()));
-    appearDict.dictSet("Subtype", obj1.initName("Form"));
-    obj1.initArray(xref);
-    obj1.arrayAdd(obj2.initReal(0));
-    obj1.arrayAdd(obj2.initReal(0));
-    obj1.arrayAdd(obj2.initReal(24));
-    obj1.arrayAdd(obj2.initReal(24));
-    appearDict.dictSet("BBox", &obj1);
+      createForm(bbox, gTrue, NULL, &aStream);
+      delete appearBuf;
 
-    MemStream *appearStream = new MemStream(copyString(appearBuf->getCString()), 0,
-					    appearBuf->getLength(), &appearDict);
-    appearStream->setNeedFree(gTrue);
-    appearance.initStream(appearStream);
+      appearBuf = new GooString ("/GS0 gs\n/Fm0 Do");
+      createResourcesDict("Fm0", &aStream, "GS0", ca, NULL, &resDict);
+      createForm(bbox, gFalse, &resDict, &appearance);
+    }
     delete appearBuf;
 
     rectx2 = rect->x1 + 24;
@@ -1907,7 +1957,7 @@ void AnnotText::draw(Gfx *gfx, GBool printing) {
 
   // draw the appearance stream
   appearance.fetch(xref, &obj);
-  gfx->drawAnnot(&obj, border, color, ca,
+  gfx->drawAnnot(&obj, border, color,
 		 rect->x1, rect->y1, rectx2, recty2);
   obj.free();
 }
@@ -1999,7 +2049,7 @@ void AnnotLink::draw(Gfx *gfx, GBool printing) {
 
   // draw the appearance stream
   appearance.fetch(xref, &obj);
-  gfx->drawAnnot(&obj, border, color, 1,
+  gfx->drawAnnot(&obj, border, color,
 		 rect->x1, rect->y1, rect->x2, rect->y2);
   obj.free();
 }
@@ -2368,28 +2418,28 @@ void AnnotLine::draw(Gfx *gfx, GBool printing) {
     appearBuf->append ("S\n");
     appearBuf->append ("Q\n");
 
-    Object appearDict, obj1, obj2;
+    double bbox[4];
+    bbox[0] = bbox[1] = 0;
+    bbox[2] = rect->x2 - rect->x1;
+    bbox[3] = rect->y2 - rect->y1;
+    if (ca == 1) {
+      createForm(bbox, gFalse, NULL, &appearance);
+    } else {
+      Object aStream, resDict;
 
-    appearDict.initDict(xref);
-    appearDict.dictSet("Length", obj1.initInt(appearBuf->getLength()));
-    appearDict.dictSet("Subtype", obj1.initName("Form"));
-    obj1.initArray(xref);
-    obj1.arrayAdd(obj2.initReal(0));
-    obj1.arrayAdd(obj2.initReal(0));
-    obj1.arrayAdd(obj2.initReal(rect->x2 - rect->x1));
-    obj1.arrayAdd(obj2.initReal(rect->y2 - rect->y1));
-    appearDict.dictSet("BBox", &obj1);
+      createForm(bbox, gTrue, NULL, &aStream);
+      delete appearBuf;
 
-    MemStream *appearStream = new MemStream(copyString(appearBuf->getCString()), 0,
-					      appearBuf->getLength(), &appearDict);
-    appearStream->setNeedFree(gTrue);
-    appearance.initStream(appearStream);
+      appearBuf = new GooString ("/GS0 gs\n/Fm0 Do");
+      createResourcesDict("Fm0", &aStream, "GS0", ca, NULL, &resDict);
+      createForm(bbox, gFalse, &resDict, &appearance);
+    }
     delete appearBuf;
   }
 
   // draw the appearance stream
   appearance.fetch(xref, &obj);
-  gfx->drawAnnot(&obj, (AnnotBorder *)NULL, color, ca,
+  gfx->drawAnnot(&obj, (AnnotBorder *)NULL, color,
 		 rect->x1, rect->y1, rect->x2, rect->y2);
   obj.free();
 }
@@ -2480,13 +2530,13 @@ AnnotTextMarkup::~AnnotTextMarkup() {
   }
 }
 
+
+
 void AnnotTextMarkup::draw(Gfx *gfx, GBool printing) {
   Object obj;
   double ca = 1;
   int i;
   Object obj1, obj2;
-  Object formDict, resDict;
-  MemStream *mStream;
 
   if (!isVisible (printing))
     return;
@@ -2581,100 +2631,35 @@ void AnnotTextMarkup::draw(Gfx *gfx, GBool printing) {
 	appearBuf->append ("f\n");
       }
 
-      Object appearDict;
-      appearDict.initDict(xref);
-      appearDict.dictSet("Length", obj1.initInt(appearBuf->getLength()));
-      appearDict.dictSet("Subtype", obj1.initName("Form"));
-      obj1.initArray(xref);
-      obj1.arrayAdd(obj2.initReal(rect->x1));
-      obj1.arrayAdd(obj2.initReal(rect->y1));
-      obj1.arrayAdd(obj2.initReal(rect->x2));
-      obj1.arrayAdd(obj2.initReal(rect->y2));
-      appearDict.dictSet("BBox", &obj1);
-      obj1.initArray(xref);
-      obj1.arrayAdd(obj2.initReal(1));
-      obj1.arrayAdd(obj2.initReal(0));
-      obj1.arrayAdd(obj2.initReal(0));
-      obj1.arrayAdd(obj2.initReal(1));
-      obj1.arrayAdd(obj2.initReal(-rect->x1));
-      obj1.arrayAdd(obj2.initReal(-rect->y1));
-      appearDict.dictSet("Matrix", &obj1);
-
-      Object aStream;
-      mStream = new MemStream(copyString(appearBuf->getCString()), 0,
-			      appearBuf->getLength(), &appearDict);
-      mStream->setNeedFree(gTrue);
-      aStream.initStream(mStream);
+      Object aStream, resDict;
+      double bbox[4];
+      bbox[0] = rect->x1;
+      bbox[1] = rect->y1;
+      bbox[2] = rect->x2;
+      bbox[3] = rect->y2;
+      createForm(bbox, gTrue, NULL, &aStream);
       delete appearBuf;
 
-      Object transDict;
-      formDict.initDict(xref);
-      formDict.dictSet ("Form", &aStream);
-      resDict.initDict(xref);
-      resDict.dictSet ("XObject", &formDict);
+      appearBuf = new GooString ("/GS0 gs\n/Fm0 Do");
+      createResourcesDict("Fm0", &aStream, "GS0", 1, "Multiply", &resDict);
+      if (ca == 1) {
+        createForm(bbox, gFalse, &resDict, &appearance);
+      } else {
+        createForm(bbox, gTrue, &resDict, &aStream);
+	delete appearBuf;
 
-      transDict.initDict(xref);
-      transDict.dictSet ("S", obj1.initName("Transparency"));
-
-      appearBuf = new GooString ("/Form Do");
-
-      formDict.initDict(xref);
-      formDict.dictSet("Length", obj1.initInt(appearBuf->getLength()));
-      formDict.dictSet("Subtype", obj1.initName("Form"));
-      formDict.dictSet("Group", &transDict);
-      formDict.dictSet("Resources", &resDict);
-      obj1.initArray(xref);
-      obj1.arrayAdd(obj2.initReal(0));
-      obj1.arrayAdd(obj2.initReal(0));
-      obj1.arrayAdd(obj2.initReal(rect->x2 - rect->x1));
-      obj1.arrayAdd(obj2.initReal(rect->y2 - rect->y1));
-      formDict.dictSet("BBox", &obj1);
-
-      mStream = new MemStream(copyString(appearBuf->getCString()), 0,
-			      appearBuf->getLength(), &formDict);
-      mStream->setNeedFree(gTrue);
-      aStream.initStream(mStream);
+	appearBuf = new GooString ("/GS0 gs\n/Fm0 Do");
+	createResourcesDict("Fm0", &aStream, "GS0", ca, NULL, &resDict);
+	createForm(bbox, gFalse, &resDict, &appearance);
+      }
       delete appearBuf;
-
-      Object stateDict;
-
-      formDict.initDict(xref);
-      formDict.dictSet ("HAForm", &aStream);
-      transDict.initDict(xref);
-      transDict.dictSet ("BM", obj1.initName("Multiply"));
-      stateDict.initDict(xref);
-      stateDict.dictSet ("R0", &transDict);
-      resDict.initDict(xref);
-      resDict.dictSet ("XObject", &formDict);
-      resDict.dictSet ("ExtGState", &stateDict);
-
-      appearBuf = new GooString ("/R0 gs\n/HAForm Do");
-
       break;
     }
-
-    formDict.initDict(xref);
-    formDict.dictSet("Length", obj1.initInt(appearBuf->getLength()));
-    formDict.dictSet("Subtype", obj1.initName("Form"));
-    if (type == typeHighlight)
-      formDict.dictSet("Resources", &resDict);
-    obj1.initArray(xref);
-    obj1.arrayAdd(obj2.initReal(0));
-    obj1.arrayAdd(obj2.initReal(0));
-    obj1.arrayAdd(obj2.initReal(rect->x2 - rect->x1));
-    obj1.arrayAdd(obj2.initReal(rect->y2 - rect->y1));
-    formDict.dictSet("BBox", &obj1);
-
-    mStream = new MemStream(copyString(appearBuf->getCString()), 0,
-			    appearBuf->getLength(), &formDict);
-    mStream->setNeedFree(gTrue);
-    appearance.initStream(mStream);
-    delete appearBuf;
   }
 
   // draw the appearance stream
   appearance.fetch(xref, &obj);
-  gfx->drawAnnot(&obj, (AnnotBorder *)NULL, color, ca,
+  gfx->drawAnnot(&obj, (AnnotBorder *)NULL, color,
 		 rect->x1, rect->y1, rect->x2, rect->y2);
   obj.free();
 }
@@ -4036,7 +4021,7 @@ void AnnotWidget::draw(Gfx *gfx, GBool printing) {
     gfx->pushResources(dict);
     delete dict;
   }
-  gfx->drawAnnot(&obj, (AnnotBorder *)NULL, color, 1,
+  gfx->drawAnnot(&obj, (AnnotBorder *)NULL, color,
 		 rect->x1, rect->y1, rect->x2, rect->y2);
   if (addDingbatsResource) {
     gfx->popResources();
@@ -4178,22 +4163,11 @@ void AnnotMovie::draw(Gfx *gfx, GBool printing) {
       appearBuf->append ("Q\n");
       appearBuf->append ("Q\n");
 
-      Object appearDict;
-      appearDict.initDict(xref);
-      appearDict.dictSet("Length", obj1.initInt(appearBuf->getLength()));
-      appearDict.dictSet("Subtype", obj1.initName("Form"));
-      appearDict.dictSet("Resources", &resDict);
-      obj1.initArray(xref);
-      obj1.arrayAdd(obj2.initInt(0));
-      obj1.arrayAdd(obj2.initInt(0));
-      obj1.arrayAdd(obj2.initInt(width));
-      obj1.arrayAdd(obj2.initInt(height));
-      appearDict.dictSet("BBox", &obj1);
-
-      MemStream *appearStream = new MemStream(copyString(appearBuf->getCString()), 0,
-					      appearBuf->getLength(), &appearDict);
-      appearStream->setNeedFree(gTrue);
-      appearance.initStream(appearStream);
+      double bbox[4];
+      bbox[0] = bbox[1] = 0;
+      bbox[2] = width;
+      bbox[3] = height;
+      createForm(bbox, gFalse, &resDict, &appearance);
       delete appearBuf;
     }
     poster.free();
@@ -4201,7 +4175,7 @@ void AnnotMovie::draw(Gfx *gfx, GBool printing) {
 
   // draw the appearance stream
   appearance.fetch(xref, &obj);
-  gfx->drawAnnot(&obj, (AnnotBorder *)NULL, color, 1,
+  gfx->drawAnnot(&obj, (AnnotBorder *)NULL, color,
 		 rect->x1, rect->y1, rect->x2, rect->y2);
   obj.free();
 }
@@ -4467,28 +4441,29 @@ void AnnotGeometry::draw(Gfx *gfx, GBool printing) {
       appearBuf->append ("S\n");
     appearBuf->append ("Q\n");
 
-    Object appearDict, obj1, obj2;
+    double bbox[4];
+    bbox[0] = bbox[1] = 0;
+    bbox[2] = rect->x2 - rect->x1;
+    bbox[3] = rect->y2 - rect->y1;
+    if (ca == 1) {
+      createForm(bbox, gFalse, NULL, &appearance);
+    } else {
+      Object aStream;
 
-    appearDict.initDict(xref);
-    appearDict.dictSet("Length", obj1.initInt(appearBuf->getLength()));
-    appearDict.dictSet("Subtype", obj1.initName("Form"));
-    obj1.initArray(xref);
-    obj1.arrayAdd(obj2.initReal(0));
-    obj1.arrayAdd(obj2.initReal(0));
-    obj1.arrayAdd(obj2.initReal(rect->x2 - rect->x1));
-    obj1.arrayAdd(obj2.initReal(rect->y2 - rect->y1));
-    appearDict.dictSet("BBox", &obj1);
+      createForm(bbox, gTrue, NULL, &aStream);
+      delete appearBuf;
 
-    MemStream *appearStream = new MemStream(copyString(appearBuf->getCString()), 0,
-					    appearBuf->getLength(), &appearDict);
-    appearStream->setNeedFree(gTrue);
-    appearance.initStream(appearStream);
+      Object resDict;
+      appearBuf = new GooString ("/GS0 gs\n/Fm0 Do");
+      createResourcesDict("Fm0", &aStream, "GS0", ca, NULL, &resDict);
+      createForm(bbox, gFalse, &resDict, &appearance);
+    }
     delete appearBuf;
   }
 
   // draw the appearance stream
   appearance.fetch(xref, &obj);
-  gfx->drawAnnot(&obj, (AnnotBorder *)NULL, color, ca,
+  gfx->drawAnnot(&obj, (AnnotBorder *)NULL, color,
 		 rect->x1, rect->y1, rect->x2, rect->y2);
   obj.free();
 }
@@ -4923,28 +4898,28 @@ void AnnotFileAttachment::draw(Gfx *gfx, GBool printing) {
       appearBuf->append (ANNOT_FILE_ATTACHMENT_AP_TAG);
     appearBuf->append ("Q\n");
 
-    Object appearDict, obj1, obj2;
+    double bbox[4];
+    bbox[0] = bbox[1] = 0;
+    bbox[2] = bbox[3] = 24;
+    if (ca == 1) {
+      createForm (bbox, gFalse, NULL, &appearance);
+    } else {
+      Object aStream;
 
-    appearDict.initDict(xref);
-    appearDict.dictSet("Length", obj1.initInt(appearBuf->getLength()));
-    appearDict.dictSet("Subtype", obj1.initName("Form"));
-    obj1.initArray(xref);
-    obj1.arrayAdd(obj2.initReal(0));
-    obj1.arrayAdd(obj2.initReal(0));
-    obj1.arrayAdd(obj2.initReal(24));
-    obj1.arrayAdd(obj2.initReal(24));
-    appearDict.dictSet("BBox", &obj1);
+      createForm (bbox, gTrue, NULL, &aStream);
+      delete appearBuf;
 
-    MemStream *appearStream = new MemStream(copyString(appearBuf->getCString()), 0,
-					    appearBuf->getLength(), &appearDict);
-    appearStream->setNeedFree(gTrue);
-    appearance.initStream(appearStream);
+      Object resDict;
+      appearBuf = new GooString ("/GS0 gs\n/Fm0 Do");
+      createResourcesDict("Fm0", &aStream, "GS0", ca, NULL, &resDict);
+      createForm(bbox, gFalse, &resDict, &appearance);
+    }
     delete appearBuf;
   }
 
   // draw the appearance stream
   appearance.fetch(xref, &obj);
-  gfx->drawAnnot(&obj, border, color, ca,
+  gfx->drawAnnot(&obj, border, color,
 		 rect->x1, rect->y1, rect->x2, rect->y2);
   obj.free();
 }
@@ -5085,28 +5060,27 @@ void AnnotSound::draw(Gfx *gfx, GBool printing) {
       appearBuf->append (ANNOT_SOUND_AP_MIC);
     appearBuf->append ("Q\n");
 
-    Object appearDict, obj1, obj2;
+    double bbox[4];
+    bbox[0] = bbox[1] = 0;
+    bbox[2] = bbox[3] = 24;
+    if (ca == 1) {
+      createForm(bbox, gFalse, NULL, &appearance);
+    } else {
+      Object aStream, resDict;
 
-    appearDict.initDict(xref);
-    appearDict.dictSet("Length", obj1.initInt(appearBuf->getLength()));
-    appearDict.dictSet("Subtype", obj1.initName("Form"));
-    obj1.initArray(xref);
-    obj1.arrayAdd(obj2.initReal(0));
-    obj1.arrayAdd(obj2.initReal(0));
-    obj1.arrayAdd(obj2.initReal(24));
-    obj1.arrayAdd(obj2.initReal(24));
-    appearDict.dictSet("BBox", &obj1);
+      createForm(bbox, gTrue, NULL, &aStream);
+      delete appearBuf;
 
-    MemStream *appearStream = new MemStream(copyString(appearBuf->getCString()), 0,
-					    appearBuf->getLength(), &appearDict);
-    appearStream->setNeedFree(gTrue);
-    appearance.initStream(appearStream);
+      appearBuf = new GooString ("/GS0 gs\n/Fm0 Do");
+      createResourcesDict("Fm0", &aStream, "GS0", ca, NULL, &resDict);
+      createForm(bbox, gFalse, &resDict, &appearance);
+    }
     delete appearBuf;
   }
 
   // draw the appearance stream
   appearance.fetch(xref, &obj);
-  gfx->drawAnnot(&obj, border, color, ca,
+  gfx->drawAnnot(&obj, border, color,
 		 rect->x1, rect->y1, rect->x2, rect->y2);
   obj.free();
 }

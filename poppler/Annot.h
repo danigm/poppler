@@ -538,6 +538,9 @@ protected:
   void drawCircle(double cx, double cy, double r, GBool fill);
   void drawCircleTopLeft(double cx, double cy, double r);
   void drawCircleBottomRight(double cx, double cy, double r);
+  void createForm(double *bbox, GBool transparencyGroup, Object *resDict, Object *aStream);
+  void createResourcesDict(char *formName, Object *formStream, char *stateName,
+			   double opacity, char *blendMode, Object *resDict);
   GBool isVisible(GBool printing);
 
   // Updates the field key of the annotation dictionary

@@ -4592,7 +4592,7 @@ void Gfx::opMarkPoint(Object args[], int numArgs) {
 // misc
 //------------------------------------------------------------------------
 
-void Gfx::drawAnnot(Object *str, AnnotBorder *border, AnnotColor *aColor, double opacity,
+void Gfx::drawAnnot(Object *str, AnnotBorder *border, AnnotColor *aColor,
 		    double xMin, double yMin, double xMax, double yMax) {
   Dict *dict, *resDict;
   Object matrixObj, bboxObj, resObj;
@@ -4607,13 +4607,6 @@ void Gfx::drawAnnot(Object *str, AnnotBorder *border, AnnotColor *aColor, double
   double *dash, *dash2;
   int dashLength;
   int i;
-
-  if (opacity != 1) {
-    state->setFillOpacity(opacity);
-    out->updateFillOpacity(state);
-    state->setStrokeOpacity(opacity);
-    out->updateStrokeOpacity(state);
-  }
 
   //~ can we assume that we're in default user space?
   //~ (i.e., baseMatrix = ctm)

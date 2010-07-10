@@ -159,7 +159,7 @@ public:
 
   // Display an annotation, given its appearance (a Form XObject),
   // border style, and bounding box (in default user space).
-  void drawAnnot(Object *str, AnnotBorder *border, AnnotColor *aColor, double opacity,
+  void drawAnnot(Object *str, AnnotBorder *border, AnnotColor *aColor,
 		 double xMin, double yMin, double xMax, double yMax);
 
   // Save graphics state.
