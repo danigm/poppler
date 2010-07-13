@@ -72,6 +72,7 @@ private:
   virtual GBool hasGetChars() { return true; }
   virtual int getChars(int nChars, Guchar *buffer);
 
+  int colorXform;
   JSAMPLE *current;
   JSAMPLE *limit;
   struct jpeg_decompress_struct cinfo;

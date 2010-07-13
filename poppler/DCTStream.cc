@@ -58,6 +58,7 @@ static void str_term_source(j_decompress_ptr cinfo)
 
 DCTStream::DCTStream(Stream *strA, int colorXformA) :
   FilterStream(strA) {
+  colorXform = colorXformA;
   init();
 }
 
@@ -138,6 +139,35 @@ void DCTStream::reset() {
 
   if (!setjmp(src.setjmp_buffer)) {
     jpeg_read_header(&cinfo, TRUE);
+
+    // figure out color transform
+    if (colorXform == -1 && !cinfo.saw_Adobe_marker) {
+      if (cinfo.num_components == 3) {
+        if (cinfo.saw_JFIF_marker) {
+	  colorXform = 1;
+        } else if (cinfo.cur_comp_info[0]->component_id == 82 &&
+		   cinfo.cur_comp_info[1]->component_id == 71 &&
+		   cinfo.cur_comp_info[2]->component_id == 66) { // ASCII "RGB"
+	  colorXform = 0;
+	} else {
+	  colorXform = 1;
+	}
+      } else {
+        colorXform = 0;
+      }
+    } else if (cinfo.saw_Adobe_marker) {
+      colorXform = cinfo.Adobe_transform;
+    }
+
+    switch (cinfo.num_components) {
+    case 3:
+	    cinfo.jpeg_color_space = colorXform ? JCS_YCbCr : JCS_RGB;
+	    break;
+    case 4:
+	    cinfo.jpeg_color_space = colorXform ? JCS_YCCK : JCS_CMYK;
+	    break;
+    }
+
     jpeg_start_decompress(&cinfo);
 
     row_stride = cinfo.output_width * cinfo.output_components;
