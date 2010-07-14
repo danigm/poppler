@@ -653,12 +653,19 @@ cpp/Makefile
 cpp/poppler-version.h
 cpp/tests/Makefile
 poppler.pc
+poppler-uninstalled.pc
 poppler-cairo.pc
+poppler-cairo-uninstalled.pc
 poppler-splash.pc
+poppler-splash-uninstalled.pc
 poppler-glib.pc
+poppler-glib-uninstalled.pc
 poppler-qt.pc
+poppler-qt-uninstalled.pc
 poppler-qt4.pc
-poppler-cpp.pc])
+poppler-qt4-uninstalled.pc
+poppler-cpp.pc
+poppler-cpp-uninstalled.pc])
 
 
 echo ""

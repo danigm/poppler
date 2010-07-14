@@ -39,10 +39,17 @@ SUBDIRS = goo fofi $(splash_subdir) poppler $(utils_subdir) $(glib_subdir) $(qt_
 EXTRA_DIST =					\
 	README-XPDF				\
 	poppler.pc.in				\
+	poppler-uninstalled.pc.in		\
 	poppler-cairo.pc.in			\
+	poppler-cairo-uninstalled.pc.in		\
 	poppler-splash.pc.in			\
+	poppler-splash-uninstalled.pc.in	\
 	poppler-qt.pc.in			\
-	poppler-cpp.pc.in
+	poppler-qt-uninstalled.pc.in		\
+	poppler-qt4.pc.in			\
+	poppler-qt4-uninstalled.pc.in		\
+	poppler-cpp.pc.in			\
+	poppler-cpp-uninstalled.pc.in
 
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA =				\
