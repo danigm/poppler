@@ -188,6 +188,18 @@ static void savePageSlice(PDFDoc *doc,
   }
 }
 
+static int numberOfCharacters(unsigned int n)
+{
+  int charNum = 0;
+  while (n >= 10)
+  {
+    n = n / 10;
+    charNum++;
+  }
+  charNum++;
+  return charNum;
+}
+
 int main(int argc, char *argv[]) {
   PDFDoc *doc;
   GooString *fileName = NULL;
@@ -296,7 +308,7 @@ int main(int argc, char *argv[]) {
 				  gFalse, paperColor);
   splashOut->startDoc(doc->getXRef());
   if (sz != 0) w = h = sz;
-  pg_num_len = (int)ceil(log((double)doc->getNumPages()) / log((double)10));
+  pg_num_len = numberOfCharacters(doc->getNumPages());
   for (pg = firstPage; pg <= lastPage; ++pg) {
     if (printOnlyEven && pg % 2 == 0) continue;
     if (printOnlyOdd && pg % 2 == 1) continue;
