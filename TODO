@@ -16,13 +16,13 @@
 	- use Q_GLOBAL_STATIC for GlobalParams?
 	- use QSettings or another system for loading/saving Document/global settings?
 	- expose API for lcms/color management system
+	- make the ArthurOutputDev optional
 
 * glib frontend:
         - Sound/Movie actions support
 	- API to create annotations
 
 * new frontends:
-	- toolkit-agnostic C or C++ frontend
 	- Java/JNI-based frontend for Android
 
 * cairo backend:
