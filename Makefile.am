@@ -82,11 +82,13 @@ EXTRA_DIST +=							\
 	cmake/modules/FindFontconfig.cmake			\
 	cmake/modules/FindGDK.cmake				\
 	cmake/modules/FindGLIB.cmake				\
+	cmake/modules/FindGObjectIntrospection.cmake		\
 	cmake/modules/FindGTK.cmake				\
 	cmake/modules/FindIconv.cmake				\
 	cmake/modules/FindLCMS.cmake				\
 	cmake/modules/FindQt3.cmake				\
 	cmake/modules/FindQt4.cmake				\
+	cmake/modules/GObjectIntrospectionMacros.cmake		\
 	cmake/modules/MacroBoolTo01.cmake			\
 	cmake/modules/MacroEnsureVersion.cmake			\
 	cmake/modules/MacroOptionalFindPackage.cmake		\
