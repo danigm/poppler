@@ -635,6 +635,7 @@ public:
   // The annotation takes the ownership of new_popup
   void setPopup(AnnotPopup *new_popup);
   void setLabel(GooString *new_label);
+  void setOpacity(double opacityA);
 
 protected:
   GooString *label;             // T            (Default autor)

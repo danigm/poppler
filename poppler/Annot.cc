@@ -1527,6 +1527,14 @@ void AnnotMarkup::setPopup(AnnotPopup *new_popup) {
   }
 }
 
+void AnnotMarkup::setOpacity(double opacityA) {
+  Object obj1;
+
+  opacity = opacityA;
+  obj1.initReal(opacity);
+  update ("CA", &obj1);
+}
+
 //------------------------------------------------------------------------
 // AnnotText
 //------------------------------------------------------------------------
