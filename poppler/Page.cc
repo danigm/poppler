@@ -380,6 +380,8 @@ void Page::addAnnot(Annot *annot) {
     }
     obj1.free();
   }
+
+  annot->setPage(&pageRef, num);
 }
 
 Links *Page::getLinks(Catalog *catalog) {

@@ -509,7 +509,10 @@ public:
   // new_color. 
   void setColor(AnnotColor *new_color);
 
+  void setPage(Ref *pageRef, int pageIndex);
+
   // getters
+  XRef *getXRef() const { return xref; }
   Ref getRef() const { return ref; }
   AnnotSubtype getType() const { return type; }
   PDFRectangle *getRect() const { return rect; }

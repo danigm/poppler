@@ -1098,6 +1098,15 @@ void Annot::setColor(AnnotColor *new_color) {
   }
 }
 
+void Annot::setPage(Ref *pageRef, int pageIndex)
+{
+  Object obj1;
+
+  obj1.initRef(pageRef->num, pageRef->gen);
+  update("P", &obj1);
+  page = pageIndex;
+}
+
 double Annot::getXMin() {
   return rect->x1;
 }
