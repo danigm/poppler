@@ -25,3 +25,10 @@ poppler.pc
 stamp-h1
 gtk-doc.make
 *.o
+poppler-cairo-uninstalled.pc
+poppler-cpp-uninstalled.pc
+poppler-glib-uninstalled.pc
+poppler-qt-uninstalled.pc
+poppler-qt4-uninstalled.pc
+poppler-splash-uninstalled.pc
+poppler-uninstalled.pc
