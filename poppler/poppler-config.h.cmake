@@ -19,11 +19,6 @@
 #cmakedefine MULTITHREADED 1
 #endif
 
-/* Enable exceptions. */
-#ifndef USE_EXCEPTIONS
-#cmakedefine USE_EXCEPTIONS 1
-#endif
-
 /* Use fixedpoint. */
 #ifndef USE_FIXEDPOINT
 #cmakedefine USE_FIXEDPOINT 1

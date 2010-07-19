@@ -171,9 +171,6 @@
 /* Defines if use cms */
 #cmakedefine USE_CMS 1
 
-/* Throw exceptions to deal with not enough memory and similar problems */
-#cmakedefine USE_EXCEPTIONS 1
-
 /* Use fixed point arithmetic in the Splash backend */
 #cmakedefine USE_FIXEDPOINT 1
 

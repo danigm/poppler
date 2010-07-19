@@ -108,10 +108,6 @@ dnl ##### Checks for header files.
 AC_PATH_XTRA
 AC_HEADER_DIRENT
 
-AC_ARG_ENABLE(exceptions,
-	      [  --enable-exceptions     use C++ exceptions],
-	      AC_DEFINE([USE_EXCEPTIONS], [1], [Throw exceptions to deal with not enough memory and similar problems]))
-
 dnl ##### Switch over to C++.  This will make the checks below a little
 dnl ##### bit stricter (requiring function prototypes in include files).
 dnl ##### (99% of xpdf is written in C++.)

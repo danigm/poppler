@@ -19,11 +19,6 @@
 #undef MULTITHREADED
 #endif
 
-/* Enable exceptions. */
-#ifndef USE_EXCEPTIONS
-#undef USE_EXCEPTIONS
-#endif
-
 /* Use fixedpoint. */
 #ifndef USE_FIXEDPOINT
 #undef USE_FIXEDPOINT
