@@ -68,6 +68,12 @@ struct _PopplerFormField
   FormWidget *widget;
 };
 
+struct _PopplerAnnot
+{
+  GObject  parent_instance;
+  Annot   *annot;
+};
+
 typedef struct _Layer {
   /*< private >*/
   GList *kids;
