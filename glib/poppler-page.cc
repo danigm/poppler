@@ -1543,6 +1543,25 @@ poppler_page_free_annot_mapping (GList *list)
   g_list_free (list);
 }
 
+/**
+ * poppler_page_add_annot:
+ * @page: a #PopplerPage
+ * @annot: a #PopplerAnnot to add
+ *
+ * Adds annotation @annot to @page.
+ *
+ * Since: 0.16
+ */
+void
+poppler_page_add_annot (PopplerPage  *page,
+			PopplerAnnot *annot)
+{
+  g_return_if_fail (POPPLER_IS_PAGE (page));
+  g_return_if_fail (POPPLER_IS_ANNOT (annot));
+
+  page->page->addAnnot (annot->annot);
+}
+
 /* PopplerRectangle type */
 
 POPPLER_DEFINE_BOXED_TYPE (PopplerRectangle, poppler_rectangle,

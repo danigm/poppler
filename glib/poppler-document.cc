@@ -275,9 +275,10 @@ handle_save_error (int      err_code,
  * @document: a #PopplerDocument
  * @uri: uri of file to save
  * @error: (allow-none): return location for an error, or %NULL
- * 
- * Saves @document. Any change made in the document such as 
- * form fields filled by the user will be saved. 
+ *
+ * Saves @document. Any change made in the document such as
+ * form fields filled, annotations added or modified
+ * will be saved.
  * If @error is set, %FALSE will be returned. Possible errors
  * include those in the #G_FILE_ERROR domain.
  * 
