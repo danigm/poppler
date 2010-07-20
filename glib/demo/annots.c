@@ -657,6 +657,113 @@ pgd_annots_selection_changed (GtkTreeSelection *treeselection,
     }
 }
 
+static void
+pgd_annots_add_annot (GtkWidget     *button,
+		      PgdAnnotsDemo *demo)
+{
+    GtkWidget   *hbox, *vbox;
+    GtkWidget   *type_selector;
+    GtkWidget   *label;
+    GtkWidget   *rect_hbox;
+    GtkWidget   *rect_x1, *rect_y1, *rect_x2, *rect_y2;
+    GtkWidget   *dialog;
+    PopplerPage *page;
+    gdouble      width, height;
+    PopplerAnnot *annot;
+    PopplerRectangle rect;
+
+    page = poppler_document_get_page (demo->doc, demo->num_page);
+    if (!page)
+	    return;
+    poppler_page_get_size (page, &width, &height);
+
+    dialog = gtk_dialog_new_with_buttons ("Add new annotation",
+					  GTK_WINDOW (gtk_widget_get_toplevel (button)),
+					  GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
+					  GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
+					  "Add annotation", GTK_RESPONSE_ACCEPT,
+					  NULL);
+
+    vbox = gtk_dialog_get_content_area (GTK_DIALOG (dialog));
+
+    type_selector = gtk_combo_box_new_text ();
+    gtk_combo_box_append_text (GTK_COMBO_BOX (type_selector), "POPPLER_ANNOT_UNKNOWN");
+    gtk_combo_box_append_text (GTK_COMBO_BOX (type_selector), "POPPLER_ANNOT_TEXT");
+    gtk_combo_box_set_active (GTK_COMBO_BOX (type_selector), 1);
+    gtk_box_pack_start (GTK_BOX (vbox), type_selector, TRUE, TRUE, 0);
+    gtk_widget_show (type_selector);
+
+    hbox = gtk_hbox_new (FALSE, 6);
+
+    rect_hbox = gtk_hbox_new (FALSE, 6);
+
+    label = gtk_label_new ("x1:");
+    gtk_box_pack_start (GTK_BOX (rect_hbox), label, TRUE, TRUE, 0);
+    gtk_widget_show (label);
+
+    rect_x1 = gtk_spin_button_new_with_range (0, width, 1.0);
+    gtk_box_pack_start (GTK_BOX (rect_hbox), rect_x1, TRUE, TRUE, 0);
+    gtk_widget_show (rect_x1);
+
+    gtk_box_pack_start (GTK_BOX (hbox), rect_hbox, FALSE, TRUE, 0);
+    gtk_widget_show (rect_hbox);
+
+    rect_hbox = gtk_hbox_new (FALSE, 6);
+
+    label = gtk_label_new ("x2:");
+    gtk_box_pack_start (GTK_BOX (rect_hbox), label, TRUE, TRUE, 0);
+    gtk_widget_show (label);
+
+    rect_x2 = gtk_spin_button_new_with_range (0, width, 1.0);
+    gtk_box_pack_start (GTK_BOX (rect_hbox), rect_x2, TRUE, TRUE, 0);
+    gtk_widget_show (rect_x2);
+
+    gtk_box_pack_start (GTK_BOX (hbox), rect_hbox, FALSE, TRUE, 0);
+    gtk_widget_show (rect_hbox);
+
+    rect_hbox = gtk_hbox_new (FALSE, 6);
+
+    label = gtk_label_new ("y1:");
+    gtk_box_pack_start (GTK_BOX (rect_hbox), label, TRUE, TRUE, 0);
+    gtk_widget_show (label);
+
+    rect_y1 = gtk_spin_button_new_with_range (0, height, 1.0);
+    gtk_box_pack_start (GTK_BOX (rect_hbox), rect_y1, TRUE, TRUE, 0);
+    gtk_widget_show (rect_y1);
+
+    gtk_box_pack_start (GTK_BOX (hbox), rect_hbox, FALSE, TRUE, 0);
+    gtk_widget_show (rect_hbox);
+
+    rect_hbox = gtk_hbox_new (FALSE, 6);
+
+    label = gtk_label_new ("y2:");
+    gtk_box_pack_start (GTK_BOX (rect_hbox), label, TRUE, TRUE, 0);
+    gtk_widget_show (label);
+
+    rect_y2 = gtk_spin_button_new_with_range (0, height, 1.0);
+    gtk_box_pack_start (GTK_BOX (rect_hbox), rect_y2, TRUE, TRUE, 0);
+    gtk_widget_show (rect_y2);
+
+    gtk_box_pack_start (GTK_BOX (hbox), rect_hbox, FALSE, TRUE, 0);
+    gtk_widget_show (rect_hbox);
+
+    gtk_box_pack_start (GTK_BOX (vbox), hbox, TRUE, TRUE, 0);
+    gtk_widget_show (hbox);
+
+    gtk_dialog_run (GTK_DIALOG (dialog));
+
+    rect.x1 = gtk_spin_button_get_value (GTK_SPIN_BUTTON (rect_x1));
+    rect.x2 = gtk_spin_button_get_value (GTK_SPIN_BUTTON (rect_x2));
+    rect.y1 = height - gtk_spin_button_get_value (GTK_SPIN_BUTTON (rect_y2));
+    rect.y2 = height - gtk_spin_button_get_value (GTK_SPIN_BUTTON (rect_y1));
+    annot = poppler_annot_text_new (demo->doc, &rect);
+    poppler_page_add_annot (page, annot);
+
+    g_object_unref (page);
+
+    gtk_widget_destroy (dialog);
+}
+
 GtkWidget *
 pgd_annots_create_widget (PopplerDocument *document)
 {
@@ -703,6 +810,13 @@ pgd_annots_create_widget (PopplerDocument *document)
     g_signal_connect (G_OBJECT (button), "clicked",
                       G_CALLBACK (pgd_annots_get_annots),
                       (gpointer) demo);
+    gtk_box_pack_end (GTK_BOX (hbox), button, FALSE, FALSE, 0);
+    gtk_widget_show (button);
+
+    button = gtk_button_new_with_label ("Add Annot");
+    g_signal_connect (G_OBJECT (button), "clicked",
+		      G_CALLBACK (pgd_annots_add_annot),
+		      (gpointer) demo);
     gtk_box_pack_end (GTK_BOX (hbox), button, FALSE, FALSE, 0);
     gtk_widget_show (button);
 
