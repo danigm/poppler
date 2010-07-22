@@ -1,5 +1,8 @@
+include_directories(
+  ${GTK2_INCLUDE_DIRS}
+)
 
-add_definitions(${GTK2_CFLAGS})
+add_definitions(${GTK2_CFLAGS_OTHER})
 
 set(poppler_glib_demo_SRCS
   main.c

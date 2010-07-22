@@ -6,14 +6,15 @@ include_directories(
 )
 add_definitions(
   -DG_LOG_DOMAIN=\"Poppler\"
-  ${GLIB2_CFLAGS_OTHERS}
+  ${GLIB2_CFLAGS_OTHER}
   ${CAIRO_CFLAGS}
   ${POPPLER_GLIB_DISABLE_DEPRECATED}
   ${POPPLER_GLIB_DISABLE_SINGLE_INCLUDES}
 )
 
 if (GDK_FOUND)
-  add_definitions(${GDK2_CFLAGS})
+  include_directories(${GDK2_INCLUDE_DIRS})
+  add_definitions(${GDK2_CFLAGS_OTHER})
 endif (GDK_FOUND)
 
 configure_file(poppler-features.h.cmake ${CMAKE_CURRENT_BINARY_DIR}/poppler-features.h @ONLY)
