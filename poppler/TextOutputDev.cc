@@ -2251,25 +2251,25 @@ void TextPage::addChar(GfxState *state, double x, double y,
       beginWord(state, x, y);
     }
 
-  // page rotation and/or transform matrices can cause text to be
-  // drawn in reverse order -- in this case, swap the begin/end
-  // coordinates and break text into individual chars
-  if ((curWord->rot == 0 && w1 < 0) ||
-      (curWord->rot == 1 && h1 < 0) ||
-      (curWord->rot == 2 && w1 > 0) ||
-      (curWord->rot == 3 && h1 > 0)) {
-    endWord();
-    beginWord(state, x + dx, y + dy);
-    x1 += w1;
-    y1 += h1;
-    w1 = -w1;
-    h1 = -h1;
-  }
+    // page rotation and/or transform matrices can cause text to be
+    // drawn in reverse order -- in this case, swap the begin/end
+    // coordinates and break text into individual chars
+    if ((curWord->rot == 0 && w1 < 0) ||
+        (curWord->rot == 1 && h1 < 0) ||
+        (curWord->rot == 2 && w1 > 0) ||
+        (curWord->rot == 3 && h1 > 0)) {
+      endWord();
+      beginWord(state, x + dx, y + dy);
+      x1 += w1;
+      y1 += h1;
+      w1 = -w1;
+      h1 = -h1;
+    }
 
-  // add the characters to the current word
+    // add the characters to the current word
     w1 /= uLen;
     h1 /= uLen;
-  for (i = 0; i < uLen; ++i) {
+    for (i = 0; i < uLen; ++i) {
       if (u[i] >= 0xd800 && u[i] < 0xdc00) { /* surrogate pair */
 	if (i + 1 < uLen && u[i+1] >= 0xdc00 && u[i+1] < 0xe000) {
 	  /* next code is a low surrogate */
@@ -2288,7 +2288,7 @@ void TextPage::addChar(GfxState *state, double x, double y,
       } else {
 	curWord->addChar(state, x1 + i*w1, y1 + i*h1, w1, h1, c, u[i]);
       }
-  }
+    }
   }
   if (curWord) {
     curWord->charLen += nBytes;
