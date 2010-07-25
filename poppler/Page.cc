@@ -376,7 +376,10 @@ void Page::addAnnot(Annot *annot) {
     getAnnots(&obj1);
     if (obj1.isArray()) {
       obj1.arrayAdd (tmp.initRef (annotRef.num, annotRef.gen));
-      xref->setModifiedObject (&obj1, annots.getRef());
+      if (annots.isRef())
+        xref->setModifiedObject (&obj1, annots.getRef());
+      else
+        xref->setModifiedObject (&pageObj, pageRef);
     }
     obj1.free();
   }
