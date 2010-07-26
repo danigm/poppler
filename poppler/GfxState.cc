@@ -675,7 +675,6 @@ void GfxCalGrayColorSpace::getRGB(GfxColor *color, GfxRGB *rgb) {
   rgb->r = dblToCol(sqrt(clip01(r * kr)));
   rgb->g = dblToCol(sqrt(clip01(g * kg)));
   rgb->b = dblToCol(sqrt(clip01(b * kb)));
-  rgb->r = rgb->g = rgb->b = clip01(color->c[0]);
 }
 
 void GfxCalGrayColorSpace::getCMYK(GfxColor *color, GfxCMYK *cmyk) {
