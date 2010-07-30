@@ -13,7 +13,7 @@
 // All changes made under the Poppler project to this file are licensed
 // under GPL version 2 or later
 //
-// Copyright (C) 2009 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2009, 2010 Albert Astals Cid <aacid@kde.org>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -804,10 +804,12 @@ void FoFiType1C::convertToType0(char *psName,
     //~ to handle multiple FDs correctly, need to somehow divide the
     //~ font up by FD; as a kludge we ignore CID 0, which is .notdef
     fd = 0;
-    for (j = i==0 ? 1 : 0; j < 256 && i+j < nCIDs; ++j) {
-      if (cidMap[i+j] >= 0) {
-	fd = fdSelect[cidMap[i+j]];
-	break;
+    if (fdSelect != NULL) {
+      for (j = i==0 ? 1 : 0; j < 256 && i+j < nCIDs; ++j) {
+        if (cidMap[i+j] >= 0) {
+          fd = fdSelect[cidMap[i+j]];
+          break;
+        }
       }
     }
 
