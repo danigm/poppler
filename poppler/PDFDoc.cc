@@ -368,10 +368,11 @@ void PDFDoc::displayPage(OutputDev *out, int page,
   if (globalParams->getPrintCommands()) {
     printf("***** page %d *****\n", page);
   }
-  catalog->getPage(page)->display(out, hDPI, vDPI,
-				  rotate, useMediaBox, crop, printing, catalog,
-				  abortCheckCbk, abortCheckCbkData,
-				  annotDisplayDecideCbk, annotDisplayDecideCbkData);
+  if (catalog->getPage(page))
+    catalog->getPage(page)->display(out, hDPI, vDPI,
+				    rotate, useMediaBox, crop, printing, catalog,
+				    abortCheckCbk, abortCheckCbkData,
+				    annotDisplayDecideCbk, annotDisplayDecideCbkData);
 }
 
 void PDFDoc::displayPages(OutputDev *out, int firstPage, int lastPage,
@@ -398,20 +399,22 @@ void PDFDoc::displayPageSlice(OutputDev *out, int page,
 			      void *abortCheckCbkData,
                               GBool (*annotDisplayDecideCbk)(Annot *annot, void *user_data),
                               void *annotDisplayDecideCbkData) {
-  catalog->getPage(page)->displaySlice(out, hDPI, vDPI,
-				       rotate, useMediaBox, crop,
-				       sliceX, sliceY, sliceW, sliceH,
-				       printing, catalog,
-				       abortCheckCbk, abortCheckCbkData,
-				       annotDisplayDecideCbk, annotDisplayDecideCbkData);
+  if (catalog->getPage(page))
+    catalog->getPage(page)->displaySlice(out, hDPI, vDPI,
+					 rotate, useMediaBox, crop,
+					 sliceX, sliceY, sliceW, sliceH,
+					 printing, catalog,
+					 abortCheckCbk, abortCheckCbkData,
+					 annotDisplayDecideCbk, annotDisplayDecideCbkData);
 }
 
 Links *PDFDoc::getLinks(int page) {
-  return catalog->getPage(page)->getLinks(catalog);
+  return catalog->getPage(page) ? catalog->getPage(page)->getLinks(catalog) : NULL;
 }
   
 void PDFDoc::processLinks(OutputDev *out, int page) {
-  catalog->getPage(page)->processLinks(out, catalog);
+  if (catalog->getPage(page))
+    catalog->getPage(page)->processLinks(out, catalog);
 }
 
 GBool PDFDoc::isLinearized() {
