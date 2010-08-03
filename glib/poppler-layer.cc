@@ -75,6 +75,7 @@ _poppler_layer_new (PopplerDocument *document,
 		    GList           *rbgroup)
 {
   PopplerLayer *poppler_layer;
+  GooString    *layer_name;
 
   g_return_val_if_fail (POPPLER_IS_DOCUMENT (document), NULL);
   g_return_val_if_fail (layer != NULL, NULL);
@@ -84,7 +85,8 @@ _poppler_layer_new (PopplerDocument *document,
   poppler_layer->document = (PopplerDocument *)g_object_ref (document);
   poppler_layer->layer = layer;
   poppler_layer->rbgroup = rbgroup;
-  poppler_layer->title = _poppler_goo_string_to_utf8 (layer->oc->getName ());
+  layer_name = layer->oc->getName ();
+  poppler_layer->title = layer_name ? _poppler_goo_string_to_utf8 (layer_name) : NULL;
   
   return poppler_layer;
 }
