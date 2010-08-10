@@ -6,6 +6,7 @@
 //
 // Copyright 2005 Jonathan Blandford <jrb@redhat.com>
 // Copyright 2007 Krzysztof Kowalczyk <kkowalczyk@gmail.com>
+// Copyright 2010 Hib Eris <hib@hiberis.nl>
 // Inspired by gtimer.c in glib, which is Copyright 2000 by the GLib Team
 //
 //========================================================================

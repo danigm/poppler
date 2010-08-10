@@ -18,7 +18,7 @@
 // Copyright (C) 2006 Takashi Iwai <tiwai@suse.de>
 // Copyright (C) 2006 Kristian Høgsberg <krh@redhat.com>
 // Copyright (C) 2008 Adam Batkin <adam@batkin.net>
-// Copyright (C) 2008 Hib Eris <hib@hiberis.nl>
+// Copyright (C) 2008, 2010 Hib Eris <hib@hiberis.nl>
 // Copyright (C) 2009 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2009 Kovid Goyal <kovid@kovidgoyal.net>
 //

@@ -15,7 +15,7 @@
 //
 // Copyright (C) 2005 Kristian Høgsberg <krh@redhat.com>
 // Copyright (C) 2006, 2007 Jeff Muizelaar <jeff@infidigm.net>
-// Copyright (C) 2006 Carlos Garcia Campos <carlosgc@gnome.org>
+// Copyright (C) 2006, 2010 Carlos Garcia Campos <carlosgc@gnome.org>
 // Copyright (C) 2006-2010 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2009 Koji Otani <sho@bbr.jp>
 // Copyright (C) 2009 Thomas Freitag <Thomas.Freitag@alfa.de>

@@ -7,6 +7,7 @@
 // Copyright 2005 Jeff Muizelaar <jeff@infidigm.net>
 // Copyright 2005-2010 Albert Astals Cid <aacid@kde.org>
 // Copyright 2009 Ryszard Trojnacki <rysiek@menel.com>
+// Copyright 2010 Carlos Garcia Campos <carlosgc@gnome.org>
 //
 //========================================================================
 
