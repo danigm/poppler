@@ -21,6 +21,7 @@
 // Copyright (C) 2009, 2010 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2010 Adrian Johnson <ajohnson@redneon.com>
 // Copyright (C) 2010 Hib Eris <hib@hiberis.nl>
+// Copyright (C) 2010 Jonathan Liu <net147@gmail.com>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -29,6 +30,10 @@
 
 #include "config.h"
 #include <poppler-config.h>
+#ifdef _WIN32
+#include <fcntl.h> // for O_BINARY
+#include <io.h>    // for setmode
+#endif
 #include <stdio.h>
 #include <math.h>
 #include "parseargs.h"
@@ -178,6 +183,10 @@ static void savePageSlice(PDFDoc *doc,
       bitmap->writePNMFile(ppmFile);
     }
   } else {
+#if _WIN32
+    setmode(fileno(stdout), O_BINARY);
+#endif
+
     if (png) {
       bitmap->writeImgFile(splashFormatPng, stdout, x_resolution, y_resolution);
     } else if (jpeg) {
