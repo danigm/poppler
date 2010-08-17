@@ -3265,9 +3265,7 @@ SplashError Splash::blitTransparent(SplashBitmap *src, int xSrc, int ySrc,
   if (bitmap->alpha) {
     for (y = 0; y < h; ++y) {
       q = &bitmap->alpha[(yDest + y) * bitmap->width + xDest];
-      for (x = 0; x < w; ++x) {
-	*q++ = 0x00;
-      }
+      memset(q, 0x00, w);
     }
   }
 
