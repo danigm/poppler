@@ -18,7 +18,7 @@
 // Copyright (C) 2006, 2008, 2010 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2007-2008 Julien Rebetez <julienr@svn.gnome.org>
 // Copyright (C) 2007 Carlos Garcia Campos <carlosgc@gnome.org>
-// Copyright (C) 2009 Ilya Gorenbein <igorenbein@finjan.com>
+// Copyright (C) 2009, 2010 Ilya Gorenbein <igorenbein@finjan.com>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -268,7 +268,7 @@ XRef::XRef() {
   objStrs = new PopplerCache(5);
 }
 
-XRef::XRef(BaseStream *strA) {
+XRef::XRef(BaseStream *strA, GBool *wasReconstructed, GBool reconstruct) {
   Guint pos;
   Object obj;
 
@@ -289,43 +289,50 @@ XRef::XRef(BaseStream *strA) {
   start = str->getStart();
   pos = getStartXref();
 
-  // if there was a problem with the 'startxref' position, try to
-  // reconstruct the xref table
-  if (pos == 0) {
-    if (!(ok = constructXRef())) {
-      errCode = errDamaged;
-      return;
+  if (reconstruct && !(ok = constructXRef(wasReconstructed)))
+  {
+    errCode = errDamaged;
+    return;
+  }
+  else
+  {
+    // if there was a problem with the 'startxref' position, try to
+    // reconstruct the xref table
+    if (pos == 0) {
+      if (!(ok = constructXRef(wasReconstructed))) {
+        errCode = errDamaged;
+        return;
+      }
+
+    // read the xref table
+    } else {
+      GooVector<Guint> followedXRefStm;
+      while (readXRef(&pos, &followedXRefStm)) ;
+
+      // if there was a problem with the xref table,
+      // try to reconstruct it
+      if (!ok) {
+        if (!(ok = constructXRef(wasReconstructed))) {
+          errCode = errDamaged;
+          return;
+        }
+      }
     }
 
-  // read the xref table
-  } else {
-    GooVector<Guint> followedXRefStm;
-    while (readXRef(&pos, &followedXRefStm)) ;
-
-    // if there was a problem with the xref table,
-    // try to reconstruct it
-    if (!ok) {
-      if (!(ok = constructXRef())) {
-	errCode = errDamaged;
-	return;
+    // get the root dictionary (catalog) object
+    trailerDict.dictLookupNF("Root", &obj);
+    if (obj.isRef()) {
+      rootNum = obj.getRefNum();
+      rootGen = obj.getRefGen();
+      obj.free();
+    } else {
+      obj.free();
+      if (!(ok = constructXRef(wasReconstructed))) {
+        errCode = errDamaged;
+        return;
       }
     }
   }
-
-  // get the root dictionary (catalog) object
-  trailerDict.dictLookupNF("Root", &obj);
-  if (obj.isRef()) {
-    rootNum = obj.getRefNum();
-    rootGen = obj.getRefGen();
-    obj.free();
-  } else {
-    obj.free();
-    if (!(ok = constructXRef())) {
-      errCode = errDamaged;
-      return;
-    }
-  }
-
   // now set the trailer dictionary's xref pointer so we can fetch
   // indirect objects from it
   trailerDict.getDict()->setXRef(this);
@@ -746,7 +753,7 @@ GBool XRef::readXRefStreamSection(Stream *xrefStr, int *w, int first, int n) {
 }
 
 // Attempt to construct an xref table for a damaged file.
-GBool XRef::constructXRef() {
+GBool XRef::constructXRef(GBool *wasReconstructed) {
   Parser *parser;
   Object newTrailerDict, obj;
   char buf[256];
@@ -768,6 +775,11 @@ GBool XRef::constructXRef() {
   error(-1, "PDF file is damaged - attempting to reconstruct xref table...");
   gotRoot = gFalse;
   streamEndsLen = streamEndsSize = 0;
+
+  if (wasReconstructed)
+  {
+    *wasReconstructed = true;
+  }
 
   str->reset();
   while (1) {

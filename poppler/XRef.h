@@ -17,6 +17,7 @@
 // Copyright (C) 2006, 2008, 2010 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2007-2008 Julien Rebetez <julienr@svn.gnome.org>
 // Copyright (C) 2007 Carlos Garcia Campos <carlosgc@gnome.org>
+// Copyright (C) 2010 Ilya Gorenbein <igorenbein@finjan.com>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -63,7 +64,7 @@ public:
   // Constructor, create an empty XRef, used for PDF writing
   XRef();
   // Constructor.  Read xref table from stream.
-  XRef(BaseStream *strA);
+  XRef(BaseStream *strA, GBool *wasReconstructed = NULL, GBool reconstruct = false);
 
   // Destructor.
   ~XRef();
@@ -161,7 +162,7 @@ private:
   GBool readXRefTable(Parser *parser, Guint *pos, GooVector<Guint> *followedXRefStm);
   GBool readXRefStreamSection(Stream *xrefStr, int *w, int first, int n);
   GBool readXRefStream(Stream *xrefStr, Guint *pos);
-  GBool constructXRef();
+  GBool constructXRef(GBool *wasReconstructed);
   Guint strToUnsigned(char *s);
 };
 

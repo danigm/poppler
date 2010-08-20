@@ -23,6 +23,7 @@
 // Copyright (C) 2009 Axel Struebing <axel.struebing@freenet.de>
 // Copyright (C) 2010 Hib Eris <hib@hiberis.nl>
 // Copyright (C) 2010 Jakub Wilk <ubanus@users.sf.net>
+// Copyright (C) 2010 Ilya Gorenbein <igorenbein@finjan.com>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -205,8 +206,10 @@ GBool PDFDoc::setup(GooString *ownerPassword, GooString *userPassword) {
   // check header
   checkHeader();
 
+  GBool wasReconstructed = false;
+
   // read xref table
-  xref = new XRef(str);
+  xref = new XRef(str, &wasReconstructed);
   if (!xref->isOk()) {
     error(-1, "Couldn't read xref table");
     errCode = xref->getErrorCode();
@@ -221,10 +224,21 @@ GBool PDFDoc::setup(GooString *ownerPassword, GooString *userPassword) {
 
   // read catalog
   catalog = new Catalog(xref);
-  if (!catalog->isOk()) {
-    error(-1, "Couldn't read page catalog");
-    errCode = errBadCatalog;
-    return gFalse;
+  if (catalog && !catalog->isOk()) {
+    if (!wasReconstructed)
+    {
+      // try one more time to contruct the Catalog, maybe the problem is damaged XRef 
+      delete catalog;
+      delete xref;
+      xref = new XRef(str, NULL, true);
+      catalog = new Catalog(xref);
+    }
+
+    if (catalog && !catalog->isOk()) {
+      error(-1, "Couldn't read page catalog");
+      errCode = errBadCatalog;
+      return gFalse;
+    }
   }
 
   // done
