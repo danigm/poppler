@@ -68,7 +68,13 @@ user password (for encrypted files)
 force hidden text extraction
 .TP
 .B \-dev 
-output device name for Ghostscript (png16m, jpeg etc)
+output device name for Ghostscript (png16m, jpeg etc).
+Unless this option is specified, Splash will be used
+.TP
+.B \-fmt
+image file format for Splash output (png or jpg).
+If complex is selected, but neither -fmt or -dev are specified,
+-fmt png will be assumed
 .TP
 .B \-nomerge
 do not merge paragraphs
