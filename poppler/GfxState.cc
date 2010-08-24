@@ -20,6 +20,7 @@
 // Copyright (C) 2009 Koji Otani <sho@bbr.jp>
 // Copyright (C) 2009 Thomas Freitag <Thomas.Freitag@alfa.de>
 // Copyright (C) 2009 Christian Persch <chpe@gnome.org>
+// Copyright (C) 2010 Paweł Wiejacha <pawel.wiejacha@gmail.com>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -613,12 +614,11 @@ GfxColorSpace *GfxCalGrayColorSpace::parse(Array *arr) {
 // (not multiply by the white point)
 void GfxCalGrayColorSpace::getXYZ(GfxColor *color, 
   double *pX, double *pY, double *pZ) {
-  double A;
-
-  A = colToDbl(color->c[0]);
-  *pX = pow(A,gamma);
-  *pY = pow(A,gamma);
-  *pZ = pow(A,gamma);
+  const double A = colToDbl(color->c[0]);
+  const double xyzColor = pow(A,gamma);
+  *pX = xyzColor;
+  *pY = xyzColor;
+  *pZ = xyzColor;
 }
 
 void GfxCalGrayColorSpace::getGray(GfxColor *color, GfxGray *gray) {
