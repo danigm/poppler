@@ -25,6 +25,7 @@
 // Copyright (C) 2009 William Bader <williambader@hotmail.com>
 // Copyright (C) 2010 Patrick Spendrin <ps_ml@gmx.de>
 // Copyright (C) 2010 Brian Cameron <brian.cameron@oracle.com>
+// Copyright (C) 2010 Paweł Wiejacha <pawel.wiejacha@gmail.com>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -2087,7 +2088,6 @@ GBool SplashOutputDev::imageSrc(void *data, SplashColorPtr colorLine,
   SplashOutImageData *imgData = (SplashOutImageData *)data;
   Guchar *p;
   SplashColorPtr q, col;
-  GfxRGB rgb;
   GfxGray gray;
 #if SPLASH_CMYK
   GfxCMYK cmyk;
@@ -2160,14 +2160,35 @@ GBool SplashOutputDev::imageSrc(void *data, SplashColorPtr colorLine,
 	case splashModeXBGR8:
     case splashModeRGB8:
     case splashModeBGR8:
-      for (x = 0, p = imgData->imgStr->getLine(), q = colorLine;
-	   x < imgData->width;
-	   ++x, p += nComps) {
-	imgData->colorMap->getRGB(p, &rgb);
-	*q++ = colToByte(rgb.r);
-	*q++ = colToByte(rgb.g);
-	*q++ = colToByte(rgb.b);
-	if (imgData->colorMode == splashModeXBGR8) *q++ = 255;
+      if (!imgData->colorMap->useRGBLine())
+      {
+        GfxRGB rgb;
+        for (x = 0, p = imgData->imgStr->getLine(), q = colorLine;
+           x < imgData->width;
+           ++x, p += nComps) {
+          imgData->colorMap->getRGB(p, &rgb);
+          *q++ = colToByte(rgb.r);
+          *q++ = colToByte(rgb.g);
+          *q++ = colToByte(rgb.b);
+          if (imgData->colorMode == splashModeXBGR8) *q++ = 255;
+        }
+      }
+      else
+      {
+        p = imgData->imgStr->getLine();
+        q = colorLine;
+        unsigned int* line = (unsigned int *)gmallocn(imgData->width, sizeof(unsigned int));
+
+        imgData->colorMap->getRGBLine(p, line, imgData->width);
+        for (x = 0; x < imgData->width; ++x) {
+            *q++ = (line[x] >> 16) & 255;
+            *q++ = (line[x] >> 8) & 255;
+            *q++ = (line[x]) & 255;
+            if (imgData->colorMode == splashModeXBGR8) {
+                *q++ = 255;
+            }
+        }
+        gfree(line);
       }
       break;
 #if SPLASH_CMYK
