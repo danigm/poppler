@@ -17,7 +17,7 @@
 // Copyright (C) 2006, 2007 Jeff Muizelaar <jeff@infidigm.net>
 // Copyright (C) 2006 Carlos Garcia Campos <carlosgc@gnome.org>
 // Copyright (C) 2009 Koji Otani <sho@bbr.jp>
-// Copyright (C) 2009 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2009, 2010 Albert Astals Cid <aacid@kde.org>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -952,6 +952,8 @@ public:
   // Get decode table.
   double getDecodeLow(int i) { return decodeLow[i]; }
   double getDecodeHigh(int i) { return decodeLow[i] + decodeRange[i]; }
+  
+  bool useRGBLine() { return (colorSpace2 && colorSpace2->useGetRGBLine ()) || (!colorSpace2 && colorSpace->useGetRGBLine ()); }
 
   // Convert an image pixel to a color.
   void getGray(Guchar *x, GfxGray *gray);

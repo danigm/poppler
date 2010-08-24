@@ -1582,13 +1582,13 @@ void GfxICCBasedColorSpace::getRGBLine(Guchar *in, unsigned int *out,
 				       int length) {
 #ifdef USE_CMS
   if (lineTransform != 0) {
-    for (int i = 0;i < length;i++) {
-	Guchar tmp[gfxColorMaxComps];
-
-	lineTransform->doTransform(in,tmp,1);
-	in += nComps;
-	out[i] = (tmp[0] << 16) | (tmp[1] << 8) | tmp[2];
+    Guchar* tmp = (Guchar *)gmallocn(nComps * length, sizeof(Guchar));
+    lineTransform->doTransform(in, tmp, length);
+    for (int i = 0; i < length; ++i) {
+        Guchar *current = tmp + (i*nComps);
+        out[i] = (current[0] << 16) | (current[1] << 8) | current[2];
     }
+    gfree(tmp);
   } else {
     alt->getRGBLine(in, out, length);
   }
@@ -4249,8 +4249,7 @@ void GfxImageColorMap::getRGBLine(Guchar *in, unsigned int *out, int length) {
   int i, j;
   Guchar *inp, *tmp_line;
 
-  if ((colorSpace2 && !colorSpace2->useGetRGBLine ()) ||
-      (!colorSpace2 && !colorSpace->useGetRGBLine ())) {
+  if (!useRGBLine()) {
     GfxRGB rgb;
 
     inp = in;
