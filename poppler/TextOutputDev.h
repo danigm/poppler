@@ -14,7 +14,7 @@
 // Copyright (C) 2006 Ed Catmur <ed@catmur.co.uk>
 // Copyright (C) 2007-2008 Carlos Garcia Campos <carlosgc@gnome.org>
 // Copyright (C) 2007 Adrian Johnson <ajohnson@redneon.com>
-// Copyright (C) 2008 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2008, 2010 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2010 Brian Ewins <brian.ewins@gmail.com>
 //
 // To see a description of the changes please see the Changelog file that
@@ -579,7 +579,7 @@ private:
   ~TextPage();
   
   void clear();
-  void assignColumns(TextLineFrag *frags, int nFrags, int rot);
+  void assignColumns(TextLineFrag *frags, int nFrags, GBool rot);
   int dumpFragment(Unicode *text, int len, UnicodeMap *uMap, GooString *s);
 
   GBool rawOrder;		// keep text in content stream order
