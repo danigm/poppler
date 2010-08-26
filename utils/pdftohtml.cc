@@ -16,6 +16,7 @@
 // Copyright (C) 2007-2008, 2010 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2010 Hib Eris <hib@hiberis.nl>
 // Copyright (C) 2010 Mike Slegeir <tehpola@yahoo.com>
+// Copyright (C) 2010 Suzuki Toshiya <mpsuzuki@hiroshima-u.ac.jp>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -70,6 +71,7 @@ GBool ignore=gFalse;
 GBool useSplash=gTrue;
 char extension[5]="png";
 double scale=1.5;
+int resolution=72;
 GBool noframes=gFalse;
 GBool stout=gFalse;
 GBool xml=gFalse;
@@ -113,6 +115,8 @@ static const ArgDesc argDesc[] = {
    "use standard output"},
   {"-zoom",   argFP,    &scale,         0,
    "zoom the pdf document (default 1.5)"},
+  {"-r",      argInt,   &resolution, 0,
+   "resolution to render the pdf document (default 72)"},
   {"-xml",    argFlag,    &xml,         0,
    "output for XML post-processing"},
   {"-hidden", argFlag,   &showHidden,   0,
@@ -419,13 +423,16 @@ int main(int argc, char *argv[]) {
           pg_h = tmp;
         }
 
-        doc->displayPage(splashOut, pg, 72, 72, 0, gTrue, gFalse, gFalse);
+        doc->displayPage(splashOut, pg,
+                         resolution, resolution,
+                         0, gTrue, gFalse, gFalse);
         SplashBitmap *bitmap = splashOut->getBitmap();
 
         imgFileName = GooString::format("{0:s}{1:03d}.{2:s}", 
             htmlFileName->getCString(), pg, extension);
 
-        bitmap->writeImgFile(format, imgFileName->getCString(), 72, 72);
+        bitmap->writeImgFile(format, imgFileName->getCString(),
+                             resolution, resolution);
 
         delete imgFileName;
       }
@@ -448,7 +455,7 @@ int main(int argc, char *argv[]) {
           gTrue, gFalse, gFalse);
       delete psOut;
 
-      /*sprintf(buf, "%s -sDEVICE=png16m -dBATCH -dNOPROMPT -dNOPAUSE -r72 -sOutputFile=%s%%03d.png -g%dx%d -q %s", GHOSTSCRIPT, htmlFileName->getCString(), w, h,
+      /*sprintf(buf, "%s -sDEVICE=png16m -dBATCH -dNOPROMPT -dNOPAUSE -r%d -sOutputFile=%s%%03d.png -g%dx%d -q %s", GHOSTSCRIPT, resolution, htmlFileName->getCString(), w, h,
       psFileName->getCString());*/
 
       GooString *gsCmd = new GooString(GHOSTSCRIPT);
@@ -456,7 +463,7 @@ int main(int argc, char *argv[]) {
       gsCmd->append(" -sDEVICE=");
       gsCmd->append(gsDevice);
       gsCmd->append(" -dBATCH -dNOPROMPT -dNOPAUSE -r");
-      sc = GooString::fromInt(static_cast<int>(72*scale));
+      sc = GooString::fromInt(static_cast<int>(resolution*scale));
       gsCmd->append(sc);
       gsCmd->append(" -sOutputFile=");
       gsCmd->append("\"");
@@ -464,10 +471,11 @@ int main(int argc, char *argv[]) {
       gsCmd->append("%03d.");
       gsCmd->append(extension);
       gsCmd->append("\" -g");
-      tw = GooString::fromInt(static_cast<int>(scale*w));
+      tw = GooString::fromInt(static_cast<int>(scale*w*resolution/72.0));
       gsCmd->append(tw);
       gsCmd->append("x");
       th = GooString::fromInt(static_cast<int>(scale*h));
+      th = GooString::fromInt(static_cast<int>(scale*h*resolution/72.0));
       gsCmd->append(th);
       gsCmd->append(" -q \"");
       gsCmd->append(psFileName);
