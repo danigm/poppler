@@ -1,6 +1,6 @@
 
 set(common_srcs
-  parseargs.c
+  parseargs.cc
 )
 set(common_libs
   poppler

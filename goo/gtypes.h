@@ -14,6 +14,7 @@
 // under GPL version 2 or later
 //
 // Copyright (C) 2010 Patrick Spendrin <ps_ml@gmx.de>
+// Copyright (C) 2010 Albert Astals Cid <aacid@kde.org>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -27,9 +28,9 @@
  * These have stupid names to avoid conflicts with some (but not all)
  * C++ compilers which define them.
  */
-typedef int GBool;
-#define gTrue 1
-#define gFalse 0
+typedef bool GBool;
+#define gTrue true
+#define gFalse false
 
 #ifdef _MSC_VER
 #pragma warning(disable: 4800) /* 'type' : forcing value to bool 'true' or 'false' (performance warning) */

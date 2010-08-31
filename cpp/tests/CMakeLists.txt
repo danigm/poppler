@@ -18,5 +18,5 @@ macro(CPP_ADD_SIMPLETEST exe)
 endmacro(CPP_ADD_SIMPLETEST)
 
 
-cpp_add_simpletest(poppler-dump poppler-dump.cpp ${CMAKE_SOURCE_DIR}/utils/parseargs.c)
+cpp_add_simpletest(poppler-dump poppler-dump.cpp ${CMAKE_SOURCE_DIR}/utils/parseargs.cc)
 target_link_libraries(poppler-dump poppler)

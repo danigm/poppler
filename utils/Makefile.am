@@ -57,7 +57,7 @@ dist_man1_MANS =				\
 	pdftohtml.1				\
 	$(pdftoppm_manpage)
 
-common = parseargs.c parseargs.h
+common = parseargs.cc parseargs.h
 
 pdffonts_SOURCES =				\
 	pdffonts.cc				\
