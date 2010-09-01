@@ -391,10 +391,11 @@ delete it;
 	
 	/**
 	   How the text is going to be returned
+	   \since 0.16
 	*/
 	enum TextLayout {
 	    PhysicalLayout,   ///< The text is layouted to resemble the real page layout
-	    RawOrder          ///< The text is returned without any type of processing
+	    RawOrderLayout          ///< The text is returned without any type of processing
 	};
 
 	/** 
@@ -453,6 +454,8 @@ delete it;
 	   \param rect the rectangle specifying the area of interest,
 	   with coordinates given in points, i.e., 1/72th of an inch.
 	   If rect is null, all text on the page is given
+	
+	   \since 0.16
 	**/
 	QString text(const QRectF &rect, TextLayout textLayout) const;
 

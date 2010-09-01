@@ -303,7 +303,7 @@ QString Page::text(const QRectF &r, TextLayout textLayout) const
   PDFRectangle *rect;
   QString result;
   
-  const GBool rawOrder = textLayout == RawOrder;
+  const GBool rawOrder = textLayout == RawOrderLayout;
   output_dev = new TextOutputDev(0, gFalse, rawOrder, gFalse);
   m_page->parentDoc->doc->displayPageSlice(output_dev, m_page->index + 1, 72, 72,
       0, false, true, false, -1, -1, -1, -1);
