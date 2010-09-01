@@ -799,6 +799,8 @@ delete it;
      
 	   Note that this follows the PDF standard of being zero based - if you
 	   want the first page, then you need an index of zero.
+	
+	   The caller gets the ownership of the returned object.
 
 	   \param index the page number index
 	*/
