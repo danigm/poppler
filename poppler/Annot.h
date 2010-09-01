@@ -21,7 +21,7 @@
 // Copyright (C) 2008 Hugo Mercier <hmercier31@gmail.com>
 // Copyright (C) 2008 Pino Toscano <pino@kde.org>
 // Copyright (C) 2008 Tomas Are Haavet <tomasare@gmail.com>
-// Copyright (C) 2009 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2009, 2010 Albert Astals Cid <aacid@kde.org>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -1175,7 +1175,7 @@ private:
 		GBool password=false);
   void drawListBox(GooString **text, GBool *selection,
 		   int nOptions, int topIdx,
-		   GooString *da, GfxFontDict *fontDict, GBool quadding);
+		   GooString *da, GfxFontDict *fontDict, int quadding);
   void layoutText(GooString *text, GooString *outBuf, int *i, GfxFont *font,
 		  double *width, double widthLimit, int *charCount,
 		  GBool noReencode);

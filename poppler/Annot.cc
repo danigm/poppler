@@ -3400,7 +3400,7 @@ void AnnotWidget::drawText(GooString *text, GooString *da, GfxFontDict *fontDict
 // Draw the variable text or caption for a field.
 void AnnotWidget::drawListBox(GooString **text, GBool *selection,
 			      int nOptions, int topIdx,
-			      GooString *da, GfxFontDict *fontDict, GBool quadding) {
+			      GooString *da, GfxFontDict *fontDict, int quadding) {
   GooList *daToks;
   GooString *tok, *convertedText;
   GfxFont *font;
