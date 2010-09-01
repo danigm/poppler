@@ -5,6 +5,7 @@
  * Copyright (C) 2005, Stefan Kebekus <stefan.kebekus@math.uni-koeln.de>
  * Copyright (C) 2006-2009, Pino Toscano <pino@kde.org>
  * Copyright (C) 2009 Shawn Rutledge <shawn.t.rutledge@gmail.com>
+ * Copyright (C) 2010 Suzuki Toshiya <mpsuzuki@hiroshima-u.ac.jp>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -387,6 +388,14 @@ delete it;
 	    Opening,   ///< The action when a page is "opened"
 	    Closing    ///< The action when a page is "closed"
 	};
+	
+	/**
+	   How the text is going to be returned
+	*/
+	enum TextLayout {
+	    PhysicalLayout,   ///< The text is layouted to resemble the real page layout
+	    RawOrder          ///< The text is returned without any type of processing
+	};
 
 	/** 
 	   Render the page to a QImage using the current
@@ -440,6 +449,16 @@ delete it;
 
 	/**
 	   Returns the text that is inside a specified rectangle
+
+	   \param rect the rectangle specifying the area of interest,
+	   with coordinates given in points, i.e., 1/72th of an inch.
+	   If rect is null, all text on the page is given
+	**/
+	QString text(const QRectF &rect, TextLayout textLayout) const;
+
+	/**
+	   Returns the text that is inside a specified rectangle.
+	   The text is returned using the physical layout of the page
 
 	   \param rect the rectangle specifying the area of interest,
 	   with coordinates given in points, i.e., 1/72th of an inch.

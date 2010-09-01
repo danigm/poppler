@@ -23,6 +23,7 @@
 // Copyright (C) 2009 Ross Moore <ross@maths.mq.edu.au>
 // Copyright (C) 2009 Kovid Goyal <kovid@kovidgoyal.net>
 // Copyright (C) 2010 Brian Ewins <brian.ewins@gmail.com>
+// Copyright (C) 2010 Suzuki Toshiya <mpsuzuki@hiroshima-u.ac.jp>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -3605,14 +3606,30 @@ GooString *TextPage::getText(double xMin, double yMin,
 
   s = new GooString();
 
-  if (rawOrder) {
-    return s;
-  }
-
   // get the output encoding
   if (!(uMap = globalParams->getTextEncoding())) {
     return s;
   }
+
+  if (rawOrder) {
+    TextWord*  word;
+    char mbc[16];
+    int  mbc_len;
+
+    for (word = rawWords; word && word <= rawLastWord; word = word->next) {
+      for (j = 0; j < word->getLength(); ++j) {
+        double gXMin, gXMax, gYMin, gYMax;
+        word->getCharBBox(j, &gXMin, &gYMin, &gXMax, &gYMax);
+        if (xMin <= gXMin && gXMax <= xMax && yMin <= gYMin && gYMax <= yMax)
+        {
+          mbc_len = uMap->mapUnicode( *(word->getChar(j)), mbc, sizeof(mbc) );
+          s->append(mbc, mbc_len);
+        }
+      }
+    }
+    return s;
+  }
+
   isUnicode = uMap->isUnicode();
   spaceLen = uMap->mapUnicode(0x20, space, sizeof(space));
   eolLen = 0; // make gcc happy

@@ -7,6 +7,7 @@
  * Copyright (C) 2008 Carlos Garcia Campos <carlosgc@gnome.org>
  * Copyright (C) 2009 Shawn Rutledge <shawn.t.rutledge@gmail.com>
  * Copyright (C) 2010, Guillermo Amaral <gamaral@kdab.com>
+ * Copyright (C) 2010 Suzuki Toshiya <mpsuzuki@hiroshima-u.ac.jp>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -295,14 +296,15 @@ QImage Page::thumbnail() const
   return ret;
 }
 
-QString Page::text(const QRectF &r) const
+QString Page::text(const QRectF &r, TextLayout textLayout) const
 {
   TextOutputDev *output_dev;
   GooString *s;
   PDFRectangle *rect;
   QString result;
   
-  output_dev = new TextOutputDev(0, gFalse, gFalse, gFalse);
+  const GBool rawOrder = textLayout == RawOrder;
+  output_dev = new TextOutputDev(0, gFalse, rawOrder, gFalse);
   m_page->parentDoc->doc->displayPageSlice(output_dev, m_page->index + 1, 72, 72,
       0, false, true, false, -1, -1, -1, -1);
   if (r.isNull())
@@ -320,6 +322,11 @@ QString Page::text(const QRectF &r) const
   delete output_dev;
   delete s;
   return result;
+}
+
+QString Page::text(const QRectF &r) const
+{
+  return text(r, PhysicalLayout);
 }
 
 bool Page::search(const QString &text, double &sLeft, double &sTop, double &sRight, double &sBottom, SearchDirection direction, SearchMode caseSensitive, Rotation rotate) const

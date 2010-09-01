@@ -41,6 +41,7 @@ qt4_add_simpletest(poppler-fonts poppler-fonts.cpp)
 qt4_add_simpletest(poppler_attachments poppler-attachments.cpp)
 qt4_add_simpletest(stress-poppler-qt4 stress-poppler-qt4.cpp)
 qt4_add_simpletest(stress-poppler-dir stress-poppler-dir.cpp)
+qt4_add_simpletest(poppler-texts poppler-texts.cpp)
 
 qt4_add_qtest(check_attachments check_attachments.cpp)
 qt4_add_qtest(check_dateConversion check_dateConversion.cpp)

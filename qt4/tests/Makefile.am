@@ -21,7 +21,7 @@ SUFFIXES: .moc
 
 noinst_PROGRAMS = test-poppler-qt4 stress-poppler-qt4 \
 	poppler-fonts test-password-qt4 stress-poppler-dir \
-	poppler-attachments
+	poppler-attachments poppler-texts
 
 
 test_poppler_qt4_SOURCES =			\
@@ -45,6 +45,11 @@ poppler_attachments_SOURCES =			\
        poppler-attachments.cpp
 
 poppler_attachments_LDADD = $(LDADDS)
+
+poppler_texts_SOURCES =			\
+       poppler-texts.cpp
+
+poppler_texts_LDADD = $(LDADDS)
 
 
 stress_poppler_qt4_SOURCES =			\
