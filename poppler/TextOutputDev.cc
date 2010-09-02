@@ -1881,15 +1881,28 @@ TextWordList::TextWordList(TextPage *text, GBool physLayout) {
   TextFlow *flow;
   TextBlock *blk;
   TextLine *line;
-  TextWord *word;
+  TextWord *word, *prevword=NULL;
   TextWord **wordArray;
   int nWords, i;
 
   words = new GooList();
 
   if (text->rawOrder) {
-    for (word = text->rawWords; word; word = word->next) {
-      words->append(word);
+    if (text->primaryLR) {
+      for (word = text->rawWords; word; word = word->next) {
+        words->append(word);
+      }
+    } else {
+      i = 0;
+      for (word = text->rawWords; word; word = word->next) {
+        if (prevword) {
+          if (word->secondaryCmp(prevword)) {
+            i = getLength();
+          }
+        }
+        words->insert(i, word);
+        prevword = word;
+      }
     }
 
   } else if (physLayout) {
@@ -4606,7 +4619,7 @@ void TextPage::getSelectionWordLimits(PDFRectangle *selection,
                                       int *first_c,
                                       int *last_c) {
   TextWordList *wordlist = makeWordList(gFalse);
-  TextWord *word = NULL;
+  TextWord *word=NULL;
   double distance, minor=-1, minor1=-1;
   double xmin, ymin, xmax, ymax;
   double x1, y1, x2, y2;
@@ -4624,21 +4637,21 @@ void TextPage::getSelectionWordLimits(PDFRectangle *selection,
     for (int j=0; j<word->getLength(); j++) {
       word->getCharBBox(j, &xmin, &ymin, &xmax, &ymax);
 
-      distance = fabs(x1 - xmin) + fabs(y1 - ymin);
+      distance = fabs(x1 - xmin) + 10*fabs(y1 - ymin);
       if (minor < 0 || distance < minor) {
         *first = i;
         *first_c = j;
         minor = distance;
       }
 
-      distance = fabs(x1 - xmin) + fabs(y1 - ymax);
+      distance = fabs(x1 - xmin) + 10*fabs(y1 - ymax);
       if (minor < 0 || distance < minor) {
         *first = i;
         *first_c = j;
         minor = distance;
       }
 
-      distance = fabs(x2 - xmax) + fabs(y2 - ymax);
+      distance = fabs(x2 - xmax) + 10*fabs(y2 - ymax);
       if (minor1 < 0 || distance < minor1) {
         *last = i;
         *last_c = j;
@@ -4646,6 +4659,38 @@ void TextPage::getSelectionWordLimits(PDFRectangle *selection,
       }
     }
   }
+
+  switch (style) {
+    case selectionStyleGlyph:
+	break;
+    case selectionStyleLine:
+      for (int i=*first; i>=0; i--) {
+        word = wordlist->get(i);
+	if (!word->secondaryCmp(wordlist->get(*first))) {
+	  *first = i;
+	}
+      }
+      for (int i=*last; i<wordlist->getLength(); i++) {
+        word = wordlist->get(i);
+	if (!word->secondaryCmp(wordlist->get(*last))) {
+	  *last = i;
+	}
+      }
+    case selectionStyleWord:
+      *first_c = wordlist->get(*first)->getLength() - 1;
+      if (primaryLR) {
+        *last_c = wordlist->get(*last)->getLength() - 1;
+      } else {
+        *last_c = 0;
+      }
+      if (last == first) {
+        *last_c = wordlist->get(*last)->getLength() - 1;
+        *first_c = 0;
+      }
+      break;
+    default: break;
+  }
+
   if (*first > *last) {
     tmp = *last;
     *last = *first;
@@ -4689,18 +4734,34 @@ void TextPage::drawSelection(OutputDev *out,
 
   for(int i=first; i<=last; i++) {
     word = wordlist->get(i);
-    if (i == first && i == last) {
-      begin = first_c;
-      end = last_c + 1;
-    } else if (i == first) {
-      begin = first_c;
-      end = word->getLength();
-    } else if (i == last) {
-      begin = 0;
-      end = last_c + 1;
+    if (primaryLR) {
+      if (i == first && i == last) {
+        begin = first_c;
+        end = last_c + 1;
+      } else if (i == first) {
+        begin = first_c;
+        end = word->getLength();
+      } else if (i == last) {
+        begin = 0;
+        end = last_c + 1;
+      } else {
+        begin = 0;
+        end = word->getLength();
+      }
     } else {
-      begin = 0;
-      end = word->getLength();
+      if (i == first && i == last) {
+        begin = first_c;
+        end = last_c + 1;
+      } else if (i == first) {
+        begin = 0;
+        end = first_c + 1;
+      } else if (i == last) {
+        begin = last_c;
+        end = word->getLength();
+      } else {
+        begin = 0;
+        end = word->getLength();
+      }
     }
 
     painter.visitWord(word, begin, end, selection);
@@ -4731,30 +4792,52 @@ GooList *TextPage::getSelectionRegion(PDFRectangle *selection,
       else {
         word->getBBox(&xmin, &ymin, &xmax, &ymax);
       }
-      rect->x2 = xmax;
+
+      if (primaryLR) {
+        rect->x2 = xmax;
+      } else {
+        rect->x1 = xmin;
+      }
+      prevword = word;
       continue;
     }
 
-    if (i == first && i == last) {
-      word->getCharBBox(first_c, &xmin1, &ymin1, &xmax1, &ymax1);
-      word->getCharBBox(last_c, &xmin, &ymin, &xmax, &ymax);
-      rect = new PDFRectangle(xmin1, ymin1, xmax, ymax);
-      ret->append(rect);
-    } else if (i == first) {
-      word->getCharBBox(first_c, &xmin1, &ymin1, &xmax1, &ymax1);
-      word->getBBox(&xmin, &ymin, &xmax, &ymax);
-      rect = new PDFRectangle(xmin1, ymin1, xmax, ymax);
-      ret->append(rect);
-    } else if (i == last) {
-      word->getCharBBox(last_c, &xmin1, &ymin1, &xmax1, &ymax1);
-      word->getBBox(&xmin, &ymin, &xmax, &ymax);
-      rect = new PDFRectangle(xmin, ymin, xmax1, ymax1);
-      ret->append(rect);
+    if (primaryLR) {
+      if (i == first && i == last) {
+        word->getCharBBox(first_c, &xmin1, &ymin1, &xmax1, &ymax1);
+        word->getCharBBox(last_c, &xmin, &ymin, &xmax, &ymax);
+        xmin = xmin1; ymin = ymin1;
+      } else if (i == first) {
+        word->getCharBBox(first_c, &xmin1, &ymin1, &xmax1, &ymax1);
+        word->getBBox(&xmin, &ymin, &xmax, &ymax);
+        xmin = xmin1; ymin = ymin1;
+      } else if (i == last) {
+        word->getCharBBox(last_c, &xmin1, &ymin1, &xmax1, &ymax1);
+        word->getBBox(&xmin, &ymin, &xmax, &ymax);
+        xmax = xmax1; ymax = ymax1;
+      } else {
+        word->getBBox(&xmin, &ymin, &xmax, &ymax);
+      }
     } else {
-      word->getBBox(&xmin, &ymin, &xmax, &ymax);
-      rect = new PDFRectangle(xmin, ymin, xmax, ymax);
-      ret->append(rect);
+      if (i == first && i == last) {
+        word->getCharBBox(first_c, &xmin1, &ymin1, &xmax1, &ymax1);
+        word->getCharBBox(last_c, &xmin, &ymin, &xmax, &ymax);
+        xmin = xmin1; ymin = ymin1;
+      } else if (i == first) {
+        word->getCharBBox(first_c, &xmin1, &ymin1, &xmax1, &ymax1);
+        word->getBBox(&xmin, &ymin, &xmax, &ymax);
+        xmax = xmax1; ymax = ymax1;
+      } else if (i == last) {
+        word->getCharBBox(last_c, &xmin1, &ymin1, &xmax1, &ymax1);
+        word->getBBox(&xmin, &ymin, &xmax, &ymax);
+        xmin = xmin1; ymin = ymin1;
+      } else {
+        word->getBBox(&xmin, &ymin, &xmax, &ymax);
+      }
     }
+
+    rect = new PDFRectangle(xmin, ymin, xmax, ymax);
+    ret->append(rect);
     prevword = word;
   }
 
@@ -4787,15 +4870,28 @@ GooString *TextPage::getSelectionText(PDFRectangle *selection,
         ret->append(' ');
       }
     }
-    if (i == first && i == last) {
-      dumpFragment(word->text + first_c, last_c - first_c, uMap, ret);
-    } else if (i == first) {
-      dumpFragment(word->text + first_c, word->len - first_c, uMap, ret);
-    } else if (i == last) {
-      dumpFragment(word->text, last_c, uMap, ret);
+    if (primaryLR) {
+      if (i == first && i == last) {
+        dumpFragment(word->text + first_c, last_c+1 - first_c, uMap, ret);
+      } else if (i == first) {
+        dumpFragment(word->text + first_c, word->len - first_c, uMap, ret);
+      } else if (i == last) {
+        dumpFragment(word->text, last_c+1, uMap, ret);
+      } else {
+        dumpFragment(word->text, word->len, uMap, ret);
+      }
     } else {
-      dumpFragment(word->text, word->len, uMap, ret);
+      if (i == first && i == last) {
+        dumpFragment(word->text + first_c, last_c+1 - first_c, uMap, ret);
+      } else if (i == first) {
+        dumpFragment(word->text, first_c+1, uMap, ret);
+      } else if (i == last) {
+        dumpFragment(word->text + last_c, word->len, uMap, ret);
+      } else {
+        dumpFragment(word->text, word->len, uMap, ret);
+      }
     }
+
     prevword = word;
   }
   delete wordlist;
