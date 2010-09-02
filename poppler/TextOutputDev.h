@@ -125,6 +125,7 @@ public:
   // Compares <this> to <word>, returning -1 (<), 0 (=), or +1 (>),
   // based on a primary-axis comparison, e.g., x ordering if rot=0.
   int primaryCmp(TextWord *word);
+  int secondaryCmp(TextWord *word);
 
   // Return the distance along the primary axis between <this> and
   // <word>.
@@ -581,6 +582,13 @@ private:
   void clear();
   void assignColumns(TextLineFrag *frags, int nFrags, GBool rot);
   int dumpFragment(Unicode *text, int len, UnicodeMap *uMap, GooString *s);
+  void getSelectionWordLimits(PDFRectangle *selection,
+                              SelectionStyle style,
+                              double scale,
+                              int *first,
+                              int *last,
+                              int *first_c,
+                              int *last_c);
 
   GBool rawOrder;		// keep text in content stream order
 

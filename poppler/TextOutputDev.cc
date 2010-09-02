@@ -416,6 +416,27 @@ inline int TextWord::primaryCmp(TextWord *word) {
   return cmp < 0 ? -1 : cmp > 0 ? 1 : 0;
 }
 
+inline int TextWord::secondaryCmp(TextWord *word) {
+  double cmp;
+
+  cmp = 0; // make gcc happy
+  switch (rot) {
+  case 0:
+    cmp = yMin - word->yMin;
+    break;
+  case 1:
+    cmp = xMin - word->xMin;
+    break;
+  case 2:
+    cmp = word->yMax - yMax;
+    break;
+  case 3:
+    cmp = word->xMax - xMax;
+    break;
+  }
+  return cmp < 0 ? -1 : cmp > 0 ? 1 : 0;
+}
+
 double TextWord::primaryDelta(TextWord *word) {
   double delta;
 
@@ -2361,6 +2382,24 @@ void TextPage::coalesce(GBool physLayout, GBool doHTML) {
   if (rawOrder) {
     primaryRot = 0;
     primaryLR = gTrue;
+
+    // determine the primary direction
+    lrCount = 0;
+    TextWordList *wordlist = makeWordList(gFalse);
+    if (wordlist->getLength()) {
+      for (word0 = wordlist->get(0); word0; word0 = word0->next) {
+        for (i = 0; i < word0->len; ++i) {
+          if (unicodeTypeL(word0->text[i])) {
+            ++lrCount;
+          } else if (unicodeTypeR(word0->text[i])) {
+            --lrCount;
+          }
+        }
+      }
+      primaryLR = lrCount >= 0;
+    }
+    delete wordlist;
+
     return;
   }
 
@@ -4105,6 +4144,7 @@ public:
 			  PDFRectangle *selection);
   virtual void visitWord (TextWord *word, int begin, int end,
 			  PDFRectangle *selection);
+  void drawRegion (PDFRectangle *region);
 
 private:
   OutputDev *out;
@@ -4178,6 +4218,21 @@ void TextSelectionPainter::visitLine (TextLine *line,
   state->lineTo(x2, y1);
   state->lineTo(x2, y2);
   state->lineTo(x1, y2);
+  state->closePath();
+
+  out->fill(state);
+  state->clearPath();
+}
+
+void TextSelectionPainter::drawRegion (PDFRectangle *region)
+{
+  state->setFillColor(box_color);
+  out->updateFillColor(state);
+
+  state->moveTo(region->x1, region->y1);
+  state->lineTo(region->x2, region->y1);
+  state->lineTo(region->x2, region->y2);
+  state->lineTo(region->x1, region->y2);
   state->closePath();
 
   out->fill(state);
@@ -4543,6 +4598,73 @@ void TextPage::visitSelection(TextSelectionVisitor *visitor,
   }
 }
 
+void TextPage::getSelectionWordLimits(PDFRectangle *selection,
+                                      SelectionStyle style,
+                                      double scale,
+                                      int *first,
+                                      int *last,
+                                      int *first_c,
+                                      int *last_c) {
+  TextWordList *wordlist = makeWordList(gFalse);
+  TextWord *word = NULL;
+  double distance, minor=-1, minor1=-1;
+  double xmin, ymin, xmax, ymax;
+  double x1, y1, x2, y2;
+  int tmp;
+
+  x1 = selection->x1;
+  x2 = selection->x2;
+
+  y1 = selection->y1;
+  y2 = selection->y2;
+
+  for (int i=0; i<wordlist->getLength(); i++) {
+    word = wordlist->get(i);
+
+    for (int j=0; j<word->getLength(); j++) {
+      word->getCharBBox(j, &xmin, &ymin, &xmax, &ymax);
+
+      distance = fabs(x1 - xmin) + fabs(y1 - ymin);
+      if (minor < 0 || distance < minor) {
+        *first = i;
+        *first_c = j;
+        minor = distance;
+      }
+
+      distance = fabs(x1 - xmin) + fabs(y1 - ymax);
+      if (minor < 0 || distance < minor) {
+        *first = i;
+        *first_c = j;
+        minor = distance;
+      }
+
+      distance = fabs(x2 - xmax) + fabs(y2 - ymax);
+      if (minor1 < 0 || distance < minor1) {
+        *last = i;
+        *last_c = j;
+        minor1 = distance;
+      }
+    }
+  }
+  if (*first > *last) {
+    tmp = *last;
+    *last = *first;
+    *first = tmp;
+
+    tmp = *last_c;
+    *last_c = *first_c;
+    *first_c = tmp;
+  }
+
+  if (*first == *last && *first_c > *last_c) {
+    tmp = *last_c;
+    *last_c = *first_c;
+    *first_c = tmp;
+  }
+
+  delete wordlist;
+}
+
 void TextPage::drawSelection(OutputDev *out,
 			     double scale,
 			     int rotation,
@@ -4550,30 +4672,135 @@ void TextPage::drawSelection(OutputDev *out,
 			     SelectionStyle style,
 			     GfxColor *glyph_color, GfxColor *box_color)
 {
-  TextSelectionPainter painter(this, scale, rotation, 
-			       out, box_color, glyph_color);
+  TextSelectionPainter painter(this, scale, rotation,
+                               out, box_color, glyph_color);
+  int first, last, first_c, last_c, begin, end;
+  TextWordList *wordlist = makeWordList(gFalse);
+  TextWord *word = NULL;
+  PDFRectangle *rect;
+  GooList *rlist;
 
-  visitSelection(&painter, selection, style);
+  getSelectionWordLimits(selection, style, scale, &first, &last, &first_c, &last_c);
+  rlist = getSelectionRegion(selection, style, scale);
+  for(int i=0; i<rlist->getLength(); i++) {
+    rect = (PDFRectangle *)rlist->get(i);
+    painter.drawRegion(rect);
+  }
+
+  for(int i=first; i<=last; i++) {
+    word = wordlist->get(i);
+    if (i == first && i == last) {
+      begin = first_c;
+      end = last_c + 1;
+    } else if (i == first) {
+      begin = first_c;
+      end = word->getLength();
+    } else if (i == last) {
+      begin = 0;
+      end = last_c + 1;
+    } else {
+      begin = 0;
+      end = word->getLength();
+    }
+
+    painter.visitWord(word, begin, end, selection);
+  }
+
+  delete wordlist;
 }
 
 GooList *TextPage::getSelectionRegion(PDFRectangle *selection,
 				      SelectionStyle style,
 				      double scale) {
-  TextSelectionSizer sizer(this, scale);
+  GooList *ret = new GooList();
+  PDFRectangle *rect = NULL;
+  TextWordList *wordlist = makeWordList(gFalse);
+  TextWord *word=NULL, *prevword=NULL;
+  int first=0, last=0, first_c=0, last_c=0;
+  double xmin, ymin, xmax, ymax;
+  double xmin1, ymin1, xmax1, ymax1;
 
-  visitSelection(&sizer, selection, style);
+  getSelectionWordLimits(selection, style, scale, &first, &last, &first_c, &last_c);
 
-  return sizer.getRegion();
+  for (int i=first; i<=last; i++) {
+    word = wordlist->get(i);
+    if (prevword && !word->secondaryCmp(prevword) && rect) {
+      if (i == last) {
+        word->getCharBBox(last_c, &xmin, &ymin, &xmax, &ymax);
+      }
+      else {
+        word->getBBox(&xmin, &ymin, &xmax, &ymax);
+      }
+      rect->x2 = xmax;
+      continue;
+    }
+
+    if (i == first && i == last) {
+      word->getCharBBox(first_c, &xmin1, &ymin1, &xmax1, &ymax1);
+      word->getCharBBox(last_c, &xmin, &ymin, &xmax, &ymax);
+      rect = new PDFRectangle(xmin1, ymin1, xmax, ymax);
+      ret->append(rect);
+    } else if (i == first) {
+      word->getCharBBox(first_c, &xmin1, &ymin1, &xmax1, &ymax1);
+      word->getBBox(&xmin, &ymin, &xmax, &ymax);
+      rect = new PDFRectangle(xmin1, ymin1, xmax, ymax);
+      ret->append(rect);
+    } else if (i == last) {
+      word->getCharBBox(last_c, &xmin1, &ymin1, &xmax1, &ymax1);
+      word->getBBox(&xmin, &ymin, &xmax, &ymax);
+      rect = new PDFRectangle(xmin, ymin, xmax1, ymax1);
+      ret->append(rect);
+    } else {
+      word->getBBox(&xmin, &ymin, &xmax, &ymax);
+      rect = new PDFRectangle(xmin, ymin, xmax, ymax);
+      ret->append(rect);
+    }
+    prevword = word;
+  }
+
+  delete wordlist;
+
+  return ret;
 }
 
 GooString *TextPage::getSelectionText(PDFRectangle *selection,
 				      SelectionStyle style)
 {
-  TextSelectionDumper dumper(this);
+  GooString *ret = new GooString();
+  TextWordList *wordlist = makeWordList(gFalse);
+  TextWord *word=NULL, *prevword=NULL;
+  int first=0, last=0, first_c=0, last_c=0;
+  UnicodeMap *uMap;
+  // get the output encoding
+  if (!(uMap = globalParams->getTextEncoding())) {
+    return ret;
+  }
 
-  visitSelection(&dumper, selection, style);
+  getSelectionWordLimits(selection, style, 1, &first, &last, &first_c, &last_c);
 
-  return dumper.getText();
+  for (int i=first; i<=last; i++) {
+    word = wordlist->get(i);
+    if (prevword) {
+      if (word->secondaryCmp(prevword)) {
+        ret->append('\n');
+      } else {
+        ret->append(' ');
+      }
+    }
+    if (i == first && i == last) {
+      dumpFragment(word->text + first_c, last_c - first_c, uMap, ret);
+    } else if (i == first) {
+      dumpFragment(word->text + first_c, word->len - first_c, uMap, ret);
+    } else if (i == last) {
+      dumpFragment(word->text, last_c, uMap, ret);
+    } else {
+      dumpFragment(word->text, word->len, uMap, ret);
+    }
+    prevword = word;
+  }
+  delete wordlist;
+
+  return ret;
 }
 
 GBool TextPage::findCharRange(int pos, int length,
