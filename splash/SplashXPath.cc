@@ -4,6 +4,21 @@
 //
 //========================================================================
 
+//========================================================================
+//
+// Modified under the Poppler project - http://poppler.freedesktop.org
+//
+// All changes made under the Poppler project to this file are licensed
+// under GPL version 2 or later
+//
+// Copyright (C) 2010 Paweł Wiejacha <pawel.wiejacha@gmail.com>
+// Copyright (C) 2010 Albert Astals Cid <aacid@kde.org>
+//
+// To see a description of the changes please see the Changelog file that
+// came with your tarball or type make ChangeLog if you are building from git
+//
+//========================================================================
+
 #include <config.h>
 
 #ifdef USE_GCC_PRAGMAS
@@ -12,6 +27,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <algorithm>
 #include "goo/gmem.h"
 #include "SplashMath.h"
 #include "SplashPath.h"
@@ -398,32 +414,30 @@ void SplashXPath::addSegment(SplashCoord x0, SplashCoord y0,
   ++length;
 }
 
-static int cmpXPathSegs(const void *arg0, const void *arg1) {
-  SplashXPathSeg *seg0 = (SplashXPathSeg *)arg0;
-  SplashXPathSeg *seg1 = (SplashXPathSeg *)arg1;
+static bool cmpXPathSegs(const SplashXPathSeg &seg0, const SplashXPathSeg &seg1) {
   SplashCoord x0, y0, x1, y1;
 
-  if (seg0->flags & splashXPathFlip) {
-    x0 = seg0->x1;
-    y0 = seg0->y1;
+  if (seg0.flags & splashXPathFlip) {
+    x0 = seg0.x1;
+    y0 = seg0.y1;
   } else {
-    x0 = seg0->x0;
-    y0 = seg0->y0;
+    x0 = seg0.x0;
+    y0 = seg0.y0;
   }
-  if (seg1->flags & splashXPathFlip) {
-    x1 = seg1->x1;
-    y1 = seg1->y1;
+  if (seg1.flags & splashXPathFlip) {
+    x1 = seg1.x1;
+    y1 = seg1.y1;
   } else {
-    x1 = seg1->x0;
-    y1 = seg1->y0;
+    x1 = seg1.x0;
+    y1 = seg1.y0;
   }
   if (y0 != y1) {
-    return (y0 > y1) ? 1 : -1;
+    return (y0 < y1) ? true : false;
   }
   if (x0 != x1) {
-    return (x0 > x1) ? 1 : -1;
+    return (x0 < x1) ? true : false;
   }
-  return 0;
+  return false;
 }
 
 void SplashXPath::aaScale() {
@@ -439,5 +453,5 @@ void SplashXPath::aaScale() {
 }
 
 void SplashXPath::sort() {
-  qsort(segs, length, sizeof(SplashXPathSeg), &cmpXPathSegs);
+  std::sort(segs, segs + length, &cmpXPathSegs);
 }

@@ -11,7 +11,8 @@
 // All changes made under the Poppler project to this file are licensed
 // under GPL version 2 or later
 //
-// Copyright (C) 2008 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2008, 2010 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2010 Paweł Wiejacha <pawel.wiejacha@gmail.com>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -26,6 +27,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <algorithm>
 #include "goo/gmem.h"
 #include "SplashMath.h"
 #include "SplashXPath.h"
@@ -39,8 +41,8 @@ struct SplashIntersect {
   int count;			// EO/NZWN counter increment
 };
 
-static int cmpIntersect(const void *p0, const void *p1) {
-  return ((SplashIntersect *)p0)->x0 - ((SplashIntersect *)p1)->x0;
+static bool cmpIntersect(const SplashIntersect &p0, const SplashIntersect &p1) {
+  return p0.x0 < p1.x0;
 }
 
 //------------------------------------------------------------------------
@@ -301,7 +303,7 @@ void SplashXPathScanner::computeIntersections(int y) {
     ++interLen;
   }
 
-  qsort(inter, interLen, sizeof(SplashIntersect), &cmpIntersect);
+  std::sort(inter, inter + interLen, cmpIntersect);
 
   interY = y;
   interIdx = 0;

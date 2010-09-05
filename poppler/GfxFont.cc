@@ -38,6 +38,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+#include <algorithm>
 #include "goo/gmem.h"
 #include "Error.h"
 #include "Object.h"
@@ -1299,14 +1300,12 @@ Dict *Gfx8BitFont::getResources() {
 // GfxCIDFont
 //------------------------------------------------------------------------
 
-static int CDECL cmpWidthExcep(const void *w1, const void *w2) {
-  return ((GfxFontCIDWidthExcep *)w1)->first -
-         ((GfxFontCIDWidthExcep *)w2)->first;
+static bool cmpWidthExcep(const GfxFontCIDWidthExcep &w1, const GfxFontCIDWidthExcep &w2) {
+  return w1.first < w2.first;
 }
 
-static int CDECL cmpWidthExcepV(const void *w1, const void *w2) {
-  return ((GfxFontCIDWidthExcepV *)w1)->first -
-         ((GfxFontCIDWidthExcepV *)w2)->first;
+static bool cmpWidthExcepV(const GfxFontCIDWidthExcepV &w1, const GfxFontCIDWidthExcepV &w2) {
+  return w1.first < w2.first;
 }
 
 GfxCIDFont::GfxCIDFont(XRef *xref, char *tagA, Ref idA, GooString *nameA,
@@ -1567,8 +1566,7 @@ GfxCIDFont::GfxCIDFont(XRef *xref, char *tagA, Ref idA, GooString *nameA,
       obj3.free();
       obj2.free();
     }
-    qsort(widths.exceps, widths.nExceps, sizeof(GfxFontCIDWidthExcep),
-	  &cmpWidthExcep);
+    std::sort(widths.exceps, widths.exceps + widths.nExceps, &cmpWidthExcep);
   }
   obj1.free();
 
@@ -1651,8 +1649,7 @@ GfxCIDFont::GfxCIDFont(XRef *xref, char *tagA, Ref idA, GooString *nameA,
       obj3.free();
       obj2.free();
     }
-    qsort(widths.excepsV, widths.nExcepsV, sizeof(GfxFontCIDWidthExcepV),
-	  &cmpWidthExcepV);
+    std::sort(widths.excepsV, widths.excepsV + widths.nExcepsV, &cmpWidthExcepV);
   }
   obj1.free();
 
