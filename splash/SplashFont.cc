@@ -11,7 +11,7 @@
 // All changes made under the Poppler project to this file are licensed
 // under GPL version 2 or later
 //
-// Copyright (C) 2007-2008 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2007-2008, 2010 Albert Astals Cid <aacid@kde.org>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -79,7 +79,11 @@ void SplashFont::initCache() {
 
   // set up the glyph pixmap cache
   cacheAssoc = 8;
-  if (glyphSize <= 256) {
+  if (glyphSize <= 64) {
+    cacheSets = 32;
+  } else if (glyphSize <= 128) {
+    cacheSets = 16;
+  } else if (glyphSize <= 256) {
     cacheSets = 8;
   } else if (glyphSize <= 512) {
     cacheSets = 4;
