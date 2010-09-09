@@ -25,7 +25,7 @@ size_t StdinCacheLoader::init(GooString *dummy, CachedFile *cachedFile)
   size_t read, size = 0;
   char buf[CachedFileChunkSize];
 
-#if _WIN32
+#ifdef _WIN32
   setmode(fileno(stdin), O_BINARY);
 #endif
 

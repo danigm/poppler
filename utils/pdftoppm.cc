@@ -183,7 +183,7 @@ static void savePageSlice(PDFDoc *doc,
       bitmap->writePNMFile(ppmFile);
     }
   } else {
-#if _WIN32
+#ifdef _WIN32
     setmode(fileno(stdout), O_BINARY);
 #endif
 
