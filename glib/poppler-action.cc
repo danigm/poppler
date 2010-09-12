@@ -533,14 +533,17 @@ get_layer_for_ref (PopplerDocument *document,
 
 	for (l = layers; l; l = g_list_next (l)) {
 		Layer *layer = (Layer *)l->data;
-		Ref ocgRef = layer->oc->getRef();
 
-		if (ref->num == ocgRef.num && ref->gen == ocgRef.gen) {
-			GList *rb_group = NULL;
+		if (layer->oc) {
+			Ref ocgRef = layer->oc->getRef();
 
-			if (preserve_rb)
-				rb_group = _poppler_document_get_layer_rbgroup (document, layer);
-			return _poppler_layer_new (document, layer, rb_group);
+			if (ref->num == ocgRef.num && ref->gen == ocgRef.gen) {
+				GList *rb_group = NULL;
+
+				if (preserve_rb)
+					rb_group = _poppler_document_get_layer_rbgroup (document, layer);
+				return _poppler_layer_new (document, layer, rb_group);
+			}
 		}
 
 		if (layer->kids) {
