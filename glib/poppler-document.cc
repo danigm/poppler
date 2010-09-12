@@ -1646,6 +1646,7 @@ get_optional_content_items_sorted (OCGs *ocg, Layer *parent, Array *order)
 	items = g_list_prepend (items, last_item);
       }
       last_item->kids = get_optional_content_items_sorted (ocg, last_item, orderItem.getArray ());
+      last_item = NULL;
     } else if (orderItem.isString ()) {
       last_item->label = _poppler_goo_string_to_utf8 (orderItem.getString ());
     }
