@@ -137,7 +137,7 @@ pgd_page_set_page (PgdPageDemo *demo,
 	g_free (str);
 
 	if (page) {
-		g_object_get (G_OBJECT (page), "label", &str, NULL);
+		str = poppler_page_get_label (page);
 		gtk_label_set_text (GTK_LABEL (demo->label), str);
 		g_free (str);
 	} else {
