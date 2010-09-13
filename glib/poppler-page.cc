@@ -19,6 +19,7 @@
 #include "config.h"
 #include <math.h>
 
+#ifndef __GI_SCANNER__
 #include <goo/GooList.h>
 #include <GlobalParams.h>
 #include <PDFDoc.h>
@@ -27,6 +28,7 @@
 #include <UnicodeMap.h>
 #include <GfxState.h>
 #include <PageTransition.h>
+#endif
 
 #include "poppler.h"
 #include "poppler-private.h"

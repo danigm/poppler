@@ -2,6 +2,8 @@
 #define __POPPLER_PRIVATE_H__
 
 #include <config.h>
+
+#ifndef __GI_SCANNER__
 #include <PDFDoc.h>
 #include <PSOutputDev.h>
 #include <Link.h>
@@ -14,6 +16,7 @@
 #include <Catalog.h>
 #include <OptionalContent.h>
 #include <CairoOutputDev.h>
+#endif
 
 struct _PopplerDocument
 {

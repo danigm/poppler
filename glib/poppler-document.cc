@@ -18,6 +18,7 @@
 
 #include <string.h>
 
+#ifndef __GI_SCANNER__
 #include <goo/GooList.h>
 #include <splash/SplashBitmap.h>
 #include <GlobalParams.h>
@@ -31,6 +32,7 @@
 #include <FontInfo.h>
 #include <PDFDocEncoding.h>
 #include <OptionalContent.h>
+#endif
 
 #include "poppler.h"
 #include "poppler-private.h"
