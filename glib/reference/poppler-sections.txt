@@ -15,6 +15,7 @@ PopplerPageTransitionAlignment
 PopplerPageTransitionDirection
 PopplerSelectionStyle
 poppler_page_get_index
+poppler_page_get_label
 poppler_page_get_size
 poppler_page_get_crop_box
 poppler_page_get_duration
