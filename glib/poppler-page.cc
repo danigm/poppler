@@ -1259,6 +1259,11 @@ poppler_page_class_init (PopplerPageClass *klass)
   gobject_class->finalize = poppler_page_finalize;
   gobject_class->get_property = poppler_page_get_property;
 
+  /**
+   * PopplerPage:label:
+   *
+   * The label of the page or %NULL. See also poppler_page_get_label()
+   */
   g_object_class_install_property (G_OBJECT_CLASS (klass),
 				   PROP_LABEL,
 				   g_param_spec_string ("label",
