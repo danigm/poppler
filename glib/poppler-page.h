@@ -85,6 +85,7 @@ void                   poppler_page_get_size             (PopplerPage        *pa
 							  double             *width,
 							  double             *height);
 int                    poppler_page_get_index            (PopplerPage        *page);
+gchar                 *poppler_page_get_label            (PopplerPage        *page);
 double                 poppler_page_get_duration         (PopplerPage        *page);
 PopplerPageTransition *poppler_page_get_transition       (PopplerPage        *page);
 gboolean               poppler_page_get_thumbnail_size   (PopplerPage        *page,

@@ -133,6 +133,29 @@ poppler_page_get_index (PopplerPage *page)
 }
 
 /**
+ * poppler_page_get_label:
+ * @page: a #PopplerPage
+ *
+ * Returns the label of @page. Note that page labels
+ * and page indices might not coincide.
+ *
+ * Return value: a new allocated string containing the label of @page,
+ *               or %NULL if @page doesn't have a label
+ *
+ * Since: 0.16
+ **/
+gchar *
+poppler_page_get_label (PopplerPage *page)
+{
+  GooString label;
+
+  g_return_val_if_fail (POPPLER_IS_PAGE (page), NULL);
+
+  page->document->doc->getCatalog ()->indexToLabel (page->index, &label);
+  return _poppler_goo_string_to_utf8 (&label);
+}
+
+/**
  * poppler_page_get_duration:
  * @page: a #PopplerPage
  *
@@ -1211,20 +1234,20 @@ poppler_page_render_to_ps (PopplerPage   *page,
 }
 
 static void
-poppler_page_get_property (GObject *object,
-			   guint prop_id,
-			   GValue *value,
+poppler_page_get_property (GObject    *object,
+			   guint       prop_id,
+			   GValue     *value,
 			   GParamSpec *pspec)
 {
   PopplerPage *page = POPPLER_PAGE (object);
-  GooString label;
 
   switch (prop_id)
     {
     case PROP_LABEL:
-      page->document->doc->getCatalog ()->indexToLabel (page->index, &label);
-      g_value_take_string (value, _poppler_goo_string_to_utf8(&label));
+      g_value_take_string (value, poppler_page_get_label (page));
       break;
+    default:
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
     }
 }
 
@@ -1232,19 +1255,17 @@ static void
 poppler_page_class_init (PopplerPageClass *klass)
 {
   GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
-  GParamSpec *pspec;
 
   gobject_class->finalize = poppler_page_finalize;
   gobject_class->get_property = poppler_page_get_property;
 
-  pspec = g_param_spec_string ("label",
-			       "Page Label",
-			       "The label of the page",
-			       NULL,
-			       G_PARAM_READABLE);
   g_object_class_install_property (G_OBJECT_CLASS (klass),
 				   PROP_LABEL,
-				   pspec);
+				   g_param_spec_string ("label",
+							"Page Label",
+							"The label of the page",
+							NULL,
+							G_PARAM_READABLE));
 }
 
 static void
