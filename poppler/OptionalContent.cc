@@ -4,7 +4,7 @@
 //
 // Copyright 2007 Brad Hards <bradh@kde.org>
 // Copyright 2008 Pino Toscano <pino@kde.org>
-// Copyright 2008 Carlos Garcia Campos <carlosgc@gnome.org>
+// Copyright 2008, 2010 Carlos Garcia Campos <carlosgc@gnome.org>
 // Copyright 2008, 2010 Albert Astals Cid <aacid@kde.org>
 // Copyright 2008 Mark Kaplan <mkaplan@finjan.com>
 //
