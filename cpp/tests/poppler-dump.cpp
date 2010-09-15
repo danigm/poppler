@@ -81,9 +81,13 @@ static void error(const std::string &msg)
     exit(1);
 }
 
-static std::string out_ustring(const poppler::ustring &str)
+std::ostream& operator<<(std::ostream& stream, const poppler::ustring &str)
 {
-    return str.to_latin1();
+    const poppler::byte_array ba = str.to_utf8();
+    for (unsigned int i = 0; i < ba.size(); ++i) {
+        stream << (char)(ba[i]);
+    }
+    return stream;
 }
 
 static std::string out_date(std::time_t date)
@@ -174,7 +178,7 @@ static void print_info(poppler::document *doc)
     const std::vector<std::string> keys = doc->info_keys();
     std::vector<std::string>::const_iterator key_it = keys.begin(), key_end = keys.end();
     for (; key_it != key_end; ++key_it) {
-        std::cout << std::setw(out_width) << *key_it << ": " << out_ustring(doc->info_key(*key_it)) << std::endl;
+        std::cout << std::setw(out_width) << *key_it << ": " << doc->info_key(*key_it) << std::endl;
     }
     std::cout << std::setw(out_width) << "Date (creation)" << ": " << out_date(doc->info_date("CreationDate")) << std::endl;
     std::cout << std::setw(out_width) << "Date (modification)" << ": " << out_date(doc->info_date("ModDate")) << std::endl;
@@ -205,14 +209,14 @@ static void print_perm(poppler::document *doc)
 static void print_metadata(poppler::document *doc)
 {
     std::cout << std::setw(out_width) << "Metadata" << ":" << std::endl
-              << out_ustring(doc->metadata()) << std::endl;
+              << doc->metadata() << std::endl;
     std::cout << std::endl;
 }
 
 static void print_toc_item(poppler::toc_item *item, int indent)
 {
     std::cout << std::setw(indent * 2) << " "
-              << "+ " << out_ustring(item->title()) << " (" << item->is_open() << ")"
+              << "+ " << item->title() << " (" << item->is_open() << ")"
               << std::endl;
     poppler::toc_item::iterator it = item->children_begin(), it_end = item->children_end();
     for (; it != it_end; ++it) {
@@ -271,7 +275,13 @@ static void print_embedded_files(poppler::document *doc)
                 << " " << std::setw(20) << out_date(f->creation_date())
                 << " " << std::setw(20) << out_date(f->modification_date())
                 << std::endl
-                << "     " << (f->description().empty() ? std::string("<no description>") : out_ustring(f->description()))
+                << "     ";
+            if (f->description().empty()) {
+                std::cout << "<no description>";
+            } else {
+                std::cout << f->description();
+            }
+            std::cout
                 << std::endl
                 << "     " << std::setw(35) << (f->checksum().empty() ? std::string("<no checksum>") : out_hex_string(f->checksum()))
                 << " " << (f->mime_type().empty() ? std::string("<no mime type>") : f->mime_type())
@@ -287,7 +297,7 @@ static void print_embedded_files(poppler::document *doc)
 static void print_page(poppler::page *p)
 {
     std::cout << std::setw(out_width) << "Rect" << ": " << p->page_rect() << std::endl;
-    std::cout << std::setw(out_width) << "Label" << ": " << out_ustring(p->label()) << std::endl;
+    std::cout << std::setw(out_width) << "Label" << ": " << p->label() << std::endl;
     std::cout << std::setw(out_width) << "Duration" << ": " << p->duration() << std::endl;
     std::cout << std::setw(out_width) << "Orientation" << ": " << out_page_orientation(p->orientation()) << std::endl;
     std::cout << std::endl;
@@ -295,7 +305,7 @@ static void print_page(poppler::page *p)
 
 static void print_page_text(poppler::page *p)
 {
-    std::cout << out_ustring(p->text(p->page_rect(), show_text_layout)) << std::endl;
+    std::cout << p->text(p->page_rect(), show_text_layout) << std::endl;
     std::cout << std::endl;
 }
 
