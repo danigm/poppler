@@ -259,13 +259,13 @@ poppler_page_get_transition (PopplerPage *page)
 }
 
 static TextPage *
-poppler_page_get_text_page (PopplerPage *page)
+poppler_page_get_text_page (PopplerPage *page, gboolean raworder)
 {
   if (page->text == NULL) {
     TextOutputDev *text_dev;
     Gfx           *gfx;
 
-    text_dev = new TextOutputDev (NULL, gTrue, gFalse, gFalse);
+    text_dev = new TextOutputDev (NULL, gTrue, raworder, gFalse);
     gfx = page->page->createGfx(text_dev,
 				72.0, 72.0, 0,
 				gFalse, /* useMediaBox */
@@ -547,7 +547,7 @@ poppler_page_render_selection (PopplerPage           *page,
   output_dev = page->document->output_dev;
   output_dev->setCairo (cairo);
 
-  text = poppler_page_get_text_page (page);
+  text = poppler_page_get_text_page (page, gTrue);
   text->drawSelection (output_dev, 1.0, 0,
 		       &pdf_selection, selection_style,
 		       &gfx_glyph_color, &gfx_background_color);
@@ -901,7 +901,7 @@ poppler_page_get_selection_region (PopplerPage           *page,
 	break;
     }
 
-  text = poppler_page_get_text_page (page);
+  text = poppler_page_get_text_page (page, gTrue);
   list = text->getSelectionRegion(&poppler_selection,
 				  selection_style, scale);
 
@@ -980,7 +980,7 @@ poppler_page_get_selected_text (PopplerPage          *page,
 	break;
     }
 
-  text = poppler_page_get_text_page (page);
+  text = poppler_page_get_text_page (page, gTrue);
   sel_text = text->getSelectionText (&pdf_selection, selection_style);
   result = g_strdup (sel_text->getCString ());
   delete sel_text;
@@ -1035,7 +1035,7 @@ poppler_page_find_text (PopplerPage *page,
   g_return_val_if_fail (POPPLER_IS_PAGE (page), FALSE);
   g_return_val_if_fail (text != NULL, FALSE);
 
-  text_dev = poppler_page_get_text_page (page);
+  text_dev = poppler_page_get_text_page (page, gFalse);
 
   ucs4 = g_utf8_to_ucs4_fast (text, -1, &ucs4_len);
   poppler_page_get_size (page, NULL, &height);
@@ -1999,7 +1999,7 @@ poppler_page_get_text_layout (PopplerPage       *page,
 
   *n_rectangles = 0;
 
-  text = poppler_page_get_text_page (page);
+  text = poppler_page_get_text_page (page, gTrue);
   wordlist = text->makeWordList (gFalse);
 
   if (wordlist->getLength () <= 0)
