@@ -44,6 +44,10 @@ public:
         search_next_result,
         search_previous_result
     };
+    enum text_layout_enum {
+        physical_layout,
+        raw_order_layout
+    };
 
     ~page();
 
@@ -57,6 +61,7 @@ public:
     bool search(const ustring &text, rectf &r, search_direction_enum direction,
                 case_sensitivity_enum case_sensitivity, rotation_enum rotation = rotate_0) const;
     ustring text(const rectf &rect = rectf()) const;
+    ustring text(const rectf &rect, text_layout_enum layout_mode) const;
 
 private:
     page(document_private *doc, int index);

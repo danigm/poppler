@@ -60,6 +60,12 @@ page_private::~page_private()
  The direction/action to follow when performing a text search.
 */
 
+/**
+ \enum poppler::page::text_layout_enum
+
+ A layout of the text of a page.
+*/
+
 
 page::page(document_private *doc, int index)
     : d(new page_private(doc, index))
@@ -234,7 +240,7 @@ bool page::search(const ustring &text, rectf &r, search_direction_enum direction
 }
 
 /**
- Returns the text in the page.
+ Returns the text in the page, in its physical layout.
 
  \param r if not empty, it will be extracted the text in it; otherwise, the
           text of the whole page
@@ -243,8 +249,25 @@ bool page::search(const ustring &text, rectf &r, search_direction_enum direction
  */
 ustring page::text(const rectf &r) const
 {
+    return text(r, physical_layout);
+}
+
+/**
+ Returns the text in the page.
+
+ \param rect if not empty, it will be extracted the text in it; otherwise, the
+             text of the whole page
+ \param layout_mode the layout of the text
+
+ \returns the text of the page in the specified rect or in the whole page
+
+ \since 0.16
+ */
+ustring page::text(const rectf &r, text_layout_enum layout_mode) const
+{
     std::auto_ptr<GooString> s;
-    TextOutputDev td(0, gFalse, gFalse, gFalse);
+    const GBool use_raw_order = (layout_mode == raw_order_layout);
+    TextOutputDev td(0, gFalse, use_raw_order, gFalse);
     d->doc->doc->displayPage(&td, d->index + 1, 72, 72, 0, false, true, false);
     if (r.is_empty()) {
         const PDFRectangle *rect = d->page->getCropBox();
