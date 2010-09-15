@@ -1,3 +1,93 @@
+Release 0.15.0 (0.16 Alpha)
+
+	core:
+	 * Remove exception support
+	 * Improve creation of Annotations
+	 * Fix failure to parse PDF with damaged internal structure. (Bugs #29189 #3870)
+	 * Add a way to access the raw text of a page
+	 * Speed improvements when reading multiple characters from a given Stream
+	 * Speed improvements in the Splash backend
+	 * Speed improvement in gray color space calculations
+	 * Speed improvement in ICC color space calculations
+	 * Speed improvement when reading some fonts
+	 * Make GBool a bool instead of an int
+
+	glib:
+	 * Add GObject introspection support
+	 * Improve creation of Annotations
+	 * Add a way to get the coordinates of each character of a page
+	 * Add a way to get the page label
+	 * Documentation improvements
+	 * Support password protected documents in the demo
+	 * Support for selection in the demo
+	 * Support for adding annotationss in the demo
+	 * Misc improvements in the internals
+	
+	qt4:
+	 * Add a way to access the raw text of a page
+	 * Recognize "Print" as named action
+	 * Documentation improvements
+	
+	build system:
+	 * Add option for autogen.sh to skip configure
+	 * Nicer autogen.sh output
+	 * Improvements when build the glib frontend with CMake
+	
+	utils:
+	 * pdftohtml: Use splash instead of external gs invocation to render the background
+	 * pdftohtml: Let the user specify the resolution of the background. (Bug #29551)
+	
+	cpp:
+	 * Add a way to access the raw text of a page
+
+Release 0.14.3
+
+	core:
+	 * Tell Windows we are writing/reading binary data from stdout/stdio (Bug #29329)
+	 * Fix crash when parsing some Movie elements (KDE Bug #249586)
+
+Release 0.14.2
+
+	core:
+	 * Fix rendering of some documents involving tilingPatternFill in the cairo output device
+	 * Improve rendering of some annotations
+	 * Handle ColorTransform in DCT streams when using libjpeg (Bug #28873)
+	 * Fix crash in the ps output device in some files (KDE Bug #246269)
+	 * Fix crash in some malformed files (Bug #28842)
+	
+	build system:
+	 * Improve build on windows
+	 * Add uninstalled .pc file support when using autoconf
+	
+	glib:
+	 * Fix a crash when a layer doesn't have a name (Bug #28842)
+	
+	utils:
+	 * Fix padding of names in pdftoppm
+
+Release 0.14.1
+
+	core:
+	 * Add ObjectStream caching, makes opening some files ten times faster (Bug #26759)
+	 * Fix crash when writing to negative coordinates (Bug #28480)
+	 * Check objects are the type we want them to be when parsing GfxICCBasedColorSpace
+	 * Optimize Splash::compositeBackground
+	 * Optimize color space calculations by using sqrt instead of pow 0.5
+	 * Fix crash in JBIG2Stream with malformed documents
+	
+	build system:
+	 * Make sure we ship two needed cmake files
+	 * Do not distribute glib/poppler-features.h and poppler/poppler-config.h
+	 * Improve compilation with Sun Studio
+	 * Fix linking of the cpp frontend when using autotools
+	
+	glib:
+	 * Fix links/annots area for some documents (Bug #28588)
+	 * Fix poppler_page_find_tex() when called more than once (Bug #27927)
+	
+	utils:
+	 * Add -cropbox to pdftoppm manual
+
 Release 0.14.0
 
 	core:
