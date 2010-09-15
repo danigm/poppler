@@ -23,6 +23,7 @@
 #include <poppler-toc.h>
 
 #include <cstdlib>
+#include <cstring>
 #include <ctime>
 #include <iomanip>
 #include <iostream>
@@ -44,6 +45,8 @@ bool show_fonts = false;
 bool show_embedded_files = false;
 bool show_pages = false;
 bool show_help = false;
+char show_text[32];
+poppler::page::text_layout_enum show_text_layout = poppler::page::physical_layout;
 
 static const ArgDesc the_args[] = {
     { "--show-all",            argFlag,  &show_all,            0,
@@ -62,6 +65,8 @@ static const ArgDesc the_args[] = {
       "show the document-level embedded files" },
     { "--show-pages",          argFlag,  &show_pages,          0,
       "show pages information" },
+    { "--show-text",           argString, &show_text,          sizeof(show_text),
+      "show text (physical|raw) extracted from all pages" },
     { "-h",                    argFlag,  &show_help,           0,
       "print usage information" },
     { "--help",                argFlag,  &show_help,           0,
@@ -288,12 +293,28 @@ static void print_page(poppler::page *p)
     std::cout << std::endl;
 }
 
+static void print_page_text(poppler::page *p)
+{
+    std::cout << out_ustring(p->text(p->page_rect(), show_text_layout)) << std::endl;
+    std::cout << std::endl;
+}
+
 int main(int argc, char *argv[])
 {
     if (!parseArgs(the_args, &argc, argv)
         || argc < 2 || show_help) {
         printUsage(argv[0], "DOCUMENT", the_args);
         exit(1);
+    }
+
+    if (show_text[0]) {
+        if (!memcmp(show_text, "physical", 9)) {
+            show_text_layout = poppler::page::physical_layout;
+        } else if (!memcmp(show_text, "raw", 4)) {
+            show_text_layout = poppler::page::raw_order_layout;
+        } else {
+            error(std::string("unrecognized text mode: '") + show_text + "'");
+        }
     }
 
     std::string file_name(argv[1]);
@@ -343,6 +364,14 @@ int main(int argc, char *argv[])
             std::cout << "Page " << (i + 1) << "/" << pages << ":" << std::endl;
             std::auto_ptr<poppler::page> p(doc->create_page(i));
             print_page(p.get());
+        }
+    }
+    if (show_text[0]) {
+        const int pages = doc->pages();
+        for (int i = 0; i < pages; ++i) {
+            std::cout << "Page " << (i + 1) << "/" << pages << ":" << std::endl;
+            std::auto_ptr<poppler::page> p(doc->create_page(i));
+            print_page_text(p.get());
         }
     }
 
