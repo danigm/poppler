@@ -76,7 +76,7 @@ libpoppler_glib_la_LIBADD =				\
 	$(FREETYPE_LIBS)				\
 	$(FONTCONFIG_LIBS)
 
-libpoppler_glib_la_LDFLAGS = -version-info 5:0:0 @create_shared_lib@ @auto_import_flags@
+libpoppler_glib_la_LDFLAGS = -version-info 6:0:0 @create_shared_lib@ @auto_import_flags@
 
 if BUILD_WITH_GDK
 noinst_PROGRAMS = test-poppler-glib

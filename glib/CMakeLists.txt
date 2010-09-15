@@ -82,7 +82,7 @@ set(poppler_glib_generated_SRCS
   ${CMAKE_SOURCE_DIR}/poppler/CairoRescaleBox.cc
 )
 add_library(poppler-glib SHARED ${poppler_glib_SRCS} ${poppler_glib_generated_SRCS})
-set_target_properties(poppler-glib PROPERTIES VERSION 5.0.0 SOVERSION 5)
+set_target_properties(poppler-glib PROPERTIES VERSION 6.0.0 SOVERSION 6)
 target_link_libraries(poppler-glib poppler ${GLIB2_LIBRARIES} ${CAIRO_LIBRARIES} ${FREETYPE_LIBRARIES})
 if (GDK_FOUND)
   target_link_libraries(poppler-glib ${GDK2_LIBRARIES})
