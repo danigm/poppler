@@ -78,7 +78,8 @@ TESTS = \
 	check_pagemode    	\
 	check_password    	\
 	check_pagelayout	\
-	check_search
+	check_search		\
+	check_strings
 
 check_PROGRAMS = $(TESTS)
 
@@ -129,6 +130,10 @@ check_password_LDADD = $(LDADDS) $(POPPLER_QT4_TEST_LIBS)
 check_search_SOURCES = check_search.cpp
 check_search.$(OBJEXT): check_search.moc
 check_search_LDADD = $(LDADDS) $(POPPLER_QT4_TEST_LIBS)
+
+check_strings_SOURCES = check_strings.cpp
+check_strings.$(OBJEXT): check_strings.moc
+check_strings_LDADD = $(LDADDS) $(POPPLER_QT4_TEST_LIBS)
 
 endif
 
