@@ -20,6 +20,7 @@
 // Copyright (C) 2007 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2008 Boris Toloknov <tlknv@yandex.ru>
 // Copyright (C) 2008 Tomas Are Haavet <tomasare@gmail.com>
+// Copyright (C) 2010 OSSD CDAC Mumbai by Leena Chourey (leenac@cdacmumbai.in) and Onkar Potdar (onkar@cdacmumbai.in)
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -288,12 +289,14 @@ int HtmlFontAccu::AddFont(const HtmlFont& font){
 }
 
 // get CSS font name for font #i 
-GooString* HtmlFontAccu::getCSStyle(int i, GooString* content){
+GooString* HtmlFontAccu::getCSStyle(int i, GooString* content, int j){
   GooString *tmp;
   GooString *iStr=GooString::fromInt(i);
+  GooString *jStr=GooString::fromInt(j);
   
   if (!xml) {
     tmp = new GooString("<span class=\"ft");
+    tmp->append(jStr);
     tmp->append(iStr);
     tmp->append("\">");
     tmp->append(content);
@@ -303,14 +306,16 @@ GooString* HtmlFontAccu::getCSStyle(int i, GooString* content){
     tmp->append(content);
   }
 
+  delete jStr;
   delete iStr;
   return tmp;
 }
 
 // get CSS font definition for font #i 
-GooString* HtmlFontAccu::CSStyle(int i){
+GooString* HtmlFontAccu::CSStyle(int i, int j){
    GooString *tmp=new GooString();
    GooString *iStr=GooString::fromInt(i);
+   GooString *jStr=GooString::fromInt(j);
 
    GooVector<HtmlFont>::iterator g=accu->begin();
    g+=i;
@@ -322,6 +327,7 @@ GooString* HtmlFontAccu::CSStyle(int i){
    
    if(!xml){
      tmp->append(".ft");
+     tmp->append(jStr);
      tmp->append(iStr);
      tmp->append("{font-size:");
      tmp->append(Size);
@@ -352,6 +358,7 @@ GooString* HtmlFontAccu::CSStyle(int i){
 
    delete fontName;
    delete colorStr;
+   delete jStr;
    delete iStr;
    delete Size;
    return tmp;

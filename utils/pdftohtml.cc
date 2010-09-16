@@ -17,6 +17,7 @@
 // Copyright (C) 2010 Hib Eris <hib@hiberis.nl>
 // Copyright (C) 2010 Mike Slegeir <tehpola@yahoo.com>
 // Copyright (C) 2010 Suzuki Toshiya <mpsuzuki@hiroshima-u.ac.jp>
+// Copyright (C) 2010 OSSD CDAC Mumbai by Leena Chourey (leenac@cdacmumbai.in) and Onkar Potdar (onkar@cdacmumbai.in)
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -67,6 +68,7 @@ GBool printCommands = gTrue;
 static GBool printHelp = gFalse;
 GBool printHtml = gFalse;
 GBool complexMode=gFalse;
+GBool singleHtml=gFalse; // singleHtml
 GBool ignore=gFalse;
 GBool useSplash=gTrue;
 char extension[5]="png";
@@ -107,6 +109,8 @@ static const ArgDesc argDesc[] = {
    "exchange .pdf links by .html"}, 
   {"-c",      argFlag,     &complexMode,          0,
    "generate complex document"},
+  {"-s",      argFlag,     &singleHtml,          0,
+   "generate single document that includes all pages"},
   {"-i",      argFlag,     &ignore,        0,
    "ignore images"},
   {"-noframes", argFlag,   &noframes,      0,
@@ -293,7 +297,7 @@ int main(int argc, char *argv[]) {
    if (scale>3.0) scale=3.0;
    if (scale<0.5) scale=0.5;
    
-   if (complexMode) {
+   if (complexMode || singleHtml) {
      //noframes=gFalse;
      stout=gFalse;
    } 
@@ -301,11 +305,13 @@ int main(int argc, char *argv[]) {
    if (stout) {
      noframes=gTrue;
      complexMode=gFalse;
+     singleHtml=gFalse;
    }
 
    if (xml)
    { 
        complexMode = gTrue;
+       singleHtml = gFalse;
        noframes = gTrue;
        noMerge = gTrue;
    }
@@ -359,7 +365,10 @@ int main(int argc, char *argv[]) {
   }
 #endif
 
-  rawOrder = complexMode; // todo: figure out what exactly rawOrder do :)
+  if (!singleHtml)
+      rawOrder = complexMode; // todo: figure out what exactly rawOrder do :)
+  else
+      rawOrder = singleHtml;
 
   // write text file
   htmlOut = new HtmlOutputDev(htmlFileName->getCString(), 
@@ -400,7 +409,7 @@ int main(int argc, char *argv[]) {
 	}
   }
   
-  if( complexMode && !xml && !ignore ) {
+  if ((complexMode || singleHtml) && !xml && !ignore) {
     if(useSplash) {
 #ifdef HAVE_SPLASH
       GooString *imgFileName = NULL;
