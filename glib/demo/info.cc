@@ -118,6 +118,8 @@ pgd_info_create_widget (PopplerDocument *document)
 	gchar     *title, *format, *author, *subject;
 	gchar     *keywords, *creator, *producer, *linearized;
 	gchar     *metadata;
+	gchar     *perm_id;
+	gchar     *up_id;
 	GTime      creation_date, mod_date;
 	GEnumValue *enum_value;
 	PopplerBackend backend;
@@ -210,6 +212,13 @@ pgd_info_create_widget (PopplerDocument *document)
 
 	enum_value = g_enum_get_value ((GEnumClass *) g_type_class_peek (POPPLER_TYPE_PAGE_LAYOUT), layout);
 	pgd_table_add_property (GTK_TABLE (table), "<b>Page Layout:</b>", enum_value->value_name, &row);
+
+	if (poppler_document_get_id (document, &perm_id, &up_id)) {
+		pgd_table_add_property (GTK_TABLE (table), "<b>Permanent ID:</b>", perm_id, &row);
+		pgd_table_add_property (GTK_TABLE (table), "<b>Update ID:</b>", up_id, &row);
+		g_free (perm_id);
+		g_free (up_id);
+	}
 
 	pgd_info_add_permissions (GTK_TABLE (table), permissions, &row);
 
