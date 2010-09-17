@@ -15,6 +15,8 @@ private slots:
     void cleanupTestCase();
     void check_unicodeToQString_data();
     void check_unicodeToQString();
+    void check_UnicodeParsedString_data();
+    void check_UnicodeParsedString();
     void check_QStringToGooString_data();
     void check_QStringToGooString();
 
@@ -79,6 +81,52 @@ void TestStrings::check_unicodeToQString()
     QCOMPARE(Poppler::unicodeToQString(data, length), result);
 
     delete [] data;
+}
+
+void TestStrings::check_UnicodeParsedString_data()
+{
+    QTest::addColumn<GooString*>("string");
+    QTest::addColumn<QString>("result");
+
+    // non-unicode strings
+    QTest::newRow("<empty>") << newGooString("")
+                             << QString();
+    QTest::newRow("a") << newGooString("a")
+                       << QString::fromUtf8("a");
+    QTest::newRow("ab") << newGooString("ab")
+                        << QString::fromUtf8("ab");
+    QTest::newRow("~") << newGooString("~")
+                       << QString::fromUtf8("~");
+    QTest::newRow("test string") << newGooString("test string")
+                                 << QString::fromUtf8("test string");
+
+    // unicode strings
+    QTest::newRow("<unicode marks>") << newGooString("\xFE\xFF")
+                                     << QString();
+    QTest::newRow("U a") << newGooString("\xFE\xFF\0a", 4)
+                         << QString::fromUtf8("a");
+    QTest::newRow("U ~") << newGooString("\xFE\xFF\0~", 4)
+                         << QString::fromUtf8("~");
+    QTest::newRow("U aa") << newGooString("\xFE\xFF\0a\0a", 6)
+                           << QString::fromUtf8("aa");
+    QTest::newRow("U \xC3\x9F") << newGooString("\xFE\xFF\0\xDF", 4)
+                                << QString::fromUtf8("\xC3\x9F");
+    QTest::newRow("U \xC3\x9F\x61") << newGooString("\xFE\xFF\0\xDF\0\x61", 6)
+                                    << QString::fromUtf8("\xC3\x9F\x61");
+    QTest::newRow("U \xC5\xA1") << newGooString("\xFE\xFF\x01\x61", 4)
+                                << QString::fromUtf8("\xC5\xA1");
+    QTest::newRow("U \xC5\xA1\x61") << newGooString("\xFE\xFF\x01\x61\0\x61", 6)
+                                << QString::fromUtf8("\xC5\xA1\x61");
+    QTest::newRow("test string") << newGooString("\xFE\xFF\0t\0e\0s\0t\0 \0s\0t\0r\0i\0n\0g", 24)
+                                 << QString::fromUtf8("test string");
+}
+
+void TestStrings::check_UnicodeParsedString()
+{
+    QFETCH(GooString*, string);
+    QFETCH(QString, result);
+
+    QCOMPARE(Poppler::UnicodeParsedString(string), result);
 }
 
 void TestStrings::check_QStringToGooString_data()
