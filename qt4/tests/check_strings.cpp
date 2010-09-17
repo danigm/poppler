@@ -17,6 +17,8 @@ private slots:
     void check_unicodeToQString();
     void check_UnicodeParsedString_data();
     void check_UnicodeParsedString();
+    void check_QStringToUnicodeGooString_data();
+    void check_QStringToUnicodeGooString();
     void check_QStringToGooString_data();
     void check_QStringToGooString();
 
@@ -127,6 +129,41 @@ void TestStrings::check_UnicodeParsedString()
     QFETCH(QString, result);
 
     QCOMPARE(Poppler::UnicodeParsedString(string), result);
+}
+
+void TestStrings::check_QStringToUnicodeGooString_data()
+{
+    QTest::addColumn<QString>("string");
+    QTest::addColumn<QByteArray>("result");
+
+
+    QTest::newRow("<null>") << QString()
+                            << QByteArray("");
+    QTest::newRow("<empty>") << QString::fromUtf8("")
+                             << QByteArray("");
+    QTest::newRow("a") << QString::fromUtf8("a")
+                       << QByteArray("\0a", 2);
+    QTest::newRow("ab") << QString::fromUtf8("ab")
+                        << QByteArray("\0a\0b", 4);
+    QTest::newRow("test string") << QString::fromUtf8("test string")
+                                 << QByteArray("\0t\0e\0s\0t\0 \0s\0t\0r\0i\0n\0g", 22);
+    QTest::newRow("\xC3\x9F") << QString::fromUtf8("\xC3\x9F")
+                              << QByteArray("\0\xDF", 2);
+    QTest::newRow("\xC3\x9F\x61") << QString::fromUtf8("\xC3\x9F\x61")
+                                  << QByteArray("\0\xDF\0\x61", 4);
+}
+
+void TestStrings::check_QStringToUnicodeGooString()
+{
+    QFETCH(QString, string);
+    QFETCH(QByteArray, result);
+
+    GooString *goo = Poppler::QStringToUnicodeGooString(string);
+    QVERIFY(goo->hasUnicodeMarker());
+    QCOMPARE(goo->getLength(), string.length() * 2 + 2);
+    QCOMPARE(result, QByteArray::fromRawData(goo->getCString() + 2, goo->getLength() - 2));
+
+    delete goo;
 }
 
 void TestStrings::check_QStringToGooString_data()
