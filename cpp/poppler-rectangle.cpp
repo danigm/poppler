@@ -22,6 +22,25 @@
 
 using namespace poppler;
 
+/**
+ \class poppler::rectangle poppler-rectangle.h "poppler/cpp/poppler-rectangle.h"
+
+ A rectangle.
+ */
+
+/**
+ \typedef poppler::rect
+
+ A rectangle with int dimensions and coordinates.
+ */
+
+/**
+ \typedef poppler::rectf
+
+ A rectangle with float (double) dimensions and coordinates.
+ */
+
+
 std::ostream& poppler::operator<<(std::ostream& stream, const rect &r)
 {
     stream << "[" << r.x() << "," << r.y() << " " << r.width() << "+" << r.height() << "]";

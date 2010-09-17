@@ -33,17 +33,49 @@ public:
     PageTransition pt;
 };
 
+/**
+ \class poppler::page_transition poppler-page-transition.h "poppler/cpp/poppler-page-transition.h"
+
+ A transition between two pages in a PDF %document.
+
+ Usually shown in a presentation mode of a PDF viewer.
+ */
+
+/**
+ \enum poppler::page_transition::type_enum
+
+ The possibe types of a %page transition.
+*/
+
+/**
+ \enum poppler::page_transition::alignment_enum
+
+ The alignment of a %page transition.
+*/
+
+/**
+ \enum poppler::page_transition::direction_enum
+
+ The direction of an animation in a %page transition.
+*/
+
 
 page_transition::page_transition(Object *params)
     : d(new page_transition_private(params))
 {
 }
 
+/**
+ Copy constructor.
+ */
 page_transition::page_transition(const page_transition &pt)
     : d(new page_transition_private(*pt.d))
 {
 }
 
+/**
+ Destructor.
+ */
 page_transition::~page_transition()
 {
     delete d;

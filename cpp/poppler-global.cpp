@@ -62,6 +62,130 @@ using namespace poppler;
  A class that cannot be copied.
  */
 
+/**
+ \enum poppler::rotation_enum
+
+ The case sensitivity.
+*/
+/**
+ \var poppler::rotation_enum poppler::rotate_0
+
+ A rotation of 0 degrees clockwise.
+*/
+/**
+ \var poppler::rotation_enum poppler::rotate_90
+
+ A rotation of 90 degrees clockwise.
+*/
+/**
+ \var poppler::rotation_enum poppler::rotate_180
+
+ A rotation of 180 degrees clockwise.
+*/
+/**
+ \var poppler::rotation_enum poppler::rotate_270
+
+ A rotation of 270 degrees clockwise.
+*/
+
+/**
+ \enum poppler::page_box_enum
+
+ A possible box of a page in a PDF %document.
+*/
+/**
+ \var poppler::page_box_enum poppler::media_box
+
+ The "media" box.
+*/
+/**
+ \var poppler::page_box_enum poppler::crop_box
+
+ The "crop" box.
+*/
+/**
+ \var poppler::page_box_enum poppler::bleed_box
+
+ The "bleed" box.
+*/
+/**
+ \var poppler::page_box_enum poppler::trim_box
+
+ The "trim" box.
+*/
+/**
+ \var poppler::page_box_enum poppler::art_box
+
+ The "art" box.
+*/
+
+/**
+ \enum poppler::permission_enum
+
+ A possible permission in a PDF %document.
+*/
+/**
+ \var poppler::permission_enum poppler::perm_print
+
+ The permission to allow the print of a %document.
+*/
+/**
+ \var poppler::permission_enum poppler::perm_change
+
+ The permission to change a %document.
+
+ This is a generic "change" permission, so other permissions could affect
+ some types of changes.
+*/
+/**
+ \var poppler::permission_enum poppler::perm_copy
+
+ The permission to allow the copy or extraction of the text in a %document.
+*/
+/**
+ \var poppler::permission_enum poppler::perm_add_notes
+
+ The permission to allow the addition or editing of annotations,
+ and the filling of interactive form fields (including signature fields).
+*/
+/**
+ \var poppler::permission_enum poppler::perm_fill_forms
+
+ The permission to allow the the filling of interactive form fields
+ (including signature fields).
+
+ \note this permission can be set even when the \ref poppler::perm_add_notes "perm_add_notes"
+       is not: this means that only the filling of forms is allowed.
+*/
+/**
+ \var poppler::permission_enum poppler::perm_accessibility
+
+ The permission to allow the extracting of content (for example, text) for
+ accessibility usage (e.g. for a screen reader).
+*/
+/**
+ \var poppler::permission_enum poppler::perm_assemble
+
+ The permission to allow to "assemble" a %document.
+
+ This implies operations such as the insertion, the rotation and the deletion
+ of pages; the creation of bookmarks and thumbnail images.
+
+ \note this permission can be set even when the \ref poppler::perm_change "perm_change"
+       is not
+*/
+/**
+ \var poppler::permission_enum poppler::perm_print_high_resolution
+
+ The permission to allow the high resolution print of a %document.
+*/
+
+/**
+ \enum poppler::case_sensitivity_enum
+
+ The case sensitivity.
+*/
+
 
 noncopyable::noncopyable()
 {
