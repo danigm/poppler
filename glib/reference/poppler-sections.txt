@@ -111,6 +111,7 @@ poppler_document_new_from_file
 poppler_document_new_from_data
 poppler_document_save
 poppler_document_save_a_copy
+poppler_document_get_id
 poppler_document_get_n_pages
 poppler_document_get_page
 poppler_document_get_page_by_label

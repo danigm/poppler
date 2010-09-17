@@ -359,6 +359,58 @@ poppler_document_finalize (GObject *object)
 }
 
 /**
+ * poppler_document_get_id:
+ * @document: A #PopplerDocument
+ * @permanent_id: (out) (allow-none): location to store an allocated string, use g_free() to free the returned string
+ * @update_id: (out) (allow-none): location to store an allocated string, use g_free() to free the returned string
+ *
+ * Returns the PDF file identifier represented as two byte string arrays.
+ * @permanent_id is the permanent identifier that is built based on the file
+ * contents at the time it was originally created, so that this identifer
+ * never changes. @update_id is the update identifier that is built based on
+ * the file contents at the time it was last updated.
+ *
+ * Returns: %TRUE if the @document contains an id, %FALSE otherwise
+ *
+ * Since: 0.16
+ */
+gboolean
+poppler_document_get_id (PopplerDocument *document,
+			 gchar          **permanent_id,
+			 gchar          **update_id)
+{
+  GooString *permanent = NULL;
+  GooString *update = NULL;
+  gboolean   retval = FALSE;
+
+  g_return_val_if_fail (POPPLER_IS_DOCUMENT (document), FALSE);
+
+  if (permanent_id) {
+    permanent = new GooString();
+    *permanent_id = NULL;
+  }
+
+  if (update_id) {
+    update = new GooString();
+    *update_id = NULL;
+  }
+
+  if (document->doc->getID (permanent, update)) {
+    if (permanent)
+      *permanent_id = g_strdup (permanent->getCString());
+    if (update)
+      *update_id = g_strdup (update->getCString());
+
+    retval = TRUE;
+  }
+
+  delete permanent;
+  delete update;
+
+  return retval;
+}
+
+/**
  * poppler_document_get_n_pages:
  * @document: A #PopplerDocument
  * 

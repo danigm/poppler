@@ -170,6 +170,9 @@ gboolean         poppler_document_save              (PopplerDocument  *document,
 gboolean         poppler_document_save_a_copy       (PopplerDocument  *document,
 						     const char       *uri,
 						     GError          **error);
+gboolean         poppler_document_get_id            (PopplerDocument  *document,
+						     gchar           **permanent_id,
+						     gchar           **update_id);
 int              poppler_document_get_n_pages       (PopplerDocument  *document);
 PopplerPage     *poppler_document_get_page          (PopplerDocument  *document,
 						     int               index);
