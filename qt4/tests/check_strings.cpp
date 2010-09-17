@@ -12,16 +12,28 @@ class TestStrings : public QObject
 
 private slots:
     void initTestCase();
+    void cleanupTestCase();
     void check_unicodeToQString_data();
     void check_unicodeToQString();
     void check_QStringToGooString_data();
     void check_QStringToGooString();
+
+private:
+    GooString* newGooString(const char *s);
+    GooString* newGooString(const char *s, int l);
+
+    QVector<GooString *> m_gooStrings;
 };
 
 void TestStrings::initTestCase()
 {
     qRegisterMetaType<GooString*>("GooString*");
     qRegisterMetaType<Unicode*>("Unicode*");
+}
+
+void TestStrings::cleanupTestCase()
+{
+    qDeleteAll(m_gooStrings);
 }
 
 void TestStrings::check_unicodeToQString_data()
@@ -75,13 +87,13 @@ void TestStrings::check_QStringToGooString_data()
     QTest::addColumn<GooString*>("result");
 
     QTest::newRow("<null>") << QString()
-                            << new GooString("");
+                            << newGooString("");
     QTest::newRow("<empty>") << QString::fromUtf8("")
-                             << new GooString("");
+                             << newGooString("");
     QTest::newRow("a") << QString::fromUtf8("a")
-                       << new GooString("a");
+                       << newGooString("a");
     QTest::newRow("ab") << QString::fromUtf8("ab")
-                        << new GooString("ab");
+                        << newGooString("ab");
 }
 
 void TestStrings::check_QStringToGooString()
@@ -93,7 +105,20 @@ void TestStrings::check_QStringToGooString()
     QCOMPARE(goo->getCString(), result->getCString());
 
     delete goo;
-    delete result;
+}
+
+GooString* TestStrings::newGooString(const char *s)
+{
+    GooString *goo = new GooString(s);
+    m_gooStrings.append(goo);
+    return goo;
+}
+
+GooString* TestStrings::newGooString(const char *s, int l)
+{
+    GooString *goo = new GooString(s, l);
+    m_gooStrings.append(goo);
+    return goo;
 }
 
 QTEST_MAIN(TestStrings)
