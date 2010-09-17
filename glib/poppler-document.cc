@@ -615,8 +615,8 @@ char *_poppler_goo_string_to_utf8(GooString *s)
   return result;
 }
 
-static void
-info_dict_get_string (Dict *info_dict, const gchar *key, GValue *value)
+static gchar *
+info_dict_get_string (Dict *info_dict, const gchar *key)
 {
   Object obj;
   GooString *goo_value;
@@ -624,35 +624,32 @@ info_dict_get_string (Dict *info_dict, const gchar *key, GValue *value)
 
   if (!info_dict->lookup ((gchar *)key, &obj)->isString ()) {
     obj.free ();
-    return;
+    return NULL;
   }
 
   goo_value = obj.getString ();
-
   result = _poppler_goo_string_to_utf8(goo_value);
-
   obj.free ();
 
-  g_value_set_string (value, result);
-
-  g_free (result);
+  return result;
 }
 
-static void
-info_dict_get_date (Dict *info_dict, const gchar *key, GValue *value) 
+static time_t
+info_dict_get_date (Dict *info_dict, const gchar *key)
 {
   Object obj;
   time_t result;
 
   if (!info_dict->lookup ((gchar *)key, &obj)->isString ()) {
     obj.free ();
-    return;
+    return (time_t)-1;
   }
 
-  if (_poppler_convert_pdf_date_to_gtime (obj.getString (), &result))
-    g_value_set_int (value, result);
-
+  if (!_poppler_convert_pdf_date_to_gtime (obj.getString (), &result))
+    result = (time_t)-1;
   obj.free ();
+
+  return result;
 }
 
 static PopplerPageLayout
@@ -699,6 +696,402 @@ convert_page_mode (Catalog::PageMode pageMode)
     }
 }
 
+/**
+ * poppler_document_get_pdf_version_string:
+ * @document: A #PopplerDocument
+ *
+ * Returns the PDF version of @document as a string (e.g. PDF-1.6)
+ *
+ * Return value: a new allocated string containing the PDF version
+ *               of @document, or %NULL
+ *
+ * Since: 0.16
+ **/
+gchar *
+poppler_document_get_pdf_version_string (PopplerDocument *document)
+{
+  gchar *retval;
+
+  g_return_val_if_fail (POPPLER_IS_DOCUMENT (document), NULL);
+
+  retval = g_strndup ("PDF-", 15); /* allocates 16 chars, pads with \0s */
+  g_ascii_formatd (retval + 4, 15 + 1 - 4, "%.2g",
+		   document->doc->getPDFMajorVersion () + document->doc->getPDFMinorVersion() / 10.0);
+  return retval;
+}
+
+/**
+ * poppler_document_get_pdf_version:
+ * @document: A #PopplerDocument
+ * @major_version: (allow-none): return location for the PDF major version number
+ * @minor_version: (allow-none): return location for the PDF minor version number
+ *
+ * Returns the major and minor PDF version numbers.
+ *
+ * Since: 0.16
+ **/
+void
+poppler_document_get_pdf_version (PopplerDocument *document,
+				  guint           *major_version,
+				  guint           *minor_version)
+{
+  g_return_if_fail (POPPLER_IS_DOCUMENT (document));
+
+  if (major_version)
+    *major_version = document->doc->getPDFMajorVersion ();
+  if (minor_version)
+    *minor_version = document->doc->getPDFMinorVersion();
+}
+
+/**
+ * poppler_document_get_title:
+ * @document: A #PopplerDocument
+ *
+ * Returns the document's title
+ *
+ * Return value: a new allocated string containing the title
+ *               of @document, or %NULL
+ *
+ * Since: 0.16
+ **/
+gchar *
+poppler_document_get_title (PopplerDocument *document)
+{
+  Object obj;
+  gchar *retval = NULL;
+
+  g_return_val_if_fail (POPPLER_IS_DOCUMENT (document), NULL);
+
+  document->doc->getDocInfo (&obj);
+  if (obj.isDict ())
+    retval = info_dict_get_string (obj.getDict(), "Title");
+  obj.free ();
+
+  return retval;
+}
+
+/**
+ * poppler_document_get_author:
+ * @document: A #PopplerDocument
+ *
+ * Returns the author of the document
+ *
+ * Return value: a new allocated string containing the author
+ *               of @document, or %NULL
+ *
+ * Since: 0.16
+ **/
+gchar *
+poppler_document_get_author (PopplerDocument *document)
+{
+  Object obj;
+  gchar *retval = NULL;
+
+  g_return_val_if_fail (POPPLER_IS_DOCUMENT (document), NULL);
+
+  document->doc->getDocInfo (&obj);
+  if (obj.isDict ())
+    retval = info_dict_get_string (obj.getDict(), "Author");
+  obj.free ();
+
+  return retval;
+}
+
+/**
+ * poppler_document_get_subject:
+ * @document: A #PopplerDocument
+ *
+ * Returns the subject of the document
+ *
+ * Return value: a new allocated string containing the subject
+ *               of @document, or %NULL
+ *
+ * Since: 0.16
+ **/
+gchar *
+poppler_document_get_subject (PopplerDocument *document)
+{
+  Object obj;
+  gchar *retval = NULL;
+
+  g_return_val_if_fail (POPPLER_IS_DOCUMENT (document), NULL);
+
+  document->doc->getDocInfo (&obj);
+  if (obj.isDict ())
+    retval = info_dict_get_string (obj.getDict(), "Subject");
+  obj.free ();
+
+  return retval;
+}
+
+/**
+ * poppler_document_get_keywords:
+ * @document: A #PopplerDocument
+ *
+ * Returns the keywords associated to the document
+ *
+ * Return value: a new allocated string containing keywords associated
+ *               to @document, or %NULL
+ *
+ * Since: 0.16
+ **/
+gchar *
+poppler_document_get_keywords (PopplerDocument *document)
+{
+  Object obj;
+  gchar *retval = NULL;
+
+  g_return_val_if_fail (POPPLER_IS_DOCUMENT (document), NULL);
+
+  document->doc->getDocInfo (&obj);
+  if (obj.isDict ())
+    retval = info_dict_get_string (obj.getDict(), "Keywords");
+  obj.free ();
+
+  return retval;
+}
+
+/**
+ * poppler_document_get_creator:
+ * @document: A #PopplerDocument
+ *
+ * Returns the creator of the document. If the document was converted
+ * from another format, the creator is the name of the product
+ * that created the original document from which it was converted.
+ *
+ * Return value: a new allocated string containing the creator
+ *               of @document, or %NULL
+ *
+ * Since: 0.16
+ **/
+gchar *
+poppler_document_get_creator (PopplerDocument *document)
+{
+  Object obj;
+  gchar *retval = NULL;
+
+  g_return_val_if_fail (POPPLER_IS_DOCUMENT (document), NULL);
+
+  document->doc->getDocInfo (&obj);
+  if (obj.isDict ())
+    retval = info_dict_get_string (obj.getDict(), "Creator");
+  obj.free ();
+
+  return retval;
+}
+
+/**
+ * poppler_document_get_producer:
+ * @document: A #PopplerDocument
+ *
+ * Returns the producer of the document. If the document was converted
+ * from another format, the producer is the name of the product
+ * that converted it to PDF
+ *
+ * Return value: a new allocated string containing the producer
+ *               of @document, or %NULL
+ *
+ * Since: 0.16
+ **/
+gchar *
+poppler_document_get_producer (PopplerDocument *document)
+{
+  Object obj;
+  gchar *retval = NULL;
+
+  g_return_val_if_fail (POPPLER_IS_DOCUMENT (document), NULL);
+
+  document->doc->getDocInfo (&obj);
+  if (obj.isDict ())
+    retval = info_dict_get_string (obj.getDict(), "Producer");
+  obj.free ();
+
+  return retval;
+}
+
+/**
+ * poppler_document_get_creation_date:
+ * @document: A #PopplerDocument
+ *
+ * Returns the date the document was created as seconds since the Epoch
+ *
+ * Return value: the date the document was created, or -1
+ *
+ * Since: 0.16
+ **/
+time_t
+poppler_document_get_creation_date (PopplerDocument *document)
+{
+  Object obj;
+  time_t retval = (time_t)-1;
+
+  g_return_val_if_fail (POPPLER_IS_DOCUMENT (document), (time_t)-1);
+
+  document->doc->getDocInfo (&obj);
+  if (obj.isDict ())
+    retval = info_dict_get_date (obj.getDict(), "CreationDate");
+  obj.free ();
+
+  return retval;
+}
+
+/**
+ * poppler_document_get_modification_date:
+ * @document: A #PopplerDocument
+ *
+ * Returns the date the document was most recently modified as seconds since the Epoch
+ *
+ * Return value: the date the document was most recently modified, or -1
+ *
+ * Since: 0.16
+ **/
+time_t
+poppler_document_get_modification_date (PopplerDocument *document)
+{
+  Object obj;
+  time_t retval = (time_t)-1;
+
+  g_return_val_if_fail (POPPLER_IS_DOCUMENT (document), (time_t)-1);
+
+  document->doc->getDocInfo (&obj);
+  if (obj.isDict ())
+    retval = info_dict_get_date (obj.getDict(), "ModDate");
+  obj.free ();
+
+  return retval;
+}
+
+/**
+ * poppler_document_is_linearized:
+ * @document: A #PopplerDocument
+ *
+ * Returns whether @document is linearized or not. Linearization of PDF
+ * enables efficient incremental access of the PDF file in a network environment.
+ *
+ * Return value: %TRUE if @document is linearized, %FALSE otherwhise
+ *
+ * Since: 0.16
+ **/
+gboolean
+poppler_document_is_linearized (PopplerDocument *document)
+{
+  g_return_val_if_fail (POPPLER_IS_DOCUMENT (document), FALSE);
+
+  return document->doc->isLinearized ();
+}
+
+/**
+ * poppler_document_get_page_layout:
+ * @document: A #PopplerDocument
+ *
+ * Returns the page layout that should be used when the document is opened
+ *
+ * Return value: a #PopplerPageLayout that should be used when the document is opened
+ *
+ * Since: 0.16
+ **/
+PopplerPageLayout
+poppler_document_get_page_layout (PopplerDocument *document)
+{
+  Catalog *catalog;
+
+  g_return_val_if_fail (POPPLER_IS_DOCUMENT (document), POPPLER_PAGE_LAYOUT_UNSET);
+
+  catalog = document->doc->getCatalog ();
+  if (catalog && catalog->isOk ())
+    return convert_page_layout (catalog->getPageLayout ());
+
+  return POPPLER_PAGE_LAYOUT_UNSET;
+}
+
+/**
+ * poppler_document_get_page_mode:
+ * @document: A #PopplerDocument
+ *
+ * Returns a #PopplerPageMode representing how the document should
+ * be initially displayed when opened.
+ *
+ * Return value: a #PopplerPageMode that should be used when document is opened
+ *
+ * Since: 0.16
+ **/
+PopplerPageMode
+poppler_document_get_page_mode (PopplerDocument *document)
+{
+  Catalog *catalog;
+
+  g_return_val_if_fail (POPPLER_IS_DOCUMENT (document), POPPLER_PAGE_MODE_UNSET);
+
+  catalog = document->doc->getCatalog ();
+  if (catalog && catalog->isOk ())
+    return convert_page_mode (catalog->getPageMode ());
+
+  return POPPLER_PAGE_MODE_UNSET;
+}
+
+/**
+ * poppler_document_get_permissions:
+ * @document: A #PopplerDocument
+ *
+ * Returns the flags spcifying which operations are permitted when the document is opened.
+ *
+ * Return value: a set of falgs from  #PopplerPermissions enumeration
+ *
+ * Since: 0.16
+ **/
+PopplerPermissions
+poppler_document_get_permissions (PopplerDocument *document)
+{
+  guint flag = 0;
+
+  g_return_val_if_fail (POPPLER_IS_DOCUMENT (document), POPPLER_PERMISSIONS_FULL);
+
+  if (document->doc->okToPrint ())
+    flag |= POPPLER_PERMISSIONS_OK_TO_PRINT;
+  if (document->doc->okToChange ())
+    flag |= POPPLER_PERMISSIONS_OK_TO_MODIFY;
+  if (document->doc->okToCopy ())
+    flag |= POPPLER_PERMISSIONS_OK_TO_COPY;
+  if (document->doc->okToAddNotes ())
+    flag |= POPPLER_PERMISSIONS_OK_TO_ADD_NOTES;
+  if (document->doc->okToFillForm ())
+    flag |= POPPLER_PERMISSIONS_OK_TO_FILL_FORM;
+
+  return (PopplerPermissions)flag;
+}
+
+/**
+ * poppler_document_get_metadata:
+ * @document: A #PopplerDocument
+ *
+ * Returns the XML metadata string of the document
+ *
+ * Return value: a new allocated string containing the XML
+ *               metadata, or %NULL
+ *
+ * Since: 0.16
+ **/
+gchar *
+poppler_document_get_metadata (PopplerDocument *document)
+{
+  Catalog *catalog;
+  gchar *retval = NULL;
+
+  g_return_val_if_fail (POPPLER_IS_DOCUMENT (document), NULL);
+
+  catalog = document->doc->getCatalog ();
+  if (catalog && catalog->isOk ()) {
+    GooString *s = catalog->readMetadata ();
+
+    if (s != NULL) {
+      retval = g_strdup (s->getCString());
+      delete s;
+    }
+  }
+
+  return retval;
+}
+
 static void
 poppler_document_get_property (GObject    *object,
 			       guint       prop_id,
@@ -706,124 +1099,63 @@ poppler_document_get_property (GObject    *object,
 			       GParamSpec *pspec)
 {
   PopplerDocument *document = POPPLER_DOCUMENT (object);
-  Object obj;
-  Catalog *catalog;
-  gchar *str;
-  guint flag;
+  guint version;
 
   switch (prop_id)
     {
     case PROP_TITLE:
-      document->doc->getDocInfo (&obj);
-      if (obj.isDict ())
-	info_dict_get_string (obj.getDict(), "Title", value);
-      obj.free ();
+      g_value_take_string (value, poppler_document_get_title (document));
       break;
     case PROP_FORMAT:
-      str = g_strndup("PDF-", 15); /* allocates 16 chars, pads with \0s */
-      g_ascii_formatd (str + 4, 15 + 1 - 4,
-		       "%.2g", document->doc->getPDFMajorVersion () + document->doc->getPDFMinorVersion() / 10.0);
-      g_value_take_string (value, str);
+      g_value_take_string (value, poppler_document_get_pdf_version_string (document));
       break;
     case PROP_FORMAT_MAJOR:
-      g_value_set_uint (value, document->doc->getPDFMajorVersion ());
+      poppler_document_get_pdf_version (document, &version, NULL);
+      g_value_set_uint (value, version);
       break;
     case PROP_FORMAT_MINOR:
-      g_value_set_uint (value, document->doc->getPDFMinorVersion());
+      poppler_document_get_pdf_version (document, NULL, &version);
+      g_value_set_uint (value, version);
       break;
     case PROP_AUTHOR:
-      document->doc->getDocInfo (&obj);
-      if (obj.isDict ())
-	info_dict_get_string (obj.getDict(), "Author", value);
-      obj.free ();
+      g_value_take_string (value, poppler_document_get_author (document));
       break;
     case PROP_SUBJECT:
-      document->doc->getDocInfo (&obj);
-      if (obj.isDict ())
-	info_dict_get_string (obj.getDict(), "Subject", value);
-      obj.free ();
+      g_value_take_string (value, poppler_document_get_subject (document));
       break;
     case PROP_KEYWORDS:
-      document->doc->getDocInfo (&obj);
-      if (obj.isDict ())
-	info_dict_get_string (obj.getDict(), "Keywords", value);
-      obj.free ();
+      g_value_take_string (value, poppler_document_get_keywords (document));
       break;
     case PROP_CREATOR:
-      document->doc->getDocInfo (&obj);
-      if (obj.isDict ())
-	info_dict_get_string (obj.getDict(), "Creator", value);
-      obj.free ();
+      g_value_take_string (value, poppler_document_get_creator (document));
       break;
     case PROP_PRODUCER:
-      document->doc->getDocInfo (&obj);
-      if (obj.isDict ())
-	info_dict_get_string (obj.getDict(), "Producer", value);
-      obj.free ();
+      g_value_take_string (value, poppler_document_get_producer (document));
       break;
     case PROP_CREATION_DATE:
-      document->doc->getDocInfo (&obj);
-      if (obj.isDict ())
-	info_dict_get_date (obj.getDict(), "CreationDate", value);
-      obj.free ();
+      g_value_set_int (value, poppler_document_get_creation_date (document));
       break;
     case PROP_MOD_DATE:
-      document->doc->getDocInfo (&obj);
-      if (obj.isDict ())
-	info_dict_get_date (obj.getDict(), "ModDate", value);
-      obj.free ();
-	break;
+      g_value_set_int (value, poppler_document_get_modification_date (document));
+      break;
     case PROP_LINEARIZED:
-      if (document->doc->isLinearized ()) {	
-	  g_value_set_string (value, "Yes");
-      }	else {
-	  g_value_set_string (value, "No");
-      }
+      g_value_set_boolean (value, poppler_document_is_linearized (document));
       break;
     case PROP_PAGE_LAYOUT:
-      catalog = document->doc->getCatalog ();
-      if (catalog && catalog->isOk ())
-	{
-	  PopplerPageLayout page_layout = convert_page_layout (catalog->getPageLayout ());
-	  g_value_set_enum (value, page_layout);
-	}
+      g_value_set_enum (value, poppler_document_get_page_layout (document));
       break;
     case PROP_PAGE_MODE:
-      catalog = document->doc->getCatalog ();
-      if (catalog && catalog->isOk ())
-	{
-	  PopplerPageMode page_mode = convert_page_mode (catalog->getPageMode ());
-	  g_value_set_enum (value, page_mode);
-	}
+      g_value_set_enum (value, poppler_document_get_page_mode (document));
       break;
     case PROP_VIEWER_PREFERENCES:
       /* FIXME: write... */
       g_value_set_flags (value, POPPLER_VIEWER_PREFERENCES_UNSET);
       break;
     case PROP_PERMISSIONS:
-      flag = 0;
-      if (document->doc->okToPrint ())
-	flag |= POPPLER_PERMISSIONS_OK_TO_PRINT;
-      if (document->doc->okToChange ())
-	flag |= POPPLER_PERMISSIONS_OK_TO_MODIFY;
-      if (document->doc->okToCopy ())
-	flag |= POPPLER_PERMISSIONS_OK_TO_COPY;
-      if (document->doc->okToAddNotes ())
-	flag |= POPPLER_PERMISSIONS_OK_TO_ADD_NOTES;
-      if (document->doc->okToFillForm ())
-        flag |= POPPLER_PERMISSIONS_OK_TO_FILL_FORM;
-      g_value_set_flags (value, flag);
+      g_value_set_flags (value, poppler_document_get_permissions (document));
       break;
     case PROP_METADATA:
-      catalog = document->doc->getCatalog ();
-      if (catalog && catalog->isOk ())
-	{
-	  GooString *s = catalog->readMetadata ();
-	  if ( s != NULL ) {
-	  	g_value_set_string (value, s->getCString());
-	  	delete s;
-	  }
-	}
+      g_value_take_string (value, poppler_document_get_metadata (document));
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -940,11 +1272,11 @@ poppler_document_class_init (PopplerDocumentClass *klass)
   g_object_class_install_property
 	  (G_OBJECT_CLASS (klass),
 	   PROP_LINEARIZED,
-	   g_param_spec_string ("linearized",
-				"Fast Web View Enabled",
-				"Is the document optimized for web viewing?",
-				NULL,
-				G_PARAM_READABLE));
+	   g_param_spec_boolean ("linearized",
+				 "Fast Web View Enabled",
+				 "Is the document optimized for web viewing?",
+				 FALSE,
+				 G_PARAM_READABLE));
 
   g_object_class_install_property
 	  (G_OBJECT_CLASS (klass),

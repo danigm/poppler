@@ -116,10 +116,11 @@ pgd_info_create_widget (PopplerDocument *document)
 	GtkWidget *frame, *alignment, *table;
 	gchar     *str;
 	gchar     *title, *format, *author, *subject;
-	gchar     *keywords, *creator, *producer, *linearized;
+	gchar     *keywords, *creator, *producer;
 	gchar     *metadata;
 	gchar     *perm_id;
 	gchar     *up_id;
+	gboolean   linearized;
 	GTime      creation_date, mod_date;
 	GEnumValue *enum_value;
 	PopplerBackend backend;
@@ -196,9 +197,8 @@ pgd_info_create_widget (PopplerDocument *document)
 	pgd_table_add_property (GTK_TABLE (table), "<b>Producer:</b>", producer, &row);
 	g_free (producer);
 	
-	pgd_table_add_property (GTK_TABLE (table), "<b>Linearized:</b>", linearized, &row);
-	g_free (linearized);
-	
+	pgd_table_add_property (GTK_TABLE (table), "<b>Linearized:</b>", linearized ? "Yes" : "No", &row);
+
 	str = pgd_format_date (creation_date);
 	pgd_table_add_property (GTK_TABLE (table), "<b>Creation Date:</b>", str, &row);
 	g_free (str);

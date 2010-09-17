@@ -156,39 +156,57 @@ typedef enum /*< flags >*/
 
 
 
-GType            poppler_document_get_type          (void) G_GNUC_CONST;
-PopplerDocument *poppler_document_new_from_file     (const char       *uri,
-						     const char       *password,
-						     GError          **error);
-PopplerDocument *poppler_document_new_from_data     (char             *data,
-						     int               length,
-						     const char       *password,
-						     GError          **error);
-gboolean         poppler_document_save              (PopplerDocument  *document,
-						     const char       *uri,
-						     GError          **error);
-gboolean         poppler_document_save_a_copy       (PopplerDocument  *document,
-						     const char       *uri,
-						     GError          **error);
-gboolean         poppler_document_get_id            (PopplerDocument  *document,
-						     gchar           **permanent_id,
-						     gchar           **update_id);
-int              poppler_document_get_n_pages       (PopplerDocument  *document);
-PopplerPage     *poppler_document_get_page          (PopplerDocument  *document,
-						     int               index);
-PopplerPage     *poppler_document_get_page_by_label (PopplerDocument  *document,
-						     const char       *label);
+GType              poppler_document_get_type               (void) G_GNUC_CONST;
+PopplerDocument   *poppler_document_new_from_file          (const char      *uri,
+							    const char      *password,
+							    GError         **error);
+PopplerDocument   *poppler_document_new_from_data          (char            *data,
+							    int              length,
+							    const char      *password,
+							    GError         **error);
+gboolean           poppler_document_save                   (PopplerDocument *document,
+							    const char      *uri,
+							    GError         **error);
+gboolean           poppler_document_save_a_copy            (PopplerDocument *document,
+							    const char      *uri,
+							    GError         **error);
+gboolean           poppler_document_get_id                 (PopplerDocument *document,
+							    gchar          **permanent_id,
+							    gchar          **update_id);
+int                poppler_document_get_n_pages            (PopplerDocument *document);
+PopplerPage       *poppler_document_get_page               (PopplerDocument *document,
+							    int              index);
+PopplerPage       *poppler_document_get_page_by_label      (PopplerDocument *document,
+							    const char      *label);
+gchar             *poppler_document_get_pdf_version_string (PopplerDocument *document);
+void               poppler_document_get_pdf_version        (PopplerDocument *document,
+							    guint           *major_version,
+							    guint           *minor_version);
+gchar             *poppler_document_get_title              (PopplerDocument *document);
+gchar             *poppler_document_get_author             (PopplerDocument *document);
+gchar             *poppler_document_get_subject            (PopplerDocument *document);
+gchar             *poppler_document_get_keywords           (PopplerDocument *document);
+gchar             *poppler_document_get_creator            (PopplerDocument *document);
+gchar             *poppler_document_get_producer           (PopplerDocument *document);
+time_t             poppler_document_get_creation_date      (PopplerDocument *document);
+time_t             poppler_document_get_modification_date  (PopplerDocument *document);
+gboolean           poppler_document_is_linearized          (PopplerDocument *document);
+PopplerPageLayout  poppler_document_get_page_layout        (PopplerDocument *document);
+PopplerPageMode    poppler_document_get_page_mode          (PopplerDocument *document);
+PopplerPermissions poppler_document_get_permissions        (PopplerDocument *document);
+gchar             *poppler_document_get_metadata           (PopplerDocument *document);
+
 /* Attachments */
-gboolean         poppler_document_has_attachments   (PopplerDocument  *document);
-GList           *poppler_document_get_attachments   (PopplerDocument  *document);
+gboolean           poppler_document_has_attachments        (PopplerDocument  *document);
+GList             *poppler_document_get_attachments        (PopplerDocument  *document);
 
 /* Links */
-PopplerDest     *poppler_document_find_dest         (PopplerDocument  *document,
-						     const gchar      *link_name);
+PopplerDest       *poppler_document_find_dest              (PopplerDocument  *document,
+							    const gchar      *link_name);
 
 /* Form */
-PopplerFormField *poppler_document_get_form_field   (PopplerDocument  *document,
-						     gint              id);
+PopplerFormField  *poppler_document_get_form_field         (PopplerDocument  *document,
+							    gint              id);
 
 /* Interface for getting the Index of a poppler_document */
 #define POPPLER_TYPE_INDEX_ITER                 (poppler_index_iter_get_type ())
