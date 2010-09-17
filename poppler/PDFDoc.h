@@ -206,6 +206,9 @@ public:
   int getPDFMajorVersion() { return pdfMajorVersion; }
   int getPDFMinorVersion() { return pdfMinorVersion; }
 
+  //Return the PDF ID in the trailer dictionary (if any).
+  GBool getID(GooString *permanent_id, GooString *update_id);
+
   // Save this file with another name.
   int saveAs(GooString *name, PDFWriteMode mode=writeStandard);
   // Save this file in the given output stream.

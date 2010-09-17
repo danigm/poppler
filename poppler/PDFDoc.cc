@@ -71,6 +71,7 @@
 
 #define headerSearchSize 1024	// read this many bytes at beginning of
 				//   file to look for '%PDF'
+#define pdfIdLength 32   // PDF Document IDs (PermanentId, UpdateId) length
 
 //------------------------------------------------------------------------
 // PDFDoc
@@ -460,6 +461,70 @@ GBool PDFDoc::isLinearized() {
   obj1.free();
   delete parser;
   return lin;
+}
+
+static GBool
+get_id (const char *encodedid, GooString *id) {
+  char pdfid[pdfIdLength + 1];
+  int n;
+
+  if (strlen(encodedid) != 16)
+    return gFalse;
+
+  n = sprintf(pdfid, "%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x",
+	      encodedid[0] & 0xff, encodedid[1] & 0xff, encodedid[2] & 0xff, encodedid[3] & 0xff,
+	      encodedid[4] & 0xff, encodedid[5] & 0xff, encodedid[6] & 0xff, encodedid[7] & 0xff,
+	      encodedid[8] & 0xff, encodedid[9] & 0xff, encodedid[10] & 0xff, encodedid[11] & 0xff,
+	      encodedid[12] & 0xff, encodedid[13] & 0xff, encodedid[14] & 0xff, encodedid[15] & 0xff);
+  if (n != pdfIdLength)
+    return gFalse;
+
+  id->Set(pdfid, pdfIdLength);
+  return gTrue;
+}
+
+GBool PDFDoc::getID(GooString *permanent_id, GooString *update_id) {
+  Object obj;
+  xref->getTrailerDict()->dictLookup ("ID", &obj);
+
+  if (obj.isArray() && obj.arrayGetLength() == 2) {
+    Object obj2;
+
+    if (permanent_id) {
+      if (obj.arrayGet(0, &obj2)->isString()) {
+        if (!get_id (obj2.getString()->getCString(), permanent_id)) {
+	  obj2.free();
+	  return gFalse;
+	}
+      } else {
+        error(-1, "Invalid permanent ID");
+	obj2.free();
+	return gFalse;
+      }
+      obj2.free();
+    }
+
+    if (update_id) {
+      if (obj.arrayGet(1, &obj2)->isString()) {
+        if (!get_id (obj2.getString()->getCString(), update_id)) {
+	  obj2.free();
+	  return gFalse;
+	}
+      } else {
+        error(-1, "Invalid update ID");
+	obj2.free();
+	return gFalse;
+      }
+      obj2.free();
+    }
+
+    obj.free();
+
+    return gTrue;
+  }
+  obj.free();
+
+  return gFalse;
 }
 
 int PDFDoc::saveAs(GooString *name, PDFWriteMode mode) {
