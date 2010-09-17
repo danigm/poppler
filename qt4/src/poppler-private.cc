@@ -71,11 +71,13 @@ namespace Poppler {
         {
             isUnicode = gTrue;
             i = 2;
+            result.reserve( ( s1->getLength() - 2 ) / 2 );
         }
         else
         {
             isUnicode = gFalse;
             i = 0;
+            result.reserve( s1->getLength() );
         }
         while ( i < s1->getLength() )
         {
@@ -89,7 +91,7 @@ namespace Poppler {
                 u = s1->getChar(i) & 0xff;
                 ++i;
             }
-            result += unicodeToQString( &u, 1 );
+            result += QChar( u );
         }
         return result;
     }
