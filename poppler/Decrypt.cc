@@ -229,6 +229,8 @@ DecryptStream::DecryptStream(Stream *strA, Guchar *fileKey,
   if ((objKeyLength = keyLength + 5) > 16) {
     objKeyLength = 16;
   }
+
+  charactersRead = 0;
 }
 
 DecryptStream::~DecryptStream() {
