@@ -425,7 +425,7 @@ void SampledFunction::transform(double *in, double *out) {
       if (likely(idx >= 0 && idx < nSamples)) {
         sBuf[j] = samples[idx];
       } else {
-        sBuf[j] = 0;
+        sBuf[j] = 0; // TODO Investigate if this is what Adobe does
       }
     }
 
