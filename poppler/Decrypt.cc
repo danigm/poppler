@@ -14,7 +14,7 @@
 // under GPL version 2 or later
 //
 // Copyright (C) 2008 Julien Rebetez <julien@fhtagn.net>
-// Copyright (C) 2008 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2008, 2010 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2009 Matthias Franz <matthias@ktug.or.kr>
 // Copyright (C) 2009 David Benjamin <davidben@mit.edu>
 //
