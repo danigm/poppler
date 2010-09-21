@@ -715,13 +715,14 @@ FormField::FormField(XRef* xrefA, Object *aobj, const Ref& aref, FormFieldType t
     // Load children
     for(int i=0; i<length; i++) { 
       Object obj2,obj3;
-      Object childRef;
       array->get(i, &obj2);
-      array->getNF(i, &childRef);
       if (!obj2.isDict ()) {
 	      error (-1, "Reference to an invalid or non existant object");
+	      obj2.free();
 	      continue;
       }
+      Object childRef;
+      array->getNF(i, &childRef);
       //field child
       if (dict->lookup ("FT", &obj3)->isName()) {
         // If I'm not a generic container field and my children
