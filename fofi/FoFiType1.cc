@@ -13,7 +13,7 @@
 // All changes made under the Poppler project to this file are licensed
 // under GPL version 2 or later
 //
-// Copyright (C) 2005, 2008 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2005, 2008, 2010 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2005 Kristian Høgsberg <krh@redhat.com>
 // Copyright (C) 2010 Jakub Wilk <ubanus@users.sf.net>
 //
@@ -31,6 +31,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "goo/gmem.h"
+#include "goo/GooLikely.h"
 #include "FoFiEncodings.h"
 #include "FoFiType1.h"
 #include "poppler/Error.h"
@@ -243,7 +244,7 @@ void FoFiType1::parse() {
 		code = code * 8 + (*p2 - '0');
 	      }
 	    }
-	    if (code < 256) {
+	    if (likely(code < 256 && code >= 0)) {
 	      for (p = p2; *p == ' ' || *p == '\t'; ++p) ;
 	      if (*p == '/') {
 		++p;
