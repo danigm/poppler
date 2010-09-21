@@ -536,6 +536,7 @@ Gfx::Gfx(XRef *xrefA, OutputDev *outA, int pageNum, Dict *resDict, Catalog *cata
   drawText = gFalse;
   maskHaveCSPattern = gFalse;
   mcStack = NULL;
+  parser = NULL;
 
   // start the resource stack
   res = new GfxResources(xref, resDict, NULL);
@@ -590,6 +591,7 @@ Gfx::Gfx(XRef *xrefA, OutputDev *outA, Dict *resDict, Catalog *catalogA,
   drawText = gFalse;
   maskHaveCSPattern = gFalse;
   mcStack = NULL;
+  parser = NULL;
 
   // start the resource stack
   res = new GfxResources(xref, resDict, NULL);
