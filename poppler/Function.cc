@@ -422,7 +422,11 @@ void SampledFunction::transform(double *in, double *out) {
       for (k = 0, t = j; k < m; ++k, t >>= 1) {
 	idx += idxMul[k] * (e[k][t & 1]);
       }
-      sBuf[j] = samples[idx];
+      if (likely(idx >= 0 && idx < nSamples)) {
+        sBuf[j] = samples[idx];
+      } else {
+        sBuf[j] = 0;
+      }
     }
 
     // do m sets of interpolations
