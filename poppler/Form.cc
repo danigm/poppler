@@ -22,6 +22,7 @@
 #pragma implementation
 #endif
 
+#include <set>
 #include <stddef.h>
 #include <string.h>
 #include "goo/gmem.h"
@@ -1181,7 +1182,7 @@ Form::~Form() {
 }
 
 // Look up an inheritable field dictionary entry.
-Object *Form::fieldLookup(Dict *field, char *key, Object *obj) {
+static Object *fieldLookup(Dict *field, char *key, Object *obj, std::set<int> *usedParents) {
   Dict *dict;
   Object parent;
 
@@ -1190,13 +1191,33 @@ Object *Form::fieldLookup(Dict *field, char *key, Object *obj) {
     return obj;
   }
   obj->free();
-  if (dict->lookup("Parent", &parent)->isDict()) {
-    fieldLookup(parent.getDict(), key, obj);
+  dict->lookupNF("Parent", &parent);
+  if (parent.isRef()) {
+    const Ref ref = parent.getRef();
+    if (usedParents->find(ref.num) == usedParents->end()) {
+      usedParents->insert(ref.num);
+
+      Object obj2;
+      parent.fetch(dict->getXRef(), &obj2);
+      if (obj2.isDict()) {
+        fieldLookup(obj2.getDict(), key, obj, usedParents);
+      } else {
+        obj->initNull();
+      }
+      obj2.free();
+    }
+  } else if (parent.isDict()) {
+    fieldLookup(parent.getDict(), key, obj, usedParents);
   } else {
     obj->initNull();
   }
   parent.free();
   return obj;
+}
+
+Object *Form::fieldLookup(Dict *field, char *key, Object *obj) {
+  std::set<int> usedParents;
+  return ::fieldLookup(field, key, obj, &usedParents);
 }
 
 FormField *Form::createFieldFromDict (Object* obj, XRef *xrefA, const Ref& pref)
