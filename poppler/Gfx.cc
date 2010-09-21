@@ -4449,8 +4449,13 @@ Stream *Gfx::buildImageStream() {
   obj.free();
 
   // make stream
-  str = new EmbedStream(parser->getStream(), &dict, gFalse, 0);
-  str = str->addFilters(&dict);
+  if (parser->getStream()) {
+    str = new EmbedStream(parser->getStream(), &dict, gFalse, 0);
+    str = str->addFilters(&dict);
+  } else {
+    str = NULL;
+    dict.free();
+  }
 
   return str;
 }
