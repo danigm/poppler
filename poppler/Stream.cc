@@ -599,6 +599,7 @@ GBool StreamPredictor::getNextLine() {
 	// last partial line
 	break;
       }
+      delete[] rawCharLine;
       return gFalse;
     }
     switch (curPred) {
