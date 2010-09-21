@@ -1297,7 +1297,7 @@ poppler_document_class_init (PopplerDocumentClass *klass)
 				   g_param_spec_int ("creation-date",
 						     "Creation Date",
 						     "The date and time the document was created",
-						     0, G_MAXINT, -1,
+						     -1, G_MAXINT, -1,
 						     G_PARAM_READABLE));
 
   /**
@@ -1310,7 +1310,7 @@ poppler_document_class_init (PopplerDocumentClass *klass)
 				   g_param_spec_int ("mod-date",
 						     "Modification Date",
 						     "The date and time the document was modified",
-						     0, G_MAXINT, -1,
+						     -1, G_MAXINT, -1,
 						     G_PARAM_READABLE));
 
   /**
