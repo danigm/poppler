@@ -1108,6 +1108,7 @@ PostScriptFunction::PostScriptFunction(Object *funcObj, Dict *dict) {
   code = NULL;
   codeString = NULL;
   codeSize = 0;
+  stack = NULL;
   ok = gFalse;
   cache = new PopplerCache(5);
 
