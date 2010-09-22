@@ -83,6 +83,10 @@ public:
   void setFontSize(double f) { fontSize = f; }
   double getFontSize () { return fontSize; }
 
+  GooString *getPartialName() const { return partialName; }
+  GooString *getMappingName() const { return mappingName; }
+  GooString *getFullyQualifiedName();
+
   GBool isModified () { return modified; }
 
   bool isReadOnly() const;
@@ -104,6 +108,10 @@ protected:
   XRef *xref;
   GBool defaultsLoaded;
   GBool modified;
+  GooString *partialName; // T field
+  GooString *mappingName; // TM field
+  GooString *fullyQualifiedName;
+
   //index of this field in the parent's child list
   unsigned childNum;
 
