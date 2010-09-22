@@ -16,7 +16,7 @@
 // Copyright (C) 2005, 2006, 2008 Brad Hards <bradh@frogmouth.net>
 // Copyright (C) 2005, 2007-2009 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2008 Julien Rebetez <julienr@svn.gnome.org>
-// Copyright (C) 2008 Pino Toscano <pino@kde.org>
+// Copyright (C) 2008, 2010 Pino Toscano <pino@kde.org>
 // Copyright (C) 2008, 2010 Carlos Garcia Campos <carlosgc@gnome.org>
 // Copyright (C) 2009 Eric Toombs <ewtoombs@uwaterloo.ca>
 // Copyright (C) 2009 Kovid Goyal <kovid@kovidgoyal.net>
@@ -465,11 +465,12 @@ GBool PDFDoc::isLinearized() {
 }
 
 static GBool
-get_id (const char *encodedid, GooString *id) {
+get_id (GooString *encodedidstring, GooString *id) {
+  const char *encodedid = encodedidstring->getCString();
   char pdfid[pdfIdLength + 1];
   int n;
 
-  if (strlen(encodedid) != 16)
+  if (encodedidstring->getLength() != pdfIdLength / 2)
     return gFalse;
 
   n = sprintf(pdfid, "%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x",
@@ -493,7 +494,7 @@ GBool PDFDoc::getID(GooString *permanent_id, GooString *update_id) {
 
     if (permanent_id) {
       if (obj.arrayGet(0, &obj2)->isString()) {
-        if (!get_id (obj2.getString()->getCString(), permanent_id)) {
+        if (!get_id (obj2.getString(), permanent_id)) {
 	  obj2.free();
 	  return gFalse;
 	}
@@ -507,7 +508,7 @@ GBool PDFDoc::getID(GooString *permanent_id, GooString *update_id) {
 
     if (update_id) {
       if (obj.arrayGet(1, &obj2)->isString()) {
-        if (!get_id (obj2.getString()->getCString(), update_id)) {
+        if (!get_id (obj2.getString(), update_id)) {
 	  obj2.free();
 	  return gFalse;
 	}
