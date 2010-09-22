@@ -20,6 +20,8 @@ private slots:
     void checkUpsideDownOrientation();
     void checkSeascapeOrientation();
     void checkVersion();
+    void checkPdfId();
+    void checkNoPdfId();
 };
 
 void TestMetaData::checkStrings_data()
@@ -217,6 +219,54 @@ void TestMetaData::checkVersion()
     doc->getPdfVersion( &major, &minor );
     QCOMPARE( major, 1 );
     QCOMPARE( minor, 6 );
+
+    delete doc;
+}
+
+void TestMetaData::checkPdfId()
+{
+    Poppler::Document *doc;
+    doc = Poppler::Document::load("../../../test/unittestcases/A6EmbeddedFiles.pdf");
+    QVERIFY( doc );
+
+    const QByteArray referencePermanentId( "00C9D5B6D8FB11D7A902003065D630AA" );
+    const QByteArray referenceUpdateId( "39AECAE6D8FB11D7A902003065D630AA" );
+
+    {
+    // no IDs wanted, just existance check
+    QVERIFY( doc->getPdfId( 0, 0 ) );
+    }
+    {
+    // only permanent ID
+    QByteArray permanentId;
+    QVERIFY( doc->getPdfId( &permanentId, 0 ) );
+    QCOMPARE( permanentId.toUpper(), referencePermanentId );
+    }
+    {
+    // only update ID
+    QByteArray updateId;
+    QVERIFY( doc->getPdfId( 0, &updateId ) );
+    QCOMPARE( updateId.toUpper(), referenceUpdateId );
+    }
+    {
+    // both IDs
+    QByteArray permanentId;
+    QByteArray updateId;
+    QVERIFY( doc->getPdfId( &permanentId, &updateId ) );
+    QCOMPARE( permanentId.toUpper(), referencePermanentId );
+    QCOMPARE( updateId.toUpper(), referenceUpdateId );
+    }
+
+    delete doc;
+}
+
+void TestMetaData::checkNoPdfId()
+{
+    Poppler::Document *doc;
+    doc = Poppler::Document::load("../../../test/unittestcases/WithActualText.pdf");
+    QVERIFY( doc );
+
+    QVERIFY( !doc->getPdfId( 0, 0 ) );
 
     delete doc;
 }

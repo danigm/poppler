@@ -1216,6 +1216,20 @@ QString subject = m_doc->info("Subject");
 	QStringList scripts() const;
 
 	/**
+	   The PDF identifiers.
+
+	   \param permanentId an optional pointer to a variable where store the
+	   permanent ID of the document
+	   \param updateId an optional pointer to a variable where store the
+	   update ID of the document
+
+	   \return whether the document has the IDs
+
+	   \since 0.16
+	*/
+	bool getPdfId(QByteArray *permanentId, QByteArray *updateId) const;
+
+	/**
 	   Destructor.
 	*/
 	~Document();

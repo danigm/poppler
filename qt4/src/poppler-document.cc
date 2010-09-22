@@ -576,6 +576,22 @@ namespace Poppler {
         return scripts;
     }
 
+    bool Document::getPdfId(QByteArray *permanentId, QByteArray *updateId) const
+    {
+        GooString gooPermanentId;
+        GooString gooUpdateId;
+
+        if (!m_doc->doc->getID(permanentId ? &gooPermanentId : 0, updateId ? &gooUpdateId : 0))
+            return false;
+
+        if (permanentId)
+            *permanentId = gooPermanentId.getCString();
+        if (updateId)
+            *updateId = gooUpdateId.getCString();
+
+        return true;
+    }
+
     QDateTime convertDate( char *dateString )
     {
         int year, mon, day, hour, min, sec, tzHours, tzMins;
