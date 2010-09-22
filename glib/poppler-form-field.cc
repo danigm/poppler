@@ -220,6 +220,74 @@ poppler_form_field_button_set_state (PopplerFormField *field,
   static_cast<FormWidgetButton*>(field->widget)->setState ((GBool)state);
 }
 
+/**
+ * poppler_form_field_get_partial_name:
+ * @field: a #PopplerFormField
+ *
+ * Gets the partial name of @field.
+ *
+ * Return value: a new allocated string. It must be freed with g_free() when done.
+ *
+ * Since: 0.16
+ **/
+gchar*
+poppler_form_field_get_partial_name (PopplerFormField *field)
+{
+  GooString *tmp;
+
+  g_return_val_if_fail (POPPLER_IS_FORM_FIELD (field), NULL);
+
+  tmp = field->widget->getPartialName();
+
+  return tmp ? _poppler_goo_string_to_utf8 (tmp) : NULL;
+}
+
+/**
+ * poppler_form_field_get_mapping_name:
+ * @field: a #PopplerFormField
+ *
+ * Gets the mapping name of @field that is used when
+ * exporting interactive form field data from the document
+ *
+ * Return value: a new allocated string. It must be freed with g_free() when done.
+ *
+ * Since: 0.16
+ **/
+gchar*
+poppler_form_field_get_mapping_name (PopplerFormField *field)
+{
+  GooString *tmp;
+
+  g_return_val_if_fail (POPPLER_IS_FORM_FIELD (field), NULL);
+
+  tmp = field->widget->getMappingName();
+
+  return tmp ? _poppler_goo_string_to_utf8 (tmp) : NULL;
+}
+
+/**
+ * poppler_form_field_get_name:
+ * @field: a #PopplerFormField
+ *
+ * Gets the fully qualified name of @field. It's constructed by concatenating
+ * the partial field names of the field and all of its ancestors.
+ *
+ * Return value: a new allocated string. It must be freed with g_free() when done.
+ *
+ * Since: 0.16
+ **/
+gchar*
+poppler_form_field_get_name (PopplerFormField *field)
+{
+  GooString *tmp;
+
+  g_return_val_if_fail (POPPLER_IS_FORM_FIELD (field), NULL);
+
+  tmp = field->widget->getFullyQualifiedName();
+
+  return tmp ? _poppler_goo_string_to_utf8 (tmp) : NULL;
+}
+
 /* Text Field */
 /**
  * poppler_form_field_text_get_text_type:
