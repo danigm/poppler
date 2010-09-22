@@ -67,6 +67,7 @@ public:
     bool is_linearized() const;
     bool has_permission(permission_enum which) const;
     ustring metadata() const;
+    bool get_pdf_id(std::string *permanent_id, std::string *update_id) const;
 
     int pages() const;
     page* create_page(const ustring &label) const;

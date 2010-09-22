@@ -416,6 +416,35 @@ ustring document::metadata() const
 }
 
 /**
+ Gets the IDs of the current PDF %document, if available.
+
+ \param permanent_id if not NULL, will be set to the permanent ID of the %document
+ \param update_id if not NULL, will be set to the update ID of the %document
+
+ \returns whether the document has the IDs
+
+ \since 0.16
+ */
+bool document::get_pdf_id(std::string *permanent_id, std::string *update_id) const
+{
+    GooString goo_permanent_id;
+    GooString goo_update_id;
+
+    if (!d->doc->getID(permanent_id ? &goo_permanent_id : 0, update_id ? &goo_update_id : 0)) {
+        return false;
+    }
+
+    if (permanent_id) {
+        *permanent_id = goo_permanent_id.getCString();
+    }
+    if (update_id) {
+        *update_id = goo_update_id.getCString();
+    }
+
+    return true;
+}
+
+/**
  Document page count.
 
  \returns the number of pages of the document
