@@ -41,6 +41,8 @@ unsigned int poppler::document_private::count = 0U;
 document_private::document_private(GooString *file_path, const std::string &owner_password,
                                    const std::string &user_password)
     : doc(0)
+    , raw_doc_data(0)
+    , raw_doc_data_length(0)
     , is_locked(false)
 {
     GooString goo_owner_password(owner_password.c_str());
@@ -53,12 +55,31 @@ document_private::document_private(byte_array *file_data,
                                    const std::string &owner_password,
                                    const std::string &user_password)
     : doc(0)
+    , raw_doc_data(0)
+    , raw_doc_data_length(0)
     , is_locked(false)
 {
     Object obj;
     obj.initNull();
     file_data->swap(doc_data);
     MemStream *memstr = new MemStream(&doc_data[0], 0, doc_data.size(), &obj);
+    GooString goo_owner_password(owner_password.c_str());
+    GooString goo_user_password(user_password.c_str());
+    doc = new PDFDoc(memstr, &goo_owner_password, &goo_user_password);
+    init();
+}
+
+document_private::document_private(const char *file_data, int file_data_length,
+                                   const std::string &owner_password,
+                                   const std::string &user_password)
+    : doc(0)
+    , raw_doc_data(file_data)
+    , raw_doc_data_length(file_data_length)
+    , is_locked(false)
+{
+    Object obj;
+    obj.initNull();
+    MemStream *memstr = new MemStream(const_cast<char *>(raw_doc_data), 0, raw_doc_data_length, &obj);
     GooString goo_owner_password(owner_password.c_str());
     GooString goo_user_password(user_password.c_str());
     doc = new PDFDoc(memstr, &goo_owner_password, &goo_user_password);
@@ -181,6 +202,9 @@ bool document::unlock(const std::string &owner_password, const std::string &user
         document_private *newdoc = 0;
         if (d->doc_data.size() > 0) {
             newdoc = new document_private(&d->doc_data,
+                                          owner_password, user_password);
+        } else if (d->raw_doc_data) {
+            newdoc = new document_private(d->raw_doc_data, d->raw_doc_data_length,
                                           owner_password, user_password);
         } else {
             newdoc = new document_private(new GooString(d->doc->getFileName()),
@@ -603,4 +627,33 @@ document* document::load_from_data(byte_array *file_data,
     document_private *doc = new document_private(
                                 file_data, owner_password, user_password);
     return document_private::check_document(doc, file_data);
+}
+
+/**
+ Tries to load a PDF %document from the specified data buffer.
+
+ \note the buffer must remain valid for the whole lifetime of the returned
+       document
+
+ \param file_data the data buffer representing a document to open
+ \param file_data_length the length of the data buffer
+
+ \returns a new document if the load succeeded (even if the document is locked),
+          NULL otherwise
+
+ \since 0.16
+ */
+document* document::load_from_raw_data(const char *file_data,
+                                       int file_data_length,
+                                       const std::string &owner_password,
+                                       const std::string &user_password)
+{
+    if (!file_data || file_data_length < 10) {
+        return 0;
+    }
+
+    document_private *doc = new document_private(
+                                file_data, file_data_length,
+                                owner_password, user_password);
+    return document_private::check_document(doc, 0);
 }
