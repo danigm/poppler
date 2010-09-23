@@ -214,10 +214,14 @@ pgd_info_create_widget (PopplerDocument *document)
 	pgd_table_add_property (GTK_TABLE (table), "<b>Page Layout:</b>", enum_value->value_name, &row);
 
 	if (poppler_document_get_id (document, &perm_id, &up_id)) {
-		pgd_table_add_property (GTK_TABLE (table), "<b>Permanent ID:</b>", perm_id, &row);
-		pgd_table_add_property (GTK_TABLE (table), "<b>Update ID:</b>", up_id, &row);
+		str = g_strndup (perm_id, 32);
 		g_free (perm_id);
+		pgd_table_add_property (GTK_TABLE (table), "<b>Permanent ID:</b>", str, &row);
+		g_free (str);
+		str = g_strndup (up_id, 32);
 		g_free (up_id);
+		pgd_table_add_property (GTK_TABLE (table), "<b>Update ID:</b>", str, &row);
+		g_free (str);
 	}
 
 	pgd_info_add_permissions (GTK_TABLE (table), permissions, &row);

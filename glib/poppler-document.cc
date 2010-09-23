@@ -364,11 +364,14 @@ poppler_document_finalize (GObject *object)
  * @permanent_id: (out) (allow-none): location to store an allocated string, use g_free() to free the returned string
  * @update_id: (out) (allow-none): location to store an allocated string, use g_free() to free the returned string
  *
- * Returns the PDF file identifier represented as two byte string arrays.
+ * Returns the PDF file identifier represented as two byte string arrays of size 32.
  * @permanent_id is the permanent identifier that is built based on the file
  * contents at the time it was originally created, so that this identifer
  * never changes. @update_id is the update identifier that is built based on
  * the file contents at the time it was last updated.
+ *
+ * Note that returned strings are not null-terminated, they have a fixed
+ * size of 32 bytes.
  *
  * Returns: %TRUE if the @document contains an id, %FALSE otherwise
  *
@@ -379,33 +382,25 @@ poppler_document_get_id (PopplerDocument *document,
 			 gchar          **permanent_id,
 			 gchar          **update_id)
 {
-  GooString *permanent = NULL;
-  GooString *update = NULL;
-  gboolean   retval = FALSE;
+  GooString permanent;
+  GooString update;
+  gboolean  retval = FALSE;
 
   g_return_val_if_fail (POPPLER_IS_DOCUMENT (document), FALSE);
 
-  if (permanent_id) {
-    permanent = new GooString();
+  if (permanent_id)
     *permanent_id = NULL;
-  }
-
-  if (update_id) {
-    update = new GooString();
+  if (update_id)
     *update_id = NULL;
-  }
 
-  if (document->doc->getID (permanent, update)) {
-    if (permanent)
-      *permanent_id = g_strdup (permanent->getCString());
-    if (update)
-      *update_id = g_strdup (update->getCString());
+  if (document->doc->getID (permanent_id ? &permanent : NULL, update_id ? &update : NULL)) {
+    if (permanent_id)
+      *permanent_id = (gchar *)g_memdup (permanent.getCString(), 32);
+    if (update_id)
+      *update_id = (gchar *)g_memdup (update.getCString(), 32);
 
     retval = TRUE;
   }
-
-  delete permanent;
-  delete update;
 
   return retval;
 }
