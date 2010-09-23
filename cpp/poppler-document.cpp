@@ -607,12 +607,12 @@ document* document::load_from_file(const std::string &file_name,
 }
 
 /**
- Tries to load a PDF %document from the specified file.
+ Tries to load a PDF %document from the specified data.
 
  \note if the loading succeeds, the document takes ownership of the
        \p file_data (swap()ing it)
 
- \param file_data the file to open
+ \param file_data the data representing a document to open
  \returns a new document if the load succeeded (even if the document is locked),
           NULL otherwise
  */
