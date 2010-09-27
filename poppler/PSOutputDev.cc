@@ -20,7 +20,7 @@
 // Copyright (C) 2007, 2008 Brad Hards <bradh@kde.org>
 // Copyright (C) 2008, 2009 Koji Otani <sho@bbr.jp>
 // Copyright (C) 2008 Hib Eris <hib@hiberis.nl>
-// Copyright (C) 2009 Thomas Freitag <Thomas.Freitag@alfa.de>
+// Copyright (C) 2009, 2010 Thomas Freitag <Thomas.Freitag@alfa.de>
 // Copyright (C) 2009 Till Kamppeter <till.kamppeter@gmail.com>
 // Copyright (C) 2009 Carlos Garcia Campos <carlosgc@gnome.org>
 // Copyright (C) 2009 William Bader <williambader@hotmail.com>
@@ -125,7 +125,7 @@ static char *prolog[] = {
   "~1sn",
   "/pdfOpNames [",
   "  /pdfFill /pdfStroke /pdfLastFill /pdfLastStroke",
-  "  /pdfTextMat /pdfFontSize /pdfCharSpacing /pdfTextRender",
+  "  /pdfTextMat /pdfFontSize /pdfCharSpacing /pdfTextRender /pdfPatternCS",
   "  /pdfTextRise /pdfWordSpacing /pdfHorizScaling /pdfTextClipPath",
   "] def",
   "~123sn",
@@ -157,6 +157,7 @@ static char *prolog[] = {
   "  /pdfFontSize 0 def",
   "  /pdfCharSpacing 0 def",
   "  /pdfTextRender 0 def",
+  "  /pdfPatternCS false def", 
   "  /pdfTextRise 0 def",
   "  /pdfWordSpacing 0 def",
   "  /pdfHorizScaling 1 def",
@@ -398,6 +399,7 @@ static char *prolog[] = {
   "      pdfTextMat matrix concatmatrix dup 4 0 put dup 5 0 put",
   "      exch findfont exch makefont setfont } def",
   "/Tr { /pdfTextRender exch def } def",
+  "/Tp { /pdfPatternCS exch def } def", 
   "/Ts { /pdfTextRise exch def } def",
   "/Tw { /pdfWordSpacing exch def } def",
   "/Tz { /pdfHorizScaling exch def } def",
@@ -469,7 +471,7 @@ static char *prolog[] = {
   "/Tj1 {",
   "  0 pdfTextRise pdfTextMat dtransform rmoveto",
   "  currentpoint 8 2 roll",
-  "  pdfTextRender 1 and 0 eq {",
+  "  pdfTextRender 1 and 0 eq pdfPatternCS not and {",
   "    6 copy awidthshow",
   "  } if",
   "  pdfTextRender 3 and dup 1 eq exch 2 eq or {",
@@ -478,7 +480,7 @@ static char *prolog[] = {
   "    currentfont /FontType get 3 eq { fCol } { sCol } ifelse",
   "    false awcp currentpoint stroke moveto",
   "  } if",
-  "  pdfTextRender 4 and 0 ne {",
+  "  pdfTextRender 4 and 0 ne pdfPatternCS or {",
   "    8 6 roll moveto",
   "    false awcp",
   "    /pdfTextClipPath [ pdfTextClipPath aload pop",
@@ -3708,10 +3710,6 @@ void PSOutputDev::updateRender(GfxState *state) {
   int rm;
 
   rm = state->getRender();
-  if (rm == 7 && haveCSPattern) {
-    haveCSPattern = gFalse;
-    restoreState(state);
-  }
   writePSFmt("{0:d} Tr\n", rm);
   rm &= 3;
   if (rm != 0 && rm != 3) {
@@ -3807,7 +3805,8 @@ GBool PSOutputDev::tilingPatternFill(GfxState *state, Object *str,
   if (paintType == 2) {
     writePSFmt("{0:.4g} 0 {1:.4g} {2:.4g} {3:.4g} {4:.4g} setcachedevice\n",
 	       xStep, bbox[0], bbox[1], bbox[2], bbox[3]);
-  } else {
+  } else
+  {
     if (x1 - 1 <= x0) {
       writePS("1 0 setcharwidth\n");
     } else {
@@ -4359,7 +4358,7 @@ void PSOutputDev::drawString(GfxState *state, GooString *s) {
   }
   delete s2;
 
-  if (state->getRender() & 4) {
+  if (state->getRender() & 4 || haveCSPattern) {
     haveTextClip = gTrue;
   }
 }
@@ -4368,9 +4367,7 @@ void PSOutputDev::beginTextObject(GfxState *state) {
   if (state->getFillColorSpace()->getMode() == csPattern) {
     saveState(state);
     haveCSPattern = gTrue;
-    savedRender = state->getRender();
-    state->setRender(7);
-    writePSFmt("{0:d} Tr\n", 7);
+    writePS("true Tp\n");
   }
 }
 
@@ -4379,7 +4376,6 @@ void PSOutputDev::endTextObject(GfxState *state) {
     if (haveTextClip) {
       writePS("Tclip*\n");
       haveTextClip = gFalse;
-      state->setRender(savedRender);
       if (state->getFillColorSpace()->getMode() != csPattern) {
         double cxMin, cyMin, cxMax, cyMax;
         state->getClipBBox(&cxMin, &cyMin, &cxMax, &cyMax);
@@ -4390,8 +4386,6 @@ void PSOutputDev::endTextObject(GfxState *state) {
         restoreState(state);
         updateFillColor(state);
       }
-    } else {
-      state->setRender(savedRender);
     }
     haveCSPattern = gFalse;
   } else if (haveTextClip) {

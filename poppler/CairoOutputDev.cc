@@ -606,15 +606,6 @@ void CairoOutputDev::updateFont(GfxState *state) {
   cairo_set_font_matrix (cairo, &matrix);
 }
 
-void CairoOutputDev::updateRender(GfxState *state) {
-  int rm;
-  rm = state->getRender();
-  if (rm == 7 && haveCSPattern) {
-    haveCSPattern = gFalse;
-    restoreState(state);
-  }
-}
-
 void CairoOutputDev::doPath(cairo_t *cairo, GfxState *state, GfxPath *path) {
   GfxSubpath *subpath;
   int i, j;
@@ -909,7 +900,7 @@ void CairoOutputDev::endString(GfxState *state)
     return;
   }
   
-  if (!(render & 1)) {
+  if (!(render & 1) && !haveCSPattern) {
     LOG (printf ("fill string\n"));
     cairo_set_source (cairo, fill_pattern);
     cairo_show_glyphs (cairo, glyphs, glyphCount);
@@ -930,7 +921,7 @@ void CairoOutputDev::endString(GfxState *state)
   }
 
   // clip
-  if (render & 4) {
+  if (haveCSPattern || (render & 4)) {
     LOG (printf ("clip string\n"));
     // append the glyph path to textClipPath.
 
@@ -1014,17 +1005,14 @@ void CairoOutputDev::type3D1(GfxState *state, double wx, double wy,
 }
 
 void CairoOutputDev::beginTextObject(GfxState *state) {
-  if (state->getFillColorSpace()->getMode() == csPattern) {
+  if (!(state->getRender() & 4) && state->getFillColorSpace()->getMode() == csPattern) {
     haveCSPattern = gTrue;
     saveState(state);
-    savedRender = state->getRender();
-    state->setRender(7); // Set clip to text path
   }
 }
 
 void CairoOutputDev::endTextObject(GfxState *state) {
   if (haveCSPattern) {
-    state->setRender(savedRender);
     haveCSPattern = gFalse;
     if (state->getFillColorSpace()->getMode() != csPattern) {
       if (textClipPath) {

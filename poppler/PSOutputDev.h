@@ -17,7 +17,7 @@
 // Copyright (C) 2005 Kristian Høgsberg <krh@redhat.com>
 // Copyright (C) 2006-2008 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2007 Brad Hards <bradh@kde.org>
-// Copyright (C) 2009 Thomas Freitag <Thomas.Freitag@alfa.de>
+// Copyright (C) 2009, 2010 Thomas Freitag <Thomas.Freitag@alfa.de>
 // Copyright (C) 2009 Till Kamppeter <till.kamppeter@gmail.com>
 // Copyright (C) 2009 Carlos Garcia Campos <carlosgc@gnome.org>
 // Copyright (C) 2009 William Bader <williambader@hotmail.com>
@@ -427,7 +427,6 @@ private:
 				//   clipping render mode
   GBool haveCSPattern;		// set if text has been drawn with a
 				//   clipping render mode because of pattern colorspace
-  int savedRender;		// use if pattern colorspace
 
   GBool inType3Char;		// inside a Type 3 CharProc
   GooString *t3String;		// Type 3 content string

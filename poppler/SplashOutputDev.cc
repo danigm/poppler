@@ -1225,15 +1225,6 @@ void SplashOutputDev::updateFont(GfxState * /*state*/) {
   needFontUpdate = gTrue;
 }
 
-void SplashOutputDev::updateRender(GfxState *state) {
-  int rm;
-  rm = state->getRender();
-  if (rm == 7 && haveCSPattern) {
-    haveCSPattern = gFalse;
-    restoreState(state);
-  }
-}
-
 void SplashOutputDev::doUpdateFont(GfxState *state) {
   GfxFont *gfxFont;
   GfxFontType fontType;
@@ -1621,7 +1612,7 @@ void SplashOutputDev::drawChar(GfxState *state, double x, double y,
 
   // fill
   if (!(render & 1)) {
-    if (!state->getFillColorSpace()->isNonMarking()) {
+    if (!haveCSPattern && !state->getFillColorSpace()->isNonMarking()) {
       splash->fillChar((SplashCoord)x, (SplashCoord)y, code, font);
     }
   }
@@ -1638,7 +1629,7 @@ void SplashOutputDev::drawChar(GfxState *state, double x, double y,
   }
 
   // clip
-  if (render & 4) {
+  if (haveCSPattern || (render & 4)) {
     if ((path = font->getGlyphPath(code))) {
       path->offset((SplashCoord)x, (SplashCoord)y);
       if (textClipPath) {
@@ -1927,17 +1918,14 @@ void SplashOutputDev::drawType3Glyph(T3FontCache *t3Font,
 }
 
 void SplashOutputDev::beginTextObject(GfxState *state) {
-  if (state->getFillColorSpace()->getMode() == csPattern) {
+  if (!(state->getRender() & 4) && state->getFillColorSpace()->getMode() == csPattern) {
     haveCSPattern = gTrue;
     saveState(state);
-    savedRender = state->getRender();
-    state->setRender(7);
   }
 }
 
 void SplashOutputDev::endTextObject(GfxState *state) {
   if (haveCSPattern) {
-    state->setRender(savedRender);
     haveCSPattern = gFalse;
     if (state->getFillColorSpace()->getMode() != csPattern) {
       if (textClipPath) {

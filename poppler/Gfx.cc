@@ -3342,7 +3342,7 @@ void Gfx::opBeginText(Object args[], int numArgs) {
   out->updateTextMat(state);
   out->updateTextPos(state);
   fontChanged = gTrue;
-  if (out->supportTextCSPattern(state)) {
+  if (!(state->getRender() & 4) && out->supportTextCSPattern(state)) {
     textHaveCSPattern = gTrue;
   }
 }
@@ -3397,9 +3397,22 @@ void Gfx::opSetTextLeading(Object args[], int numArgs) {
 }
 
 void Gfx::opSetTextRender(Object args[], int numArgs) {
+  int rm = state->getRender();
   state->setRender(args[0].getInt());
-  if (args[0].getInt() == 7) {
+  if ((args[0].getInt() & 4) && textHaveCSPattern && drawText) {
+    GBool needFill = out->deviceHasTextClip(state);
+    out->endTextObject(state);
+    if (needFill) {
+      doPatternFill(gTrue);
+    }
+    out->restoreState(state);
+    out->beginTextObject(state);
+    out->updateTextMat(state);
+    out->updateTextPos(state);
     textHaveCSPattern = gFalse;
+  } else if ((rm & 4) && !(args[0].getInt() & 4) && out->supportTextCSPattern(state) && drawText) {
+	out->beginTextObject(state);
+    textHaveCSPattern = gTrue;
   }
   out->updateRender(state);
 }

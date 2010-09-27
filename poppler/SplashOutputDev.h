@@ -116,7 +116,6 @@ public:
 
   //----- update text state
   virtual void updateFont(GfxState *state);
-  virtual void updateRender(GfxState *state);
 
   //----- path painting
   virtual void stroke(GfxState *state);
@@ -246,8 +245,7 @@ private:
 			      Guchar *alphaLine);
 
   GBool haveCSPattern;		// set if text has been drawn with a
-				//   clipping render mode because of pattern colorspace
-  int savedRender;		// use if pattern colorspace
+							//   clipping render mode because of pattern colorspace
   GBool keepAlphaChannel;	// don't fill with paper color, keep alpha channel
 
   SplashColorMode colorMode;
