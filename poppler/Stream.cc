@@ -21,6 +21,7 @@
 // Copyright (C) 2009 Glenn Ganz <glenn.ganz@uptime.ch>
 // Copyright (C) 2009 Stefan Thomas <thomas@eload24.com>
 // Copyright (C) 2010 Hib Eris <hib@hiberis.nl>
+// Copyright (C) 2010 Tomas Hoger <thoger@redhat.com>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -3298,6 +3299,8 @@ GBool DCTStream::readScanInfo() {
   interleaved = scanInfo.numComps == numComps;
   for (j = 0; j < numComps; ++j) {
     scanInfo.comp[j] = gFalse;
+    scanInfo.dcHuffTable[j] = 0;
+    scanInfo.acHuffTable[j] = 0;
   }
   for (i = 0; i < scanInfo.numComps; ++i) {
     id = str->getChar();
