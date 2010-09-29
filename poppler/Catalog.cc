@@ -172,6 +172,7 @@ Catalog::~Catalog() {
     gfree(pages);
     gfree(pageRefs);
   }
+  names.free();
   dests.free();
   delete destNameTree;
   delete embeddedFileNameTree;
