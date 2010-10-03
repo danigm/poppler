@@ -4378,6 +4378,7 @@ void AnnotGeometry::draw(Gfx *gfx, GBool printing) {
     if (border) {
       int i, dashLength;
       double *dash;
+      double borderWidth = border->getWidth();
 
       switch (border->getStyle()) {
       case AnnotBorder::borderDashed:
@@ -4392,70 +4393,70 @@ void AnnotGeometry::draw(Gfx *gfx, GBool printing) {
         appearBuf->append("[] 0 d\n");
         break;
       }
-      appearBuf->appendf("{0:.2f} w\n", border->getWidth());
+      appearBuf->appendf("{0:.2f} w\n", borderWidth);
+
+      if (interiorColor)
+        setColor(interiorColor, gTrue);
+
+      if (type == typeSquare) {
+        appearBuf->appendf ("{0:.2f} {1:.2f} {2:.2f} {3:.2f} re\n",
+			    borderWidth / 2.0, borderWidth / 2.0,
+			    (rect->x2 - rect->x1) - borderWidth,
+			    (rect->y2 - rect->y1) - borderWidth);
+      } else {
+        double width, height;
+	double b;
+	double x1, y1, x2, y2, x3, y3;
+
+	width = rect->x2 - rect->x1;
+	height = rect->y2 - rect->y1;
+	b = borderWidth / 2.0;
+
+	x1 = b;
+	y1 = height / 2.0;
+	appearBuf->appendf ("{0:.2f} {1:.2f} m\n", x1, y1);
+
+	y1 += height / 4.0;
+	x2 = width / 4.0;
+	y2 = height - b;
+	x3 = width / 2.0;
+	y3 = y2;
+	appearBuf->appendf ("{0:.2f} {1:.2f} {2:.2f} {3:.2f} {4:.2f} {5:.2f} c\n",
+			    x1, y1, x2, y2, x3, y3);
+	x2 = width - b;
+	y2 = y1;
+	x1 = x3 + (width / 4.0);
+	y1 = y3;
+	x3 = x2;
+	y3 = height / 2.0;
+	appearBuf->appendf ("{0:.2f} {1:.2f} {2:.2f} {3:.2f} {4:.2f} {5:.2f} c\n",
+			    x1, y1, x2, y2, x3, y3);
+
+	x2 = x1;
+	y2 = b;
+	x1 = x3;
+	y1 = height / 4.0;
+	x3 = width / 2.0;
+	y3 = b;
+	appearBuf->appendf ("{0:.2f} {1:.2f} {2:.2f} {3:.2f} {4:.2f} {5:.2f} c\n",
+			    x1, y1, x2, y2, x3, y3);
+
+	x2 = b;
+	y2 = y1;
+	x1 = width / 4.0;
+	y1 = b;
+	x3 = b;
+	y3 = height / 2.0;
+	appearBuf->appendf ("{0:.2f} {1:.2f} {2:.2f} {3:.2f} {4:.2f} {5:.2f} c\n",
+			    x1, y1, x2, y2, x3, y3);
+
+      }
+
+      if (interiorColor)
+        appearBuf->append ("b\n");
+      else
+        appearBuf->append ("S\n");
     }
-
-    if (interiorColor)
-      setColor(interiorColor, gTrue);
-
-    if (type == typeSquare) {
-      appearBuf->appendf ("{0:.2f} {1:.2f} {2:.2f} {3:.2f} re\n",
-			  border->getWidth() / 2.0, border->getWidth() / 2.0,
-			  (rect->x2 - rect->x1) - border->getWidth(),
-			  (rect->y2 - rect->y1) - border->getWidth());
-    } else {
-      double width, height;
-      double b;
-      double x1, y1, x2, y2, x3, y3;
-
-      width = rect->x2 - rect->x1;
-      height = rect->y2 - rect->y1;
-      b = border->getWidth() / 2.0;
-
-      x1 = b;
-      y1 = height / 2.0;
-      appearBuf->appendf ("{0:.2f} {1:.2f} m\n", x1, y1);
-
-      y1 += height / 4.0;
-      x2 = width / 4.0;
-      y2 = height - b;
-      x3 = width / 2.0;
-      y3 = y2;
-      appearBuf->appendf ("{0:.2f} {1:.2f} {2:.2f} {3:.2f} {4:.2f} {5:.2f} c\n",
-			  x1, y1, x2, y2, x3, y3);
-      x2 = width - b;
-      y2 = y1;
-      x1 = x3 + (width / 4.0);
-      y1 = y3;
-      x3 = x2;
-      y3 = height / 2.0;
-      appearBuf->appendf ("{0:.2f} {1:.2f} {2:.2f} {3:.2f} {4:.2f} {5:.2f} c\n",
-			  x1, y1, x2, y2, x3, y3);
-
-      x2 = x1;
-      y2 = b;
-      x1 = x3;
-      y1 = height / 4.0;
-      x3 = width / 2.0;
-      y3 = b;
-      appearBuf->appendf ("{0:.2f} {1:.2f} {2:.2f} {3:.2f} {4:.2f} {5:.2f} c\n",
-			  x1, y1, x2, y2, x3, y3);
-
-      x2 = b;
-      y2 = y1;
-      x1 = width / 4.0;
-      y1 = b;
-      x3 = b;
-      y3 = height / 2.0;
-      appearBuf->appendf ("{0:.2f} {1:.2f} {2:.2f} {3:.2f} {4:.2f} {5:.2f} c\n",
-			  x1, y1, x2, y2, x3, y3);
-
-    }
-
-    if (interiorColor)
-      appearBuf->append ("b\n");
-    else
-      appearBuf->append ("S\n");
     appearBuf->append ("Q\n");
 
     double bbox[4];
