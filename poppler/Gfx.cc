@@ -1262,7 +1262,8 @@ void Gfx::doSoftMask(Object *str, GBool alpha,
   if (obj1.isArray()) {
     for (i = 0; i < 6; ++i) {
       obj1.arrayGet(i, &obj2);
-      m[i] = obj2.getNum();
+      if (likely(obj2.isNum())) m[i] = obj2.getNum();
+      else m[i] = 0;
       obj2.free();
     }
   } else {
@@ -4264,7 +4265,8 @@ void Gfx::doForm(Object *str) {
   if (matrixObj.isArray()) {
     for (i = 0; i < 6; ++i) {
       matrixObj.arrayGet(i, &obj1);
-      m[i] = obj1.getNum();
+      if (likely(obj1.isNum())) m[i] = obj1.getNum();
+      else m[i] = 0;
       obj1.free();
     }
   } else {
