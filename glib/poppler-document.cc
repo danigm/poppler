@@ -429,9 +429,7 @@ poppler_document_get_n_pages (PopplerDocument *document)
  * Returns the #PopplerPage indexed at @index.  This object is owned by the
  * caller.
  *
- * #PopplerPage<!-- -->s are indexed starting at 0.
- * 
- * Return value: The #PopplerPage at @index
+ * Return value: (transfer full) : The #PopplerPage at @index
  **/
 PopplerPage *
 poppler_document_get_page (PopplerDocument  *document,
@@ -461,7 +459,7 @@ poppler_document_get_page (PopplerDocument  *document,
  *
  * By default, "1" refers to the first page.
  * 
- * Return value: The #PopplerPage referenced by @label
+ * Return value: (transfer full) :The #PopplerPage referenced by @label
  **/
 PopplerPage *
 poppler_document_get_page_by_label (PopplerDocument  *document,
