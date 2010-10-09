@@ -845,6 +845,15 @@ poppler_annot_markup_set_opacity (PopplerAnnotMarkup *poppler_annot,
   annot->setOpacity(opacity);
 }
 
+/**
+ * poppler_annot_markup_get_date:
+ * @poppler_annot: a #PopplerAnnotMarkup
+ *
+ * Returns the date and time when the annotation was created
+ *
+ * Return value: (transfer full): a #GDate representing the date and time
+ *               when the annotation was created, or %NULL
+ */
 GDate *
 poppler_annot_markup_get_date (PopplerAnnotMarkup *poppler_annot)
 {
