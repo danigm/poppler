@@ -12,6 +12,7 @@ set(poppler_cpp_SRCS
   poppler-embedded-file.cpp
   poppler-font.cpp
   poppler-global.cpp
+  poppler-image.cpp
   poppler-page.cpp
   poppler-page-transition.cpp
   poppler-private.cpp
@@ -34,6 +35,7 @@ install(FILES
   poppler-embedded-file.h
   poppler-font.h
   poppler-global.h
+  poppler-image.h
   poppler-page.h
   poppler-page-transition.h
   poppler-rectangle.h

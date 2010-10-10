@@ -11,6 +11,7 @@ poppler_include_HEADERS =			\
 	poppler-embedded-file.h			\
 	poppler-font.h				\
 	poppler-global.h			\
+	poppler-image.h			\
 	poppler-page.h				\
 	poppler-page-transition.h		\
 	poppler-rectangle.h			\
@@ -25,6 +26,8 @@ libpoppler_cpp_la_SOURCES =			\
 	poppler-embedded-file-private.h		\
 	poppler-font.cpp			\
 	poppler-global.cpp			\
+	poppler-image.cpp			\
+	poppler-image-private.h			\
 	poppler-page.cpp			\
 	poppler-page-private.h			\
 	poppler-page-transition.cpp		\
