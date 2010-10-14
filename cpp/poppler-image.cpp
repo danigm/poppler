@@ -21,6 +21,7 @@
 #include "poppler-image-private.h"
 
 #include <config.h>
+#include "ImgWriter.h"
 #if defined(ENABLE_LIBPNG)
 #include "PNGWriter.h"
 #endif
