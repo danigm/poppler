@@ -20,6 +20,7 @@
 // Copyright (C) 2009 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2009, 2010 Thomas Freitag <Thomas.Freitag@alfa.de>
 // Copyright (C) 2010 David Benjamin <davidben@mit.edu>
+// Copyright (C) 2010 Christian Feuersänger <cfeuersaenger@googlemail.com>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -299,9 +300,13 @@ private:
   void gouraudFillTriangle(double x0, double y0, GfxColor *color0,
 			   double x1, double y1, GfxColor *color1,
 			   double x2, double y2, GfxColor *color2,
-			   int nComps, int depth);
+			   int nComps, int depth, GfxState::ReusablePathIterator *path);
+  void gouraudFillTriangle(double x0, double y0, double color0,
+			   double x1, double y1, double color1,
+			   double x2, double y2, double color2,
+			   double refineColorThreshold, int depth, GfxGouraudTriangleShading *shading, GfxState::ReusablePathIterator *path);
   void doPatchMeshShFill(GfxPatchMeshShading *shading);
-  void fillPatch(GfxPatch *patch, int nComps, int depth);
+  void fillPatch(GfxPatch *patch, int colorComps, int patchColorComps, double refineColorThreshold, int depth, GfxPatchMeshShading *shading);
   void doEndPath();
 
   // path clipping operators

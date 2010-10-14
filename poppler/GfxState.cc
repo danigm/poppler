@@ -21,6 +21,7 @@
 // Copyright (C) 2009 Thomas Freitag <Thomas.Freitag@alfa.de>
 // Copyright (C) 2009 Christian Persch <chpe@gnome.org>
 // Copyright (C) 2010 Paweł Wiejacha <pawel.wiejacha@gmail.com>
+// Copyright (C) 2010 Christian Feuersänger <cfeuersaenger@googlemail.com>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -3350,6 +3351,8 @@ void GfxGouraudTriangleShading::getTriangle(
   double out[gfxColorMaxComps];
   int v, j;
 
+  assert(!isParameterized()); 
+
   v = triangles[i][0];
   *x0 = vertices[v].x;
   *y0 = vertices[v].y;
@@ -3392,6 +3395,39 @@ void GfxGouraudTriangleShading::getTriangle(
   } else {
     *color2 = vertices[v].color;
   }
+}
+
+void GfxGouraudTriangleShading::getParameterizedColor(double t, GfxColor *color) {
+  double out[gfxColorMaxComps];
+
+  for (int j = 0; j < nFuncs; ++j) {
+    funcs[j]->transform(&t, &out[j]);
+  }
+  for (int j = 0; j < gfxColorMaxComps; ++j) {
+    color->c[j] = dblToCol(out[j]);
+  }
+}
+
+void GfxGouraudTriangleShading::getTriangle(int i,
+                                            double *x0, double *y0, double *color0,
+                                            double *x1, double *y1, double *color1,
+                                            double *x2, double *y2, double *color2) {
+  int v;
+
+  assert(isParameterized()); 
+
+  v = triangles[i][0];
+  *x0 = vertices[v].x;
+  *y0 = vertices[v].y;
+  *color0 = colToDbl(vertices[v].color.c[0]);
+  v = triangles[i][1];
+  *x1 = vertices[v].x;
+  *y1 = vertices[v].y;
+  *color1 = colToDbl(vertices[v].color.c[0]);
+  v = triangles[i][2];
+  *x2 = vertices[v].x;
+  *y2 = vertices[v].y;
+  *color2 = colToDbl(vertices[v].color.c[0]);
 }
 
 //------------------------------------------------------------------------
@@ -3451,7 +3487,7 @@ GfxPatchMeshShading *GfxPatchMeshShading::parse(int typeA, Dict *dict,
   Guint flag;
   double x[16], y[16];
   Guint xi, yi;
-  GfxColorComp c[4][gfxColorMaxComps];
+  double c[4][gfxColorMaxComps];
   Guint ci[4];
   GfxShadingBitBuf *bitBuf;
   Object obj1, obj2;
@@ -3573,7 +3609,12 @@ GfxPatchMeshShading *GfxPatchMeshShading::parse(int typeA, Dict *dict,
 	if (!bitBuf->getBits(compBits, &ci[j])) {
 	  break;
 	}
-	c[i][j] = dblToCol(cMin[j] + cMul[j] * (double)ci[j]);
+	c[i][j] = cMin[j] + cMul[j] * (double)ci[j];
+	if( nFuncsA == 0 ) {
+	  // ... and colorspace values can also be stored into doubles.
+	  // They will be casted later.
+	  c[i][j] = dblToCol(c[i][j]);
+	}
       }
       if (j < nComps) {
 	break;
@@ -3948,6 +3989,17 @@ GfxPatchMeshShading *GfxPatchMeshShading::parse(int typeA, Dict *dict,
   obj1.free();
  err1:
   return NULL;
+}
+
+void GfxPatchMeshShading::getParameterizedColor(double t, GfxColor *color) {
+  double out[gfxColorMaxComps];
+
+  for (int j = 0; j < nFuncs; ++j) {
+    funcs[j]->transform(&t, &out[j]);
+  }
+  for (int j = 0; j < gfxColorMaxComps; ++j) {
+    color->c[j] = dblToCol(out[j]);
+  }
 }
 
 GfxShading *GfxPatchMeshShading::copy() {
@@ -4506,6 +4558,46 @@ void GfxPath::offset(double dx, double dy) {
 //------------------------------------------------------------------------
 // GfxState
 //------------------------------------------------------------------------
+GfxState::ReusablePathIterator::ReusablePathIterator(GfxPath *path)
+ : path(path),
+   subPathOff(0),
+   coordOff(0),
+   numCoords(0),
+   curSubPath(NULL)
+{
+  if( path->getNumSubpaths() ) {
+    curSubPath = path->getSubpath(subPathOff);
+    numCoords = curSubPath->getNumPoints();
+  }
+}
+
+bool GfxState::ReusablePathIterator::isEnd() const {
+   return coordOff >= numCoords;
+}
+
+void GfxState::ReusablePathIterator::next() {
+  ++coordOff;
+  if (coordOff == numCoords) {
+    ++subPathOff;
+    if (subPathOff < path->getNumSubpaths()) {
+      coordOff = 0;
+      curSubPath = path->getSubpath(subPathOff);
+      numCoords = curSubPath->getNumPoints();
+    }
+  }
+}
+
+void GfxState::ReusablePathIterator::setCoord(double x, double y) {
+  curSubPath->setX(coordOff, x);
+  curSubPath->setY(coordOff, y);
+}
+
+void GfxState::ReusablePathIterator::reset() {
+  coordOff = 0;
+  subPathOff = 0;
+  curSubPath = path->getSubpath(0);
+  numCoords = curSubPath->getNumPoints();
+}
 
 GfxState::GfxState(double hDPIA, double vDPIA, PDFRectangle *pageBox,
 		   int rotateA, GBool upsideDown) {

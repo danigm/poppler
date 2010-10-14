@@ -18,6 +18,7 @@
 // Copyright (C) 2006 Carlos Garcia Campos <carlosgc@gnome.org>
 // Copyright (C) 2009 Koji Otani <sho@bbr.jp>
 // Copyright (C) 2009, 2010 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2010 Christian Feuersänger <cfeuersaenger@googlemail.com>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -34,6 +35,8 @@
 #include "goo/gtypes.h"
 #include "Object.h"
 #include "Function.h"
+
+#include <assert.h>
 
 class Array;
 class Gfx;
@@ -876,9 +879,36 @@ public:
   virtual GfxShading *copy();
 
   int getNTriangles() { return nTriangles; }
+
+  bool isParameterized() const { return nFuncs > 0; }
+
+  /**
+   * @precondition isParameterized() == true
+   */
+  double getParameterDomainMin() const { assert(isParameterized()); return funcs[0]->getDomainMin(0); }
+
+  /**
+   * @precondition isParameterized() == true
+   */
+  double getParameterDomainMax() const { assert(isParameterized()); return funcs[0]->getDomainMax(0); }
+
+  /**
+   * @precondition isParameterized() == false
+   */
   void getTriangle(int i, double *x0, double *y0, GfxColor *color0,
 		   double *x1, double *y1, GfxColor *color1,
 		   double *x2, double *y2, GfxColor *color2);
+
+  /**
+   * Variant for functions.
+   *
+   * @precondition isParameterized() == true
+   */
+  void getTriangle(int i, double *x0, double *y0, double *color0,
+		   double *x1, double *y1, double *color1,
+		   double *x2, double *y2, double *color2);
+
+  void getParameterizedColor(double t, GfxColor *color);
 
 private:
 
@@ -894,10 +924,32 @@ private:
 // GfxPatchMeshShading
 //------------------------------------------------------------------------
 
+/**
+ * A tensor product cubic bezier patch consisting of 4x4 points and 4 color
+ * values.
+ *
+ * See the Shading Type 7 specifications. Note that Shading Type 6 is also
+ * represented using GfxPatch.
+ */
 struct GfxPatch {
+  /**
+   * Represents a single color value for the patch.
+   */
+  struct ColorValue {
+    /**
+     * For parameterized patches, only element 0 is valid; it contains
+     * the single parameter.
+     *
+     * For non-parameterized patches, c contains all color components
+     * as decoded from the input stream. In this case, you will need to
+     * use dblToCol() before assigning them to GfxColor.
+     */
+    double c[gfxColorMaxComps];
+  };
+
   double x[4][4];
   double y[4][4];
-  GfxColor color[2][2];
+  ColorValue color[2][2];
 };
 
 class GfxPatchMeshShading: public GfxShading {
@@ -914,6 +966,20 @@ public:
 
   int getNPatches() { return nPatches; }
   GfxPatch *getPatch(int i) { return &patches[i]; }
+
+  bool isParameterized() const { return nFuncs > 0; }
+
+  /**
+   * @precondition isParameterized() == true
+   */
+  double getParameterDomainMin() const { assert(isParameterized()); return funcs[0]->getDomainMin(0); }
+
+  /**
+   * @precondition isParameterized() == true
+   */
+  double getParameterDomainMax() const { assert(isParameterized()); return funcs[0]->getDomainMax(0); }
+
+  void getParameterizedColor(double t, GfxColor *color);
 
 private:
 
@@ -1003,6 +1069,9 @@ public:
   double getX(int i) { return x[i]; }
   double getY(int i) { return y[i]; }
   GBool getCurve(int i) { return curve[i]; }
+
+  void setX(int i, double a) { x[i] = a; }
+  void setY(int i, double a) { y[i] = a; }
 
   // Get last point.
   double getLastX() { return x[n-1]; }
@@ -1098,6 +1167,61 @@ private:
 
 class GfxState {
 public:
+  /**
+   * When GfxState::getReusablePath() is invoked, the currently active
+   * path is taken per reference and its coordinates can be re-edited.
+   *
+   * A ReusablePathIterator is intented to reduce overhead when the same
+   * path type is used a lot of times, only with different coordinates. It
+   * allows just to update the coordinates (occuring in the same order as
+   * in the original path).
+   */
+  class ReusablePathIterator {
+  public:
+    /**
+     * Creates the ReusablePathIterator. This should only be done from
+     * GfxState::getReusablePath().
+     *
+     * @param path the path as it is used so far. Changing this path,
+     * deleting it or starting a new path from scratch will most likely
+     * invalidate the iterator (and may cause serious problems). Make
+     * sure the path's memory structure is not changed during the
+     * lifetime of the ReusablePathIterator.
+     */
+    ReusablePathIterator( GfxPath* path );
+
+    /**
+     * Returns true if and only if the current iterator position is
+     * beyond the last valid point.
+     *
+     * A call to setCoord() will be undefined.
+     */
+    bool isEnd() const;
+
+    /**
+     * Advances the iterator.
+     */
+    void next();
+
+     /**
+     * Updates the coordinates associated to the current iterator
+     * position.
+     */
+     void setCoord( double x, double y );
+
+    /**
+     * Resets the iterator.
+     */
+    void reset();
+  private:
+    GfxPath *path;
+    int subPathOff;
+
+    int coordOff;
+    int numCoords;
+
+    GfxSubpath *curSubPath;
+  };
 
   // Construct a default GfxState, for a device with resolution <hDPI>
   // x <vDPI>, page box <pageBox>, page rotation <rotateA>, and
@@ -1276,6 +1400,7 @@ public:
   // Misc
   GBool parseBlendMode(Object *obj, GfxBlendMode *mode);
 
+  ReusablePathIterator *getReusablePath() { return new ReusablePathIterator(path); }
 private:
 
   double hDPI, vDPI;		// resolution
