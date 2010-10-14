@@ -15,7 +15,7 @@
 //
 // Copyright (C) 2005 Kristian Høgsberg <krh@redhat.com>
 // Copyright (C) 2005 Jeff Muizelaar <jeff@infidigm.net>
-// Copyright (C) 2005-2009 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2005-2010 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2006-2008 Pino Toscano <pino@kde.org>
 // Copyright (C) 2006 Nickolay V. Shmyrev <nshmyrev@yandex.ru>
 // Copyright (C) 2006 Scott Turner <scotty1024@mac.com>
@@ -91,6 +91,7 @@ void PDFRectangle::clipTo(PDFRectangle *rect) {
 PageAttrs::PageAttrs(PageAttrs *attrs, Dict *dict) {
   Object obj1;
   PDFRectangle mBox;
+  const GBool isPage = dict->is("Page");
 
   // get old/default values
   if (attrs) {
@@ -124,8 +125,8 @@ PageAttrs::PageAttrs(PageAttrs *attrs, Dict *dict) {
   if (!haveCropBox) {
     cropBox = mediaBox;
   }
-  else
-  {
+
+  if (isPage) {
     // cropBox can not be bigger than mediaBox
     if (cropBox.x2 - cropBox.x1 > mediaBox.x2 - mediaBox.x1)
     {
@@ -147,11 +148,13 @@ PageAttrs::PageAttrs(PageAttrs *attrs, Dict *dict) {
   artBox = cropBox;
   readBox(dict, "ArtBox", &artBox);
 
-  // clip all other boxes to the media box
-  cropBox.clipTo(&mediaBox);
-  bleedBox.clipTo(&mediaBox);
-  trimBox.clipTo(&mediaBox);
-  artBox.clipTo(&mediaBox);
+  if (isPage) {
+    // clip all other boxes to the media box
+    cropBox.clipTo(&mediaBox);
+    bleedBox.clipTo(&mediaBox);
+    trimBox.clipTo(&mediaBox);
+    artBox.clipTo(&mediaBox);
+  }
 
   // rotate
   dict->lookup("Rotate", &obj1);
