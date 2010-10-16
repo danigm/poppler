@@ -1,5 +1,5 @@
 /* poppler-ps-converter.cc: qt interface to poppler
- * Copyright (C) 2007, 2009, Albert Astals Cid <aacid@kde.org>
+ * Copyright (C) 2007, 2009, 2010, Albert Astals Cid <aacid@kde.org>
  * Copyright (C) 2008, Pino Toscano <pino@kde.org>
  *
  * This program is free software; you can redistribute it and/or modify
@@ -48,13 +48,16 @@ class PSConverterPrivate : public BaseConverterPrivate
 		int marginLeft;
 		int marginTop;
 		PSConverter::PSOptions opts;
+		void (* pageConvertedCallback)(int page, void *payload);
+		void *pageConvertedPayload;
 };
 
 PSConverterPrivate::PSConverterPrivate()
 	: BaseConverterPrivate(),
 	hDPI(72), vDPI(72), rotate(0), paperWidth(-1), paperHeight(-1),
 	marginRight(0), marginBottom(0), marginLeft(0), marginTop(0),
-	opts(PSConverter::Printing)
+	opts(PSConverter::Printing), pageConvertedCallback(0),
+	pageConvertedPayload(0)
 {
 }
 
@@ -166,6 +169,13 @@ PSConverter::PSOptions PSConverter::psOptions() const
 	return d->opts;
 }
 
+void PSConverter::setPageConvertedCallback(void (* callback)(int page, void *payload), void *payload)
+{
+	Q_D(PSConverter);
+	d->pageConvertedCallback = callback;
+	d->pageConvertedPayload = payload;
+}
+
 bool PSConverter::convert()
 {
 	Q_D(PSConverter);
@@ -222,6 +232,8 @@ bool PSConverter::convert()
 		foreach(int page, d->pageList)
 		{
 			d->document->doc->displayPage(psOut, page, d->hDPI, d->vDPI, d->rotate, gFalse, gTrue, isPrinting);
+			if (d->pageConvertedCallback)
+				(*d->pageConvertedCallback)(page, d->pageConvertedPayload);
 		}
 		delete psOut;
 		d->closeDevice();

@@ -1411,6 +1411,7 @@ height = dummy.height();
               \since 0.10
              */
             void setPSOptions(PSOptions options);
+
             /**
               The currently set options for the PS export.
 
@@ -1419,6 +1420,15 @@ height = dummy.height();
               \since 0.10
              */
             PSOptions psOptions() const;
+
+            /**
+              Sets a function that will be called each time a page is converted.
+
+              The payload belongs to the caller.
+
+              \since 0.16
+             */
+            void setPageConvertedCallback(void (* callback)(int page, void *payload), void *payload);
 
             bool convert();
 
