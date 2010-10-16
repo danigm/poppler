@@ -199,10 +199,6 @@ GBool SplashFTFont::makeGlyph(int c, int xFrac, int yFrac,
   } else {
     gid = (FT_UInt)c;
   }
-  if (ff->trueType && gid == 0) {
-    // skip the TrueType notdef glyph
-    return gFalse;
-  }
 
   if (FT_Load_Glyph(ff->face, gid, getFTLoadFlags(aa, enableFreeTypeHinting))) {
     return gFalse;
