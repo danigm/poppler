@@ -500,7 +500,6 @@ void CairoOutputDev::updateFillColorStop(GfxState *state, double offset) {
 }
 
 void CairoOutputDev::updateBlendMode(GfxState *state) {
-#if CAIRO_VERSION >= CAIRO_VERSION_ENCODE(1, 9, 4)
   switch (state->getBlendMode()) {
   default:
   case gfxBlendNormal:
@@ -553,7 +552,6 @@ void CairoOutputDev::updateBlendMode(GfxState *state) {
     break;
   }
   LOG(printf ("blend mode: %d\n", (int)state->getBlendMode()));
-#endif /* CAIRO_VERSION >= CAIRO_VERSION_ENCODE(1, 9, 4) */
 }
 
 void CairoOutputDev::updateFont(GfxState *state) {
@@ -2387,7 +2385,6 @@ void CairoOutputDev::drawImage(GfxState *state, Object *ref, Stream *str,
 
   cairo_surface_mark_dirty (image);
 
-#if CAIRO_VERSION >= CAIRO_VERSION_ENCODE(1, 9, 6)
   if (printing && (str->getKind() == strDCT || str->getKind() == strJPX)) {
     char *strBuffer;
     int len;
@@ -2403,7 +2400,6 @@ void CairoOutputDev::drawImage(GfxState *state, Object *ref, Stream *str,
         gfree (strBuffer);
     }
   }
-#endif /* CAIRO_VERSION >= CAIRO_VERSION_ENCODE(1, 9, 6) */
 
   pattern = cairo_pattern_create_for_surface (image);
   cairo_surface_destroy (image);

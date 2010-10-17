@@ -332,7 +332,7 @@ if test x$enable_splash_output = xyes; then
   AC_DEFINE(HAVE_SPLASH)
 fi
 
-CAIRO_VERSION="1.8.4"
+CAIRO_VERSION="1.10.0"
 AC_SUBST(CAIRO_VERSION)
 AC_ARG_ENABLE(cairo-output,
               AC_HELP_STRING([--disable-cairo-output],
