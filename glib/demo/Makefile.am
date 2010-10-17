@@ -9,7 +9,7 @@ INCLUDES = 					\
 AM_LDFLAGS = @auto_import_flags@
 
 if BUILD_GTK_TEST
-noinst_PROGRAMS = poppler-glib-demo
+bin_PROGRAMS = poppler-glib-demo
 endif
 
 poppler_glib_demo_SOURCES = 			\
