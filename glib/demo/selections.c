@@ -46,8 +46,8 @@ typedef struct {
 	PopplerColor          glyph_color;
 	PopplerColor          background_color;
 	guint                 selections_idle;
-	GdkRegion            *selection_region;
-	GdkRegion            *selected_region;
+	cairo_region_t       *selection_region;
+	cairo_region_t       *selected_region;
 	GdkCursorType         cursor;
 	gchar                *selected_text;
 } PgdSelectionsDemo;
@@ -63,7 +63,7 @@ pgd_selections_clear_selections (PgdSelectionsDemo *demo)
 	}
 
 	if (demo->selection_region) {
-		gdk_region_destroy (demo->selection_region);
+		cairo_region_destroy (demo->selection_region);
 		demo->selection_region = NULL;
 	}
 
@@ -73,7 +73,7 @@ pgd_selections_clear_selections (PgdSelectionsDemo *demo)
 	}
 
 	if (demo->selected_region) {
-		gdk_region_destroy (demo->selected_region);
+		cairo_region_destroy (demo->selected_region);
 		demo->selected_region = NULL;
 	}
 }
@@ -109,46 +109,19 @@ pgd_selections_free (PgdSelectionsDemo *demo)
 	g_free (demo);
 }
 
-static GdkRegion *
-pgd_selections_create_region (GList *region)
-{
-	GdkRegion *retval = gdk_region_new ();
-	GList     *l;
-
-	for (l = region; l; l = g_list_next (l)) {
-		PopplerRectangle *rectangle;
-		GdkRectangle      r;
-
-		rectangle = (PopplerRectangle *)l->data;
-
-		r.x = (gint) rectangle->x1;
-		r.y = (gint) rectangle->y1;
-		r.width  = (gint) (rectangle->x2 - rectangle->x1);
-		r.height = (gint) (rectangle->y2 - rectangle->y1);
-		gdk_region_union_with_rect (retval, &r);
-
-		poppler_rectangle_free (rectangle);
-	}
-
-	return retval;
-}
-
 static void
 pgd_selections_update_selection_region (PgdSelectionsDemo *demo)
 {
-	GList *region;
 	PopplerRectangle area = { 0, 0, 0, 0 };
 
 	if (demo->selection_region)
-		gdk_region_destroy (demo->selection_region);
+		cairo_region_destroy (demo->selection_region);
 
 	poppler_page_get_size (demo->page, &area.x2, &area.y2);
-	region = poppler_page_get_selection_region (demo->page,
-						    1.0,
-						    POPPLER_SELECTION_GLYPH,
-						    &area);
-	demo->selection_region = pgd_selections_create_region (region);
-	g_list_free (region);
+	demo->selection_region = poppler_page_get_selected_region (demo->page,
+                                                                   1.0,
+                                                                   POPPLER_SELECTION_GLYPH,
+                                                                   &area);
 }
 
 static void
@@ -158,14 +131,11 @@ pgd_selections_update_seleted_text (PgdSelectionsDemo *demo)
 	gchar *text;
 
 	if (demo->selected_region)
-		gdk_region_destroy (demo->selected_region);
-	region = poppler_page_get_selection_region (demo->page,
-						    1.0,
-						    demo->style,
-						    &demo->doc_area);
-	demo->selected_region = pgd_selections_create_region (region);
-	g_list_free (region);
-
+		cairo_region_destroy (demo->selected_region);
+	demo->selected_region = poppler_page_get_selected_region (demo->page,
+                                                                  1.0,
+                                                                  demo->style,
+                                                                  &demo->doc_area);
 	if (demo->selected_text)
 		g_free (demo->selected_text);
 	demo->selected_text = NULL;
@@ -325,9 +295,9 @@ pgd_selections_drawing_area_motion_notify (GtkWidget         *area,
 	} else {
 		gboolean over_text;
 
-		over_text = gdk_region_point_in (demo->selection_region,
-						 event->x / demo->scale,
-						 event->y / demo->scale);
+		over_text = cairo_region_contains_point (demo->selection_region,
+                                                         event->x / demo->scale,
+                                                         event->y / demo->scale);
 		pgd_selections_update_cursor (demo, over_text ? GDK_XTERM : GDK_LAST_CURSOR);
 	}
 
@@ -390,14 +360,15 @@ pgd_selections_drawing_area_query_tooltip (GtkWidget         *area,
 	if (!demo->selected_text)
 		return FALSE;
 
-	over_selection = gdk_region_point_in (demo->selected_region,
-					      x / demo->scale,
-					      y / demo->scale);
+	over_selection = cairo_region_contains_point (demo->selected_region,
+                                                      x / demo->scale,
+                                                      y / demo->scale);
 
 	if (over_selection) {
 		GdkRectangle selection_area;
 
-		gdk_region_get_clipbox (demo->selected_region, &selection_area);
+		cairo_region_get_extents (demo->selected_region,
+                                          (cairo_rectangle_int_t *)&selection_area);
 		selection_area.x *= demo->scale;
 		selection_area.y *= demo->scale;
 		selection_area.width *= demo->scale;
