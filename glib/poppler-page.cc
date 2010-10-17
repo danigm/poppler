@@ -327,18 +327,55 @@ copy_cairo_surface_to_pixbuf (cairo_surface_t *surface,
 }	
 #endif /* POPPLER_WITH_GDK */
 
+static gboolean
+annot_is_markup (Annot *annot)
+{
+  switch (annot->getType())
+    {
+      case Annot::typeLink:
+      case Annot::typePopup:
+      case Annot::typeMovie:
+      case Annot::typeScreen:
+      case Annot::typePrinterMark:
+      case Annot::typeTrapNet:
+      case Annot::typeWatermark:
+      case Annot::type3D:
+      case Annot::typeWidget:
+        return FALSE;
+      default:
+        return TRUE;
+    }
+}
+
 static GBool
 poppler_print_annot_cb (Annot *annot, void *user_data)
 {
-  if (annot->getFlags () & Annot::flagPrint)
-    return gTrue;
+  PopplerPrintFlags user_print_flags = (PopplerPrintFlags)GPOINTER_TO_INT (user_data);
+
+  if (annot->getFlags () & Annot::flagHidden)
+    return gFalse;
+
+  if (user_print_flags & POPPLER_PRINT_STAMP_ANNOTS_ONLY) {
+    return (annot->getType() == Annot::typeStamp) ?
+            (annot->getFlags () & Annot::flagPrint) :
+            (annot->getType() == Annot::typeWidget);
+  }
+
+  if (user_print_flags & POPPLER_PRINT_MARKUP_ANNOTS) {
+    return annot_is_markup (annot) ?
+            (annot->getFlags () & Annot::flagPrint) :
+            (annot->getType() == Annot::typeWidget);
+  }
+
+  /* Print document only, form fields are always printed */
   return (annot->getType() == Annot::typeWidget);
 }
 
 static void
-_poppler_page_render (PopplerPage *page,
-		      cairo_t *cairo,
-		      GBool printing)
+_poppler_page_render (PopplerPage      *page,
+		      cairo_t          *cairo,
+		      GBool             printing,
+                      PopplerPrintFlags print_flags)
 {
   CairoOutputDev *output_dev;
 
@@ -363,7 +400,8 @@ _poppler_page_render (PopplerPage *page,
 			   printing,
 			   page->document->doc->getCatalog (),
 			   NULL, NULL,
-			   printing ? poppler_print_annot_cb : NULL, NULL);
+			   printing ? poppler_print_annot_cb : NULL,
+                           printing ? GINT_TO_POINTER ((gint)print_flags) : NULL);
   cairo_restore (cairo);
 
   output_dev->setCairo (NULL);
@@ -389,7 +427,28 @@ poppler_page_render (PopplerPage *page,
   if (!page->text)
     page->text = new TextPage(gFalse);
 
-  _poppler_page_render (page, cairo, gFalse);
+  _poppler_page_render (page, cairo, gFalse, (PopplerPrintFlags)0);
+}
+
+/**
+ * poppler_page_render_for_printing_with_options:
+ * @page: the page to render from
+ * @cairo: cairo context to render to
+ * @options: print options
+ *
+ * Render the page to the given cairo context for printing
+ * with the specified options
+ *
+ * Since: 0.16
+ **/
+void
+poppler_page_render_for_printing_with_options (PopplerPage      *page,
+                                               cairo_t          *cairo,
+                                               PopplerPrintFlags options)
+{
+  g_return_if_fail (POPPLER_IS_PAGE (page));
+
+  _poppler_page_render (page, cairo, gTrue, options);
 }
 
 /**
@@ -404,8 +463,8 @@ poppler_page_render_for_printing (PopplerPage *page,
 				  cairo_t *cairo)
 {
   g_return_if_fail (POPPLER_IS_PAGE (page));
-  
-  _poppler_page_render (page, cairo, gTrue);	
+
+  _poppler_page_render (page, cairo, gTrue, POPPLER_PRINT_ALL);
 }
 
 static cairo_surface_t *

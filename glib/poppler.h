@@ -134,6 +134,25 @@ typedef enum
   POPPLER_SELECTION_LINE
 } PopplerSelectionStyle;
 
+/**
+ * PopplerPrintFlags:
+ * @POPPLER_PRINT_DOCUMENT: print main document contents
+ * @POPPLER_PRINT_MARKUP_ANNOTS: print document and markup annotations
+ * @POPPLER_PRINT_STAMP_ANNOTS_ONLY: print doucment and only stamp annotations
+ * @POPPLER_PRINT_ALL: print main document contents and all markup annotations
+ *
+ * Printing flags
+ *
+ * Since: 0.16
+ */
+typedef enum /*< flags >*/
+{
+  POPPLER_PRINT_DOCUMENT          = 0,
+  POPPLER_PRINT_MARKUP_ANNOTS     = 1 << 0,
+  POPPLER_PRINT_STAMP_ANNOTS_ONLY = 1 << 1,
+  POPPLER_PRINT_ALL               = POPPLER_PRINT_MARKUP_ANNOTS
+} PopplerPrintFlags;
+
 typedef struct _PopplerDocument            PopplerDocument;
 typedef struct _PopplerIndexIter           PopplerIndexIter;
 typedef struct _PopplerFontsIter           PopplerFontsIter;

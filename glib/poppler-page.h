@@ -72,6 +72,9 @@ void                   poppler_page_render               (PopplerPage        *pa
 							  cairo_t            *cairo);
 void                   poppler_page_render_for_printing  (PopplerPage        *page,
 							  cairo_t            *cairo);
+void       poppler_page_render_for_printing_with_options (PopplerPage        *page,
+                                                          cairo_t            *cairo,
+                                                          PopplerPrintFlags   options);
 cairo_surface_t       *poppler_page_get_thumbnail        (PopplerPage        *page);
 void                   poppler_page_render_selection     (PopplerPage        *page,
 							  cairo_t            *cairo,
