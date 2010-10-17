@@ -17,6 +17,7 @@
 // Copyright (C) 2006 Krzysztof Kowalczyk <kkowalczyk@gmail.com>
 // Copyright (C) 2007-2008 Julien Rebetez <julienr@svn.gnome.org>
 // Copyright (C) 2010 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2010 Paweł Wiejacha <pawel.wiejacha@gmail.com>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -89,6 +90,7 @@ public:
 
 private:
 
+  GBool sorted;
   XRef *xref;			// the xref table for this PDF file
   DictEntry *entries;		// array of entries
   int size;			// size of <entries> array
