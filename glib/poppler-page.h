@@ -102,6 +102,10 @@ char                  *poppler_page_get_text             (PopplerPage        *pa
 char                  *poppler_page_get_selected_text    (PopplerPage        *page,
 							  PopplerSelectionStyle style,
 							  PopplerRectangle   *selection);
+cairo_region_t        *poppler_page_get_selected_region  (PopplerPage        *page,
+                                                          gdouble             scale,
+                                                          PopplerSelectionStyle  style,
+                                                          PopplerRectangle   *selection);
 GList                 *poppler_page_get_selection_region (PopplerPage        *page,
 							  gdouble             scale,
 							  PopplerSelectionStyle style,

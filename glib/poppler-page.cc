@@ -928,6 +928,8 @@ poppler_page_get_thumbnail_size (PopplerPage *page,
  * poppler_page_selection_region_free().
  * 
  * Return value: (element-type PopplerRectangle) (transfer full): a #GList of #PopplerRectangle
+ *
+ * Deprecated: 0.16: Use poppler_page_get_selected_region() instead.
  **/
 GList *
 poppler_page_get_selection_region (PopplerPage           *page,
@@ -985,6 +987,14 @@ poppler_page_get_selection_region (PopplerPage           *page,
   return g_list_reverse (region);
 }
 
+/**
+ * poppler_page_selection_region_free:
+ * @region: a #GList of #PopplerRectangle
+ *
+ * Frees @region
+ *
+ * Deprecated: 0.16
+ */
 void
 poppler_page_selection_region_free (GList *region)
 {
@@ -993,6 +1003,77 @@ poppler_page_selection_region_free (GList *region)
 
   g_list_foreach (region, (GFunc)poppler_rectangle_free, NULL);
   g_list_free (region);
+}
+
+/**
+ * poppler_page_get_selected_region:
+ * @page: a #PopplerPage
+ * @scale: scale specified as pixels per point
+ * @style: a #PopplerSelectionStyle
+ * @selection: start and end point of selection as a rectangle
+ *
+ * Returns a region containing the area that would be rendered by
+ * poppler_page_render_selection() or
+ * poppler_page_render_selection_to_pixbuf().
+ * The returned region must be freed with cairo_region_destroy()
+ *
+ * Return value: (transfer full): a cairo_region_t
+ *
+ * Since: 0.16
+ **/
+cairo_region_t *
+poppler_page_get_selected_region (PopplerPage           *page,
+                                  gdouble                scale,
+                                  PopplerSelectionStyle  style,
+                                  PopplerRectangle      *selection)
+{
+  PDFRectangle poppler_selection;
+  TextPage *text;
+  SelectionStyle selection_style = selectionStyleGlyph;
+  GooList *list;
+  cairo_region_t *region;
+  int i;
+
+  poppler_selection.x1 = selection->x1;
+  poppler_selection.y1 = selection->y1;
+  poppler_selection.x2 = selection->x2;
+  poppler_selection.y2 = selection->y2;
+
+  switch (style)
+    {
+      case POPPLER_SELECTION_GLYPH:
+        selection_style = selectionStyleGlyph;
+	break;
+      case POPPLER_SELECTION_WORD:
+        selection_style = selectionStyleWord;
+	break;
+      case POPPLER_SELECTION_LINE:
+        selection_style = selectionStyleLine;
+	break;
+    }
+
+  text = poppler_page_get_text_page (page);
+  list = text->getSelectionRegion(&poppler_selection,
+				  selection_style, 1.0);
+
+  region = cairo_region_create ();
+
+  for (i = 0; i < list->getLength(); i++) {
+    PDFRectangle *selection_rect = (PDFRectangle *) list->get(i);
+    cairo_rectangle_int_t rect;
+
+    rect.x = (gint) ((selection_rect->x1 * scale) + 0.5);
+    rect.y = (gint) ((selection_rect->y1 * scale) + 0.5);
+    rect.width = (gint) (((selection_rect->x2 - selection_rect->x1) * scale) + 0.5);
+    rect.height = (gint) (((selection_rect->y2 - selection_rect->y1) * scale) + 0.5);
+    cairo_region_union_rectangle (region, &rect);
+
+    delete selection_rect;
+  }
+
+  delete list;
+
+  return region;
 }
 
 /**
