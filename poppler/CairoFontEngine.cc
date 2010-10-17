@@ -693,7 +693,7 @@ CairoType3Font *CairoType3Font::create(GfxFont *gfxFont, XRef *xref,
   codeToGIDLen = 256;
   for (i = 0; i < 256; ++i) {
     codeToGID[i] = 0;
-    if ((name = enc[i])) {
+    if (charProcs && (name = enc[i])) {
       for (j = 0; j < charProcs->getLength(); j++) {
 	if (strcmp(name, charProcs->getKey(j)) == 0) {
 	  codeToGID[i] = (Gushort) j;
