@@ -1,3 +1,49 @@
+Release 0.15.1 (0.16 Beta 1)
+
+	core:
+	 * Consider render value when colorizing text (Bug #2807)
+	 * Improve rendering of Shading Type 6 and 7
+	 * Improve dict lookup speed for big dicts
+	 * Fix multiple crashes in malformed PDF files
+	 * Fix memory leak in in malformed PDF files
+	 * Fix memory leak in the Catalog names
+	 * Fix uninitialized uses on DCTScanInfo
+	 * Fix a crash when drawing square/circle annots without a border (Bug #30580)
+	 * Only clip boxes to mediabox if we are at the page level (Bug #30784)
+	 * Do not omit the notdef glyph in the Splash backend
+	 * Fix a crash when redering documents with invalid type 3 fonts in the Cairo backend
+	 * Form improvements
+	 * Add a method to get the PDF file identifier
+
+	glib:
+	 * Add more printing options to the API
+	 * Add a method to get the PDF file identifier
+	 * Add accessor for all PopplerDocument properties
+	 * Form improvements
+	 * Documentation improvements
+	 * Improvements to the demo
+
+	qt4:
+	 * Add a callback to know which page has been printed
+	 * Add a method to get the PDF file identifier
+	 * Optimize GooString to QString conversion
+	 * Some more autotests
+	 * Update Doxyfile (enables .qch file for assistant)
+
+	build system:
+	 * Require Cairo 1.10
+
+	utils:
+	 * pdftohtml: Add -s option to generate a single HTML page
+	 * pdftotext: Add -bbox option
+
+	cpp:
+	 * Add the possibility of loading a document from raw data
+	 * Add a method to get the PDF file identifier
+	 * Improve Unicode to ustring conversion
+	 * Documentation improvements
+	 * Update Doxyfile
+
 Release 0.15.0 (0.16 Alpha)
 
 	core:
