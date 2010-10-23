@@ -995,6 +995,9 @@ void PSStack::roll(int n, int j) {
   PSObject obj;
   int i, k;
 
+  if (unlikely(n == 0)) {
+    return;
+  }
   if (j >= 0) {
     j %= n;
   } else {
