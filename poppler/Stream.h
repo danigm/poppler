@@ -144,7 +144,7 @@ public:
       if (readChars == charsToRead) {
         if (lookChar() != EOF) {
           size += sizeIncrement;
-          charsToRead = initialSize;
+          charsToRead = sizeIncrement;
           buf = (Guchar *)grealloc(buf, size);
         } else {
           continueReading = false;
