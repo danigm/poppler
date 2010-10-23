@@ -1804,6 +1804,11 @@ void SplashOutputDev::type3D1(GfxState *state, double wx, double wy,
   double xt, yt, xMin, xMax, yMin, yMax, x1, y1;
   int i, j;
 
+  if (unlikely(t3GlyphStack == NULL)) {
+    error(-1, "t3GlyphStack was null in SplashOutputDev::type3D1");
+    return;
+  }
+
   t3Font = t3GlyphStack->cache;
 
   // check for a valid bbox
