@@ -353,7 +353,7 @@ static void rc4InitKey(Guchar *key, int keyLen, Guchar *state) {
   for (i = 0; i < 256; ++i)
     state[i] = i;
 
-  if (keyLen == 0)
+  if (unlikely(keyLen == 0))
     return;
 
   index1 = index2 = 0;
