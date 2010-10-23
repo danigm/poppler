@@ -234,6 +234,7 @@ int Catalog::readPageTree(Dict *pagesDict, PageAttrs *attrs, int start,
   attrs1 = new PageAttrs(attrs, pagesDict);
   pagesDict->lookup("Kids", &kids);
   if (!kids.isArray()) {
+    delete attrs1;
     error(-1, "Kids object (page %d) is wrong type (%s)",
 	  start+1, kids.getTypeName());
     return start;
