@@ -1261,7 +1261,13 @@ void Gfx::doSoftMask(Object *str, GBool alpha,
   }
   for (i = 0; i < 4; ++i) {
     obj1.arrayGet(i, &obj2);
-    bbox[i] = obj2.getNum();
+    if (likely(obj2.isNum())) bbox[i] = obj2.getNum();
+    else {
+      obj2.free();
+      obj1.free();
+      error(getPos(), "Bad form bounding box (non number)");
+      return;
+    }
     obj2.free();
   }
   obj1.free();
