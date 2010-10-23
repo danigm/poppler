@@ -26,7 +26,13 @@ AC_PROG_CC_STDC
 #fi
 AC_PROG_CXX
 if test "x$GXX" = "xyes"; then
-  CXXFLAGS="$CXXFLAGS -ansi"
+  case "$host_os" in
+    cygwin* | mingw*)
+    ;;
+    *)
+      CXXFLAGS="$CXXFLAGS -ansi"
+    ;;
+  esac
 fi
 AC_PROG_INSTALL
 
