@@ -4101,6 +4101,7 @@ void AnnotMovie::initialize(XRef *xrefA, Catalog *catalog, Dict* dict) {
     obj2.free();
   } else {
     error(-1, "Bad Annot Movie");
+    movie = NULL;
     ok = gFalse;
   }
   movieDict.free();
