@@ -30,6 +30,7 @@
 #include <limits.h>
 #include "goo/gmem.h"
 #include "goo/GooLikely.h"
+#include "poppler/Error.h"
 #include "SplashErrorCodes.h"
 #include "SplashMath.h"
 #include "SplashBitmap.h"
@@ -3065,6 +3066,11 @@ void Splash::compositeBackground(SplashColorPtr color) {
   Guchar color3;
 #endif
   int x, y, mask;
+  
+  if (unlikely(bitmap->alpha == NULL)) {
+    error(-1, "bitmap->alpha is NULL in Splash::compositeBackground");
+    return;
+  }
 
   switch (bitmap->mode) {
   case splashModeMono1:
