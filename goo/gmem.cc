@@ -230,8 +230,12 @@ inline static void *greallocn(void *p, int nObjs, int objSize, bool checkoverflo
   n = nObjs * objSize;
   if (objSize <= 0 || nObjs < 0 || nObjs >= INT_MAX / objSize) {
     fprintf(stderr, "Bogus memory allocation size\n");
-    if (checkoverflow) return NULL;
-    else exit(1);
+    if (checkoverflow) {
+      gfree(p);
+      return NULL;
+    } else {
+      exit(1);
+    }
   }
   return grealloc(p, n, checkoverflow);
 }
