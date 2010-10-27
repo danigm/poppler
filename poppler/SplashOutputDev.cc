@@ -1810,12 +1810,12 @@ void SplashOutputDev::type3D1(GfxState *state, double wx, double wy,
   }
 
   if (unlikely(t3GlyphStack->origBitmap != NULL)) {
-    error(-1, "t3GlyphStack orig Bitmap was not null in SplashOutputDev::type3D1");
+    error(-1, "t3GlyphStack origBitmap was not null in SplashOutputDev::type3D1");
     return;
   }
 
   if (unlikely(t3GlyphStack->origSplash != NULL)) {
-    error(-1, "t3GlyphStack orig Bitmap was not null in SplashOutputDev::type3D1");
+    error(-1, "t3GlyphStack origSplash was not null in SplashOutputDev::type3D1");
     return;
   }
 
