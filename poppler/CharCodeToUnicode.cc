@@ -13,7 +13,7 @@
 // All changes made under the Poppler project to this file are licensed
 // under GPL version 2 or later
 //
-// Copyright (C) 2006, 2008, 2009 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2006, 2008-2010 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2007 Julien Rebetez <julienr@svn.gnome.org>
 // Copyright (C) 2007 Koji Otani <sho@bbr.jp>
 // Copyright (C) 2008 Michael Vrable <mvrable@cs.ucsd.edu>
@@ -36,6 +36,7 @@
 #include <string.h>
 #include "goo/gmem.h"
 #include "goo/gfile.h"
+#include "goo/GooLikely.h"
 #include "goo/GooString.h"
 #include "Error.h"
 #include "GlobalParams.h"
@@ -366,10 +367,15 @@ void CharCodeToUnicode::addMapping(CharCode code, char *uStr, int n,
   if (code >= mapLen) {
     oldLen = mapLen;
     mapLen = (code + 256) & ~255;
-    map = (Unicode *)greallocn(map, mapLen, sizeof(Unicode));
-    for (i = oldLen; i < mapLen; ++i) {
-      map[i] = 0;
-    }
+    if (unlikely(code >= mapLen)) {
+      error(-1, "Illegal code value in CharCodeToUnicode::addMapping");
+      return;
+    } else {
+      map = (Unicode *)greallocn(map, mapLen, sizeof(Unicode));
+      for (i = oldLen; i < mapLen; ++i) {
+        map[i] = 0;
+      }
+	}
   }
   if (n <= 4) {
     if (sscanf(uStr, "%x", &u) != 1) {
