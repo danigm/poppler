@@ -12,7 +12,7 @@
 // under GPL version 2 or later
 //
 // Copyright (C) 2006 Takashi Iwai <tiwai@suse.de>
-// Copyright (C) 2008 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2008, 2010 Albert Astals Cid <aacid@kde.org>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -41,7 +41,6 @@ class SplashFontFileID;
 class SplashFontSrc {
 public:
   SplashFontSrc();
-  ~SplashFontSrc();
 
   void setFile(GooString *file, GBool del);
   void setFile(const char *file, GBool del);
@@ -56,6 +55,8 @@ public:
   int bufLen;
   GBool deleteSrc;
   int refcnt;
+private:
+  ~SplashFontSrc();
 };
 
 class SplashFontFile {
