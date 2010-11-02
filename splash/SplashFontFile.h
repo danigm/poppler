@@ -53,10 +53,11 @@ public:
   GooString *fileName;
   char *buf;
   int bufLen;
-  GBool deleteSrc;
-  int refcnt;
+
 private:
   ~SplashFontSrc();
+  int refcnt;
+  GBool deleteSrc;
 };
 
 class SplashFontFile {
