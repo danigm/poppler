@@ -13,7 +13,7 @@
 // All changes made under the Poppler project to this file are licensed
 // under GPL version 2 or later
 //
-// Copyright (C) 2009 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2009, 2010 Albert Astals Cid <aacid@kde.org>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -29,6 +29,7 @@
 
 #include "goo/gtypes.h"
 #include "Object.h"
+#include <set>
 
 class Dict;
 class Stream;
@@ -83,6 +84,7 @@ public:
   virtual GBool isOk() = 0;
 
 protected:
+  static Function *parse(Object *funcObj, std::set<int> *usedParents);
 
   int m, n;			// size of input and output tuples
   double			// min and max values for function domain
@@ -184,7 +186,7 @@ private:
 class StitchingFunction: public Function {
 public:
 
-  StitchingFunction(Object *funcObj, Dict *dict);
+  StitchingFunction(Object *funcObj, Dict *dict, std::set<int> *usedParents);
   virtual ~StitchingFunction();
   virtual Function *copy() { return new StitchingFunction(this); }
   virtual int getType() { return 3; }

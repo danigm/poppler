@@ -55,6 +55,11 @@ Function::~Function() {
 }
 
 Function *Function::parse(Object *funcObj) {
+  std::set<int> usedParents;
+  return parse(funcObj, &usedParents);
+}
+
+Function *Function::parse(Object *funcObj, std::set<int> *usedParents) {
   Function *func;
   Dict *dict;
   int funcType;
@@ -84,7 +89,7 @@ Function *Function::parse(Object *funcObj) {
   } else if (funcType == 2) {
     func = new ExponentialFunction(funcObj, dict);
   } else if (funcType == 3) {
-    func = new StitchingFunction(funcObj, dict);
+    func = new StitchingFunction(funcObj, dict, usedParents);
   } else if (funcType == 4) {
     func = new PostScriptFunction(funcObj, dict);
   } else {
@@ -569,7 +574,7 @@ void ExponentialFunction::transform(double *in, double *out) {
 // StitchingFunction
 //------------------------------------------------------------------------
 
-StitchingFunction::StitchingFunction(Object *funcObj, Dict *dict) {
+StitchingFunction::StitchingFunction(Object *funcObj, Dict *dict, std::set<int> *usedParents) {
   Object obj1, obj2;
   int i;
 
@@ -602,7 +607,18 @@ StitchingFunction::StitchingFunction(Object *funcObj, Dict *dict) {
     funcs[i] = NULL;
   }
   for (i = 0; i < k; ++i) {
-    if (!(funcs[i] = Function::parse(obj1.arrayGet(i, &obj2)))) {
+    obj1.arrayGetNF(i, &obj2);
+    if (obj2.isRef()) {
+      const Ref ref = obj2.getRef();
+      if (usedParents->find(ref.num) == usedParents->end()) {
+        usedParents->insert(ref.num);
+        obj2.free();
+        obj1.arrayGet(i, &obj2);
+      } else {
+        goto err2;
+      }
+    }
+    if (!(funcs[i] = Function::parse(&obj2, usedParents))) {
       goto err2;
     }
     if (i > 0 && (funcs[i]->getInputSize() != 1 ||
