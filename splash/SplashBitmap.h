@@ -17,6 +17,7 @@
 // Copyright (C) 2009 Stefan Thomas <thomas@eload24.com>
 // Copyright (C) 2010 Adrian Johnson <ajohnson@redneon.com>
 // Copyright (C) 2010 Harry Roberts <harry.roberts@midnight-labs.org>
+// Copyright (C) 2010 Christian Feuersänger <cfeuersaenger@googlemail.com>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -56,6 +57,7 @@ public:
   int getHeight() { return height; }
   int getRowSize() { return rowSize; }
   int getAlphaRowSize() { return width; }
+  int getRowPad() { return rowPad; }
   SplashColorMode getMode() { return mode; }
   SplashColorPtr getDataPtr() { return data; }
   Guchar *getAlphaPtr() { return alpha; }
@@ -73,6 +75,7 @@ public:
 private:
 
   int width, height;		// size of bitmap
+  int rowPad;
   int rowSize;			// size of one row of data, in bytes
 				//   - negative for bottom-up bitmaps
   SplashColorMode mode;		// color mode

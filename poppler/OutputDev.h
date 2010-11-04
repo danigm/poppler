@@ -17,9 +17,10 @@
 // Copyright (C) 2006 Thorkild Stray <thorkild@ifi.uio.no>
 // Copyright (C) 2007 Jeff Muizelaar <jeff@infidigm.net>
 // Copyright (C) 2007 Adrian Johnson <ajohnson@redneon.com>
-// Copyright (C) 2009 Thomas Freitag <Thomas.Freitag@alfa.de>
+// Copyright (C) 2009, 2010 Thomas Freitag <Thomas.Freitag@alfa.de>
 // Copyright (C) 2009 Carlos Garcia Campos <carlosgc@gnome.org>
 // Copyright (C) 2009 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2010 Christian Feuersänger <cfeuersaenger@googlemail.com>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -47,6 +48,8 @@ class GfxColorSpace;
 class GfxImageColorMap;
 class GfxFunctionShading;
 class GfxAxialShading;
+class GfxGouraudTriangleShading;
+class GfxPatchMeshShading;
 class GfxRadialShading;
 class Stream;
 class Links;
@@ -82,10 +85,9 @@ public:
   // operations.
   virtual GBool useTilingPatternFill() { return gFalse; }
 
-  // Does this device use functionShadedFill(), axialShadedFill(), and
-  // radialShadedFill()?  If this returns false, these shaded fills
-  // will be reduced to a series of other drawing operations.
-  virtual GBool useShadedFills() { return gFalse; }
+  // Does this device support specific shading types?
+  // see gouraudTriangleShadedFill() and patchMeshShadedFill()
+  virtual GBool useShadedFills(int type) { return gFalse; }
 
   // Does this device use FillColorStop()?
   virtual GBool useFillColorStop() { return gFalse; }
@@ -207,6 +209,10 @@ public:
   virtual GBool radialShadedFill(GfxState * /*state*/, GfxRadialShading * /*shading*/, double /*sMin*/, double /*sMax*/)
     { return gFalse; }
   virtual GBool radialShadedSupportExtend(GfxState * /*state*/, GfxRadialShading * /*shading*/)
+    { return gFalse; }
+  virtual GBool gouraudTriangleShadedFill(GfxState *state, GfxGouraudTriangleShading *shading)
+    { return gFalse; }
+  virtual GBool patchMeshShadedFill(GfxState *state, GfxPatchMeshShading *shading)
     { return gFalse; }
 
   //----- path clipping

@@ -14,6 +14,7 @@
 // under GPL version 2 or later
 //
 // Copyright (C) 2009, 2010 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2010 Christian Feuersänger <cfeuersaenger@googlemail.com>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -176,6 +177,7 @@ private:
   double c0[funcMaxOutputs];
   double c1[funcMaxOutputs];
   double e;
+  bool isLinear;
   GBool ok;
 };
 

@@ -13,6 +13,8 @@
 //
 // Copyright (C) 2005 Marco Pesenti Gritti <mpg@redhat.com>
 // Copyright (C) 2007 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2010 Thomas Freitag <Thomas.Freitag@alfa.de>
+// Copyright (C) 2010 Christian Feuersänger <cfeuersaenger@googlemail.com>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -28,12 +30,11 @@
 
 #include "SplashTypes.h"
 #include "SplashClip.h"
+#include "SplashPattern.h"
 
-class Splash;
 class SplashBitmap;
 struct SplashGlyphBitmap;
 class SplashState;
-class SplashPattern;
 class SplashScreen;
 class SplashPath;
 class SplashXPath;
@@ -248,6 +249,12 @@ public:
   GBool getVectorAntialias() { return vectorAntialias; }
   void setVectorAntialias(GBool vaa) { vectorAntialias = vaa; }
 #endif
+
+  // Do shaded fills with dynamic patterns
+  SplashError shadedFill(SplashPath *path, GBool hasBBox,
+                         SplashPattern *pattern);
+  // Draw a gouraud triangle shading.
+  GBool gouraudTriangleShadedFill(SplashGouraudColor *shading);
 
 private:
 

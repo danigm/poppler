@@ -15,6 +15,7 @@
 //
 // Copyright (C) 2006, 2008-2010 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2006 Jeff Muizelaar <jeff@infidigm.net>
+// Copyright (C) 2010 Christian Feuersänger <cfeuersaenger@googlemail.com>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -528,6 +529,7 @@ ExponentialFunction::ExponentialFunction(Object *funcObj, Dict *dict) {
   e = obj1.getNum();
   obj1.free();
 
+  isLinear = fabs(e-1.) < 1e-10;
   ok = gTrue;
   return;
 
@@ -558,7 +560,7 @@ void ExponentialFunction::transform(double *in, double *out) {
     x = in[0];
   }
   for (i = 0; i < n; ++i) {
-    out[i] = c0[i] + pow(x, e) * (c1[i] - c0[i]);
+    out[i] = c0[i] + (isLinear ? x : pow(x, e)) * (c1[i] - c0[i]);
     if (hasRange) {
       if (out[i] < range[i][0]) {
 	out[i] = range[i][0];

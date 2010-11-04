@@ -26,6 +26,7 @@
 // Copyright (C) 2010 Patrick Spendrin <ps_ml@gmx.de>
 // Copyright (C) 2010 Brian Cameron <brian.cameron@oracle.com>
 // Copyright (C) 2010 Paweł Wiejacha <pawel.wiejacha@gmail.com>
+// Copyright (C) 2010 Christian Feuersänger <cfeuersaenger@googlemail.com>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -78,6 +79,126 @@ extern "C" int unlink(char *filename);
 #include <ieeefp.h>
 #define isfinite(x) finite(x)
 #endif
+
+static inline void convertGfxColor(SplashColorPtr dest,
+                                   SplashColorMode colorMode,
+                                   GfxColorSpace *colorSpace,
+                                   GfxColor *src) {
+  SplashColor color;
+  GfxGray gray;
+  GfxRGB rgb;
+#if SPLASH_CMYK
+  GfxCMYK cmyk;
+#endif
+
+  switch (colorMode) {
+    case splashModeMono1:
+    case splashModeMono8:
+      colorSpace->getGray(src, &gray);
+      color[0] = colToByte(gray);
+    break;
+    case splashModeXBGR8:
+      color[3] = 255;
+    case splashModeBGR8:
+    case splashModeRGB8:
+      colorSpace->getRGB(src, &rgb);
+      color[0] = colToByte(rgb.r);
+      color[1] = colToByte(rgb.g);
+      color[2] = colToByte(rgb.b);
+    break;
+#if SPLASH_CMYK
+    case splashModeCMYK8:
+      colorSpace->getCMYK(src, &cmyk);
+      color[0] = colToByte(cmyk.c);
+      color[1] = colToByte(cmyk.m);
+      color[2] = colToByte(cmyk.y);
+      color[3] = colToByte(cmyk.k);
+    break;
+#endif
+  }
+  splashColorCopy(dest, color);
+}
+
+
+//------------------------------------------------------------------------
+// SplashGouraudPattern
+//------------------------------------------------------------------------
+SplashGouraudPattern::SplashGouraudPattern(GBool bDirectColorTranslationA,
+                                           GfxState *stateA, GfxGouraudTriangleShading *shadingA) {
+  state = stateA;
+  shading = shadingA;
+  bDirectColorTranslation = bDirectColorTranslationA;
+}
+
+SplashGouraudPattern::~SplashGouraudPattern() {
+}
+
+void SplashGouraudPattern::getParameterizedColor(double colorinterp, SplashColorMode mode, SplashColorPtr dest) {
+  GfxColor src;
+  GfxColorSpace* srcColorSpace = shading->getColorSpace();
+  int colorComps = 3;
+#if SPLASH_CMYK
+  if (mode == splashModeCMYK8)
+    colorComps=4;
+#endif
+
+  shading->getParameterizedColor(colorinterp, &src);
+
+  if (bDirectColorTranslation) {
+    for (int m = 0; m < colorComps; ++m)
+      dest[m] = colToByte(src.c[m]);
+  } else {
+    convertGfxColor(dest, mode, srcColorSpace, &src);
+  }
+}
+
+//------------------------------------------------------------------------
+// SplashAxialPattern
+//------------------------------------------------------------------------
+
+SplashAxialPattern::SplashAxialPattern(SplashColorMode colorModeA, GfxState *stateA, GfxAxialShading *shadingA) {
+  Matrix ctm;
+
+  shading = shadingA;
+  state = stateA;
+  colorMode = colorModeA;
+  state->getCTM(&ctm);
+  ctm.invertTo(&ictm);
+
+  shading->getCoords(&x0, &y0, &x1, &y1);
+  dx = x1 - x0;
+  dy = y1 - y0;
+  mul = 1 / (dx * dx + dy * dy);
+
+  // get the function domain
+  t0 = shading->getDomain0();
+  t1 = shading->getDomain1();
+}
+
+SplashAxialPattern::~SplashAxialPattern() {
+}
+
+GBool SplashAxialPattern::getColor(int x, int y, SplashColorPtr c) {
+  GfxColor gfxColor;
+  double tt;
+  double xc, yc, xaxis;
+
+  ictm.transform(x, y, &xc, &yc);
+  xaxis = ((xc - x0) * dx + (yc - y0) * dy) * mul;
+  if (xaxis < 0 && shading->getExtend0()) {
+    tt = t0;
+  } else if (xaxis > 1 && shading->getExtend1()) {
+    tt = t1;
+  } else if (xaxis >= 0 && xaxis <= 1) {
+    tt = t0 + (t1 -t0) * xaxis;
+  } else 
+    return gFalse;
+
+  shading->getColor(tt, &gfxColor);
+  state->setFillColor(&gfxColor);
+  convertGfxColor(c, colorMode, state->getFillColorSpace(), state->getFillColor());
+  return gTrue;
+}
 
 //------------------------------------------------------------------------
 
@@ -2048,7 +2169,7 @@ void SplashOutputDev::drawImageMask(GfxState *state, Object *ref, Stream *str,
     //~ this ignores the blendingColorSpace arg
     // create the temporary bitmap
     bitmap = new SplashBitmap(bitmap->getWidth(), bitmap->getHeight(), bitmapRowPad, colorMode, gTrue,
-                              bitmapTopDown); 
+                              bitmapTopDown);
     splash = new Splash(bitmap, vectorAntialias,
                         transpGroup->origSplash->getScreen());
     splash->blitTransparent(transpGroup->origBitmap, 0, 0, 0, 0, bitmap->getWidth(), bitmap->getHeight());
@@ -2931,7 +3052,7 @@ void SplashOutputDev::beginTransparencyGroup(GfxState *state, double *bbox,
 
   // create the temporary bitmap
   bitmap = new SplashBitmap(w, h, bitmapRowPad, colorMode, gTrue,
-			    bitmapTopDown); 
+			    bitmapTopDown);
   splash = new Splash(bitmap, vectorAntialias,
 		      transpGroup->origSplash->getScreen());
   if (isolated) {
@@ -3200,4 +3321,61 @@ void SplashOutputDev::setVectorAntialias(GBool vaa) {
 void SplashOutputDev::setFreeTypeHinting(GBool enable)
 {
   enableFreeTypeHinting = enable;
+}
+
+GBool SplashOutputDev::gouraudTriangleShadedFill(GfxState *state, GfxGouraudTriangleShading *shading)
+{
+  GfxColorSpaceMode shadingMode = shading->getColorSpace()->getMode();
+  GBool bDirectColorTranslation = gFalse; // triggers an optimization.
+  switch (colorMode) {
+    case splashModeRGB8:
+      bDirectColorTranslation = (shadingMode == csDeviceRGB);
+    break;
+#if SPLASH_CMYK
+    case splashModeCMYK8:
+      bDirectColorTranslation = (shadingMode == csDeviceCMYK);
+    break;
+#endif
+    default:
+    break;
+  }
+  SplashGouraudColor *splashShading = new SplashGouraudPattern(bDirectColorTranslation, state, shading);
+  // restore vector antialias because we support it here
+  if (shading->isParameterized()) {
+    GBool vaa = getVectorAntialias();
+    GBool retVal = gFalse;
+    setVectorAntialias(gTrue);
+    retVal = splash->gouraudTriangleShadedFill(splashShading);
+    setVectorAntialias(vaa);
+    return retVal;
+  }
+  return gFalse;
+}
+
+GBool SplashOutputDev::axialShadedFill(GfxState *state, GfxAxialShading *shading, double tMin, double tMax) {
+  double xMin, yMin, xMax, yMax;
+  SplashPath *path;
+
+  GBool vaa = getVectorAntialias();
+  GBool retVal = gFalse;
+  // restore vector antialias because we support it here
+  setVectorAntialias(gTrue);
+  // get the clip region bbox
+  state->getUserClipBBox(&xMin, &yMin, &xMax, &yMax);
+
+  // fill the region
+  state->moveTo(xMin, yMin);
+  state->lineTo(xMax, yMin);
+  state->lineTo(xMax, yMax);
+  state->lineTo(xMin, yMax);
+  state->closePath();
+  path = convertPath(state, state->getPath());
+
+  SplashPattern *pattern = new SplashAxialPattern(colorMode, state, shading);
+  retVal = (splash->shadedFill(path, shading->getHasBBox(), pattern) == splashOk);
+  setVectorAntialias(vaa);
+  state->clearPath();
+  delete path;
+
+  return retVal;
 }

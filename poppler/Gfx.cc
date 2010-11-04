@@ -2307,7 +2307,7 @@ void Gfx::doFunctionShFill(GfxFunctionShading *shading) {
   double x0, y0, x1, y1;
   GfxColor colors[4];
 
-  if (out->useShadedFills() &&
+  if (out->useShadedFills( shading->getType() ) &&
       out->functionShadedFill(state, shading)) {
     return;
   }
@@ -2490,7 +2490,7 @@ void Gfx::doAxialShFill(GfxAxialShading *shading) {
     }
   }
 
-  if (out->useShadedFills() &&
+  if (out->useShadedFills( shading->getType() ) &&
       out->axialShadedFill(state, shading, tMin, tMax)) {
 	  return;
   }
@@ -2764,7 +2764,7 @@ void Gfx::doRadialShFill(GfxRadialShading *shading) {
     theta = 0;
     sz = 0; // make gcc happy
   } else {
-    sz = -r0 / (r1 - r0);
+    sz = (r1 > r0) ? -r0 / (r1 - r0) : -r1 / (r0 - r1);
     xz = x0 + sz * (x1 - x0);
     yz = y0 + sz * (y1 - y0);
     enclosed = (xz - x0) * (xz - x0) + (yz - y0) * (yz - y0) <= r0 * r0;
@@ -2842,7 +2842,7 @@ void Gfx::doRadialShFill(GfxRadialShading *shading) {
     }
   }
 
-  if (out->useShadedFills() &&
+  if (out->useShadedFills( shading->getType() ) &&
       out->radialShadedFill(state, shading, sMin, sMax)) {
     return;
   }
@@ -3115,6 +3115,10 @@ void Gfx::doGouraudTriangleShFill(GfxGouraudTriangleShading *shading) {
   double x0, y0, x1, y1, x2, y2;
   int i;
 
+  if( out->useShadedFills( shading->getType() ) ) {
+    if( out->gouraudTriangleShadedFill( state, shading ) )
+      return;
+  }
   // preallocate a path (speed improvements)
   state->moveTo(0., 0.);
   state->lineTo(1., 0.);

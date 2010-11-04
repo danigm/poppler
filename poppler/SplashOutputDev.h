@@ -16,6 +16,7 @@
 // Copyright (C) 2005 Takashi Iwai <tiwai@suse.de>
 // Copyright (C) 2009, 2010 Thomas Freitag <Thomas.Freitag@alfa.de>
 // Copyright (C) 2009 Carlos Garcia Campos <carlosgc@gnome.org>
+// Copyright (C) 2010 Christian Feuersänger <cfeuersaenger@googlemail.com>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -31,6 +32,7 @@
 
 #include "goo/gtypes.h"
 #include "splash/SplashTypes.h"
+#include "splash/SplashPattern.h"
 #include "poppler-config.h"
 #include "OutputDev.h"
 #include "GfxState.h"
@@ -39,13 +41,69 @@ class Gfx8BitFont;
 class SplashBitmap;
 class Splash;
 class SplashPath;
-class SplashPattern;
 class SplashFontEngine;
 class SplashFont;
 class T3FontCache;
 struct T3FontCacheTag;
 struct T3GlyphStack;
 struct SplashTransparencyGroup;
+
+//------------------------------------------------------------------------
+// Splash dynamic pattern
+//------------------------------------------------------------------------
+
+class SplashAxialPattern: public SplashPattern {
+public:
+
+  SplashAxialPattern(SplashColorMode colorMode, GfxState *state, GfxAxialShading *shading);
+
+  virtual SplashPattern *copy() { return new SplashAxialPattern(colorMode, state, shading); }
+
+  virtual ~SplashAxialPattern();
+
+  virtual GBool getColor(int x, int y, SplashColorPtr c);
+
+  virtual GBool isStatic() { return gFalse; }
+
+private:
+  Matrix ictm;
+  double x0, y0, x1, y1;
+  double dx, dy, mul;
+  double t0, t1;
+  GfxAxialShading *shading;
+  GfxState *state;
+  SplashColorMode colorMode;
+  double *bbox;
+};
+
+// see GfxState.h, GfxGouraudTriangleShading
+class SplashGouraudPattern: public SplashGouraudColor {
+public:
+
+  SplashGouraudPattern(GBool bDirectColorTranslation, GfxState *state, GfxGouraudTriangleShading *shading);
+
+  virtual SplashPattern *copy() { return new SplashGouraudPattern(bDirectColorTranslation, state, shading); }
+
+  virtual ~SplashGouraudPattern();
+
+  virtual GBool getColor(int x, int y, SplashColorPtr c) { return gFalse; }
+
+  virtual GBool isStatic() { return gFalse; }
+
+  virtual GBool isParameterized() { return shading->isParameterized(); }
+  virtual int getNTriangles() { return shading->getNTriangles(); }
+  virtual  void getTriangle(int i, double *x0, double *y0, double *color0,
+                            double *x1, double *y1, double *color1,
+                            double *x2, double *y2, double *color2) 
+  { return shading->getTriangle(i, x0, y0, color0, x1, y1, color1, x2, y2, color2); }
+
+  virtual void getParameterizedColor(double t, SplashColorMode mode, SplashColorPtr c);
+
+private:
+  GfxGouraudTriangleShading *shading;
+  GfxState *state;
+  GBool bDirectColorTranslation;
+};
 
 //------------------------------------------------------------------------
 
@@ -69,6 +127,12 @@ public:
   virtual ~SplashOutputDev();
 
   //----- get info about output device
+
+  // Does this device use functionShadedFill(), axialShadedFill(), and
+  // radialShadedFill()?  If this returns false, these shaded fills
+  // will be reduced to a series of other drawing operations.
+  virtual GBool useShadedFills(int type)
+  { return (type == 2 || type == 4 || type == 5 ) ? gTrue : gFalse; }
 
   // Does this device use upside-down coordinates?
   // (Upside-down means (0,0) is the top left corner of the page.)
@@ -121,6 +185,8 @@ public:
   virtual void stroke(GfxState *state);
   virtual void fill(GfxState *state);
   virtual void eoFill(GfxState *state);
+  virtual GBool axialShadedFill(GfxState *state, GfxAxialShading *shading, double tMin, double tMax);
+  virtual GBool gouraudTriangleShadedFill(GfxState *state, GfxGouraudTriangleShading *shading);
 
   //----- path clipping
   virtual void clip(GfxState *state);

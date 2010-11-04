@@ -17,6 +17,7 @@
 // Copyright (C) 2009 Stefan Thomas <thomas@eload24.com>
 // Copyright (C) 2010 Adrian Johnson <ajohnson@redneon.com>
 // Copyright (C) 2010 Harry Roberts <harry.roberts@midnight-labs.org>
+// Copyright (C) 2010 Christian Feuersänger <cfeuersaenger@googlemail.com>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -44,12 +45,13 @@
 // SplashBitmap
 //------------------------------------------------------------------------
 
-SplashBitmap::SplashBitmap(int widthA, int heightA, int rowPad,
+SplashBitmap::SplashBitmap(int widthA, int heightA, int rowPadA,
 			   SplashColorMode modeA, GBool alphaA,
 			   GBool topDown) {
   width = widthA;
   height = heightA;
   mode = modeA;
+  rowPad = rowPadA;
   switch (mode) {
   case splashModeMono1:
     if (width > 0) {
