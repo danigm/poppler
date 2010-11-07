@@ -19,6 +19,8 @@
 #ifndef POPPLER_PAGE_PRIVATE_H
 #define POPPLER_PAGE_PRIVATE_H
 
+#include "poppler-page.h"
+
 class Page;
 
 namespace poppler
@@ -37,6 +39,9 @@ public:
     Page *page;
     int index;
     page_transition *transition;
+
+    static inline page_private* get(const poppler::page *p)
+    { return const_cast<poppler::page *>(p)->d; }
 };
 
 }
