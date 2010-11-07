@@ -16,6 +16,7 @@
 // Copyright (C) 2005 Brad Hards <bradh@frogmouth.net>
 // Copyright (C) 2005 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2009 Carlos Garcia Campos <carlosgc@gnome.org>
+// Copyright (C) 2010, 2010 Pino Toscano <pino@kde.org>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -150,7 +151,6 @@ private:
   QPen m_currentPen;
   QBrush m_currentBrush;
   GBool m_needFontUpdate;		// set when the font needs to be updated
-  QImage *m_image;
   SplashFontEngine *m_fontEngine;
   SplashFont *m_font;		// current font
   XRef *xref;			// xref table for current document
