@@ -18,6 +18,7 @@
 // Copyright (C) 2008, 2010 Pino Toscano <pino@kde.org>
 // Copyright (C) 2009 Carlos Garcia Campos <carlosgc@gnome.org>
 // Copyright (C) 2009 Petr Gajdos <pgajdos@novell.com>
+// Copyright (C) 2010 Matthias Fauconneau <matthias.fauconneau@gmail.com>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -269,7 +270,7 @@ void ArthurOutputDev::updateFont(GfxState *state)
   GfxFontType fontType;
   SplashOutFontFileID *id;
   SplashFontFile *fontFile;
-  SplashFontSrc *fontsrc;
+  SplashFontSrc *fontsrc = NULL;
   FoFiTrueType *ff;
   Ref embRef;
   Object refObj, strObj;
@@ -342,7 +343,7 @@ void ArthurOutputDev::updateFont(GfxState *state)
     if (fileName)
       fontsrc->setFile(fileName, gFalse);
     else
-      fontsrc->setBuf(tmpBuf, tmpBufLen, gFalse);
+      fontsrc->setBuf(tmpBuf, tmpBufLen, gTrue);
 
     // load the font file
     switch (fontType) {
@@ -484,11 +485,15 @@ void ArthurOutputDev::updateFont(GfxState *state)
   mat[2] = m21;  mat[3] = -m22;
   m_font = m_fontEngine->getFont(fontFile, mat, matrix);
 
+  if (fontsrc && !fontsrc->isFile)
+      fontsrc->unref();
   return;
 
  err2:
   delete id;
  err1:
+  if (fontsrc && !fontsrc->isFile)
+      fontsrc->unref();
   return;
 #endif
 }
@@ -530,7 +535,7 @@ static QPainterPath convertPath(GfxState *state, GfxPath *path, Qt::FillRule fil
 
 void ArthurOutputDev::stroke(GfxState *state)
 {
-  m_painter->drawPath( convertPath( state, state->getPath(), Qt::OddEvenFill ) );
+  m_painter->strokePath( convertPath( state, state->getPath(), Qt::OddEvenFill ), m_currentPen );
 }
 
 void ArthurOutputDev::fill(GfxState *state)
@@ -559,6 +564,7 @@ void ArthurOutputDev::drawChar(GfxState *state, double x, double y,
 			       CharCode code, int nBytes, Unicode *u, int uLen) {
 #ifdef HAVE_SPLASH
   double x1, y1;
+  double x2, y2;
 //   SplashPath *path;
   int render;
 
@@ -577,41 +583,36 @@ void ArthurOutputDev::drawChar(GfxState *state, double x, double y,
 
   x -= originX;
   y -= originY;
-  state->transform(x, y, &x1, &y1);
 
   // fill
   if (!(render & 1)) {
-    int x0, y0, xFrac, yFrac;
-
-    x0 = static_cast<int>(floor(x1));
-    xFrac = splashFloor((x1 - x0) * splashFontFraction);
-    y0 = static_cast<int>(floor(y1));
-    yFrac = splashFloor((y1 - y0) * splashFontFraction);
     SplashPath * fontPath;
     fontPath = m_font->getGlyphPath(code);
     if (fontPath) {
       QPainterPath qPath;
       qPath.setFillRule(Qt::WindingFill);
       for (int i = 0; i < fontPath->length; ++i) {
-	if (fontPath->flags[i] & splashPathFirst) {
-	  qPath.moveTo(fontPath->pts[i].x+x0, fontPath->pts[i].y+y0);
-	} else if (fontPath->flags[i] & splashPathCurve) {
-	  qPath.quadTo(fontPath->pts[i].x+x0, fontPath->pts[i].y+y0,
-		       fontPath->pts[i+1].x+x0, fontPath->pts[i+1].y+y0);
-	  ++i;
-	}
-// FIXME fix this
-// 	else if (fontPath->flags[i] & splashPathArcCW) {
-// 	  qDebug() << "Need to implement arc";
-// 	}
-	else {
-	  qPath.lineTo(fontPath->pts[i].x+x0, fontPath->pts[i].y+y0);
-	}
-	if (fontPath->flags[i] & splashPathLast) {
-	  qPath.closeSubpath();
-	}
+        if (fontPath->flags[i] & splashPathFirst) {
+            state->transform(fontPath->pts[i].x+x, -fontPath->pts[i].y+y, &x1, &y1);
+            qPath.moveTo(x1,y1);
+        } else if (fontPath->flags[i] & splashPathCurve) {
+            state->transform(fontPath->pts[i].x+x, -fontPath->pts[i].y+y, &x1, &y1);
+            state->transform(fontPath->pts[i+1].x+x, -fontPath->pts[i+1].y+y, &x2, &y2);
+            qPath.quadTo(x1,y1,x2,y2);
+            ++i;
+        }
+        // FIXME fix this
+        // 	else if (fontPath->flags[i] & splashPathArcCW) {
+        // 	  qDebug() << "Need to implement arc";
+        // 	}
+        else {
+            state->transform(fontPath->pts[i].x+x, -fontPath->pts[i].y+y, &x1, &y1);
+            qPath.lineTo(x1,y1);
+        }
+        if (fontPath->flags[i] & splashPathLast) {
+            qPath.closeSubpath();
+        }
       }
-      m_painter->save();
       GfxRGB rgb;
       QColor brushColour = m_currentBrush.color();
       state->getFillRGB(&rgb);
@@ -622,7 +623,7 @@ void ArthurOutputDev::drawChar(GfxState *state, double x, double y,
       penColour.setRgbF(colToDbl(rgb.r), colToDbl(rgb.g), colToDbl(rgb.b), state->getStrokeOpacity());
       m_painter->setPen(penColour);
       m_painter->drawPath( qPath );
-      m_painter->restore();
+      delete fontPath;
     }
   }
 
@@ -762,8 +763,8 @@ void ArthurOutputDev::drawImage(GfxState *state, Object *ref, Stream *str,
 				GfxImageColorMap *colorMap,
 				GBool interpolate, int *maskColors, GBool inlineImg)
 {
-  unsigned char *buffer;
-  unsigned int *dest;
+  unsigned int *data;
+  unsigned int *line;
   int x, y;
   ImageStream *imgStr;
   Guchar *pix;
@@ -771,9 +772,9 @@ void ArthurOutputDev::drawImage(GfxState *state, Object *ref, Stream *str,
   double *ctm;
   QMatrix matrix;
   int is_identity_transform;
+  QImage image;
+  int stride;
   
-  buffer = (unsigned char *)gmallocn3(width, height, 4);
-
   /* TODO: Do we want to cache these? */
   imgStr = new ImageStream(str, width,
 			   colorMap->getNumPixelComps(),
@@ -786,51 +787,36 @@ void ArthurOutputDev::drawImage(GfxState *state, Object *ref, Stream *str,
 		  (colorMap->getColorSpace()->getMode() == csICCBased && 
 		  ((GfxICCBasedColorSpace*)colorMap->getColorSpace())->getAlt()->getMode() == csDeviceRGB);
 
-  if (maskColors) {
-    for (y = 0; y < height; y++) {
-      dest = (unsigned int *) (buffer + y * 4 * width);
-      pix = imgStr->getLine();
-      colorMap->getRGBLine (pix, dest, width);
+  image = QImage(width, height, QImage::Format_ARGB32);
+  data = (unsigned int *)image.bits();
+  stride = image.bytesPerLine()/4;
+  for (y = 0; y < height; y++) {
+    pix = imgStr->getLine();
+    line = data+y*stride;
+    colorMap->getRGBLine(pix, line, width);
 
+    if (maskColors) {
       for (x = 0; x < width; x++) {
-	for (i = 0; i < colorMap->getNumPixelComps(); ++i) {
-	  
-	  if (pix[i] < maskColors[2*i] * 255||
-	      pix[i] > maskColors[2*i+1] * 255) {
-	    *dest = *dest | 0xff000000;
-	    break;
-	  }
-	}
-	pix += colorMap->getNumPixelComps();
-	dest++;
+        for (i = 0; i < colorMap->getNumPixelComps(); ++i) {
+            if (pix[i] < maskColors[2*i] * 255||
+                pix[i] > maskColors[2*i+1] * 255) {
+                *line = *line | 0xff000000;
+                break;
+            }
+        }
+        pix += colorMap->getNumPixelComps();
+        line++;
       }
+    } else {
+      for (x = 0; x < width; x++) { *line = *line | 0xff000000; line++; }
     }
-
-    m_image = new QImage(buffer, width, height, QImage::Format_ARGB32);
-  }
-  else {
-    for (y = 0; y < height; y++) {
-      dest = (unsigned int *) (buffer + y * 4 * width);
-      pix = imgStr->getLine();
-      colorMap->getRGBLine (pix, dest, width);
-    }
-
-    m_image = new QImage(buffer, width, height, QImage::Format_RGB32);
   }
 
-  if (m_image == NULL || m_image->isNull()) {
-    qDebug() << "Null image";
-    delete imgStr;
-    return;
-  }
   ctm = state->getCTM();
   matrix.setMatrix(ctm[0] / width, ctm[1] / width, -ctm[2] / height, -ctm[3] / height, ctm[2] + ctm[4], ctm[3] + ctm[5]);
 
   m_painter->setMatrix(matrix, true);
-  m_painter->drawImage( QPoint(0,0), *m_image );
-  delete m_image;
-  m_image = 0;
-  free (buffer);
+  m_painter->drawImage( QPoint(0,0), image );
   delete imgStr;
 
 }
