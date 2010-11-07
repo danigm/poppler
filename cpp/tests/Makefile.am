@@ -11,10 +11,17 @@ LDADDS =					\
 
 
 noinst_PROGRAMS =				\
-	poppler-dump
+	poppler-dump				\
+	poppler-render
 
 poppler_dump_SOURCES = \
 	$(top_srcdir)/utils/parseargs.cc	\
 	poppler-dump.cpp
 poppler_dump_LDADD = $(LDADDS)
+
+
+poppler_render_SOURCES = \
+	$(top_srcdir)/utils/parseargs.cc	\
+	poppler-render.cpp
+poppler_render_LDADD = $(LDADDS)
 
