@@ -8,6 +8,7 @@
  * Copyright (C) 2009 Shawn Rutledge <shawn.t.rutledge@gmail.com>
  * Copyright (C) 2010, Guillermo Amaral <gamaral@kdab.com>
  * Copyright (C) 2010 Suzuki Toshiya <mpsuzuki@hiroshima-u.ac.jp>
+ * Copyright (C) 2010 Matthias Fauconneau <matthias.fauconneau@gmail.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -250,25 +251,7 @@ QImage Page::renderToImage(double xres, double yres, int x, int y, int w, int h,
       QImage tmpimg(w == -1 ? qRound( size.width() * xres / 72.0 ) : w, h == -1 ? qRound( size.height() * yres / 72.0 ) : h, QImage::Format_ARGB32);
 
       QPainter painter(&tmpimg);
-      if (m_page->parentDoc->m_hints & Document::Antialiasing)
-          painter.setRenderHint(QPainter::Antialiasing);
-      if (m_page->parentDoc->m_hints & Document::TextAntialiasing)
-          painter.setRenderHint(QPainter::TextAntialiasing);
-      painter.translate(x == -1 ? 0 : -x, y == -1 ? 0 : -y);
-      ArthurOutputDev arthur_output(&painter);
-      arthur_output.startDoc(m_page->parentDoc->doc->getXRef());
-      m_page->parentDoc->doc->displayPageSlice(&arthur_output,
-						 m_page->index + 1,
-						 xres,
-						 yres,
-						 rotation,
-						 false,
-						 true,
-						 false,
-						 x,
-						 y,
-						 w,
-						 h);
+      renderToPainter(&painter, xres, yres, x, y, w, h, rotate, DontSaveAndRestore);
       painter.end();
       img = tmpimg;
       break;
@@ -276,6 +259,47 @@ QImage Page::renderToImage(double xres, double yres, int x, int y, int w, int h,
   }
 
   return img;
+}
+
+bool Page::renderToPainter(QPainter* painter, double xres, double yres, int x, int y, int w, int h, Rotation rotate, PainterFlags flags) const
+{
+  if (!painter)
+    return false;
+
+  switch(m_page->parentDoc->m_backend)
+  {
+    case Poppler::Document::SplashBackend:
+      return false;
+    case Poppler::Document::ArthurBackend:
+    {
+      const bool savePainter = !(flags & DontSaveAndRestore);
+      if (savePainter)
+         painter->save();
+      if (m_page->parentDoc->m_hints & Document::Antialiasing)
+          painter->setRenderHint(QPainter::Antialiasing);
+      if (m_page->parentDoc->m_hints & Document::TextAntialiasing)
+          painter->setRenderHint(QPainter::TextAntialiasing);
+      painter->translate(x == -1 ? 0 : -x, y == -1 ? 0 : -y);
+      ArthurOutputDev arthur_output(painter);
+      arthur_output.startDoc(m_page->parentDoc->doc->getXRef());
+      m_page->parentDoc->doc->displayPageSlice(&arthur_output,
+                                               m_page->index + 1,
+                                               xres,
+                                               yres,
+                                               (int)rotate * 90,
+                                               false,
+                                               true,
+                                               false,
+                                               x,
+                                               y,
+                                               w,
+                                               h);
+      if (savePainter)
+         painter->restore();
+      return true;
+    }
+  }
+  return false;
 }
 
 QImage Page::thumbnail() const

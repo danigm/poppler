@@ -3,9 +3,10 @@
  * Copyright (C) 2005, 2007, Brad Hards <bradh@frogmouth.net>
  * Copyright (C) 2005-2010, Albert Astals Cid <aacid@kde.org>
  * Copyright (C) 2005, Stefan Kebekus <stefan.kebekus@math.uni-koeln.de>
- * Copyright (C) 2006-2009, Pino Toscano <pino@kde.org>
+ * Copyright (C) 2006-2010, Pino Toscano <pino@kde.org>
  * Copyright (C) 2009 Shawn Rutledge <shawn.t.rutledge@gmail.com>
  * Copyright (C) 2010 Suzuki Toshiya <mpsuzuki@hiroshima-u.ac.jp>
+ * Copyright (C) 2010 Matthias Fauconneau <matthias.fauconneau@gmail.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -398,6 +399,22 @@ delete it;
 	    RawOrderLayout          ///< The text is returned without any type of processing
 	};
 
+        /**
+           Additional flags for the renderToPainter method
+           \since 0.16
+        */
+        enum PainterFlag {
+            /**
+               Do not save/restore the caller-owned painter.
+
+               renderToPainter() by default preserves, using save() + restore(),
+               the state of the painter specified; if this is not needed, this
+               flag can avoid this job
+             */
+            DontSaveAndRestore = 0x00000001
+        };
+        Q_DECLARE_FLAGS( PainterFlags, PainterFlag )
+
 	/** 
 	   Render the page to a QImage using the current
 	   \link Document::renderBackend() Document renderer\endlink.
@@ -437,6 +454,51 @@ delete it;
 	   \since 0.6
         */
 	QImage renderToImage(double xres=72.0, double yres=72.0, int x=-1, int y=-1, int w=-1, int h=-1, Rotation rotate = Rotate0) const;
+
+        /**
+           Render the page to the specified QPainter using the current
+           \link Document::renderBackend() Document renderer\endlink.
+
+           If \p x = \p y = \p w = \p h = -1, the method will automatically
+           compute the size of the page area from the horizontal and vertical
+           resolutions specified in \p xres and \p yres. Otherwise, the
+           method renders only a part of the page, specified by the
+           parameters (\p x, \p y, \p w, \p h) in pixel coordinates.
+
+           \param painter the painter to paint on
+
+           \param x specifies the left x-coordinate of the box, in
+           pixels.
+
+           \param y specifies the top y-coordinate of the box, in
+           pixels.
+
+           \param w specifies the width of the box, in pixels.
+
+           \param h specifies the height of the box, in pixels.
+
+           \param xres horizontal resolution of the graphics device,
+           in dots per inch
+
+           \param yres vertical resolution of the graphics device, in
+           dots per inch
+
+           \param rotate how to rotate the page
+
+           \param flags additional painter flags
+
+           \warning The parameter (\p x, \p y, \p w, \p h) are not
+           well-tested. Unusual or meaningless parameters may lead to
+           rather unexpected results.
+
+           \returns whether the painting succeeded
+
+           \note This method is only supported for Arthur
+
+           \since 0.16
+        */
+        bool renderToPainter(QPainter* painter, double xres=72.0, double yres=72.0, int x=-1, int y=-1, int w=-1, int h=-1,
+                             Rotation rotate = Rotate0, PainterFlags flags = 0) const;
 
 	/**
 	   Get the page thumbnail if it exists.
@@ -1626,6 +1688,7 @@ height = dummy.height();
 
 }
 
+Q_DECLARE_OPERATORS_FOR_FLAGS(Poppler::Page::PainterFlags)
 Q_DECLARE_OPERATORS_FOR_FLAGS(Poppler::Document::RenderHints)
 Q_DECLARE_OPERATORS_FOR_FLAGS(Poppler::PDFConverter::PDFOptions)
 Q_DECLARE_OPERATORS_FOR_FLAGS(Poppler::PSConverter::PSOptions)
