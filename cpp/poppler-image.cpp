@@ -138,6 +138,8 @@ image_private *image_private::create_data(char *data, int width, int height, ima
  value class. This also means any non-const operation will make sure that the
  data used by current instance is not shared with other instances (ie
  \em detaching), copying the shared data.
+
+ \since 0.16
  */
 
 /**
