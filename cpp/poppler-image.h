@@ -49,6 +49,7 @@ public:
     int height() const;
     char *data();
     const char *const_data() const;
+    int bytes_per_row() const;
 
     image copy(const rect &r = rect()) const;
 

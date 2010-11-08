@@ -242,6 +242,14 @@ int image::height() const
 }
 
 /**
+ \returns the number of bytes in each row of the image
+ */
+int image::bytes_per_row() const
+{
+    return d ? d->bytes_per_row : 0;
+}
+
+/**
  Access to the image bits.
 
  This function will detach and copy the shared data.
