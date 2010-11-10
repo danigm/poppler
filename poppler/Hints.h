@@ -5,6 +5,7 @@
 // This file is licensed under the GPLv2 or later
 //
 // Copyright 2010 Hib Eris <hib@hiberis.nl>
+// Copyright 2010 Albert Astals Cid <aacid@kde.org>
 //
 //========================================================================
 
@@ -13,8 +14,7 @@
 
 #include <string.h>
 #include "goo/gtypes.h"
-#include "goo/GooVector.h"
-//#include <vector>
+#include <vector>
 #include "PDFDoc.h"
 
 class Stream;
@@ -34,7 +34,7 @@ public:
 
   int getPageObjectNum(int page);
   Guint getPageOffset(int page);
-  GooVector<ByteRange>* getPageRanges(int page);
+  std::vector<ByteRange>* getPageRanges(int page);
 
 private:
 

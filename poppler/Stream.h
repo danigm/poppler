@@ -34,7 +34,6 @@
 
 #include <stdio.h>
 #include "goo/gtypes.h"
-#include "goo/GooVector.h"
 #include "Object.h"
 
 class BaseStream;

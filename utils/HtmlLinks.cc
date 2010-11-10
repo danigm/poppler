@@ -118,7 +118,7 @@ GooString* HtmlLink::getLinkStart() {
    
 
 HtmlLinks::HtmlLinks(){
-  accu=new GooVector<HtmlLink>();
+  accu=new std::vector<HtmlLink>();
 }
 
 HtmlLinks::~HtmlLinks(){
@@ -128,7 +128,7 @@ HtmlLinks::~HtmlLinks(){
 
 GBool HtmlLinks::inLink(double xmin,double ymin,double xmax,double ymax,int& p)const {
   
-  for(GooVector<HtmlLink>::iterator i=accu->begin();i!=accu->end();i++){
+  for(std::vector<HtmlLink>::iterator i=accu->begin();i!=accu->end();i++){
     if (i->inLink(xmin,ymin,xmax,ymax)) {
         p=(i - accu->begin());
         return 1;
@@ -138,8 +138,6 @@ GBool HtmlLinks::inLink(double xmin,double ymin,double xmax,double ymax,int& p)c
 }
 
 HtmlLink* HtmlLinks::getLink(int i) const{
-  GooVector<HtmlLink>::iterator g=accu->begin();
-  g+=i; 
-  return g;
+  return &(*accu)[i];
 }
 

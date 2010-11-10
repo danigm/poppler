@@ -33,6 +33,8 @@
 #pragma interface
 #endif
 
+#include <vector>
+
 class XRef;
 class Object;
 class Page;
@@ -233,10 +235,10 @@ private:
   Page **pages;			// array of pages
   Ref *pageRefs;		// object ID for each page
   int lastCachedPage;
-  GooVector<Dict *> *pagesList;
-  GooVector<Ref> *pagesRefList;
-  GooVector<PageAttrs *> *attrsList;
-  GooVector<int> *kidsIdxList;
+  std::vector<Dict *> *pagesList;
+  std::vector<Ref> *pagesRefList;
+  std::vector<PageAttrs *> *attrsList;
+  std::vector<int> *kidsIdxList;
   Form *form;
   int numPages;			// number of pages
   int pagesSize;		// size of pages array

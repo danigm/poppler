@@ -18,6 +18,7 @@
 // under GPL version 2 or later
 //
 // Copyright (C) 2010 OSSD CDAC Mumbai by Leena Chourey (leenac@cdacmumbai.in) and Onkar Potdar (onkar@cdacmumbai.in)
+// Copyright (C) 2010 Albert Astals Cid <aacid@kde.org>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -26,11 +27,10 @@
 
 #ifndef _HTML_FONTS_H
 #define _HTML_FONTS_H
-#include "goo/GooVector.h"
 #include "goo/GooString.h"
 #include "GfxState.h"
 #include "CharTypes.h"
-
+#include <vector>
 
 class HtmlFontColor{
  private:
@@ -92,16 +92,14 @@ public:
 
 class HtmlFontAccu{
 private:
-  GooVector<HtmlFont> *accu;
+  std::vector<HtmlFont> *accu;
   
 public:
   HtmlFontAccu();
   ~HtmlFontAccu();
   int AddFont(const HtmlFont& font);
-  HtmlFont* Get(int i){
-    GooVector<HtmlFont>::iterator g=accu->begin();
-    g+=i;  
-    return g;
+  HtmlFont *Get(int i){
+    return &(*accu)[i];
   } 
   GooString* getCSStyle (int i,GooString* content, int j = 0);
   GooString* CSStyle(int i, int j = 0);

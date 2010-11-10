@@ -5,6 +5,7 @@
 // This file is licensed under the GPLv2 or later
 //
 // Copyright 2010 Hib Eris <hib@hiberis.nl>
+// Copyright 2010 Albert Astals Cid <aacid@kde.org>
 //
 //========================================================================
 
@@ -351,7 +352,7 @@ Guint Hints::getPageOffset(int page)
     return pageOffset[0];
 }
 
-GooVector<ByteRange>* Hints::getPageRanges(int page)
+std::vector<ByteRange>* Hints::getPageRanges(int page)
 {
   if ((page < 1) || (page > nPages)) return NULL;
 
@@ -364,7 +365,7 @@ GooVector<ByteRange>* Hints::getPageRanges(int page)
      idx = 0;
 
   ByteRange pageRange;
-  GooVector<ByteRange> *v = new GooVector<ByteRange>;
+  std::vector<ByteRange> *v = new std::vector<ByteRange>;
 
   pageRange.offset = pageOffset[idx];
   pageRange.length = pageLength[idx];

@@ -6,7 +6,7 @@
 //
 // Copyright 2006 Julien Rebetez <julienr@svn.gnome.org>
 // Copyright 2007, 2008 Carlos Garcia Campos <carlosgc@gnome.org>
-// Copyright 2007-2009 Albert Astals Cid <aacid@kde.org>
+// Copyright 2007-2010 Albert Astals Cid <aacid@kde.org>
 // Copyright 2010 Mark Riedesel <mark@klowner.com>
 //
 //========================================================================
@@ -19,7 +19,6 @@
 #endif
 
 #include "Object.h"
-#include "goo/GooVector.h"
 
 class GooString;
 class Array;

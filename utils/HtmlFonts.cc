@@ -17,7 +17,7 @@
 // All changes made under the Poppler project to this file are licensed
 // under GPL version 2 or later
 //
-// Copyright (C) 2007 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2007, 2010 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2008 Boris Toloknov <tlknv@yandex.ru>
 // Copyright (C) 2008 Tomas Are Haavet <tomasare@gmail.com>
 // Copyright (C) 2010 OSSD CDAC Mumbai by Leena Chourey (leenac@cdacmumbai.in) and Onkar Potdar (onkar@cdacmumbai.in)
@@ -267,7 +267,7 @@ GooString* HtmlFont::simple(HtmlFont* font, Unicode* content, int uLen){
 }
 
 HtmlFontAccu::HtmlFontAccu(){
-  accu=new GooVector<HtmlFont>();
+  accu=new std::vector<HtmlFont>();
 }
 
 HtmlFontAccu::~HtmlFontAccu(){
@@ -275,7 +275,7 @@ HtmlFontAccu::~HtmlFontAccu(){
 }
 
 int HtmlFontAccu::AddFont(const HtmlFont& font){
- GooVector<HtmlFont>::iterator i; 
+ std::vector<HtmlFont>::iterator i; 
  for (i=accu->begin();i!=accu->end();i++)
  {
 	if (font.isEqual(*i)) 
@@ -317,7 +317,7 @@ GooString* HtmlFontAccu::CSStyle(int i, int j){
    GooString *iStr=GooString::fromInt(i);
    GooString *jStr=GooString::fromInt(j);
 
-   GooVector<HtmlFont>::iterator g=accu->begin();
+   std::vector<HtmlFont>::iterator g=accu->begin();
    g+=i;
    HtmlFont font=*g;
    GooString *Size=GooString::fromInt(font.getSize());

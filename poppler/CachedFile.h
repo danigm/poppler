@@ -20,7 +20,8 @@
 #include "goo/gtypes.h"
 #include "Object.h"
 #include "Stream.h"
-#include "goo/GooVector.h"
+
+#include <vector>
 
 //------------------------------------------------------------------------
 
@@ -51,7 +52,7 @@ public:
   int seek(long int offset, int origin);
   size_t read(void * ptr, size_t unitsize, size_t count);
   size_t write(const char *ptr, size_t size, size_t fromByte);
-  int cache(const GooVector<ByteRange> &ranges);
+  int cache(const std::vector<ByteRange> &ranges);
 
   // Reference counting.
   void incRefCnt();
@@ -79,7 +80,7 @@ private:
   size_t length;
   size_t streamPos;
 
-  GooVector<Chunk> *chunks;
+  std::vector<Chunk> *chunks;
 
   int refCnt;  // reference count
 
@@ -99,7 +100,7 @@ public:
 
   // Construct a CachedFile Writer.
   // The caller is responsible for deleting the cachedFile and chunksA.
-  CachedFileWriter(CachedFile *cachedFile, GooVector<int> *chunksA);
+  CachedFileWriter(CachedFile *cachedFile, std::vector<int> *chunksA);
 
   ~CachedFileWriter();
 
@@ -109,8 +110,8 @@ public:
 private:
 
   CachedFile *cachedFile;
-  GooVector<int> *chunks;
-  GooVector<int>::iterator it;
+  std::vector<int> *chunks;
+  std::vector<int>::iterator it;
   size_t offset;
 
 };
@@ -136,7 +137,7 @@ public:
   // Loads speficified byte ranges and passes it to the writer to store them.
   // Returns 0 on success, Anything but 0 on failure.
   // The caller is responsible for deleting the writer.
-  virtual int load(const GooVector<ByteRange> &ranges, CachedFileWriter *writer) = 0;
+  virtual int load(const std::vector<ByteRange> &ranges, CachedFileWriter *writer) = 0;
 
 };
 

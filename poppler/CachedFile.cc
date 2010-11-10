@@ -23,7 +23,7 @@ CachedFile::CachedFile(CachedFileLoader *cachedFileLoaderA, GooString *uriA)
   loader = cachedFileLoaderA;
 
   streamPos = 0;
-  chunks = new GooVector<Chunk>();
+  chunks = new std::vector<Chunk>();
   length = 0;
 
   length = loader->init(uri, this);
@@ -70,15 +70,15 @@ int CachedFile::seek(long int offset, int origin)
   return 0;
 }
 
-int CachedFile::cache(const GooVector<ByteRange> &origRanges)
+int CachedFile::cache(const std::vector<ByteRange> &origRanges)
 {
-  GooVector<int> loadChunks;
+  std::vector<int> loadChunks;
   int numChunks = length/CachedFileChunkSize + 1;
-  GooVector<bool> chunkNeeded(numChunks);
+  std::vector<bool> chunkNeeded(numChunks);
   int startChunk, endChunk;
-  GooVector<ByteRange> chunk_ranges, all;
+  std::vector<ByteRange> chunk_ranges, all;
   ByteRange range;
-  const GooVector<ByteRange> *ranges = &origRanges;
+  const std::vector<ByteRange> *ranges = &origRanges;
 
   if (ranges->empty()) {
     range.offset = 0;
@@ -87,7 +87,8 @@ int CachedFile::cache(const GooVector<ByteRange> &origRanges)
     ranges = &all;
   }
 
-  memset(&chunkNeeded[0], 0, sizeof(bool) * numChunks);
+  for (int i = 0; i < numChunks; ++i)
+    chunkNeeded[i] = false;
   for (size_t i = 0; i < ranges->size(); i++) {
 
     if ((*ranges)[i].length == 0) continue;
@@ -166,7 +167,7 @@ size_t CachedFile::read(void *ptr, size_t unitsize, size_t count)
 
 int CachedFile::cache(size_t offset, size_t length)
 {
-  GooVector<ByteRange> r;
+  std::vector<ByteRange> r;
   ByteRange range;
   range.offset = offset;
   range.length = length;
@@ -178,7 +179,7 @@ int CachedFile::cache(size_t offset, size_t length)
 // CachedFileWriter
 //------------------------------------------------------------------------
 
-CachedFileWriter::CachedFileWriter(CachedFile *cachedFileA, GooVector<int> *chunksA)
+CachedFileWriter::CachedFileWriter(CachedFile *cachedFileA, std::vector<int> *chunksA)
 {
    cachedFile = cachedFileA;
    chunks = chunksA;

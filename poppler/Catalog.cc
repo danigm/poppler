@@ -124,7 +124,7 @@ Catalog::Catalog(XRef *xrefA) {
 Catalog::~Catalog() {
   delete kidsIdxList;
   if (attrsList) {
-    GooVector<PageAttrs *>::iterator it;
+    std::vector<PageAttrs *>::iterator it;
     for (it = attrsList->begin() ; it < attrsList->end(); it++ ) {
       delete *it;
     }
@@ -132,7 +132,7 @@ Catalog::~Catalog() {
   }
   delete pagesRefList;
   if (pagesList) {
-    GooVector<Dict *>::iterator it;
+    std::vector<Dict *>::iterator it;
     for (it = pagesList->begin() ; it < pagesList->end(); it++ ) {
       if (!(*it)->decRef()) {
          delete *it;
@@ -267,13 +267,13 @@ GBool Catalog::cachePageTree(int page)
       pageRefs[i].gen = -1;
     }
 
-    pagesList = new GooVector<Dict *>();
+    pagesList = new std::vector<Dict *>();
     pagesList->push_back(pagesDict);
-    pagesRefList = new GooVector<Ref>();
+    pagesRefList = new std::vector<Ref>();
     pagesRefList->push_back(pagesRef);
-    attrsList = new GooVector<PageAttrs *>();
+    attrsList = new std::vector<PageAttrs *>();
     attrsList->push_back(new PageAttrs(NULL, pagesDict));
-    kidsIdxList = new GooVector<int>();
+    kidsIdxList = new std::vector<int>();
     kidsIdxList->push_back(0);
     lastCachedPage = 0;
 

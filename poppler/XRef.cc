@@ -303,7 +303,7 @@ XRef::XRef(BaseStream *strA, Guint pos, Guint mainXRefEntriesOffsetA, GBool *was
 
     // read the xref table
     } else {
-      GooVector<Guint> followedXRefStm;
+      std::vector<Guint> followedXRefStm;
       readXRef(&prevXRefOffset, &followedXRefStm);
 
       // if there was a problem with the xref table,
@@ -419,7 +419,7 @@ int XRef::resize(int newSize)
 
 // Read one xref table section.  Also reads the associated trailer
 // dictionary, and returns the prev pointer (if any).
-GBool XRef::readXRef(Guint *pos, GooVector<Guint> *followedXRefStm) {
+GBool XRef::readXRef(Guint *pos, std::vector<Guint> *followedXRefStm) {
   Parser *parser;
   Object obj;
   GBool more;
@@ -471,7 +471,7 @@ GBool XRef::readXRef(Guint *pos, GooVector<Guint> *followedXRefStm) {
   return gFalse;
 }
 
-GBool XRef::readXRefTable(Parser *parser, Guint *pos, GooVector<Guint> *followedXRefStm) {
+GBool XRef::readXRefTable(Parser *parser, Guint *pos, std::vector<Guint> *followedXRefStm) {
   XRefEntry entry;
   GBool more;
   Object obj, obj2;
@@ -1282,7 +1282,7 @@ XRefEntry *XRef::getEntry(int i)
         error(-1, "Failed to parse XRef entry [%d].", i);
       }
     } else {
-      GooVector<Guint> followedPrev;
+      std::vector<Guint> followedPrev;
       while (prevXRefOffset && entries[i].type == xrefEntryNone) {
         bool followed = false;
         for (size_t j = 0; j < followedPrev.size(); j++) {
@@ -1301,7 +1301,7 @@ XRefEntry *XRef::getEntry(int i)
 
         followedPrev.push_back (prevXRefOffset);
 
-        GooVector<Guint> followedXRefStm;
+        std::vector<Guint> followedXRefStm;
         if (!readXRef(&prevXRefOffset, &followedXRefStm)) {
             prevXRefOffset = 0;
         }

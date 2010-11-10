@@ -29,7 +29,7 @@
 
 #include <stdlib.h>
 #include <string.h>
-#include "goo/GooVector.h"
+#include <vector>
 #include "goo/GooString.h"
 
 class HtmlLink{
@@ -59,7 +59,7 @@ public:
 
 class HtmlLinks{
 private:
- GooVector<HtmlLink> *accu;
+ std::vector<HtmlLink> *accu;
 public:
  HtmlLinks();
  ~HtmlLinks();

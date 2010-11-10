@@ -449,7 +449,6 @@ if(ENABLE_XPDF_HEADERS)
     goo/GooTimer.h
     goo/GooMutex.h
     goo/GooString.h
-    goo/GooVector.h
     goo/gtypes.h
     goo/gmem.h
     goo/gfile.h

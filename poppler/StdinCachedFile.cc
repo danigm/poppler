@@ -40,7 +40,7 @@ size_t StdinCacheLoader::init(GooString *dummy, CachedFile *cachedFile)
   return size;
 }
 
-int StdinCacheLoader::load(const GooVector<ByteRange> &ranges, CachedFileWriter *writer)
+int StdinCacheLoader::load(const std::vector<ByteRange> &ranges, CachedFileWriter *writer)
 {
   return 0;
 }

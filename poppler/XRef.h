@@ -33,8 +33,9 @@
 #endif
 
 #include "goo/gtypes.h"
-#include "goo/GooVector.h"
 #include "Object.h"
+
+#include <vector>
 
 class Dict;
 class Stream;
@@ -163,8 +164,8 @@ private:
   int reserve(int newSize);
   int resize(int newSize);
   Guint getStartXref();
-  GBool readXRef(Guint *pos, GooVector<Guint> *followedXRefStm);
-  GBool readXRefTable(Parser *parser, Guint *pos, GooVector<Guint> *followedXRefStm);
+  GBool readXRef(Guint *pos, std::vector<Guint> *followedXRefStm);
+  GBool readXRefTable(Parser *parser, Guint *pos, std::vector<Guint> *followedXRefStm);
   GBool readXRefStreamSection(Stream *xrefStr, int *w, int first, int n);
   GBool readXRefStream(Stream *xrefStr, Guint *pos);
   GBool constructXRef(GBool *wasReconstructed);
