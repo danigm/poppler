@@ -3,6 +3,7 @@
  * Copyright (C) 2005-2009, Albert Astals Cid <aacid@kde.org>
  * Copyright (C) 2006, Stefan Kebekus <stefan.kebekus@math.uni-koeln.de>
  * Copyright (C) 2006, Wilfried Huss <Wilfried.Huss@gmx.at>
+ * Copyright (C) 2010 Hib Eris <hib@hiberis.nl>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -111,6 +112,17 @@ Document::PageMode Document::getPageMode(void) const
 int Document::getNumPages() const
 {
   return data->doc.getNumPages();
+}
+
+Page *Document::getPage(int index) const
+{
+  Page *p = new Page(this, index);
+  if (p->data->page == NULL) {
+    delete p;
+    return NULL;
+  }
+
+  return p;
 }
 
 QValueList<FontInfo> Document::fonts() const
@@ -314,7 +326,7 @@ bool Document::print(const QString &fileName, QValueList<int> pageList, double h
 
 bool Document::print(const QString &file, QValueList<int> pageList, double hDPI, double vDPI, int rotate, int paperWidth, int paperHeight)
 {
-  PSOutputDev *psOut = new PSOutputDev(file.latin1(), data->doc.getXRef(), data->doc.getCatalog(), NULL, 1, data->doc.getNumPages(), psModePS, paperWidth, paperHeight);
+  PSOutputDev *psOut = new PSOutputDev(file.latin1(), &(data->doc), data->doc.getXRef(), data->doc.getCatalog(), NULL, 1, data->doc.getNumPages(), psModePS, paperWidth, paperHeight);
   
   if (psOut->isOk()) {
     QValueList<int>::iterator it;

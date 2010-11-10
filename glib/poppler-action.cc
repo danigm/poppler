@@ -425,13 +425,13 @@ find_annot_movie_for_action (PopplerDocument *document,
 
     xref->fetch (ref->num, ref->gen, &annotObj);
   } else if (link->hasAnnotTitle ()) {
-    Catalog *catalog = document->doc->getCatalog ();
     Object annots;
     GooString *title = link->getAnnotTitle ();
     int i;
 
     for (i = 1; i <= document->doc->getNumPages (); ++i) {
-      Page *p = catalog->getPage (i);
+      Page *p = document->doc->getPage (i);
+      if (!p) continue;
 
       if (p->getAnnots (&annots)->isArray ()) {
         int j;

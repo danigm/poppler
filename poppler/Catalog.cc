@@ -59,15 +59,13 @@ Catalog::Catalog(XRef *xrefA) {
   Object catDict, pagesDict, pagesDictRef;
   Object obj, obj2;
   Object optContentProps;
-  char *alreadyRead;
-  int numPages0;
-  int i;
 
   ok = gTrue;
   xref = xrefA;
   pages = NULL;
   pageRefs = NULL;
-  numPages = pagesSize = 0;
+  numPages = -1;
+  pagesSize = 0;
   baseURI = NULL;
   pageLabelInfo = NULL;
   form = NULL;
@@ -78,6 +76,12 @@ Catalog::Catalog(XRef *xrefA) {
   embeddedFileNameTree = NULL;
   jsNameTree = NULL;
 
+  pagesList = NULL;
+  pagesRefList = NULL;
+  attrsList = NULL;
+  kidsIdxList = NULL;
+  lastCachedPage = 0;
+
   xref->getCatalog(&catDict);
   if (!catDict.isDict()) {
     error(-1, "Catalog object is wrong type (%s)", catDict.getTypeName());
@@ -85,47 +89,6 @@ Catalog::Catalog(XRef *xrefA) {
   }
   // get the AcroForm dictionary
   catDict.dictLookup("AcroForm", &acroForm);
-
-  // read page tree
-  catDict.dictLookup("Pages", &pagesDict);
-  // This should really be isDict("Pages"), but I've seen at least one
-  // PDF file where the /Type entry is missing.
-  if (!pagesDict.isDict()) {
-    error(-1, "Top-level pages object is wrong type (%s)",
-	  pagesDict.getTypeName());
-    goto err2;
-  }
-  pagesDict.dictLookup("Count", &obj);
-  // some PDF files actually use real numbers here ("/Count 9.0")
-  if (!obj.isNum()) {
-    error(-1, "Page count in top-level pages object is wrong type (%s)",
-	  obj.getTypeName());
-    pagesSize = numPages0 = 0;
-  } else {
-    pagesSize = numPages0 = (int)obj.getNum();
-  }
-  obj.free();
-  pages = (Page **)gmallocn(pagesSize, sizeof(Page *));
-  pageRefs = (Ref *)gmallocn(pagesSize, sizeof(Ref));
-  for (i = 0; i < pagesSize; ++i) {
-    pages[i] = NULL;
-    pageRefs[i].num = -1;
-    pageRefs[i].gen = -1;
-  }
-  alreadyRead = (char *)gmalloc(xref->getNumObjects());
-  memset(alreadyRead, 0, xref->getNumObjects());
-  if (catDict.dictLookupNF("Pages", &pagesDictRef)->isRef() &&
-      pagesDictRef.getRefNum() >= 0 &&
-      pagesDictRef.getRefNum() < xref->getNumObjects()) {
-    alreadyRead[pagesDictRef.getRefNum()] = 1;
-  }
-  pagesDictRef.free();
-  numPages = readPageTree(pagesDict.getDict(), NULL, 0, alreadyRead);
-  gfree(alreadyRead);
-  if (numPages != numPages0) {
-    error(-1, "Page count in top-level pages object is incorrect");
-  }
-  pagesDict.free();
 
   // read base URI
   if (catDict.dictLookup("URI", &obj)->isDict()) {
@@ -153,18 +116,32 @@ Catalog::Catalog(XRef *xrefA) {
   catDict.free();
   return;
 
- err2:
-  pagesDict.free();
  err1:
   catDict.free();
   ok = gFalse;
 }
 
 Catalog::~Catalog() {
-  int i;
-
+  delete kidsIdxList;
+  if (attrsList) {
+    GooVector<PageAttrs *>::iterator it;
+    for (it = attrsList->begin() ; it < attrsList->end(); it++ ) {
+      delete *it;
+    }
+    delete attrsList;
+  }
+  delete pagesRefList;
+  if (pagesList) {
+    GooVector<Dict *>::iterator it;
+    for (it = pagesList->begin() ; it < pagesList->end(); it++ ) {
+      if (!(*it)->decRef()) {
+         delete *it;
+      }
+    }
+    delete pagesList;
+  }
   if (pages) {
-    for (i = 0; i < pagesSize; ++i) {
+    for (int i = 0; i < pagesSize; ++i) {
       if (pages[i]) {
 	delete pages[i];
       }
@@ -222,92 +199,193 @@ GooString *Catalog::readMetadata() {
   return s;
 }
 
-int Catalog::readPageTree(Dict *pagesDict, PageAttrs *attrs, int start,
-			  char *alreadyRead) {
-  Object kids;
-  Object kid;
-  Object kidRef;
-  PageAttrs *attrs1, *attrs2;
-  Page *page;
-  int i, j;
+Page *Catalog::getPage(int i)
+{
+  if (i < 1) return NULL;
 
-  attrs1 = new PageAttrs(attrs, pagesDict);
-  pagesDict->lookup("Kids", &kids);
-  if (!kids.isArray()) {
-    delete attrs1;
-    error(-1, "Kids object (page %d) is wrong type (%s)",
-	  start+1, kids.getTypeName());
-    return start;
+  if (i > lastCachedPage) {
+     if (cachePageTree(i) == gFalse) return NULL;
   }
-  for (i = 0; i < kids.arrayGetLength(); ++i) {
-    kids.arrayGetNF(i, &kidRef);
-    if (kidRef.isRef() &&
-	kidRef.getRefNum() >= 0 &&
-	kidRef.getRefNum() < xref->getNumObjects()) {
-      if (alreadyRead[kidRef.getRefNum()]) {
-	error(-1, "Loop in Pages tree");
-	kidRef.free();
-	continue;
-      }
-      alreadyRead[kidRef.getRefNum()] = 1;
+  return pages[i-1];
+}
+
+Ref *Catalog::getPageRef(int i)
+{
+  if (i < 1) return NULL;
+
+  if (i > lastCachedPage) {
+     if (cachePageTree(i) == gFalse) return NULL;
+  }
+  return &pageRefs[i-1];
+}
+
+GBool Catalog::cachePageTree(int page)
+{
+  Dict *pagesDict;
+
+  if (pagesList == NULL) {
+
+    Object catDict;
+    Ref pagesRef;
+
+    xref->getCatalog(&catDict);
+
+    Object pagesDictRef;
+    if (catDict.dictLookupNF("Pages", &pagesDictRef)->isRef() &&
+        pagesDictRef.getRefNum() >= 0 &&
+        pagesDictRef.getRefNum() < xref->getNumObjects()) {
+      pagesRef = pagesDictRef.getRef();
+      pagesDictRef.free();
+    } else {
+       error(-1, "Catalog dictionary does not contain a valid \"Pages\" entry");
+       pagesDictRef.free();
+       return gFalse;
     }
-    kids.arrayGet(i, &kid);
+
+    Object obj;
+    catDict.dictLookup("Pages", &obj);
+    catDict.free();
+    // This should really be isDict("Pages"), but I've seen at least one
+    // PDF file where the /Type entry is missing.
+    if (obj.isDict()) {
+      obj.getDict()->incRef();
+      pagesDict = obj.getDict();
+      obj.free();
+    }
+    else {
+      error(-1, "Top-level pages object is wrong type (%s)", obj.getTypeName());
+      obj.free();
+      return gFalse;
+    }
+
+    pagesSize = getNumPages();
+    pages = (Page **)gmallocn(pagesSize, sizeof(Page *));
+    pageRefs = (Ref *)gmallocn(pagesSize, sizeof(Ref));
+    for (int i = 0; i < pagesSize; ++i) {
+      pages[i] = NULL;
+      pageRefs[i].num = -1;
+      pageRefs[i].gen = -1;
+    }
+
+    pagesList = new GooVector<Dict *>();
+    pagesList->push_back(pagesDict);
+    pagesRefList = new GooVector<Ref>();
+    pagesRefList->push_back(pagesRef);
+    attrsList = new GooVector<PageAttrs *>();
+    attrsList->push_back(new PageAttrs(NULL, pagesDict));
+    kidsIdxList = new GooVector<int>();
+    kidsIdxList->push_back(0);
+    lastCachedPage = 0;
+
+  }
+
+  while(1) {
+
+    if (page <= lastCachedPage) return gTrue;
+
+    if (pagesList->empty()) return gFalse;
+
+    pagesDict = pagesList->back();
+    Object kids;
+    pagesDict->lookup("Kids", &kids);
+    if (!kids.isArray()) {
+      error(-1, "Kids object (page %d) is wrong type (%s)",
+            lastCachedPage+1, kids.getTypeName());
+      kids.free();
+      return gFalse;
+    }
+
+    int kidsIdx = kidsIdxList->back();
+    if (kidsIdx >= kids.arrayGetLength()) {
+       if (!pagesList->back()->decRef()) {
+         delete pagesList->back();
+       }
+       pagesList->pop_back();
+       pagesRefList->pop_back();
+       delete attrsList->back();
+       attrsList->pop_back();
+       kidsIdxList->pop_back();
+       if (!kidsIdxList->empty()) kidsIdxList->back()++;
+       kids.free();
+       continue;
+    }
+
+    Object kidRef;
+    kids.arrayGetNF(kidsIdx, &kidRef);
+    if (!kidRef.isRef()) {
+      error(-1, "Kid object (page %d) is not an indirect reference (%s)",
+            lastCachedPage+1, kidRef.getTypeName());
+      kidRef.free();
+      kids.free();
+      return gFalse;
+    }
+
+    for (size_t i = 0; i < pagesRefList->size(); i++) {
+      if (((*pagesRefList)[i]).num == kidRef.getRefNum()) {
+         error(-1, "Loop in Pages tree");
+         kidRef.free();
+         kids.free();
+         kidsIdxList->back()++;
+         continue;
+      }
+    }
+
+    Object kid;
+    kids.arrayGet(kidsIdx, &kid);
+    kids.free();
     if (kid.isDict("Page")) {
-      attrs2 = new PageAttrs(attrs1, kid.getDict());
-      page = new Page(xref, start+1, kid.getDict(), kidRef.getRef(), attrs2, getForm());
-      if (!page->isOk()) {
-	++start;
-	goto err3;
+      PageAttrs *attrs = new PageAttrs(attrsList->back(), kid.getDict());
+      Page *p = new Page(xref, lastCachedPage+1, kid.getDict(),
+                     kidRef.getRef(), attrs, form);
+      if (!p->isOk()) {
+        error(-1, "Failed to create page (page %d)", lastCachedPage+1);
+        delete p;
+        kidRef.free();
+        kid.free();
+        return gFalse;
       }
-      if (start >= pagesSize) {
-	pagesSize += 32;
-	pages = (Page **)greallocn(pages, pagesSize, sizeof(Page *));
-	pageRefs = (Ref *)greallocn(pageRefs, pagesSize, sizeof(Ref));
-	for (j = pagesSize - 32; j < pagesSize; ++j) {
-	  pages[j] = NULL;
-	  pageRefs[j].num = -1;
-	  pageRefs[j].gen = -1;
-	}
+
+      if (lastCachedPage >= numPages) {
+        error(-1, "Page count in top-level pages object is incorrect");
+        kidRef.free();
+        kid.free();
+        return gFalse;
       }
-      pages[start] = page;
-      if (kidRef.isRef()) {
-	pageRefs[start].num = kidRef.getRefNum();
-	pageRefs[start].gen = kidRef.getRefGen();
-      }
-      ++start;
+
+      pages[lastCachedPage] = p;
+      pageRefs[lastCachedPage].num = kidRef.getRefNum();
+      pageRefs[lastCachedPage].gen = kidRef.getRefGen();
+
+      lastCachedPage++;
+      kidsIdxList->back()++;
+
     // This should really be isDict("Pages"), but I've seen at least one
     // PDF file where the /Type entry is missing.
     } else if (kid.isDict()) {
-      if ((start = readPageTree(kid.getDict(), attrs1, start, alreadyRead))
-	  < 0)
-	goto err2;
+      attrsList->push_back(new PageAttrs(attrsList->back(), kid.getDict()));
+      pagesRefList->push_back(kidRef.getRef());
+      kid.getDict()->incRef();
+      pagesList->push_back(kid.getDict());
+      kidsIdxList->push_back(0);
     } else {
       error(-1, "Kid object (page %d) is wrong type (%s)",
-	    start+1, kid.getTypeName());
+            lastCachedPage+1, kid.getTypeName());
+      kidsIdxList->back()++;
     }
-    kid.free();
     kidRef.free();
-  }
-  delete attrs1;
-  kids.free();
-  return start;
+    kid.free();
 
- err3:
-  delete page;
- err2:
-  kid.free();
-  kidRef.free();
-  kids.free();
-  delete attrs1;
-  ok = gFalse;
-  return -1;
+  }
+
+  return gFalse;
 }
 
 int Catalog::findPage(int num, int gen) {
   int i;
 
-  for (i = 0; i < numPages; ++i) {
-    if (pageRefs[i].num == num && pageRefs[i].gen == gen)
+  for (i = 0; i < getNumPages(); ++i) {
+    Ref *ref = getPageRef(i+1);
+    if (ref->num == num && ref->gen == gen)
       return i + 1;
   }
   return 0;
@@ -625,7 +703,7 @@ GBool Catalog::labelToIndex(GooString *label, int *index)
       return gFalse;
   }
 
-  if (*index < 0 || *index >= numPages)
+  if (*index < 0 || *index >= getNumPages())
     return gFalse;
 
   return gTrue;
@@ -635,7 +713,7 @@ GBool Catalog::indexToLabel(int index, GooString *label)
 {
   char buffer[32];
 
-  if (index < 0 || index >= numPages)
+  if (index < 0 || index >= getNumPages())
     return gFalse;
 
   PageLabelInfo *pli = getPageLabelInfo();
@@ -749,6 +827,42 @@ EmbFile::EmbFile(Object *efDict, GooString *description)
     m_checksum = new GooString();
   if (!m_mimetype)
     m_mimetype = new GooString();
+}
+
+int Catalog::getNumPages()
+{
+  if (numPages == -1)
+  {
+    Object catDict, pagesDict, obj;
+
+    xref->getCatalog(&catDict);
+    catDict.dictLookup("Pages", &pagesDict);
+    catDict.free();
+
+    // This should really be isDict("Pages"), but I've seen at least one
+    // PDF file where the /Type entry is missing.
+    if (!pagesDict.isDict()) {
+      error(-1, "Top-level pages object is wrong type (%s)",
+          pagesDict.getTypeName());
+      pagesDict.free();
+      return 0;
+    }
+
+    pagesDict.dictLookup("Count", &obj);
+    // some PDF files actually use real numbers here ("/Count 9.0")
+    if (!obj.isNum()) {
+      error(-1, "Page count in top-level pages object is wrong type (%s)",
+         obj.getTypeName());
+      numPages = 0;
+    } else {
+      numPages = (int)obj.getNum();
+    }
+
+    obj.free();
+    pagesDict.free();
+  }
+
+  return numPages;
 }
 
 PageLabelInfo *Catalog::getPageLabelInfo()

@@ -24,7 +24,7 @@
 
 //------------------------------------------------------------------------
 
-#define CachedFileChunkSize 8192
+#define CachedFileChunkSize 8192 // This should be a multiple of cachedStreamBufSize
 
 class GooString;
 class CachedFileLoader;

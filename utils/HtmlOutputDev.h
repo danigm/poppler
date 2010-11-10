@@ -18,6 +18,7 @@
 // Copyright (C) 2008-2009 Warren Toomey <wkt@tuhs.org>
 // Copyright (C) 2009 Carlos Garcia Campos <carlosgc@gnome.org>
 // Copyright (C) 2009 Kovid Goyal <kovid@kovidgoyal.net>
+// Copyright (C) 2010 Hib Eris <hib@hiberis.nl>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -256,6 +257,7 @@ public:
                                GBool (* abortCheckCbk)(void *data) = NULL,
                                void * abortCheckCbkData = NULL)
   {
+   docPage = page;
    catalog = catalogA;
    return gTrue;
   }
@@ -323,6 +325,7 @@ private:
   GooString *docTitle;
   GooList *glMetaVars;
   Catalog *catalog;
+  Page *docPage;
   friend class HtmlPage;
 };
 

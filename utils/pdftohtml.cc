@@ -457,7 +457,7 @@ int main(int argc, char *argv[]) {
       psFileName = new GooString(htmlFileName->getCString());
       psFileName->append(".ps");
 
-      psOut = new PSOutputDev(psFileName->getCString(), doc->getXRef(),
+      psOut = new PSOutputDev(psFileName->getCString(), doc, doc->getXRef(),
           doc->getCatalog(), NULL, firstPage, lastPage, psModePS, w, h);
       psOut->setDisplayText(gFalse);
       doc->displayPages(psOut, firstPage, lastPage, 72, 72, 0,

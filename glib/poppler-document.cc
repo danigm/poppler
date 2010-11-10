@@ -435,15 +435,14 @@ PopplerPage *
 poppler_document_get_page (PopplerDocument  *document,
 			   int               index)
 {
-  Catalog *catalog;
   Page *page;
 
   g_return_val_if_fail (0 <= index &&
 			index < poppler_document_get_n_pages (document),
 			NULL);
 
-  catalog = document->doc->getCatalog();
-  page = catalog->getPage (index + 1);
+  page = document->doc->getPage (index + 1);
+  if (!page) return NULL;
 
   return _poppler_page_new (document, page, index);
 }
@@ -2482,18 +2481,22 @@ PopplerFormField *
 poppler_document_get_form_field (PopplerDocument *document,
 				 gint             id)
 {
-  Catalog *catalog = document->doc->getCatalog();
+  Page *page;
   unsigned pageNum;
   unsigned fieldNum;
   FormPageWidgets *widgets;
   FormWidget *field;
 
   FormWidget::decodeID (id, &pageNum, &fieldNum);
-  
-  widgets = catalog->getPage (pageNum)->getPageWidgets ();
+
+  page = document->doc->getPage (pageNum);
+  if (!page)
+    return NULL;
+
+  widgets = page->getPageWidgets ();
   if (!widgets)
     return NULL;
-  
+
   field = widgets->getWidget (fieldNum);
   if (field)
     return _poppler_form_field_new (document, field);

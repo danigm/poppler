@@ -9,6 +9,7 @@
  * Copyright (C) 2010, Guillermo Amaral <gamaral@kdab.com>
  * Copyright (C) 2010 Suzuki Toshiya <mpsuzuki@hiroshima-u.ac.jp>
  * Copyright (C) 2010 Matthias Fauconneau <matthias.fauconneau@gmail.com>
+ * Copyright (C) 2010 Hib Eris <hib@hiberis.nl>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -191,7 +192,7 @@ Page::Page(DocumentData *doc, int index) {
   m_page = new PageData();
   m_page->index = index;
   m_page->parentDoc = doc;
-  m_page->page = doc->doc->getCatalog()->getPage(m_page->index + 1);
+  m_page->page = doc->doc->getPage(m_page->index + 1);
   m_page->transition = 0;
 }
 

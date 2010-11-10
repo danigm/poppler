@@ -4,6 +4,7 @@
  * Copyright (C) 2005-2007, Albert Astals Cid <aacid@kde.org>
  * Copyright (C) 2005-2006, Stefan Kebekus <stefan.kebekus@math.uni-koeln.de>
  * Copyright (C) 2006, Wilfried Huss <Wilfried.Huss@gmx.at>
+ * Copyright (C) 2010 Hib Eris <hib@hiberis.nl>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -219,7 +220,7 @@ public:
   
   static Document *load(const QString & filePath);
   
-  Page *getPage(int index) const{ return new Page(this, index); }
+  Page *getPage(int index) const;
   
   int getNumPages() const;
   

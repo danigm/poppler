@@ -7,6 +7,7 @@
 // Copyright (C) 2005 Brad Hards <bradh@frogmouth.net>
 // Copyright (C) 2006 Kouhei Sutou <kou@cozmixng.org>
 // Copyright (C) 2009 Pino Toscano <pino@kde.org>
+// Copyright 2010 Hib Eris <hib@hiberis.nl>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -70,7 +71,9 @@ GooList *FontInfoScanner::scan(int nPages) {
   }
 
   for (int pg = currentPage; pg < lastPage; ++pg) {
-    page = doc->getCatalog()->getPage(pg);
+    page = doc->getPage(pg);
+    if (!page) continue;
+
     if ((resDict = page->getResourceDict())) {
       scanFonts(resDict, result);
     }

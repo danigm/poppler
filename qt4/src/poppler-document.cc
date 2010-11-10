@@ -1,8 +1,9 @@
 /* poppler-document.cc: qt interface to poppler
  * Copyright (C) 2005, Net Integration Technologies, Inc.
  * Copyright (C) 2005, 2008, Brad Hards <bradh@frogmouth.net>
- * Copyright (C) 2005-2009, Albert Astals Cid <aacid@kde.org>
+ * Copyright (C) 2005-2010, Albert Astals Cid <aacid@kde.org>
  * Copyright (C) 2006-2010, Pino Toscano <pino@kde.org>
+ * Copyright (C) 2010 Hib Eris <hib@hiberis.nl>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -36,6 +37,7 @@
 #include <QtCore/QByteArray>
 
 #include "poppler-private.h"
+#include "poppler-page-private.h"
 
 #if defined(USE_CMS)
 #include <lcms.h>
@@ -98,7 +100,13 @@ namespace Poppler {
 
     Page *Document::page(int index) const
     {
-	return new Page(m_doc, index);
+	Page *page = new Page(m_doc, index);
+	if (page->m_page->page == NULL) {
+	  delete page;
+	  return NULL;
+	}
+
+	return page;
     }
 
     bool Document::isLocked() const

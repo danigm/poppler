@@ -1116,7 +1116,7 @@ void HtmlOutputDev::startPage(int pageNum, GfxState *state) {
 
 
 void HtmlOutputDev::endPage() {
-  Links *linksList = catalog->getPage(pageNum)->getLinks(catalog);
+  Links *linksList = docPage->getLinks(catalog);
   for (int i = 0; i < linksList->getNumLinks(); ++i)
   {
       doProcessLink(linksList->getLink(i));

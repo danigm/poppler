@@ -1,11 +1,12 @@
 /* poppler-page.cc: qt interface to poppler
  * Copyright (C) 2005, Net Integration Technologies, Inc.
- * Copyright (C) 2005-2006, Albert Astals Cid <aacid@kde.org>
+ * Copyright (C) 2005-2006, 2010 Albert Astals Cid <aacid@kde.org>
  * Copyright (C) 2005, Tobias Koening <tokoe@kde.org>
  * Copyright (C) 2005, Stefan Kebekus <stefan.kebekus@math.uni-koeln.de>
  * Copyright (C) 2006, Wilfried Huss <Wilfried.Huss@gmx.at>
  * Copyright (C) 2006, Jerry Epplin <jepplin@globalvelocity.com>
  * Copyright (C) 2007, 2010, Pino Toscano <pino@kde.org>
+ * Copyright (C) 2010 Hib Eris <hib@hiberis.nl>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -42,18 +43,12 @@
 
 namespace Poppler {
 
-class PageData {
-  public:
-  const Document *doc;
-  int index;
-  PageTransition *transition;
-};
-
 Page::Page(const Document *doc, int index) {
   data = new PageData();
   data->index = index;
   data->doc = doc;
   data->transition = 0;
+  data->page = doc->data->doc.getPage(data->index + 1);
 }
 
 Page::~Page()
@@ -132,7 +127,7 @@ QString Page::getText(const Rectangle &r) const
   output_dev = new TextOutputDev(0, gFalse, gFalse, gFalse);
   data->doc->data->doc.displayPageSlice(output_dev, data->index + 1, 72, 72,
       0, false, false, false, -1, -1, -1, -1);
-  p = data->doc->data->doc.getCatalog()->getPage(data->index + 1);
+  p = data->page;
   if (r.isNull())
   {
     rect = p->getCropBox();
@@ -197,7 +192,7 @@ PageTransition *Page::getTransition() const
   {
     Object o;
     PageTransitionParams params;
-    params.dictObj = data->doc->data->doc.getCatalog()->getPage(data->index + 1)->getTrans(&o);
+    params.dictObj = data->page->getTrans(&o);
     data->transition = new PageTransition(params);
     o.free();
   }
@@ -208,7 +203,7 @@ QSize Page::pageSize() const
 {
   ::Page *p;
 
-  p = data->doc->data->doc.getCatalog()->getPage(data->index + 1);
+  p = data->page;
   if ( ( Page::Landscape == orientation() ) || (Page::Seascape == orientation() ) ) {
     return QSize( (int)p->getCropHeight(), (int)p->getCropWidth() );
   } else {
@@ -218,7 +213,7 @@ QSize Page::pageSize() const
 
 Page::Orientation Page::orientation() const
 {
-  ::Page *p = data->doc->data->doc.getCatalog()->getPage(data->index + 1);
+  ::Page *p = data->page;
 
   int rotation = p->getRotate();
   switch (rotation) {

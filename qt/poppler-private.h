@@ -1,6 +1,6 @@
 /* poppler-private.h: qt interface to poppler
  * Copyright (C) 2005, Net Integration Technologies, Inc.
- * Copyright (C) 2005-2008, Albert Astals Cid <aacid@kde.org>
+ * Copyright (C) 2005-2008, 2010 Albert Astals Cid <aacid@kde.org>
  * Copyright (C) 2006, Kristian Høgsberg <krh@bitplanet.net>
  * Copyright (C) 2006, Wilfried Huss <Wilfried.Huss@gmx.at>
  * Copyright (C) 2007, Pino Toscano <pino@kde.org>
@@ -33,8 +33,10 @@ class SplashOutputDev;
 #endif
 
 namespace Poppler {
-    
+
+class Document;
 class DocumentData;
+class PageTransition;
 
 QString unicodeToQString(Unicode* u, int len);
 
@@ -87,6 +89,14 @@ class DocumentData {
   bool locked;
   FontInfoScanner *m_fontInfoScanner;
   SplashOutputDev *m_outputDev;
+};
+
+class PageData {
+  public:
+  const Document *doc;
+  int index;
+  PageTransition *transition;
+  ::Page *page;
 };
 
 }

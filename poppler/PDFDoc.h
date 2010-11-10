@@ -49,6 +49,9 @@ class Links;
 class LinkAction;
 class LinkDest;
 class Outline;
+class Linearization;
+class SecurityHandler;
+class Hints;
 
 enum PDFWriteMode {
   writeStandard,
@@ -90,6 +93,9 @@ public:
   // Get file name.
   GooString *getFileName() { return fileName; }
 
+  // Get the linearization table.
+  Linearization *getLinearization();
+
   // Get the xref table.
   XRef *getXRef() { return xref; }
 
@@ -104,18 +110,18 @@ public:
 
   // Get page parameters.
   double getPageMediaWidth(int page)
-    { return catalog->getPage(page)->getMediaWidth(); }
+    { return getPage(page) ? getPage(page)->getMediaWidth() : 0.0 ; }
   double getPageMediaHeight(int page)
-    { return catalog->getPage(page)->getMediaHeight(); }
+    { return getPage(page) ? getPage(page)->getMediaHeight() : 0.0 ; }
   double getPageCropWidth(int page)
-    { return catalog->getPage(page)->getCropWidth(); }
+    { return getPage(page) ? getPage(page)->getCropWidth() : 0.0 ; }
   double getPageCropHeight(int page)
-    { return catalog->getPage(page)->getCropHeight(); }
+    { return getPage(page) ? getPage(page)->getCropHeight() : 0.0 ; }
   int getPageRotate(int page)
-    { return catalog->getPage(page)->getRotate(); }
+    { return getPage(page) ? getPage(page)->getRotate() : 0 ; }
 
   // Get number of pages.
-  int getNumPages() { return catalog->getNumPages(); }
+  int getNumPages();
 
   // Return the contents of the metadata stream, or NULL if there is
   // no metadata.
@@ -123,6 +129,9 @@ public:
 
   // Return the structure tree root object.
   Object *getStructTreeRoot() { return catalog->getStructTreeRoot(); }
+
+  // Get page.
+  Page *getPage(int page);
 
   // Display a page.
   void displayPage(OutputDev *out, int page,
@@ -233,12 +242,23 @@ private:
   void saveIncrementalUpdate (OutStream* outStr);
   void saveCompleteRewrite (OutStream* outStr);
 
+  Page *parsePage(int page);
+
+  // Get hints.
+  Hints *getHints();
+
   PDFDoc();
   void init();
   GBool setup(GooString *ownerPassword, GooString *userPassword);
   GBool checkFooter();
   void checkHeader();
   GBool checkEncryption(GooString *ownerPassword, GooString *userPassword);
+  // Get the offset of the start xref table.
+  Guint getStartXRef();
+  // Get the offset of the entries in the main XRef table of a
+  // linearized document (0 for non linearized documents).
+  Guint getMainXRefEntriesOffset();
+  Guint strToUnsigned(char *s);
 
   GooString *fileName;
   FILE *file;
@@ -246,17 +266,23 @@ private:
   void *guiData;
   int pdfMajorVersion;
   int pdfMinorVersion;
+  Linearization *linearization;
   XRef *xref;
+  SecurityHandler *secHdlr;
   Catalog *catalog;
+  Hints *hints;
 #ifndef DISABLE_OUTLINE
   Outline *outline;
 #endif
+  Page **pageCache;
 
   GBool ok;
   int errCode;
   //If there is an error opening the PDF file with fopen() in the constructor, 
   //then the POSIX errno will be here.
   int fopenErrno;
+
+  Guint startXRefPos;		// offset of last xref table
 };
 
 #endif

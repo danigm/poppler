@@ -166,7 +166,11 @@ int main(int argc, char *argv[]) {
   fonts = NULL;
   fontsLen = fontsSize = 0;
   for (pg = firstPage; pg <= lastPage; ++pg) {
-    page = doc->getCatalog()->getPage(pg);
+    page = doc->getPage(pg);
+    if (!page) {
+      error(-1, "Failed to read fonts from page %d", pg);
+      continue;
+    }
     if ((resDict = page->getResourceDict())) {
       scanFonts(resDict, doc);
     }

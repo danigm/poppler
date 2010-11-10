@@ -1,6 +1,7 @@
 /* poppler-link.cc: qt interface to poppler
  * Copyright (C) 2006-2007, Albert Astals Cid
  * Copyright (C) 2007-2008, Pino Toscano <pino@kde.org>
+ * Copyright (C) 2010 Hib Eris <hib@hiberis.nl>
  * Adapting code from
  *   Copyright (C) 2004 by Enrico Ros <eros.kde@email.it>
  *
@@ -232,9 +233,11 @@ class LinkMoviePrivate : public LinkPrivate
 		
 		int leftAux = 0, topAux = 0, rightAux = 0, bottomAux = 0;
 		
-		if (d->pageNum > 0 && d->pageNum <= data.doc->doc->getNumPages())
+		::Page *page;
+		if (d->pageNum > 0 &&
+		    d->pageNum <= data.doc->doc->getNumPages() &&
+		    (page = data.doc->doc->getPage( d->pageNum )))
 		{
-			::Page *page = data.doc->doc->getCatalog()->getPage( d->pageNum );
 			cvtUserToDev( page, left, top, &leftAux, &topAux );
 			cvtUserToDev( page, right, bottom, &rightAux, &bottomAux );
 			

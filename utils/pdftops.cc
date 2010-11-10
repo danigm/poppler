@@ -20,6 +20,7 @@
 // Copyright (C) 2009 Till Kamppeter <till.kamppeter@gmail.com>
 // Copyright (C) 2009 Sanjoy Mahajan <sanjoy@mit.edu>
 // Copyright (C) 2009 William Bader <williambader@hotmail.com>
+// Copyright (C) 2010 Hib Eris <hib@hiberis.nl>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -359,7 +360,7 @@ int main(int argc, char *argv[]) {
   }
 
   // write PostScript file
-  psOut = new PSOutputDev(psFileName->getCString(), doc->getXRef(),
+  psOut = new PSOutputDev(psFileName->getCString(), doc, doc->getXRef(),
 			  doc->getCatalog(), NULL, firstPage, lastPage, mode,
 			  paperWidth,
 			  paperHeight,

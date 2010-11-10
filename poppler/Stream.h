@@ -293,7 +293,7 @@ private:
 class BaseStream: public Stream {
 public:
 
-  BaseStream(Object *dictA);
+  BaseStream(Object *dictA, Guint lengthA);
   virtual ~BaseStream();
   virtual Stream *makeSubStream(Guint start, GBool limited,
 				Guint length, Object *dict) = 0;
@@ -303,10 +303,15 @@ public:
   virtual Stream *getUndecodedStream() { return this; }
   virtual Dict *getDict() { return dict.getDict(); }
   virtual GooString *getFileName() { return NULL; }
+  virtual Guint getLength() { return length; }
 
   // Get/set position of first byte of stream within the file.
   virtual Guint getStart() = 0;
   virtual void moveStart(int delta) = 0;
+
+protected:
+
+  Guint length;
 
 private:
 
@@ -478,7 +483,6 @@ private:
   FILE *f;
   Guint start;
   GBool limited;
-  Guint length;
   char buf[fileStreamBufSize];
   char *bufPtr;
   char *bufEnd;
@@ -523,7 +527,6 @@ private:
   CachedFile *cc;
   Guint start;
   GBool limited;
-  Guint length;
   char buf[cachedStreamBufSize];
   char *bufPtr;
   char *bufEnd;
@@ -567,7 +570,6 @@ private:
 
   char *buf;
   Guint start;
-  Guint length;
   char *bufEnd;
   char *bufPtr;
   GBool needFree;
@@ -607,7 +609,6 @@ private:
 
   Stream *str;
   GBool limited;
-  Guint length;
 };
 
 //------------------------------------------------------------------------

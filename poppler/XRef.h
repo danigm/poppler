@@ -18,6 +18,7 @@
 // Copyright (C) 2007-2008 Julien Rebetez <julienr@svn.gnome.org>
 // Copyright (C) 2007 Carlos Garcia Campos <carlosgc@gnome.org>
 // Copyright (C) 2010 Ilya Gorenbein <igorenbein@finjan.com>
+// Copyright 2010 Hib Eris <hib@hiberis.nl>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -47,7 +48,8 @@ class PopplerCache;
 enum XRefEntryType {
   xrefEntryFree,
   xrefEntryUncompressed,
-  xrefEntryCompressed
+  xrefEntryCompressed,
+  xrefEntryNone
 };
 
 struct XRefEntry {
@@ -64,7 +66,7 @@ public:
   // Constructor, create an empty XRef, used for PDF writing
   XRef();
   // Constructor.  Read xref table from stream.
-  XRef(BaseStream *strA, GBool *wasReconstructed = NULL, GBool reconstruct = false);
+  XRef(BaseStream *strA, Guint pos, Guint mainXRefEntriesOffsetA = 0, GBool *wasReconstructed = NULL, GBool reconstruct = false);
 
   // Destructor.
   ~XRef();
@@ -107,9 +109,6 @@ public:
   // Return the number of objects in the xref table.
   int getNumObjects() { return size; }
 
-  // Return the offset of the last xref table.
-  Guint getLastXRefPos() { return lastXRefPos; }
-
   // Return the catalog object reference.
   int getRootNum() { return rootNum; }
   int getRootGen() { return rootGen; }
@@ -119,11 +118,11 @@ public:
   GBool getStreamEnd(Guint streamStart, Guint *streamEnd);
 
   // Retuns the entry that belongs to the offset
-  int getNumEntry(Guint offset) const;
+  int getNumEntry(Guint offset);
 
   // Direct access.
   int getSize() { return size; }
-  XRefEntry *getEntry(int i) { return &entries[i]; }
+  XRefEntry *getEntry(int i);
   Object *getTrailerDict() { return &trailerDict; }
 
   // Write access
@@ -138,12 +137,12 @@ private:
   Guint start;			// offset in file (to allow for garbage
 				//   at beginning of file)
   XRefEntry *entries;		// xref entries
-  int size;			// size of <entries> array
+  int capacity;			// size of <entries> array
+  int size;			// number of entries
   int rootNum, rootGen;		// catalog dict
   GBool ok;			// true if xref table is valid
   int errCode;			// error code (if <ok> is false)
   Object trailerDict;		// trailer dictionary
-  Guint lastXRefPos;		// offset of last xref table
   Guint *streamEnds;		// 'endstream' positions - only used in
 				//   damaged files
   int streamEndsLen;		// number of valid entries in streamEnds
@@ -156,7 +155,13 @@ private:
   int permFlags;		// permission bits
   Guchar fileKey[16];		// file decryption key
   GBool ownerPasswordOk;	// true if owner password is correct
+  Guint prevXRefOffset;		// position of prev XRef section (= next to read)
+  Guint mainXRefEntriesOffset;	// offset of entries in main XRef table
+  GBool xRefStream;		// true if last XRef section is a stream
 
+  void init();
+  int reserve(int newSize);
+  int resize(int newSize);
   Guint getStartXref();
   GBool readXRef(Guint *pos, GooVector<Guint> *followedXRefStm);
   GBool readXRefTable(Parser *parser, Guint *pos, GooVector<Guint> *followedXRefStm);
@@ -164,6 +169,8 @@ private:
   GBool readXRefStream(Stream *xrefStr, Guint *pos);
   GBool constructXRef(GBool *wasReconstructed);
   Guint strToUnsigned(char *s);
+  GBool parseEntry(Guint offset, XRefEntry *entry);
+
 };
 
 #endif

@@ -19,7 +19,7 @@
 // Copyright (C) 2006 Jeff Muizelaar <jeff@infidigm.net>
 // Copyright (C) 2007, 2008 Brad Hards <bradh@kde.org>
 // Copyright (C) 2008, 2009 Koji Otani <sho@bbr.jp>
-// Copyright (C) 2008 Hib Eris <hib@hiberis.nl>
+// Copyright (C) 2008, 2010 Hib Eris <hib@hiberis.nl>
 // Copyright (C) 2009, 2010 Thomas Freitag <Thomas.Freitag@alfa.de>
 // Copyright (C) 2009 Till Kamppeter <till.kamppeter@gmail.com>
 // Copyright (C) 2009 Carlos Garcia Campos <carlosgc@gnome.org>
@@ -70,6 +70,7 @@
 #  include "SplashOutputDev.h"
 #endif
 #include "PSOutputDev.h"
+#include "PDFDoc.h"
 
 #ifdef MACOS
 // needed for setting type/creator of MacOS files
@@ -974,7 +975,7 @@ static void outputToFile(void *stream, char *data, int len) {
   fwrite(data, 1, len, (FILE *)stream);
 }
 
-PSOutputDev::PSOutputDev(const char *fileName, XRef *xrefA, Catalog *catalog,
+PSOutputDev::PSOutputDev(const char *fileName, PDFDoc *doc, XRef *xrefA, Catalog *catalog,
 			 char *psTitle,
 			 int firstPage, int lastPage, PSOutMode modeA,
 			 int paperWidthA, int paperHeightA, GBool duplexA,
@@ -1035,13 +1036,14 @@ PSOutputDev::PSOutputDev(const char *fileName, XRef *xrefA, Catalog *catalog,
   }
 
   init(outputToFile, f, fileTypeA, psTitle,
-       xrefA, catalog, firstPage, lastPage, modeA,
+       doc, xrefA, catalog, firstPage, lastPage, modeA,
        imgLLXA, imgLLYA, imgURXA, imgURYA, manualCtrlA,
        paperWidthA, paperHeightA, duplexA);
 }
 
 PSOutputDev::PSOutputDev(PSOutputFunc outputFuncA, void *outputStreamA,
 			 char *psTitle,
+			 PDFDoc *doc,
 			 XRef *xrefA, Catalog *catalog,
 			 int firstPage, int lastPage, PSOutMode modeA,
 			 int paperWidthA, int paperHeightA, GBool duplexA,
@@ -1070,18 +1072,17 @@ PSOutputDev::PSOutputDev(PSOutputFunc outputFuncA, void *outputStreamA,
   forceRasterize = forceRasterizeA;
 
   init(outputFuncA, outputStreamA, psGeneric, psTitle,
-       xrefA, catalog, firstPage, lastPage, modeA,
+       doc, xrefA, catalog, firstPage, lastPage, modeA,
        imgLLXA, imgLLYA, imgURXA, imgURYA, manualCtrlA,
        paperWidthA, paperHeightA, duplexA);
 }
 
 void PSOutputDev::init(PSOutputFunc outputFuncA, void *outputStreamA,
-		       PSFileType fileTypeA, char *pstitle, XRef *xrefA, Catalog *catalog,
+		       PSFileType fileTypeA, char *pstitle, PDFDoc *doc, XRef *xrefA, Catalog *catalog,
 		       int firstPage, int lastPage, PSOutMode modeA,
 		       int imgLLXA, int imgLLYA, int imgURXA, int imgURYA,
 		       GBool manualCtrlA, int paperWidthA, int paperHeightA,
 		       GBool duplexA) {
-  Page *page;
   PDFRectangle *box;
 
   // initialize
@@ -1101,12 +1102,12 @@ void PSOutputDev::init(PSOutputFunc outputFuncA, void *outputStreamA,
   imgURX = imgURXA;
   imgURY = imgURYA;
   if (paperWidth < 0 || paperHeight < 0) {
-    // this check is needed in case the document has zero pages
-    if (firstPage > 0 && firstPage <= catalog->getNumPages()) {
-      page = catalog->getPage(firstPage);
+    Page *page;
+    if ((page = doc->getPage(firstPage))) {
       paperWidth = (int)ceil(page->getMediaWidth());
       paperHeight = (int)ceil(page->getMediaHeight());
     } else {
+      error(-1, "Invalid page %d", firstPage);
       paperWidth = 1;
       paperHeight = 1;
     }
@@ -1172,14 +1173,16 @@ void PSOutputDev::init(PSOutputFunc outputFuncA, void *outputStreamA,
   embFontList = new GooString();
 
   if (!manualCtrl) {
+    Page *page;
     // this check is needed in case the document has zero pages
-    if (firstPage > 0 && firstPage <= catalog->getNumPages()) {
+    if ((page = doc->getPage(firstPage))) {
       writeHeader(firstPage, lastPage,
-		  catalog->getPage(firstPage)->getMediaBox(),
-		  catalog->getPage(firstPage)->getCropBox(),
-		  catalog->getPage(firstPage)->getRotate(),
+		  page->getMediaBox(),
+		  page->getCropBox(),
+		  page->getRotate(),
 		  pstitle);
     } else {
+      error(-1, "Invalid page %d", firstPage);
       box = new PDFRectangle(0, 0, 1, 1);
       writeHeader(firstPage, lastPage, box, box, 0, pstitle);
       delete box;
@@ -1192,7 +1195,7 @@ void PSOutputDev::init(PSOutputFunc outputFuncA, void *outputStreamA,
       writePS("%%EndProlog\n");
       writePS("%%BeginSetup\n");
     }
-    writeDocSetup(catalog, firstPage, lastPage, duplexA);
+    writeDocSetup(doc, catalog, firstPage, lastPage, duplexA);
     if (mode != psModeForm) {
       writePS("%%EndSetup\n");
     }
@@ -1402,7 +1405,7 @@ void PSOutputDev::writeXpdfProcset() {
   }
 }
 
-void PSOutputDev::writeDocSetup(Catalog *catalog,
+void PSOutputDev::writeDocSetup(PDFDoc *doc, Catalog *catalog,
 				int firstPage, int lastPage,
                                 GBool duplexA) {
   Page *page;
@@ -1418,7 +1421,11 @@ void PSOutputDev::writeDocSetup(Catalog *catalog,
     writePS("xpdf begin\n");
   }
   for (pg = firstPage; pg <= lastPage; ++pg) {
-    page = catalog->getPage(pg);
+    page = doc->getPage(pg);
+    if (!page) {
+      error(-1, "Failed writing resources for page %d", pg);
+      continue;
+    }
     if ((resDict = page->getResourceDict())) {
       setupResources(resDict);
     }

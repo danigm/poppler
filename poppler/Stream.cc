@@ -373,8 +373,9 @@ void FileOutStream::printf(const char *format, ...)
 // BaseStream
 //------------------------------------------------------------------------
 
-BaseStream::BaseStream(Object *dictA) {
+BaseStream::BaseStream(Object *dictA, Guint lengthA) {
   dict = *dictA;
+  length = lengthA;
 }
 
 BaseStream::~BaseStream() {
@@ -695,7 +696,7 @@ GBool StreamPredictor::getNextLine() {
 
 FileStream::FileStream(FILE *fA, Guint startA, GBool limitedA,
 		       Guint lengthA, Object *dictA):
-    BaseStream(dictA) {
+    BaseStream(dictA, lengthA) {
   f = fA;
   start = startA;
   limited = limitedA;
@@ -820,7 +821,7 @@ void FileStream::moveStart(int delta) {
 
 CachedFileStream::CachedFileStream(CachedFile *ccA, Guint startA,
         GBool limitedA, Guint lengthA, Object *dictA)
-  : BaseStream(dictA)
+  : BaseStream(dictA, lengthA)
 {
   cc = ccA;
   start = startA;
@@ -875,7 +876,7 @@ GBool CachedFileStream::fillBuf()
   if (limited && bufPos + cachedStreamBufSize > start + length) {
     n = start + length - bufPos;
   } else {
-    n = cachedStreamBufSize;
+    n = cachedStreamBufSize - (bufPos % cachedStreamBufSize);
   }
   cc->read(buf, 1, n);
   bufEnd = buf + n;
@@ -918,7 +919,7 @@ void CachedFileStream::moveStart(int delta)
 //------------------------------------------------------------------------
 
 MemStream::MemStream(char *bufA, Guint startA, Guint lengthA, Object *dictA):
-    BaseStream(dictA) {
+    BaseStream(dictA, lengthA) {
   buf = bufA;
   start = startA;
   length = lengthA;
@@ -982,7 +983,7 @@ void MemStream::moveStart(int delta) {
 
 EmbedStream::EmbedStream(Stream *strA, Object *dictA,
 			 GBool limitedA, Guint lengthA):
-    BaseStream(dictA) {
+    BaseStream(dictA, lengthA) {
   str = strA;
   limited = limitedA;
   length = lengthA;

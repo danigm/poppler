@@ -247,10 +247,12 @@ set(poppler_SRCS
   poppler/GfxFont.cc
   poppler/GfxState.cc
   poppler/GlobalParams.cc
+  poppler/Hints.cc
   poppler/JArithmeticDecoder.cc
   poppler/JBIG2Stream.cc
   poppler/Lexer.cc
   poppler/Link.cc
+  poppler/Linearization.cc
   poppler/LocalPDFDocBuilder.cc
   poppler/NameToCharCode.cc
   poppler/Object.cc
@@ -393,10 +395,12 @@ if(ENABLE_XPDF_HEADERS)
     poppler/GfxState.h
     poppler/GfxState_helpers.h
     poppler/GlobalParams.h
+    poppler/Hints.h
     poppler/JArithmeticDecoder.h
     poppler/JBIG2Stream.h
     poppler/Lexer.h
     poppler/Link.h
+    poppler/Linearization.h
     poppler/LocalPDFDocBuilder.h
     poppler/Movie.h
     poppler/NameToCharCode.h
