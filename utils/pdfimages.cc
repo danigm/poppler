@@ -17,6 +17,7 @@
 //
 // Copyright (C) 2007-2008, 2010 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2010 Hib Eris <hib@hiberis.nl>
+// Copyright (C) 2010 Jakob Voss <jakob.voss@gbv.de>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -48,6 +49,7 @@
 static int firstPage = 1;
 static int lastPage = 0;
 static GBool dumpJPEG = gFalse;
+static GBool pageNames = gFalse;
 static char ownerPassword[33] = "\001";
 static char userPassword[33] = "\001";
 static GBool quiet = gFalse;
@@ -65,6 +67,8 @@ static const ArgDesc argDesc[] = {
    "owner password (for encrypted files)"},
   {"-upw",    argString,   userPassword,   sizeof(userPassword),
    "user password (for encrypted files)"},
+  {"-p",      argFlag,     &pageNames,     0,
+   "include page numbers in output file names"},
   {"-q",      argFlag,     &quiet,         0,
    "don't print any messages or errors"},
   {"-v",      argFlag,     &printVersion,  0,
@@ -157,7 +161,7 @@ int main(int argc, char *argv[]) {
     lastPage = doc->getNumPages();
 
   // write image files
-  imgOut = new ImageOutputDev(imgRoot, dumpJPEG);
+  imgOut = new ImageOutputDev(imgRoot, pageNames, dumpJPEG);
   if (imgOut->isOk()) {
       doc->displayPages(imgOut, firstPage, lastPage, 72, 72, 0,
 			gTrue, gFalse, gFalse);

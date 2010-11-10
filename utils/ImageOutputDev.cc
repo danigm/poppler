@@ -19,6 +19,7 @@
 // Copyright (C) 2008 Vasile Gaburici <gaburici@cs.umd.edu>
 // Copyright (C) 2009 Carlos Garcia Campos <carlosgc@gnome.org>
 // Copyright (C) 2009 William Bader <williambader@hotmail.com>
+// Copyright (C) 2010 Jakob Voss <jakob.voss@gbv.de>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -46,17 +47,27 @@
 #endif
 #include "ImageOutputDev.h"
 
-ImageOutputDev::ImageOutputDev(char *fileRootA, GBool dumpJPEGA) {
+ImageOutputDev::ImageOutputDev(char *fileRootA, GBool pageNamesA, GBool dumpJPEGA) {
   fileRoot = copyString(fileRootA);
-  fileName = (char *)gmalloc(strlen(fileRoot) + 20);
+  fileName = (char *)gmalloc(strlen(fileRoot) + 45);
   dumpJPEG = dumpJPEGA;
+  pageNames = pageNamesA;
   imgNum = 0;
+  pageNum = 0;
   ok = gTrue;
 }
 
 ImageOutputDev::~ImageOutputDev() {
   gfree(fileName);
   gfree(fileRoot);
+}
+
+void ImageOutputDev::setFilename(const char *fileExt) {
+  if (pageNames) {
+    sprintf(fileName, "%s-%03d-%03d.%s", fileRoot, pageNum, imgNum, fileExt);
+  } else {
+    sprintf(fileName, "%s-%03d.%s", fileRoot, imgNum, fileExt);
+  }
 }
 
 void ImageOutputDev::drawImageMask(GfxState *state, Object *ref, Stream *str,
@@ -70,7 +81,7 @@ void ImageOutputDev::drawImageMask(GfxState *state, Object *ref, Stream *str,
   if (dumpJPEG && str->getKind() == strDCT && !inlineImg) {
 
     // open the image file
-    sprintf(fileName, "%s-%03d.jpg", fileRoot, imgNum);
+    setFilename("jpg");
     ++imgNum;
     if (!(f = fopen(fileName, "wb"))) {
       error(-1, "Couldn't open image file '%s'", fileName);
@@ -92,7 +103,7 @@ void ImageOutputDev::drawImageMask(GfxState *state, Object *ref, Stream *str,
   } else {
 
     // open the image file and write the PBM header
-    sprintf(fileName, "%s-%03d.pbm", fileRoot, imgNum);
+    setFilename("pbm");
     ++imgNum;
     if (!(f = fopen(fileName, "wb"))) {
       error(-1, "Couldn't open image file '%s'", fileName);
@@ -137,7 +148,7 @@ void ImageOutputDev::drawImage(GfxState *state, Object *ref, Stream *str,
       !inlineImg) {
 
     // open the image file
-    sprintf(fileName, "%s-%03d.jpg", fileRoot, imgNum);
+    setFilename("jpg");
     ++imgNum;
     if (!(f = fopen(fileName, "wb"))) {
       error(-1, "Couldn't open image file '%s'", fileName);
@@ -160,7 +171,7 @@ void ImageOutputDev::drawImage(GfxState *state, Object *ref, Stream *str,
 	     colorMap->getBits() == 1) {
 
     // open the image file and write the PBM header
-    sprintf(fileName, "%s-%03d.pbm", fileRoot, imgNum);
+    setFilename("pbm");
     ++imgNum;
     if (!(f = fopen(fileName, "wb"))) {
       error(-1, "Couldn't open image file '%s'", fileName);
@@ -191,7 +202,7 @@ void ImageOutputDev::drawImage(GfxState *state, Object *ref, Stream *str,
   } else {
 
     // open the image file and write the PPM header
-    sprintf(fileName, "%s-%03d.ppm", fileRoot, imgNum);
+    setFilename("ppm");
     ++imgNum;
     if (!(f = fopen(fileName, "wb"))) {
       error(-1, "Couldn't open image file '%s'", fileName);

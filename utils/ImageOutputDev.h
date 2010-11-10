@@ -16,6 +16,7 @@
 // Copyright (C) 2006 Rainer Keller <class321@gmx.de>
 // Copyright (C) 2008 Timothy Lee <timothy.lee@siriushk.com>
 // Copyright (C) 2009 Carlos Garcia Campos <carlosgc@gnome.org>
+// Copyright (C) 2010 Jakob Voss <jakob.voss@gbv.de>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -45,10 +46,11 @@ class ImageOutputDev: public OutputDev {
 public:
 
   // Create an OutputDev which will write images to files named
-  // <fileRoot>-NNN.<type>.  Normally, all images are written as PBM
-  // (.pbm) or PPM (.ppm) files.  If <dumpJPEG> is set, JPEG images are
-  // written as JPEG (.jpg) files.
-  ImageOutputDev(char *fileRootA, GBool dumpJPEGA);
+  // <fileRoot>-NNN.<type> or <fileRoot>-PPP-NNN.<type>, if 
+  // <pageNames> is set. Normally, all images are written as PBM
+  // (.pbm) or PPM (.ppm) files.  If <dumpJPEG> is set, JPEG images 
+  // are written as JPEG (.jpg) files.
+  ImageOutputDev(char *fileRootA, GBool pageNamesA, GBool dumpJPEGA);
 
   // Destructor.
   virtual ~ImageOutputDev();
@@ -63,6 +65,10 @@ public:
   // Does this device need non-text content?
   virtual GBool needNonText() { return gTrue; }
 
+  // Start a page
+  virtual void startPage(int pageNumA, GfxState *state) 
+			{ pageNum = pageNumA; }
+ 
   //---- get info about output device
 
   // Does this device use upside-down coordinates?
@@ -95,10 +101,15 @@ public:
 				   GBool maskInterpolate);
 
 private:
+  // Sets the output filename with a given file extension
+  void setFilename(const char *fileExt);
+
 
   char *fileRoot;		// root of output file names
   char *fileName;		// buffer for output file names
   GBool dumpJPEG;		// set to dump native JPEG files
+  GBool pageNames;		// set to include page number in file names
+  int pageNum;			// current page number
   int imgNum;			// current image number
   GBool ok;			// set up ok?
 };
