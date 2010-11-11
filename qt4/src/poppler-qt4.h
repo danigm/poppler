@@ -59,6 +59,30 @@ namespace Poppler {
     class PSConverter;
 
     /**
+	Debug/error function.
+
+	This function type is used for debugging & error output;
+	the first parameter is the actual message, the second is the unaltered
+	closure argument which was passed to the setDebugErrorFunction call.
+
+	\since 0.16
+    */
+    typedef void (*PopplerDebugFunc)(const QString & /*message*/, const QVariant & /*closure*/);
+
+    /**
+	Set a new debug/error output function.
+
+	If not set, by default error and debug messages will be sent to the
+	Qt \p qDebug() function.
+
+	\param debugFunction the new debug function
+	\param closure user data which will be passes as-is to the debug function
+
+	\since 0.16
+    */
+    POPPLER_QT4_EXPORT void setDebugErrorFunction(PopplerDebugFunc debugFunction, const QVariant &closure);
+
+    /**
         Describes the physical location of text on a document page
        
         This very simple class describes the physical location of text

@@ -32,6 +32,24 @@
 
 namespace Poppler {
 
+namespace Debug {
+
+    void qDebugDebugFunction(const QString &message, const QVariant & /*closure*/)
+    {
+        qDebug() << message;
+    }
+
+    PopplerDebugFunc debugFunction = qDebugDebugFunction;
+    QVariant debugClosure;
+
+}
+
+    void setDebugErrorFunction(PopplerDebugFunc function, const QVariant &closure)
+    {
+        Debug::debugFunction = function ? function : Debug::qDebugDebugFunction;
+        Debug::debugClosure = closure;
+    }
+
     void qt4ErrorFunction(int pos, char *msg, va_list args)
     {
         QString emsg;
@@ -47,7 +65,7 @@ namespace Poppler {
         }
         qvsnprintf(buffer, sizeof(buffer) - 1, msg, args);
         emsg += QString::fromAscii(buffer);
-        qDebug() << qPrintable(emsg);
+        (*Debug::debugFunction)(emsg, Debug::debugClosure);
     }
 
     QString unicodeToQString(Unicode* u, int len) {
