@@ -107,7 +107,6 @@ void TestMetaData::checkLinearised()
 
     doc = Poppler::Document::load("../../../test/unittestcases/truetype.pdf");
     QVERIFY( doc );
-    QEXPECT_FAIL("", "We don't yet handle linearisation correctly", Continue);
     QCOMPARE( doc->isLinearized(), false );
 
     delete doc;
