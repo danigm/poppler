@@ -1,3 +1,25 @@
+Release 0.15.2 (0.16 Beta 2)
+
+	core:
+	 * Improve shadings and antialias in the Splash backend (Bug #30436)
+	 * Linearization improvements
+	 * Small improvements to the Arthur backend
+	 * Fix calculation of the size of some pages (Bug #30784)
+	 * Fix crashes in broken documents
+
+	qt4:
+	 * Add Page::renderToPainter() method
+	 * Add setDebugErrorFunction() method
+
+	cpp:
+	 * Add the hability to render pages to an image
+
+	utils:
+	 * Add -p flag to pdfimages
+
+	build system:
+	 * Remove -ansi flag for cywin and mingw
+
 Release 0.15.1 (0.16 Beta 1)
 
 	core:
