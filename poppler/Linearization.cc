@@ -19,7 +19,7 @@
 Linearization::Linearization (BaseStream *str)
 {
   Parser *parser;
-  Object obj1, obj2, obj3, obj4, obj5;
+  Object obj1, obj2, obj3, obj5;
 
   linDict.initNull();
 
@@ -32,7 +32,6 @@ Linearization::Linearization (BaseStream *str)
   parser->getObj(&obj2);
   parser->getObj(&obj3);
   parser->getObj(&linDict);
-  parser->getObj(&obj4);
   if (obj1.isInt() && obj2.isInt() && obj3.isCmd("obj") && linDict.isDict()) {
     linDict.dictLookup("Linearized", &obj5);
     if (!(obj5.isNum() && obj5.getNum() > 0)) {
@@ -41,7 +40,6 @@ Linearization::Linearization (BaseStream *str)
     }
     obj5.free();
   }
-  obj4.free();
   obj3.free();
   obj2.free();
   obj1.free();
