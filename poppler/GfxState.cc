@@ -2748,14 +2748,21 @@ GfxAxialShading *GfxAxialShading::parse(Dict *dict, Gfx *gfx) {
   x0A = y0A = x1A = y1A = 0;
   if (dict->lookup("Coords", &obj1)->isArray() &&
       obj1.arrayGetLength() == 4) {
-    x0A = obj1.arrayGet(0, &obj2)->getNum();
+    Object obj3, obj4, obj5;
+    obj1.arrayGet(0, &obj2);
+    obj1.arrayGet(1, &obj3);
+    obj1.arrayGet(2, &obj4);
+    obj1.arrayGet(3, &obj5);
+    if (obj2.isNum() && obj3.isNum() && obj4.isNum() && obj5.isNum()) {
+      x0A = obj2.getNum();
+      y0A = obj3.getNum();
+      x1A = obj4.getNum();
+      y1A = obj5.getNum();
+    }
     obj2.free();
-    y0A = obj1.arrayGet(1, &obj2)->getNum();
-    obj2.free();
-    x1A = obj1.arrayGet(2, &obj2)->getNum();
-    obj2.free();
-    y1A = obj1.arrayGet(3, &obj2)->getNum();
-    obj2.free();
+    obj3.free();
+    obj4.free();
+    obj5.free();
   } else {
     error(-1, "Missing or invalid Coords in shading dictionary");
     goto err1;
@@ -2766,10 +2773,15 @@ GfxAxialShading *GfxAxialShading::parse(Dict *dict, Gfx *gfx) {
   t1A = 1;
   if (dict->lookup("Domain", &obj1)->isArray() &&
       obj1.arrayGetLength() == 2) {
-    t0A = obj1.arrayGet(0, &obj2)->getNum();
+    Object obj3;
+    obj1.arrayGet(0, &obj2);
+    obj1.arrayGet(1, &obj3);
+    if (obj2.isNum() && obj3.isNum()) {
+      t0A = obj2.getNum();
+      t1A = obj3.getNum();
+    }
     obj2.free();
-    t1A = obj1.arrayGet(1, &obj2)->getNum();
-    obj2.free();
+    obj3.free();
   }
   obj1.free();
 
