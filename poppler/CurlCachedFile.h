@@ -26,7 +26,7 @@ public:
   CurlCachedFileLoader();
   ~CurlCachedFileLoader();
   size_t init(GooString *url, CachedFile* cachedFile);
-  int load(const GooVector<ByteRange> &ranges, CachedFileWriter *writer);
+  int load(const std::vector<ByteRange> &ranges, CachedFileWriter *writer);
 
 private:
 

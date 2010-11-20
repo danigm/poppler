@@ -15,7 +15,6 @@
 #include "CurlCachedFile.h"
 
 #include "goo/GooString.h"
-#include "goo/GooVector.h"
 
 //------------------------------------------------------------------------
 
@@ -68,7 +67,7 @@ size_t load_cb(const char *ptr, size_t size, size_t nmemb, void *data)
   return (writer->write) (ptr, size*nmemb);
 }
 
-int CurlCachedFileLoader::load(const GooVector<ByteRange> &ranges, CachedFileWriter *writer)
+int CurlCachedFileLoader::load(const std::vector<ByteRange> &ranges, CachedFileWriter *writer)
 {
   CURLcode r = CURLE_OK;
   size_t fromByte, toByte;
