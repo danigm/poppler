@@ -105,8 +105,8 @@ void Hints::readTables(BaseStream *str, Linearization *linearization, XRef *xref
 
   int bufLength = hintsLength + hintsLength2;
 
-  char buf[bufLength];
-  char *p = buf;
+  std::vector<char> buf(bufLength);
+  char *p = &buf[0];
 
   obj.initNull();
   Stream *s = str->makeSubStream(hintsOffset, gFalse, hintsLength, &obj);
@@ -123,7 +123,7 @@ void Hints::readTables(BaseStream *str, Linearization *linearization, XRef *xref
   }
 
   obj.initNull();
-  MemStream *memStream = new MemStream (buf, 0, bufLength, &obj);
+  MemStream *memStream = new MemStream (&buf[0], 0, bufLength, &obj);
 
   obj.initNull();
   parser = new Parser(xref, new Lexer(xref, memStream), gTrue);
