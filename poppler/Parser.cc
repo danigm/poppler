@@ -53,8 +53,15 @@ Parser::~Parser() {
 }
 
 Object *Parser::getObj(Object *obj, Guchar *fileKey,
+           CryptAlgorithm encAlgorithm, int keyLength,
+           int objNum, int objGen) {
+  std::set<int> fetchOriginatorNums;
+  return getObj(obj, fileKey, encAlgorithm, keyLength, objNum, objGen, &fetchOriginatorNums);
+}
+
+Object *Parser::getObj(Object *obj, Guchar *fileKey,
 		       CryptAlgorithm encAlgorithm, int keyLength,
-		       int objNum, int objGen) {
+		       int objNum, int objGen, std::set<int> *fetchOriginatorNums) {
   char *key;
   Stream *str;
   Object obj2;
@@ -78,7 +85,7 @@ Object *Parser::getObj(Object *obj, Guchar *fileKey,
     obj->initArray(xref);
     while (!buf1.isCmd("]") && !buf1.isEOF())
       obj->arrayAdd(getObj(&obj2, fileKey, encAlgorithm, keyLength,
-			   objNum, objGen));
+			   objNum, objGen, fetchOriginatorNums));
     if (buf1.isEOF())
       error(getPos(), "End of file inside array");
     shift();
@@ -99,7 +106,7 @@ Object *Parser::getObj(Object *obj, Guchar *fileKey,
 	  gfree(key);
 	  break;
 	}
-	obj->dictAdd(key, getObj(&obj2, fileKey, encAlgorithm, keyLength, objNum, objGen));
+	obj->dictAdd(key, getObj(&obj2, fileKey, encAlgorithm, keyLength, objNum, objGen, fetchOriginatorNums));
       }
     }
     if (buf1.isEOF())
@@ -108,7 +115,7 @@ Object *Parser::getObj(Object *obj, Guchar *fileKey,
     // object streams
     if (allowStreams && buf2.isCmd("stream")) {
       if ((str = makeStream(obj, fileKey, encAlgorithm, keyLength,
-			    objNum, objGen))) {
+			    objNum, objGen, fetchOriginatorNums))) {
 	obj->initStream(str);
       } else {
 	obj->free();
@@ -162,7 +169,7 @@ Object *Parser::getObj(Object *obj, Guchar *fileKey,
 
 Stream *Parser::makeStream(Object *dict, Guchar *fileKey,
 			   CryptAlgorithm encAlgorithm, int keyLength,
-			   int objNum, int objGen) {
+			   int objNum, int objGen, std::set<int> *fetchOriginatorNums) {
   Object obj;
   BaseStream *baseStr;
   Stream *str;
@@ -173,7 +180,7 @@ Stream *Parser::makeStream(Object *dict, Guchar *fileKey,
   pos = lexer->getPos();
 
   // get length
-  dict->dictLookup("Length", &obj, objNum);
+  dict->dictLookup("Length", &obj, fetchOriginatorNums);
   if (obj.isInt()) {
     length = (Guint)obj.getInt();
     obj.free();

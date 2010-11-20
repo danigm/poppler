@@ -46,6 +46,11 @@ public:
   Object *getObj(Object *obj, Guchar *fileKey = NULL,
 		 CryptAlgorithm encAlgorithm = cryptRC4, int keyLength = 0,
 		 int objNum = 0, int objGen = 0);
+  
+  Object *getObj(Object *obj, Guchar *fileKey,
+     CryptAlgorithm encAlgorithm, int keyLength,
+     int objNum, int objGen, std::set<int> *fetchOriginatorNums);
+
 
   // Get stream.
   Stream *getStream() { return lexer->getStream(); }
@@ -63,7 +68,7 @@ private:
 
   Stream *makeStream(Object *dict, Guchar *fileKey,
 		     CryptAlgorithm encAlgorithm, int keyLength,
-		     int objNum, int objGen);
+		     int objNum, int objGen, std::set<int> *fetchOriginatorNums);
   void shift(int objNum = -1);
 };
 

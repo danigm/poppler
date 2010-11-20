@@ -30,6 +30,7 @@
 #pragma interface
 #endif
 
+#include <set>
 #include <stdio.h>
 #include <string.h>
 #include "goo/gtypes.h"
@@ -153,7 +154,7 @@ public:
 
   // If object is a Ref, fetch and return the referenced object.
   // Otherwise, return a copy of the object.
-  Object *fetch(XRef *xref, Object *obj, int fetchOriginatorNum = -1);
+  Object *fetch(XRef *xref, Object *obj, std::set<int> *fetchOriginatorNums = NULL);
 
   // Free object contents.
   void free();
@@ -212,7 +213,7 @@ public:
   void dictAdd(char *key, Object *val);
   void dictSet(char *key, Object *val);
   GBool dictIs(char *dictType);
-  Object *dictLookup(char *key, Object *obj, int fetchOriginatorNum = -1);
+  Object *dictLookup(char *key, Object *obj, std::set<int> *fetchOriginatorNums = NULL);
   Object *dictLookupNF(char *key, Object *obj);
   char *dictGetKey(int i);
   Object *dictGetVal(int i, Object *obj);
@@ -299,8 +300,8 @@ inline GBool Object::dictIs(char *dictType)
 inline GBool Object::isDict(char *dictType)
   { return type == objDict && dictIs(dictType); }
 
-inline Object *Object::dictLookup(char *key, Object *obj, int fetchOriginatorNum)
-  { OBJECT_TYPE_CHECK(objDict); return dict->lookup(key, obj, fetchOriginatorNum); }
+inline Object *Object::dictLookup(char *key, Object *obj, std::set<int> *fetchOriginatorNums)
+  { OBJECT_TYPE_CHECK(objDict); return dict->lookup(key, obj, fetchOriginatorNums); }
 
 inline Object *Object::dictLookupNF(char *key, Object *obj)
   { OBJECT_TYPE_CHECK(objDict); return dict->lookupNF(key, obj); }

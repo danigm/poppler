@@ -967,14 +967,16 @@ GBool XRef::okToAssemble(GBool ignoreOwnerPW) {
   return (!ignoreOwnerPW && ownerPasswordOk) || (permFlags & permAssemble);
 }
 
-Object *XRef::fetch(int num, int gen, Object *obj, int fetchOriginatorNum) {
+Object *XRef::fetch(int num, int gen, Object *obj, std::set<int> *fetchOriginatorNums) {
   XRefEntry *e;
   Parser *parser;
   Object obj1, obj2, obj3;
+  bool deleteFetchOriginatorNums = false;
+  std::pair<std::set<int>::iterator, bool> fetchInsertResult;
 
   // check for bogus ref - this can happen in corrupted PDF files
-  if (num < 0 || num >= size || num == fetchOriginatorNum) {
-    goto err;
+  if (num < 0 || num >= size || (fetchOriginatorNums != NULL && fetchOriginatorNums->find(num) != fetchOriginatorNums->end())) {
+    goto err2;
   }
 
   e = getEntry(num);
@@ -982,6 +984,13 @@ Object *XRef::fetch(int num, int gen, Object *obj, int fetchOriginatorNum) {
     obj = e->obj.copy(obj);
     return obj;
   }
+
+  if (fetchOriginatorNums == NULL) {
+    fetchOriginatorNums = new std::set<int>();
+    deleteFetchOriginatorNums = true;
+  }
+  fetchInsertResult = fetchOriginatorNums->insert(num);
+
   switch (e->type) {
 
   case xrefEntryUncompressed:
@@ -1030,7 +1039,7 @@ Object *XRef::fetch(int num, int gen, Object *obj, int fetchOriginatorNum) {
       goto err;
     }
     parser->getObj(obj, encrypted ? fileKey : (Guchar *)NULL,
-		   encAlgorithm, keyLength, num, gen);
+		   encAlgorithm, keyLength, num, gen, fetchOriginatorNums);
     obj1.free();
     obj2.free();
     obj3.free();
@@ -1070,10 +1079,21 @@ Object *XRef::fetch(int num, int gen, Object *obj, int fetchOriginatorNum) {
   default:
     goto err;
   }
-
+  
+  if (deleteFetchOriginatorNums) {
+    delete fetchOriginatorNums;
+  } else {
+    fetchOriginatorNums->erase(fetchInsertResult.first);
+  }
   return obj;
 
  err:
+  if (deleteFetchOriginatorNums) {
+    delete fetchOriginatorNums;
+  } else {
+    fetchOriginatorNums->erase(fetchInsertResult.first);
+  }
+ err2:
   return obj->initNull();
 }
 
