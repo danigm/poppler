@@ -795,9 +795,9 @@ FormField::FormField(XRef* xrefA, Object *aobj, const Ref& aref, FormFieldType t
         // are widgets, create widgets for them
         Object obj4;
 
-	if (obj2.dictLookup("Subtype",&obj4)->isName()) {
-	  _createWidget(&obj2, childRef.getRef());
-	}
+        if (obj2.dictLookup("Subtype",&obj4)->isName()) {
+          _createWidget(&obj2, childRef.getRef());
+        }
         obj4.free();
       } else if(obj2.dictLookup("FT", &obj3)->isName() || obj2.dictLookup("Kids", &obj3)->isArray()) {
         if(terminal) error(-1, "Field can't have both Widget AND Field as kids\n");
@@ -806,7 +806,7 @@ FormField::FormField(XRef* xrefA, Object *aobj, const Ref& aref, FormFieldType t
         children = (FormField**)greallocn(children, numChildren, sizeof(FormField*));
 
         obj3.free();
-	children[numChildren-1] = Form::createFieldFromDict (&obj2, xrefA, childRef.getRef());
+        children[numChildren-1] = Form::createFieldFromDict (&obj2, xrefA, childRef.getRef());
       }
       // 1 - we will handle 'collapsed' fields (field + annot in the same dict)
       // as if the annot was in the Kids array of the field
