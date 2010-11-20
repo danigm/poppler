@@ -967,13 +967,13 @@ GBool XRef::okToAssemble(GBool ignoreOwnerPW) {
   return (!ignoreOwnerPW && ownerPasswordOk) || (permFlags & permAssemble);
 }
 
-Object *XRef::fetch(int num, int gen, Object *obj) {
+Object *XRef::fetch(int num, int gen, Object *obj, int fetchOriginatorNum) {
   XRefEntry *e;
   Parser *parser;
   Object obj1, obj2, obj3;
 
   // check for bogus ref - this can happen in corrupted PDF files
-  if (num < 0 || num >= size) {
+  if (num < 0 || num >= size || num == fetchOriginatorNum) {
     goto err;
   }
 

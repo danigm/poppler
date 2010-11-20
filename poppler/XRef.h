@@ -101,7 +101,7 @@ public:
   Object *getCatalog(Object *obj) { return fetch(rootNum, rootGen, obj); }
 
   // Fetch an indirect reference.
-  Object *fetch(int num, int gen, Object *obj);
+  Object *fetch(int num, int gen, Object *obj, int fetchOriginatorNum = -1);
 
   // Return the document's Info dictionary (if any).
   Object *getDocInfo(Object *obj);

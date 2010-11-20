@@ -72,7 +72,7 @@ public:
 
   // Look up an entry and return the value.  Returns a null object
   // if <key> is not in the dictionary.
-  Object *lookup(char *key, Object *obj);
+  Object *lookup(char *key, Object *obj, int fetchOriginatorNum = -1);
   Object *lookupNF(char *key, Object *obj);
   GBool lookupInt(const char *key, const char *alt_key, int *value);
 

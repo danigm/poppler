@@ -173,7 +173,7 @@ Stream *Parser::makeStream(Object *dict, Guchar *fileKey,
   pos = lexer->getPos();
 
   // get length
-  dict->dictLookup("Length", &obj);
+  dict->dictLookup("Length", &obj, objNum);
   if (obj.isInt()) {
     length = (Guint)obj.getInt();
     obj.free();

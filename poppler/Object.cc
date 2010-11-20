@@ -115,9 +115,9 @@ Object *Object::copy(Object *obj) {
   return obj;
 }
 
-Object *Object::fetch(XRef *xref, Object *obj) {
+Object *Object::fetch(XRef *xref, Object *obj, int fetchOriginatorNum) {
   return (type == objRef && xref) ?
-         xref->fetch(ref.num, ref.gen, obj) : copy(obj);
+         xref->fetch(ref.num, ref.gen, obj, fetchOriginatorNum) : copy(obj);
 }
 
 void Object::free() {

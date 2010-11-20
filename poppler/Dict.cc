@@ -189,10 +189,10 @@ GBool Dict::is(char *type) {
   return (e = find("Type")) && e->val.isName(type);
 }
 
-Object *Dict::lookup(char *key, Object *obj) {
+Object *Dict::lookup(char *key, Object *obj, int fetchOriginatorNum) {
   DictEntry *e;
 
-  return (e = find(key)) ? e->val.fetch(xref, obj) : obj->initNull();
+  return (e = find(key)) ? e->val.fetch(xref, obj, fetchOriginatorNum) : obj->initNull();
 }
 
 Object *Dict::lookupNF(char *key, Object *obj) {
