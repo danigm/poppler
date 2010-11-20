@@ -20,6 +20,8 @@
 
 #include "Object.h"
 
+#include <set>
+
 class GooString;
 class Array;
 class Dict;
@@ -256,7 +258,7 @@ protected:
 
 class FormField {
 public:
-  FormField(XRef* xrefa, Object *aobj, const Ref& aref, FormFieldType t=formUndef);
+  FormField(XRef* xrefa, Object *aobj, const Ref& aref, std::set<int> *usedParents, FormFieldType t=formUndef);
 
   virtual ~FormField();
 
@@ -301,7 +303,7 @@ private:
 
 class FormFieldButton: public FormField {
 public:
-  FormFieldButton(XRef *xrefA, Object *dict, const Ref& ref);
+  FormFieldButton(XRef *xrefA, Object *dict, const Ref& ref, std::set<int> *usedParents);
 
   FormButtonType getButtonType () { return btype; }
 
@@ -326,7 +328,7 @@ protected:
 
 class FormFieldText: public FormField {
 public:
-  FormFieldText(XRef *xrefA, Object *dict, const Ref& ref);
+  FormFieldText(XRef *xrefA, Object *dict, const Ref& ref, std::set<int> *usedParents);
   
   GooString* getContent () { return content; }
   GooString* getContentCopy ();
@@ -360,7 +362,7 @@ protected:
 
 class FormFieldChoice: public FormField {
 public:
-  FormFieldChoice(XRef *xrefA, Object *aobj, const Ref& ref);
+  FormFieldChoice(XRef *xrefA, Object *aobj, const Ref& ref, std::set<int> *usedParents);
 
   virtual ~FormFieldChoice();
 
@@ -423,7 +425,7 @@ protected:
 
 class FormFieldSignature: public FormField {
 public:
-  FormFieldSignature(XRef *xrefA, Object *dict, const Ref& ref);
+  FormFieldSignature(XRef *xrefA, Object *dict, const Ref& ref, std::set<int> *usedParents);
 
   virtual ~FormFieldSignature();
 };
@@ -445,7 +447,7 @@ public:
   
   /* Creates a new Field of the type specified in obj's dict.
      used in Form::Form and FormField::FormField */
-  static FormField *createFieldFromDict (Object* obj, XRef *xref, const Ref& aref);
+  static FormField *createFieldFromDict (Object* obj, XRef *xref, const Ref& aref, std::set<int> *usedParents);
 
   Object *getObj () const { return acroForm; }
   GBool getNeedAppearances () const { return needAppearances; }
