@@ -60,7 +60,7 @@ Hints::Hints(BaseStream *str, Linearization *linearization, XRef *xref, Security
     nPages = 0;
   }
 
-  memset(numSharedObject, 0, nPages);
+  memset(numSharedObject, 0, nPages * sizeof(Guint));
 
   nSharedGroups = 0;
   groupLength = NULL;
