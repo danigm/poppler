@@ -23,6 +23,7 @@
 
 #include <cerrno>
 #include <cstring>
+#include <ios>
 #include <iostream>
 
 #include <iconv.h>

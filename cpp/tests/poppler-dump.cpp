@@ -26,6 +26,7 @@
 #include <cstring>
 #include <ctime>
 #include <iomanip>
+#include <ios>
 #include <iostream>
 #include <memory>
 #include <sstream>
