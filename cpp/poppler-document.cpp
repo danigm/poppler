@@ -32,6 +32,7 @@
 #include "Outline.h"
 
 #include <algorithm>
+#include <iterator>
 #include <memory>
 
 using namespace poppler;
