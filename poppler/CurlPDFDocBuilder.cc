@@ -43,5 +43,5 @@ GBool CurlPDFDocBuilder::supports(const GooString &uri)
   } else {
     return gFalse;
   }
-};
+}
 
