@@ -2733,6 +2733,27 @@ void Gfx::doAxialShFill(GfxAxialShading *shading) {
   }
 }
 
+static inline void getShadingColorRadialHelper(double t0, double t1, double t, GfxRadialShading *shading, GfxColor *color)
+{
+  if (t0 < t1) {
+    if (t < t0) {
+      shading->getColor(t0, color);
+    } else if (t > t1) {
+      shading->getColor(t1, color);
+    } else {
+      shading->getColor(t, color);
+    }
+  } else {
+    if (t > t0) {
+      shading->getColor(t0, color);
+    } else if (t < t1) {
+      shading->getColor(t1, color);
+    } else {
+      shading->getColor(t, color);
+    }
+  }
+}
+
 void Gfx::doRadialShFill(GfxRadialShading *shading) {
   double xMin, yMin, xMax, yMax;
   double x0, y0, r0, x1, y1, r1, t0, t1;
@@ -2885,13 +2906,7 @@ void Gfx::doRadialShFill(GfxRadialShading *shading) {
   xa = x0 + sa * (x1 - x0);
   ya = y0 + sa * (y1 - y0);
   ra = r0 + sa * (r1 - r0);
-  if (ta < t0) {
-    shading->getColor(t0, &colorA);
-  } else if (ta > t1) {
-    shading->getColor(t1, &colorA);
-  } else {
-    shading->getColor(ta, &colorA);
-  }
+  getShadingColorRadialHelper(t0, t1, ta, shading, &colorA);
 
   needExtend = !out->radialShadedSupportExtend(state, shading);
 
@@ -2907,42 +2922,24 @@ void Gfx::doRadialShFill(GfxRadialShading *shading) {
     ib = radialMaxSplits;
     sb = sMax;
     tb = t0 + sb * (t1 - t0);
-    if (tb < t0) {
-      shading->getColor(t0, &colorB);
-    } else if (tb > t1) {
-      shading->getColor(t1, &colorB);
-    } else {
-      shading->getColor(tb, &colorB);
-    }
+    getShadingColorRadialHelper(t0, t1, tb, shading, &colorB);
     while (ib - ia > 1) {
       if (isSameGfxColor(colorB, colorA, nComps, radialColorDelta) && ib < radialMaxSplits) {
-	// The shading is not necessarily lineal so having two points with the
-	// same color does not mean all the areas in between have the same color too
-	// Do another bisection to be a bit more sure we are not doing something wrong
-	GfxColor colorC;
-	int ic = (ia + ib) / 2;
-	double sc = sMin + ((double)ic / (double)radialMaxSplits) * (sMax - sMin);
-	double tc = t0 + sc * (t1 - t0);
-	if (tc < t0) {
-	  shading->getColor(t0, &colorC);
-	} else if (tc > t1) {
-	  shading->getColor(t1, &colorC);
-	} else {
-	  shading->getColor(tc, &colorC);
-	}
-	if (isSameGfxColor(colorC, colorA, nComps, radialColorDelta))
-	  break;
+        // The shading is not necessarily lineal so having two points with the
+        // same color does not mean all the areas in between have the same color too
+        // Do another bisection to be a bit more sure we are not doing something wrong
+        GfxColor colorC;
+        int ic = (ia + ib) / 2;
+        double sc = sMin + ((double)ic / (double)radialMaxSplits) * (sMax - sMin);
+        double tc = t0 + sc * (t1 - t0);
+        getShadingColorRadialHelper(t0, t1, tc, shading, &colorC);
+        if (isSameGfxColor(colorC, colorA, nComps, radialColorDelta))
+          break;
       }
       ib = (ia + ib) / 2;
       sb = sMin + ((double)ib / (double)radialMaxSplits) * (sMax - sMin);
       tb = t0 + sb * (t1 - t0);
-      if (tb < t0) {
-	shading->getColor(t0, &colorB);
-      } else if (tb > t1) {
-	shading->getColor(t1, &colorB);
-      } else {
-	shading->getColor(tb, &colorB);
-      }
+      getShadingColorRadialHelper(t0, t1, tb, shading, &colorB);
     }
 
     // compute center and radius of the circle
