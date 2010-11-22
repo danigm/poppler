@@ -47,13 +47,13 @@ Hints::Hints(BaseStream *str, Linearization *linearization, XRef *xref, Security
      error(-1, "Invalid number of pages (%d) for hints table", nPages);
      nPages = 0;
   }
-  nObjects = (Guint *) gmallocn(nPages, sizeof(Guint));
-  pageObjectNum = (int *) gmallocn(nPages, sizeof(int));
-  xRefOffset = (Guint *) gmallocn(nPages, sizeof(Guint));
-  pageLength = (Guint *) gmallocn(nPages, sizeof(Guint));
-  pageOffset = (Guint *) gmallocn(nPages, sizeof(Guint));
-  numSharedObject = (Guint *) gmallocn(nPages, sizeof(Guint));
-  sharedObjectId = (Guint **) gmallocn(nPages, sizeof(Guint*));
+  nObjects = (Guint *) gmallocn_checkoverflow(nPages, sizeof(Guint));
+  pageObjectNum = (int *) gmallocn_checkoverflow(nPages, sizeof(int));
+  xRefOffset = (Guint *) gmallocn_checkoverflow(nPages, sizeof(Guint));
+  pageLength = (Guint *) gmallocn_checkoverflow(nPages, sizeof(Guint));
+  pageOffset = (Guint *) gmallocn_checkoverflow(nPages, sizeof(Guint));
+  numSharedObject = (Guint *) gmallocn_checkoverflow(nPages, sizeof(Guint));
+  sharedObjectId = (Guint **) gmallocn_checkoverflow(nPages, sizeof(Guint*));
   if (!nObjects || !pageObjectNum || !xRefOffset || !pageLength || !pageOffset ||
       !numSharedObject || !sharedObjectId) {
     error(-1, "Failed to allocate memory for hints tabel");
@@ -230,7 +230,7 @@ void Hints::readPageOffsetTable(Stream *str)
        numSharedObject[i] = 0;
        return;
     }
-    sharedObjectId[i] = (Guint *) gmallocn(numSharedObject[i], sizeof(Guint));
+    sharedObjectId[i] = (Guint *) gmallocn_checkoverflow(numSharedObject[i], sizeof(Guint));
     if (numSharedObject[i] && !sharedObjectId[i]) {
        error(-1, "Failed to allocate memory for shared object IDs");
        numSharedObject[i] = 0;
@@ -282,11 +282,11 @@ void Hints::readSharedObjectsTable(Stream *str)
      nSharedGroupsFirst = nSharedGroups;
   }
 
-  groupLength = (Guint *) gmallocn(nSharedGroups, sizeof(Guint));
-  groupOffset = (Guint *) gmallocn(nSharedGroups, sizeof(Guint));
-  groupHasSignature = (Guint *) gmallocn(nSharedGroups, sizeof(Guint));
-  groupNumObjects = (Guint *) gmallocn(nSharedGroups, sizeof(Guint));
-  groupXRefOffset = (Guint *) gmallocn(nSharedGroups, sizeof(Guint));
+  groupLength = (Guint *) gmallocn_checkoverflow(nSharedGroups, sizeof(Guint));
+  groupOffset = (Guint *) gmallocn_checkoverflow(nSharedGroups, sizeof(Guint));
+  groupHasSignature = (Guint *) gmallocn_checkoverflow(nSharedGroups, sizeof(Guint));
+  groupNumObjects = (Guint *) gmallocn_checkoverflow(nSharedGroups, sizeof(Guint));
+  groupXRefOffset = (Guint *) gmallocn_checkoverflow(nSharedGroups, sizeof(Guint));
   if (!groupLength || !groupOffset || !groupHasSignature ||
       !groupNumObjects || !groupXRefOffset) {
      error(-1, "Failed to allocate memory for shared object groups");
