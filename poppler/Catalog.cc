@@ -333,7 +333,7 @@ GBool Catalog::cachePageTree(int page)
     Object kid;
     kids.arrayGet(kidsIdx, &kid);
     kids.free();
-    if (kid.isDict("Page")) {
+    if (kid.isDict("Page") || (kid.isDict() && !kid.getDict()->hasKey("Kids"))) {
       PageAttrs *attrs = new PageAttrs(attrsList->back(), kid.getDict());
       Page *p = new Page(xref, lastCachedPage+1, kid.getDict(),
                      kidRef.getRef(), attrs, form);

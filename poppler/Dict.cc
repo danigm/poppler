@@ -141,6 +141,10 @@ inline DictEntry *Dict::find(char *key) {
   return NULL;
 }
 
+GBool Dict::hasKey(char *key) {
+  return find(key) != NULL;
+}
+
 void Dict::remove(char *key) {
   if (sorted) {
     const int pos = binarySearch(key, entries, length);

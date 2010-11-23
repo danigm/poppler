@@ -87,6 +87,8 @@ public:
   void setXRef(XRef *xrefA) { xref = xrefA; }
   
   XRef *getXRef() { return xref; }
+  
+  GBool hasKey(char *key);
 
 private:
 
