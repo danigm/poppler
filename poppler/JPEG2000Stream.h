@@ -67,6 +67,8 @@ private:
       adjust = image->comps[component].prec - 8;
     }
 
+    if (unlikely(image->comps[component].data == NULL)) return EOF;
+
     int r = image->comps[component].data[y * w + x];
     r += (image->comps[component].sgnd ? 1 << (image->comps[0].prec - 1) : 0);
 
