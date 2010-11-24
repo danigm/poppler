@@ -2508,15 +2508,25 @@ GBool GfxShading::init(Dict *dict, Gfx *gfx) {
   hasBBox = gFalse;
   if (dict->lookup("BBox", &obj1)->isArray()) {
     if (obj1.arrayGetLength() == 4) {
-      hasBBox = gTrue;
-      xMin = obj1.arrayGet(0, &obj2)->getNum();
+      Object obj3, obj4, obj5;
+      obj1.arrayGet(0, &obj2);
+      obj1.arrayGet(1, &obj3);
+      obj1.arrayGet(2, &obj4);
+      obj1.arrayGet(3, &obj5);
+      if (obj2.isNum() && obj3.isNum() && obj4.isNum() && obj5.isNum())
+      {
+        hasBBox = gTrue;
+        xMin = obj2.getNum();
+        yMin = obj3.getNum();
+        xMax = obj4.getNum();
+        yMax = obj5.getNum();
+      } else {
+        error(-1, "Bad BBox in shading dictionary (Values not numbers)");
+      }
       obj2.free();
-      yMin = obj1.arrayGet(1, &obj2)->getNum();
-      obj2.free();
-      xMax = obj1.arrayGet(2, &obj2)->getNum();
-      obj2.free();
-      yMax = obj1.arrayGet(3, &obj2)->getNum();
-      obj2.free();
+      obj3.free();
+      obj4.free();
+      obj5.free();
     } else {
       error(-1, "Bad BBox in shading dictionary");
     }
