@@ -385,7 +385,7 @@ int Catalog::findPage(int num, int gen) {
 
   for (i = 0; i < getNumPages(); ++i) {
     Ref *ref = getPageRef(i+1);
-    if (ref->num == num && ref->gen == gen)
+    if (ref != NULL && ref->num == num && ref->gen == gen)
       return i + 1;
   }
   return 0;
