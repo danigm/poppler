@@ -320,14 +320,19 @@ GBool Catalog::cachePageTree(int page)
       return gFalse;
     }
 
+    GBool loop = gFalse;;
     for (size_t i = 0; i < pagesRefList->size(); i++) {
       if (((*pagesRefList)[i]).num == kidRef.getRefNum()) {
-         error(-1, "Loop in Pages tree");
-         kidRef.free();
-         kids.free();
-         kidsIdxList->back()++;
-         continue;
+         loop = gTrue;
+         break;
       }
+    }
+    if (loop) {
+      error(-1, "Loop in Pages tree");
+      kidRef.free();
+      kids.free();
+      kidsIdxList->back()++;
+      continue;
     }
 
     Object kid;
