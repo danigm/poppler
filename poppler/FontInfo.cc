@@ -137,14 +137,14 @@ void FontInfoScanner::scanFonts(Dict *resDict, GooList *fontsList) {
       for (i = 0; i < objDict.dictGetLength(); ++i) {
         objDict.dictGetValNF(i, &obj1);
         if (obj1.isRef()) {
-          // check for an already-seen XObject
+          // check for an already-seen object
           const Ref r = obj1.getRef();
-          if (visitedXObjects.find(r.num) != visitedXObjects.end()) {
+          if (visitedObjects.find(r.num) != visitedObjects.end()) {
             obj1.free();
             continue;
           }
 
-          visitedXObjects.insert(r.num);
+          visitedObjects.insert(r.num);
         }
 
         obj1.fetch(doc->getXRef(), &obj2);

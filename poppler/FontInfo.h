@@ -85,7 +85,7 @@ private:
   PDFDoc *doc;
   int currentPage;
   std::set<int> fonts;
-  std::set<int> visitedXObjects;
+  std::set<int> visitedObjects;
 
   void scanFonts(Dict *resDict, GooList *fontsList);
 };
