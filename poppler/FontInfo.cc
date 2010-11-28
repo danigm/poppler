@@ -8,6 +8,7 @@
 // Copyright (C) 2006 Kouhei Sutou <kou@cozmixng.org>
 // Copyright (C) 2009 Pino Toscano <pino@kde.org>
 // Copyright (C) 2010 Hib Eris <hib@hiberis.nl>
+// Copyright (C) 2010 Adrian Johnson <ajohnson@redneon.com>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -92,7 +93,7 @@ GooList *FontInfoScanner::scan(int nPages) {
 }
 
 void FontInfoScanner::scanFonts(Dict *resDict, GooList *fontsList) {
-  Object obj1, obj2, xObjDict, xObj, xObj2, resObj;
+  Object obj1, obj2, objDict, resObj;
   Ref r;
   GfxFontDict *gfxFontDict;
   GfxFont *font;
@@ -129,35 +130,38 @@ void FontInfoScanner::scanFonts(Dict *resDict, GooList *fontsList) {
 
   // recursively scan any resource dictionaries in objects in this
   // resource dictionary
-  resDict->lookup("XObject", &xObjDict);
-  if (xObjDict.isDict()) {
-    for (i = 0; i < xObjDict.dictGetLength(); ++i) {
-      xObjDict.dictGetValNF(i, &xObj);
-      if (xObj.isRef()) {
-        // check for an already-seen XObject
-        const Ref r = xObj.getRef();
-        if (visitedXObjects.find(r.num) != visitedXObjects.end()) {
-          xObj.free();
-          continue;
+  char *resTypes[] = { "XObject", "Pattern" };
+  for (uint resType = 0; resType < sizeof(resTypes) / sizeof(resTypes[0]); ++resType) {
+    resDict->lookup(resTypes[resType], &objDict);
+    if (objDict.isDict()) {
+      for (i = 0; i < objDict.dictGetLength(); ++i) {
+        objDict.dictGetValNF(i, &obj1);
+        if (obj1.isRef()) {
+          // check for an already-seen XObject
+          const Ref r = obj1.getRef();
+          if (visitedXObjects.find(r.num) != visitedXObjects.end()) {
+            obj1.free();
+            continue;
+          }
+
+          visitedXObjects.insert(r.num);
         }
 
-        visitedXObjects.insert(r.num);
-      }
+        obj1.fetch(doc->getXRef(), &obj2);
 
-      xObj.fetch(doc->getXRef(), &xObj2);
-
-      if (xObj2.isStream()) {
-        xObj2.streamGetDict()->lookup("Resources", &resObj);
-        if (resObj.isDict() && resObj.getDict() != resDict) {
-          scanFonts(resObj.getDict(), fontsList);
+        if (obj2.isStream()) {
+          obj2.streamGetDict()->lookup("Resources", &resObj);
+          if (resObj.isDict() && resObj.getDict() != resDict) {
+            scanFonts(resObj.getDict(), fontsList);
+          }
+          resObj.free();
         }
-        resObj.free();
+        obj1.free();
+        obj2.free();
       }
-      xObj.free();
-      xObj2.free();
     }
+    objDict.free();
   }
-  xObjDict.free();
 }
 
 FontInfo::FontInfo(GfxFont *font, PDFDoc *doc) {
