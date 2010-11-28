@@ -3,11 +3,11 @@
 // FontInfo.cc
 //
 // Copyright (C) 2005, 2006 Kristian Høgsberg <krh@redhat.com>
-// Copyright (C) 2005-2008 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2005-2008, 2010 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2005 Brad Hards <bradh@frogmouth.net>
 // Copyright (C) 2006 Kouhei Sutou <kou@cozmixng.org>
 // Copyright (C) 2009 Pino Toscano <pino@kde.org>
-// Copyright 2010 Hib Eris <hib@hiberis.nl>
+// Copyright (C) 2010 Hib Eris <hib@hiberis.nl>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -40,15 +40,9 @@
 FontInfoScanner::FontInfoScanner(PDFDoc *docA, int firstPage) {
   doc = docA;
   currentPage = firstPage + 1;
-  fonts = NULL;
-  fontsLen = fontsSize = 0;
-  visitedXObjects = NULL;
-  visitedXObjectsLen = visitedXObjectsSize = 0;
 }
 
 FontInfoScanner::~FontInfoScanner() {
-  gfree(fonts);
-  gfree(visitedXObjects);
 }
 
 GooList *FontInfoScanner::scan(int nPages) {
@@ -119,26 +113,13 @@ void FontInfoScanner::scanFonts(Dict *resDict, GooList *fontsList) {
   }
   if (gfxFontDict) {
     for (i = 0; i < gfxFontDict->getNumFonts(); ++i) {
-      int k;
       if ((font = gfxFontDict->getFont(i))) {
         Ref fontRef = *font->getID();
-	GBool alreadySeen = gFalse;
 
-        // check for an already-seen font
-        for (k = 0; k < fontsLen; ++k) {
-          if (fontRef.num == fonts[k].num && fontRef.gen == fonts[k].gen) {
-            alreadySeen = gTrue;
-          }
-        }
-
-	// add this font to the list
-        if (!alreadySeen) {
+        // add this font to the list if not already found
+        if (fonts.find(fontRef.num) == fonts.end()) {
           fontsList->append(new FontInfo(font, doc));
-          if (fontsLen == fontsSize) {
-            fontsSize += 32;
-            fonts = (Ref *)grealloc(fonts, fontsSize * sizeof(Ref));
-          }
-          fonts[fontsLen++] = *font->getID();
+          fonts.insert(fontRef.num);
         }
       }
     }
@@ -153,25 +134,14 @@ void FontInfoScanner::scanFonts(Dict *resDict, GooList *fontsList) {
     for (i = 0; i < xObjDict.dictGetLength(); ++i) {
       xObjDict.dictGetValNF(i, &xObj);
       if (xObj.isRef()) {
-        GBool alreadySeen = gFalse;
         // check for an already-seen XObject
-        for (int k = 0; k < visitedXObjectsLen; ++k) {
-          if (xObj.getRef().num == visitedXObjects[k].num &&
-              xObj.getRef().gen == visitedXObjects[k].gen) {
-            alreadySeen = gTrue;
-          }
-        }
-
-        if (alreadySeen) {
+        const Ref r = xObj.getRef();
+        if (visitedXObjects.find(r.num) != visitedXObjects.end()) {
           xObj.free();
           continue;
         }
 
-        if (visitedXObjectsLen == visitedXObjectsSize) {
-          visitedXObjectsSize += 32;
-          visitedXObjects = (Ref *)grealloc(visitedXObjects, visitedXObjectsSize * sizeof(Ref));
-        }
-        visitedXObjects[visitedXObjectsLen++] = xObj.getRef();
+        visitedXObjects.insert(r.num);
       }
 
       xObj.fetch(doc->getXRef(), &xObj2);

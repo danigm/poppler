@@ -3,7 +3,7 @@
 // FontInfo.h
 //
 // Copyright (C) 2005 Kristian Høgsberg <krh@redhat.com>
-// Copyright (C) 2005-2008 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2005-2008, 2010 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2005 Brad Hards <bradh@frogmouth.net>
 // Copyright (C) 2009 Pino Toscano <pino@kde.org>
 //
@@ -84,13 +84,8 @@ private:
 
   PDFDoc *doc;
   int currentPage;
-  Ref *fonts;
-  int fontsLen;
-  int fontsSize;
-
-  Ref *visitedXObjects;
-  int visitedXObjectsLen;
-  int visitedXObjectsSize;
+  std::set<int> fonts;
+  std::set<int> visitedXObjects;
 
   void scanFonts(Dict *resDict, GooList *fontsList);
 };
