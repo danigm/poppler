@@ -1002,9 +1002,9 @@ Object *XRef::fetch(int num, int gen, Object *obj, std::set<int> *fetchOriginato
 	       new Lexer(this,
 		 str->makeSubStream(start + e->offset, gFalse, 0, &obj1)),
 	       gTrue);
-    parser->getObj(&obj1);
-    parser->getObj(&obj2);
-    parser->getObj(&obj3);
+    parser->getObj(&obj1, fetchOriginatorNums);
+    parser->getObj(&obj2, fetchOriginatorNums);
+    parser->getObj(&obj3, fetchOriginatorNums);
     if (!obj1.isInt() || obj1.getInt() != num ||
 	!obj2.isInt() || obj2.getInt() != gen ||
 	!obj3.isCmd("obj")) {

@@ -13,7 +13,7 @@
 // All changes made under the Poppler project to this file are licensed
 // under GPL version 2 or later
 //
-// Copyright (C) 2006, 2009 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2006, 2009, 201, 2010 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2006 Krzysztof Kowalczyk <kkowalczyk@gmail.com>
 // Copyright (C) 2009 Ilya Gorenbein <igorenbein@finjan.com>
 //
@@ -57,6 +57,11 @@ Object *Parser::getObj(Object *obj, Guchar *fileKey,
            int objNum, int objGen) {
   std::set<int> fetchOriginatorNums;
   return getObj(obj, fileKey, encAlgorithm, keyLength, objNum, objGen, &fetchOriginatorNums);
+}
+
+Object *Parser::getObj(Object *obj, std::set<int> *fetchOriginatorNums)
+{
+  return getObj(obj, NULL, cryptRC4, 0, 0, 0, fetchOriginatorNums);
 }
 
 Object *Parser::getObj(Object *obj, Guchar *fileKey,

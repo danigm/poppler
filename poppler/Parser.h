@@ -51,6 +51,7 @@ public:
      CryptAlgorithm encAlgorithm, int keyLength,
      int objNum, int objGen, std::set<int> *fetchOriginatorNums);
 
+  Object *getObj(Object *obj, std::set<int> *fetchOriginatorNums);
 
   // Get stream.
   Stream *getStream() { return lexer->getStream(); }
