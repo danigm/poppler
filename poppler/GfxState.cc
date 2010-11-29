@@ -569,26 +569,32 @@ GfxColorSpace *GfxCalGrayColorSpace::parse(Array *arr) {
   if (obj1.dictLookup("WhitePoint", &obj2)->isArray() &&
       obj2.arrayGetLength() == 3) {
     obj2.arrayGet(0, &obj3);
-    cs->whiteX = obj3.getNum();
+    if (likely(obj3.isNum()))
+      cs->whiteX = obj3.getNum();
     obj3.free();
     obj2.arrayGet(1, &obj3);
-    cs->whiteY = obj3.getNum();
+    if (likely(obj3.isNum()))
+      cs->whiteY = obj3.getNum();
     obj3.free();
     obj2.arrayGet(2, &obj3);
-    cs->whiteZ = obj3.getNum();
+    if (likely(obj3.isNum()))
+      cs->whiteZ = obj3.getNum();
     obj3.free();
   }
   obj2.free();
   if (obj1.dictLookup("BlackPoint", &obj2)->isArray() &&
       obj2.arrayGetLength() == 3) {
     obj2.arrayGet(0, &obj3);
-    cs->blackX = obj3.getNum();
+    if (likely(obj3.isNum()))
+      cs->blackX = obj3.getNum();
     obj3.free();
     obj2.arrayGet(1, &obj3);
-    cs->blackY = obj3.getNum();
+    if (likely(obj3.isNum()))
+      cs->blackY = obj3.getNum();
     obj3.free();
     obj2.arrayGet(2, &obj3);
-    cs->blackZ = obj3.getNum();
+    if (likely(obj3.isNum()))
+      cs->blackZ = obj3.getNum();
     obj3.free();
   }
   obj2.free();
@@ -844,39 +850,48 @@ GfxColorSpace *GfxCalRGBColorSpace::parse(Array *arr) {
   if (obj1.dictLookup("WhitePoint", &obj2)->isArray() &&
       obj2.arrayGetLength() == 3) {
     obj2.arrayGet(0, &obj3);
-    cs->whiteX = obj3.getNum();
+    if (likely(obj3.isNum()))
+      cs->whiteX = obj3.getNum();
     obj3.free();
     obj2.arrayGet(1, &obj3);
-    cs->whiteY = obj3.getNum();
+    if (likely(obj3.isNum()))
+      cs->whiteY = obj3.getNum();
     obj3.free();
     obj2.arrayGet(2, &obj3);
-    cs->whiteZ = obj3.getNum();
+    if (likely(obj3.isNum()))
+      cs->whiteZ = obj3.getNum();
     obj3.free();
   }
   obj2.free();
   if (obj1.dictLookup("BlackPoint", &obj2)->isArray() &&
       obj2.arrayGetLength() == 3) {
     obj2.arrayGet(0, &obj3);
-    cs->blackX = obj3.getNum();
+    if (likely(obj3.isNum()))
+      cs->blackX = obj3.getNum();
     obj3.free();
     obj2.arrayGet(1, &obj3);
-    cs->blackY = obj3.getNum();
+    if (likely(obj3.isNum()))
+      cs->blackY = obj3.getNum();
     obj3.free();
     obj2.arrayGet(2, &obj3);
-    cs->blackZ = obj3.getNum();
+    if (likely(obj3.isNum()))
+      cs->blackZ = obj3.getNum();
     obj3.free();
   }
   obj2.free();
   if (obj1.dictLookup("Gamma", &obj2)->isArray() &&
       obj2.arrayGetLength() == 3) {
     obj2.arrayGet(0, &obj3);
-    cs->gammaR = obj3.getNum();
+    if (likely(obj3.isNum()))
+      cs->gammaR = obj3.getNum();
     obj3.free();
     obj2.arrayGet(1, &obj3);
-    cs->gammaG = obj3.getNum();
+    if (likely(obj3.isNum()))
+      cs->gammaG = obj3.getNum();
     obj3.free();
     obj2.arrayGet(2, &obj3);
-    cs->gammaB = obj3.getNum();
+    if (likely(obj3.isNum()))
+      cs->gammaB = obj3.getNum();
     obj3.free();
   }
   obj2.free();
@@ -884,7 +899,8 @@ GfxColorSpace *GfxCalRGBColorSpace::parse(Array *arr) {
       obj2.arrayGetLength() == 9) {
     for (i = 0; i < 9; ++i) {
       obj2.arrayGet(i, &obj3);
-      cs->mat[i] = obj3.getNum();
+      if (likely(obj3.isNum()))
+        cs->mat[i] = obj3.getNum();
       obj3.free();
     }
   }
