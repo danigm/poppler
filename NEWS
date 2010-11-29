@@ -1,3 +1,21 @@
+Release 0.15.3 (0.16 RC)
+
+	core:
+	 * Improve rendering of radial shadings
+	 * Open a broken file (Bug #31861)
+	 * Correct parsing of linearization table (Bug #31627)
+	 * Find fonts inside patterns (Bug #31948)
+	 * [win32] Simplify strtok_r implementation
+	 * Use a std::vector<char> instead of a var-length-array of chars
+	 * Fix crashes in broken files
+	 * Use sets instead of arrays for looking for duplicate fonts
+
+	cpp:
+	 * Include correction
+
+	utils:
+	 * pdffonts: Remove duplicated code
+
 Release 0.15.2 (0.16 Beta 2)
 
 	core:
