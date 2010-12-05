@@ -3,6 +3,7 @@
 // FlateStream.cc
 //
 // Copyright (C) 2005, Jeff Muizelaar <jeff@infidigm.net>
+// Copyright (C) 2010, Albert Astals Cid <aacid@kde.org>
 //
 // This file is under the GPLv2 or later license
 //
@@ -44,10 +45,12 @@ void FlateStream::reset() {
 }
 
 int FlateStream::getRawChar() {
-  if (fill_buffer())
-    return EOF;
+  return doGetRawChar();
+}
 
-  return out_buf[out_pos++];
+void FlateStream::getRawChars(int nChars, int *buffer) {
+  for (int i = 0; i < nChars; ++i)
+    buffer[i] = doGetRawChar();
 }
 
 int FlateStream::getChar() {

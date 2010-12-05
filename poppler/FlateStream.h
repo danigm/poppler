@@ -3,6 +3,7 @@
 // FlateStream.h
 //
 // Copyright (C) 2005, Jeff Muizelaar <jeff@infidigm.net>
+// Copyright (C) 2010, Albert Astals Cid <aacid@kde.org>
 //
 // This file is under the GPLv2 or later license
 //
@@ -51,10 +52,18 @@ public:
   virtual int getChar();
   virtual int lookChar();
   virtual int getRawChar();
+  virtual void getRawChars(int nChars, int *buffer);
   virtual GooString *getPSFilter(int psLevel, char *indent);
   virtual GBool isBinary(GBool last = gTrue);
 
 private:
+  inline int doGetRawChar() {
+    if (fill_buffer())
+      return EOF;
+
+    return out_buf[out_pos++];
+  }
+
   int fill_buffer(void);
   z_stream d_stream;
   StreamPredictor *pred;
