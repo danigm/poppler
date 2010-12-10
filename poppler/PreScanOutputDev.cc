@@ -14,6 +14,7 @@
 // under GPL version 2 or later
 //
 // Copyright (C) 2009 Carlos Garcia Campos <carlosgc@gnome.org>
+// Copyright (C) 2010 Albert Astals Cid <aacid@kde.org>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -235,8 +236,19 @@ void PreScanOutputDev::beginTransparencyGroup(
 			   GfxColorSpace * /*blendingColorSpace*/,
 			   GBool /*isolated*/, GBool /*knockout*/,
 			   GBool /*forSoftMask*/) {
-  transparency = gTrue;
   gdi = gFalse;
+}
+
+void PreScanOutputDev::paintTransparencyGroup(GfxState *state, double * /*bbox*/)
+{
+  check(state->getFillColorSpace(), state->getFillColor(),
+        state->getFillOpacity(), state->getBlendMode());
+}
+
+void PreScanOutputDev::setSoftMask(GfxState * /*state*/, double * /*bbox*/, GBool /*alpha*/,
+			   Function * /*transferFunc*/, GfxColor * /*backdropColor*/)
+{
+  transparency = gTrue;
 }
 
 void PreScanOutputDev::check(GfxColorSpace *colorSpace, GfxColor *color,

@@ -14,6 +14,7 @@
 // under GPL version 2 or later
 //
 // Copyright (C) 2009 Carlos Garcia Campos <carlosgc@gnome.org>
+// Copyright (C) 2010 Albert Astals Cid <aacid@kde.org>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -109,6 +110,9 @@ public:
 				      GfxColorSpace *blendingColorSpace,
 				      GBool isolated, GBool knockout,
 				      GBool forSoftMask);
+	virtual void paintTransparencyGroup(GfxState *state, double *bbox);
+	virtual void setSoftMask(GfxState *state, double *bbox, GBool alpha,
+			   Function *transferFunc, GfxColor *backdropColor);
 
   //----- special access
 
