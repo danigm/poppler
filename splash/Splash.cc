@@ -2601,7 +2601,7 @@ SplashError Splash::drawImage(SplashImageSource src, void *srcData,
 	      pixAcc0 += *p++;
 	      pixAcc1 += *p++;
 	      pixAcc2 += *p++;
-	      *p++;
+	      p++;
 	      alphaAcc += *q++;
 	    }
 	    p += 4 * (w - m);
@@ -2930,7 +2930,7 @@ SplashError Splash::drawImage(SplashImageSource src, void *srcData,
 	      pixAcc0 += *p++;
 	      pixAcc1 += *p++;
 	      pixAcc2 += *p++;
-	      *p++;
+	      p++;
 	    }
 	    p += 4 * (w - m);
 	  }
@@ -3591,7 +3591,7 @@ SplashError Splash::blitTransparent(SplashBitmap *src, int xSrc, int ySrc,
 	*p++ = *sp++;
 	*p++ = *sp++;
 	*p++ = 255;
-	*sp++;
+	sp++;
       }
     }
     break;
