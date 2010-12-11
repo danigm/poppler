@@ -14,6 +14,7 @@
 // Copyright (C) 2005, 2007-2010 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2006 Kristian Høgsberg <krh@bitplanet.net>
 // Copyright (C) 2009 Petr Gajdos <pgajdos@novell.com>
+// Copyright (C) 2010 Suzuki Toshiya <mpsuzuki@hiroshima-u.ac.jp>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -204,12 +205,14 @@ GBool SplashFTFont::makeGlyph(int c, int xFrac, int yFrac,
     return gFalse;
   }
 
-  FT_Glyph_Metrics *glyphMetrics = &(ff->face->glyph->metrics);
-  // prelimirary values from FT_Glyph_Metrics
-  bitmap->x = splashRound(-glyphMetrics->horiBearingX / 64.0);
-  bitmap->y = splashRound(glyphMetrics->horiBearingY / 64.0);
-  bitmap->w = splashRound(glyphMetrics->width / 64.0);
-  bitmap->h = splashRound(glyphMetrics->height / 64.0);
+  // prelimirary values based on FT_Outline_Get_CBox
+  // we add two pixels to each side to be in the safe side
+  FT_BBox cbox;
+  FT_Outline_Get_CBox(&ff->face->glyph->outline, &cbox);
+  bitmap->x = -(cbox.xMin / 64) + 2;
+  bitmap->y =  (cbox.yMax / 64) + 2;
+  bitmap->w = ((cbox.xMax - cbox.xMin) / 64) + 4;
+  bitmap->h = ((cbox.yMax - cbox.yMin) / 64) + 4;
 
   *clipRes = clip->testRect(x0 - bitmap->x,
                             y0 - bitmap->y,
