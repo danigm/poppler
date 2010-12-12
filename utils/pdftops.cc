@@ -202,7 +202,10 @@ int main(int argc, char *argv[]) {
     if (!printVersion) {
       printUsage("pdftops", "<PDF-file> [<PS-file>]", argDesc);
     }
-    exit(1);
+    if (printVersion || printHelp)
+      exit(0);
+    else
+      exit(1);
   }
   if ((level1 ? 1 : 0) +
       (level1Sep ? 1 : 0) +

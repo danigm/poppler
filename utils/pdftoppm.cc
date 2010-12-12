@@ -242,6 +242,8 @@ int main(int argc, char *argv[]) {
     if (!printVersion) {
       printUsage("pdftoppm", "[PDF-file [PPM-file-prefix]]", argDesc);
     }
+    if (printVersion || printHelp)
+      exitCode = 0;
     goto err0;
   }
   if (argc > 1) fileName = new GooString(argv[1]);

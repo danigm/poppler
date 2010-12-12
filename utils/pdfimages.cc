@@ -104,6 +104,8 @@ int main(int argc, char *argv[]) {
     if (!printVersion) {
       printUsage("pdfimages", "<PDF-file> <image-root>", argDesc);
     }
+    if (printVersion || printHelp)
+      exitCode = 0;
     goto err0;
   }
   fileName = new GooString(argv[1]);

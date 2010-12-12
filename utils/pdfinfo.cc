@@ -123,6 +123,8 @@ int main(int argc, char *argv[]) {
     if (!printVersion) {
       printUsage("pdfinfo", "<PDF-file>", argDesc);
     }
+    if (printVersion || printHelp)
+      exitCode = 0;
     goto err0;
   }
 
@@ -132,6 +134,7 @@ int main(int argc, char *argv[]) {
   if (printEnc) {
     printEncodings();
     delete globalParams;
+    exitCode = 0;
     goto err0;
   }
 

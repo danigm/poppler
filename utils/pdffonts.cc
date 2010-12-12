@@ -100,6 +100,8 @@ int main(int argc, char *argv[]) {
     if (!printVersion) {
       printUsage("pdffonts", "<PDF-file>", argDesc);
     }
+    if (printVersion || printHelp)
+      exitCode = 0;
     goto err0;
   }
   fileName = new GooString(argv[1]);

@@ -178,6 +178,8 @@ int main(int argc, char *argv[]) {
     if (!printVersion) {
       printUsage("pdftotext", "<PDF-file> [<text-file>]", argDesc);
     }
+    if (printVersion || printHelp)
+      exitCode = 0;
     goto err0;
   }
 
@@ -187,6 +189,7 @@ int main(int argc, char *argv[]) {
   if (printEnc) {
     printEncodings();
     delete globalParams;
+    exitCode = 0;
     goto err0;
   }
 
