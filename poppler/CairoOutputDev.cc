@@ -1550,7 +1550,7 @@ void CairoOutputDev::drawImageMaskRegular(GfxState *state, Object *ref, Stream *
   unsigned char *dest;
   cairo_surface_t *image;
   cairo_pattern_t *pattern;
-  int x, y;
+  int x, y, i, bit;
   ImageStream *imgStr;
   Guchar *pix;
   cairo_matrix_t matrix;
@@ -1562,7 +1562,7 @@ void CairoOutputDev::drawImageMaskRegular(GfxState *state, Object *ref, Stream *
   imgStr = new ImageStream(str, width, 1, 1);
   imgStr->reset();
 
-  image = cairo_image_surface_create (CAIRO_FORMAT_A8, width, height);
+  image = cairo_image_surface_create (CAIRO_FORMAT_A1, width, height);
   if (cairo_surface_status (image))
     goto cleanup;
 
@@ -1574,12 +1574,23 @@ void CairoOutputDev::drawImageMaskRegular(GfxState *state, Object *ref, Stream *
   for (y = 0; y < height; y++) {
     pix = imgStr->getLine();
     dest = buffer + y * row_stride;
+    i = 0;
+    bit = 0;
     for (x = 0; x < width; x++) {
-
-      if (pix[x] ^ invert_bit)
-	*dest++ = 0;
-      else
-	*dest++ = 255;
+      if (bit == 0)
+	dest[i] = 0;
+      if (!(pix[x] ^ invert_bit)) {
+#ifdef WORDS_BIGENDIAN
+	dest[i] |= (1 << (7 - bit));
+#else
+	dest[i] |= (1 << bit);
+#endif
+      }
+      bit++;
+      if (bit > 7) {
+	bit = 0;
+	i++;
+      }
     }
   }
 

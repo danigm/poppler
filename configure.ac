@@ -10,6 +10,7 @@ AM_INIT_AUTOMAKE([foreign])
 m4_ifdef([AM_SILENT_RULES],[AM_SILENT_RULES([yes])])
 AM_CONFIG_HEADER(config.h)
 AM_CONFIG_HEADER(poppler/poppler-config.h)
+AC_C_BIGENDIAN
 
 dnl ##### Initialize libtool.
 AC_LIBTOOL_WIN32_DLL
