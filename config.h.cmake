@@ -123,6 +123,9 @@
 /* Define to 1 if you have the <zlib.h> header file. */
 #cmakedefine HAVE_ZLIB_H 1
 
+/* Define to 1 if you have a big endian machine */
+#cmakedefine WORDS_BIGENDIAN 1
+
 /* Define as const if the declaration of iconv() needs const. */
 #define ICONV_CONST ${ICONV_CONST}
 
