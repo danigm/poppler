@@ -64,7 +64,6 @@ int HtmlPage::pgNum=0;
 int HtmlOutputDev::imgNum=1;
 GooList *HtmlOutputDev::imgList=new GooList();
 
-extern double scale;
 extern GBool complexMode;
 extern GBool singleHtml;
 extern GBool ignore;
@@ -1041,14 +1040,6 @@ HtmlOutputDev::HtmlOutputDev(char *fileName, char *title,
 }
 
 HtmlOutputDev::~HtmlOutputDev() {
-  /*if (mode&&!xml){
-    int h=xoutRound(pages->pageHeight/scale);
-    int w=xoutRound(pages->pageWidth/scale);
-    fprintf(tin,"%s=%03d\n","PAPER_WIDTH",w);
-    fprintf(tin,"%s=%03d\n","PAPER_HEIGHT",h);
-    fclose(tin);
-    }*/
-
     HtmlFont::clear(); 
     
     delete Docname;
