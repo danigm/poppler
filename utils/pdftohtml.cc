@@ -424,14 +424,6 @@ int main(int argc, char *argv[]) {
       splashOut->startDoc(doc->getXRef());
 
       for (int pg = firstPage; pg <= lastPage; ++pg) {
-        int pg_w = doc->getPageMediaWidth(pg) / scale;
-        int pg_h = doc->getPageMediaHeight(pg) / scale;
-        if ((doc->getPageRotate(pg) == 90) || (doc->getPageRotate(pg) == 270)) {
-          int tmp = pg_w;
-          pg_w = pg_h;
-          pg_h = tmp;
-        }
-
         doc->displayPage(splashOut, pg,
                          resolution, resolution,
                          0, gTrue, gFalse, gFalse);
