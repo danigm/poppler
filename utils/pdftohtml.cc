@@ -73,7 +73,6 @@ GBool ignore=gFalse;
 static GBool useSplash=gTrue;
 static char extension[5]="png";
 static double scale=1.5;
-static int resolution=72;
 GBool noframes=gFalse;
 GBool stout=gFalse;
 GBool xml=gFalse;
@@ -119,8 +118,6 @@ static const ArgDesc argDesc[] = {
    "use standard output"},
   {"-zoom",   argFP,    &scale,         0,
    "zoom the pdf document (default 1.5)"},
-  {"-r",      argInt,   &resolution, 0,
-   "resolution to render the pdf document (default 72)"},
   {"-xml",    argFlag,    &xml,         0,
    "output for XML post-processing"},
   {"-hidden", argFlag,   &showHidden,   0,
@@ -401,7 +398,7 @@ int main(int argc, char *argv[]) {
 
   if (htmlOut->isOk())
   {
-    doc->displayPages(htmlOut, firstPage, lastPage, 72, 72, 0,
+    doc->displayPages(htmlOut, firstPage, lastPage, 72 * scale, 72 * scale, 0,
 		      gTrue, gFalse, gFalse);
   	if (!xml)
 	{
@@ -425,7 +422,7 @@ int main(int argc, char *argv[]) {
 
       for (int pg = firstPage; pg <= lastPage; ++pg) {
         doc->displayPage(splashOut, pg,
-                         resolution, resolution,
+                         72 * scale, 72 * scale,
                          0, gTrue, gFalse, gFalse);
         SplashBitmap *bitmap = splashOut->getBitmap();
 
@@ -433,7 +430,7 @@ int main(int argc, char *argv[]) {
             htmlFileName->getCString(), pg, extension);
 
         bitmap->writeImgFile(format, imgFileName->getCString(),
-                             resolution, resolution);
+                             72 * scale, 72 * scale);
 
         delete imgFileName;
       }
@@ -464,7 +461,7 @@ int main(int argc, char *argv[]) {
       gsCmd->append(" -sDEVICE=");
       gsCmd->append(gsDevice);
       gsCmd->append(" -dBATCH -dNOPROMPT -dNOPAUSE -r");
-      sc = GooString::fromInt(static_cast<int>(resolution*scale));
+      sc = GooString::fromInt(static_cast<int>(72*scale));
       gsCmd->append(sc);
       gsCmd->append(" -sOutputFile=");
       gsCmd->append("\"");
@@ -472,11 +469,11 @@ int main(int argc, char *argv[]) {
       gsCmd->append("%03d.");
       gsCmd->append(extension);
       gsCmd->append("\" -g");
-      tw = GooString::fromInt(static_cast<int>(scale*w*resolution/72.0));
+      tw = GooString::fromInt(static_cast<int>(scale*w));
       gsCmd->append(tw);
       gsCmd->append("x");
       th = GooString::fromInt(static_cast<int>(scale*h));
-      th = GooString::fromInt(static_cast<int>(scale*h*resolution/72.0));
+      th = GooString::fromInt(static_cast<int>(scale*h));
       gsCmd->append(th);
       gsCmd->append(" -q \"");
       gsCmd->append(psFileName);
