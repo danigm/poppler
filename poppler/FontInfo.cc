@@ -9,6 +9,7 @@
 // Copyright (C) 2009 Pino Toscano <pino@kde.org>
 // Copyright (C) 2010 Hib Eris <hib@hiberis.nl>
 // Copyright (C) 2010 Adrian Johnson <ajohnson@redneon.com>
+// Copyright (C) 2010 Thomas Freitag <Thomas.Freitag@alfa.de>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -131,7 +132,7 @@ void FontInfoScanner::scanFonts(Dict *resDict, GooList *fontsList) {
   // recursively scan any resource dictionaries in objects in this
   // resource dictionary
   char *resTypes[] = { "XObject", "Pattern" };
-  for (uint resType = 0; resType < sizeof(resTypes) / sizeof(resTypes[0]); ++resType) {
+  for (Guint resType = 0; resType < sizeof(resTypes) / sizeof(resTypes[0]); ++resType) {
     resDict->lookup(resTypes[resType], &objDict);
     if (objDict.isDict()) {
       for (i = 0; i < objDict.dictGetLength(); ++i) {
