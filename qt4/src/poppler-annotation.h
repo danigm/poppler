@@ -2,6 +2,7 @@
  * Copyright (C) 2006-2008, Albert Astals Cid <aacid@kde.org>
  * Copyright (C) 2006, 2008 Pino Toscano <pino@kde.org>
  * Copyright (C) 2007, Brad Hards <bradh@frogmouth.net>
+ * Copyright (C) 2010, Philip Lorenz <lorenzph+freedesktop@gmail.com>
  * Adapting code from
  *   Copyright (C) 2004 by Enrico Ros <eros.kde@email.it>
  *
@@ -140,7 +141,7 @@ class POPPLER_QT4_EXPORT Annotation
     QRectF boundary() const;
     void setBoundary( const QRectF &boundary );
 
-    struct Style
+    struct POPPLER_QT4_EXPORT Style
     {
         // appearance properties
         QColor          color;              // black
@@ -160,7 +161,7 @@ class POPPLER_QT4_EXPORT Annotation
     }               style;
 
     /* properties: popup window */
-    struct Window
+    struct POPPLER_QT4_EXPORT Window
     {
         // window state (Hidden, FixedRotation, Deny* flags allowed)
         int             flags;              // -1 (never initialized) -> 0 (if inited and shown)
@@ -177,7 +178,7 @@ class POPPLER_QT4_EXPORT Annotation
     }               window;
 
     /* properties: versioning */
-    struct Revision
+    struct POPPLER_QT4_EXPORT Revision
     {
         // child revision
         Annotation *    annotation;         // not null
