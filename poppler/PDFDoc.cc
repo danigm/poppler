@@ -25,6 +25,7 @@
 // Copyright (C) 2010 Jakub Wilk <ubanus@users.sf.net>
 // Copyright (C) 2010 Ilya Gorenbein <igorenbein@finjan.com>
 // Copyright (C) 2010 Srinivas Adicherla <srinivas.adicherla@geodesic.com>
+// Copyright (C) 2010 Philip Lorenz <lorenzph+freedesktop@gmail.com>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -123,7 +124,7 @@ PDFDoc::PDFDoc(GooString *fileNameA, GooString *ownerPassword,
   fileName = fileNameA;
   guiData = guiDataA;
 
-  struct stat buf;
+  struct _stat buf;
   if (stat(fileName->getCString(), &buf) == 0) {
      size = buf.st_size;
   }
@@ -188,7 +189,7 @@ PDFDoc::PDFDoc(wchar_t *fileNameA, int fileNameLen, GooString *ownerPassword,
     }
     file = _wfopen(fileName2, L"rb");
   } else {
-    if (_wstat(fileName->getCString(), &buf) == 0) {
+    if (_stat(fileName->getCString(), &buf) == 0) {
       size = buf.st_size;
     }
     file = fopen(fileName->getCString(), "rb");
