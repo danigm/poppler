@@ -124,7 +124,7 @@ PDFDoc::PDFDoc(GooString *fileNameA, GooString *ownerPassword,
   fileName = fileNameA;
   guiData = guiDataA;
 
-  struct _stat buf;
+  struct stat buf;
   if (stat(fileName->getCString(), &buf) == 0) {
      size = buf.st_size;
   }
@@ -179,7 +179,7 @@ PDFDoc::PDFDoc(wchar_t *fileNameA, int fileNameLen, GooString *ownerPassword,
 
   // try to open file
   // NB: _wfopen is only available in NT
-  struct stat buf;
+  struct _stat buf;
   int size;
   version.dwOSVersionInfoSize = sizeof(version);
   GetVersionEx(&version);
