@@ -2924,17 +2924,24 @@ void Gfx::doRadialShFill(GfxRadialShading *shading) {
     tb = t0 + sb * (t1 - t0);
     getShadingColorRadialHelper(t0, t1, tb, shading, &colorB);
     while (ib - ia > 1) {
-      if (isSameGfxColor(colorB, colorA, nComps, radialColorDelta) && ib < radialMaxSplits) {
+      if (isSameGfxColor(colorB, colorA, nComps, radialColorDelta)) {
         // The shading is not necessarily lineal so having two points with the
         // same color does not mean all the areas in between have the same color too
-        // Do another bisection to be a bit more sure we are not doing something wrong
-        GfxColor colorC;
-        int ic = (ia + ib) / 2;
-        double sc = sMin + ((double)ic / (double)radialMaxSplits) * (sMax - sMin);
-        double tc = t0 + sc * (t1 - t0);
-        getShadingColorRadialHelper(t0, t1, tc, shading, &colorC);
-        if (isSameGfxColor(colorC, colorA, nComps, radialColorDelta))
-          break;
+        int ic = ia + 1;
+        for (; ic <= ib; ic++) {
+          GfxColor colorC;
+          const double sc = sMin + ((double)ic / (double)radialMaxSplits) * (sMax - sMin);
+          const double tc = t0 + sc * (t1 - t0);
+          getShadingColorRadialHelper(t0, t1, tc, shading, &colorC);
+          if (!isSameGfxColor(colorC, colorA, nComps, radialColorDelta)) {
+            break;
+          }
+        }
+        ib = (ic > ia + 1) ? ic - 1 : ia + 1;
+        sb = sMin + ((double)ib / (double)radialMaxSplits) * (sMax - sMin);
+        tb = t0 + sb * (t1 - t0);
+        getShadingColorRadialHelper(t0, t1, tb, shading, &colorB);
+        break;
       }
       ib = (ia + ib) / 2;
       sb = sMin + ((double)ib / (double)radialMaxSplits) * (sMax - sMin);
