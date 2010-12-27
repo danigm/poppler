@@ -1,3 +1,27 @@
+Release 0.16.0
+
+	core:
+	 * Improve the correctness of radial shadings (Bug #32349)
+	 * Adapt the zlib-based FlateStream code to API changes  (Bug #32065)
+	 * Make PreScanOutputDev be less agressive when deciding to rasterize (Bug #30107)
+	 * Fix some warnings in newer gcc in Splash backend
+	 * Fix the preliminary bbox/clip calculation in Splash backend
+	 * Use A1 instead of A8 for imagemask in the Cairo backend
+	 * Windows compile fixes
+
+	utils:
+	 * Do not return 99 (or 1) with -h, -v and -printenc (Bug #32149)
+	 * Misc style improvements to pdftohtml code
+	 * pdftohtml: Remove the -resolution flag introduced in 0.15.0 and fix the
+	              existing -zoom flag
+
+	build system:
+	 * Add more warning flags to the default gcc builds
+	 * Enable GObject introspection support in the cmake build system
+
+	qt4:
+	 * Windows compile fixes
+
 Release 0.15.3 (0.16 RC)
 
 	core:
