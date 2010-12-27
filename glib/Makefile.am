@@ -110,7 +110,7 @@ INTROSPECTION_COMPILER_ARGS = --includedir=$(srcdir)
 introspection_files = $(libpoppler_glib_la_SOURCES) $(poppler_glib_include_HEADERS)
 Poppler-0.16.gir: libpoppler-glib.la
 Poppler_0_16_gir_INCLUDES = GObject-2.0 cairo-1.0
-Poppler_0_16_gir_CFLAGS = $(INCLUDES)
+Poppler_0_16_gir_CFLAGS = $(INCLUDES) -I$(top_builddir)
 Poppler_0_16_gir_LIBS = libpoppler-glib.la
 Poppler_0_16_gir_FILES = $(addprefix $(srcdir)/, $(introspection_files))
 
