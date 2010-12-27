@@ -30,7 +30,7 @@ libpoppler_qt_la_LIBADD = 			\
 	$(FREETYPE_LIBS)			\
 	$(FONTCONFIG_LIBS)
 
-libpoppler_qt_la_LDFLAGS = -version-info 2:0:0 @create_shared_lib@
+libpoppler_qt_la_LDFLAGS = -version-info 3:0:0 @create_shared_lib@
 
 if BUILD_SPLASH_OUTPUT
 

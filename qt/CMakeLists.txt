@@ -14,7 +14,7 @@ set(poppler_qt_SRCS
   poppler-private.cc
 )
 add_library(poppler-qt SHARED ${poppler_qt_SRCS})
-set_target_properties(poppler-qt PROPERTIES VERSION 2.0.0 SOVERSION 2)
+set_target_properties(poppler-qt PROPERTIES VERSION 3.0.0 SOVERSION 3)
 target_link_libraries(poppler-qt poppler ${QT3_LIBRARIES})
 install(TARGETS poppler-qt RUNTIME DESTINATION bin LIBRARY DESTINATION lib${LIB_SUFFIX} ARCHIVE DESTINATION lib${LIB_SUFFIX})
 
