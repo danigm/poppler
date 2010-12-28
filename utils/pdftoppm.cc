@@ -22,6 +22,7 @@
 // Copyright (C) 2010 Adrian Johnson <ajohnson@redneon.com>
 // Copyright (C) 2010 Hib Eris <hib@hiberis.nl>
 // Copyright (C) 2010 Jonathan Liu <net147@gmail.com>
+// Copyright (C) 2010 William Bader <williambader@hotmail.com>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -53,6 +54,7 @@ static int firstPage = 1;
 static int lastPage = 0;
 static GBool printOnlyOdd = gFalse;
 static GBool printOnlyEven = gFalse;
+static GBool singleFile = gFalse;
 static double resolution = 0.0;
 static double x_resolution = 150.0;
 static double y_resolution = 150.0;
@@ -87,6 +89,8 @@ static const ArgDesc argDesc[] = {
    "print only odd pages"},
   {"-e",      argFlag,      &printOnlyEven, 0,
    "print only even pages"},
+  {"-singlefile", argFlag,  &singleFile,   0,
+   "write only the first page and do not add digits"},
 
   {"-r",      argFP,       &resolution,    0,
    "resolution, in DPI (default is 150)"},
@@ -306,8 +310,19 @@ int main(int argc, char *argv[]) {
   // get page range
   if (firstPage < 1)
     firstPage = 1;
+  if (singleFile && lastPage < 1)
+    lastPage = firstPage;
   if (lastPage < 1 || lastPage > doc->getNumPages())
     lastPage = doc->getNumPages();
+
+  if (singleFile && firstPage < lastPage) {
+    if (!quiet) {
+      fprintf(stderr,
+        "Warning: Single file will write only the first of the %d pages.\n",
+        lastPage + 1 - firstPage);
+    }
+    lastPage = firstPage;
+  }
 
   // write PPM files
   paperColor[0] = 255;
@@ -350,9 +365,14 @@ int main(int argc, char *argv[]) {
       pg_h = tmp;
     }
     if (ppmRoot != NULL) {
-      snprintf(ppmFile, PPM_FILE_SZ, "%.*s-%0*d.%s",
-              PPM_FILE_SZ - 32, ppmRoot, pg_num_len, pg,
-              png ? "png" : jpeg ? "jpg" : mono ? "pbm" : gray ? "pgm" : "ppm");
+      const char *ext = png ? "png" : jpeg ? "jpg" : mono ? "pbm" : gray ? "pgm" : "ppm";
+      if (singleFile) {
+        snprintf(ppmFile, PPM_FILE_SZ, "%.*s.%s",
+              PPM_FILE_SZ - 32, ppmRoot, ext);
+      } else {
+        snprintf(ppmFile, PPM_FILE_SZ, "%.*s-%0*d.%s",
+              PPM_FILE_SZ - 32, ppmRoot, pg_num_len, pg, ext);
+      }
       savePageSlice(doc, splashOut, pg, x, y, w, h, pg_w, pg_h, ppmFile);
     } else {
       savePageSlice(doc, splashOut, pg, x, y, w, h, pg_w, pg_h, NULL);
