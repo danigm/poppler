@@ -71,11 +71,13 @@ static GBool mono = gFalse;
 static GBool gray = gFalse;
 static GBool png = gFalse;
 static GBool jpeg = gFalse;
+static GBool tiff = gFalse;
 static char enableFreeTypeStr[16] = "";
 static char antialiasStr[16] = "";
 static char vectorAntialiasStr[16] = "";
 static char ownerPassword[33] = "";
 static char userPassword[33] = "";
+static char TiffCompressionStr[16] = "";
 static GBool quiet = gFalse;
 static GBool printVersion = gFalse;
 static GBool printHelp = gFalse;
@@ -130,6 +132,12 @@ static const ArgDesc argDesc[] = {
   {"-jpeg",    argFlag,     &jpeg,           0,
    "generate a JPEG file"},
 #endif
+#if ENABLE_LIBTIFF
+  {"-tiff",    argFlag,     &tiff,           0,
+   "generate a TIFF file"},
+  {"-tiffcompression", argString, TiffCompressionStr, sizeof(TiffCompressionStr),
+   "set TIFF compression: none, packbits, jpeg, lzw, deflate"},
+#endif
 #if HAVE_FREETYPE_FREETYPE_H | HAVE_FREETYPE_H
   {"-freetype",   argString,      enableFreeTypeStr, sizeof(enableFreeTypeStr),
    "enable FreeType font rasterizer: yes, no"},
@@ -183,6 +191,8 @@ static void savePageSlice(PDFDoc *doc,
       bitmap->writeImgFile(splashFormatPng, ppmFile, x_resolution, y_resolution);
     } else if (jpeg) {
       bitmap->writeImgFile(splashFormatJpeg, ppmFile, x_resolution, y_resolution);
+    } else if (tiff) {
+      bitmap->writeImgFile(splashFormatTiff, ppmFile, x_resolution, y_resolution, TiffCompressionStr);
     } else {
       bitmap->writePNMFile(ppmFile);
     }
@@ -195,6 +205,8 @@ static void savePageSlice(PDFDoc *doc,
       bitmap->writeImgFile(splashFormatPng, stdout, x_resolution, y_resolution);
     } else if (jpeg) {
       bitmap->writeImgFile(splashFormatJpeg, stdout, x_resolution, y_resolution);
+    } else if (tiff) {
+      bitmap->writeImgFile(splashFormatTiff, stdout, x_resolution, y_resolution, TiffCompressionStr);
     } else {
       bitmap->writePNMFile(stdout);
     }
@@ -365,7 +377,7 @@ int main(int argc, char *argv[]) {
       pg_h = tmp;
     }
     if (ppmRoot != NULL) {
-      const char *ext = png ? "png" : jpeg ? "jpg" : mono ? "pbm" : gray ? "pgm" : "ppm";
+      const char *ext = png ? "png" : jpeg ? "jpg" : tiff ? "tif" : mono ? "pbm" : gray ? "pgm" : "ppm";
       if (singleFile) {
         snprintf(ppmFile, PPM_FILE_SZ, "%.*s.%s",
               PPM_FILE_SZ - 32, ppmRoot, ext);

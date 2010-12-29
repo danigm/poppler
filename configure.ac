@@ -173,6 +173,37 @@ AM_CONDITIONAL(BUILD_LIBOPENJPEG, test x$enable_libopenjpeg = xyes)
 AH_TEMPLATE([ENABLE_LIBOPENJPEG],
 	    [Use libopenjpeg instead of builtin jpeg2000 decoder.])
 
+dnl ##### Test for libtiff
+AC_ARG_ENABLE(libtiff,
+		AC_HELP_STRING([--disable-libtiff],
+				[Don't build against libtiff.]),
+		enable_libtiff=$enableval,
+		enable_libtiff="try")
+
+if test x$enable_libtiff = xyes; then
+  AC_CHECK_LIB([tiff], [TIFFOpen],,
+		AC_MSG_ERROR("*** libtiff library not found ***"))
+  AC_CHECK_HEADERS([tiffio.h],,
+		AC_MSG_ERROR("*** libtiff headers not found ***"))
+elif test x$enable_libtiff = xtry; then
+  AC_CHECK_LIB([tiff], [TIFFOpen],
+		[enable_libtiff="yes"],
+		[enable_libtiff="no"])
+  AC_CHECK_HEADERS([tiffio.h],,
+		[enable_libtiff="no"])
+fi
+
+if test x$enable_libtiff = xyes; then
+  LIBTIFF_LIBS="-ltiff"
+  AC_SUBST(LIBTIFF_LIBS)
+  AC_DEFINE(ENABLE_LIBTIFF)
+fi
+
+AM_CONDITIONAL(BUILD_LIBTIFF, test x$enable_libtiff = xyes)
+AH_TEMPLATE([ENABLE_LIBTIFF], [Build against libtiff.])
+if test x$enable_libtiff = xyes; then
+  AC_DEFINE(ENABLE_LIBTIFF, 1, [Build against libtiff.])
+fi
 
 dnl ##### Checks for library functions.
 AC_CHECK_FUNCS(popen mkstemp mkstemps)
@@ -686,6 +717,7 @@ echo "  cpp wrapper:        $enable_poppler_cpp"
 echo "  use gtk-doc:        $enable_gtk_doc"
 echo "  use libjpeg:        $enable_libjpeg"
 echo "  use libpng:         $enable_libpng"
+echo "  use libtiff:        $enable_libtiff"
 echo "  use zlib:           $enable_zlib"
 echo "  use libcurl:        $enable_libcurl"
 echo "  use libopenjpeg:    $enable_libopenjpeg"

@@ -18,6 +18,7 @@
 // Copyright (C) 2010 Adrian Johnson <ajohnson@redneon.com>
 // Copyright (C) 2010 Harry Roberts <harry.roberts@midnight-labs.org>
 // Copyright (C) 2010 Christian Feuersänger <cfeuersaenger@googlemail.com>
+// Copyright (C) 2010 William Bader <williambader@hotmail.com>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -65,8 +66,8 @@ public:
   SplashError writePNMFile(char *fileName);
   SplashError writePNMFile(FILE *f);
   
-  SplashError writeImgFile(SplashImageFileFormat format, char *fileName, int hDPI, int vDPI);
-  SplashError writeImgFile(SplashImageFileFormat format, FILE *f, int hDPI, int vDPI);
+  SplashError writeImgFile(SplashImageFileFormat format, char *fileName, int hDPI, int vDPI, const char *compressionString = "");
+  SplashError writeImgFile(SplashImageFileFormat format, FILE *f, int hDPI, int vDPI, const char *compressionString = "");
   SplashError writeImgFile(ImgWriter *writer, FILE *f, int hDPI, int vDPI);
 
   void getPixel(int x, int y, SplashColorPtr pixel);

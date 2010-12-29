@@ -73,6 +73,15 @@ libpng_includes =				\
 
 endif
 
+if BUILD_LIBTIFF
+
+libtiff_libs =					\
+	$(LIBTIFF_LIBS)
+libtiff_includes =				\
+	$(LIBTIFF_CFLAGS)
+
+endif
+
 if BUILD_LIBOPENJPEG
 
 libjpeg2000_sources =				\
@@ -147,6 +156,7 @@ INCLUDES =					\
 	$(cairo_includes)			\
 	$(arthur_includes)			\
 	$(abiword_includes)			\
+	$(libtiff_includes)			\
 	$(libpng_includes)			\
 	$(libcurl_includes)			\
 	$(FREETYPE_CFLAGS)			\
@@ -165,6 +175,7 @@ libpoppler_la_LIBADD =				\
 	$(top_builddir)/fofi/libfofi.la		\
 	$(cms_libs)				\
 	$(splash_libs)				\
+	$(libtiff_libs)				\
 	$(libjpeg_libs)				\
 	$(libpng_libs)				\
 	$(zlib_libs)				\

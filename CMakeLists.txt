@@ -78,6 +78,7 @@ if(WITH_FONTCONFIGURATION_FONTCONFIG)
 endif(WITH_FONTCONFIGURATION_FONTCONFIG)
 macro_optional_find_package(JPEG)
 macro_optional_find_package(PNG)
+macro_optional_find_package(TIFF)
 if(JPEG_FOUND)
   set(ENABLE_LIBJPEG ${JPEG_FOUND})
 endif(JPEG_FOUND)
@@ -178,6 +179,10 @@ if(PNG_FOUND)
   include_directories(${PNG_INCLUDE_DIR})
   set(ENABLE_LIBPNG ON)
 endif(PNG_FOUND)
+if(TIFF_FOUND)
+  include_directories(${TIFF_INCLUDE_DIR})
+  set(ENABLE_LIBTIFF ON)
+endif(TIFF_FOUND)
 if(ENABLE_ABIWORD)
   include_directories(${LIBXML2_INCLUDE_DIR})
   add_definitions(${LIBXML2_DEFINITIONS})
@@ -220,6 +225,7 @@ set(poppler_SRCS
   goo/gmem.cc
   goo/FixedPoint.cc
   goo/PNGWriter.cc
+  goo/TiffWriter.cc
   goo/JpegWriter.cc
   goo/ImgWriter.cc
   goo/gstrtod.cc
@@ -360,6 +366,9 @@ endif(WIN32)
 if(PNG_FOUND)
   set(poppler_LIBS ${poppler_LIBS} ${PNG_LIBRARIES})
 endif(PNG_FOUND)
+if(TIFF_FOUND)
+  set(poppler_LIBS ${poppler_LIBS} ${TIFF_LIBRARIES})
+endif(TIFF_FOUND)
 
 if(MSVC)
 add_definitions(-D_CRT_SECURE_NO_WARNINGS)
@@ -464,6 +473,11 @@ if(ENABLE_XPDF_HEADERS)
       goo/PNGWriter.h
       DESTINATION include/poppler/goo)
   endif(PNG_FOUND)
+  if(TIFF_FOUND)
+    install(FILES
+      goo/TiffWriter.h
+      DESTINATION include/poppler/goo)
+  endif(TIFF_FOUND)
   install(FILES
     fofi/FoFiBase.h
     fofi/FoFiEncodings.h
@@ -587,6 +601,7 @@ show_end_message_yesno("cpp wrapper" ENABLE_CPP)
 show_end_message("use gtk-doc" "not supported with this CMake build system")
 show_end_message_yesno("use libjpeg" ENABLE_LIBJPEG)
 show_end_message_yesno("use libpng" ENABLE_LIBPNG)
+show_end_message_yesno("use libtiff" ENABLE_LIBTIFF)
 show_end_message_yesno("use zlib" ENABLE_ZLIB)
 show_end_message_yesno("use curl" ENABLE_LIBCURL)
 show_end_message_yesno("use libopenjpeg" LIBOPENJPEG_FOUND)

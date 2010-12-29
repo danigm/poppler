@@ -9,6 +9,9 @@
 /* Use libopenjpeg instead of builtin jpeg2000 decoder. */
 #cmakedefine ENABLE_LIBOPENJPEG 1
 
+/* Build against libtiff. */
+#cmakedefine ENABLE_LIBTIFF 1
+
 /* Build against libpng. */
 #cmakedefine ENABLE_LIBPNG 1
 

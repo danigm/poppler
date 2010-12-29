@@ -18,6 +18,7 @@
 // Copyright (C) 2010 Adrian Johnson <ajohnson@redneon.com>
 // Copyright (C) 2010 Harry Roberts <harry.roberts@midnight-labs.org>
 // Copyright (C) 2010 Christian Feuersänger <cfeuersaenger@googlemail.com>
+// Copyright (C) 2010 William Bader <williambader@hotmail.com>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -39,6 +40,7 @@
 #include "poppler/Error.h"
 #include "goo/JpegWriter.h"
 #include "goo/PNGWriter.h"
+#include "goo/TiffWriter.h"
 #include "goo/ImgWriter.h"
 
 //------------------------------------------------------------------------
@@ -274,7 +276,7 @@ Guchar SplashBitmap::getAlpha(int x, int y) {
   return alpha[y * width + x];
 }
 
-SplashError SplashBitmap::writeImgFile(SplashImageFileFormat format, char *fileName, int hDPI, int vDPI) {
+SplashError SplashBitmap::writeImgFile(SplashImageFileFormat format, char *fileName, int hDPI, int vDPI, const char *compressionString) {
   FILE *f;
   SplashError e;
 
@@ -282,13 +284,13 @@ SplashError SplashBitmap::writeImgFile(SplashImageFileFormat format, char *fileN
     return splashErrOpenFile;
   }
 
-  e = writeImgFile(format, f, hDPI, vDPI);
+  e = writeImgFile(format, f, hDPI, vDPI, compressionString);
   
   fclose(f);
   return e;
 }
 
-SplashError SplashBitmap::writeImgFile(SplashImageFileFormat format, FILE *f, int hDPI, int vDPI) {
+SplashError SplashBitmap::writeImgFile(SplashImageFileFormat format, FILE *f, int hDPI, int vDPI, const char *compressionString) {
   ImgWriter *writer;
 	SplashError e;
   
@@ -305,6 +307,16 @@ SplashError SplashBitmap::writeImgFile(SplashImageFileFormat format, FILE *f, in
       break;
     #endif
 	
+    #ifdef ENABLE_LIBTIFF
+    case splashFormatTiff:
+      writer = new TiffWriter();
+      if (writer) {
+        ((TiffWriter *)writer)->setCompressionString(compressionString);
+        ((TiffWriter *)writer)->setSplashMode(mode);
+      }
+      break;
+    #endif
+
     default:
       // Not the greatest error message, but users of this function should
       // have already checked whether their desired format is compiled in.
