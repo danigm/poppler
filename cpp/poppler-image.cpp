@@ -28,6 +28,9 @@
 #if defined(ENABLE_LIBJPEG)
 #include "JpegWriter.h"
 #endif
+#if defined(ENABLE_LIBTIFF)
+#include "TiffWriter.h"
+#endif
 
 #include <cstdlib>
 #include <cstring>
@@ -310,6 +313,7 @@ image image::copy(const rect &r) const
  Image formats commonly supported are:
  \li PNG: \c png
  \li JPEG: \c jpeg, \c jpg
+ \li TIFF: \c tiff
 
  If an image format is not supported (check the result of
  supported_image_formats()), the saving fails.
@@ -337,6 +341,11 @@ bool image::save(const std::string &file_name, const std::string &out_format, in
 #if defined(ENABLE_LIBJPEG)
     else if (fmt == "jpeg" || fmt == "jpg") {
         w.reset(new JpegWriter());
+    }
+#endif
+#if defined(ENABLE_LIBTIFF)
+    else if (fmt == "tiff") {
+        w.reset(new TiffWriter());
     }
 #endif
     if (!w.get()) {
@@ -405,6 +414,9 @@ std::vector<std::string> image::supported_image_formats()
 #if defined(ENABLE_LIBJPEG)
     formats.push_back("jpeg");
     formats.push_back("jpg");
+#endif
+#if defined(ENABLE_LIBTIFF)
+    formats.push_back("tiff");
 #endif
     return formats;
 }
