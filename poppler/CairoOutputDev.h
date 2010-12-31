@@ -275,6 +275,7 @@ protected:
   cairo_filter_t getFilterForSurface(cairo_surface_t *image,
 				     GBool interpolate);
   GBool getStreamData (Stream *str, char **buffer, int *length);
+  void setMimeData(Stream *str, cairo_surface_t *image);
   
   GfxRGB fill_color, stroke_color;
   cairo_pattern_t *fill_pattern, *stroke_pattern;

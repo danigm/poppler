@@ -2283,6 +2283,36 @@ GBool CairoOutputDev::getStreamData (Stream *str, char **buffer, int *length)
   return gTrue;
 }
 
+void CairoOutputDev::setMimeData(Stream *str, cairo_surface_t *image)
+{
+  char *strBuffer;
+  int len;
+  Object obj;
+
+  if (!printing || !(str->getKind() == strDCT || str->getKind() == strJPX))
+    return;
+
+  // colorspace in stream dict may be different from colorspace in jpx
+  // data
+  if (str->getKind() == strJPX) {
+    GBool hasColorSpace = !str->getDict()->lookup("ColorSpace", &obj)->isNull();
+    obj.free();
+    if (hasColorSpace)
+      return;
+  }
+
+  if (getStreamData (str->getNextStream(), &strBuffer, &len)) {
+    cairo_status_t st;
+    st = cairo_surface_set_mime_data (image,
+				      str->getKind() == strDCT ?
+				      CAIRO_MIME_TYPE_JPEG : CAIRO_MIME_TYPE_JP2,
+				      (const unsigned char *)strBuffer, len,
+				      gfree, strBuffer);
+    if (st)
+      gfree (strBuffer);
+  }
+}
+
 void CairoOutputDev::drawImage(GfxState *state, Object *ref, Stream *str,
 			       int width, int height,
 			       GfxImageColorMap *colorMap,
@@ -2396,21 +2426,7 @@ void CairoOutputDev::drawImage(GfxState *state, Object *ref, Stream *str,
 
   cairo_surface_mark_dirty (image);
 
-  if (printing && (str->getKind() == strDCT || str->getKind() == strJPX)) {
-    char *strBuffer;
-    int len;
-
-    if (getStreamData (str->getNextStream(), &strBuffer, &len)) {
-      cairo_status_t st;
-      st = cairo_surface_set_mime_data (image,
-					str->getKind() == strDCT ?
-					CAIRO_MIME_TYPE_JPEG : CAIRO_MIME_TYPE_JP2,
-					(const unsigned char *)strBuffer, len,
-					gfree, strBuffer);
-      if (st)
-        gfree (strBuffer);
-    }
-  }
+  setMimeData(str, image);
 
   pattern = cairo_pattern_create_for_surface (image);
   cairo_surface_destroy (image);
