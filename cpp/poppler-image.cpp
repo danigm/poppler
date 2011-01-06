@@ -330,6 +330,7 @@ image image::copy(const rect &r) const
  \li PNG: \c png
  \li JPEG: \c jpeg, \c jpg
  \li TIFF: \c tiff
+ \li PNM: \c pnm (with Poppler >= 0.18)
 
  If an image format is not supported (check the result of
  supported_image_formats()), the saving fails.
