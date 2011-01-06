@@ -8,6 +8,7 @@ configure_file(poppler-version.h.in ${CMAKE_CURRENT_BINARY_DIR}/poppler-version.
 add_subdirectory(tests)
 
 set(poppler_cpp_SRCS
+  PNMWriter.cc
   poppler-document.cpp
   poppler-embedded-file.cpp
   poppler-font.cpp

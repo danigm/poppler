@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010, Pino Toscano <pino@kde.org>
+ * Copyright (C) 2010-2011, Pino Toscano <pino@kde.org>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,12 +31,15 @@
 #if defined(ENABLE_LIBTIFF)
 #include "TiffWriter.h"
 #endif
+#include "PNMWriter.h"
 
 #include <cstdlib>
 #include <cstring>
 #include <algorithm>
 #include <memory>
 #include <vector>
+
+using poppler::PNMWriter;
 
 namespace {
 
@@ -64,6 +67,19 @@ int calc_bytes_per_row(int width, poppler::image::format_enum format)
         return width * 4;
     }
     return 0;
+}
+
+PNMWriter::OutFormat pnm_format(poppler::image::format_enum format)
+{
+    switch (format) {
+    case poppler::image::format_invalid: // unused, anyway
+    case poppler::image::format_mono:
+        return PNMWriter::PBM;
+    case poppler::image::format_rgb24:
+    case poppler::image::format_argb32:
+        return PNMWriter::PPM;
+    }
+    return PNMWriter::PPM;
 }
 
 }
@@ -348,6 +364,9 @@ bool image::save(const std::string &file_name, const std::string &out_format, in
         w.reset(new TiffWriter());
     }
 #endif
+    else if (fmt == "pnm") {
+        w.reset(new PNMWriter(pnm_format(d->format)));
+    }
     if (!w.get()) {
         return false;
     }
@@ -418,6 +437,7 @@ std::vector<std::string> image::supported_image_formats()
 #if defined(ENABLE_LIBTIFF)
     formats.push_back("tiff");
 #endif
+    formats.push_back("pnm");
     return formats;
 }
 
