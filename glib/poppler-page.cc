@@ -2144,7 +2144,10 @@ poppler_page_get_text_layout (PopplerPage       *page,
   wordlist = text->makeWordList (gFalse);
 
   if (wordlist->getLength () <= 0)
-    return FALSE;
+    {
+      delete wordlist;
+      return FALSE;
+    }
 
   // Getting the array size
   for (i = 0; i < wordlist->getLength (); i++)
