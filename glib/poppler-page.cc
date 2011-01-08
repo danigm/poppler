@@ -530,7 +530,7 @@ poppler_page_get_thumbnail (PopplerPage *page)
   int width, height, rowstride;
   cairo_surface_t *surface;
 
-  g_return_val_if_fail (POPPLER_IS_PAGE (page), FALSE);
+  g_return_val_if_fail (POPPLER_IS_PAGE (page), NULL);
 
   if (!page->page->loadThumb (&data, &width, &height, &rowstride))
     return NULL;
@@ -762,7 +762,7 @@ poppler_page_get_thumbnail_pixbuf (PopplerPage *page)
   unsigned char *data;
   int width, height, rowstride;
 
-  g_return_val_if_fail (POPPLER_IS_PAGE (page), FALSE);
+  g_return_val_if_fail (POPPLER_IS_PAGE (page), NULL);
 
   if (!page->page->loadThumb (&data, &width, &height, &rowstride))
     return NULL;
@@ -1099,7 +1099,7 @@ poppler_page_get_selected_text (PopplerPage          *page,
   SelectionStyle selection_style = selectionStyleGlyph;
   PDFRectangle pdf_selection;
 
-  g_return_val_if_fail (POPPLER_IS_PAGE (page), FALSE);
+  g_return_val_if_fail (POPPLER_IS_PAGE (page), NULL);
   g_return_val_if_fail (selection != NULL, NULL);
 
   pdf_selection.x1 = selection->x1;
@@ -1143,7 +1143,7 @@ poppler_page_get_text (PopplerPage *page)
 {
   PopplerRectangle rectangle = {0, 0, 0, 0};
 
-  g_return_val_if_fail (POPPLER_IS_PAGE (page), FALSE);
+  g_return_val_if_fail (POPPLER_IS_PAGE (page), NULL);
 
   poppler_page_get_size (page, &rectangle.x2, &rectangle.y2);
 
@@ -1172,8 +1172,8 @@ poppler_page_find_text (PopplerPage *page,
   double height;
   TextPage *text_dev;
 
-  g_return_val_if_fail (POPPLER_IS_PAGE (page), FALSE);
-  g_return_val_if_fail (text != NULL, FALSE);
+  g_return_val_if_fail (POPPLER_IS_PAGE (page), NULL);
+  g_return_val_if_fail (text != NULL, NULL);
 
   text_dev = poppler_page_get_text_page (page);
 
