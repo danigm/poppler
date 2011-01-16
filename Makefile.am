@@ -15,11 +15,6 @@ glib_subdir = glib
 glib_pc_file = poppler-glib.pc
 endif
 
-if BUILD_POPPLER_QT
-qt_subdir = qt
-qt_pc_file = poppler-qt.pc
-endif
-
 if BUILD_POPPLER_QT4
 qt4_subdir = qt4
 qt4_pc_file = poppler-qt4.pc

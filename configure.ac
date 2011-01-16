@@ -483,24 +483,6 @@ AC_SUBST(GDK_REQ)
 AC_SUBST(POPPLER_GLIB_DISABLE_DEPRECATED)
 AC_SUBST(POPPLER_GLIB_DISABLE_SINGLE_INCLUDES)
 
-AC_ARG_ENABLE(poppler-qt,
-	      AC_HELP_STRING([--disable-poppler-qt],
-			     [Don't compile poppler qt wrapper.]),
-	      enable_poppler_qt=$enableval,
-	      enable_poppler_qt="try")
-
-if test x$enable_poppler_qt = xyes; then
-  POPPLER_FIND_QT(POPPLER_QT,,)
-elif test x$enable_poppler_qt = xtry; then
-  POPPLER_FIND_QT(POPPLER_QT,
-		  [enable_poppler_qt="yes"],
-                  [enable_poppler_qt="no"])
-fi
-AC_SUBST(POPPLER_QT_CXXFLAGS)
-AC_SUBST(POPPLER_QT_LIBS)
-
-AM_CONDITIONAL(BUILD_POPPLER_QT, test "x$enable_poppler_qt" = "xyes")
-
 dnl 
 dnl Try Qt4
 dnl
