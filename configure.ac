@@ -660,7 +660,6 @@ glib/reference/Makefile
 glib/reference/version.xml
 glib/demo/Makefile
 test/Makefile
-qt/Makefile
 qt4/Makefile
 qt4/src/Makefile
 qt4/tests/Makefile
