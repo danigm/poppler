@@ -676,8 +676,6 @@ poppler-splash.pc
 poppler-splash-uninstalled.pc
 poppler-glib.pc
 poppler-glib-uninstalled.pc
-poppler-qt.pc
-poppler-qt-uninstalled.pc
 poppler-qt4.pc
 poppler-qt4-uninstalled.pc
 poppler-cpp.pc
