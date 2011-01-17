@@ -4249,24 +4249,24 @@ void TextLine::visitSelection(TextSelectionVisitor *visitor,
   current = NULL;
   for (p = words; p != NULL; p = p->next) {
     if (blk->page->primaryLR) {
-      if ((selection->x1 < p->xMax && selection->y1 < p->yMax) ||
-	  (selection->x2 < p->xMax && selection->y2 < p->yMax))
+      if ((selection->x1 < p->xMax) ||
+	  (selection->x2 < p->xMax))
         if (begin == NULL) 
 	  begin = p;
 
-      if (((selection->x1 > p->xMin && selection->y1 > p->yMin) ||
-	   (selection->x2 > p->xMin && selection->y2 > p->yMin)) && (begin != NULL)) {
+      if (((selection->x1 > p->xMin) ||
+	   (selection->x2 > p->xMin)) && (begin != NULL)) {
         end = p->next;
         current = p;
       }
     } else {
-      if ((selection->x1 > p->xMin && selection->y1 < p->yMax) ||
-	  (selection->x2 > p->xMin && selection->y2 < p->yMax))
+      if ((selection->x1 > p->xMin) ||
+	  (selection->x2 > p->xMin))
         if (begin == NULL) 
 	  begin = p;
 
-      if (((selection->x1 < p->xMax && selection->y1 > p->yMin) ||
-	   (selection->x2 < p->xMax && selection->y2 > p->yMin)) && (begin != NULL)) {
+      if (((selection->x1 < p->xMax) ||
+	   (selection->x2 < p->xMax)) && (begin != NULL)) {
         end = p->next;
         current = p;
       }
