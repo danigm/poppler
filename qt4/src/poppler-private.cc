@@ -29,6 +29,7 @@
 
 #include <Link.h>
 #include <Outline.h>
+#include <UnicodeMap.h>
 
 namespace Poppler {
 
@@ -69,12 +70,29 @@ namespace Debug {
     }
 
     QString unicodeToQString(Unicode* u, int len) {
-        QString ret;
-        ret.resize(len);
-        QChar* qch = (QChar*) ret.unicode();
-        for (;len;--len)
-          *qch++ = (QChar) *u++;
-        return ret;
+        static UnicodeMap *uMap = 0;
+        if (!uMap)
+        {
+                GooString enc("UTF-8");
+                uMap = globalParams->getUnicodeMap(&enc);
+                uMap->incRefCnt();
+        }
+
+        // ignore the last character if it is 0x0
+        if ((len > 0) && (u[len - 1] == 0))
+        {
+            --len;
+        }
+
+        GooString convertedStr;
+        for (int i = 0; i < len; ++i)
+        {
+            char buf[8];
+            const int n = uMap->mapUnicode(u[i], buf, sizeof(buf));
+            convertedStr.append(buf, n);
+        }
+
+        return QString::fromUtf8(convertedStr.getCString(), convertedStr.getLength());
     }
 
     QString UnicodeParsedString(GooString *s1) {

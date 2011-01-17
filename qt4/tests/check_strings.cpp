@@ -21,6 +21,8 @@
 #include <poppler-qt4.h>
 #include <poppler-private.h>
 
+#include <GlobalParams.h>
+
 Q_DECLARE_METATYPE(GooString*)
 Q_DECLARE_METATYPE(Unicode*)
 
@@ -51,11 +53,15 @@ void TestStrings::initTestCase()
 {
     qRegisterMetaType<GooString*>("GooString*");
     qRegisterMetaType<Unicode*>("Unicode*");
+
+    globalParams = new GlobalParams();
 }
 
 void TestStrings::cleanupTestCase()
 {
     qDeleteAll(m_gooStrings);
+
+    delete globalParams;
 }
 
 void TestStrings::check_unicodeToQString_data()
@@ -89,6 +95,21 @@ void TestStrings::check_unicodeToQString_data()
     u[0] = int('a');
     u[1] = 0x0161;
     QTest::newRow("a\u0161") << u << l << QString::fromUtf8("a\u0161");
+    }
+    {
+    const int l = 2;
+    Unicode *u = new Unicode[l];
+    u[0] = 0x5c01;
+    u[1] = 0x9762;
+    QTest::newRow("\xe5\xb0\x81\xe9\x9d\xa2") << u << l << QString::fromUtf8("\xe5\xb0\x81\xe9\x9d\xa2");
+    }
+    {
+    const int l = 3;
+    Unicode *u = new Unicode[l];
+    u[0] = 0x5c01;
+    u[1] = 0x9762;
+    u[2] = 0x0;
+    QTest::newRow("\xe5\xb0\x81\xe9\x9d\xa2 + 0") << u << l << QString::fromUtf8("\xe5\xb0\x81\xe9\x9d\xa2");
     }
 }
 
