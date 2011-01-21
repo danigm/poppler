@@ -7,6 +7,7 @@
  * Copyright (C) 2009 Shawn Rutledge <shawn.t.rutledge@gmail.com>
  * Copyright (C) 2010 Suzuki Toshiya <mpsuzuki@hiroshima-u.ac.jp>
  * Copyright (C) 2010 Matthias Fauconneau <matthias.fauconneau@gmail.com>
+ * Copyright (C) 2011 Andreas Hartmetz <ahartmetz@gmail.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -800,7 +801,8 @@ delete it;
 	enum RenderHint {
 	    Antialiasing = 0x00000001,      ///< Antialiasing for graphics
 	    TextAntialiasing = 0x00000002,  ///< Antialiasing for text
-	    TextHinting = 0x00000004        ///< Hinting for text \since 0.12.1
+	    TextHinting = 0x00000004,       ///< Hinting for text \since 0.12.1
+	    TextSlightHinting = 0x00000008  ///< Lighter hinting for text when combined with TextHinting \since 0.18
 	};
 	Q_DECLARE_FLAGS( RenderHints, RenderHint )
 

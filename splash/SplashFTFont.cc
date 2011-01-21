@@ -15,6 +15,7 @@
 // Copyright (C) 2006 Kristian Høgsberg <krh@bitplanet.net>
 // Copyright (C) 2009 Petr Gajdos <pgajdos@novell.com>
 // Copyright (C) 2010 Suzuki Toshiya <mpsuzuki@hiroshima-u.ac.jp>
+// Copyright (C) 2011 Andreas Hartmetz <ahartmetz@gmail.com>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -57,7 +58,8 @@ static int glyphPathCubicTo(const FT_Vector *ctrl1, const FT_Vector *ctrl2,
 SplashFTFont::SplashFTFont(SplashFTFontFile *fontFileA, SplashCoord *matA,
 			   SplashCoord *textMatA):
   SplashFont(fontFileA, matA, textMatA, fontFileA->engine->aa), 
-  enableFreeTypeHinting(fontFileA->engine->enableFreeTypeHinting)
+  enableFreeTypeHinting(fontFileA->engine->enableFreeTypeHinting),
+  enableSlightHinting(fontFileA->engine->enableSlightHinting)
 {
   FT_Face face;
   double div;
@@ -169,12 +171,19 @@ GBool SplashFTFont::getGlyph(int c, int xFrac, int yFrac,
   return SplashFont::getGlyph(c, xFrac, 0, bitmap, x0, y0, clip, clipRes);
 }
 
-static FT_Int32 getFTLoadFlags(GBool aa, GBool enableFreeTypeHinting)
+static FT_Int32 getFTLoadFlags(GBool aa, GBool enableFreeTypeHinting, GBool enableSlightHinting)
 {
-  if (aa && enableFreeTypeHinting) return FT_LOAD_NO_BITMAP;
-  else if (aa && !enableFreeTypeHinting) return FT_LOAD_NO_HINTING | FT_LOAD_NO_BITMAP;
-  else if (!aa && enableFreeTypeHinting) return FT_LOAD_DEFAULT;
-  else return FT_LOAD_NO_HINTING;
+  int ret = FT_LOAD_DEFAULT;
+  if (aa)
+    ret |= FT_LOAD_NO_BITMAP;
+  
+  if (enableFreeTypeHinting) {
+    if (enableSlightHinting)
+      ret |= FT_LOAD_TARGET_LIGHT;
+  } else {
+    ret |= FT_LOAD_NO_HINTING;
+  }
+  return ret;
 }
 
 GBool SplashFTFont::makeGlyph(int c, int xFrac, int yFrac,
@@ -201,7 +210,7 @@ GBool SplashFTFont::makeGlyph(int c, int xFrac, int yFrac,
     gid = (FT_UInt)c;
   }
 
-  if (FT_Load_Glyph(ff->face, gid, getFTLoadFlags(aa, enableFreeTypeHinting))) {
+  if (FT_Load_Glyph(ff->face, gid, getFTLoadFlags(aa, enableFreeTypeHinting, enableSlightHinting))) {
     return gFalse;
   }
 
@@ -284,7 +293,7 @@ double SplashFTFont::getGlyphAdvance(int c)
     return -1;
   }
 
-  if (FT_Load_Glyph(ff->face, gid, getFTLoadFlags(aa, enableFreeTypeHinting))) {
+  if (FT_Load_Glyph(ff->face, gid, getFTLoadFlags(aa, enableFreeTypeHinting, enableSlightHinting))) {
     return -1;
   }
 
@@ -332,7 +341,7 @@ SplashPath *SplashFTFont::getGlyphPath(int c) {
     // skip the TrueType notdef glyph
     return NULL;
   }
-  if (FT_Load_Glyph(ff->face, gid, getFTLoadFlags(aa, enableFreeTypeHinting))) {
+  if (FT_Load_Glyph(ff->face, gid, getFTLoadFlags(aa, enableFreeTypeHinting, enableSlightHinting))) {
     return NULL;
   }
   if (FT_Get_Glyph(slot, &glyph)) {

@@ -27,6 +27,7 @@
 // Copyright (C) 2010 Brian Cameron <brian.cameron@oracle.com>
 // Copyright (C) 2010 Paweł Wiejacha <pawel.wiejacha@gmail.com>
 // Copyright (C) 2010 Christian Feuersänger <cfeuersaenger@googlemail.com>
+// Copyright (C) 2011 Andreas Hartmetz <ahartmetz@gmail.com>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -964,6 +965,7 @@ SplashOutputDev::SplashOutputDev(SplashColorMode colorModeA,
 		      globalParams->getVectorAntialias() &&
 		      colorMode != splashModeMono1;
   enableFreeTypeHinting = gFalse;
+  enableSlightHinting = gFalse;
   setupScreenParams(72.0, 72.0);
   reverseVideo = reverseVideoA;
   if (paperColorA != NULL) {
@@ -1074,6 +1076,7 @@ void SplashOutputDev::startDoc(XRef *xrefA) {
 #if HAVE_FREETYPE_FREETYPE_H || HAVE_FREETYPE_H
 				    globalParams->getEnableFreeType(),
 				    enableFreeTypeHinting,
+				    enableSlightHinting,
 #endif
 				    allowAntialias &&
 				      globalParams->getAntialias() &&
@@ -3318,9 +3321,10 @@ void SplashOutputDev::setVectorAntialias(GBool vaa) {
 }
 #endif
 
-void SplashOutputDev::setFreeTypeHinting(GBool enable)
+void SplashOutputDev::setFreeTypeHinting(GBool enable, GBool enableSlightHintingA)
 {
   enableFreeTypeHinting = enable;
+  enableSlightHinting = enableSlightHintingA;
 }
 
 GBool SplashOutputDev::gouraudTriangleShadedFill(GfxState *state, GfxGouraudTriangleShading *shading)

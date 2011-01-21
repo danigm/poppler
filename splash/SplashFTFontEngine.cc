@@ -14,6 +14,7 @@
 // Copyright (C) 2006 Takashi Iwai <tiwai@suse.de>
 // Copyright (C) 2009 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2009 Petr Gajdos <pgajdos@novell.com>
+// Copyright (C) 2011 Andreas Hartmetz <ahartmetz@gmail.com>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -58,11 +59,13 @@ static void fileWrite(void *stream, char *data, int len) {
 // SplashFTFontEngine
 //------------------------------------------------------------------------
 
-SplashFTFontEngine::SplashFTFontEngine(GBool aaA, GBool enableFreeTypeHintingA, FT_Library libA) {
+SplashFTFontEngine::SplashFTFontEngine(GBool aaA, GBool enableFreeTypeHintingA,
+				       GBool enableSlightHintingA, FT_Library libA) {
   FT_Int major, minor, patch;
 
   aa = aaA;
   enableFreeTypeHinting = enableFreeTypeHintingA;
+  enableSlightHinting = enableSlightHintingA;
   lib = libA;
 
   // as of FT 2.1.8, CID fonts are indexed by CID instead of GID
@@ -71,13 +74,14 @@ SplashFTFontEngine::SplashFTFontEngine(GBool aaA, GBool enableFreeTypeHintingA, 
             (major == 2 && (minor > 1 || (minor == 1 && patch > 7)));
 }
 
-SplashFTFontEngine *SplashFTFontEngine::init(GBool aaA, GBool enableFreeTypeHintingA) {
+SplashFTFontEngine *SplashFTFontEngine::init(GBool aaA, GBool enableFreeTypeHintingA,
+					     GBool enableSlightHintingA) {
   FT_Library libA;
 
   if (FT_Init_FreeType(&libA)) {
     return NULL;
   }
-  return new SplashFTFontEngine(aaA, enableFreeTypeHintingA, libA);
+  return new SplashFTFontEngine(aaA, enableFreeTypeHintingA, enableSlightHintingA, libA);
 }
 
 SplashFTFontEngine::~SplashFTFontEngine() {

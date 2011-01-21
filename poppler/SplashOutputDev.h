@@ -17,6 +17,7 @@
 // Copyright (C) 2009, 2010 Thomas Freitag <Thomas.Freitag@alfa.de>
 // Copyright (C) 2009 Carlos Garcia Campos <carlosgc@gnome.org>
 // Copyright (C) 2010 Christian Feuersänger <cfeuersaenger@googlemail.com>
+// Copyright (C) 2011 Andreas Hartmetz <ahartmetz@gmail.com>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -288,7 +289,7 @@ public:
   virtual void setVectorAntialias(GBool vaa);
 #endif
 
-  void setFreeTypeHinting(GBool enable);
+  void setFreeTypeHinting(GBool enable, GBool enableSlightHinting);
 
 private:
 
@@ -320,6 +321,7 @@ private:
   GBool allowAntialias;
   GBool vectorAntialias;
   GBool enableFreeTypeHinting;
+  GBool enableSlightHinting;
   GBool reverseVideo;		// reverse video mode
   SplashColor paperColor;	// paper color
   SplashScreenParams screenParams;
