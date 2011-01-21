@@ -18,7 +18,7 @@
 // Copyright (C) 2005, 2006 Kristian Høgsberg <krh@redhat.com>
 // Copyright (C) 2005 Nickolay V. Shmyrev <nshmyrev@yandex.ru>
 // Copyright (C) 2006-2010 Carlos Garcia Campos <carlosgc@gnome.org>
-// Copyright (C) 2008, 2009 Adrian Johnson <ajohnson@redneon.com>
+// Copyright (C) 2008, 2009, 2011 Adrian Johnson <ajohnson@redneon.com>
 // Copyright (C) 2008 Michael Vrable <mvrable@cs.ucsd.edu>
 // Copyright (C) 2010 Thomas Freitag <Thomas.Freitag@alfa.de>
 //
