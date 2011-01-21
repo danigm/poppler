@@ -15,7 +15,7 @@
 //
 // Copyright (C) 2006 Scott Turner <scotty1024@mac.com>
 // Copyright (C) 2007, 2008 Julien Rebetez <julienr@svn.gnome.org>
-// Copyright (C) 2007-2010 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2007-2011 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2007-2010 Carlos Garcia Campos <carlosgc@gnome.org>
 // Copyright (C) 2007, 2008 Iñigo Martínez <inigomartinez@gmail.com>
 // Copyright (C) 2007 Jeff Muizelaar <jeff@infidigm.net>
@@ -3794,7 +3794,7 @@ void AnnotWidget::generateFieldAppearance() {
                   obj3.arrayGetLength() > 0) {
                 dx = rect->x2 - rect->x1;
                 dy = rect->y2 - rect->y1;
-		aColor = AnnotColor (obj1.getArray());
+		aColor = AnnotColor (obj3.getArray());
                 setColor(&aColor, gTrue);
                 drawCircle(0.5 * dx, 0.5 * dy, 0.2 * (dx < dy ? dx : dy),
                     gTrue);
