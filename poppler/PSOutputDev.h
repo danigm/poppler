@@ -20,7 +20,7 @@
 // Copyright (C) 2009, 2010 Thomas Freitag <Thomas.Freitag@alfa.de>
 // Copyright (C) 2009 Till Kamppeter <till.kamppeter@gmail.com>
 // Copyright (C) 2009 Carlos Garcia Campos <carlosgc@gnome.org>
-// Copyright (C) 2009 William Bader <williambader@hotmail.com>
+// Copyright (C) 2009, 2011 William Bader <williambader@hotmail.com>
 // Copyright 2010 Hib Eris <hib@hiberis.nl>
 //
 // To see a description of the changes please see the Changelog file that
@@ -317,10 +317,14 @@ private:
   void maskToClippingPath(Stream *maskStr, int maskWidth, int maskHeight, GBool maskInvert);
   void doImageL1(Object *ref, GfxImageColorMap *colorMap,
 		 GBool invert, GBool inlineImg,
-		 Stream *str, int width, int height, int len);
-  void doImageL1Sep(GfxImageColorMap *colorMap,
+		 Stream *str, int width, int height, int len,
+		 int *maskColors, Stream *maskStr,
+		 int maskWidth, int maskHeight, GBool maskInvert);
+  void doImageL1Sep(Object *ref, GfxImageColorMap *colorMap,
 		    GBool invert, GBool inlineImg,
-		    Stream *str, int width, int height, int len);
+		    Stream *str, int width, int height, int len,
+		    int *maskColors, Stream *maskStr,
+		    int maskWidth, int maskHeight, GBool maskInvert);
   void doImageL2(Object *ref, GfxImageColorMap *colorMap,
 		 GBool invert, GBool inlineImg,
 		 Stream *str, int width, int height, int len,
@@ -347,6 +351,7 @@ private:
 
   void writePSChar(char c);
   void writePS(char *s);
+  void writePSBuf(char *s, int len);
   void writePSFmt(const char *fmt, ...);
   void writePSString(GooString *s);
   void writePSName(char *s);

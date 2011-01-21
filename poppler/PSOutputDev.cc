@@ -23,7 +23,7 @@
 // Copyright (C) 2009, 2010 Thomas Freitag <Thomas.Freitag@alfa.de>
 // Copyright (C) 2009 Till Kamppeter <till.kamppeter@gmail.com>
 // Copyright (C) 2009 Carlos Garcia Campos <carlosgc@gnome.org>
-// Copyright (C) 2009 William Bader <williambader@hotmail.com>
+// Copyright (C) 2009, 2011 William Bader <williambader@hotmail.com>
 // Copyright (C) 2009 Kovid Goyal <kovid@kovidgoyal.net>
 // Copyright (C) 2009, 2010 Adrian Johnson <ajohnson@redneon.com>
 //
@@ -567,6 +567,7 @@ static char *prolog[] = {
   "    not { pop exit } if",
   "    (%-EOD-) eq { exit } if } loop",
   "} def",
+  "~123sn",
   "/pr { 2 index 2 index 3 2 roll putinterval 4 add } def",
   "/pdfImClip {",
   "  gsave",
@@ -2968,6 +2969,8 @@ GBool PSOutputDev::checkPageSlice(Page *page, double /*hDPI*/, double /*vDPI*/,
   Guchar col[4];
   double m0, m1, m2, m3, m4, m5;
   int c, w, h, x, y, comp, i;
+  char hexBuf[32*2 + 2];	// 32 values X 2 chars/value + line ending + null
+  Guchar digit;
 
   if (!forceRasterize) {
     scan = new PreScanOutputDev();
@@ -3074,15 +3077,20 @@ GBool PSOutputDev::checkPageSlice(Page *page, double /*hDPI*/, double /*vDPI*/,
     i = 0;
     for (y = 0; y < h; ++y) {
       for (x = 0; x < w; ++x) {
-	writePSFmt("{0:02x}", *p++);
-	if (++i == 32) {
-	  writePSChar('\n');
+	digit = *p / 16;
+	hexBuf[i++] = digit + ((digit >= 10)? 'a' - 10: '0');
+	digit = *p++ % 16;
+	hexBuf[i++] = digit + ((digit >= 10)? 'a' - 10: '0');
+	if (i >= 64) {
+	  hexBuf[i++] = '\n';
+	  writePSBuf(hexBuf, i);
 	  i = 0;
 	}
       }
     }
     if (i != 0) {
-      writePSChar('\n');
+      hexBuf[i++] = '\n';
+      writePSBuf(hexBuf, i);
     }
     break;
   case psLevel1Sep:
@@ -3091,21 +3099,45 @@ GBool PSOutputDev::checkPageSlice(Page *page, double /*hDPI*/, double /*vDPI*/,
     p = bitmap->getDataPtr();
     i = 0;
     col[0] = col[1] = col[2] = col[3] = 0;
-    for (y = 0; y < h; ++y) {
-      for (comp = 0; comp < 4; ++comp) {
-	for (x = 0; x < w; ++x) {
-	  writePSFmt("{0:02x}", p[4*x + comp]);
-	  col[comp] |= p[4*x + comp];
-	  if (++i == 32) {
-	    writePSChar('\n');
-	    i = 0;
+    if (((psProcessCyan | psProcessMagenta | psProcessYellow | psProcessBlack) & ~processColors) != 0) {
+      for (y = 0; y < h; ++y) {
+        for (comp = 0; comp < 4; ++comp) {
+	  for (x = 0; x < w; ++x) {
+	    col[comp] |= p[4*x + comp];
+	    digit = p[4*x + comp] / 16;
+	    hexBuf[i++] = digit + ((digit >= 10)? 'a' - 10: '0');
+	    digit = p[4*x + comp] % 16;
+	    hexBuf[i++] = digit + ((digit >= 10)? 'a' - 10: '0');
+	    if (i >= 64) {
+	      hexBuf[i++] = '\n';
+	      writePSBuf(hexBuf, i);
+	      i = 0;
+	    }
 	  }
-	}
+        }
+        p += bitmap->getRowSize();
       }
-      p += bitmap->getRowSize();
+    } else {
+      for (y = 0; y < h; ++y) {
+        for (comp = 0; comp < 4; ++comp) {
+	  for (x = 0; x < w; ++x) {
+	    digit = p[4*x + comp] / 16;
+	    hexBuf[i++] = digit + ((digit >= 10)? 'a' - 10: '0');
+	    digit = p[4*x + comp] % 16;
+	    hexBuf[i++] = digit + ((digit >= 10)? 'a' - 10: '0');
+	    if (i >= 64) {
+	      hexBuf[i++] = '\n';
+	      writePSBuf(hexBuf, i);
+	      i = 0;
+	    }
+	  }
+        }
+        p += bitmap->getRowSize();
+      }
     }
     if (i != 0) {
-      writePSChar('\n');
+      hexBuf[i++] = '\n';
+      writePSBuf(hexBuf, i);
     }
     if (col[0]) {
       processColors |= psProcessCyan;
@@ -4417,7 +4449,8 @@ void PSOutputDev::drawImageMask(GfxState *state, Object *ref, Stream *str,
     switch (level) {
       case psLevel1:
       case psLevel1Sep:
-        doImageL1(ref, NULL, invert, inlineImg, str, width, height, len);
+        doImageL1(ref, NULL, invert, inlineImg, str, width, height, len,
+                  NULL, NULL, 0, 0, gFalse);
       break;
       case psLevel2:
       case psLevel2Sep:
@@ -4442,11 +4475,13 @@ void PSOutputDev::drawImage(GfxState *state, Object *ref, Stream *str,
 		   colorMap->getBits() + 7) / 8);
   switch (level) {
   case psLevel1:
-    doImageL1(ref, colorMap, gFalse, inlineImg, str, width, height, len);
+    doImageL1(ref, colorMap, gFalse, inlineImg, str,
+	     width, height, len, maskColors, NULL, 0, 0, gFalse);
     break;
   case psLevel1Sep:
     //~ handle indexed, separation, ... color spaces
-    doImageL1Sep(colorMap, gFalse, inlineImg, str, width, height, len);
+    doImageL1Sep(ref, colorMap, gFalse, inlineImg, str,
+	     width, height, len, maskColors, NULL, 0, 0, gFalse);
     break;
   case psLevel2:
   case psLevel2Sep:
@@ -4475,11 +4510,13 @@ void PSOutputDev::drawMaskedImage(GfxState *state, Object *ref, Stream *str,
 		   colorMap->getBits() + 7) / 8);
   switch (level) {
   case psLevel1:
-    doImageL1(ref, colorMap, gFalse, gFalse, str, width, height, len);
+    doImageL1(ref, colorMap, gFalse, gFalse, str, width, height, len,
+	      NULL, maskStr, maskWidth, maskHeight, maskInvert);    
     break;
   case psLevel1Sep:
     //~ handle indexed, separation, ... color spaces
-    doImageL1Sep(colorMap, gFalse, gFalse, str, width, height, len);
+    doImageL1Sep(ref, colorMap, gFalse, gFalse, str, width, height, len,
+	      NULL, maskStr, maskWidth, maskHeight, maskInvert);    
     break;
   case psLevel2:
   case psLevel2Sep:
@@ -4497,11 +4534,20 @@ void PSOutputDev::drawMaskedImage(GfxState *state, Object *ref, Stream *str,
 
 void PSOutputDev::doImageL1(Object *ref, GfxImageColorMap *colorMap,
 			    GBool invert, GBool inlineImg,
-			    Stream *str, int width, int height, int len) {
+			    Stream *str, int width, int height, int len,
+			    int *maskColors, Stream *maskStr,
+			    int maskWidth, int maskHeight, GBool maskInvert) {
   ImageStream *imgStr;
   Guchar pixBuf[gfxColorMaxComps];
   GfxGray gray;
   int col, x, y, c, i;
+  char hexBuf[32*2 + 2];	// 32 values X 2 chars/value + line ending + null
+  Guchar digit, grayValue;
+
+  // explicit masking
+  if (maskStr && !(maskColors && colorMap)) {
+    maskToClippingPath(maskStr, maskWidth, maskHeight, maskInvert);
+  }
 
   if ((inType3Char || preload) && !colorMap) {
     if (inlineImg) {
@@ -4574,15 +4620,21 @@ void PSOutputDev::doImageL1(Object *ref, GfxImageColorMap *colorMap,
 	for (x = 0; x < width; ++x) {
 	  imgStr->getPixel(pixBuf);
 	  colorMap->getGray(pixBuf, &gray);
-	  writePSFmt("{0:02x}", colToByte(gray));
-	  if (++i == 32) {
-	    writePSChar('\n');
+	  grayValue = colToByte(gray);
+	  digit = grayValue / 16;
+	  hexBuf[i++] = digit + ((digit >= 10)? 'a' - 10: '0');
+	  digit = grayValue % 16;
+	  hexBuf[i++] = digit + ((digit >= 10)? 'a' - 10: '0');
+	  if (i >= 64) {
+	    hexBuf[i++] = '\n';
+	    writePSBuf(hexBuf, i);
 	    i = 0;
 	  }
 	}
       }
       if (i != 0) {
-	writePSChar('\n');
+	hexBuf[i++] = '\n';
+	writePSBuf(hexBuf, i);
       }
       str->close();
       delete imgStr;
@@ -4593,29 +4645,49 @@ void PSOutputDev::doImageL1(Object *ref, GfxImageColorMap *colorMap,
       i = 0;
       for (y = 0; y < height; ++y) {
 	for (x = 0; x < width; x += 8) {
-	  writePSFmt("{0:02x}", str->getChar() & 0xff);
-	  if (++i == 32) {
-	    writePSChar('\n');
+	  grayValue = str->getChar();
+	  digit = grayValue / 16;
+	  hexBuf[i++] = digit + ((digit >= 10)? 'a' - 10: '0');
+	  digit = grayValue % 16;
+	  hexBuf[i++] = digit + ((digit >= 10)? 'a' - 10: '0');
+	  if (i >= 64) {
+	    hexBuf[i++] = '\n';
+	    writePSBuf(hexBuf, i);
 	    i = 0;
 	  }
 	}
       }
       if (i != 0) {
-	writePSChar('\n');
+	hexBuf[i++] = '\n';
+	writePSBuf(hexBuf, i);
       }
       str->close();
     }
   }
+
+  if (maskStr && !(maskColors && colorMap)) {
+    writePS("pdfImClipEnd\n");
+  }
 }
 
-void PSOutputDev::doImageL1Sep(GfxImageColorMap *colorMap,
+void PSOutputDev::doImageL1Sep(Object *ref, GfxImageColorMap *colorMap,
 			       GBool invert, GBool inlineImg,
-			       Stream *str, int width, int height, int len) {
+			       Stream *str, int width, int height, int len,
+			       int *maskColors, Stream *maskStr,
+			       int maskWidth, int maskHeight, GBool maskInvert) {
   ImageStream *imgStr;
   Guchar *lineBuf;
   Guchar pixBuf[gfxColorMaxComps];
   GfxCMYK cmyk;
   int x, y, i, comp;
+  GBool checkProcessColor;
+  char hexBuf[32*2 + 2];	// 32 values X 2 chars/value + line ending + null
+  Guchar digit;
+
+  // explicit masking
+  if (maskStr && !(maskColors && colorMap)) {
+    maskToClippingPath(maskStr, maskWidth, maskHeight, maskInvert);
+  }
 
   // width, height, matrix, bits per component
   writePSFmt("{0:d} {1:d} 8 [{2:d} 0 0 {3:d} 0 {4:d}] pdfIm1Sep\n",
@@ -4631,27 +4703,46 @@ void PSOutputDev::doImageL1Sep(GfxImageColorMap *colorMap,
   imgStr->reset();
 
   // process the data stream
+  checkProcessColor = gTrue;
   i = 0;
   for (y = 0; y < height; ++y) {
 
     // read the line
-    for (x = 0; x < width; ++x) {
-      imgStr->getPixel(pixBuf);
-      colorMap->getCMYK(pixBuf, &cmyk);
-      lineBuf[4*x+0] = colToByte(cmyk.c);
-      lineBuf[4*x+1] = colToByte(cmyk.m);
-      lineBuf[4*x+2] = colToByte(cmyk.y);
-      lineBuf[4*x+3] = colToByte(cmyk.k);
-      addProcessColor(colToDbl(cmyk.c), colToDbl(cmyk.m),
-		      colToDbl(cmyk.y), colToDbl(cmyk.k));
+    if (checkProcessColor) {
+      checkProcessColor = (((psProcessCyan | psProcessMagenta | psProcessYellow | psProcessBlack) & ~processColors) != 0);
+    }
+    if (checkProcessColor) {
+      for (x = 0; x < width; ++x) {
+        imgStr->getPixel(pixBuf);
+        colorMap->getCMYK(pixBuf, &cmyk);
+        lineBuf[4*x+0] = colToByte(cmyk.c);
+        lineBuf[4*x+1] = colToByte(cmyk.m);
+        lineBuf[4*x+2] = colToByte(cmyk.y);
+        lineBuf[4*x+3] = colToByte(cmyk.k);
+        addProcessColor(colToDbl(cmyk.c), colToDbl(cmyk.m),
+		        colToDbl(cmyk.y), colToDbl(cmyk.k));
+      }
+    } else {
+      for (x = 0; x < width; ++x) {
+        imgStr->getPixel(pixBuf);
+        colorMap->getCMYK(pixBuf, &cmyk);
+        lineBuf[4*x+0] = colToByte(cmyk.c);
+        lineBuf[4*x+1] = colToByte(cmyk.m);
+        lineBuf[4*x+2] = colToByte(cmyk.y);
+        lineBuf[4*x+3] = colToByte(cmyk.k);
+      }
     }
 
     // write one line of each color component
     for (comp = 0; comp < 4; ++comp) {
       for (x = 0; x < width; ++x) {
-	writePSFmt("{0:02x}", lineBuf[4*x + comp]);
-	if (++i == 32) {
-	  writePSChar('\n');
+	digit = lineBuf[4*x + comp] / 16;
+	hexBuf[i++] = digit + ((digit >= 10)? 'a'-10: '0');
+	digit = lineBuf[4*x + comp] % 16;
+	hexBuf[i++] = digit + ((digit >= 10)? 'a'-10: '0');
+	if (i >= 64) {
+	  hexBuf[i++] = '\n';
+	  writePSBuf(hexBuf, i);
 	  i = 0;
 	}
       }
@@ -4659,12 +4750,17 @@ void PSOutputDev::doImageL1Sep(GfxImageColorMap *colorMap,
   }
 
   if (i != 0) {
-    writePSChar('\n');
+    hexBuf[i++] = '\n';
+    writePSBuf(hexBuf, i);
   }
 
   str->close();
   delete imgStr;
   gfree(lineBuf);
+
+  if (maskStr && !(maskColors && colorMap)) {
+    writePS("pdfImClipEnd\n");
+  }
 }
 
 void PSOutputDev::maskToClippingPath(Stream *maskStr, int maskWidth, int maskHeight, GBool maskInvert) {
@@ -4804,6 +4900,7 @@ void PSOutputDev::doImageL2(Object *ref, GfxImageColorMap *colorMap,
   GfxCMYK cmyk;
   int c;
   int col, i, j, x0, x1, y;
+  char dataBuf[4096];
   
   rectsOutLen = 0;
 
@@ -5202,8 +5299,16 @@ void PSOutputDev::doImageL2(Object *ref, GfxImageColorMap *colorMap,
 
     // copy the stream data
     str->reset();
+    i = 0;
     while ((c = str->getChar()) != EOF) {
-      writePSChar(c);
+      dataBuf[i++] = c;
+      if (i >= (int)sizeof(dataBuf)) {
+	writePSBuf(dataBuf, i);
+	i = 0;
+      }
+    }
+    if (i > 0) {
+      writePSBuf(dataBuf, i);
     }
     str->close();
 
@@ -6437,6 +6542,16 @@ void PSOutputDev::writePS(char *s) {
     t3String->append(s);
   } else {
     (*outputFunc)(outputStream, s, strlen(s));
+  }
+}
+
+void PSOutputDev::writePSBuf(char *s, int len) {
+  if (t3String) {
+    for (int i = 0; i < len; i++) {
+      t3String->append(s[i]);
+    }
+  } else {
+    (*outputFunc)(outputStream, s, len);
   }
 }
 
