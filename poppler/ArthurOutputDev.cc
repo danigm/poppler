@@ -19,6 +19,7 @@
 // Copyright (C) 2009 Carlos Garcia Campos <carlosgc@gnome.org>
 // Copyright (C) 2009 Petr Gajdos <pgajdos@novell.com>
 // Copyright (C) 2010 Matthias Fauconneau <matthias.fauconneau@gmail.com>
+// Copyright (C) 2011 Andreas Hartmetz <ahartmetz@gmail.com>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -86,7 +87,8 @@ private:
 //------------------------------------------------------------------------
 
 ArthurOutputDev::ArthurOutputDev(QPainter *painter):
-  m_painter(painter)
+  m_painter(painter),
+  m_fontHinting(NoHinting)
 {
   m_currentBrush = QBrush(Qt::SolidPattern);
   m_fontEngine = 0;
@@ -104,13 +106,18 @@ void ArthurOutputDev::startDoc(XRef *xrefA) {
   xref = xrefA;
 #ifdef HAVE_SPLASH
   delete m_fontEngine;
+
+  const bool isHintingEnabled = m_fontHinting != NoHinting;
+  const bool isSlightHinting = m_fontHinting == SlightHinting;
+
   m_fontEngine = new SplashFontEngine(
 #if HAVE_T1LIB_H
   globalParams->getEnableT1lib(),
 #endif
 #if HAVE_FREETYPE_FREETYPE_H || HAVE_FREETYPE_H
   globalParams->getEnableFreeType(),
-  gFalse,
+  isHintingEnabled,
+  isSlightHinting,
 #endif
   m_painter->testRenderHint(QPainter::TextAntialiasing));
 #endif
