@@ -816,6 +816,145 @@ GBool CairoOutputDev::radialShadedSupportExtend(GfxState *state, GfxRadialShadin
   return (shading->getExtend0() == shading->getExtend1());
 }
 
+#if CAIRO_VERSION >= CAIRO_VERSION_ENCODE(1, 11, 2)
+GBool CairoOutputDev::gouraudTriangleShadedFill(GfxState *state, GfxGouraudTriangleShading *shading)
+{
+  double x0, y0, x1, y1, x2, y2;
+  GfxColor color[3];
+  int i, j;
+  GfxRGB rgb;
+
+  cairo_pattern_destroy(fill_pattern);
+  fill_pattern = cairo_pattern_create_mesh ();
+
+  for (i = 0; i < shading->getNTriangles(); i++) {
+    shading->getTriangle(i,
+			 &x0, &y0, &color[0],
+			 &x1, &y1, &color[1],
+			 &x2, &y2, &color[2]);
+
+    cairo_pattern_mesh_begin_patch (fill_pattern);
+
+    cairo_pattern_mesh_move_to (fill_pattern, x0, y0);
+    cairo_pattern_mesh_line_to (fill_pattern, x1, y1);
+    cairo_pattern_mesh_line_to (fill_pattern, x2, y2);
+
+    for (j = 0; j < 3; j++) {
+	shading->getColorSpace()->getRGB(&color[j], &rgb);
+	cairo_pattern_mesh_set_corner_color_rgb (fill_pattern, j,
+						 colToDbl(rgb.r),
+						 colToDbl(rgb.g),
+						 colToDbl(rgb.b));
+    }
+
+    cairo_pattern_mesh_end_patch (fill_pattern);
+  }
+
+  double xMin, yMin, xMax, yMax;
+  // get the clip region bbox
+  state->getUserClipBBox(&xMin, &yMin, &xMax, &yMax);
+  state->moveTo(xMin, yMin);
+  state->lineTo(xMin, yMax);
+  state->lineTo(xMax, yMax);
+  state->lineTo(xMax, yMin);
+  state->closePath();
+  fill(state);
+  state->clearPath();
+
+  return gTrue;
+}
+
+GBool CairoOutputDev::patchMeshShadedFill(GfxState *state, GfxPatchMeshShading *shading)
+{
+  int i, j, k;
+
+  cairo_pattern_destroy(fill_pattern);
+  fill_pattern = cairo_pattern_create_mesh ();
+
+  for (i = 0; i < shading->getNPatches(); i++) {
+    GfxPatch *patch = shading->getPatch(i);
+    GfxColor color;
+    GfxRGB rgb;
+
+    cairo_pattern_mesh_begin_patch (fill_pattern);
+
+    cairo_pattern_mesh_move_to (fill_pattern, patch->x[0][0], patch->y[0][0]);
+    cairo_pattern_mesh_curve_to (fill_pattern,
+			    patch->x[0][1], patch->y[0][1],
+			    patch->x[0][2], patch->y[0][2],
+			    patch->x[0][3], patch->y[0][3]);
+
+    cairo_pattern_mesh_curve_to (fill_pattern,
+			    patch->x[1][3], patch->y[1][3],
+			    patch->x[2][3], patch->y[2][3],
+			    patch->x[3][3], patch->y[3][3]);
+
+    cairo_pattern_mesh_curve_to (fill_pattern,
+			    patch->x[3][2], patch->y[3][2],
+			    patch->x[3][1], patch->y[3][1],
+			    patch->x[3][0], patch->y[3][0]);
+
+    cairo_pattern_mesh_curve_to (fill_pattern,
+			    patch->x[2][0], patch->y[2][0],
+			    patch->x[1][0], patch->y[1][0],
+			    patch->x[0][0], patch->y[0][0]);
+
+    cairo_pattern_mesh_set_control_point (fill_pattern, 0, patch->x[1][1], patch->y[1][1]);
+    cairo_pattern_mesh_set_control_point (fill_pattern, 1, patch->x[1][2], patch->y[1][2]);
+    cairo_pattern_mesh_set_control_point (fill_pattern, 2, patch->x[2][2], patch->y[2][2]);
+    cairo_pattern_mesh_set_control_point (fill_pattern, 3, patch->x[2][1], patch->y[2][1]);
+
+    for (j = 0; j < 4; j++) {
+      int u, v;
+
+      switch (j) {
+	case 0:
+	  u = 0; v = 0;
+	  break;
+	case 1:
+	  u = 0; v = 1;
+	  break;
+	case 2:
+	  u = 1; v = 1;
+	  break;
+	case 3:
+	  u = 1; v = 0;
+	  break;
+      }
+
+      if (shading->isParameterized()) {
+	shading->getParameterizedColor (patch->color[u][v].c[0], &color);
+      } else {
+	for (k = 0; k < shading->getColorSpace()->getNComps(); k++) {
+          // simply cast to the desired type; that's all what is needed.
+	  color.c[k] = GfxColorComp (patch->color[u][v].c[k]);
+	}
+      }
+
+      shading->getColorSpace()->getRGB(&color, &rgb);
+      cairo_pattern_mesh_set_corner_color_rgb (fill_pattern, j,
+					       colToDbl(rgb.r),
+					       colToDbl(rgb.g),
+					       colToDbl(rgb.b));
+    }
+    cairo_pattern_mesh_end_patch (fill_pattern);
+  }
+
+  double xMin, yMin, xMax, yMax;
+  // get the clip region bbox
+  state->getUserClipBBox(&xMin, &yMin, &xMax, &yMax);
+  state->moveTo(xMin, yMin);
+  state->lineTo(xMin, yMax);
+  state->lineTo(xMax, yMax);
+  state->lineTo(xMax, yMin);
+  state->closePath();
+  fill(state);
+  state->clearPath();
+
+  return gTrue;
+}
+#endif /* CAIRO_VERSION >= CAIRO_VERSION_ENCODE(1, 11, 2) */
+
 void CairoOutputDev::clip(GfxState *state) {
   doPath (cairo, state, state->getPath());
   cairo_set_fill_rule (cairo, CAIRO_FILL_RULE_WINDING);

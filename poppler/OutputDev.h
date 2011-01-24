@@ -51,6 +51,8 @@ class GfxAxialShading;
 class GfxGouraudTriangleShading;
 class GfxPatchMeshShading;
 class GfxRadialShading;
+class GfxGouraudTriangleShading;
+class GfxPatchMeshShading;
 class Stream;
 class Links;
 class Link;

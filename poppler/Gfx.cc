@@ -3119,10 +3119,11 @@ void Gfx::doGouraudTriangleShFill(GfxGouraudTriangleShading *shading) {
   double x0, y0, x1, y1, x2, y2;
   int i;
 
-  if( out->useShadedFills( shading->getType() ) ) {
-    if( out->gouraudTriangleShadedFill( state, shading ) )
+  if (out->useShadedFills( shading->getType()) && !contentIsHidden()) {
+    if (out->gouraudTriangleShadedFill( state, shading))
       return;
   }
+
   // preallocate a path (speed improvements)
   state->moveTo(0., 0.);
   state->lineTo(1., 0.);
@@ -3269,6 +3270,11 @@ void Gfx::gouraudFillTriangle(double x0, double y0, double color0,
 
 void Gfx::doPatchMeshShFill(GfxPatchMeshShading *shading) {
   int start, i;
+
+  if (out->useShadedFills( shading->getType()) && !contentIsHidden()) {
+    if (out->patchMeshShadedFill( state, shading))
+      return;
+  }
 
   if (shading->getNPatches() > 128) {
     start = 3;
