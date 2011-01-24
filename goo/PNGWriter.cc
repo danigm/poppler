@@ -9,12 +9,15 @@
 // Copyright (C) 2009 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2009 Stefan Thomas <thomas@eload24.com>
 // Copyright (C) 2010 Adrian Johnson <ajohnson@redneon.com>
+// Copyright (C) 2011 Thomas Klausner <wiz@danbala.tuwien.ac.at>
 //
 //========================================================================
 
 #include "PNGWriter.h"
 
 #ifdef ENABLE_LIBPNG
+
+#include <zlib.h>
 
 #include "poppler/Error.h"
 
