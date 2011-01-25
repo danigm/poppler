@@ -20,7 +20,7 @@
 // Copyright (C) 2006 Scott Turner <scotty1024@mac.com>
 // Copyright (C) 2007 Koji Otani <sho@bbr.jp>
 // Copyright (C) 2009 Petr Gajdos <pgajdos@novell.com>
-// Copyright (C) 2009, 2010 Thomas Freitag <Thomas.Freitag@alfa.de>
+// Copyright (C) 2009-2011 Thomas Freitag <Thomas.Freitag@alfa.de>
 // Copyright (C) 2009 Carlos Garcia Campos <carlosgc@gnome.org>
 // Copyright (C) 2009 William Bader <williambader@hotmail.com>
 // Copyright (C) 2010 Patrick Spendrin <ps_ml@gmx.de>
@@ -3379,6 +3379,7 @@ GBool SplashOutputDev::axialShadedFill(GfxState *state, GfxAxialShading *shading
   retVal = (splash->shadedFill(path, shading->getHasBBox(), pattern) == splashOk);
   setVectorAntialias(vaa);
   state->clearPath();
+  delete pattern;
   delete path;
 
   return retVal;
