@@ -1778,6 +1778,136 @@ poppler_rectangle_free (PopplerRectangle *rectangle)
   g_slice_free (PopplerRectangle, rectangle);
 }
 
+/* PopplerTextInfo type */
+
+POPPLER_DEFINE_BOXED_TYPE (PopplerTextInfo, poppler_text_info,
+			   poppler_text_info_copy,
+			   poppler_text_info_free)
+
+/**
+ * poppler_text_info_new:
+ *
+ * Creates a new #PopplerTextInfo
+ *
+ * Returns: a new #PopplerTextInfo with
+ * poppler_text_info_free() to free it
+ */
+PopplerTextInfo *
+poppler_text_info_new (void)
+{
+  PopplerTextInfo *tinfo = g_slice_new0 (PopplerTextInfo);
+  tinfo->color = poppler_color_new ();
+  return tinfo;
+}
+
+/*
+ * If there's a PopplerTextInfo with same attrs in array it's
+ * returned, else, a new one is allocated and returned.
+ */
+static PopplerTextInfo *
+poppler_text_info_new_from_word (GArray *array, TextWord *word)
+{
+  gchar *fontname;
+  gboolean subset = FALSE;
+  gdouble r, g, b;
+  gint i;
+
+  gint tsize;
+  gboolean tunderline;
+  gint tred, tgreen, tblue;
+
+  PopplerTextInfo *tinfo=NULL, *tmptinfo=NULL;
+
+  fontname = word->getFontName()->getCString();
+
+  // check for a font subset name: capital letters followed by a '+' sign
+  if (fontname) {
+    gchar *tmpfontname = fontname;
+    gint i;
+    for (i=0; *(tmpfontname + i); i++) {
+      if (*(tmpfontname + i) < 'A' || *(tmpfontname + i) > 'Z') {
+        break;
+      }
+    }
+    subset = i > 0 && *(tmpfontname + i) == '+';
+  }
+
+  if (subset) {
+    while (*fontname && *fontname != '+') fontname++;
+    fontname++;
+  }
+
+  // word attributes
+  tsize = (int)(word->getFontSize());
+  tunderline = word->isUnderlined();
+  word->getColor (&r, &g, &b);
+  tred = (int)(r * 65535);
+  tgreen = (int)(g * 65535);
+  tblue = (int)(b * 65535);
+
+  for (i = array->len - 1; i >= 0; i--) {
+    tmptinfo = g_array_index (array, PopplerTextInfo*, i);
+    if (strcmp (tmptinfo->font, fontname) ||
+        tmptinfo->size != tsize ||
+        tmptinfo->underline != tunderline ||
+        tmptinfo->color->red != tred ||
+        tmptinfo->color->green != tgreen ||
+        tmptinfo->color->blue != tblue)
+      continue;
+
+    tinfo = tmptinfo;
+  }
+
+  if (tinfo)
+    return tinfo;
+
+  // word attributes
+  tinfo = poppler_text_info_new ();
+  tinfo->font = g_strdup (fontname);
+  tinfo->size = tsize;
+  tinfo->underline = tunderline;
+  tinfo->color->red = tred;
+  tinfo->color->green = tgreen;
+  tinfo->color->blue = tblue;
+
+  return tinfo;
+}
+
+/**
+ * poppler_text_info_copy:
+ * @textinfo: a #PopplerTextInfo to copy
+ *
+ * Creates a copy of @textinfo
+ *
+ * Returns: a new allocated copy of @textinfo
+ */
+PopplerTextInfo *
+poppler_text_info_copy (PopplerTextInfo *textinfo)
+{
+  PopplerTextInfo *tinfo = NULL;
+  g_return_val_if_fail (textinfo != NULL, NULL);
+
+  tinfo = g_slice_dup (PopplerTextInfo, textinfo);
+  tinfo->color = poppler_color_copy (textinfo->color);
+  tinfo->font = g_strdup (textinfo->font);
+  return tinfo;
+}
+
+/**
+ * poppler_text_info_free:
+ * @textinfo: a #PopplerTextInfo
+ *
+ * Frees the given #PopplerTextInfo
+ */
+void
+poppler_text_info_free (PopplerTextInfo *textinfo)
+{
+  poppler_color_free (textinfo->color);
+  if (textinfo->font)
+    g_free (textinfo->font);
+  g_slice_free (PopplerTextInfo, textinfo);
+}
+
 /* PopplerColor type */
 POPPLER_DEFINE_BOXED_TYPE (PopplerColor, poppler_color, poppler_color_copy, poppler_color_free)
 
@@ -2202,4 +2332,98 @@ poppler_page_get_text_layout (PopplerPage       *page,
   delete wordlist;
 
   return TRUE;
+}
+
+/**
+ * poppler_page_free_text_attributes;
+ * @list: A list of #PopplerTextInfo<!-- -->s
+ *
+ * Frees a list of #PopplerTextInfo<!-- -->s allocated by
+ * poppler_page_get_text_attributes().
+ **/
+void
+poppler_page_free_text_attributes (GArray *array)
+{
+  guint i, j;
+  PopplerTextInfo *tinfo, **tinfo2;
+
+  if (G_UNLIKELY (array == NULL))
+    return;
+
+  for (i = 0; i < array->len; i++) {
+    tinfo = g_array_index (array, PopplerTextInfo*, i);
+    if (tinfo) {
+      poppler_text_info_free (tinfo);
+
+      // setting same tinfo next pointers to NULL
+      for (j = i+1; j < array->len; j++) {
+        tinfo2 = &g_array_index (array, PopplerTextInfo*, j);
+        if (tinfo == *tinfo2)
+          *tinfo2 = NULL;
+      }
+    }
+  }
+
+  g_array_free (array, FALSE);
+}
+
+/**
+ * poppler_page_get_text_attributes:
+ * @page: A #PopplerPage
+ *
+ * Obtains the attributes of the text as a GArray of #PopplerTextInfo
+ *
+ *  This array must be freed with poppler_page_free_text_attributes () when
+ *  done.
+ *
+ * Return value: (element-type PopplerTextInfo) (transfer full): A #GArray of #PopplerTextInfo
+ *
+ * The position in the array represents an offset in the text returned by
+ * poppler_page_get_text ()
+ *
+ * Since: 0.18
+ **/
+GArray *
+poppler_page_get_text_attributes  (PopplerPage *page)
+{
+  TextPage *text;
+  TextWordList *wordlist;
+  TextWord *word;
+  PopplerTextInfo *textinfo;
+  gint i, j, offset = 0;
+  GArray *attributes;
+
+  g_return_val_if_fail (POPPLER_IS_PAGE (page), NULL);
+
+  text = poppler_page_get_text_page (page);
+  wordlist = text->makeWordList (gFalse);
+
+  if (wordlist->getLength () <= 0)
+    {
+      delete wordlist;
+      return NULL;
+    }
+
+  attributes = g_array_new (FALSE, FALSE, sizeof (PopplerTextInfo*));
+
+  // Calculating each word attributes
+  for (i = 0; i < wordlist->getLength (); i++)
+    {
+      word = wordlist->get (i);
+
+      textinfo = poppler_text_info_new_from_word (attributes, word);
+      // each char of the word has the same attributes
+      for (j = 0; j < word->getLength (); j++)
+        {
+          g_array_insert_val (attributes, offset, textinfo);
+          offset++;
+        }
+
+      g_array_insert_val (attributes, offset, textinfo);
+      offset++;
+    }
+
+  delete wordlist;
+
+  return attributes;
 }

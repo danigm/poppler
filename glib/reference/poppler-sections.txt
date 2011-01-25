@@ -38,6 +38,7 @@ poppler_page_get_selected_text
 poppler_page_find_text
 poppler_page_get_text
 poppler_page_get_text_layout
+poppler_page_get_text_attributes
 poppler_page_get_link_mapping
 poppler_page_free_link_mapping
 poppler_page_get_image_mapping

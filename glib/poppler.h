@@ -158,6 +158,7 @@ typedef struct _PopplerIndexIter           PopplerIndexIter;
 typedef struct _PopplerFontsIter           PopplerFontsIter;
 typedef struct _PopplerLayersIter          PopplerLayersIter;
 typedef struct _PopplerRectangle           PopplerRectangle;
+typedef struct _PopplerTextInfo            PopplerTextInfo;
 typedef struct _PopplerColor               PopplerColor;
 typedef struct _PopplerLinkMapping         PopplerLinkMapping;
 typedef struct _PopplerPageTransition      PopplerPageTransition;

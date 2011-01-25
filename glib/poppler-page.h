@@ -128,6 +128,8 @@ void 		      poppler_page_get_crop_box 	 (PopplerPage        *page,
 gboolean               poppler_page_get_text_layout      (PopplerPage        *page,
                                                           PopplerRectangle  **rectangles,
                                                           guint              *n_rectangles);
+GArray                *poppler_page_get_text_attributes  (PopplerPage        *page);
+void                   poppler_page_free_text_attributes (GArray             *array);
 
 /* A rectangle on a page, with coordinates in PDF points. */
 #define POPPLER_TYPE_RECTANGLE             (poppler_rectangle_get_type ())
@@ -153,6 +155,31 @@ GType             poppler_rectangle_get_type (void) G_GNUC_CONST;
 PopplerRectangle *poppler_rectangle_new      (void);
 PopplerRectangle *poppler_rectangle_copy     (PopplerRectangle *rectangle);
 void              poppler_rectangle_free     (PopplerRectangle *rectangle);
+
+/* A textword attributes. */
+#define POPPLER_TYPE_TEXT_INFO             (poppler_text_info_get_type ())
+/**
+ * PopplerTextInfo:
+ * @font: word font name
+ * @size: word font size
+ * @uniderline: if word is underlined
+ * @color: a #PopplerColor, the word foreground color
+ *
+ * A #PopplerTextInfo is used to describe
+ * a word text attriutes
+ */
+struct _PopplerTextInfo
+{
+  gchar *font;
+  gint size;
+  gboolean underline;
+  PopplerColor *color;
+};
+
+GType            poppler_text_info_get_type (void) G_GNUC_CONST;
+PopplerTextInfo *poppler_text_info_new      (void);
+PopplerTextInfo *poppler_text_info_copy     (PopplerTextInfo *textinfo);
+void             poppler_text_info_free     (PopplerTextInfo *textinfo);
 
 /* A color in RGB */
 #define POPPLER_TYPE_COLOR                 (poppler_color_get_type ())
