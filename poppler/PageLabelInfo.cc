@@ -4,6 +4,7 @@
 //
 // Copyright (C) 2005-2006 Kristian Høgsberg <krh@redhat.com>
 // Copyright (C) 2005, 2009 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2011 Simon Kellner <kellner@kit.edu>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -258,11 +259,11 @@ GBool PageLabelInfo::labelToIndex(GooString *label, int *index)
   Interval *interval;
   char *str = label->getCString(), *end;
   int prefixLength;
-  int i, base, number;
+  int i, number;
 
-  base = 0;
   for (i = 0; i < intervals.getLength(); i++) {
     interval = (Interval *) intervals.get(i);
+    const int base = interval->base;
     prefixLength = interval->prefix->getLength();
     if (label->cmpN(interval->prefix, prefixLength) != 0)
       continue;
@@ -294,8 +295,6 @@ GBool PageLabelInfo::labelToIndex(GooString *label, int *index)
     case Interval::None:
       break;
     }
-
-    base += interval->length;
   }
 
   return gFalse;
