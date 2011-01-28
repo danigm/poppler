@@ -1,6 +1,6 @@
 /* poppler-private.cc: qt interface to poppler
  * Copyright (C) 2005, Net Integration Technologies, Inc.
- * Copyright (C) 2006 by Albert Astals Cid <aacid@kde.org>
+ * Copyright (C) 2006, 2011 by Albert Astals Cid <aacid@kde.org>
  * Copyright (C) 2008, 2010, 2011 by Pino Toscano <pino@kde.org>
  * Inspired on code by
  * Copyright (C) 2004 by Albert Astals Cid <tsdgeos@terra.es>
@@ -71,11 +71,13 @@ namespace Debug {
 
     QString unicodeToQString(Unicode* u, int len) {
         static UnicodeMap *uMap = 0;
-        if (!uMap)
+        static GlobalParams *gParams = globalParams;
+        if (!uMap || gParams != globalParams)
         {
                 GooString enc("UTF-8");
                 uMap = globalParams->getUnicodeMap(&enc);
                 uMap->incRefCnt();
+                gParams = globalParams;
         }
 
         // ignore the last character if it is 0x0
