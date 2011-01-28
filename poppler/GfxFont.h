@@ -19,6 +19,7 @@
 // Copyright (C) 2007 Julien Rebetez <julienr@svn.gnome.org>
 // Copyright (C) 2007 Jeff Muizelaar <jeff@infidigm.net>
 // Copyright (C) 2007 Koji Otani <sho@bbr.jp>
+// Copyright (C) 2011 Axel Strübing <axel.struebing@freenet.de>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -253,6 +254,7 @@ protected:
   double descent;		// max depth below baseline
   int refCnt;
   GBool ok;
+  GBool hasToUnicode;
 };
 
 //------------------------------------------------------------------------

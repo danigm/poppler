@@ -22,6 +22,7 @@
 // Copyright (C) 2008, 2010 Hib Eris <hib@hiberis.nl>
 // Copyright (C) 2009 Peter Kerzum <kerzum@yandex-team.ru>
 // Copyright (C) 2009, 2010 David Benjamin <davidben@mit.edu>
+// Copyright (C) 2011 Axel Strübing <axel.struebing@freenet.de>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -176,6 +177,7 @@ GfxFont::GfxFont(char *tagA, Ref idA, GooString *nameA) {
   weight = WeightNotDefined;
   refCnt = 1;
   dfp = NULL;
+  hasToUnicode = gFalse;
 }
 
 GfxFont::~GfxFont() {
@@ -436,6 +438,7 @@ CharCodeToUnicode *GfxFont::readToUnicodeCMap(Dict *fontDict, int nBits,
   } else {
     ctu = CharCodeToUnicode::parseCMap(buf, nBits);
   }
+  hasToUnicode = gTrue;
   delete buf;
   return ctu;
 }
@@ -1697,7 +1700,16 @@ int GfxCIDFont::getNextChar(char *s, int len, CharCode *code,
 
   *code = (CharCode)(cid = cMap->getCID(s, len, &n));
   if (ctu) {
-    *uLen = ctu->mapToUnicode(cid, u);
+    if (hasToUnicode) {
+      int i = 0, c = 0;
+      while (i < n) {
+	c = (c << 8 ) + (s[i] & 0xff);
+	++i;
+      }
+      *uLen = ctu->mapToUnicode(c, u);
+    } else {
+      *uLen = ctu->mapToUnicode(cid, u);
+    }
   } else {
     *uLen = 0;
   }
