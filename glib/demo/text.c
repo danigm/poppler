@@ -35,6 +35,7 @@ typedef struct {
 
 	GtkWidget       *timer_label;
 	GtkTextBuffer   *buffer;
+        GtkWidget       *treeview;
 	GtkListStore    *model;
 
 	gint             page;
@@ -165,6 +166,58 @@ pgd_text_selection_changed (GtkTreeSelection *treeselection,
 	}
 }
 
+static void
+pgd_text_buffer_selection_changed (GtkTextBuffer *buffer,
+                                   GParamSpec    *pspec,
+                                   GtkWidget    *textview)
+{
+        gtk_widget_set_has_tooltip (textview, gtk_text_buffer_get_has_selection (buffer));
+}
+
+static gboolean
+pgd_text_view_query_tooltip (GtkTextView   *textview,
+                             gint           x,
+                             gint           y,
+                             gboolean       keyboard_tip,
+                             GtkTooltip    *tooltip,
+                             PgdTextDemo   *demo)
+{
+        GtkTreeModel     *model;
+        GtkTreeIter       iter;
+        GtkTreeSelection *selection = gtk_tree_view_get_selection (GTK_TREE_VIEW (demo->treeview));
+
+        if (gtk_tree_selection_get_selected (selection, &model, &iter)) {
+                PopplerPage *page;
+                gchar *x1, *y1, *x2, *y2;
+                PopplerRectangle rect;
+                gchar *text;
+
+                gtk_tree_model_get (model, &iter,
+                                    TEXT_X1_COLUMN, &x1,
+                                    TEXT_Y1_COLUMN, &y1,
+                                    TEXT_X2_COLUMN, &x2,
+                                    TEXT_Y2_COLUMN, &y2,
+                                    -1);
+
+                rect.x1 = g_strtod (x1, NULL);
+                rect.y1 = g_strtod (y1, NULL);
+                rect.x2 = g_strtod (x2, NULL);
+                rect.y2 = g_strtod (y2, NULL);
+
+                g_free (x1);
+                g_free (y1);
+                g_free (x2);
+                g_free (y2);
+
+                page = page = poppler_document_get_page (demo->doc, demo->page);
+                text = poppler_page_get_selected_text (page, POPPLER_SELECTION_GLYPH, &rect);
+                gtk_tooltip_set_text (tooltip, text);
+                g_free (text);
+                g_object_unref (page);
+        }
+
+}
+
 
 static void
 pgd_text_page_selector_value_changed (GtkSpinButton *spinbutton,
@@ -245,6 +298,7 @@ pgd_text_create_widget (PopplerDocument *document)
 					  G_TYPE_STRING, G_TYPE_STRING,
 					  G_TYPE_POINTER);
 	treeview = gtk_tree_view_new_with_model (GTK_TREE_MODEL (demo->model));
+        demo->treeview = treeview;
 
 	renderer = gtk_cell_renderer_text_new ();
 	gtk_tree_view_insert_column_with_attributes (GTK_TREE_VIEW (treeview),
@@ -296,6 +350,12 @@ pgd_text_create_widget (PopplerDocument *document)
 
 	demo->buffer = gtk_text_buffer_new (NULL);
 	textview = gtk_text_view_new_with_buffer (demo->buffer);
+        g_signal_connect (textview, "query-tooltip",
+                          G_CALLBACK (pgd_text_view_query_tooltip),
+                          demo);
+        g_signal_connect (demo->buffer, "notify::has-selection",
+                          G_CALLBACK (pgd_text_buffer_selection_changed),
+                          textview);
 
 	gtk_container_add (GTK_CONTAINER (swindow), textview);
 	gtk_widget_show (textview);
