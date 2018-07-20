@@ -186,6 +186,8 @@ if(ENABLE_ABIWORD)
 endif(ENABLE_ABIWORD)
 if(LIBOPENJPEG_FOUND)
   include_directories(${LIBOPENJPEG_INCLUDE_DIR})
+  link_directories(${LIBOPENJPEG_LIBRARY_DIR})
+
 endif(LIBOPENJPEG_FOUND)
 if(LCMS_FOUND)
   include_directories(${LCMS_INCLUDE_DIR})
